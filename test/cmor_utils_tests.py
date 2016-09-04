@@ -3,11 +3,11 @@ import unittest
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_
-from cmorutils import make_time_intervals,find_ifs_output,get_ifs_steps,find_nemo_output,get_nemo_interval
+from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_steps,find_nemo_output,get_nemo_interval
 
 logging.basicConfig(level=logging.DEBUG)
 
-class TestTimeIntervals(unittest.TestCase):
+class utils_tests(unittest.TestCase):
 
     def test_intervals_30days(self):
         t1=datetime(1999,12,31,23,45,20)
