@@ -1,4 +1,4 @@
-class cmor_source_object(object):
+class cmor_source(object):
     def __init__(self):
         self.grid=None
         self.dims=0
@@ -11,7 +11,7 @@ class grib_code:
     def __eq__(self,other):
         return self.var_id==other.var_id and self.tab_id==other.tab_id
 
-class ifs_source_object(cmor_source_object):
+class ifs_source(cmor_source):
 
     #TODO: Put these in a json-file
     grib_codes_3D=[grib_code(3,128),
@@ -170,13 +170,13 @@ class ifs_source_object(cmor_source_object):
                       grib_code(113,128),
                       grib_code(114,128)]
 
+    grib_codes=grib_codes_3D+grib_codes_2D_phy+grib_codes_2D_phy+grib_codes_extra
+
     def __init__(self,code):
-        if(not type(code) is grib_code):
-            raise Exception("IFS source parameter must be instantiated with a grib code")
-        if(not code in (grib_codes_3D+grib_codes_2D_phy+grib_codes_2D_dyn+grib_codes_extra)):
+        if(not code in ifs_source.grib_codes):
             raise Exception("Unknown grib code passed to IFS source parameter constructor:",code)
         self.code__=code
-        if(code in grib_codes_3D):
+        if(code in ifs_source.grib_codes_3D):
             self.grid="spec_grid"
             self.dims=3
         else:
