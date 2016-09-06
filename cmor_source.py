@@ -1,10 +1,11 @@
+from datetime import timedelta
+
 # Base class for cmor source objects, which represent variables produced by a model
 
 class cmor_source(object):
 
     def __init__(self):
-        self.grid=None
-        self.realm=None
+        self.frequency=datetime.timedelta(0)
 
     def dims(self):
         pass

@@ -64,7 +64,6 @@ class utils_tests(unittest.TestCase):
     def test_nemo_output_timestamps(self):
         ofiles=find_nemo_output("./test_data/nemo_dummy","exp")
         dates=[get_nemo_interval(f) for f in ofiles]
-        print dates
         starts=sorted([t[0] for t in dates])
         eq_([datetime(1999,12,21),datetime(1999,12,31)],starts)
         ends=sorted([t[1] for t in dates])
