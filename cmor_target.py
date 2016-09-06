@@ -15,7 +15,7 @@ class cmor_target(object):
 
 def get_table_id(filepath,prefix):
     fname=os.path.basename(filepath)
-    regex=re.search("^"+prefix+"_.*.json",fname)
+    regex=re.search("^"+prefix+"_.*.json$",fname)
     if(not regex):
         raise Exception("Invalid cmor table file name encountered:",fname)
     return regex.group()[len(prefix)+1:len(fname)-5]
@@ -29,12 +29,19 @@ var_key="variable_entry"
 def create_targets_for_file(filepath,prefix):
     tabid=get_table_id(filepath,prefix)
     s=open(filepath).read()
-    data=json.loads(s)
     result=[]
+    try:
+        data=json.loads(s)
+    except ValueError as err:
+        print "Warning: table",filepath,"has been ignored. Reason:",format(err)
+        return result
+
     # TODO: Use case insensitive search here
-    header=data[head_key]
-    freq=header[freq_key]
-    var_entries=data[var_key]
+    freq=None
+    header=data.get(head_key,None)
+    if(header):
+        freq=header.get(freq_key,None)
+    var_entries=data.get(var_key,{})
     for k,v in var_entries.iteritems():
         t=cmor_target(k,tabid)
         t.frequency=freq
@@ -47,6 +54,11 @@ def create_targets(path,prefix):
     if(os.path.isfile(path)):
         return create_targets_for_file(path,prefix)
     elif(os.path.isdir(path)):
-        # do something
+        expr=re.compile("^"+prefix+"_.*.json$")
+        paths=[os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
+        result=[]
+        for p in paths:
+            result=result+create_targets_for_file(p,prefix)
+        return result
     else:
         return []

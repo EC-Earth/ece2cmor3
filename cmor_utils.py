@@ -47,7 +47,7 @@ def find_nemo_output(path,expname=None):
     subexpr='.*'
     if(expname):
         subexpr=expname
-    expr=re.compile(subexpr+"_.*_[0-9]{8}_[0-9]{8}_.*.nc")
+    expr=re.compile(subexpr+"_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
 # Returns the start and end date corresponding to the given nemo output file.
