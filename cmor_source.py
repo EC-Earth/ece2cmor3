@@ -1,13 +1,24 @@
-import json
-import os
+# Base class for cmor source objects, which represent variables produced by a model
 
 class cmor_source(object):
 
     def __init__(self):
         self.grid=None
-        self.dims=0
         self.realm=None
 
+    def dims(self):
+        pass
+
+    def grid(self):
+        pass
+
+    def realm(self):
+        pass
+
+import json
+import os
+
+# ECMWF grib code object
 
 class grib_code:
     def __init__(self,var_id_,tab_id_):
@@ -30,6 +41,7 @@ class grib_code:
         cls=grib_code(vid,tid)
         return cls
 
+# Reads a group of grib codes from a json-file
 
 def read_grib_codes_group(file,key):
     s=open(file).read()
@@ -39,14 +51,15 @@ def read_grib_codes_group(file,key):
     else:
         return []
 
+# IFS source subclass, constructed from a given grib code.
 
 class ifs_source(cmor_source):
 
-    grib_codes_file=os.path.join(os.path.dirname(__file__),'resources/grib_codes.json')
-    grib_codes_3D=read_grib_codes_group(grib_codes_file,'MFP3D')
-    grib_codes_2D_dyn=read_grib_codes_group(grib_codes_file,'MFP2DF')
-    grib_codes_2D_phy=read_grib_codes_group(grib_codes_file,'MFPPHY')
-    grib_codes_extra=read_grib_codes_group(grib_codes_file,'NVEXTRAGB')
+    grib_codes_file=os.path.join(os.path.dirname(__file__),"resources/grib_codes.json")
+    grib_codes_3D=read_grib_codes_group(grib_codes_file,"MFP3D")
+    grib_codes_2D_dyn=read_grib_codes_group(grib_codes_file,"MFP2DF")
+    grib_codes_2D_phy=read_grib_codes_group(grib_codes_file,"MFPPHY")
+    grib_codes_extra=read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
     grib_codes=grib_codes_3D+grib_codes_2D_phy+grib_codes_2D_phy+grib_codes_extra
 
     def __init__(self,code):
@@ -54,15 +67,27 @@ class ifs_source(cmor_source):
             raise Exception("Unknown grib code passed to IFS source parameter constructor:",code)
         self.code__=code
         if(code in ifs_source.grib_codes_3D):
-            self.grid="spec_grid"
-            self.dims=3
+            self.grid_="spec_grid"
+            self.dims_=3
         else:
-            self.grid="pos_grid"
-            self.dims=2
-        self.realm="atmos"
+            self.grid_="pos_grid"
+            self.dims_=2
+        self.realm_="atmos"
+
+    def dims(self):
+        return self.dims_
+
+    def grid(self):
+        return self.grid_
+
+    def realm(self):
+        return self.realm_
+
+    def get_grib_code(self):
+        return grib_code(self.code__.var_id,self.code__.tab_id)
 
     @classmethod
-    def create(cls,s):
+    def read(cls,s):
         gc=grib_code.read(s)
         cls=ifs_source(gc)
         return cls
@@ -71,3 +96,28 @@ class ifs_source(cmor_source):
     def create(cls,vid,tid):
         cls=ifs_source(grib_code(vid,tid))
         return cls
+
+from cmor_utils import cmor_enum
+
+nemo_grid=cmor_enum(["u","v","T","ice"])
+
+class nemo_source(cmor_source):
+
+    def __init__(self,var_id_,grid_id_,dims_=2):
+        self.var_id=var_id_
+        if(grid_id_>=len(nemo_grid)):
+            raise Exception("Invalid grid type passed to nemo source parameter constructor:",grid_id_)
+        self.grid_id=grid_id_
+        self.dims_=dims_
+
+    def dims(self):
+        return self.dims_
+
+    def grid(self):
+        return "grid_"+nemo_grid[self.grid_id]
+
+    def realm(self):
+        return "ocean"
+
+    def var(self):
+        return self.var_id
