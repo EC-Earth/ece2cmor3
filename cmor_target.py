@@ -26,6 +26,8 @@ head_key="Header"
 freq_key="frequency"
 var_key="variable_entry"
 
+# Creates cmor-targets from the input json-file
+
 def create_targets_for_file(filepath,prefix):
     tabid=get_table_id(filepath,prefix)
     s=open(filepath).read()
@@ -49,6 +51,8 @@ def create_targets_for_file(filepath,prefix):
             setattr(t,k2,v2)
         result.append(t)
     return result
+
+# Creates cmor-targets from all json files in the given directory, with argument prefix.
 
 def create_targets(path,prefix):
     if(os.path.isfile(path)):

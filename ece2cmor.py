@@ -4,6 +4,7 @@ import cmor_target
 targets_=[]
 ifsdir_=None
 nemodir_=None
+tasks_=[]
 
 def initialize(table_path,metadata_json):
     cmor.cmor_setup(table_path)
@@ -22,3 +23,15 @@ def set_ifs_dir(path):
 
 def set_nemo_dir(path):
     nemodir_=path
+
+def add_task(tsk):
+    if(tsk.isinstance(cmor_task)):
+        if(tsk.target not in targets_):
+            raise Exception("Cannot append tasks with unknown target",tsk.target)
+        duptasks=[t for t in tasks_ if t.target != tsk.target]
+        if(len(duptasks)!=0):
+            dtset=set(duptasks)
+            tasks_=[t for t in tasks_ if t not in dtset]
+        tasks_.append(tsk)
+    else:
+        raise Exception("Can only append cmor_task to the list, attempt to append",tsk)

@@ -100,8 +100,12 @@ class ifs_source(cmor_source):
 
 from cmor_utils import cmor_enum
 
+# NEMO grid type enumerable.
+
 nemo_grid=cmor_enum(["u","v","T","ice"])
 
+# NEMO source subclass, constructed from NEMO output variable id, grid type and dimensions.
+# TODO: grid type and dimensions should follow from Nemo's field_def.xml
 class nemo_source(cmor_source):
 
     def __init__(self,var_id_,grid_id_,dims_=2):
