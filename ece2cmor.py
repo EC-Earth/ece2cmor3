@@ -20,6 +20,9 @@ def initialize(table_root,conf_path):
     global table_path_
     global conf_path_
     global targets_
+    global ifsdir_
+    global nemodir_
+    global tasks_
 
     prefix_=os.path.splitext(os.path.basename(table_root))[0]
     table_path_=os.path.dirname(table_root)
@@ -28,6 +31,11 @@ def initialize(table_root,conf_path):
     cmor.setup(table_path_)
     cmor.dataset_json(conf_path_)
     targets_=cmor_target.create_targets(table_path_,prefix_)
+
+    ifsdir_=None
+    nemodir_=None
+    tasks_=[]
+
 
 # Returns one or more cmor targets for task creation.
 
@@ -47,28 +55,47 @@ def get_cmor_target(var_id,tab_id=None):
 
 def set_ifs_dir(path):
     global ifsdir_
-    ifsdir_=path
+    if(os.path.isdir(path) and os.path.exists(path)):
+        ifsdir_=path
+    else:
+        raise Exception("Invalid IFS output directory given:",path)
 
 # Sets the nemo output directory
 
 def set_nemo_dir(path):
     global nemodir_
-    nemodir_=path
+    if(os.path.isdir(path) and os.path.exists(path)):
+        nemodir_=path
+    else:
+        raise Exception("Invalid NEMO output directory given:",path)
 
 # Adds a task to the task list.
 
 def add_task(tsk):
     global tasks_
+    print id(tsk.target)
     if(isinstance(tsk,cmor_task.cmor_task)):
         if(tsk.target not in targets_):
             raise Exception("Cannot append tasks with unknown target",tsk.target)
-        duptasks=[t for t in tasks_ if t.target != tsk.target]
+        duptasks=[t for t in tasks_ if t.target is tsk.target]
         if(len(duptasks)!=0):
-            dtset=set(duptasks)
-            tasks_=[t for t in tasks_ if t not in dtset]
+            tasks_.remove(duptasks[0])
         tasks_.append(tsk)
     else:
         raise Exception("Can only append cmor_task to the list, attempt to append",tsk)
+
+# Returns the currently defined tasks:
+
+def get_tasks():
+    global tasks_
+    return tasks_
+
+# Performs a NEMO cmorization processing:
+
+def perform_nemo_task(tsk):
+    global nemodir_
+    raise Exception("Not implemented yet")
+
 
 # Clears all tasks.
 

@@ -29,4 +29,36 @@ class ece2cmor_tests(unittest.TestCase):
         ece2cmor_tests.init()
         tgt=ece2cmor.get_cmor_target("clwvi","cfDay")
         src=cmor_source.ifs_source.read("79.128")
-        ece2cmor.add_task(cmor_task.cmor_task(src,tgt))
+        tsk=cmor_task.cmor_task(src,tgt)
+        ece2cmor.add_task(tsk)
+        ok_(tsk in ece2cmor.get_tasks())
+
+    def test_duplicate_task(self):
+        ece2cmor_tests.init()
+        tgt=ece2cmor.get_cmor_target("clwvi","cfDay")
+        src1=cmor_source.ifs_source.read("49.128")
+        tsk1=cmor_task.cmor_task(src1,tgt)
+        ece2cmor.add_task(tsk1)
+        src2=cmor_source.ifs_source.read("79.128")
+        tsk2=cmor_task.cmor_task(src2,tgt)
+        ece2cmor.add_task(tsk2)
+        eq_(len(ece2cmor.get_tasks()),1)
+        ok_(tsk2 in ece2cmor.get_tasks())
+
+    def test_valid_ifs_path(self):
+        here=os.path.dirname(__file__)
+        ece2cmor.set_ifs_dir(os.path.join(here,"test_data","ifs_dummy"))
+
+    @raises(Exception)
+    def test_invalid_ifs_path(self):
+        here=os.path.dirname(__file__)
+        ece2cmor.set_ifs_dir(os.path.join(here,"test_data","nonexistent"))
+
+    def test_valid_nemo_path(self):
+        here=os.path.dirname(__file__)
+        ece2cmor.set_nemo_dir(os.path.join(here,"test_data","nemo_dummy"))
+
+    @raises(Exception)
+    def test_invalid_nemo_path(self):
+        here=os.path.dirname(__file__)
+        ece2cmor.set_nemo_dir(os.path.join(here,"test_data","nonexistent"))
