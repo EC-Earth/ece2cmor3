@@ -1,6 +1,7 @@
 import cmor
 import os
 import cmor_target
+import cmor_task
 
 # ece2cmor master API.
 
@@ -15,6 +16,11 @@ tasks_=[]
 # Initialization function, must be called before starting
 
 def initialize(table_root,conf_path):
+    global prefix_
+    global table_path_
+    global conf_path_
+    global targets_
+
     prefix_=os.path.splitext(os.path.basename(table_root))[0]
     table_path_=os.path.dirname(table_root)
     conf_path_=conf_path
@@ -26,26 +32,34 @@ def initialize(table_root,conf_path):
 # Returns one or more cmor targets for task creation.
 
 def get_cmor_target(var_id,tab_id=None):
-    results=[t for t in targets_ if t.variable==var_id and t.table==tab_id]
-    if(len(results)==1):
-        return results[0]
+    if(tab_id==None):
+        return [t for t in targets_ if t.variable==var_id]
     else:
-        return results
+        results=[t for t in targets_ if t.variable==var_id and t.table==tab_id]
+        if(len(results)==1):
+            return results[0]
+        elif(len(results)==0):
+            return None
+        else:
+            raise Exception("Table validation error: multiple variables with id",var_id,"found in table",tab_id)
 
 # Sets the IFS output directory
 
 def set_ifs_dir(path):
+    global ifsdir_
     ifsdir_=path
 
 # Sets the nemo output directory
 
 def set_nemo_dir(path):
+    global nemodir_
     nemodir_=path
 
 # Adds a task to the task list.
 
 def add_task(tsk):
-    if(tsk.isinstance(cmor_task)):
+    global tasks_
+    if(isinstance(tsk,cmor_task.cmor_task)):
         if(tsk.target not in targets_):
             raise Exception("Cannot append tasks with unknown target",tsk.target)
         duptasks=[t for t in tasks_ if t.target != tsk.target]
@@ -59,4 +73,5 @@ def add_task(tsk):
 # Clears all tasks.
 
 def clear_tasks():
-    tasks_.clear()
+    global tasks_
+    tasks_=[]

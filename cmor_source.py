@@ -65,7 +65,7 @@ class ifs_source(cmor_source):
 
     def __init__(self,code):
         if(not code in ifs_source.grib_codes):
-            raise Exception("Unknown grib code passed to IFS source parameter constructor:",code)
+            raise Exception("Unknown grib code passed to IFS source parameter constructor:",str(code.var_id)+"."+str(code.tab_id))
         self.code__=code
         if(code in ifs_source.grib_codes_3D):
             self.grid_="spec_grid"

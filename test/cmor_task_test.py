@@ -23,8 +23,8 @@ class cmor_task_tests(unittest.TestCase):
 
     @raises(Exception)
     def test_constructor(self):
-        src=cmor_source.ifs_source("81.128")
-        tgt=cmor_target.cmor_target("huss","Amon")
+        src=cmor_source.ifs_source.read("79.128")
+        tgt=cmor_target.cmor_target("clwvi","Amon")
         task=cmor_task.cmor_task(src,tgt)
         eq_(task.source,src)
         eq_(task.target,tgt)

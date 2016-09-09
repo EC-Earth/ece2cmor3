@@ -15,7 +15,7 @@ class cmor_target_tests(unittest.TestCase):
         eq_("Omon",tid)
 
     def test_make_Omon_vars(self):
-        path=os.path.dirname(cmor_target.__file__)+"../../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6_Omon.json"
+        path=os.path.dirname(cmor_target.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6_Omon.json"
         abspath=os.path.abspath(path)
         targets=cmor_target.create_targets(abspath,"CMIP6")
         ok_(len(targets)>0)
@@ -27,7 +27,7 @@ class cmor_target_tests(unittest.TestCase):
         eq_(tos.dimensions,"longitude latitude time")
 
     def test_make_CMIP6_vars(self):
-        path=os.path.dirname(cmor_target.__file__)+"../../../input/cmip6/cmip6-cmor-tables/Tables"
+        path=os.path.dirname(cmor_target.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/"
         abspath=os.path.abspath(path)
         targets=cmor_target.create_targets(abspath,"CMIP6")
         ok_(len(targets)>0)
