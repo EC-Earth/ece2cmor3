@@ -12,6 +12,8 @@ targets_=[]
 ifsdir_=None
 nemodir_=None
 tasks_=[]
+startdate_=None
+interval_=None
 
 # Initialization function, must be called before starting
 
@@ -69,6 +71,14 @@ def set_nemo_dir(path):
     else:
         raise Exception("Invalid NEMO output directory given:",path)
 
+# Sets start date and interval
+
+def set_time_interval(startdate,interval):
+    global startdate_
+    global interval_
+    startdate_=startdate
+    interval=interval
+
 # Adds a task to the task list.
 
 def add_task(tsk):
@@ -90,15 +100,24 @@ def get_tasks():
     global tasks_
     return tasks_
 
-# Performs a NEMO cmorization processing:
-
-def perform_nemo_task(tsk):
-    global nemodir_
-    raise Exception("Not implemented yet")
-
-
 # Clears all tasks.
 
 def clear_tasks():
     global tasks_
     tasks_=[]
+
+# Performs a NEMO cmorization processing:
+
+def perform_nemo_tasks():
+    global tasks_
+    global nemodir_
+    global startdate_
+    global interval_
+    nemo_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.nemo_source)]
+    nemo2cmor.execute(nemo_tasks,nemodir_,startdate,interval)
+    # Set calendar
+    # Create time axis
+    # Create grid
+    # Create depth axis
+    # Create variables
+    # Cmorize away

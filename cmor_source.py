@@ -102,7 +102,7 @@ from cmor_utils import cmor_enum
 
 # NEMO grid type enumerable.
 
-nemo_grid=cmor_enum(["u","v","T","ice"])
+nemo_grid=cmor_enum(["U","V","T","icemod"])
 
 # NEMO source subclass, constructed from NEMO output variable id, grid type and dimensions.
 # TODO: grid type and dimensions should follow from Nemo's field_def.xml
@@ -119,7 +119,7 @@ class nemo_source(cmor_source):
         return self.dims_
 
     def grid(self):
-        return "grid_"+nemo_grid[self.grid_id]
+        return "grid"+nemo_grid[self.grid_id]
 
     def realm(self):
         return "ocean"
