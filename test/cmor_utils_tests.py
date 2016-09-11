@@ -1,5 +1,6 @@
 import logging
 import unittest
+import os
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_
@@ -24,45 +25,45 @@ class utils_tests(unittest.TestCase):
 
 
     def test_find_ifs_output(self):
-        ofiles=find_ifs_output("./test_data/ifs_dummy")
+        ofiles=find_ifs_output(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy"))
         eq_(len(ofiles),2)
-        ok_("./test_data/ifs_dummy/ICMGGGbla+003456" in ofiles)
-        ok_("./test_data/ifs_dummy/ICMSHok+004321" in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMGGGbla+003456") in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMSHok+004321") in ofiles)
 
 
     def test_find_ifs_exp_output(self):
-        ofiles=find_ifs_output("./test_data/ifs_dummy","ok")
+        ofiles=find_ifs_output(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy"),"ok")
         eq_(len(ofiles),1)
-        ok_("./test_data/ifs_dummy/ICMSHok+004321" in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMSHok+004321") in ofiles)
 
 
     def test_ifs_output_timestamps(self):
-        ofiles=find_ifs_output("./test_data/ifs_dummy","Gbla")
+        ofiles=find_ifs_output(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy"),"Gbla")
         eq_(len(ofiles),1)
         eq_(get_ifs_steps(ofiles[0]),3456)
 
 
     def test_find_nemo_output(self):
-        ofiles=find_nemo_output("./test_data/nemo_dummy")
+        ofiles=find_nemo_output(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy"))
         eq_(len(ofiles),2)
-        ok_("./test_data/nemo_dummy/exp_1m_19991231_20000505_gridT.nc" in ofiles)
-        ok_("./test_data/nemo_dummy/exp_1d_19991221_20000101_icemod.nc" in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy","exp_1m_19991231_20000505_gridT.nc") in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy","exp_1d_19991221_20000101_icemod.nc") in ofiles)
 
 
     def test_find_nemo_exp_output(self):
-        ofiles=find_nemo_output("./test_data/nemo_dummy","exp")
+        ofiles=find_nemo_output(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy"),"exp")
         eq_(len(ofiles),2)
-        ok_("./test_data/nemo_dummy/exp_1m_19991231_20000505_gridT.nc" in ofiles)
-        ok_("./test_data/nemo_dummy/exp_1d_19991221_20000101_icemod.nc" in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy","exp_1m_19991231_20000505_gridT.nc") in ofiles)
+        ok_(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy","exp_1d_19991221_20000101_icemod.nc") in ofiles)
 
 
     def test_nemo_bad_output(self):
-        ofiles=find_nemo_output("./test_data/nemo_dummy","bad")
+        ofiles=find_nemo_output(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy"),"bad")
         eq_(len(ofiles),0)
 
 
     def test_nemo_output_timestamps(self):
-        ofiles=find_nemo_output("./test_data/nemo_dummy","exp")
+        ofiles=find_nemo_output(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy"),"exp")
         dates=[get_nemo_interval(f) for f in ofiles]
         starts=sorted([t[0] for t in dates])
         eq_([datetime(1999,12,21),datetime(1999,12,31)],starts)
