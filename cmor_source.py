@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 # Base class for cmor source objects, which represent variables produced by a model
-
 class cmor_source(object):
 
     def __init__(self):
@@ -20,7 +19,6 @@ import json
 import os
 
 # ECMWF grib code object
-
 class grib_code:
     def __init__(self,var_id_,tab_id_):
         self.var_id=var_id_
@@ -43,7 +41,6 @@ class grib_code:
         return cls
 
 # Reads a group of grib codes from a json-file
-
 def read_grib_codes_group(file,key):
     s=open(file).read()
     data=json.loads(s)
@@ -53,7 +50,6 @@ def read_grib_codes_group(file,key):
         return []
 
 # IFS source subclass, constructed from a given grib code.
-
 class ifs_source(cmor_source):
 
     grib_codes_file=os.path.join(os.path.dirname(__file__),"resources/grib_codes.json")
@@ -101,7 +97,6 @@ class ifs_source(cmor_source):
 from cmor_utils import cmor_enum
 
 # NEMO grid type enumerable.
-
 nemo_grid=cmor_enum(["U","V","T","icemod"])
 
 # NEMO source subclass, constructed from NEMO output variable id, grid type and dimensions.

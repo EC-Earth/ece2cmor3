@@ -4,7 +4,6 @@ import re
 import json
 
 # Class for cmor target objects, which represent output variables.
-
 class cmor_target(object):
 
     def __init__(self,var_id__,tab_id__):
@@ -12,7 +11,6 @@ class cmor_target(object):
         self.table=tab_id__
 
 # Derives the table id for the given file path
-
 def get_table_id(filepath,prefix):
     fname=os.path.basename(filepath)
     regex=re.search("^"+prefix+"_.*.json$",fname)
@@ -27,7 +25,6 @@ freq_key="frequency"
 var_key="variable_entry"
 
 # Creates cmor-targets from the input json-file
-
 def create_targets_for_file(filepath,prefix):
     tabid=get_table_id(filepath,prefix)
     s=open(filepath).read()
@@ -53,7 +50,6 @@ def create_targets_for_file(filepath,prefix):
     return result
 
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
-
 def create_targets(path,prefix):
     if(os.path.isfile(path)):
         return create_targets_for_file(path,prefix)

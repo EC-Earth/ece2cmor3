@@ -3,11 +3,9 @@ import re
 import datetime
 
 # Enum utility class
-
 class cmor_enum(tuple): __getattr__=tuple.index
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
-
 def make_time_intervals(start,end,delta):
     if(end<start):
         raise Exception("start date later than end date",start,end)
@@ -23,7 +21,6 @@ def make_time_intervals(start,end,delta):
     return result
 
 # Finds all ifs output in the given directory. If expname is given, matches according output files.
-
 def find_ifs_output(path,expname=None):
     subexpr=".*"
     if(expname):
@@ -32,7 +29,6 @@ def find_ifs_output(path,expname=None):
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
 # Returns the number of output time steps from the given ifs output file.
-
 def get_ifs_steps(filepath):
     fname=os.path.basename(filepath)
     regex=re.search("\+00[0-9]{4}",fname)
@@ -42,7 +38,6 @@ def get_ifs_steps(filepath):
     return int(ss)
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
-
 def find_nemo_output(path,expname=None):
     subexpr='.*'
     if(expname):
@@ -51,7 +46,6 @@ def find_nemo_output(path,expname=None):
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
 # Returns the start and end date corresponding to the given nemo output file.
-
 def get_nemo_interval(filepath):
     fname=os.path.basename(filepath)
     regex=re.findall("_[0-9]{8}",fname)

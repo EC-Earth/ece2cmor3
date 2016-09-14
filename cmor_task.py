@@ -3,7 +3,6 @@ import cmor_target
 
 # Cmorization task class, containing source and targets.
 # TODO: Add postprocessing functor to this object.
-
 class cmor_task(object):
 
     def __init__(self,source_,target_):

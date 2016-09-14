@@ -4,7 +4,6 @@ import cmor_target
 import cmor_task
 
 # ece2cmor master API.
-
 prefix_=None
 table_path_=None
 config_file_=None
@@ -16,7 +15,6 @@ startdate_=None
 interval_=None
 
 # Initialization function, must be called before starting
-
 def initialize(table_root,conf_path):
     global prefix_
     global table_path_
@@ -40,7 +38,6 @@ def initialize(table_root,conf_path):
 
 
 # Returns one or more cmor targets for task creation.
-
 def get_cmor_target(var_id,tab_id=None):
     if(tab_id==None):
         return [t for t in targets_ if t.variable==var_id]
@@ -54,7 +51,6 @@ def get_cmor_target(var_id,tab_id=None):
             raise Exception("Table validation error: multiple variables with id",var_id,"found in table",tab_id)
 
 # Sets the IFS output directory
-
 def set_ifs_dir(path):
     global ifsdir_
     if(os.path.isdir(path) and os.path.exists(path)):
@@ -63,7 +59,6 @@ def set_ifs_dir(path):
         raise Exception("Invalid IFS output directory given:",path)
 
 # Sets the nemo output directory
-
 def set_nemo_dir(path):
     global nemodir_
     if(os.path.isdir(path) and os.path.exists(path)):
@@ -72,7 +67,6 @@ def set_nemo_dir(path):
         raise Exception("Invalid NEMO output directory given:",path)
 
 # Sets start date and interval
-
 def set_time_interval(startdate,interval):
     global startdate_
     global interval_
@@ -80,7 +74,6 @@ def set_time_interval(startdate,interval):
     interval=interval
 
 # Adds a task to the task list.
-
 def add_task(tsk):
     global tasks_
     print id(tsk.target)
@@ -95,19 +88,16 @@ def add_task(tsk):
         raise Exception("Can only append cmor_task to the list, attempt to append",tsk)
 
 # Returns the currently defined tasks:
-
 def get_tasks():
     global tasks_
     return tasks_
 
 # Clears all tasks.
-
 def clear_tasks():
     global tasks_
     tasks_=[]
 
 # Performs a NEMO cmorization processing:
-
 def perform_nemo_tasks():
     global tasks_
     global nemodir_
