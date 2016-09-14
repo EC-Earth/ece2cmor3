@@ -33,7 +33,7 @@ class cmor_source_tests(unittest.TestCase):
         eq_(src.get_grib_code(),grib_code(133,128))
 
     def test_create_nemo_source(self):
-        src=nemo_source("tos",nemo_grid.T)
+        src=nemo_source("tos",nemo_grid.gridT)
         eq_(src.grid(),"gridT")
         eq_(src.dims(),2)
         eq_(src.realm(),"ocean")
