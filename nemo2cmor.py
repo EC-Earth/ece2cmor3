@@ -14,8 +14,8 @@ def initialize(path,expname,tableroot,start,length):
             break
     if(cal):
         cmor.set_cur_dataset_attribute("calendar",cal)
-    create_time_axes(files)
-    create_grids(files,tableroot+"_grids.json")
+    create_grids(nemo_files_,tableroot+"_grids.json")
+    create_time_axes(nemo_files_)
 
 # Executes the processing loop.
 def execute(tasks):
@@ -23,7 +23,7 @@ def execute(tasks):
 
 # Retrieves all NEMO output files in the input directory.
 def select_files(path,expname,start,length):
-    allfiles=cmor_utils.get_nemo_output(path,expname)
+    allfiles=cmor_utils.find_nemo_output(path,expname)
     return [f for f in allfiles if cmor_utils.get_nemo_interval(f)[0]>=start and cmor_utils.get_nemo_interval(f)[1]<=(start+length)]
 
 # Reads the calendar attribute from the time dimension.
