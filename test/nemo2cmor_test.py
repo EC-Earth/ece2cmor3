@@ -40,4 +40,7 @@ class nemo2cmor_tests(unittest.TestCase):
         opf=test_utils.nemo_output_factory()
         opf.make_grid(75,85,cmor_source.nemo_grid.grid_T)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"1m")
-        opf.write_variables(os.path.dirname(__file__),"exp",{"tos":circwave})
+
+        tos={"name":"tos","function":circwave,"standard_name":"sea_surface_temperature","long_name":"Sea surface temperature","units":"degC"}
+
+        opf.write_variables(os.path.dirname(__file__),"exp",[tos])
