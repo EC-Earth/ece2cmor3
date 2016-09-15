@@ -38,6 +38,6 @@ class nemo2cmor_tests(unittest.TestCase):
     def test_write_nc(self):
         dim=100
         opf=test_utils.nemo_output_factory()
-        opf.make_grid(75,85,cmor_source.nemo_grid.gridT)
+        opf.make_grid(75,85,cmor_source.nemo_grid.grid_T)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"1m")
         opf.write_variables(os.path.dirname(__file__),"exp",{"tos":circwave})
