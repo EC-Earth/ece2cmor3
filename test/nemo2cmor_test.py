@@ -8,6 +8,8 @@ import nose.tools
 import nemo2cmor
 import test_utils
 import cmor_source
+import cmor_target
+import cmor_task
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -98,3 +100,13 @@ class nemo2cmor_tests(unittest.TestCase):
         dirname=self.datapath()
         tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
         nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=100))
+
+    def test_cmor_single_task(self):
+        dirname=self.datapath()
+        tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
+        nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=100))
+        src=cmor_source.nemo_source("uso",cmor_source.nemo_grid.grid_T)
+        tgt=cmor_target.cmor_target("chlos","Oday")
+        setattr(tgt,"frequency","day")
+        tsk=cmor_task.cmor_task(src,tgt)
+        nemo2cmor.execute([tsk])

@@ -1,11 +1,33 @@
 import netCDF4
+import cmor
 import cmor_utils
 import cmor_source
 import numpy
+from itertools import groupby
+
+# Experiment name
+exp_name_=None
+
+# Table root
+table_root_=None
+
+# Files that are being processed in the current execution loop.
+nemo_files_=[]
+
+# Dictionary of NEMO grid type with cmor grid id.
+grid_ids_={}
+
+# Dictionary of output frequencies with cmor time axis id.
+time_axes_={}
+
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
     global nemo_files_
+    global exp_name_
+    global table_root_
+    exp_name_=expname
+    table_root_=tableroot
     nemo_files_=select_files(path,expname,start,length)
     cal=None
     for f in nemo_files_:
@@ -15,25 +37,86 @@ def initialize(path,expname,tableroot,start,length):
     if(cal):
         cmor.set_cur_dataset_attribute("calendar",cal)
     create_grids(nemo_files_,tableroot+"_grids.json")
-    create_time_axes(nemo_files_)
+
 
 # Executes the processing loop.
 def execute(tasks):
-    raise Exception("Not implemented yet")
+    global time_axes_
+    global table_root_
+    for k,v in groupby(tasks,lambda t: t.target.table):
+        tab=k
+        tskgroup=list(v)
+        freq=tskgroup[0].target.frequency
+        files=select_freq_files(freq)
+        if(len(files)==0):
+            raise Exception("no NEMO output files found for frequency",freq,"in file list",files)
+        tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
+        if(not tab_id in time_axes_):
+            time_axes_[tab_id]=create_time_axis(freq,files)
+#        if(not tab_id in depth_axes_):
+#            depth_axes_[tab_id]=create_depth_axes(tab_id)
+#        create_variables()
+
+
+#def execute_tasks(tasks,files):
+#    for t in tasks:
+#        grid=cmor_source.nemo_grid[t.source.grid()]
+#        flist=[f in files if f.endswith(grid+".nc")]
+#        if(len(flist)==0):
+#            raise Exception("no NEMO output files found with grid ",grid)
+
+
+
+# Creates a tie axis for the corresponding table (which is suppoed to be loaded)
+def create_time_axis(freq,files):
+    vals=None
+    units=None
+    ds=None
+    for ncfile in files:
+        try:
+            ds=netCDF4.Dataset(ncfile)
+            timvar=ds.variables["time_counter"]
+            vals=timvar[:]
+            bnds=getattr(timvar,"bounds")
+            bndvar=ds.variables[bnds]
+            units=getattr(timvar,"units")
+            break
+        except:
+            if(ds):
+                ds.close()
+    if(len(vals)==0 or units==None):
+        raise Exception("No time values or units could be read from NEMO output files",files)
+    return cmor.axis(table_entry="time",units=units,coord_vals=vals,cell_bounds=bndvar[:,:])
+
+
+# Selects files with data with the given frequency
+def select_freq_files(freq):
+    global exp_name_
+    freqmap={"1hr":"1h","3hr":"3h","6hr":"6h","day":"1d","mon":"1m"}
+    if(not freq in freqmap):
+        raise Exception("Unknown frequency detected:",freq)
+    return [f for f in nemo_files_ if freqmap[freq]==cmor_utils.get_nemo_frequency(f,exp_name_)]
+
 
 # Retrieves all NEMO output files in the input directory.
 def select_files(path,expname,start,length):
     allfiles=cmor_utils.find_nemo_output(path,expname)
-    return [f for f in allfiles if cmor_utils.get_nemo_interval(f)[0]>=start and cmor_utils.get_nemo_interval(f)[1]<=(start+length)]
+    return [f for f in allfiles if cmor_utils.get_nemo_interval(f)[0]<=(start+length) and cmor_utils.get_nemo_interval(f)[1]>=start]
+
 
 # Reads the calendar attribute from the time dimension.
 def read_calendar(ncfile):
     ds=netCDF4.Dataset(ncfile,'r')
-    timvar=ds.dimensions["time_counter"]
+    if(not ds):
+        return None
+    timvar=ds.variables["time_centered"]
     if(timvar):
-        return getattr(timvar,"calendar")
+        result=getattr(timvar,"calendar")
+        ds.close()
+        return result
     else:
         return None
+
 
 # Reads all the NEMO grid data from the input files.
 def create_grids(files,table):
@@ -45,9 +128,6 @@ def create_grids(files,table):
             grid=read_grid(gridfiles[0])
             grid_ids_[g]=write_grid(grid,table)
 
-# Creates time axes for all frequencies in the output
-def create_time_axes(files):
-    raise Exception("Not implemented yet")
 
 # Reads a particular NEMO grid from the given input file.
 def read_grid(ncfile):
@@ -55,6 +135,7 @@ def read_grid(ncfile):
     lons=ds.variables['nav_lon'][:,:]
     lats.ds.variables['nav_lat'][:,:]
     return nemogrid(lons,lats)
+
 
 # Transfers the grid to cmor.
 def write_grid(grid,table):
@@ -67,6 +148,7 @@ def write_grid(grid,table):
                      longitude=grid.lons,
                      latitude_vertices=grid.vertex_lats,
                      longitude_vertices=grid.vertex_lons)
+
 
 # Class holding a NEMO grid, including bounds arrays
 class nemogrid(object):
@@ -119,12 +201,3 @@ class nemogrid(object):
             return x-360.0
         else:
             return x
-
-# Files that are being processed in the current execution loop.
-nemo_files_=[]
-
-# Dictionary of NEMO grid type with cmor grid id.
-grid_ids_={}
-
-# Dictionary of output frequencies with cmor time axis id.
-time_axes_={}

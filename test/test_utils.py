@@ -111,7 +111,7 @@ class nemo_output_factory(object):
         vartimbnd=root.createVariable("time_counter_bounds","f8",("time_counter","axis_nbounds",))
 
         timarray=netCDF4.date2num(tims,units=vartimc.units,calendar=vartimc.calendar)
-        period=tims[1]-tims[0]
+        period=(tims[1]-tims[0])/2
         bndlarray=netCDF4.date2num([t-period for t in tims],units=vartimc.units,calendar=vartimc.calendar)
         bndrarray=netCDF4.date2num([t+period for t in tims],units=vartimc.units,calendar=vartimc.calendar)
 

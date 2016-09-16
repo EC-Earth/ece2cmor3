@@ -54,3 +54,18 @@ def get_nemo_interval(filepath):
     start=datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
     end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
+
+#Returns the frequency string for a given nemo output file.
+def get_nemo_frequency(filepath,expname):
+    f=os.path.basename(filepath)
+    expr=re.compile("^"+expname+".*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    if(not re.match(expr,f)):
+        raise Exception("file path",filepath,"does not correspond to nemo output of experiment",expname)
+    fstr=f[len(expname)+1:].split("_")[0]
+    expr=re.compile("^(\d+)(h|d|m|y)")
+    if(not re.match(expr,fstr)):
+        raise Exception("file path",filepath,"does not contain a valid frequency indicator")
+    n=int(fstr[0:len(fstr)-1])
+    if(n==0):
+        raise Exception("invalid frequency 0 parsed from file path",filepath)
+    return fstr
