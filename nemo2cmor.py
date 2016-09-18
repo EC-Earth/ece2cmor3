@@ -17,9 +17,11 @@ nemo_files_=[]
 # Dictionary of NEMO grid type with cmor grid id.
 grid_ids_={}
 
+# List of depth axis ids with cmor grid id.
+depth_axes_={}
+
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
-
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
@@ -36,7 +38,8 @@ def initialize(path,expname,tableroot,start,length):
             break
     if(cal):
         cmor.set_cur_dataset_attribute("calendar",cal)
-    create_grids(nemo_files_,tableroot+"_grids.json")
+    cmor.load_table(tableroot+"_grids.json")
+    create_grids()
 
 
 # Executes the processing loop.
@@ -53,19 +56,46 @@ def execute(tasks):
         tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
         if(not tab_id in time_axes_):
             time_axes_[tab_id]=create_time_axis(freq,files)
-#        if(not tab_id in depth_axes_):
-#            depth_axes_[tab_id]=create_depth_axes(tab_id)
-#        create_variables()
+        if(not tab_id in depth_axes_):
+            depth_axes_[tab_id]=create_depth_axes(tab_id)
+        # Loop over files:
+        for ncf in files:
+            ds=netCDF4.Dataset(ncf,'r')
+            filetasks=[t for t in tskgroup if t.source.var() in ds.variables]
+            for t in filetasks:
+                execute_netcdf_task(t,ds,tab_id)
+
+# Closes cmor:
+def finalize():
+    cmor.close()
+
+def execute_netcdf_task(task,dataset,tableid):
+    global grid_ids_
+    axes=[grid_ids_[task.source.grid()]]
+    if(task.source.dims==3):
+        #TODO: Append depth axis
+        raise Exception("Depth axes have not been implemented yet")
+    axes.append(time_axes_[tableid])
+    srcvar=task.source.var()
+    ncvar=dataset.variables[srcvar]
+    ncunits=getattr(ncvar,"units")
+    print ncunits
+    # TODO: pass positive flag
+    varid=cmor.variable(task.target.variable,units=str(ncunits),axis_ids=axes,original_name=srcvar)
+    vals=numpy.zeros(ncvar.shape)
+    if(task.source.dims==2):
+        vals=ncvar[:,:,:]
+    elif(task.source.dims==3):
+        #TODO: take 4d-block
+        raise Exception("Depth axes have not been implemented yet")
+    cmor.write(varid,vals)
+    cmor.close(varid)
 
 
-#def execute_tasks(tasks,files):
-#    for t in tasks:
-#        grid=cmor_source.nemo_grid[t.source.grid()]
-#        flist=[f in files if f.endswith(grid+".nc")]
-#        if(len(flist)==0):
-#            raise Exception("no NEMO output files found with grid ",grid)
-
-
+def create_depth_axes(tab_id):
+    global depth_axes_
+    # TODO: Implement
+    return 0
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
@@ -119,30 +149,29 @@ def read_calendar(ncfile):
 
 
 # Reads all the NEMO grid data from the input files.
-def create_grids(files,table):
+def create_grids():
     global grid_ids
     for g in cmor_source.nemo_grid:
-        extension="_grid"+g+".nc"
-        gridfiles=[f for f in files if f.endswith(extension)]
+        gridfiles=[f for f in nemo_files_ if f.endswith(g + ".nc")]
         if(len(gridfiles)!=0):
             grid=read_grid(gridfiles[0])
-            grid_ids_[g]=write_grid(grid,table)
+            grid_ids_[g]=write_grid(grid)
 
 
 # Reads a particular NEMO grid from the given input file.
 def read_grid(ncfile):
     ds=netCDF4.Dataset(ncfile,'r')
     lons=ds.variables['nav_lon'][:,:]
-    lats.ds.variables['nav_lat'][:,:]
+    lats=ds.variables['nav_lat'][:,:]
     return nemogrid(lons,lats)
 
 
 # Transfers the grid to cmor.
-def write_grid(grid,table):
+def write_grid(grid):
     nx=grid.Nx()
     ny=grid.Ny()
-    i_index_id=cmor.axis(table=table,table_entry="i_index",units="1",coord_vals=numpy.array(range(nx)))
-    j_index_id=cmor.axis(table=table,table_entry="j_index",units="1",coord_vals=numpy.array(range(ny)))
+    i_index_id=cmor.axis(table_entry="i_index",units="1",coord_vals=numpy.array(range(nx)))
+    j_index_id=cmor.axis(table_entry="j_index",units="1",coord_vals=numpy.array(range(ny)))
     return cmor.grid(axis_ids=[i_index_id,j_index_id],
                      latitude=grid.lats,
                      longitude=grid.lons,
@@ -154,47 +183,59 @@ def write_grid(grid,table):
 class nemogrid(object):
 
     def __init__(self,lons_,lats_):
-        f=numpy.vectorize(nemogrid.moddegrees)
-        self.lons=lons_
-        self.lats=lats_
-        self.vertex_lons=f(nemogrid.create_vertex_lons(lons_))
+        flon=numpy.vectorize(nemogrid.modlon)
+        flat=numpy.vectorize(nemogrid.modlat)
+        self.lons=flon(lons_)
+        self.lats=flat(lats_)
+        #TODO: Make a smooth longitude field...
+        self.vertex_lons=nemogrid.create_vertex_lons(lons_)
         self.vertex_lats=nemogrid.create_vertex_lats(lats_)
-        self.lons=f(self.lons)
 
     def Nx(self):
-        return self.lons.shape(0)
+        return self.lons.shape[0]
 
     def Ny(self):
-        return self.lons.shape(1)
+        return self.lons.shape[1]
 
     @staticmethod
     def create_vertex_lons(a):
         nx=a.shape[0]
         ny=a.shape[1]
-        b=numpy.zeros([4,nx,ny])
-        b[0,1:nx,:]=0.5*(a[0:nx-1,:]+a[1:nx,:])
-        b[0,0,:]=b[0,nx-1,:]
-        b[1,0:nx-1,:]=b[0,1:nx,:]
-        b[1,nx-1,:]=b[1,1,:]
-        b[2,:,:]=b[1,:,:]
-        b[3,:,:]=b[0,:,:]
+        b=numpy.zeros([nx,ny,4])
+        f=numpy.vectorize(nemogrid.modlon)
+        b[1:nx,:,0]=f(0.5*(a[0:nx-1,:]+a[1:nx,:]))
+        b[0,:,0]=b[nx-1,:,0]
+        b[0:nx-1,:,1]=b[1:nx,:,0]
+        b[nx-1,:,1]=b[1,:,1]
+        b[:,:,2]=b[:,:,1]
+        b[:,:,3]=b[:,:,0]
         return b
 
     @staticmethod
     def create_vertex_lats(a):
         nx=a.shape[0]
         ny=a.shape[1]
-        b=numpy.zeros([4,nx,ny])
-        b[0,:,0]=1.5*a[:,0]-0.5*a[:,1]
-        b[0,:,1:ny]=0.5*(a[:,0:ny-1]+a[:,1:ny])
-        b[1,:,:]=b[0,:,:]
-        b[2,:,0:ny-1]=b[0,:,1:ny]
-        b[2,:,ny-1]=1.5*a[:,ny-1]-0.5*a[:,ny-2]
-        b[3,:,:]=b[2,:,:]
+        b=numpy.zeros([nx,ny,4])
+        f=numpy.vectorize(nemogrid.modlat)
+        b[:,0,0]=f(1.5*a[:,0]-0.5*a[:,1])
+        b[:,1:ny,0]=f(0.5*(a[:,0:ny-1]+a[:,1:ny]))
+        b[:,:,1]=b[:,:,0]
+        b[:,0:ny-1,2]=b[:,1:ny,0]
+        b[:,ny-1,2]=f(1.5*a[:,ny-1]-0.5*a[:,ny-2])
+        b[:,:,3]=b[:,:,2]
         return b
 
     @staticmethod
-    def moddegrees(x):
+    def modlat(x):
+        if(x<-90):
+            return x+180.0
+        elif(x>=90.0):
+            return x-180.0
+        else:
+            return x
+
+    @staticmethod
+    def modlon(x):
         if(x<0):
             return x+360.0
         elif(x>=360.0):

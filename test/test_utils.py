@@ -111,9 +111,15 @@ class nemo_output_factory(object):
         vartimbnd=root.createVariable("time_counter_bounds","f8",("time_counter","axis_nbounds",))
 
         timarray=netCDF4.date2num(tims,units=vartimc.units,calendar=vartimc.calendar)
-        period=(tims[1]-tims[0])/2
-        bndlarray=netCDF4.date2num([t-period for t in tims],units=vartimc.units,calendar=vartimc.calendar)
-        bndrarray=netCDF4.date2num([t+period for t in tims],units=vartimc.units,calendar=vartimc.calendar)
+        n=len(timarray)
+        bndlarray=numpy.zeros(n)
+        bndrarray=numpy.zeros(n)
+        bndlarray[0]=timarray[0]-0.5*(timarray[1]-timarray[0])
+        for i in range(0,n-1):
+            mid=0.5*(timarray[i]+timarray[i+1])
+            bndlarray[i+1]=mid
+            bndrarray[i]=mid
+        bndrarray[n-1]=timarray[n-1]+0.5*(timarray[n-1]-timarray[n-2])
 
         vartim[:]=timarray
         vartimbnd[:,0]=bndlarray
@@ -130,13 +136,13 @@ class nemo_output_factory(object):
             name = atts.pop("name")
             func = atts.pop("function")
             if(name):
-                var=root.createVariable(name,"f8",("time_counter","y","x",))
+                var=root.createVariable(name,"f8",("y","x","time_counter",))
             else:
                 raise Exception("Variable must have a name to be included in netcdf file")
             for k in atts:
                 setattr(var,k,atts[k])
             if(func):
-                var[:,:,:]=numpy.fromfunction(numpy.vectorize(func),(len(tims),self.lons.shape[0],self.lons.shape[1]),dtype=numpy.float64)
+                var[:,:,:]=numpy.fromfunction(numpy.vectorize(func),(self.lons.shape[1],self.lons.shape[0],len(tims)),dtype=numpy.float64)
             else:
-                var[:,:,:]=numpy.zeros(len(tims),self.lons.shape[0],self.lons.shape[1],dtype=numpy.float64)
+                var[:,:,:]=numpy.zeros(self.lons.shape[1],self.lons.shape[0],len(tims),dtype=numpy.float64)
         root.close()
