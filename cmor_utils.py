@@ -55,7 +55,7 @@ def get_nemo_interval(filepath):
     end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
 
-#Returns the frequency string for a given nemo output file.
+# Returns the frequency string for a given nemo output file.
 def get_nemo_frequency(filepath,expname):
     f=os.path.basename(filepath)
     expr=re.compile("^"+expname+".*_[0-9]{8}_[0-9]{8}_.*.nc$")
@@ -69,3 +69,13 @@ def get_nemo_frequency(filepath,expname):
     if(n==0):
         raise Exception("invalid frequency 0 parsed from file path",filepath)
     return fstr
+
+# Returns the grid for the given file name.
+def get_nemo_grid(filepath,expname):
+    f=os.path.basename(filepath)
+    expr=re.compile("(?<=^"+expname+"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
+    result=re.search(expr,f)
+    if(not result):
+        raise Exception("file path",filepath,"does not contain a grid string")
+    match=result.group(0)
+    return match[0:len(match)-3]

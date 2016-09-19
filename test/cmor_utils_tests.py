@@ -4,7 +4,7 @@ import os
 from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_,raises
-from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_steps,find_nemo_output,get_nemo_interval,get_nemo_frequency
+from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_steps,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -89,3 +89,19 @@ class utils_tests(unittest.TestCase):
     def test_bad_nemo_frequency3(self):
         filepath=os.path.join(os.path.dirname(__file__),"exp_0d_19992131_20000102_icemod.nc")
         fstr=get_nemo_frequency(filepath,"exp")
+
+    def test_get_nemo_grid(self):
+        filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_icemod.nc")
+        fstr=get_nemo_grid(filepath,"my_exp")
+        eq_(fstr,"icemod")
+
+    def test_get_nemo_grid2(self):
+        filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_grid_T.nc")
+        fstr=get_nemo_grid(filepath,"my_exp")
+        eq_(fstr,"grid_T")
+
+    @raises(Exception)
+    def test_bad_nemo_grid(self):
+        filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_grid_T.nc")
+        fstr=get_nemo_grid(filepath,"exp")
+        eq_(fstr,"grid_T")

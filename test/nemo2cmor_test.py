@@ -16,6 +16,9 @@ logging.basicConfig(level=logging.DEBUG)
 def circwave(j,i,t):
     return 15*math.cos((i*i+j*j+t)/10000.0)
 
+def circwave3d(j,i,z,t):
+    return 15*math.cos((i*i+j*j+t)/10000.0)*(z/6000.+1)
+
 def hypwave(j,i,t):
     return 0.001*math.cos((i*i-j*j+t)/10000.0)
 
@@ -28,48 +31,69 @@ class nemo2cmor_tests(unittest.TestCase):
 
         dimx=40
         dimy=50
+        dimz=10
         dirname=self.datapath()
         os.mkdir(dirname)
 
         opf=test_utils.nemo_output_factory()
 
-        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_U)
+        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_U,dimz)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"1d")
         uto={"name":"uto",
+             "dims":2,
              "function":circwave,
              "standard_name":"temperature_transport_x",
              "long_name":"Product of x-ward sea water velocity and temperature",
              "units":"m degC s-1"}
         uso={"name":"uso",
+             "dims":2,
              "function":hypwave,
              "standard_name":"salinity_transport_x",
              "long_name":"Product of x-ward sea water velocity and salinity",
              "units":"kg m-2 s-1"}
         opf.write_variables(dirname,"exp",[uto,uso])
 
-        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_V)
+        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_V,dimz)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"1d")
         vto={"name":"vto",
+             "dims":2,
              "function":circwave,
              "standard_name":"temperature_transport_y",
              "long_name":"Product of y-ward sea water velocity and temperature",
              "units":"m degC s-1"}
         vso={"name":"vso",
+             "dims":2,
              "function":hypwave,
              "standard_name":"salinity_transport_y",
              "long_name":"Product of y-ward sea water velocity and salinity",
              "units":"kg m-2 s-1"}
         opf.write_variables(dirname,"exp",[vto,vso])
 
-        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_T)
+        opf.make_grid(dimx,dimy,cmor_source.nemo_grid.grid_T,dimz)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"1m")
-        tos={"name":"tos","function":circwave,"standard_name":"sea_surface_temperature","long_name":"Sea surface temperature","units":"degC"}
-        sos={"name":"sos","function":hypwave,"standard_name":"sea_surface_salinity","long_name":"Sea surface salinity","units":"kg m-3"}
-        opf.write_variables(dirname,"exp",[tos,sos])
+        tos={"name":"tos",
+             "dims":2,
+             "function":circwave,
+             "standard_name":"sea_surface_temperature",
+             "long_name":"Sea surface temperature",
+             "units":"degC"}
+        to={ "name":"to",
+             "dims":3,
+             "function":circwave3d,
+             "standard_name":"sea_water_temperature",
+             "long_name":"Sea water temperature",
+             "units":"degC"}
+        sos={"name":"sos",
+             "dims":2,
+             "function":hypwave,
+             "standard_name":"sea_surface_salinity",
+             "long_name":"Sea surface salinity",
+             "units":"kg m-3"}
+        opf.write_variables(dirname,"exp",[tos,to,sos])
 
         opf.make_grid(dimx,dimy,cmor_source.nemo_grid.icemod)
         opf.set_timeframe(datetime.date(1990,1,1),datetime.date(1991,1,1),"6h")
-        sit={"name":"sit","function":circwave,"standard_name":"sea_ice_temperature","long_name":"Sea ice temperature","units":"degC"}
+        sit={"name":"sit","dims":2,"function":circwave,"standard_name":"sea_ice_temperature","long_name":"Sea ice temperature","units":"degC"}
         opf.write_variables(dirname,"exp",[sit])
 
     def tearDown(self):
@@ -107,6 +131,16 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=365))
         src=cmor_source.nemo_source("tos",cmor_source.nemo_grid.grid_T)
         tgt=cmor_target.cmor_target("tos","Omon")
+        setattr(tgt,"frequency","mon")
+        tsk=cmor_task.cmor_task(src,tgt)
+        nemo2cmor.execute([tsk])
+
+    def test_cmor_single_task3d(self):
+        dirname=self.datapath()
+        tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
+        nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=365))
+        src=cmor_source.nemo_source("to",cmor_source.nemo_grid.grid_T,3)
+        tgt=cmor_target.cmor_target("thetao","Omon")
         setattr(tgt,"frequency","mon")
         tsk=cmor_task.cmor_task(src,tgt)
         nemo2cmor.execute([tsk])

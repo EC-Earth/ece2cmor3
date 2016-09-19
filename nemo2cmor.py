@@ -57,7 +57,7 @@ def execute(tasks):
         if(not tab_id in time_axes_):
             time_axes_[tab_id]=create_time_axis(freq,files)
         if(not tab_id in depth_axes_):
-            depth_axes_[tab_id]=create_depth_axes(tab_id)
+            depth_axes_[tab_id]=create_depth_axes(tab_id,files)
         # Loop over files:
         for ncf in files:
             ds=netCDF4.Dataset(ncf,'r')
@@ -72,30 +72,59 @@ def finalize():
 def execute_netcdf_task(task,dataset,tableid):
     global grid_ids_
     axes=[grid_ids_[task.source.grid()]]
-    if(task.source.dims==3):
-        #TODO: Append depth axis
-        raise Exception("Depth axes have not been implemented yet")
+    if(task.source.dims()==3):
+        #TODO: Make sure target is 3d as well...
+        grid_index=cmor_source.nemo_grid.index(task.source.grid())
+        if(not grid_index in cmor_source.nemo_depth_axes):
+            raise Exception("Cannot create 3d variable on grid ",task.source.grid())
+        zaxid=depth_axes_[tableid][grid_index]
+        print "Appending z-axis: ",zaxid
+        axes.append(zaxid)
     axes.append(time_axes_[tableid])
     srcvar=task.source.var()
     ncvar=dataset.variables[srcvar]
     ncunits=getattr(ncvar,"units")
-    print ncunits
     # TODO: pass positive flag
     varid=cmor.variable(task.target.variable,units=str(ncunits),axis_ids=axes,original_name=srcvar)
     vals=numpy.zeros(ncvar.shape)
     if(task.source.dims==2):
         vals=ncvar[:,:,:]
     elif(task.source.dims==3):
-        #TODO: take 4d-block
-        raise Exception("Depth axes have not been implemented yet")
+        vals=ncvar[:,:,:,:]
     cmor.write(varid,vals)
     cmor.close(varid)
 
 
-def create_depth_axes(tab_id):
+# Creates all depth axes for the given table from the given files
+def create_depth_axes(tab_id,files):
     global depth_axes_
-    # TODO: Implement
-    return 0
+    global exp_name_
+    result={}
+    for f in files:
+        gridstr=cmor_utils.get_nemo_grid(f,exp_name_)
+        if(not gridstr in cmor_source.nemo_grid):
+            raise Exception("Unknown NEMO grid: ",gridstr)
+        index=cmor_source.nemo_grid.index(gridstr)
+        if(not index in cmor_source.nemo_depth_axes):
+            continue
+        if(index in result):
+            continue
+        result[index]=create_depth_axis(f,cmor_source.nemo_depth_axes[index])
+    return result
+
+
+# Creates a cmor depth axis
+def create_depth_axis(ncfile,gridchar):
+    ds=netCDF4.Dataset(ncfile)
+    depthvar=ds.variables["depth"+gridchar]
+    depthbnd=getattr(depthvar,"bounds")
+    units=getattr(depthvar,"units")
+    bndvar=ds.variables[depthbnd]
+    b=bndvar[:,:]
+    b[b<0]=0
+    print "Creating depth axis for grid ",gridchar
+    return cmor.axis(table_entry="depth_coord",units=units,coord_vals=depthvar[:],cell_bounds=b)
+
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
