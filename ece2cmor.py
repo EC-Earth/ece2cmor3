@@ -36,6 +36,25 @@ def initialize(table_root,conf_path):
     nemodir_=None
     tasks_=[]
 
+# Closes cmor
+def finalize():
+    global prefix_
+    global table_path_
+    global config_file_
+    global targets_
+    global ifsdir_
+    global nemodir_
+
+    cmor.close()
+    prefix_=None
+    table_path_=None
+    config_file_=None
+    targets_=[]
+    ifsdir_=None
+    nemodir_=None
+    tasks_=[]
+    startdate_=None
+    interval_=None
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id,tab_id=None):

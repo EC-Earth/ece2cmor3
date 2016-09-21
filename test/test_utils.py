@@ -76,11 +76,11 @@ class nemo_output_factory(object):
         filepath=self.get_path(path_,prefix_)
         root=netCDF4.Dataset(filepath,"w")
 
+        dimt=root.createDimension("time_counter")
         dimi=root.createDimension("y",self.lons.shape[0])
         dimj=root.createDimension("x",self.lons.shape[1])
         tbnddim=root.createDimension("axis_nbounds",2)
         tims=self.get_times(self.startdate)
-        dimt=root.createDimension("time_counter")
 
         z=None
         if(self.depthaxis and self.layers):
@@ -171,9 +171,9 @@ class nemo_output_factory(object):
             func = atts.pop("function")
             if(name):
                 if(dims==2):
-                    var=root.createVariable(name,"f8",("y","x","time_counter",))
+                    var=root.createVariable(name,"f8",("time_counter","y","x",))
                 elif(dims==3):
-                    var=root.createVariable(name,"f8",("y","x",z,"time_counter",))
+                    var=root.createVariable(name,"f8",("time_counter",z,"y","x",))
                 else:
                     raise Exception("Writing a variable with ",dims,"dimensions is not supported")
             else:
@@ -182,16 +182,16 @@ class nemo_output_factory(object):
                 setattr(var,k,atts[k])
             if(func):
                 if(dims==2):
-                    var[:,:,:]=numpy.fromfunction(numpy.vectorize(func),(self.lons.shape[1],self.lons.shape[0],len(tims)),dtype=numpy.float64)
+                    var[:,:,:]=numpy.fromfunction(numpy.vectorize(func),(len(tims),self.lons.shape[1],self.lons.shape[0]),dtype=numpy.float64)
                 elif(dims==3):
-                    var[:,:,:,:]=numpy.fromfunction(numpy.vectorize(func),(self.lons.shape[1],self.lons.shape[0],self.layers,len(tims)),dtype=numpy.float64)
+                    var[:,:,:,:]=numpy.fromfunction(numpy.vectorize(func),(len(tims),self.layers,self.lons.shape[1],self.lons.shape[0]),dtype=numpy.float64)
                 else:
                     raise Exception("Variables with dimensions ",d," are not supported")
             else:
                 if(dims==2):
-                    var[:,:,:]=numpy.zeros(self.lons.shape[1],self.lons.shape[0],len(tims),dtype=numpy.float64)
+                    var[:,:,:]=numpy.zeros(len(tims),self.lons.shape[1],self.lons.shape[0],dtype=numpy.float64)
                 elif(dims==3):
-                    var[:,:,:,:]=numpy.zeros(self.lons.shape[1],self.lons.shape[0],self.layers,len(tims),dtype=numpy.float64)
+                    var[:,:,:,:]=numpy.zeros(len(tims),self.layers,self.lons.shape[1],self.lons.shape[0],dtype=numpy.float64)
                 else:
                     raise Exception("Variables with dimensions ",d," are not supported")
         root.close()

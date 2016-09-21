@@ -11,17 +11,18 @@ import cmor_source
 import cmor_target
 import cmor_task
 import shutil
+import cmor
 
 logging.basicConfig(level=logging.DEBUG)
 
-def circwave(j,i,t):
-    return 15*math.cos((i*i+j*j+t)/10000.0)
+def circwave(t,j,i):
+    return 15*math.cos((i*i+j*j)/1000.+0.1*t)
 
-def circwave3d(j,i,z,t):
-    return 15*math.cos((i*i+j*j+t)/10000.0)*(z/6000.+1)
+def circwave3d(t,z,j,i):
+    return 15*math.cos((i*i+j*j)/1000.+0.1*t)*(z/12)
 
-def hypwave(j,i,t):
-    return 0.001*math.cos((i*i-j*j+t)/10000.0)
+def hypwave(t,j,i):
+    return 0.001*math.sin((i*i-j*j)/1000.+0.1*t)
 
 def datapath():
     return os.path.join(os.path.dirname(__file__),"test_data","nemodata")
@@ -35,9 +36,10 @@ def set_up():
     if(os.path.exists(datadir)):
         shutil.rmtree(datadir)
 
-    dimx=40
-    dimy=50
+    dimx=65
+    dimy=75
     dimz=10
+
     dirname=datapath()
     os.mkdir(dirname)
 
@@ -127,25 +129,40 @@ class nemo2cmor_tests(unittest.TestCase):
 
     def test_init_nemo2cmor(self):
         dirname=datapath()
-        tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
-        nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=100))
+        tabdir=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables")
+        confpath=os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        cmor.setup(tabdir)
+        cmor.dataset_json(confpath)
+        nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=100))
+        nemo2cmor.finalize()
+        cmor.close()
 
     def test_cmor_single_task(self):
         dirname=datapath()
-        tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
-        nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=365))
+        tabdir=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables")
+        confpath=os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        cmor.setup(tabdir)
+        cmor.dataset_json(confpath)
+        nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=365))
         src=cmor_source.nemo_source("tos",cmor_source.nemo_grid.grid_T)
         tgt=cmor_target.cmor_target("tos","Omon")
         setattr(tgt,"frequency","mon")
         tsk=cmor_task.cmor_task(src,tgt)
         nemo2cmor.execute([tsk])
+        nemo2cmor.finalize()
+        cmor.close()
 
     def test_cmor_single_task3d(self):
         dirname=datapath()
-        tabroot=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6")
-        nemo2cmor.initialize(dirname,"exp",tabroot,datetime.datetime(1990,3,1),datetime.timedelta(days=365))
+        tabdir=os.path.abspath(os.path.dirname(nemo2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables")
+        confpath=os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        cmor.setup(tabdir)
+        cmor.dataset_json(confpath)
+        nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=365))
         src=cmor_source.nemo_source("to",cmor_source.nemo_grid.grid_T,3)
         tgt=cmor_target.cmor_target("thetao","Omon")
         setattr(tgt,"frequency","mon")
         tsk=cmor_task.cmor_task(src,tgt)
         nemo2cmor.execute([tsk])
+        nemo2cmor.finalize()
+        cmor.close()

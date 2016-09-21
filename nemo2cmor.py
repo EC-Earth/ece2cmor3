@@ -28,6 +28,7 @@ def initialize(path,expname,tableroot,start,length):
     global nemo_files_
     global exp_name_
     global table_root_
+
     exp_name_=expname
     table_root_=tableroot
     nemo_files_=select_files(path,expname,start,length)
@@ -42,10 +43,12 @@ def initialize(path,expname,tableroot,start,length):
     create_grids()
 
 
-# Executes the processing loop.
+# Executes the processing loop. TODO: parallelize!
 def execute(tasks):
     global time_axes_
+    global depth_axes_
     global table_root_
+
     for k,v in groupby(tasks,lambda t: t.target.table):
         tab=k
         tskgroup=list(v)
@@ -54,8 +57,11 @@ def execute(tasks):
         if(len(files)==0):
             raise Exception("no NEMO output files found for frequency",freq,"in file list",files)
         tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
-        if(not tab_id in time_axes_):
-            time_axes_[tab_id]=create_time_axis(freq,files)
+        cmor.set_table(tab_id)
+#        if(not tab_id in time_axes_):
+        print "filling time axis for table",tab_id
+        time_axes_[tab_id]=create_time_axis(freq,files)
+        print "time axis created:",time_axes_[tab_id]
         if(not tab_id in depth_axes_):
             depth_axes_[tab_id]=create_depth_axes(tab_id,files)
         # Loop over files:
@@ -65,12 +71,28 @@ def execute(tasks):
             for t in filetasks:
                 execute_netcdf_task(t,ds,tab_id)
 
-# Closes cmor:
-def finalize():
-    cmor.close()
 
-def execute_netcdf_task(task,dataset,tableid):
+# Resets the module:
+def finalize():
+    global time_axes_
+    global depth_axes_
     global grid_ids_
+    global nemo_files_
+
+    exp_name_=None
+    table_root_=None
+    nemo_files_=[]
+    grid_ids_={}
+    depth_axes_={}
+    time_axes_={}
+
+
+# Performs a single task:
+def execute_netcdf_task(task,dataset,tableid):
+    global time_axes_
+    global grid_ids_
+    global depth_axes_
+
     axes=[grid_ids_[task.source.grid()]]
     if(task.source.dims()==3):
         #TODO: Make sure target is 3d as well...
@@ -78,19 +100,23 @@ def execute_netcdf_task(task,dataset,tableid):
         if(not grid_index in cmor_source.nemo_depth_axes):
             raise Exception("Cannot create 3d variable on grid ",task.source.grid())
         zaxid=depth_axes_[tableid][grid_index]
-        print "Appending z-axis: ",zaxid
         axes.append(zaxid)
     axes.append(time_axes_[tableid])
     srcvar=task.source.var()
     ncvar=dataset.variables[srcvar]
     ncunits=getattr(ncvar,"units")
     # TODO: pass positive flag
+    print "the axes are",axes
     varid=cmor.variable(task.target.variable,units=str(ncunits),axis_ids=axes,original_name=srcvar)
-    vals=numpy.zeros(ncvar.shape)
-    if(task.source.dims==2):
-        vals=ncvar[:,:,:]
-    elif(task.source.dims==3):
-        vals=ncvar[:,:,:,:]
+    vals=numpy.zeros([1])
+    # TODO: use time slicing in case of memory shortage
+    if(task.source.dims()==2):
+        vals=numpy.transpose(ncvar[:,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
+    elif(task.source.dims()==3):
+        vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
+    else:
+        raise Exception("Arrays of dimensions",task.source.dims(),"are not supported by nemo2cmor")
+    numpy.asfortranarray(vals)
     cmor.write(varid,vals)
     cmor.close(varid)
 
@@ -99,6 +125,7 @@ def execute_netcdf_task(task,dataset,tableid):
 def create_depth_axes(tab_id,files):
     global depth_axes_
     global exp_name_
+
     result={}
     for f in files:
         gridstr=cmor_utils.get_nemo_grid(f,exp_name_)
@@ -122,12 +149,15 @@ def create_depth_axis(ncfile,gridchar):
     bndvar=ds.variables[depthbnd]
     b=bndvar[:,:]
     b[b<0]=0
-    print "Creating depth axis for grid ",gridchar
     return cmor.axis(table_entry="depth_coord",units=units,coord_vals=depthvar[:],cell_bounds=b)
 
+timvals=None
+timbnds=None
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
+    global timvals
+    global timbnds
     vals=None
     units=None
     ds=None
@@ -145,12 +175,17 @@ def create_time_axis(freq,files):
                 ds.close()
     if(len(vals)==0 or units==None):
         raise Exception("No time values or units could be read from NEMO output files",files)
-    return cmor.axis(table_entry="time",units=units,coord_vals=vals,cell_bounds=bndvar[:,:])
+    ax_id=cmor.axis(table_entry="time",units=units,coord_vals=vals,cell_bounds=bndvar[:,:])
+    print "Wrote time values",vals
+    timvals=vals
+    timbnds=bndvar[:,:]
+    return ax_id
 
 
 # Selects files with data with the given frequency
 def select_freq_files(freq):
     global exp_name_
+
     freqmap={"1hr":"1h","3hr":"3h","6hr":"6h","day":"1d","mon":"1m"}
     if(not freq in freqmap):
         raise Exception("Unknown frequency detected:",freq)
@@ -180,6 +215,7 @@ def read_calendar(ncfile):
 # Reads all the NEMO grid data from the input files.
 def create_grids():
     global grid_ids
+
     for g in cmor_source.nemo_grid:
         gridfiles=[f for f in nemo_files_ if f.endswith(g + ".nc")]
         if(len(gridfiles)!=0):
