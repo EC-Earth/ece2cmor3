@@ -1,32 +1,32 @@
 import logging
 import unittest
 import os
-from datetime import datetime,timedelta
+import datetime
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_,raises
-from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_steps,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid
+from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_date,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid
 
 logging.basicConfig(level=logging.DEBUG)
 
 class utils_tests(unittest.TestCase):
 
     def test_intervals_30days(self):
-        t1=datetime(1999,12,31,23,45,20)
-        t2=datetime(2003,8,29,12,0,0)
-        intervals=make_time_intervals(t1,t2,timedelta(days=30))
+        t1=datetime.datetime(1999,12,31,23,45,20)
+        t2=datetime.datetime(2003,8,29,12,0,0)
+        intervals=make_time_intervals(t1,t2,datetime.timedelta(days=30))
         eq_(intervals[-1][1],t2)
 
 
     def test_intervals_month(self):
-        t1=datetime(2000,1,1,23,45,20)
-        t2=datetime(2003,8,29,12,0,0)
+        t1=datetime.datetime(2000,1,1,23,45,20)
+        t2=datetime.datetime(2003,8,29,12,0,0)
         intervals=make_time_intervals(t1,t2,relativedelta(months=+1))
-        eq_(intervals[-1][0],datetime(2003,8,1,23,45,20))
+        eq_(intervals[-1][0],datetime.datetime(2003,8,1,23,45,20))
 
 
     def test_find_ifs_output(self):
         ofiles=find_ifs_output(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy"))
-        eq_(len(ofiles),2)
+        eq_(len(ofiles),3)
         ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMGGGbla+003456") in ofiles)
         ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMSHok+004321") in ofiles)
 
@@ -37,10 +37,9 @@ class utils_tests(unittest.TestCase):
         ok_(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy","ICMSHok+004321") in ofiles)
 
 
-    def test_ifs_output_timestamps(self):
-        ofiles=find_ifs_output(os.path.join(os.path.dirname(__file__),"test_data","ifs_dummy"),"Gbla")
-        eq_(len(ofiles),1)
-        eq_(get_ifs_steps(ofiles[0]),3456)
+    def test_ifs_output_date(self):
+        ofile=os.path.join(os.path.dirname(__file__),"test_data","ICMGG+199011")
+        eq_(get_ifs_date(ofile),datetime.date(1990,11,1))
 
 
     def test_find_nemo_output(self):
@@ -66,9 +65,9 @@ class utils_tests(unittest.TestCase):
         ofiles=find_nemo_output(os.path.join(os.path.dirname(__file__),"test_data","nemo_dummy"),"exp")
         dates=[get_nemo_interval(f) for f in ofiles]
         starts=sorted([t[0] for t in dates])
-        eq_([datetime(1999,12,21),datetime(1999,12,31)],starts)
+        eq_([datetime.datetime(1999,12,21),datetime.datetime(1999,12,31)],starts)
         ends=sorted([t[1] for t in dates])
-        eq_([datetime(2000,1,1),datetime(2000,5,5)],ends)
+        eq_([datetime.datetime(2000,1,1),datetime.datetime(2000,5,5)],ends)
 
     def test_get_nemo_frequency(self):
         filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_icemod.nc")
