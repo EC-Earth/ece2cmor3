@@ -2,6 +2,7 @@ import cmor
 import os
 import cmor_target
 import cmor_task
+import f90nml
 
 # ece2cmor master API.
 prefix_=None
@@ -106,6 +107,47 @@ def add_task(tsk):
     else:
         raise Exception("Can only append cmor_task to the list, attempt to append",tsk)
 
+# Loads the legacy ece2cmor input namelists to tasks:
+def load_task_namelists(varlist,ifspar=None,nemopar=None):
+    targetlist=load_targets_namelist(varlist)
+    ifsparlist=[]
+    if(ifspar):
+        ifsparlist=f90nml.read(ifspar)
+        for p in ifsparlist.get("parameter"):
+            codestr=p["param"]
+            varname=p["out_name"]
+            src=ifs_source(grib_code.read(codestr))
+            for t in targetlist:
+                if(t.variable!=varname) continue
+                add_task(cmor_task(src,t))
+                targetlist.remove(t)
+    nemoparlist=[]
+    if(nemopar):
+        nemoparlist=f90nml.read(nemopar)
+        for p in nemoparlist.get("parameter"):
+            vstr=p["param"]
+            varname=p["out_name"]
+            src=nemo_source(vstr) #TODO: add dimensions and grid type
+            for t in targetlist:
+                if(t.variable!=varname) continue
+                add_task(cmor_task(src,t))
+                targetlist.remove(t)
+
+# Loads the legacy ece2cmor input namelists to targets
+def load_targets_namelist(varlist):
+    vlist=f90nml.read(varlist)
+    targetlist=[]
+    for sublist in vlist["varlist"]:
+        freq=sublist["freq"]
+        vars2d=sublist.get("vars2d",[])
+        vars3d=sublist.get("vars3d",[])
+        for v in (vars2d+vars3d):
+            tlist=get_cmor_targets(v)
+            tgt=[t for t in tlist if t.frequency==freq]
+            targetlist.extend(tgt)
+    return targetlist
+
+
 # Returns the currently defined tasks:
 def get_tasks():
     global tasks_
@@ -122,11 +164,8 @@ def perform_nemo_tasks():
     global nemodir_
     global startdate_
     global interval_
+    global prefix_
+    global table_path_
     nemo_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.nemo_source)]
+    nemo2cmor.initialize(nemodir_,prefix_,table_path_,startdate_,interval_)
     nemo2cmor.execute(nemo_tasks,nemodir_,startdate,interval)
-    # Set calendar
-    # Create time axis
-    # Create grid
-    # Create depth axis
-    # Create variables
-    # Cmorize away
