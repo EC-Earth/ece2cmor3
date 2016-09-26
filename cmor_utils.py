@@ -25,17 +25,17 @@ def find_ifs_output(path,expname=None):
     subexpr=".*"
     if(expname):
         subexpr=expname
-    expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+00[0-9]{4}$")
+    expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+[0-9]{6}$")
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
-# Returns the number of output time steps from the given ifs output file.
-def get_ifs_steps(filepath):
+# Returns the start date for the given file path
+def get_ifs_date(filepath):
     fname=os.path.basename(filepath)
-    regex=re.search("\+00[0-9]{4}",fname)
+    regex=re.search("\+[0-9]{6}",fname)
     if(not regex):
         raise Exception("unable to parse time stamp from ifs file name",fname)
-    ss=regex.group()[3:]
-    return int(ss)
+    ss=regex.group()[1:]
+    return datetime.datetime.strptime(ss,"%Y%m").date()
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
 def find_nemo_output(path,expname=None):
