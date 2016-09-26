@@ -57,6 +57,7 @@ def execute(tasks):
         files=select_freq_files(freq)
         if(len(files)==0):
             raise Exception("no NEMO output files found for frequency",freq,"in file list",nemo_files_)
+        print "Loading CMOR table",tab,"..."
         tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
         cmor.set_table(tab_id)
         time_axes_[tab_id]=create_time_axis(freq,files)
@@ -91,12 +92,10 @@ def execute_netcdf_task(task,dataset,tableid):
     global grid_ids_
     global depth_axes_
 #TODO: Log this instead of printing...
-    print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable
-
+    print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable,"..."
     dims=task.target.dims
     axes=[grid_ids_[task.source.grid()]]
     if(dims==3):
-        #TODO: Make sure target is 3d as well...
         grid_index=cmor_source.nemo_grid.index(task.source.grid())
         if(not grid_index in cmor_source.nemo_depth_axes):
             raise Exception("Cannot create 3d variable on grid ",task.source.grid())
@@ -106,8 +105,11 @@ def execute_netcdf_task(task,dataset,tableid):
     srcvar=task.source.var()
     ncvar=dataset.variables[srcvar]
     ncunits=getattr(ncvar,"units")
-    # TODO: pass positive flag
-    varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar))
+    varid=0
+    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar),positive="down")
+    else:
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar))
     vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
     if(dims==2):

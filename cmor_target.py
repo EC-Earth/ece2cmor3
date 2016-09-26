@@ -24,6 +24,7 @@ def get_table_id(filepath,prefix):
 head_key="Header"
 freq_key="frequency"
 var_key="variable_entry"
+realm_key="realm"
 dims_key="dimensions"
 
 # Creates cmor-targets from the input json-file
@@ -42,10 +43,12 @@ def create_targets_for_file(filepath,prefix):
     header=data.get(head_key,None)
     if(header):
         freq=header.get(freq_key,None)
+        realm=header.get(realm_key,None)
     var_entries=data.get(var_key,{})
     for k,v in var_entries.iteritems():
         t=cmor_target(k,tabid)
         t.frequency=freq
+        t.realm=realm
         for k2,v2 in v.iteritems():
             setattr(t,k2,v2)
             if(k2==dims_key):

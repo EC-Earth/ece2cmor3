@@ -10,6 +10,9 @@ class cmor_source(object):
     def dims(self):
         return self.spatial_dims
 
+    def freq(self):
+        return self.freq
+
     def grid(self):
         pass
 

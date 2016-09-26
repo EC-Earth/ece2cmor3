@@ -54,6 +54,7 @@ def load_task_namelists(varlist,ifspar=None,nemopar=None):
         varname=p["out_name"]
         for tgt in targetlist:
             if(tgt.variable!=varname): continue
+            if(tag==Nemo_source_tag and not tgt.realm in ["ocean","seaIce ocean"]): continue
             src=create_cmor_source(p,tag)
             ece2cmor.add_task(cmor_task.cmor_task(src,tgt))
             targetlist.remove(tgt)
