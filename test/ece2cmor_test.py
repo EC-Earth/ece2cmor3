@@ -15,7 +15,7 @@ class ece2cmor_tests(unittest.TestCase):
         path=os.path.dirname(ece2cmor.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/CMIP6"
         conf=os.path.dirname(__file__)+"/test_data/cmor3_metadata.json"
         abspath=os.path.abspath(path)
-        ece2cmor.initialize(path,conf)
+        ece2cmor.initialize("exp",path,conf)
 
     def test_initialize(self):
         ece2cmor_tests.init()

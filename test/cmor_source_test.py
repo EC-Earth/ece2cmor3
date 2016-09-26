@@ -35,5 +35,5 @@ class cmor_source_tests(unittest.TestCase):
     def test_create_nemo_source(self):
         src=nemo_source("tos",nemo_grid.grid_T)
         eq_(src.grid(),"grid_T")
-        eq_(src.dims(),2)
+        eq_(src.dims(),-1)
         eq_(src.realm(),"ocean")

@@ -147,6 +147,8 @@ class nemo2cmor_tests(unittest.TestCase):
         src=cmor_source.nemo_source("tos",cmor_source.nemo_grid.grid_T)
         tgt=cmor_target.cmor_target("tos","Omon")
         setattr(tgt,"frequency","mon")
+        setattr(tgt,"dimensions","longitude latitude time")
+        tgt.dims=2
         tsk=cmor_task.cmor_task(src,tgt)
         nemo2cmor.execute([tsk])
         nemo2cmor.finalize()
@@ -162,6 +164,8 @@ class nemo2cmor_tests(unittest.TestCase):
         src=cmor_source.nemo_source("to",cmor_source.nemo_grid.grid_T,3)
         tgt=cmor_target.cmor_target("thetao","Omon")
         setattr(tgt,"frequency","mon")
+        setattr(tgt,"dimensions","longitude latitude olevel time")
+        tgt.dims=3
         tsk=cmor_task.cmor_task(src,tgt)
         nemo2cmor.execute([tsk])
         nemo2cmor.finalize()

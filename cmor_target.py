@@ -9,6 +9,7 @@ class cmor_target(object):
     def __init__(self,var_id__,tab_id__):
         self.variable=var_id__
         self.table=tab_id__
+        self.dims=2
 
 # Derives the table id for the given file path
 def get_table_id(filepath,prefix):
@@ -23,6 +24,7 @@ def get_table_id(filepath,prefix):
 head_key="Header"
 freq_key="frequency"
 var_key="variable_entry"
+dims_key="dimensions"
 
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath,prefix):
@@ -46,6 +48,8 @@ def create_targets_for_file(filepath,prefix):
         t.frequency=freq
         for k2,v2 in v.iteritems():
             setattr(t,k2,v2)
+            if(k2==dims_key):
+                t.dims=len(v2.split())-1 # don't count time dimension
         result.append(t)
     return result
 

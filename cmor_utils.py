@@ -5,6 +5,14 @@ import datetime
 # Enum utility class
 class cmor_enum(tuple): __getattr__=tuple.index
 
+def make_datetime(time):
+    if(isinstance(time,datetime.date)):
+        return datetime.datetime.combine(time,datetime.datetime.min.time())
+    elif(isinstance(time,datetime.datetime)):
+        return time
+    else:
+        raise Exception("Cannot convert object",time,"to datetime")
+
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):
     if(end<start):

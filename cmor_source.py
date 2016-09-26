@@ -5,9 +5,10 @@ class cmor_source(object):
 
     def __init__(self):
         self.frequency=datetime.timedelta(0)
+        self.spatial_dims=2
 
     def dims(self):
-        pass
+        return self.spatial_dims
 
     def grid(self):
         pass
@@ -63,16 +64,14 @@ class ifs_source(cmor_source):
         if(not code in ifs_source.grib_codes):
             raise Exception("Unknown grib code passed to IFS source parameter constructor:",str(code.var_id)+"."+str(code.tab_id))
         self.code__=code
+        self.spatial_dims=-1
         if(code in ifs_source.grib_codes_3D):
             self.grid_="spec_grid"
-            self.dims_=3
+            self.spatial_dims=3
         else:
             self.grid_="pos_grid"
-            self.dims_=2
+            self.spatial_dims=2
         self.realm_="atmos"
-
-    def dims(self):
-        return self.dims_
 
     def grid(self):
         return self.grid_
@@ -97,6 +96,7 @@ class ifs_source(cmor_source):
 from cmor_utils import cmor_enum
 
 # NEMO grid type enumerable.
+# TODO: add scalar grid for soga,masso,volo
 nemo_grid=cmor_enum(["grid_U","grid_V","grid_W","grid_T","icemod","SBC"])
 
 # NEMO depth axes dictionary.
@@ -106,18 +106,15 @@ nemo_depth_axes={nemo_grid.grid_U:"u",nemo_grid.grid_V:"v",nemo_grid.grid_W:"w",
 # TODO: grid type and dimensions should follow from Nemo's field_def.xml
 class nemo_source(cmor_source):
 
-    def __init__(self,var_id_,grid_id_,dims_=2):
+    def __init__(self,var_id_,grid_id_,dims_=-1):
         self.var_id=var_id_
         if(grid_id_>=len(nemo_grid)):
             raise Exception("Invalid grid type passed to nemo source parameter constructor:",grid_id_)
-        self.grid_id=grid_id_
-        self.dims_=dims_
-
-    def dims(self):
-        return self.dims_
+        self.grid_=grid_id_
+        self.spatial_dims=dims_
 
     def grid(self):
-        return nemo_grid[self.grid_id]
+        return nemo_grid[self.grid_]
 
     def realm(self):
         return "ocean"

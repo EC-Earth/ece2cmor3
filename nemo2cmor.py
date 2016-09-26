@@ -4,6 +4,7 @@ import cmor_utils
 import cmor_source
 import numpy
 from itertools import groupby
+import datetime
 
 # Experiment name
 exp_name_=None
@@ -55,13 +56,10 @@ def execute(tasks):
         freq=tskgroup[0].target.frequency
         files=select_freq_files(freq)
         if(len(files)==0):
-            raise Exception("no NEMO output files found for frequency",freq,"in file list",files)
+            raise Exception("no NEMO output files found for frequency",freq,"in file list",nemo_files_)
         tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
         cmor.set_table(tab_id)
-#        if(not tab_id in time_axes_):
-        print "filling time axis for table",tab_id
         time_axes_[tab_id]=create_time_axis(freq,files)
-        print "time axis created:",time_axes_[tab_id]
         if(not tab_id in depth_axes_):
             depth_axes_[tab_id]=create_depth_axes(tab_id,files)
         # Loop over files:
@@ -92,9 +90,12 @@ def execute_netcdf_task(task,dataset,tableid):
     global time_axes_
     global grid_ids_
     global depth_axes_
+#TODO: Log this instead of printing...
+    print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable
 
+    dims=task.target.dims
     axes=[grid_ids_[task.source.grid()]]
-    if(task.source.dims()==3):
+    if(dims==3):
         #TODO: Make sure target is 3d as well...
         grid_index=cmor_source.nemo_grid.index(task.source.grid())
         if(not grid_index in cmor_source.nemo_depth_axes):
@@ -106,13 +107,12 @@ def execute_netcdf_task(task,dataset,tableid):
     ncvar=dataset.variables[srcvar]
     ncunits=getattr(ncvar,"units")
     # TODO: pass positive flag
-    print "the axes are",axes
-    varid=cmor.variable(task.target.variable,units=str(ncunits),axis_ids=axes,original_name=srcvar)
+    varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar))
     vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
-    if(task.source.dims()==2):
+    if(dims==2):
         vals=numpy.transpose(ncvar[:,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-    elif(task.source.dims()==3):
+    elif(dims==3):
         vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
     else:
         raise Exception("Arrays of dimensions",task.source.dims(),"are not supported by nemo2cmor")
@@ -136,14 +136,18 @@ def create_depth_axes(tab_id,files):
             continue
         if(index in result):
             continue
-        result[index]=create_depth_axis(f,cmor_source.nemo_depth_axes[index])
+        did=create_depth_axis(f,cmor_source.nemo_depth_axes[index])
+        if(did!=0): result[index]=did
     return result
 
 
 # Creates a cmor depth axis
 def create_depth_axis(ncfile,gridchar):
     ds=netCDF4.Dataset(ncfile)
-    depthvar=ds.variables["depth"+gridchar]
+    varname="depth"+gridchar
+    if(not varname in ds.variables):
+        return 0
+    depthvar=ds.variables[varname]
     depthbnd=getattr(depthvar,"bounds")
     units=getattr(depthvar,"units")
     bndvar=ds.variables[depthbnd]
@@ -176,7 +180,6 @@ def create_time_axis(freq,files):
     if(len(vals)==0 or units==None):
         raise Exception("No time values or units could be read from NEMO output files",files)
     ax_id=cmor.axis(table_entry="time",units=units,coord_vals=vals,cell_bounds=bndvar[:,:])
-    print "Wrote time values",vals
     timvals=vals
     timbnds=bndvar[:,:]
     return ax_id
@@ -195,7 +198,9 @@ def select_freq_files(freq):
 # Retrieves all NEMO output files in the input directory.
 def select_files(path,expname,start,length):
     allfiles=cmor_utils.find_nemo_output(path,expname)
-    return [f for f in allfiles if cmor_utils.get_nemo_interval(f)[0]<=(start+length) and cmor_utils.get_nemo_interval(f)[1]>=start]
+    starttime=cmor_utils.make_datetime(start)
+    stoptime=cmor_utils.make_datetime(start+length)
+    return [f for f in allfiles if cmor_utils.get_nemo_interval(f)[0]<=stoptime and cmor_utils.get_nemo_interval(f)[1]>=starttime]
 
 
 # Reads the calendar attribute from the time dimension.

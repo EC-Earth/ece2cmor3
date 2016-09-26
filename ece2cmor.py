@@ -1,12 +1,15 @@
 import cmor
 import os
+import f90nml
+import cmor_source
 import cmor_target
 import cmor_task
-import f90nml
+import nemo2cmor
 
 # ece2cmor master API.
+exp_name_=None
 prefix_=None
-table_path_=None
+table_dir_=None
 config_file_=None
 targets_=[]
 ifsdir_=None
@@ -16,22 +19,24 @@ startdate_=None
 interval_=None
 
 # Initialization function, must be called before starting
-def initialize(table_root,conf_path):
+def initialize(exp_name,table_root,conf_path):
+    global exp_name_
     global prefix_
-    global table_path_
+    global table_dir_
     global conf_path_
     global targets_
     global ifsdir_
     global nemodir_
     global tasks_
 
+    exp_name_=exp_name
     prefix_=os.path.splitext(os.path.basename(table_root))[0]
-    table_path_=os.path.dirname(table_root)
+    table_dir_=os.path.dirname(table_root)
     conf_path_=conf_path
 
-    cmor.setup(table_path_)
+    cmor.setup(table_dir_)
     cmor.dataset_json(conf_path_)
-    targets_=cmor_target.create_targets(table_path_,prefix_)
+    targets_=cmor_target.create_targets(table_dir_,prefix_)
 
     ifsdir_=None
     nemodir_=None
@@ -39,16 +44,18 @@ def initialize(table_root,conf_path):
 
 # Closes cmor
 def finalize():
+    global exp_name_
     global prefix_
-    global table_path_
+    global table_dir_
     global config_file_
     global targets_
     global ifsdir_
     global nemodir_
 
     cmor.close()
+    exp_name_=None
     prefix_=None
-    table_path_=None
+    table_root_=None
     config_file_=None
     targets_=[]
     ifsdir_=None
@@ -91,12 +98,11 @@ def set_time_interval(startdate,interval):
     global startdate_
     global interval_
     startdate_=startdate
-    interval=interval
+    interval_=interval
 
 # Adds a task to the task list.
 def add_task(tsk):
     global tasks_
-    print id(tsk.target)
     if(isinstance(tsk,cmor_task.cmor_task)):
         if(tsk.target not in targets_):
             raise Exception("Cannot append tasks with unknown target",tsk.target)
@@ -123,8 +129,10 @@ def perform_nemo_tasks():
     global nemodir_
     global startdate_
     global interval_
+    global exp_name_
+    global table_dir_
     global prefix_
-    global table_path_
     nemo_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.nemo_source)]
-    nemo2cmor.initialize(nemodir_,prefix_,table_path_,startdate_,interval_)
-    nemo2cmor.execute(nemo_tasks,nemodir_,startdate,interval)
+    tableroot=os.path.join(table_dir_,prefix_)
+    nemo2cmor.initialize(nemodir_,exp_name_,tableroot,startdate_,interval_)
+    nemo2cmor.execute(nemo_tasks)
