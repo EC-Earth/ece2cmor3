@@ -49,10 +49,17 @@ def execute(tasks):
     global time_axes_
     global depth_axes_
     global table_root_
-
-    for k,v in groupby(tasks,lambda t: t.target.table):
+    print "Executing nemo tasks..."
+    taskdict={}
+    for t in tasks:
+        tab=t.target.table
+        if(tab in taskdict):
+            taskdict[tab].append(t)
+        else:
+            taskdict[tab]=[t]
+    for k,v in taskdict.iteritems():
         tab=k
-        tskgroup=list(v)
+        tskgroup=v
         freq=tskgroup[0].target.frequency
         files=select_freq_files(freq)
         if(len(files)==0):
