@@ -3,7 +3,6 @@ import cmor
 import cmor_utils
 import cmor_source
 import numpy
-from itertools import groupby
 import datetime
 
 # Experiment name

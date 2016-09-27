@@ -1,3 +1,10 @@
+import cmor
+import cdo
+import cmor_utils
+import cmor_source
+import dateutil
+import gribapi
+
 # Experiment name
 exp_name_=None
 
@@ -27,16 +34,28 @@ def initialize(path,expname,tableroot,start,length,interval=dateutil.relativedel
     table_root_=tableroot
     output_interval=interval
     ifs_files_=select_files(path,start,length,output_interval)
-#    cal=None
-#    for f in ifs_files_:
-#        cal=read_calendar(f)
-#        if(cal):
-#            break
-#    if(cal):
-#        cmor.set_cur_dataset_attribute("calendar",cal)
+#    cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 #    cmor.load_table(tableroot+"_grids.json")
 #    create_grids()
 
+def execute(tasks):
+    print "Executing IFS tasks..."
+    taskdict={}
+    for t in tasks:
+        freq=t.target.frequency
+        if(freq in taskdict):
+            taskdict[freq].append(t)
+        else:
+            taskdict[freq]=[t]
+    for k,v in taskdict.iteritems():
+        postproc(v,k)
+        #TODO: Unit conversion
+        #TODO: Cmorization
+
+def postproc(tasks,freq):
+    spectral_sources=[t.source for t in tasks if t.source.grid()=="spec_grid"]
+    gridpoint_sources=[t.source for t in tasks if t.source.grid()=="pos_grid"]
+    #TODO: Spawn multiple processes splitting and mapping concurrently...
 
 # Retrieves all IFS output files in the input directory.
 def select_files(path,expname,start,length,interval):
@@ -46,6 +65,6 @@ def select_files(path,expname,start,length,interval):
     return [f for f in allfiles if cmor_utils.get_ifs_date(f)<enddate and cmor_utils.get_ifs_date(f)>startdate]
 
 
-def create_grids():
+def create_grid():
     # TODO: Implement
     raise Exception("Not implemented yet")
