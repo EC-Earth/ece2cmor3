@@ -23,6 +23,7 @@ depth_axes_={}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
 
+
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
     global nemo_files_
@@ -100,8 +101,14 @@ def execute_netcdf_task(task,dataset,tableid):
 #TODO: Log this instead of printing...
     print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable,"..."
     dims=task.target.dims
-    axes=[grid_ids_[task.source.grid()]]
-    if(dims==3):
+    globvar=(task.source.grid()==cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
+    if(globvar):
+        axes=[]
+    else:
+        if(not task.source.grid() in grid_ids_):
+            raise Exception("Grid axis for",task.source.grid(),"was not created, something has gone wrong")
+        axes=[grid_ids_[task.source.grid()]]
+    if((globvar and dims==1) or (not globvar and dims==3)):
         grid_index=cmor_source.nemo_grid.index(task.source.grid())
         if(not grid_index in cmor_source.nemo_depth_axes):
             raise Exception("Cannot create 3d variable on grid ",task.source.grid())
@@ -229,7 +236,8 @@ def read_calendar(ncfile):
 def create_grids():
     global grid_ids
 
-    for g in cmor_source.nemo_grid:
+    spatial_grids=[grd for grd in cmor_source.nemo_grid if grd!=cmor_source.nemo_grid.scalar]
+    for g in spatial_grids:
         gridfiles=[f for f in nemo_files_ if f.endswith(g + ".nc")]
         if(len(gridfiles)!=0):
             grid=read_grid(gridfiles[0])
@@ -263,7 +271,7 @@ class nemogrid(object):
     def __init__(self,lons_,lats_):
         flon=numpy.vectorize(nemogrid.modlon)
         flat=numpy.vectorize(nemogrid.modlat)
-        self.lons=nemogrid.smoothen(flon(lons_))
+        self.lons=flon(nemogrid.smoothen(lons_))
         self.lats=flat(lats_)
         self.vertex_lons=nemogrid.create_vertex_lons(lons_)
         self.vertex_lats=nemogrid.create_vertex_lats(lats_)
@@ -316,7 +324,7 @@ class nemogrid(object):
 
     @staticmethod
     def modlon2(x,a):
-        if(x<=a): return x+360.0
+        if(x<a): return x+360.0
         else: return x
 
     @staticmethod
@@ -325,10 +333,9 @@ class nemogrid(object):
         ny=a.shape[1]
         mod=numpy.vectorize(nemogrid.modlon2)
         b=numpy.empty([nx,ny])
-        b[0,:]=a[0,:]
-        b[1,:]=a[1,:]
-        for j in range(0,ny-1):
-            x=a[1,j]
-            b[2:,j]=mod(a[2:,j],x)
-        b[:,ny-1]=a[:,ny-1]
+        for i in range(0,nx):
+            x=a[i,1]
+            b[i,0]=a[i,0]
+            b[i,1]=x
+            b[i,2:]=mod(a[i,2:],x)
         return b

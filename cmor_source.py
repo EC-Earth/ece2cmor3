@@ -102,7 +102,7 @@ class ifs_source(cmor_source):
 # NEMO grid type enumerable.
 # TODO: add scalar grid for soga,masso,volo
 # TODO: move to models module
-nemo_grid=cmor_enum(["grid_U","grid_V","grid_W","grid_T","icemod","SBC"])
+nemo_grid=cmor_enum(["grid_U","grid_V","grid_W","grid_T","icemod","SBC","scalar"])
 
 # NEMO depth axes dictionary.
 # TODO: move to models module
