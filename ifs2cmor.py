@@ -4,6 +4,7 @@ import cmor_utils
 import cmor_source
 import dateutil
 import gribapi
+import os
 
 # Experiment name
 exp_name_=None
@@ -12,7 +13,8 @@ exp_name_=None
 table_root_=None
 
 # Files that are being processed in the current execution loop.
-ifs_files_=[]
+ifs_gridpoint_file_=None
+ifs_spectral_file_=None
 
 # List of depth axis ids with cmor grid id.
 height_axes_={}
@@ -20,39 +22,44 @@ height_axes_={}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
 
-# Output interval. Denotes the o0utput file periods.
-output_interval=None
+# Output interval. Denotes the 0utput file periods.
+output_interval_=None
+
+# Fast storage temporary path
+temp_path_=os.getcwd()
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,interval=dateutil.relativedelta(month=1)):
+def initialize(path,expname,tableroot,start,length,interval=dateutil.relativedelta(month=1),temp_path=None):
     global exp_name_
     global table_root_
-    global ifs_files_
+    global ifs_gridpoint_file_
+    global ifs_spectral_file_
     global output_interval
 
     exp_name_=expname
     table_root_=tableroot
     output_interval=interval
-    ifs_files_=select_files(path,start,length,output_interval)
-#    cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
-#    cmor.load_table(tableroot+"_grids.json")
-#    create_grids()
+    datafiles=select_files(path,start,length,output_interval)
+    gpfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
+    shfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+    if(not (len(gpfiles)==1 and len(shfiles)==1)):
+        #TODO: Support postprocessing over multiple files
+        raise Exception("Expected a single grid point and spectral file to process, found:",datafiles)
+    ifs_gridpoint_file_=gpfiles[0]
+    ifs_spectral_file_=shfiles[0]
+    cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 
 def execute(tasks):
-    print "Executing IFS tasks..."
+    print "Post-processing IFS data..."
     postproc_irreg([t for t in tasks if not regular(t)])
     postproc([t for t in tasks if regular(t)])
-    taskdict={}
-    for t in tasks:
-        freq=t.target.frequency
-        if(freq in taskdict):
-            taskdict[freq].append(t)
-        else:
-            taskdict[freq]=[t]
-    for k,v in taskdict.iteritems():
-        postproc(v,k)
-        #TODO: Unit conversion
-        #TODO: Cmorization
+    print "Cmorizing IFS data..."
+    create_grid_from_grib(getattr(tasks[0],"path"))
+    cmorize(tasks)
+
+def cmorize(tasks):
+    #TODO: implemented
+    pass
 
 def regular(task):
     #TODO: Implement criterium
@@ -74,21 +81,25 @@ def postproc(tasks):
     for k,v in taskdict.iteritems():
         ppcdo(v,k[0],k[1])
 
-#TODO: Check whether selmon is necessary...
+#TODO: Add selmon...
 def ppcdo(tasks,freq,grid):
     if(len(tasks)==0): return
-    proj_op=None
-    if(grid==cmor_source.ifs_grid.spec):
-        proj_op="sp2gpl"
-    timops=get_cdo_timop(freq)
     tim_avg=timops[0]
     tim_shift=timpops[1]
     codes=list(set(map(lambda t:t.source.get_grib_code().var_id,tasks)))
     sel_op="selcode,"+(",".join(map(lambda i:str(i),codes)))
-    opstr=chain_cdo_commands(proj_op,timops,sel_op)
-    if(grid==cmor_source.ifs_grid.pos):
-        opstr="-R "+opstr
-    cdo=cdo.Cdo()
+    opstr=chain_cdo_commands(timops,sel_op)
+    command=cdo.Cdo()
+    ifile=None
+    if(grid==cmor_source.ifs_grid.point):
+        ofile=os.path.join(temp_path,"ICMGG_"+freq)
+        command.copy(input=timops+ifs_gridpoint_file_,output=ofile,options="-R")
+    else:
+        ofile=os.path.join(temp_path,"ICMSH_"+freq)
+        command.sp2gpl(input=timops+ifs_spectral_file_,output=ofile)
+    for t in tasks:
+        setattr(t,"path",ofile)
+
 
 def get_cdo_timop(freq):
     if(freq=="mon"):
@@ -113,7 +124,7 @@ def chain_cdo_commands(*args):
             op=s
         else:
             op+=(" -"+s)
-    return op
+    return op+" "
 
 # Retrieves all IFS output files in the input directory.
 def select_files(path,expname,start,length,interval):
@@ -123,6 +134,7 @@ def select_files(path,expname,start,length,interval):
     return [f for f in allfiles if cmor_utils.get_ifs_date(f)<enddate and cmor_utils.get_ifs_date(f)>startdate]
 
 
-def create_grid():
+def create_grid_from_grib(filepath):
     # TODO: Implement
+    command=cdo.Cdo()
     raise Exception("Not implemented yet")
