@@ -14,14 +14,14 @@ class cmor_source_tests(unittest.TestCase):
     def test_specific_humidity(self):
         code=grib_code(133,128)
         src=ifs_source(code)
-        eq_(src.grid(),"spec_grid")
+        eq_(src.grid(),"spec")
         eq_(src.dims(),3)
         eq_(src.realm(),"atmos")
 
     def test_snow_depth(self):
         code=grib_code(141,128)
         src=ifs_source(code)
-        eq_(src.grid(),"pos_grid")
+        eq_(src.grid(),"point")
         eq_(src.dims(),2)
 
     def test_create_from_ints(self):

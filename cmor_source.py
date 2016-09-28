@@ -1,4 +1,7 @@
 from datetime import timedelta
+import json
+import os
+from cmor_utils import cmor_enum
 
 # Base class for cmor source objects, which represent variables produced by a model
 class cmor_source(object):
@@ -18,9 +21,6 @@ class cmor_source(object):
 
     def realm(self):
         pass
-
-import json
-import os
 
 # ECMWF grib code object
 class grib_code:
@@ -53,6 +53,9 @@ def read_grib_codes_group(file,key):
     else:
         return []
 
+#TODO: move to models module
+ifs_grid=cmor_enum(["point","spec"])
+
 # IFS source subclass, constructed from a given grib code.
 class ifs_source(cmor_source):
 
@@ -69,15 +72,15 @@ class ifs_source(cmor_source):
         self.code__=code
         self.spatial_dims=-1
         if(code in ifs_source.grib_codes_3D):
-            self.grid_="spec_grid"
+            self.grid_=ifs_grid.spec
             self.spatial_dims=3
         else:
-            self.grid_="pos_grid"
+            self.grid_=ifs_grid.point
             self.spatial_dims=2
         self.realm_="atmos"
 
     def grid(self):
-        return self.grid_
+        return ifs_grid[self.grid_]
 
     def realm(self):
         return self.realm_
@@ -96,13 +99,13 @@ class ifs_source(cmor_source):
         cls=ifs_source(grib_code(vid,tid))
         return cls
 
-from cmor_utils import cmor_enum
-
 # NEMO grid type enumerable.
 # TODO: add scalar grid for soga,masso,volo
+# TODO: move to models module
 nemo_grid=cmor_enum(["grid_U","grid_V","grid_W","grid_T","icemod","SBC"])
 
 # NEMO depth axes dictionary.
+# TODO: move to models module
 nemo_depth_axes={nemo_grid.grid_U:"u",nemo_grid.grid_V:"v",nemo_grid.grid_W:"w",nemo_grid.grid_T:"t"}
 
 # NEMO source subclass, constructed from NEMO output variable id, grid type and dimensions.

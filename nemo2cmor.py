@@ -263,9 +263,8 @@ class nemogrid(object):
     def __init__(self,lons_,lats_):
         flon=numpy.vectorize(nemogrid.modlon)
         flat=numpy.vectorize(nemogrid.modlat)
-        self.lons=flon(lons_)
+        self.lons=nemogrid.smoothen(flon(lons_))
         self.lats=flat(lats_)
-        #TODO: Make a smooth longitude field...
         self.vertex_lons=nemogrid.create_vertex_lons(lons_)
         self.vertex_lats=nemogrid.create_vertex_lats(lats_)
 
@@ -305,18 +304,31 @@ class nemogrid(object):
 
     @staticmethod
     def modlat(x):
-        if(x<-90):
-            return x+180.0
-        elif(x>=90.0):
-            return x-180.0
-        else:
-            return x
+        if(x<-90): return x+180.0
+        elif(x>=90.0): return x-180.0
+        else: return x
 
     @staticmethod
     def modlon(x):
-        if(x<0):
-            return x+360.0
-        elif(x>=360.0):
-            return x-360.0
-        else:
-            return x
+        if(x<0): return x+360.0
+        elif(x>=360.0): return x-360.0
+        else: return x
+
+    @staticmethod
+    def modlon2(x,a):
+        if(x<=a): return x+360.0
+        else: return x
+
+    @staticmethod
+    def smoothen(a):
+        nx=a.shape[0]
+        ny=a.shape[1]
+        mod=numpy.vectorize(nemogrid.modlon2)
+        b=numpy.empty([nx,ny])
+        b[0,:]=a[0,:]
+        b[1,:]=a[1,:]
+        for j in range(0,ny-1):
+            x=a[1,j]
+            b[2:,j]=mod(a[2:,j],x)
+        b[:,ny-1]=a[:,ny-1]
+        return b
