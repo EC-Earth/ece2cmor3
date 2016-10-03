@@ -61,10 +61,11 @@ def load_task_namelists(varlist,ifspar=None,nemopar=None):
 
 # Creates a cmor_source for the given parameter dictionary
 def create_cmor_source(paramdict,tag):
-    parstr=paramdict["out_name"]
     if(tag==IFS_source_tag):
-        return cmor_source.ifs_source(grib_code.read(parstr))
+        codestr=str(paramdict["param"])
+        return cmor_source.ifs_source(cmor_source.grib_code.read(codestr))
     elif(tag==Nemo_source_tag):
+        parstr=paramdict["out_name"]
         ioname=paramdict["name"]
         if(not ioname in nemo_grid_dict):
             raise Exception("Variable",ioname,"could not be associated with a nemo output file")

@@ -5,6 +5,7 @@ import cmor_source
 import cmor_target
 import cmor_task
 import nemo2cmor
+import ifs2cmor
 
 # ece2cmor master API.
 exp_name_=None
@@ -122,6 +123,20 @@ def get_tasks():
 def clear_tasks():
     global tasks_
     tasks_=[]
+
+# Performs an IFS cmorization processing:
+def perform_ifs_tasks(postproc=True):
+    global tasks_
+    global ifsdir_
+    global startdate_
+    global interval_
+    global exp_name_
+    global table_dir_
+    global prefix_
+    ifs_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.ifs_source)]
+    tableroot=os.path.join(table_dir_,prefix_)
+    ifs2cmor.initialize(ifsdir_,exp_name_,tableroot,startdate_,interval_)
+    ifs2cmor.execute(ifs_tasks,postproc)
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks():
