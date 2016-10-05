@@ -170,13 +170,8 @@ def create_depth_axis(ncfile,gridchar):
     b[b<0]=0
     return cmor.axis(table_entry="depth_coord",units=units,coord_vals=depthvar[:],cell_bounds=b)
 
-timvals=None
-timbnds=None
-
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
-    global timvals
-    global timbnds
     vals=None
     units=None
     ds=None
@@ -195,8 +190,6 @@ def create_time_axis(freq,files):
     if(len(vals)==0 or units==None):
         raise Exception("No time values or units could be read from NEMO output files",files)
     ax_id=cmor.axis(table_entry="time",units=units,coord_vals=vals,cell_bounds=bndvar[:,:])
-    timvals=vals
-    timbnds=bndvar[:,:]
     return ax_id
 
 
