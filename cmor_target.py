@@ -3,6 +3,8 @@ import os
 import re
 import json
 
+axes={}
+
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
 
@@ -22,8 +24,9 @@ def get_table_id(filepath,prefix):
 # Json file keys:
 
 head_key="Header"
-freq_key="frequency"
+axis_key="axis_entry"
 var_key="variable_entry"
+freq_key="frequency"
 realm_key="realm"
 dims_key="dimensions"
 
@@ -44,6 +47,8 @@ def create_targets_for_file(filepath,prefix):
     if(header):
         freq=header.get(freq_key,None)
         realm=header.get(realm_key,None)
+    axes_entries=data.get(axis_key,{})
+    axes[tabid]=axes_entries
     var_entries=data.get(var_key,{})
     for k,v in var_entries.iteritems():
         t=cmor_target(k,tabid)

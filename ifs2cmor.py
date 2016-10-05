@@ -2,6 +2,7 @@ import cmor
 import cdo
 import cmor_utils
 import cmor_source
+import cmor_target
 from dateutil.relativedelta import relativedelta as deltat
 import os
 import numpy
@@ -19,9 +20,6 @@ ifs_spectral_file_=None
 
 # List of depth axis ids with cmor grid id.
 height_axes_={}
-
-# Dictionary of output frequencies with cmor time axis id.
-time_axes_={}
 
 # Start date of the processed data
 start_date_=None
@@ -97,13 +95,27 @@ def cmorize(tasks):
             print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
             continue
         # TODO: unify with nemo logic
-        time_axes_[tab_id]=create_time_axis(freq,files=[getattr(t,"path") for t in tskgroup])
-#        if(not tab_id in depth_axes_):
-#            depth_axes_[tab_id]=create_depth_axes(tab_id)
-        # Loop over tasks:
+        ifiles=[getattr(t,"path") for t in tskgroup]
+        time_axis_id=create_time_axis(freq,files=ifiles)
+        for t in tskgroup:
+            setattr(t,"time_axis",time_axis_id)
+        create_depth_axes(tab_id,tab,tskgroup)
         # TODO: paralelize
 #        for t in tskgroup:
 #            execute_grib_task(t,tab_id)
+
+def create_depth_axes(tab_id,table,tasks):
+    depth_axes={}
+    for t in tasks:
+        tgtdims=getattr(t.target,cmor_target.dims_key)
+        zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1"]))
+        if(len(zdims)!=1): continue
+        zdim=zdims[0]
+        print "The z-dimension for",t.target.out_name,"is",zdim
+        if zdim in cmor_target.axes[table]:
+            print "we found this axis!"
+            print cmor_target.axes[table][zdim]
+
 
 # Makes a time axis for the given table
 def create_time_axis(freq,files):
