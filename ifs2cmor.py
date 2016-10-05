@@ -5,6 +5,7 @@ import cmor_source
 from dateutil.relativedelta import relativedelta as deltat
 import os
 import numpy
+import datetime
 
 # Experiment name
 exp_name_=None
@@ -22,15 +23,18 @@ height_axes_={}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
 
+# Start date of the processed data
+start_date_=None
+
 # Output interval. Denotes the 0utput file periods.
 output_interval_=None
 
 # Fast storage temporary path
-tempdir_=os.getcwd()
+temp_dir_=os.getcwd()
 
 # Reference date, times will be converted to hours since refdate
 # TODO: set in init
-refdate_=None
+ref_date_=None
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month=1),tempdir=None):
@@ -39,13 +43,15 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
     global ifs_gridpoint_file_
     global ifs_spectral_file_
     global output_interval
-    global tempdir_
-    global refdate_
+    global temp_dir_
+    global ref_date_
+    global start_date_
 
     exp_name_=expname
     table_root_=tableroot
+    start_date_=start
     output_interval=interval
-    refdate_=refdate
+    ref_date_=refdate
     datafiles=select_files(path,exp_name_,start,length,output_interval)
     gpfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
@@ -54,9 +60,9 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
         raise Exception("Expected a single grid point and spectral file to process, found:",datafiles)
     ifs_gridpoint_file_=gpfiles[0]
     ifs_spectral_file_=shfiles[0]
-    if(tempdir):
+    if():
         # TODO: Create directory if necessary
-        tempdir_=tempdir
+        temp_dir_=tempdir
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 
 # Execute the postprocessing+cmorization tasks
@@ -83,8 +89,13 @@ def cmorize(tasks):
         tskgroup=v
         freq=tskgroup[0].target.frequency
         print "Loading CMOR table",tab,"..."
-        tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
-        cmor.set_table(tab_id)
+        tab_id=-1
+        try:
+            tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
+            cmor.set_table(tab_id)
+        except:
+            print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
+            continue
         # TODO: unify with nemo logic
         time_axes_[tab_id]=create_time_axis(freq,files=[getattr(t,"path") for t in tskgroup])
 #        if(not tab_id in depth_axes_):
@@ -98,26 +109,31 @@ def cmorize(tasks):
 def create_time_axis(freq,files):
     command=cdo.Cdo()
     datetimes=[]
-    for gribfile in files:
+    for gribfile in set(files):
         try:
-            dates=command.showdate(input=gribfile)[0].split()
-            times=command.showtime(input=gribfile)[0].split()
-            datetimes=map(lambda s1,s2:datetime.strptime(s1+" "+s2,"%Y-%m-%d %H:%M:%s"))
+            times=command.showtimestamp(input=gribfile)[0].split()
+            datetimes=sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
             break
         except:
             print "Problem reading atmosphere output time steps from file",gribfile,", trying next file"
     if(len(datetimes)==0):
         raise Exception("Empty time step list encountered at time axis creation for files",files)
-    times=[(d-refdate_).hours() for d in datetimes]
-    n=len(times)
-    midtimes=0.5*(times[0:n-1]+times[1:n])
-    bndvar=numpy.empty([2,n])
-    bndvar[0,0]=times[0]-0.5*(times[1]-times[0])
-    bndvar[0,1:n]=midtimes[:]
-    bndvar[1,0:n-1]=midtimes[:]
-    bndvar[1,n-1]=times[n-1]+0.5*(times[n-1]-times[n-2])
-    ax_id=cmor.axis(table_entry="time",units="hours since "+str(refdate),coord_vals=times,cell_bounds=bndvar)
+    timhrs=[(d-cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
+    n=len(timhrs)
+    times=numpy.array(timhrs)
+    bndvar=numpy.empty([n,2])
+    if(n==1):
+        bndvar[0,0]=(cmor_utils.make_datetime(start_date_)-cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
+        bndvar[0,1]=2*times[0]-bndvar[0,0]
+    else:
+        midtimes=0.5*(times[0:n-1]+times[1:n])
+        bndvar[0,0]=1.5*times[0]-0.5*times[1]
+        bndvar[1:n,0]=midtimes[:]
+        bndvar[0:n-1,1]=midtimes[:]
+        bndvar[n-1,1]=1.5*times[n-1]-0.5*times[n-2]
+    ax_id=cmor.axis(table_entry="time",units="hours since "+str(ref_date_),coord_vals=times,cell_bounds=bndvar)
     return ax_id
+    return 0
 
 # Tests whether the task is 'regular' or needs additional pre-postprocessing
 def regular(task):
@@ -156,11 +172,11 @@ def ppcdo(tasks,freq,grid,callcdo=True):
     command=cdo.Cdo()
     ifile=None
     if(grid==cmor_source.ifs_grid.point):
-        ofile=os.path.join(tempdir_,"ICMGG_"+freq)
+        ofile=os.path.join(temp_dir_,"ICMGG_"+freq)
         if(callcdo):
             command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-R -P 4")
     else:
-        ofile=os.path.join(tempdir_,"ICMSH_"+freq)
+        ofile=os.path.join(temp_dir_,"ICMSH_"+freq)
         if(callcdo):
             command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4")
     for t in tasks:

@@ -5,6 +5,7 @@ import datetime
 # Enum utility class
 class cmor_enum(tuple): __getattr__=tuple.index
 
+# Turns a date or datetime into a datetime
 def make_datetime(time):
     if(isinstance(time,datetime.date)):
         return datetime.datetime.combine(time,datetime.datetime.min.time())
@@ -12,6 +13,19 @@ def make_datetime(time):
         return time
     else:
         raise Exception("Cannot convert object",time,"to datetime")
+
+#TODO: Make more flexible
+def make_cmor_frequency(s):
+    if(s=="mon" or s=="monClim"):
+        return dateutil.relativedelta(month=1)
+    elif(s=="day"):
+        return dateutil.relativedelta(day=1)
+    elif(s=="6hr"):
+        return dateutil.relativedelta(hours=6)
+    elif(s=="3hr"):
+        return dateutil.relativedelta(hours=3)
+    else:
+        raise Exception("Could not convert argument",s,"to a relative time interval")
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):

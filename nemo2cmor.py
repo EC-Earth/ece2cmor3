@@ -65,8 +65,13 @@ def execute(tasks):
         if(len(files)==0):
             raise Exception("no NEMO output files found for frequency",freq,"in file list",nemo_files_)
         print "Loading CMOR table",tab,"..."
-        tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
-        cmor.set_table(tab_id)
+        tab_id=-1
+        try:
+            tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
+            cmor.set_table(tab_id)
+        except:
+            print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
+            continue
         time_axes_[tab_id]=create_time_axis(freq,files)
         if(not tab_id in depth_axes_):
             depth_axes_[tab_id]=create_depth_axes(tab_id,files)
