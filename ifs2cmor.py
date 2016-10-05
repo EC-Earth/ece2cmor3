@@ -28,18 +28,24 @@ output_interval_=None
 # Fast storage temporary path
 tempdir_=os.getcwd()
 
+# Reference date, times will be converted to hours since refdate
+# TODO: set in init
+refdate_=None
+
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,interval=deltat(month=1),tempdir=None):
+def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month=1),tempdir=None):
     global exp_name_
     global table_root_
     global ifs_gridpoint_file_
     global ifs_spectral_file_
     global output_interval
     global tempdir_
+    global refdate_
 
     exp_name_=expname
     table_root_=tableroot
     output_interval=interval
+    refdate_=refdate
     datafiles=select_files(path,exp_name_,start,length,output_interval)
     gpfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
@@ -65,8 +71,53 @@ def execute(tasks,postprocess=True):
 
 # Do the cmorization tasks
 def cmorize(tasks):
-    #TODO: implemented
-    pass
+    taskdict={}
+    for t in tasks:
+        tab=t.target.table
+        if(tab in taskdict):
+            taskdict[tab].append(t)
+        else:
+            taskdict[tab]=[t]
+    for k,v in taskdict.iteritems():
+        tab=k
+        tskgroup=v
+        freq=tskgroup[0].target.frequency
+        print "Loading CMOR table",tab,"..."
+        tab_id=cmor.load_table("_".join([table_root_,tab])+".json")
+        cmor.set_table(tab_id)
+        # TODO: unify with nemo logic
+        time_axes_[tab_id]=create_time_axis(freq,files=[getattr(t,"path") for t in tskgroup])
+#        if(not tab_id in depth_axes_):
+#            depth_axes_[tab_id]=create_depth_axes(tab_id)
+        # Loop over tasks:
+        # TODO: paralelize
+#        for t in tskgroup:
+#            execute_grib_task(t,tab_id)
+
+# Makes a time axis for the given table
+def create_time_axis(freq,files):
+    command=cdo.Cdo()
+    datetimes=[]
+    for gribfile in files:
+        try:
+            dates=command.showdate(input=gribfile)[0].split()
+            times=command.showtime(input=gribfile)[0].split()
+            datetimes=map(lambda s1,s2:datetime.strptime(s1+" "+s2,"%Y-%m-%d %H:%M:%s"))
+            break
+        except:
+            print "Problem reading atmosphere output time steps from file",gribfile,", trying next file"
+    if(len(datetimes)==0):
+        raise Exception("Empty time step list encountered at time axis creation for files",files)
+    times=[(d-refdate_).hours() for d in datetimes]
+    n=len(times)
+    midtimes=0.5*(times[0:n-1]+times[1:n])
+    bndvar=numpy.empty([2,n])
+    bndvar[0,0]=times[0]-0.5*(times[1]-times[0])
+    bndvar[0,1:n]=midtimes[:]
+    bndvar[1,0:n-1]=midtimes[:]
+    bndvar[1,n-1]=times[n-1]+0.5*(times[n-1]-times[n-2])
+    ax_id=cmor.axis(table_entry="time",units="hours since "+str(refdate),coord_vals=times,cell_bounds=bndvar)
+    return ax_id
 
 # Tests whether the task is 'regular' or needs additional pre-postprocessing
 def regular(task):
