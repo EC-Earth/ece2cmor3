@@ -41,18 +41,18 @@ def create_targets_for_file(filepath,prefix):
     except ValueError as err:
         print "Warning: table",filepath,"has been ignored. Reason:",format(err)
         return result
-
     # TODO: Use case insensitive search here
     freq=None
     header=data.get(head_key,None)
-    modlev=None
+    modlevs=None
     if(header):
         freq=header.get(freq_key,None)
         realm=header.get(realm_key,None)
-        modlev=header.get(levs_key,None)
+        modlevs=header.get(levs_key,None)
     axes_entries=data.get(axis_key,{})
-    if(modlev):
-        axes_entries[modlev]={"requested":"all"}
+    if(modlevs):
+        for modlev in modlevs.split():
+            axes_entries[modlev]={"requested":"all"}
     axes[tabid]=axes_entries
     var_entries=data.get(var_key,{})
     for k,v in var_entries.iteritems():

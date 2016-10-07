@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta as deltat
 import os
 import numpy
 import datetime
+import netCDF4
 
 # Experiment name
 exp_name_=None
@@ -101,27 +102,32 @@ def cmorize(tasks):
         create_depth_axes(tskgroup)
         # TODO: paralelize
         for t in tskgroup:
+#            try:
             execute_netcdf_task(t)
+#            except:
+#                print "Skipping cmorization of",t.target.variable
 
 
 def get_cdo_level_selector(axisname,axisinfo):
-    zaxis=None
+    if(axisname=="alevel"):
+        return ["selzaxis,hybrid"]
+    ret=[None,None]
     oname=axisinfo.get("standard_name",None)
     if(oname=="air_pressure"):
-        zaxis="pressure"
+        ret[0]="selzaxis,pressure"
+    elif(oname=="height"):
+        ret[0]="selzaxis,height"
     else:
         #TODO: Figure out what axis to select
         raise Exception("This needs to be implemented")
-    vals=axisinfo.get("requested",[])
-    if(len(vals)==0):
+    zlevs=axisinfo.get("requested",[])
+    if(len(zlevs)==0):
         val=axisinfo.get("value",None)
         if(val):
-            vals.append(val)
-    retstr=[]
-    if(len(vals)!=0):
-        retstr.append(["sellevel,"+",".join(vals)])
-    retstr.append("selzaxis,"+zaxis)
-    return retstr
+            zlevs=[val]
+    if(len(zlevs)!=0):
+        ret[1]=",".join(["sellevel"]+zlevs)
+    return ret
 
 
 # Executes a single task
@@ -131,12 +137,12 @@ def execute_netcdf_task(task):
     grid_id=getattr(task,"grid_id",0)
     if(grid_id!=0):
         axes.append(grid_id)
-    z_axis=getattr(task,"z_axis",(None,0))
-    lev_op=None
-    if(z_axis!=(None,0)):
-        axes.append(z_axis[1])
-        if(z_axis[0] in cmor_target.axes[task.target.table]):
-            lev_op=get_cdo_level_selector(z_axis[0],cmor_target.axes[task.target.table])
+    z_axis_name,z_axis_id=getattr(task,"z_axis",(None,0))
+    lev_ops=[None,None]
+    if(z_axis_name):
+        axes.append(z_axis_id)
+        if(z_axis_name in cmor_target.axes[task.target.table]):
+            lev_ops=get_cdo_level_selector(z_axis_name,cmor_target.axes[task.target.table][z_axis_name])
     time_id=getattr(task,"time_axis",0)
     if(time_id!=0):
         axes.append(time_id)
@@ -145,12 +151,15 @@ def execute_netcdf_task(task):
     cdocmd=cdo.Cdo()
     codestr=str(task.source.get_grib_code().var_id)
     sel_op="selcode,"+codestr
-    set_op="setparam,val"
-    print "cdo command: ",chain_cdo_commands(lev_op,sel_op)+filepath
-#    ncvars=cdocmd.copy(input=chain_cdo_commands(lev_op,sel_op)+filepath,returnCdf=True).variables
-#    var=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
-#    if(not len(var)==1):
-#        raise Exception("Cdo final post-processing resulted in ",len(var),"netcdf variables, 1 expected")
+    command=chain_cdo_commands(lev_ops[0],lev_ops[1],sel_op)+filepath
+    try:
+        ncvars=cdocmd.copy(input=command,returnCdf=True).variables
+    except Exception:
+        print "CDO command failed:",command
+        return
+    varlist=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
+    if(not len(varlist)==1):
+        raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
 #    ncvar=var[0]
 #    ncunits=getattr(ncvar,"units")
 #    varid=0
@@ -191,27 +200,30 @@ def create_depth_axes(tasks):
         if zdim in depth_axes:
             setattr(t,"z_axis",(str(zdim),depth_axes[zdim]))
             continue
-        if zdim in cmor_target.axes[t.target.table]:
+        elif zdim=="alevel":
+            axisid=create_hybrid_level_axis(t)
+            setattr(t,"z_axis",(str(zdim),axisid))
+            continue
+        elif zdim in cmor_target.axes[t.target.table]:
             axisid=0
-            if(zdim=="alevel"):
-                axisid=create_hybrid_level_axis(t)
+            axis=cmor_target.axes[t.target.table][zdim]
+            levels=axis.get("requested",[])
+            if(levels==""):
+                levels=[]
+            value=axis.get("value",None)
+            if(value):
+                levels.append(value)
+            unit=axis.get("units",None)
+            if(len(levels)==0):
+                print "Skipping axis",zdim,"with no values"
+                continue
             else:
-                axis=cmor_target.axes[t.target.table][zdim]
-                levels=axis.get("requested",[])
-                if(levels==""):
-                    levels=[]
-                value=axis.get("value",None)
-                if(value):
-                    levels.append(value)
-                unit=axis.get("units",None)
-                if(len(levels)==0):
-                    print "Skipping axis",zdim,"with no values"
-                    continue
-                else:
-                    vals=[float(l) for l in levels]
-                    axisid=cmor.axis(table_entry=str(zdim),coord_vals=vals,units=unit)
+                vals=[float(l) for l in levels]
+                axisid=cmor.axis(table_entry=str(zdim),coord_vals=vals,units=unit)
             depth_axes[zdim]=axisid
             setattr(t,"z_axis",(str(zdim),axisid))
+        else:
+            raise Exception("Vertical dimension",zdim,"not found in table header")
 
 
 def create_hybrid_level_axis(task):
@@ -234,10 +246,10 @@ def create_hybrid_level_axis(task):
     bbnds[:,1]=bi[1:n+1]
     hcbnds=abnds/pref+bbnds
     axid=cmor.axis(table_entry="alternate_hybrid_sigma",coord_vals=hcm,cell_bounds=hcbnds,units="1")
-    cmor.zfactor(zaxis_id=axid,zfactor_name="ap",units=aunit,axis_ids=[axid],zfactor_values=am,zfactor_bounds=abnds)
-    cmor.zfactor(zaxis_id=axid,zfactor_name="b",units=bunit,axis_ids=[axid],zfactor_values=bm,zfactor_bounds=bbnds)
+    cmor.zfactor(zaxis_id=axid,zfactor_name="ap",units=str(aunit),axis_ids=[axid],zfactor_values=am[:],zfactor_bounds=abnds)
+    cmor.zfactor(zaxis_id=axid,zfactor_name="b",units=str(bunit),axis_ids=[axid],zfactor_values=bm[:],zfactor_bounds=bbnds)
     gridid=getattr(task,"grid_id")
-    cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[axid,gridid],zfactor_values=bm,zfactor_bounds=bbnds)
+    cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[axid,gridid])
 
 
 # Makes a time axis for the given table
