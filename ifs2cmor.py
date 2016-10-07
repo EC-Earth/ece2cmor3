@@ -58,9 +58,11 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
         raise Exception("Expected a single grid point and spectral file to process, found:",datafiles)
     ifs_gridpoint_file_=gpfiles[0]
     ifs_spectral_file_=shfiles[0]
-    if():
-        # TODO: Create directory if necessary
+    if(tempdir):
+        if(not os.path.exists(tempdir)):
+            os.makedirs(tempdir)
         temp_dir_=tempdir
+    #TODO: set after conversion to netcdf
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 
 # Execute the postprocessing+cmorization tasks
@@ -70,7 +72,8 @@ def execute(tasks,postprocess=True):
     postproc([t for t in tasks if regular(t)],postprocess)
     print "Cmorizing IFS data..."
     cmor.load_table(table_root_+"_grids.json")
-    create_grid_from_grib(getattr(tasks[0],"path"))
+    gridid=create_grid_from_grib(getattr(tasks[0],"path"))
+    for t in tasks: setattr(t,"grid_id",gridid)
     cmorize(tasks)
 
 # Do the cmorization tasks
@@ -85,7 +88,6 @@ def cmorize(tasks):
     for k,v in taskdict.iteritems():
         tab=k
         tskgroup=v
-        freq=tskgroup[0].target.frequency
         print "Loading CMOR table",tab,"..."
         tab_id=-1
         try:
@@ -95,26 +97,147 @@ def cmorize(tasks):
             print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
             continue
         # TODO: unify with nemo logic
-        ifiles=[getattr(t,"path") for t in tskgroup]
-        time_axis_id=create_time_axis(freq,files=ifiles)
-        for t in tskgroup:
-            setattr(t,"time_axis",time_axis_id)
-        create_depth_axes(tab_id,tab,tskgroup)
+        create_time_axes(tskgroup)
+        create_depth_axes(tskgroup)
         # TODO: paralelize
-#        for t in tskgroup:
-#            execute_grib_task(t,tab_id)
+        for t in tskgroup:
+            execute_netcdf_task(t)
 
-def create_depth_axes(tab_id,table,tasks):
+
+def get_cdo_level_selector(axisname,axisinfo):
+    zaxis=None
+    oname=axisinfo.get("standard_name",None)
+    if(oname=="air_pressure"):
+        zaxis="pressure"
+    else:
+        #TODO: Figure out what axis to select
+        raise Exception("This needs to be implemented")
+    vals=axisinfo.get("requested",[])
+    if(len(vals)==0):
+        val=axisinfo.get("value",None)
+        if(val):
+            vals.append(val)
+    retstr=[]
+    if(len(vals)!=0):
+        retstr.append(["sellevel,"+",".join(vals)])
+    retstr.append("selzaxis,"+zaxis)
+    return retstr
+
+
+# Executes a single task
+def execute_netcdf_task(task):
+    print "cmorizing source variable",task.source.get_grib_code(),"to target variable",task.target.variable,"..."
+    axes=[]
+    grid_id=getattr(task,"grid_id",0)
+    if(grid_id!=0):
+        axes.append(grid_id)
+    z_axis=getattr(task,"z_axis",(None,0))
+    lev_op=None
+    if(z_axis!=(None,0)):
+        axes.append(z_axis[1])
+        if(z_axis[0] in cmor_target.axes[task.target.table]):
+            lev_op=get_cdo_level_selector(z_axis[0],cmor_target.axes[task.target.table])
+    time_id=getattr(task,"time_axis",0)
+    if(time_id!=0):
+        axes.append(time_id)
+    filepath=getattr(task,"path")
+    #TODO: unit conversion
+    cdocmd=cdo.Cdo()
+    codestr=str(task.source.get_grib_code().var_id)
+    sel_op="selcode,"+codestr
+    set_op="setparam,val"
+    print "cdo command: ",chain_cdo_commands(lev_op,sel_op)+filepath
+#    ncvars=cdocmd.copy(input=chain_cdo_commands(lev_op,sel_op)+filepath,returnCdf=True).variables
+#    var=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
+#    if(not len(var)==1):
+#        raise Exception("Cdo final post-processing resulted in ",len(var),"netcdf variables, 1 expected")
+#    ncvar=var[0]
+#    ncunits=getattr(ncvar,"units")
+#    varid=0
+#    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
+#        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
+#    else:
+#        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
+#    vals=numpy.zeros([1])
+    # TODO: use time slicing in case of memory shortage
+#    if(len(ncvar.dimensions)==3):
+#        vals=numpy.transpose(ncvar[:,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
+#    elif(len(ncvar.dimensions)==4):
+#        vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
+#    else:
+#        raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
+#    numpy.asfortranarray(vals)
+#    cmor.write(varid,vals)
+#    cmor.close(varid)
+
+
+# Creates time axes in cmor and attach the id's as attributes to the tasks
+def create_time_axes(tasks):
+    time_axis_id=create_time_axis(freq=tasks[0].target.frequency,files=[getattr(t,"path") for t in tasks])
+    for t in tasks:
+        setattr(t,"time_axis",time_axis_id)
+
+
+# Creates depth axes in cmor and attach the id's as attributes to the tasks
+def create_depth_axes(tasks):
     depth_axes={}
     for t in tasks:
         tgtdims=getattr(t.target,cmor_target.dims_key)
         zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1"]))
-        if(len(zdims)!=1): continue
+        if(len(zdims)==0): continue
+        if(len(zdims)>1):
+            raise Exception("Variable",t.target.variable,"with dimensions",tgtdims,"cannot be interpreted as 3d variable")
         zdim=zdims[0]
-        print "The z-dimension for",t.target.out_name,"is",zdim
-        if zdim in cmor_target.axes[table]:
-            print "we found this axis!"
-            print cmor_target.axes[table][zdim]
+        if zdim in depth_axes:
+            setattr(t,"z_axis",(str(zdim),depth_axes[zdim]))
+            continue
+        if zdim in cmor_target.axes[t.target.table]:
+            axisid=0
+            if(zdim=="alevel"):
+                axisid=create_hybrid_level_axis(t)
+            else:
+                axis=cmor_target.axes[t.target.table][zdim]
+                levels=axis.get("requested",[])
+                if(levels==""):
+                    levels=[]
+                value=axis.get("value",None)
+                if(value):
+                    levels.append(value)
+                unit=axis.get("units",None)
+                if(len(levels)==0):
+                    print "Skipping axis",zdim,"with no values"
+                    continue
+                else:
+                    vals=[float(l) for l in levels]
+                    axisid=cmor.axis(table_entry=str(zdim),coord_vals=vals,units=unit)
+            depth_axes[zdim]=axisid
+            setattr(t,"z_axis",(str(zdim),axisid))
+
+
+def create_hybrid_level_axis(task):
+    pref=80000 # TODO: Move reference pressure level to model config
+    path=getattr(task,"path")
+    ds=netCDF4.Dataset(path)
+    am=ds.variables["hyam"]
+    aunit=getattr(am,"units")
+    bm=ds.variables["hybm"]
+    bunit=getattr(bm,"units")
+    hcm=am[:]/pref+bm[:]
+    n=hcm.shape[0]
+    ai=ds.variables["hyai"]
+    abnds=numpy.empty([n,2])
+    abnds[:,0]=ai[0:n]
+    abnds[:,1]=ai[1:n+1]
+    bi=ds.variables["hybi"]
+    bbnds=numpy.empty([n,2])
+    bbnds[:,0]=bi[0:n]
+    bbnds[:,1]=bi[1:n+1]
+    hcbnds=abnds/pref+bbnds
+    axid=cmor.axis(table_entry="alternate_hybrid_sigma",coord_vals=hcm,cell_bounds=hcbnds,units="1")
+    cmor.zfactor(zaxis_id=axid,zfactor_name="ap",units=aunit,axis_ids=[axid],zfactor_values=am,zfactor_bounds=abnds)
+    cmor.zfactor(zaxis_id=axid,zfactor_name="b",units=bunit,axis_ids=[axid],zfactor_values=bm,zfactor_bounds=bbnds)
+    gridid=getattr(task,"grid_id")
+    cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[axid,gridid],zfactor_values=bm,zfactor_bounds=bbnds)
 
 
 # Makes a time axis for the given table
@@ -147,14 +270,17 @@ def create_time_axis(freq,files):
     return ax_id
     return 0
 
+
 # Tests whether the task is 'regular' or needs additional pre-postprocessing
 def regular(task):
     #TODO: Implement criterium
     return True
 
+
 # Does the postprocessing of irregular tasks
 def postproc_irreg(tasks,postprocess=True):
     if(len(tasks)!=0): raise Exception("The irregular post-processing jobs have not been implemented yet")
+
 
 # Does the postprocessing of regular tasks
 def postproc(tasks,postprocess=True):
@@ -170,6 +296,7 @@ def postproc(tasks,postprocess=True):
     for k,v in taskdict.iteritems():
         ppcdo(v,k[0],k[1],postprocess)
 
+
 # Does splitting of files according to frequency and remaps the grids.
 #TODO: Add selmon...
 def ppcdo(tasks,freq,grid,callcdo=True):
@@ -180,21 +307,24 @@ def ppcdo(tasks,freq,grid,callcdo=True):
     tim_shift=timops[1]
     codes=list(set(map(lambda t:t.source.get_grib_code().var_id,tasks)))
     sel_op="selcode,"+(",".join(map(lambda i:str(i),codes)))
-    opstr=chain_cdo_commands(tim_avg,tim_shift,sel_op)
     command=cdo.Cdo()
     ifile=None
     if(grid==cmor_source.ifs_grid.point):
-        ofile=os.path.join(temp_dir_,"ICMGG_"+freq)
+        opstr=chain_cdo_commands("setgridtype,regular",tim_avg,tim_shift,sel_op)
+        ofile=os.path.join(temp_dir_,"ICMGG_"+freq+".nc")
         if(callcdo):
-            command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-R -P 4")
+            command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-P 4 -f nc")
     else:
-        ofile=os.path.join(temp_dir_,"ICMSH_"+freq)
+        opstr=chain_cdo_commands(tim_avg,tim_shift,sel_op)
+        ofile=os.path.join(temp_dir_,"ICMSH_"+freq+".nc")
         if(callcdo):
-            command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4")
+            command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
     for t in tasks:
         setattr(t,"path",ofile)
 
+
 # Helper function for cdo time-averaging commands
+# TODO: move to cdo_utils
 def get_cdo_timop(freq):
     if(freq=="mon"):
         return ("timmean","shifttime,-3hours")
@@ -207,8 +337,9 @@ def get_cdo_timop(freq):
     else:
         raise Exception("Unknown target frequency encountered:",freq)
 
+
 # Utility to chain cdo commands
-#TODO: move to utils
+#TODO: move to cdo_utils and add input file argument
 def chain_cdo_commands(*args):
     op=""
     if(len(args)==0): return op
@@ -218,12 +349,14 @@ def chain_cdo_commands(*args):
         op+=(" -"+s)
     return op+" "
 
+
 # Retrieves all IFS output files in the input directory.
 def select_files(path,expname,start,length,interval):
     allfiles=cmor_utils.find_ifs_output(path,expname)
     startdate=cmor_utils.make_datetime(start).date()
     enddate=cmor_utils.make_datetime(start+length).date()
     return [f for f in allfiles if cmor_utils.get_ifs_date(f)<enddate and cmor_utils.get_ifs_date(f)>=startdate]
+
 
 # Creates the regular gaussian grids from the postprocessed file argument.
 def create_grid_from_grib(filepath):
@@ -259,7 +392,8 @@ def create_grid_from_grib(filepath):
             continue
     if(len(yvals)!=ysize):
         raise Exception("Invalid number of y-values given in file",filepath)
-    create_gauss_grid(xsize,xstart,ysize,numpy.array(yvals))
+    return create_gauss_grid(xsize,xstart,ysize,numpy.array(yvals))
+
 
 # Creates the regular gaussian grid from its arguments.
 def create_gauss_grid(nx,x0,ny,yvals):
