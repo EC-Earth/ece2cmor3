@@ -102,15 +102,24 @@ def cmorize(tasks):
         create_depth_axes(tskgroup)
         # TODO: paralelize
         for t in tskgroup:
-#            try:
+            #try:
             execute_netcdf_task(t)
-#            except:
-#                print "Skipping cmorization of",t.target.variable
+            #except:
+            #    print "Skipping cmorization of",t.target.variable
 
 
-def get_cdo_level_selector(axisname,axisinfo):
+def get_cdo_level_commands(task):
+    axisname,axisid=getattr(task,"z_axis",(None,0))
+    if not axisname:
+        return [None,None]
     if(axisname=="alevel"):
-        return ["selzaxis,hybrid"]
+        return ["selzaxis,hybrid",None]
+    if(axisname=="alevhalf"):
+        raise Exception("Half-level fields are not implemented yet")
+    axisinfos=cmor_target.axes.get(task.target.table,{})
+    axisinfo=axisinfos.get(axisname,None)
+    if(not axisinfo):
+        raise Exception("Could not retrieve information for axis",axisname,"in table",task.target.table)
     ret=[None,None]
     oname=axisinfo.get("standard_name",None)
     if(oname=="air_pressure"):
@@ -129,7 +138,6 @@ def get_cdo_level_selector(axisname,axisinfo):
         ret[1]=",".join(["sellevel"]+zlevs)
     return ret
 
-
 # Executes a single task
 def execute_netcdf_task(task):
     print "cmorizing source variable",task.source.get_grib_code(),"to target variable",task.target.variable,"..."
@@ -137,12 +145,9 @@ def execute_netcdf_task(task):
     grid_id=getattr(task,"grid_id",0)
     if(grid_id!=0):
         axes.append(grid_id)
-    z_axis_name,z_axis_id=getattr(task,"z_axis",(None,0))
-    lev_ops=[None,None]
-    if(z_axis_name):
-        axes.append(z_axis_id)
-        if(z_axis_name in cmor_target.axes[task.target.table]):
-            lev_ops=get_cdo_level_selector(z_axis_name,cmor_target.axes[task.target.table][z_axis_name])
+    z_axis=getattr(task,"z_axis",(None,0))
+    if(z_axis[0]):
+        axes.append(z_axis[1])
     time_id=getattr(task,"time_axis",0)
     if(time_id!=0):
         axes.append(time_id)
@@ -151,7 +156,10 @@ def execute_netcdf_task(task):
     cdocmd=cdo.Cdo()
     codestr=str(task.source.get_grib_code().var_id)
     sel_op="selcode,"+codestr
+    lev_ops=get_cdo_level_commands(task)
     command=chain_cdo_commands(lev_ops[0],lev_ops[1],sel_op)+filepath
+    print "CDO command:",command
+    ncvars=[]
     try:
         ncvars=cdocmd.copy(input=command,returnCdf=True).variables
     except Exception:
@@ -160,24 +168,24 @@ def execute_netcdf_task(task):
     varlist=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
     if(not len(varlist)==1):
         raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
-#    ncvar=var[0]
-#    ncunits=getattr(ncvar,"units")
-#    varid=0
-#    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
-#        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
-#    else:
-#        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
-#    vals=numpy.zeros([1])
+    ncvar=ncvars[varlist[0]]
+    ncunits=getattr(ncvar,"units")
+    varid=0
+    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
+    else:
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
+    vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
-#    if(len(ncvar.dimensions)==3):
-#        vals=numpy.transpose(ncvar[:,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-#    elif(len(ncvar.dimensions)==4):
-#        vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
-#    else:
-#        raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
-#    numpy.asfortranarray(vals)
-#    cmor.write(varid,vals)
-#    cmor.close(varid)
+    if(len(ncvar.dimensions)==3):
+        vals=numpy.transpose(ncvar[:,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
+    elif(len(ncvar.dimensions)==4):
+        vals=numpy.transpose(ncvar[:,:,:,:],axes=[3,2,1,0]) # Convert to CMOR Fortran-style ordering
+    else:
+        raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
+    numpy.asfortranarray(vals)
+    cmor.write(varid,vals)
+    cmor.close(varid)
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
@@ -202,6 +210,7 @@ def create_depth_axes(tasks):
             continue
         elif zdim=="alevel":
             axisid=create_hybrid_level_axis(t)
+            depth_axes[zdim]=(str(zdim),axisid)
             setattr(t,"z_axis",(str(zdim),axisid))
             continue
         elif zdim in cmor_target.axes[t.target.table]:
@@ -248,8 +257,8 @@ def create_hybrid_level_axis(task):
     axid=cmor.axis(table_entry="alternate_hybrid_sigma",coord_vals=hcm,cell_bounds=hcbnds,units="1")
     cmor.zfactor(zaxis_id=axid,zfactor_name="ap",units=str(aunit),axis_ids=[axid],zfactor_values=am[:],zfactor_bounds=abnds)
     cmor.zfactor(zaxis_id=axid,zfactor_name="b",units=str(bunit),axis_ids=[axid],zfactor_values=bm[:],zfactor_bounds=bbnds)
-    gridid=getattr(task,"grid_id")
-    cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[axid,gridid])
+    ps_zfactor=cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[getattr(task,"grid_id"),getattr(task,"time_axis")])
+    return axid
 
 
 # Makes a time axis for the given table
