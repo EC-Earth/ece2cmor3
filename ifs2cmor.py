@@ -109,7 +109,7 @@ def cmorize(tasks):
 
 
 def get_cdo_level_commands(task):
-    axisname,axisid=getattr(task,"z_axis",(None,0))
+    axisname=getattr(task,"z_axis",None)
     if not axisname:
         return [None,None]
     if(axisname=="alevel"):
@@ -145,9 +145,9 @@ def execute_netcdf_task(task):
     grid_id=getattr(task,"grid_id",0)
     if(grid_id!=0):
         axes.append(grid_id)
-    z_axis=getattr(task,"z_axis",(None,0))
-    if(z_axis[0]):
-        axes.append(z_axis[1])
+    z_axis=getattr(task,"z_axis",None)
+    if(z_axis):
+        axes.append(getattr(task,"z_axis_id"))
     time_id=getattr(task,"time_axis",0)
     if(time_id!=0):
         axes.append(time_id)
@@ -177,14 +177,27 @@ def execute_netcdf_task(task):
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
     vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
-    if(len(ncvar.dimensions)==3):
-        vals=numpy.transpose(ncvar[:,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
-    elif(len(ncvar.dimensions)==4):
-        vals=numpy.transpose(ncvar[:,:,:,:],axes=[3,2,1,0]) # Convert to CMOR Fortran-style ordering
-    else:
-        raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
-    numpy.asfortranarray(vals)
-    cmor.write(varid,vals)
+    times=ncvar.shape[0]
+    chunk=2
+    for i in range(0,times,chunk):
+        imax=min(i+chunk,times)
+        if(len(ncvar.dimensions)==3):
+            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
+        elif(len(ncvar.dimensions)==4):
+            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[3,2,1,0]) # Convert to CMOR Fortran-style ordering
+        else:
+            raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
+        shape=vals.shape
+        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
+        storevar=getattr(task,"store_with",None)
+        if(storevar):
+            print "Using uniform surface pressure of 800 hPa--TODO: readout. shape=",shape
+            sp=80000.0
+            if(len(shape)==3):
+                psvals=numpy.full(shape=shape,fill_value=sp,dtype=numpy.float64)
+            else:
+                psvals=numpy.full(shape=[shape[0],shape[1],shape[3]],fill_value=sp,dtype=numpy.float64)
+            cmor.write(storevar,numpy.asfortranarray(psvals),ntimes_passed=(imax-i),store_with=varid)
     cmor.close(varid)
 
 
@@ -198,20 +211,29 @@ def create_time_axes(tasks):
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
 def create_depth_axes(tasks):
     depth_axes={}
+    ps_id=0
     for t in tasks:
         tgtdims=getattr(t.target,cmor_target.dims_key)
         zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1"]))
         if(len(zdims)==0): continue
         if(len(zdims)>1):
             raise Exception("Variable",t.target.variable,"with dimensions",tgtdims,"cannot be interpreted as 3d variable")
-        zdim=zdims[0]
+        zdim=str(zdims[0])
+        setattr(t,"z_axis",zdim)
         if zdim in depth_axes:
-            setattr(t,"z_axis",(str(zdim),depth_axes[zdim]))
+            setattr(t,"z_axis_id",depth_axes[zdim])
+            if(zdim=="alevel"):
+                if(ps_id):
+                    setattr(t,"store_with",ps_id)
+                else:
+                    raise Exception("Hybrid model level axis was created, but the surface pressure variable not.")
             continue
         elif zdim=="alevel":
-            axisid=create_hybrid_level_axis(t)
-            depth_axes[zdim]=(str(zdim),axisid)
-            setattr(t,"z_axis",(str(zdim),axisid))
+            axisid,psid=create_hybrid_level_axis(t)
+            depth_axes[zdim]=axisid
+            ps_id=psid
+            setattr(t,"z_axis_id",axisid)
+            setattr(t,"store_with",ps_id)
             continue
         elif zdim in cmor_target.axes[t.target.table]:
             axisid=0
@@ -230,7 +252,7 @@ def create_depth_axes(tasks):
                 vals=[float(l) for l in levels]
                 axisid=cmor.axis(table_entry=str(zdim),coord_vals=vals,units=unit)
             depth_axes[zdim]=axisid
-            setattr(t,"z_axis",(str(zdim),axisid))
+            setattr(t,"z_axis_id",axisid)
         else:
             raise Exception("Vertical dimension",zdim,"not found in table header")
 
@@ -257,8 +279,8 @@ def create_hybrid_level_axis(task):
     axid=cmor.axis(table_entry="alternate_hybrid_sigma",coord_vals=hcm,cell_bounds=hcbnds,units="1")
     cmor.zfactor(zaxis_id=axid,zfactor_name="ap",units=str(aunit),axis_ids=[axid],zfactor_values=am[:],zfactor_bounds=abnds)
     cmor.zfactor(zaxis_id=axid,zfactor_name="b",units=str(bunit),axis_ids=[axid],zfactor_values=bm[:],zfactor_bounds=bbnds)
-    ps_zfactor=cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[getattr(task,"grid_id"),getattr(task,"time_axis")])
-    return axid
+    storewith=cmor.zfactor(zaxis_id=axid,zfactor_name="ps",axis_ids=[getattr(task,"grid_id"),getattr(task,"time_axis")],units="Pa")
+    return (axid,storewith)
 
 
 # Makes a time axis for the given table
