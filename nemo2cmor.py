@@ -1,9 +1,11 @@
+import os
 import netCDF4
 import cmor
 import cmor_utils
 import cmor_source
 import numpy
 import datetime
+import json
 
 # Experiment name
 exp_name_=None
@@ -23,12 +25,15 @@ depth_axes_={}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
 
+# Dictionary of unit conversions.
+unit_convs_={}
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
     global nemo_files_
     global exp_name_
     global table_root_
+    global unit_convs_
 
     exp_name_=expname
     table_root_=tableroot
@@ -42,7 +47,9 @@ def initialize(path,expname,tableroot,start,length):
         cmor.set_cur_dataset_attribute("calendar",cal)
     cmor.load_table(tableroot+"_grids.json")
     create_grids()
-
+    unitsfile=os.path.join(os.path.dirname(__file__),"resources/nemo_units.json")
+    s=open(unitsfile).read()
+    unit_convs_=json.loads(s)
 
 # Executes the processing loop. TODO: parallelize!
 def execute(tasks):
@@ -103,7 +110,6 @@ def execute_netcdf_task(task,dataset,tableid):
     global time_axes_
     global grid_ids_
     global depth_axes_
-#TODO: Log this instead of printing...
     print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable,"..."
     dims=task.target.dims
     globvar=(task.source.grid()==cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
@@ -120,14 +126,8 @@ def execute_netcdf_task(task,dataset,tableid):
         zaxid=depth_axes_[tableid][grid_index]
         axes.append(zaxid)
     axes.append(time_axes_[tableid])
-    srcvar=task.source.var()
-    ncvar=dataset.variables[srcvar]
-    ncunits=getattr(ncvar,"units")
-    varid=0
-    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
-        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar),positive="down")
-    else:
-        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,original_name=str(srcvar))
+    varid=create_cmor_variable(task,dataset,axes)
+    ncvar=dataset.variables[task.source.var()]
     vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
     if(dims==2):
@@ -136,9 +136,30 @@ def execute_netcdf_task(task,dataset,tableid):
         vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
     else:
         raise Exception("Arrays of dimensions",task.source.dims(),"are not supported by nemo2cmor")
-    numpy.asfortranarray(vals)
-    cmor.write(varid,vals)
+    cmor.write(varid,numpy.asfortranarray(vals))
     cmor.close(varid)
+
+
+#TODO: Move to general utils
+def create_cmor_variable(task,dataset,axes):
+    srcvar=task.source.var()
+    ncvar=dataset.variables[srcvar]
+    unit=str(getattr(ncvar,"units"))
+    entry=str(task.target.variable)
+    if(entry in unit_convs_):
+        iunit=unit_convs_[entry].get("iunit",unit)
+        ounit=unit_convs_[entry].get("ounit",unit)
+        if(iunit!=ounit):
+            conv=unit_convs_[entry].get("conv","1")
+            if(conv=="1"):
+                unit=str(ounit)
+            else:
+                raise Exception("Manual unit conversions are not implemented yet")
+    if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
+        # TODO: read vertical orientation from netcdf file
+        return cmor.variable(table_entry=entry,units=unit,axis_ids=axes,original_name=str(srcvar),positive="down")
+    else:
+        return cmor.variable(table_entry=entry,units=unit,axis_ids=axes,original_name=str(srcvar))
 
 
 # Creates all depth axes for the given table from the given files

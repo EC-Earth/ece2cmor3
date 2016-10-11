@@ -125,7 +125,7 @@ def clear_tasks():
     tasks_=[]
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(postproc=True):
+def perform_ifs_tasks(postproc=True,tempdir=None):
     global tasks_
     global ifsdir_
     global startdate_
@@ -136,7 +136,7 @@ def perform_ifs_tasks(postproc=True):
     ifs_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.ifs_source)]
     tableroot=os.path.join(table_dir_,prefix_)
     # TODO: Add support for reference date other that startdate
-    ifs2cmor.initialize(ifsdir_,exp_name_,tableroot,startdate_,interval_,startdate_)
+    ifs2cmor.initialize(ifsdir_,exp_name_,tableroot,startdate_,interval_,startdate_,tempdir=tempdir)
     ifs2cmor.execute(ifs_tasks,postproc)
 
 # Performs a NEMO cmorization processing:

@@ -19,9 +19,6 @@ table_root_=None
 ifs_gridpoint_file_=None
 ifs_spectral_file_=None
 
-# List of depth axis ids with cmor grid id.
-height_axes_={}
-
 # Start date of the processed data
 start_date_=None
 
@@ -66,6 +63,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
     #TODO: set after conversion to netcdf
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 
+
 # Execute the postprocessing+cmorization tasks
 def execute(tasks,postprocess=True):
     print "Post-processing IFS data..."
@@ -74,8 +72,20 @@ def execute(tasks,postprocess=True):
     print "Cmorizing IFS data..."
     cmor.load_table(table_root_+"_grids.json")
     gridid=create_grid_from_grib(getattr(tasks[0],"path"))
-    for t in tasks: setattr(t,"grid_id",gridid)
-    cmorize(tasks)
+    filteredtasks=[]
+    for task in tasks:
+        tgtdims=getattr(task.target,cmor_target.dims_key).split()
+        haslat="latitude" in tgtdims
+        haslon="longitude" in tgtdims
+        if(haslat and haslon):
+            setattr(task,"grid_id",gridid)
+            filteredtasks.append(task)
+        elif(haslat or haslon):
+            print "Variable ",task.target.variable," has unsupported combination of dimensions ",tgtdims," and will be skipped..."
+        else:
+            filteredtasks.append(task)            
+    cmorize(filteredtasks)
+
 
 # Do the cmorization tasks
 def cmorize(tasks):
@@ -101,11 +111,8 @@ def cmorize(tasks):
         create_time_axes(tskgroup)
         create_depth_axes(tskgroup)
         # TODO: paralelize
-        for t in tskgroup:
-            #try:
-            execute_netcdf_task(t)
-            #except:
-            #    print "Skipping cmorization of",t.target.variable
+        for task in tskgroup:
+            execute_netcdf_task(task)
 
 
 def get_cdo_level_commands(task):
@@ -138,6 +145,7 @@ def get_cdo_level_commands(task):
         ret[1]=",".join(["sellevel"]+zlevs)
     return ret
 
+
 # Executes a single task
 def execute_netcdf_task(task):
     print "cmorizing source variable",task.source.get_grib_code(),"to target variable",task.target.variable,"..."
@@ -157,7 +165,7 @@ def execute_netcdf_task(task):
     codestr=str(task.source.get_grib_code().var_id)
     sel_op="selcode,"+codestr
     lev_ops=get_cdo_level_commands(task)
-    command=chain_cdo_commands(lev_ops[0],lev_ops[1],sel_op)+filepath
+    command=chain_cdo_commands(lev_ops[1],lev_ops[0],sel_op)+filepath
     print "CDO command:",command
     ncvars=[]
     try:
@@ -166,10 +174,14 @@ def execute_netcdf_task(task):
         print "CDO command failed:",command
         return
     varlist=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
+    if(len(varlist)==0):
+        varlist=[v for v in ncvars if str(v)=="var"+codestr]
     if(not len(varlist)==1):
         raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
     ncvar=ncvars[varlist[0]]
-    ncunits=getattr(ncvar,"units")
+    ncunits=getattr(ncvar,"units",None)
+    if(not ncunits):
+        ncunits=getattr(task.target,"units")
     varid=0
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
@@ -203,41 +215,47 @@ def execute_netcdf_task(task):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
-    time_axis_id=create_time_axis(freq=tasks[0].target.frequency,files=[getattr(t,"path") for t in tasks])
-    for t in tasks:
-        setattr(t,"time_axis",time_axis_id)
+    time_axes={}
+    for task in tasks:
+        tgtdims=getattr(task.target,cmor_target.dims_key)
+        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
+        tdims=[d for d in list(set(tgtdims.split())) if d.startswith("time")]
+        for tdim in tdims:
+            tid=0
+            if(tdim in time_axes):
+                tid=time_axes[tdim]
+            else:
+                tid=create_time_axis(freq=task.target.frequency,path=getattr(task,"path"))
+            setattr(task,"time_axis",tid)
 
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
 def create_depth_axes(tasks):
     depth_axes={}
-    ps_id=0
-    for t in tasks:
-        tgtdims=getattr(t.target,cmor_target.dims_key)
-        zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1"]))
+    for task in tasks:
+        tgtdims=getattr(task.target,cmor_target.dims_key)
+        #TODO: Use table axes information to extract vertical axes
+        zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1","time2","time3"]))
         if(len(zdims)==0): continue
         if(len(zdims)>1):
-            raise Exception("Variable",t.target.variable,"with dimensions",tgtdims,"cannot be interpreted as 3d variable")
+            raise Exception("Variable",task.target.variable,"with dimensions",tgtdims,"cannot be interpreted as 3d variable")
         zdim=str(zdims[0])
-        setattr(t,"z_axis",zdim)
+        setattr(task,"z_axis",zdim)
         if zdim in depth_axes:
-            setattr(t,"z_axis_id",depth_axes[zdim])
+            setattr(task,"z_axis_id",depth_axes[zdim])
             if(zdim=="alevel"):
-                if(ps_id):
-                    setattr(t,"store_with",ps_id)
-                else:
-                    raise Exception("Hybrid model level axis was created, but the surface pressure variable not.")
+                zfactor=cmor.zfactor(zaxis_id=depth_axes[zdim],zfactor_name="ps",axis_ids=[getattr(task,"grid_id"),getattr(task,"time_axis")],units="Pa")
+                setattr(task,"store_with",zfactor)
             continue
         elif zdim=="alevel":
-            axisid,psid=create_hybrid_level_axis(t)
+            axisid,psid=create_hybrid_level_axis(task)
             depth_axes[zdim]=axisid
-            ps_id=psid
-            setattr(t,"z_axis_id",axisid)
-            setattr(t,"store_with",ps_id)
+            setattr(task,"z_axis_id",axisid)
+            setattr(task,"store_with",psid)
             continue
-        elif zdim in cmor_target.axes[t.target.table]:
+        elif zdim in cmor_target.axes[task.target.table]:
             axisid=0
-            axis=cmor_target.axes[t.target.table][zdim]
+            axis=cmor_target.axes[task.target.table][zdim]
             levels=axis.get("requested",[])
             if(levels==""):
                 levels=[]
@@ -252,7 +270,7 @@ def create_depth_axes(tasks):
                 vals=[float(l) for l in levels]
                 axisid=cmor.axis(table_entry=str(zdim),coord_vals=vals,units=unit)
             depth_axes[zdim]=axisid
-            setattr(t,"z_axis_id",axisid)
+            setattr(task,"z_axis_id",axisid)
         else:
             raise Exception("Vertical dimension",zdim,"not found in table header")
 
@@ -284,16 +302,11 @@ def create_hybrid_level_axis(task):
 
 
 # Makes a time axis for the given table
-def create_time_axis(freq,files):
+def create_time_axis(freq,path):
     command=cdo.Cdo()
     datetimes=[]
-    for gribfile in set(files):
-        try:
-            times=command.showtimestamp(input=gribfile)[0].split()
-            datetimes=sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
-            break
-        except:
-            print "Problem reading atmosphere output time steps from file",gribfile,", trying next file"
+    times=command.showtimestamp(input=path)[0].split()
+    datetimes=sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
     if(len(datetimes)==0):
         raise Exception("Empty time step list encountered at time axis creation for files",files)
     timhrs=[(d-cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
@@ -309,6 +322,10 @@ def create_time_axis(freq,files):
         bndvar[1:n,0]=midtimes[:]
         bndvar[0:n-1,1]=midtimes[:]
         bndvar[n-1,1]=1.5*times[n-1]-0.5*times[n-2]
+    name="time"
+    if(freq.endswith("hr")):
+        # TODO: Find a
+        name="time1"
     ax_id=cmor.axis(table_entry="time",units="hours since "+str(ref_date_),coord_vals=times,cell_bounds=bndvar)
     return ax_id
     return 0

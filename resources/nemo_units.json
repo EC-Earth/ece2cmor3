@@ -1,0 +1,8 @@
+{
+    "tossq":
+    {
+        "iunit":"degC2",
+        "ounit":"degC",
+        "conv":"1"
+    }
+}
