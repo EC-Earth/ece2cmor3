@@ -183,7 +183,6 @@ def execute_netcdf_task(task):
         ncunits=getattr(task.target,"units")
     varid=0
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
-        # TODO: read realm from target...
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
     else:
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
@@ -195,15 +194,15 @@ def execute_netcdf_task(task):
     for i in range(0,times,chunk):
         imax=min(i+chunk,times)
         if(len(ncvar.dimensions)==3):
-            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
+            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
         elif(len(ncvar.dimensions)==4):
-            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[3,2,1,0]) # Convert to CMOR Fortran-style ordering
+            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
         else:
             raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
         shape=vals.shape
         cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
         if(storevar):
-            spvals=numpy.transpose(spncvar[i:imax,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
+            spvals=numpy.transpose(spncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
             cmor.write(storevar,numpy.asfortranarray(spvals),ntimes_passed=(imax-i),store_with=varid)
     cmor.close(varid)
 
@@ -510,7 +509,7 @@ def create_gauss_grid(nx,x0,ny,yvals):
     vertlons[:,:,3]=vertlons[:,:,0]
     vertlons[:,:,1]=numpy.tile(lonmids[1:nx+1],(ny,1)).transpose()
     vertlons[:,:,2]=vertlons[:,:,1]
-    return cmor.grid(axis_ids=[i_index_id,j_index_id],
+    return cmor.grid(axis_ids=[j_index_id,i_index_id],
                      latitude=latarr,
                      longitude=lonarr,
                      latitude_vertices=vertlats,
