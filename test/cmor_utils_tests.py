@@ -4,11 +4,20 @@ import os
 import datetime
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_,raises
-from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_date,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid
+from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_date,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid,group
 
 logging.basicConfig(level=logging.DEBUG)
 
 class utils_tests(unittest.TestCase):
+
+    def test_group(self):
+        t1=("a",3)
+        t2=("b",4)
+        t3=("c",6)
+        t4=("d",11)
+        d=group([t1,t2,t3,t4],lambda t: t[1]%2)
+        eq_(d[0],[t2,t3])
+        eq_(d[1],[t1,t4])
 
     def test_intervals_30days(self):
         t1=datetime.datetime(1999,12,31,23,45,20)

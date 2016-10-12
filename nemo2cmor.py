@@ -57,13 +57,7 @@ def execute(tasks):
     global depth_axes_
     global table_root_
     print "Executing nemo tasks..."
-    taskdict={}
-    for t in tasks:
-        tab=t.target.table
-        if(tab in taskdict):
-            taskdict[tab].append(t)
-        else:
-            taskdict[tab]=[t]
+    taskdict=cmor_utils.group(tasks,lambda t:t.target.table)
     for k,v in taskdict.iteritems():
         tab=k
         tskgroup=v

@@ -83,19 +83,13 @@ def execute(tasks,postprocess=True):
         elif(haslat or haslon):
             print "Variable ",task.target.variable," has unsupported combination of dimensions ",tgtdims," and will be skipped..."
         else:
-            filteredtasks.append(task)            
+            filteredtasks.append(task)
     cmorize(filteredtasks)
 
 
 # Do the cmorization tasks
 def cmorize(tasks):
-    taskdict={}
-    for t in tasks:
-        tab=t.target.table
-        if(tab in taskdict):
-            taskdict[tab].append(t)
-        else:
-            taskdict[tab]=[t]
+    taskdict=cmor_utils.group(tasks,lambda t:t.target.table)
     for k,v in taskdict.iteritems():
         tab=k
         tskgroup=v
@@ -110,7 +104,7 @@ def cmorize(tasks):
         # TODO: unify with nemo logic
         create_time_axes(tskgroup)
         create_depth_axes(tskgroup)
-        # TODO: paralelize
+        # TODO: parallelize
         for task in tskgroup:
             execute_netcdf_task(task)
 
@@ -149,6 +143,11 @@ def get_cdo_level_commands(task):
 # Executes a single task
 def execute_netcdf_task(task):
     print "cmorizing source variable",task.source.get_grib_code(),"to target variable",task.target.variable,"..."
+    storevar=getattr(task,"store_with",None)
+    sppath=getattr(task,"sp_path",None)
+    if(storevar and not sppath):
+        print "Could not find file containing surface pressure for model level variable...skipping cmor step"
+        return
     axes=[]
     grid_id=getattr(task,"grid_id",0)
     if(grid_id!=0):
@@ -184,13 +183,15 @@ def execute_netcdf_task(task):
         ncunits=getattr(task.target,"units")
     varid=0
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
+        # TODO: read realm from target...
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
     else:
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
     vals=numpy.zeros([1])
     # TODO: use time slicing in case of memory shortage
     times=ncvar.shape[0]
-    chunk=2
+    chunk=4
+    spncvar=get_spvar(sppath)
     for i in range(0,times,chunk):
         imax=min(i+chunk,times)
         if(len(ncvar.dimensions)==3):
@@ -201,15 +202,9 @@ def execute_netcdf_task(task):
             raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
         shape=vals.shape
         cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
-        storevar=getattr(task,"store_with",None)
         if(storevar):
-            print "Using uniform surface pressure of 800 hPa--TODO: readout. shape=",shape
-            sp=80000.0
-            if(len(shape)==3):
-                psvals=numpy.full(shape=shape,fill_value=sp,dtype=numpy.float64)
-            else:
-                psvals=numpy.full(shape=[shape[0],shape[1],shape[3]],fill_value=sp,dtype=numpy.float64)
-            cmor.write(storevar,numpy.asfortranarray(psvals),ntimes_passed=(imax-i),store_with=varid)
+            spvals=numpy.transpose(spncvar[i:imax,:,:],axes=[2,1,0]) # Convert to CMOR Fortran-style ordering
+            cmor.write(storevar,numpy.asfortranarray(spvals),ntimes_passed=(imax-i),store_with=varid)
     cmor.close(varid)
 
 
@@ -324,9 +319,9 @@ def create_time_axis(freq,path):
         bndvar[n-1,1]=1.5*times[n-1]-0.5*times[n-2]
     name="time"
     if(freq.endswith("hr")):
-        # TODO: Find a
+        # TODO: Find the correct condition here...
         name="time1"
-    ax_id=cmor.axis(table_entry="time",units="hours since "+str(ref_date_),coord_vals=times,cell_bounds=bndvar)
+    ax_id=cmor.axis(table_entry=name,units="hours since "+str(ref_date_),coord_vals=times,cell_bounds=bndvar)
     return ax_id
     return 0
 
@@ -344,18 +339,53 @@ def postproc_irreg(tasks,postprocess=True):
 
 # Does the postprocessing of regular tasks
 def postproc(tasks,postprocess=True):
-    taskdict={}
-    for t in tasks:
-        freq=t.target.frequency
-        grd=cmor_source.ifs_grid.index(t.source.grid())
-        if((freq,grd) in taskdict):
-            taskdict[(freq,grd)].append(t)
-        else:
-            taskdict[(freq,grd)]=[t]
+    taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,cmor_source.ifs_grid.index(t.source.grid())))
     # TODO: Distribute loop over processes
     for k,v in taskdict.iteritems():
         ppcdo(v,k[0],k[1],postprocess)
+    postprocsp(tasks,postprocess)
 
+
+def postprocsp(tasks,postprocess=True):
+    tasksbyfreq=cmor_utils.group(tasks,lambda t:t.target.frequency)
+    for freq,taskgroup in tasksbyfreq.iteritems():
+        sptasks=[t for t in taskgroup if hasattr(t,"sp_path")]
+        sppath=None
+        if(len(sptasks)!=0):
+            sppath=getattr(sptasks[0],"sp_path")
+        else:
+            timops=get_cdo_timop(freq)
+            opstr=chain_cdo_commands(timops[0],timops[1],"selcode,134")
+            sppath=os.path.join(temp_dir_,"ICMSH_134_"+freq+".nc")
+            #if(postprocess):
+            if(True):
+                command=cdo.Cdo()
+                try:
+                    command.sp2gpl(input=opstr+ifs_spectral_file_,output=sppath,options="-P 4 -f nc")
+                except Exception:
+                    print "CDO failed to extract surface pressure from input spectral data file"
+        if(not get_spvar(sppath)):
+            sppath=None
+        if(not sppath):
+            print "Warning: no surface pressure found in input data, you won't be able to cmorize model level data"
+        for task in taskgroup:
+            setattr(task,"sp_path",sppath)
+
+def get_spvar(ncpath):
+    if(not ncpath):
+        return None
+    if(not os.path.exists(ncpath)):
+        return None
+    try:
+        ds=netCDF4.Dataset(ncpath)
+        if("var134" in ds.variables):
+            return ds.variables["var134"]
+        for v in ds.variables:
+            if(getattr(v,"code",0)==134):
+                return v
+        return None
+    except:
+        return None
 
 # Does splitting of files according to frequency and remaps the grids.
 #TODO: Add selmon...
@@ -363,24 +393,24 @@ def ppcdo(tasks,freq,grid,callcdo=True):
     print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
     if(len(tasks)==0): return
     timops=get_cdo_timop(freq)
-    tim_avg=timops[0]
-    tim_shift=timops[1]
     codes=list(set(map(lambda t:t.source.get_grib_code().var_id,tasks)))
     sel_op="selcode,"+(",".join(map(lambda i:str(i),codes)))
     command=cdo.Cdo()
     ifile=None
     if(grid==cmor_source.ifs_grid.point):
-        opstr=chain_cdo_commands("setgridtype,regular",tim_avg,tim_shift,sel_op)
+        opstr=chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
         ofile=os.path.join(temp_dir_,"ICMGG_"+freq+".nc")
         if(callcdo):
             command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-P 4 -f nc")
     else:
-        opstr=chain_cdo_commands(tim_avg,tim_shift,sel_op)
+        opstr=chain_cdo_commands(timops[0],timops[1],sel_op)
         ofile=os.path.join(temp_dir_,"ICMSH_"+freq+".nc")
         if(callcdo):
             command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
-    for t in tasks:
-        setattr(t,"path",ofile)
+    for task in tasks:
+        setattr(task,"path",ofile)
+        if(134 in codes):
+            setattr(task,"sp_path",ofile)
 
 
 # Helper function for cdo time-averaging commands

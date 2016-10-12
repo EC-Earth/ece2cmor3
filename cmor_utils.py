@@ -5,6 +5,17 @@ import datetime
 # Enum utility class
 class cmor_enum(tuple): __getattr__=tuple.index
 
+# Grouping to dictionary utility function
+def group(objects,func):
+    d={}
+    for o in objects:
+        k=func(o)
+        if(k in d):
+            d[k].append(o)
+        else:
+            d[k]=[o]
+    return d
+
 # Turns a date or datetime into a datetime
 def make_datetime(time):
     if(isinstance(time,datetime.date)):
