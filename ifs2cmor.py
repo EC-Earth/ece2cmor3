@@ -186,24 +186,7 @@ def execute_netcdf_task(task):
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
     else:
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
-    vals=numpy.zeros([1])
-    # TODO: use time slicing in case of memory shortage
-    times=ncvar.shape[0]
-    chunk=4
-    spncvar=get_spvar(sppath)
-    for i in range(0,times,chunk):
-        imax=min(i+chunk,times)
-        if(len(ncvar.dimensions)==3):
-            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-        elif(len(ncvar.dimensions)==4):
-            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
-        else:
-            raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ifs2cmor")
-        shape=vals.shape
-        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
-        if(storevar):
-            spvals=numpy.transpose(spncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-            cmor.write(storevar,numpy.asfortranarray(spvals),ntimes_passed=(imax-i),store_with=varid)
+    cmor_utils.netcdf2cmor(varid,ncvar,storevar,get_spvar(sppath))
     cmor.close(varid)
 
 

@@ -1,6 +1,9 @@
 import os
 import re
+import math
+import numpy
 import datetime
+import cmor
 
 # Enum utility class
 class cmor_enum(tuple): __getattr__=tuple.index
@@ -112,3 +115,22 @@ def get_nemo_grid(filepath,expname):
         raise Exception("file path",filepath,"does not contain a grid string")
     match=result.group(0)
     return match[0:len(match)-3]
+
+def netcdf2cmor(varid,ncvar,psvarid=None,ncpsvar=None):
+    vals=numpy.zeros([1])
+    times=ncvar.shape[0]
+    size=ncvar.size/times
+    chunk=int(math.floor(4.0E+9/(8*size))) # Use max 4 GB of memory
+    for i in range(0,times,chunk):
+        imax=min(i+chunk,times)
+        if(len(ncvar.dimensions)==3):
+            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
+        elif(len(ncvar.dimensions)==4):
+            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
+        else:
+            raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ece2cmor")
+        shape=vals.shape
+        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
+        if(psvarid and ncpsvar):
+            spvals=numpy.transpose(ncpsvar[i:imax,:,:],axes=[1,2,0])
+            cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed=(imax-i),store_with=varid)

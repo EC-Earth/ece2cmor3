@@ -122,15 +122,7 @@ def execute_netcdf_task(task,dataset,tableid):
     axes.append(time_axes_[tableid])
     varid=create_cmor_variable(task,dataset,axes)
     ncvar=dataset.variables[task.source.var()]
-    vals=numpy.zeros([1])
-    # TODO: use time slicing in case of memory shortage
-    if(dims==2):
-        vals=numpy.transpose(ncvar[:,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-    elif(dims==3):
-        vals=numpy.transpose(ncvar[:,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
-    else:
-        raise Exception("Arrays of dimensions",task.source.dims(),"are not supported by nemo2cmor")
-    cmor.write(varid,numpy.asfortranarray(vals))
+    cmor_utils.netcdf2cmor(varid,ncvar)
     cmor.close(varid)
 
 
