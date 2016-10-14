@@ -67,8 +67,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
 # Execute the postprocessing+cmorization tasks
 def execute(tasks,postprocess=True):
     print "Post-processing IFS data..."
-    postproc_irreg([t for t in tasks if not regular(t)],postprocess)
-    postproc([t for t in tasks if regular(t)],postprocess)
+    postproc(get_independent_tasks(tasks),postprocess)
     print "Cmorizing IFS data..."
     cmor.load_table(table_root_+"_grids.json")
     gridid=create_grid_from_grib(getattr(tasks[0],"path"))
@@ -86,6 +85,17 @@ def execute(tasks,postprocess=True):
             filteredtasks.append(task)
     cmorize(filteredtasks)
 
+# Selects the independent (leaf) tasks from the given list
+def get_independent_tasks(tasks):
+    result=[]
+    for task in tasks:
+        if(not isinstance(task,task)):
+            continue
+        if(isinstance(task.source,list)):
+            result.append(get_independent_tasks(task.source))
+        elif(isinstance(task.source,cmor_source.cmor_source)):
+            result.append(task)
+    return result
 
 # Do the cmorization tasks
 def cmorize(tasks):
@@ -178,6 +188,7 @@ def execute_netcdf_task(task):
     if(not len(varlist)==1):
         raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
     ncvar=ncvars[varlist[0]]
+    #TODO: refactor to general utils, share with nemo.
     ncunits=getattr(ncvar,"units",None)
     if(not ncunits):
         ncunits=getattr(task.target,"units")
@@ -308,18 +319,7 @@ def create_time_axis(freq,path):
     return 0
 
 
-# Tests whether the task is 'regular' or needs additional pre-postprocessing
-def regular(task):
-    #TODO: Implement criterium
-    return True
-
-
-# Does the postprocessing of irregular tasks
-def postproc_irreg(tasks,postprocess=True):
-    if(len(tasks)!=0): raise Exception("The irregular post-processing jobs have not been implemented yet")
-
-
-# Does the postprocessing of regular tasks
+# Does the postprocessing of independent tasks
 def postproc(tasks,postprocess=True):
     taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,cmor_source.ifs_grid.index(t.source.grid())))
     # TODO: Distribute loop over processes
@@ -327,7 +327,7 @@ def postproc(tasks,postprocess=True):
         ppcdo(v,k[0],k[1],postprocess)
     postprocsp(tasks,postprocess)
 
-
+# Does the postprocessing of surface pressure co-variable
 def postprocsp(tasks,postprocess=True):
     tasksbyfreq=cmor_utils.group(tasks,lambda t:t.target.frequency)
     for freq,taskgroup in tasksbyfreq.iteritems():
@@ -339,8 +339,7 @@ def postprocsp(tasks,postprocess=True):
             timops=get_cdo_timop(freq)
             opstr=chain_cdo_commands(timops[0],timops[1],"selcode,134")
             sppath=os.path.join(temp_dir_,"ICMSH_134_"+freq+".nc")
-            #if(postprocess):
-            if(True):
+            if(postprocess):
                 command=cdo.Cdo()
                 try:
                     command.sp2gpl(input=opstr+ifs_spectral_file_,output=sppath,options="-P 4 -f nc")
@@ -353,6 +352,7 @@ def postprocsp(tasks,postprocess=True):
         for task in taskgroup:
             setattr(task,"sp_path",sppath)
 
+# Surface pressure variable lookup utility
 def get_spvar(ncpath):
     if(not ncpath):
         return None

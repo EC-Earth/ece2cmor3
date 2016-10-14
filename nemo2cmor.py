@@ -259,8 +259,8 @@ def read_grid(ncfile):
 
 # Transfers the grid to cmor.
 def write_grid(grid):
-    nx=grid.Nx()
-    ny=grid.Ny()
+    nx=grid.lons.shape[0]
+    ny=grid.lons.shape[1]
     i_index_id=cmor.axis(table_entry="i_index",units="1",coord_vals=numpy.array(range(1,nx+1)))
     j_index_id=cmor.axis(table_entry="j_index",units="1",coord_vals=numpy.array(range(1,ny+1)))
     return cmor.grid(axis_ids=[i_index_id,j_index_id],
@@ -274,25 +274,19 @@ def write_grid(grid):
 class nemogrid(object):
 
     def __init__(self,lons_,lats_):
-        flon=numpy.vectorize(nemogrid.modlon)
-        flat=numpy.vectorize(nemogrid.modlat)
+        flon=numpy.vectorize(lambda x:x%360)
+        flat=numpy.vectorize(lambda x:(x+90)%180-90)
         self.lons=flon(nemogrid.smoothen(lons_))
         self.lats=flat(lats_)
         self.vertex_lons=nemogrid.create_vertex_lons(lons_)
         self.vertex_lats=nemogrid.create_vertex_lats(lats_)
-
-    def Nx(self):
-        return self.lons.shape[0]
-
-    def Ny(self):
-        return self.lons.shape[1]
 
     @staticmethod
     def create_vertex_lons(a):
         nx=a.shape[0]
         ny=a.shape[1]
         b=numpy.zeros([nx,ny,4])
-        f=numpy.vectorize(nemogrid.modlon)
+        f=numpy.vectorize(lambda x:x%360)
         b[1:nx,:,0]=f(0.5*(a[0:nx-1,:]+a[1:nx,:]))
         b[0,:,0]=b[nx-1,:,0]
         b[0:nx-1,:,1]=b[1:nx,:,0]
@@ -306,7 +300,7 @@ class nemogrid(object):
         nx=a.shape[0]
         ny=a.shape[1]
         b=numpy.zeros([nx,ny,4])
-        f=numpy.vectorize(nemogrid.modlat)
+        f=numpy.vectorize(lambda x:(x+90)%180-90)
         b[:,0,0]=f(1.5*a[:,0]-0.5*a[:,1])
         b[:,1:ny,0]=f(0.5*(a[:,0:ny-1]+a[:,1:ny]))
         b[:,:,1]=b[:,:,0]
@@ -314,18 +308,6 @@ class nemogrid(object):
         b[:,ny-1,2]=f(1.5*a[:,ny-1]-0.5*a[:,ny-2])
         b[:,:,3]=b[:,:,2]
         return b
-
-    @staticmethod
-    def modlat(x):
-        if(x<-90): return x+180.0
-        elif(x>=90.0): return x-180.0
-        else: return x
-
-    @staticmethod
-    def modlon(x):
-        if(x<0): return x+360.0
-        elif(x>=360.0): return x-360.0
-        else: return x
 
     @staticmethod
     def modlon2(x,a):
