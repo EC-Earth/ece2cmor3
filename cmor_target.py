@@ -22,7 +22,6 @@ def get_table_id(filepath,prefix):
     return regex.group()[len(prefix)+1:len(fname)-5]
 
 # Json file keys:
-
 head_key="Header"
 axis_key="axis_entry"
 var_key="variable_entry"
@@ -30,6 +29,8 @@ freq_key="frequency"
 realm_key="realm"
 dims_key="dimensions"
 levs_key="generic_levels"
+cell_measures_key="cell_measures"
+cell_measure_axes=["time","area","volume","latitude","longitude","depth"]
 
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath,prefix):
@@ -56,14 +57,22 @@ def create_targets_for_file(filepath,prefix):
     axes[tabid]=axes_entries
     var_entries=data.get(var_key,{})
     for k,v in var_entries.iteritems():
-        t=cmor_target(k,tabid)
-        t.frequency=freq
-        t.realm=realm
+        target=cmor_target(k,tabid)
+        target.frequency=freq
+        target.realm=realm
         for k2,v2 in v.iteritems():
-            setattr(t,k2,v2)
+            setattr(target,k2,v2)
             if(k2==dims_key):
-                t.dims=len(v2.split())-1 # don't count time dimension
-        result.append(t)
+                target.dims=len(v2.split())-1 # don't count time dimension
+            if(k2==cell_measures_key):
+                v3=v2.strip()
+                if(v3):
+                    for token in cell_measure_axes:
+                        v3=v3.replace(token + ":","#" + token + ":")
+                    d=dict(s.split(":") for s in v3[1:].split("#"))
+                    for k4,v4 in d.iteritems():
+                        setattr(target,k4.strip()+"_operator",v4.strip())
+        result.append(target)
     return result
 
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
