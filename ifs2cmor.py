@@ -25,6 +25,9 @@ start_date_=None
 # Output interval. Denotes the 0utput file periods.
 output_interval_=None
 
+# Output frequency. Minimal interval between output variables.
+output_freq_=None
+
 # Fast storage temporary path
 temp_dir_=os.getcwd()
 
@@ -189,17 +192,26 @@ def execute_netcdf_task(task):
         raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
     ncvar=ncvars[varlist[0]]
     #TODO: refactor to general utils, share with nemo.
-    ncunits=getattr(ncvar,"units",None)
-    if(not ncunits):
-        ncunits=getattr(task.target,"units")
+    unit=getattr(ncvar,"units",None)
+    if((not unit) or hasattr(task,"converter")):
+        unit=getattr(task.target,"units")
     varid=0
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
-        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes,positive="down")
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes,positive="down")
     else:
-        varid=cmor.variable(table_entry=str(task.target.variable),units=str(ncunits),axis_ids=axes)
-    cmor_utils.netcdf2cmor(varid,ncvar,storevar,get_spvar(sppath))
+        varid=cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes)
+    factor=get_conversion_factor(getattr(task,"conversion",None))
+    cmor_utils.netcdf2cmor(varid,ncvar,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
 
+def get_conversion_factor(conversion):
+    if(not conversion): return 1.0
+    if(conversion == "mean2inst"): return 1.0 / (3600 * output_freq_)
+    if(conversion == "inst2mean"): return (3600 * output_freq_)
+    if(conversion == "pot2alt"): return 1.0 / 9.81
+    if(conversion == "alt2pot"): return 9.81
+    if(conversion == "meanvol2instdens"): return 1000.0 / (3600 * output_freq_)
+    raise Exception("Unknown explicit unit conversion: ",conversion)
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):

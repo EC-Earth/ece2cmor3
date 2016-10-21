@@ -25,15 +25,11 @@ depth_axes_={}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_={}
 
-# Dictionary of unit conversions.
-unit_convs_={}
-
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
     global nemo_files_
     global exp_name_
     global table_root_
-    global unit_convs_
     exp_name_=expname
     table_root_=tableroot
     nemo_files_=select_files(path,expname,start,length)
@@ -46,21 +42,16 @@ def initialize(path,expname,tableroot,start,length):
         cmor.set_cur_dataset_attribute("calendar",cal)
     cmor.load_table(tableroot+"_grids.json")
     create_grids()
-    unitsfile=os.path.join(os.path.dirname(__file__),"resources/nemo_units.json")
-    s=open(unitsfile).read()
-    unit_convs_=json.loads(s)
 
 def finalize():
     global nemo_files_
     global grid_ids_
     global depth_axes_
     global time_axes_
-    global unit_convs_
     nemo_files_=[]
     grid_ids_={}
     depth_axes_={}
     time_axes_={}
-    unit_convs_={}
 
 
 # Executes the processing loop. TODO: parallelize!
@@ -115,30 +106,26 @@ def execute_netcdf_task(task,dataset,tableid):
     axes.append(time_axes_[tableid])
     varid=create_cmor_variable(task,dataset,axes)
     ncvar=dataset.variables[task.source.var()]
-    cmor_utils.netcdf2cmor(varid,ncvar)
+    factor=get_conversion_factor(getattr(task,"conversion",None))
+    cmor_utils.netcdf2cmor(varid,ncvar,factor)
     cmor.close(varid)
 
+def get_conversion_factor(conversion):
+    if(not conversion): return 1.0
+    if(conversion == "tossqfix"): return 1.0
+    raise Exception("Unknown explicit unit conversion: ",conversion)
 
 #TODO: Move to general utils
 def create_cmor_variable(task,dataset,axes):
     srcvar=task.source.var()
     ncvar=dataset.variables[srcvar]
-    unit=str(getattr(ncvar,"units"))
-    entry=str(task.target.variable)
-    if(entry in unit_convs_):
-        iunit=unit_convs_[entry].get("iunit",unit)
-        ounit=unit_convs_[entry].get("ounit",unit)
-        if(iunit!=ounit):
-            conv=unit_convs_[entry].get("conv","1")
-            if(conv=="1"):
-                unit=str(ounit)
-            else:
-                raise Exception("Manual unit conversions are not implemented yet")
+    unit=getattr(ncvar,"units",None)
+    if((not unit) or hasattr(task,"conversion")): # Explicit unit conversion
+        unit=getattr(task.target,"units")
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
-        # TODO: read vertical orientation from netcdf file
-        return cmor.variable(table_entry=entry,units=unit,axis_ids=axes,original_name=str(srcvar),positive="down")
+        return cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes,original_name=str(srcvar),positive="down")
     else:
-        return cmor.variable(table_entry=entry,units=unit,axis_ids=axes,original_name=str(srcvar))
+        return cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes,original_name=str(srcvar))
 
 
 # Creates all depth axes for the given table from the given files

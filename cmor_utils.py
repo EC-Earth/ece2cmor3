@@ -116,21 +116,22 @@ def get_nemo_grid(filepath,expname):
     match=result.group(0)
     return match[0:len(match)-3]
 
-def netcdf2cmor(varid,ncvar,psvarid=None,ncpsvar=None):
-    vals=numpy.zeros([1])
-    times=ncvar.shape[0]
-    size=ncvar.size/times
-    chunk=int(math.floor(4.0E+9/(8*size))) # Use max 4 GB of memory
+# TODO: Move to cmorapi, rename as it works for numpy arrays too.
+def netcdf2cmor(varid,ncvar,factor = 1.0,psvarid = None,ncpsvar = None):
+    times = ncvar.shape[0]
+    dims = len(ncvar.shape)
+    size = ncvar.size / times
+    chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
     for i in range(0,times,chunk):
-        imax=min(i+chunk,times)
-        if(len(ncvar.dimensions)==3):
-            vals=numpy.transpose(ncvar[i:imax,:,:],axes=[1,2,0]) # Convert to CMOR Fortran-style ordering
-        elif(len(ncvar.dimensions)==4):
-            vals=numpy.transpose(ncvar[i:imax,:,:,:],axes=[2,3,1,0]) # Convert to CMOR Fortran-style ordering
+        imax = min(i + chunk,times)
+        vals = None
+        if(dims == 3):
+            vals = numpy.transpose(ncvar[i:imax,:,:],axes = [1,2,0]) * factor     # Convert to CMOR Fortran-style ordering
+        elif(dims == 4):
+            vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [2,3,1,0]) * factor # Convert to CMOR Fortran-style ordering
         else:
-            raise Exception("Arrays of dimensions",len(ncvar.dimensions),"are not supported by ece2cmor")
-        shape=vals.shape
-        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed=(imax-i))
+            raise Exception("Arrays of dimensions",dims,"are not supported by ece2cmor")
+        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
         if(psvarid and ncpsvar):
-            spvals=numpy.transpose(ncpsvar[i:imax,:,:],axes=[1,2,0])
-            cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed=(imax-i),store_with=varid)
+            spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
+            cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (imax-i),store_with = varid)
