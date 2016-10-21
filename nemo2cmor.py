@@ -34,7 +34,6 @@ def initialize(path,expname,tableroot,start,length):
     global exp_name_
     global table_root_
     global unit_convs_
-
     exp_name_=expname
     table_root_=tableroot
     nemo_files_=select_files(path,expname,start,length)
@@ -51,11 +50,23 @@ def initialize(path,expname,tableroot,start,length):
     s=open(unitsfile).read()
     unit_convs_=json.loads(s)
 
+def finalize():
+    global nemo_files_
+    global grid_ids_
+    global depth_axes_
+    global time_axes_
+    global unit_convs_
+    nemo_files_=[]
+    grid_ids_={}
+    depth_axes_={}
+    time_axes_={}
+    unit_convs_={}
+
+
 # Executes the processing loop. TODO: parallelize!
 def execute(tasks):
     global time_axes_
     global depth_axes_
-    global table_root_
     print "Executing nemo tasks..."
     taskdict=cmor_utils.group(tasks,lambda t:t.target.table)
     for k,v in taskdict.iteritems():
@@ -84,26 +95,8 @@ def execute(tasks):
                 execute_netcdf_task(t,ds,tab_id)
 
 
-# Resets the module:
-def finalize():
-    global time_axes_
-    global depth_axes_
-    global grid_ids_
-    global nemo_files_
-
-    exp_name_=None
-    table_root_=None
-    nemo_files_=[]
-    grid_ids_={}
-    depth_axes_={}
-    time_axes_={}
-
-
 # Performs a single task:
 def execute_netcdf_task(task,dataset,tableid):
-    global time_axes_
-    global grid_ids_
-    global depth_axes_
     print "cmorizing source variable",task.source.var_id,"to target variable",task.target.variable,"..."
     dims=task.target.dims
     globvar=(task.source.grid()==cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
@@ -150,9 +143,6 @@ def create_cmor_variable(task,dataset,axes):
 
 # Creates all depth axes for the given table from the given files
 def create_depth_axes(tab_id,files):
-    global depth_axes_
-    global exp_name_
-
     result={}
     for f in files:
         gridstr=cmor_utils.get_nemo_grid(f,exp_name_)
@@ -207,8 +197,6 @@ def create_time_axis(freq,files):
 
 # Selects files with data with the given frequency
 def select_freq_files(freq):
-    global exp_name_
-
     freqmap={"1hr":"1h","3hr":"3h","6hr":"6h","day":"1d","mon":"1m"}
     if(not freq in freqmap):
         raise Exception("Unknown frequency detected:",freq)
@@ -240,7 +228,6 @@ def read_calendar(ncfile):
 # Reads all the NEMO grid data from the input files.
 def create_grids():
     global grid_ids
-
     spatial_grids=[grd for grd in cmor_source.nemo_grid if grd!=cmor_source.nemo_grid.scalar]
     for g in spatial_grids:
         gridfiles=[f for f in nemo_files_ if f.endswith(g + ".nc")]

@@ -26,9 +26,6 @@ def initialize(exp_name,table_root,conf_path):
     global table_dir_
     global conf_path_
     global targets_
-    global ifsdir_
-    global nemodir_
-    global tasks_
 
     exp_name_=exp_name
     prefix_=os.path.splitext(os.path.basename(table_root))[0]
@@ -39,31 +36,13 @@ def initialize(exp_name,table_root,conf_path):
     cmor.dataset_json(conf_path_)
     targets_=cmor_target.create_targets(table_dir_,prefix_)
 
-    ifsdir_=None
-    nemodir_=None
-    tasks_=[]
-
 # Closes cmor
 def finalize():
-    global exp_name_
-    global prefix_
-    global table_dir_
-    global config_file_
+    global tasks_
     global targets_
-    global ifsdir_
-    global nemodir_
-
     cmor.close()
-    exp_name_=None
-    prefix_=None
-    table_root_=None
-    config_file_=None
     targets_=[]
-    ifsdir_=None
-    nemodir_=None
     tasks_=[]
-    startdate_=None
-    interval_=None
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id,tab_id=None):
@@ -116,7 +95,6 @@ def add_task(tsk):
 
 # Returns the currently defined tasks:
 def get_tasks():
-    global tasks_
     return tasks_
 
 # Clears all tasks.
@@ -126,13 +104,6 @@ def clear_tasks():
 
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(postproc=True,tempdir=None):
-    global tasks_
-    global ifsdir_
-    global startdate_
-    global interval_
-    global exp_name_
-    global table_dir_
-    global prefix_
     ifs_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.ifs_source)]
     tableroot=os.path.join(table_dir_,prefix_)
     # TODO: Add support for reference date other that startdate
@@ -141,13 +112,6 @@ def perform_ifs_tasks(postproc=True,tempdir=None):
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks():
-    global tasks_
-    global nemodir_
-    global startdate_
-    global interval_
-    global exp_name_
-    global table_dir_
-    global prefix_
     nemo_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.nemo_source)]
     tableroot=os.path.join(table_dir_,prefix_)
     nemo2cmor.initialize(nemodir_,exp_name_,tableroot,startdate_,interval_)

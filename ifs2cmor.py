@@ -316,8 +316,6 @@ def create_time_axis(freq,path):
         name="time1"
     ax_id=cmor.axis(table_entry=name,units="hours since "+str(ref_date_),coord_vals=times,cell_bounds=bndvar)
     return ax_id
-    return 0
-
 
 # Does the postprocessing of independent tasks
 def postproc(tasks,postprocess=True):

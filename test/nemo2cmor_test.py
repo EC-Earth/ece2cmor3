@@ -122,7 +122,6 @@ class nemo2cmor_tests(unittest.TestCase):
         p3=(grid.vertex_lons[0,0,2],grid.vertex_lats[0,0,2])
         p4=(grid.vertex_lons[0,0,3],grid.vertex_lats[0,0,3])
 
-#        nose.tools.eq_(p1[0],p4[0])
         nose.tools.eq_(p2[0],p3[0])
         nose.tools.eq_(p1[1],p2[1])
         nose.tools.eq_(p3[1],p4[1])
