@@ -331,10 +331,12 @@ def create_time_axis(freq,path):
 
 # Does the postprocessing of independent tasks
 def postproc(tasks,postprocess=True):
-    taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,cmor_source.ifs_grid.index(t.source.grid())))
+    taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,
+                                              getattr(t.target,"time_operator","mean"),
+                                              cmor_source.ifs_grid.index(t.source.grid())))
     # TODO: Distribute loop over processes
     for k,v in taskdict.iteritems():
-        ppcdo(v,k[0],k[1],postprocess)
+        ppcdo(v,k[0],k[1],k[2],postprocess)
     postprocsp(tasks,postprocess)
 
 # Does the postprocessing of surface pressure co-variable
@@ -381,7 +383,7 @@ def get_spvar(ncpath):
 
 # Does splitting of files according to frequency and remaps the grids.
 #TODO: Add selmon...
-def ppcdo(tasks,freq,grid,callcdo=True):
+def ppcdo(tasks,freq,timop,grid,callcdo=True):
     print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
     if(len(tasks)==0): return
     timops=get_cdo_timop(freq)
@@ -390,34 +392,42 @@ def ppcdo(tasks,freq,grid,callcdo=True):
     command=cdo.Cdo()
     ifile=None
     if(grid==cmor_source.ifs_grid.point):
-        opstr=chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
+        opstr=None
+        if(timop=="mean"):
+            opstr=chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
+        else:
+            opstr=chain_cdo_commands(timops[0],timops[1],"setgridtype,regular",sel_op)
         ofile=os.path.join(temp_dir_,"ICMGG_"+freq+".nc")
         if(callcdo):
             command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-P 4 -f nc")
     else:
-        opstr=chain_cdo_commands(timops[0],timops[1],sel_op)
         ofile=os.path.join(temp_dir_,"ICMSH_"+freq+".nc")
         if(callcdo):
-            command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
+            if(timop=="mean"):
+                opstr=chain_cdo_commands(timops[0],timops[1],sel_op)
+                command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
+            else:
+                opstr=chain_cdo_commands(timops[0],timops[1],"sp2gpl",sel_op)
+                command.copy(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
     for task in tasks:
         setattr(task,"path",ofile)
         if(134 in codes):
             setattr(task,"sp_path",ofile)
 
 
-# Helper function for cdo time-averaging commands
-# TODO: move to cdo_utils
-def get_cdo_timop(freq):
+# Helper function for cdo time operator commands
+# TODO: find out about the time shifts
+def get_cdo_timop(freq,timop):
     if(freq=="mon"):
-        return ("timmean","shifttime,-3hours")
+        return ("mon"+timop,"shifttime,-3hours")
     elif(freq=="day"):
-        return ("daymean","shifttime,-3hours")
+        return ("day"+timop,"shifttime,-3hours")
     elif(freq=="6hr"):
-        return ("selhour,0,6,12,18",None)
+        if(timop=="mean"): return ("selhour,0,6,12,18",None)
     elif(freq=="3hr" or freq=="1hr"):
-        return (None,None)
+        if(timop=="mean"): return (None,None)
     else:
-        raise Exception("Unknown target frequency encountered:",freq)
+        raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
 
 
 # Utility to chain cdo commands
