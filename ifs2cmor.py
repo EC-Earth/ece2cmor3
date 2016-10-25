@@ -318,13 +318,15 @@ def create_time_axis(freq,path):
     return ax_id
 
 # Does the postprocessing of independent tasks
+# TODO: Write unit tests checking the attributes set
 def postproc(tasks,postprocess=True):
     taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,
                                               getattr(t.target,"time_operator","mean"),
-                                              cmor_source.ifs_grid.index(t.source.grid())))
+                                              cmor_source.ifs_grid.index(t.source.grid()),
+                                              hasattr(t.source,"expr")))
     # TODO: Distribute loop over processes
     for k,v in taskdict.iteritems():
-        ppcdo(v,k[0],k[1],k[2],postprocess)
+        ppcdo(v,k[0],k[1],k[2],k[3],postprocess)
     postprocsp(tasks,postprocess)
 
 # Does the postprocessing of surface pressure co-variable
@@ -371,39 +373,38 @@ def get_spvar(ncpath):
 
 # Does splitting of files according to frequency and remaps the grids.
 # TODO: Add selmon...
-def ppcdo(tasks,freq,timop,grid,callcdo = True):
+def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
     if(len(tasks) == 0): return
     timops = get_cdo_timop(freq)
-
-    # TODO: treat task expressions correctly.
-    special_tasks = hasattr(tasks[0].source,"expr")
     gcodes = itertools.chain(map(lambda t:t.source.get_root_codes(),tasks))
     varids = list(set(map(lambda c:c.var_id,gcodes)))
-
     sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
+    sel_op2 = "selcode," + (",".join(map(lambda i:str(i),set([t.source.get_grib_code().var_id for t in tasks])))) if isexpr else None
     command = cdo.Cdo()
     freqstr = freq if(timop == "mean") else (freq + timop)
+    exprstr = "_expr" if isexpr else ""
+    cdoexpr = map(lambda t: getattr("expr",t.source),tasks) if isexpr else None
     comstr = None
     if(grid == cmor_source.ifs_grid.point):
-        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + ".nc")
+        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")
         opstr = None
-        if(timop == "mean"):
+        if(timop == "mean" and not isexpr):
             opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
         else:
-            opstr = chain_cdo_commands(timops[0],timops[1],"setgridtype,regular",sel_op)
+            opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
         if(callcdo):
             command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
         comstr = "cdo -P 4 -f nc copy " + opstr + ifs_gridpoint_file_ + ofile
     else:
-        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr+".nc")
-        if(timop == "mean"):
+        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
+        if(timop == "mean" and not isexpr):
             opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
             if(callcdo):
                 command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
             comstr = "cdo -P 4 -f nc sp2gpl " + opstr + ifs_spectral_file_ + " " + ofile
         else:
-            opstr=chain_cdo_commands(timops[0],timops[1],"sp2gpl",sel_op)
+            opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
             if(callcdo):
                 command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
             comstr = "cdo -P 4 -f nc copy " + opstr + ifs_spectral_file_ + " " + ofile
@@ -417,14 +418,14 @@ def ppcdo(tasks,freq,timop,grid,callcdo = True):
 # Helper function for cdo time operator commands
 # TODO: find out about the time shifts
 def get_cdo_timop(freq,timop):
-    if(freq=="mon"):
-        return ("mon"+timop,"shifttime,-3hours")
-    elif(freq=="day"):
-        return ("day"+timop,"shifttime,-3hours")
-    elif(freq=="6hr"):
-        if(timop=="mean"): return ("selhour,0,6,12,18",None)
-    elif(freq=="3hr" or freq=="1hr"):
-        if(timop=="mean"): return (None,None)
+    if(freq == "mon"):
+        return ("mon" + timop,"shifttime,-3hours")
+    elif(freq == "day"):
+        return ("day" + timop,"shifttime,-3hours")
+    elif(freq == "6hr"):
+        if(timop == "mean"): return ("selhour,0,6,12,18",None)
+    elif(freq == "3hr" or freq == "1hr"):
+        if(timop == "mean"): return (None,None)
     else:
         raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
 
@@ -432,13 +433,15 @@ def get_cdo_timop(freq,timop):
 # Utility to chain cdo commands
 #TODO: move to cdo_utils and add input file argument
 def chain_cdo_commands(*args):
-    op=""
-    if(len(args)==0): return op
+    op = ""
+    if(len(args) == 0): return op
     for arg in args:
-        if(arg==None or arg==""): continue
-        s=str(arg)
-        op+=(" -"+s)
-    return op+" "
+        if(arg == None or arg == ""): continue
+        if(isinstance(arg,list)):
+            for s in arg: op += (" -" + str(s))
+        else:
+            op += (" -" + str(arg))
+    return op + " "
 
 
 # Retrieves all IFS output files in the input directory.
