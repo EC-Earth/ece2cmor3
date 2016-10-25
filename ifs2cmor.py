@@ -70,7 +70,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
 # Execute the postprocessing+cmorization tasks
 def execute(tasks,postprocess=True):
     print "Post-processing IFS data..."
-    postproc(get_independent_tasks(tasks),postprocess)
+    postproc(tasks,postprocess)
     print "Cmorizing IFS data..."
     cmor.load_table(table_root_+"_grids.json")
     gridid=create_grid_from_grib(getattr(tasks[0],"path"))
@@ -87,18 +87,6 @@ def execute(tasks,postprocess=True):
         else:
             filteredtasks.append(task)
     cmorize(filteredtasks)
-
-# Selects the independent (leaf) tasks from the given list
-def get_independent_tasks(tasks):
-    result=[]
-    for task in tasks:
-        if(not isinstance(task,task)):
-            continue
-        if(isinstance(task.source,list)):
-            result.append(get_independent_tasks(task.source))
-        elif(isinstance(task.source,cmor_source.cmor_source)):
-            result.append(task)
-    return result
 
 # Do the cmorization tasks
 def cmorize(tasks):
@@ -382,35 +370,46 @@ def get_spvar(ncpath):
         return None
 
 # Does splitting of files according to frequency and remaps the grids.
-#TODO: Add selmon...
-def ppcdo(tasks,freq,timop,grid,callcdo=True):
+# TODO: Add selmon...
+def ppcdo(tasks,freq,timop,grid,callcdo = True):
     print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
-    if(len(tasks)==0): return
-    timops=get_cdo_timop(freq)
-    codes=list(set(map(lambda t:t.source.get_grib_code().var_id,tasks)))
-    sel_op="selcode,"+(",".join(map(lambda i:str(i),codes)))
-    command=cdo.Cdo()
-    ifile=None
-    if(grid==cmor_source.ifs_grid.point):
-        opstr=None
-        if(timop=="mean"):
-            opstr=chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
+    if(len(tasks) == 0): return
+    timops = get_cdo_timop(freq)
+
+    # TODO: treat task expressions correctly.
+    special_tasks = hasattr(tasks[0].source,"expr")
+    gcodes = itertools.chain(map(lambda t:t.source.get_root_codes(),tasks))
+    varids = list(set(map(lambda c:c.var_id,gcodes)))
+
+    sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
+    command = cdo.Cdo()
+    freqstr = freq if(timop == "mean") else (freq + timop)
+    comstr = None
+    if(grid == cmor_source.ifs_grid.point):
+        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + ".nc")
+        opstr = None
+        if(timop == "mean"):
+            opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
         else:
-            opstr=chain_cdo_commands(timops[0],timops[1],"setgridtype,regular",sel_op)
-        ofile=os.path.join(temp_dir_,"ICMGG_"+freq+".nc")
+            opstr = chain_cdo_commands(timops[0],timops[1],"setgridtype,regular",sel_op)
         if(callcdo):
-            command.copy(input=opstr+ifs_gridpoint_file_,output=ofile,options="-P 4 -f nc")
+            command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
+        comstr = "cdo -P 4 -f nc copy " + opstr + ifs_gridpoint_file_ + ofile
     else:
-        ofile=os.path.join(temp_dir_,"ICMSH_"+freq+".nc")
-        if(callcdo):
-            if(timop=="mean"):
-                opstr=chain_cdo_commands(timops[0],timops[1],sel_op)
-                command.sp2gpl(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
-            else:
-                opstr=chain_cdo_commands(timops[0],timops[1],"sp2gpl",sel_op)
-                command.copy(input=opstr+ifs_spectral_file_,output=ofile,options="-P 4 -f nc")
+        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr+".nc")
+        if(timop == "mean"):
+            opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
+            if(callcdo):
+                command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
+            comstr = "cdo -P 4 -f nc sp2gpl " + opstr + ifs_spectral_file_ + " " + ofile
+        else:
+            opstr=chain_cdo_commands(timops[0],timops[1],"sp2gpl",sel_op)
+            if(callcdo):
+                command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
+            comstr = "cdo -P 4 -f nc copy " + opstr + ifs_spectral_file_ + " " + ofile
     for task in tasks:
         setattr(task,"path",ofile)
+        setattr(task,"cdo_command",comstr)
         if(134 in codes):
             setattr(task,"sp_path",ofile)
 

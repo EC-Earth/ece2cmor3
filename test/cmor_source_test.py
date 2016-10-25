@@ -1,11 +1,17 @@
 import logging
 import unittest
 from cmor_source import ifs_source,grib_code,nemo_source,nemo_grid
-from nose.tools import eq_,ok_
+from nose.tools import eq_,ok_,raises
 
 logging.basicConfig(level=logging.DEBUG)
 
 class cmor_source_tests(unittest.TestCase):
+
+    def test_default_ifs_source(self):
+        src = ifs_source(None)
+        eq_(src.grid(),None)
+        eq_(src.get_grib_code(),None)
+        eq_(src.get_root_codes(),[])
 
     def test_surface_pressure(self):
         code=grib_code(134,128)
@@ -16,7 +22,6 @@ class cmor_source_tests(unittest.TestCase):
         src=ifs_source(code)
         eq_(src.grid(),"spec")
         eq_(src.dims(),3)
-        eq_(src.realm(),"atmos")
 
     def test_snow_depth(self):
         code=grib_code(141,128)
@@ -28,12 +33,39 @@ class cmor_source_tests(unittest.TestCase):
         src=ifs_source.create(133,128)
         eq_(src.get_grib_code(),grib_code(133,128))
 
+    @raises(Exception)
+    def test_invalid_codes(self):
+        src=ifs_source.create(88,128)
+
     def test_create_from_string(self):
         src=ifs_source.read("133.128")
         eq_(src.get_grib_code(),grib_code(133,128))
+
+    def test_create_from_expr(self):
+        expr="var88=sqrt(sq(var165)+sq(var166))"
+        src=ifs_source.read(expr)
+        eq_(src.get_grib_code(),grib_code(88,128))
+        eq_(src.get_root_codes(),[grib_code(165,128),grib_code(166,128)])
+        eq_(getattr(src,"expr"),expr)
+        eq_(src.grid(),"point")
+        eq_(src.spatial_dims,2)
+
+    @raises(Exception)
+    def test_invalid_expression1(self):
+        expr="var141=sqrt(sq(var165)+sq(var166))"
+        src=ifs_source.read(expr)
+
+    @raises(Exception)
+    def test_invalid_expression2(self):
+        expr="var89=sqrt(sq(var88)+sq(var166))"
+        src=ifs_source.read(expr)
+
+    @raises(Exception)
+    def test_invalid_expression3(self):
+        expr="var89=sqrt(sq(var133)+sq(var166))"
+        src=ifs_source.read(expr)
 
     def test_create_nemo_source(self):
         src=nemo_source("tos",nemo_grid.grid_T)
         eq_(src.grid(),"grid_T")
         eq_(src.dims(),-1)
-        eq_(src.realm(),"ocean")

@@ -1,6 +1,7 @@
 from datetime import timedelta
 import json
 import os
+import re
 from cmor_utils import cmor_enum
 
 # Base class for cmor source objects, which represent variables produced by a model
@@ -34,6 +35,9 @@ class grib_code:
     def __str__(self):
         return str(self.var_id)+'.'+str(self.tab_id)
 
+    def __hash__(self):
+        return self.var_id+self.tab_id*1000
+
     @classmethod
     def read(cls,istr):
         strpair=istr.split('.')
@@ -59,44 +63,71 @@ ifs_grid=cmor_enum(["point","spec"])
 # IFS source subclass, constructed from a given grib code.
 class ifs_source(cmor_source):
 
-    grib_codes_file=os.path.join(os.path.dirname(__file__),"resources/grib_codes.json")
-    grib_codes_3D=read_grib_codes_group(grib_codes_file,"MFP3D")
-    grib_codes_2D_dyn=read_grib_codes_group(grib_codes_file,"MFP2DF")
-    grib_codes_2D_phy=read_grib_codes_group(grib_codes_file,"MFPPHY")
-    grib_codes_extra=read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
-    grib_codes=grib_codes_3D+grib_codes_2D_phy+grib_codes_2D_phy+grib_codes_extra
+    grib_codes_file = os.path.join(os.path.dirname(__file__),"resources/grib_codes.json")
+    grib_codes_3D = read_grib_codes_group(grib_codes_file,"MFP3D")
+    grib_codes_2D_dyn = read_grib_codes_group(grib_codes_file,"MFP2DF")
+    grib_codes_2D_phy = read_grib_codes_group(grib_codes_file,"MFPPHY")
+    grib_codes_extra = read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
+    grib_codes = grib_codes_3D + grib_codes_2D_phy + grib_codes_2D_phy + grib_codes_extra
 
     def __init__(self,code):
-        if(not code in ifs_source.grib_codes):
-            raise Exception("Unknown grib code passed to IFS source parameter constructor:",str(code.var_id)+"."+str(code.tab_id))
-        self.code__=code
-        self.spatial_dims=-1
-        if(code in ifs_source.grib_codes_3D):
-            self.grid_=ifs_grid.spec
-            self.spatial_dims=3
+        if(not code):
+            self.code_ = None
+            self.spatial_dims = -1
+            self.grid_ = -1
         else:
-            self.grid_=ifs_grid.point
-            self.spatial_dims=2
-        self.realm_="atmos"
+            if(not code in ifs_source.grib_codes):
+                raise Exception("Unknown grib code passed to IFS source parameter constructor:",str(code.var_id) + "." + str(code.tab_id))
+            self.code_ = code
+            self.spatial_dims = -1
+            if(code in ifs_source.grib_codes_3D):
+                self.grid_ = ifs_grid.spec
+                self.spatial_dims = 3
+            else:
+                self.grid_ = ifs_grid.point
+                self.spatial_dims = 2
 
     def grid(self):
-        return ifs_grid[self.grid_]
-
-    def realm(self):
-        return self.realm_
+        return ifs_grid[self.grid_] if self.grid_ >= 0 else None
 
     def get_grib_code(self):
-        return grib_code(self.code__.var_id,self.code__.tab_id)
+        return grib_code(self.code_.var_id,self.code_.tab_id) if self.code_ else None
+
+    def get_root_codes(self):
+        if(hasattr(self,"root_codes")):
+            return [grib_code(c.var_id,c.tab_id) for c in getattr(self,"root_codes")]
+        else:
+            return [get_grib_code(self)] if self.code_ else []
 
     @classmethod
     def read(cls,s):
-        gc=grib_code.read(s)
-        cls=ifs_source(gc)
+        if re.match("[0-9]{1,3}.[0-9]{3}",s):
+            gc = grib_code.read(s)
+            cls = ifs_source(gc)
+        else:
+            varstrs = re.findall("var[0-9]{1,3}",s)
+            if(len(varstrs) == 0 or not s.replace(" ","").startswith(varstrs[0] + "=")):
+                raise Exception('Unable to read grib codes from expression',s)
+            else:
+                codes=list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs)))
+                cls = ifs_source(None)
+                if(codes[0] in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
+                    raise Exception("Invalid expression code",codes[0],"already reserved for direct output")
+                cls.code_ = codes[0]
+                spec3d = len(codes)>1 and codes[1] in ifs_source.grib_codes_3D
+                for c in codes[1:]:
+                    if(c not in ifs_source.grib_codes): raise Exception("Unknown grib code",c,"in expression",s,"found")
+                    if(spec3d and c not in ifs_source.grib_codes_3D):
+                        raise Exception("Invalid combination of gridpoint and spectral variables in expression",s)
+                cls.grid_ = ifs_grid.spec if spec3d else ifs_grid.point
+                cls.spatial_dims = 3 if spec3d else 2
+                setattr(cls,"root_codes",codes[1:])
+                setattr(cls,"expr",s)
         return cls
 
     @classmethod
     def create(cls,vid,tid):
-        cls=ifs_source(grib_code(vid,tid))
+        cls = ifs_source(grib_code(vid,tid))
         return cls
 
 # NEMO grid type enumerable.
@@ -121,9 +152,6 @@ class nemo_source(cmor_source):
 
     def grid(self):
         return nemo_grid[self.grid_]
-
-    def realm(self):
-        return "ocean"
 
     def var(self):
         return self.var_id
