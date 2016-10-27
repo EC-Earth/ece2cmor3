@@ -8,6 +8,7 @@ import os
 import numpy
 import datetime
 import netCDF4
+import itertools
 
 # Experiment name
 exp_name_=None
@@ -338,7 +339,7 @@ def postprocsp(tasks,postprocess=True):
         if(len(sptasks)!=0):
             sppath=getattr(sptasks[0],"sp_path")
         else:
-            timops=get_cdo_timop(freq)
+            timops=get_cdo_timop(freq,"mean")
             opstr=chain_cdo_commands(timops[0],timops[1],"selcode,134")
             sppath=os.path.join(temp_dir_,"ICMSH_134_"+freq+".nc")
             if(postprocess):
@@ -376,8 +377,9 @@ def get_spvar(ncpath):
 def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
     if(len(tasks) == 0): return
-    timops = get_cdo_timop(freq)
-    gcodes = itertools.chain(map(lambda t:t.source.get_root_codes(),tasks))
+    timops = get_cdo_timop(freq,timop)
+    gcodes = []
+    for task in tasks: gcodes.extend(task.source.get_root_codes())
     varids = list(set(map(lambda c:c.var_id,gcodes)))
     sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
     sel_op2 = "selcode," + (",".join(map(lambda i:str(i),set([t.source.get_grib_code().var_id for t in tasks])))) if isexpr else None
@@ -395,23 +397,23 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
             opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
         if(callcdo):
             command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
-        comstr = "cdo -P 4 -f nc copy " + opstr + ifs_gridpoint_file_ + ofile
+        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
     else:
         ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
         if(timop == "mean" and not isexpr):
             opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
             if(callcdo):
                 command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-            comstr = "cdo -P 4 -f nc sp2gpl " + opstr + ifs_spectral_file_ + " " + ofile
+            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
         else:
             opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
             if(callcdo):
                 command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-            comstr = "cdo -P 4 -f nc copy " + opstr + ifs_spectral_file_ + " " + ofile
+            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
     for task in tasks:
         setattr(task,"path",ofile)
         setattr(task,"cdo_command",comstr)
-        if(134 in codes):
+        if(134 in varids):
             setattr(task,"sp_path",ofile)
 
 

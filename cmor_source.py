@@ -97,7 +97,7 @@ class ifs_source(cmor_source):
         if(hasattr(self,"root_codes")):
             return [grib_code(c.var_id,c.tab_id) for c in getattr(self,"root_codes")]
         else:
-            return [get_grib_code(self)] if self.code_ else []
+            return [self.get_grib_code()] if self.code_ else []
 
     @classmethod
     def read(cls,s):
