@@ -36,3 +36,11 @@ class cmor_target_tests(unittest.TestCase):
         tosfreqs=[v.frequency for v in toss]
         ok_("mon" in tosfreqs)
         ok_("day" in tosfreqs)
+
+    def test_cell_measures(self):
+        path=os.path.dirname(cmor_target.__file__)+"/../../input/cmip6/cmip6-cmor-tables/Tables/"
+        abspath=os.path.abspath(path)
+        targets=cmor_target.create_targets(abspath,"CMIP6")
+        tasmin = [t for t in targets if t.table == "day" and t.variable == "tasmin"][0]
+        ok_(hasattr(tasmin,"time_operator"))
+        ok_(getattr(tasmin,"time_operator"),"minimum")

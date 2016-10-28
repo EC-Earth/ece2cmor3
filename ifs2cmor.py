@@ -384,7 +384,7 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
     sel_op2 = "selcode," + (",".join(map(lambda i:str(i),set([t.source.get_grib_code().var_id for t in tasks])))) if isexpr else None
     command = cdo.Cdo()
-    freqstr = freq if(timop == "mean") else (freq + timop)
+    freqstr = freq if(timop == "mean") else timops[0]
     exprstr = "_expr" if isexpr else ""
     cdoexpr = map(lambda t: getattr("expr",t.source),tasks) if isexpr else None
     comstr = None
@@ -420,14 +420,15 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
 # Helper function for cdo time operator commands
 # TODO: find out about the time shifts
 def get_cdo_timop(freq,timop):
+    cdoop = timop if timop == "mean" else timop[0:3]
     if(freq == "mon"):
-        return ("mon" + timop,"shifttime,-3hours")
+        return ("mon" + cdoop,"shifttime,-3hours")
     elif(freq == "day"):
-        return ("day" + timop,"shifttime,-3hours")
+        return ("day" + cdoop,"shifttime,-3hours")
     elif(freq == "6hr"):
-        if(timop == "mean"): return ("selhour,0,6,12,18",None)
+        if(cdoop == "mean"): return ("selhour,0,6,12,18",None)
     elif(freq == "3hr" or freq == "1hr"):
-        if(timop == "mean"): return (None,None)
+        if(cdoop == "mean"): return (None,None)
     else:
         raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
 
