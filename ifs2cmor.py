@@ -1,12 +1,12 @@
+import os
+import numpy
+from dateutil.relativedelta import relativedelta as deltat
+import datetime
 import cmor
 import cdo
 import cmor_utils
 import cmor_source
 import cmor_target
-from dateutil.relativedelta import relativedelta as deltat
-import os
-import numpy
-import datetime
 import netCDF4
 import itertools
 
@@ -35,6 +35,7 @@ temp_dir_=os.getcwd()
 # Reference date, times will be converted to hours since refdate
 # TODO: set in init
 ref_date_=None
+
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month=1),tempdir=None):
@@ -89,6 +90,7 @@ def execute(tasks,postprocess=True):
             filteredtasks.append(task)
     cmorize(filteredtasks)
 
+
 # Do the cmorization tasks
 def cmorize(tasks):
     taskdict=cmor_utils.group(tasks,lambda t:t.target.table)
@@ -111,6 +113,7 @@ def cmorize(tasks):
             execute_netcdf_task(task)
 
 
+# Utility function for vertical axis selection
 def get_cdo_level_commands(task):
     axisname=getattr(task,"z_axis",None)
     if not axisname:
@@ -193,6 +196,8 @@ def execute_netcdf_task(task):
     cmor_utils.netcdf2cmor(varid,ncvar,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
 
+
+# Returns the conversion factor from the input string
 def get_conversion_factor(conversion):
     if(not conversion): return 1.0
     if(conversion == "mean2inst"): return 1.0 / (3600 * output_freq_)
@@ -201,6 +206,7 @@ def get_conversion_factor(conversion):
     if(conversion == "alt2pot"): return 9.81
     if(conversion == "meanvol2instdens"): return 1000.0 / (3600 * output_freq_)
     raise Exception("Unknown explicit unit conversion: ",conversion)
+
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
@@ -264,6 +270,7 @@ def create_depth_axes(tasks):
             raise Exception("Vertical dimension",zdim,"not found in table header")
 
 
+# Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task):
     pref=80000 # TODO: Move reference pressure level to model config
     path=getattr(task,"path")
@@ -330,6 +337,7 @@ def postproc(tasks,postprocess=True):
         ppcdo(v,k[0],k[1],k[2],k[3],postprocess)
     postprocsp(tasks,postprocess)
 
+
 # Does the postprocessing of surface pressure co-variable
 def postprocsp(tasks,postprocess=True):
     tasksbyfreq=cmor_utils.group(tasks,lambda t:t.target.frequency)
@@ -356,6 +364,7 @@ def postprocsp(tasks,postprocess=True):
         for task in taskgroup:
             setattr(task,"sp_path",sppath)
 
+
 # Surface pressure variable lookup utility
 def get_spvar(ncpath):
     if(not ncpath):
@@ -372,6 +381,7 @@ def get_spvar(ncpath):
         return None
     except:
         return None
+
 
 # Does splitting of files according to frequency and remaps the grids.
 # TODO: Add selmon...
