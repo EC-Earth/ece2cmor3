@@ -339,7 +339,8 @@ def postprocsp(tasks,postprocess=True):
         if(len(sptasks)!=0):
             sppath=getattr(sptasks[0],"sp_path")
         else:
-            timops=get_cdo_timop(freq,"mean")
+            timop = "point" if freq in ["3hr","6hr"] else "mean"
+            timops=get_cdo_timop(freq,timop)
             opstr=chain_cdo_commands(timops[0],timops[1],"selcode,134")
             sppath=os.path.join(temp_dir_,"ICMSH_134_"+freq+".nc")
             if(postprocess):
@@ -384,9 +385,9 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
     sel_op2 = "selcode," + (",".join(map(lambda i:str(i),set([t.source.get_grib_code().var_id for t in tasks])))) if isexpr else None
     command = cdo.Cdo()
-    freqstr = freq if(timop == "mean") else timops[0]
+    freqstr = freq if(timop in ["mean","point"]) else timops[0]
     exprstr = "_expr" if isexpr else ""
-    cdoexpr = map(lambda t: getattr("expr",t.source),tasks) if isexpr else None
+    cdoexpr = map(lambda t: "expr," + getattr(t.source,"expr"),tasks) if isexpr else None
     comstr = None
     if(grid == cmor_source.ifs_grid.point):
         ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")
@@ -419,18 +420,18 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
 
 # Helper function for cdo time operator commands
 # TODO: find out about the time shifts
+# TODO: fix this mess with instantaneous sampling
 def get_cdo_timop(freq,timop):
-    cdoop = timop if timop == "mean" else timop[0:3]
+    cdoop = timop[0:3] if timop in ["maximum","minimum"] else timop
     if(freq == "mon"):
         return ("mon" + cdoop,"shifttime,-3hours")
     elif(freq == "day"):
         return ("day" + cdoop,"shifttime,-3hours")
     elif(freq == "6hr"):
-        if(cdoop == "mean"): return ("selhour,0,6,12,18",None)
+        if(cdoop == "point"): return ("selhour,0,6,12,18",None)
     elif(freq == "3hr" or freq == "1hr"):
-        if(cdoop == "mean"): return (None,None)
-    else:
-        raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
+        if(cdoop == "point"): return (None,None)
+    raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
 
 
 # Utility to chain cdo commands
