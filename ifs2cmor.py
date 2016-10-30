@@ -170,12 +170,12 @@ def execute_netcdf_task(task):
     sel_op="selcode,"+codestr
     lev_ops=get_cdo_level_commands(task)
     command=chain_cdo_commands(lev_ops[1],lev_ops[0],sel_op)+filepath
-    print "CDO command:",command
+    print "cdo command:",command
     ncvars=[]
     try:
         ncvars=cdocmd.copy(input=command,returnCdf=True).variables
     except Exception:
-        print "CDO command failed:",command
+        print "cdo command failed:",command
         return
     varlist=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
     if(len(varlist)==0):

@@ -12,6 +12,8 @@ class cmorapi:
         self.grids = {}
         self.time_axes = {}
         self.depth_axes = {}
+        self.surface_pressure_id = None
+        self.surface_pressure_vals = None
         cmor.setup(os.path.dirname(table_root_))
         cmor.dataset_json(config_file)
 
@@ -56,9 +58,8 @@ class cmorapi:
 # Grid creation wrapper function, keeps track whether a grid with the same name already exists.
     def create_grid(self,gridname,axes,createfunc):
         if(gridname in self.grids): return self.grids[gridname]
-        self.load_table(self.table_root+"_grids.json")
+        self.load_table("grids")
         d = createfunc()
-        axes = d["axes"]
         axisids={}
         for axis in axes:
             axisinfo = d[axis]
@@ -71,22 +72,48 @@ class cmorapi:
                                        longitude_vertices = d["lon_bounds"])
         return self.grids[gridname]
 
-# TODO: Move to cmorapi, rename as it works for numpy arrays too.
-def writevals(varid,valarray,factor = 1.0,psvarid = None,ncpsvar = None):
-    times = valarray.shape[0]
-    dims = len(valarray.shape)
-    size = valarray.size / times
-    chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
-    for i in range(0,times,chunk):
-        imax = min(i + chunk,times)
-        vals = None
-        if(dims == 3):
-            vals = numpy.transpose(valarray[i:imax,:,:],axes = [1,2,0]) * factor     # Convert to CMOR Fortran-style ordering
-        elif(dims == 4):
-            vals = numpy.transpose(valarray[i:imax,:,:,:],axes = [2,3,1,0]) * factor # Convert to CMOR Fortran-style ordering
-        else:
-            raise Exception("Arrays of dimensions",dims,"are not supported by ece2cmor")
-        cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
-        if(psvarid and ncpsvar):
-            spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
-            cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (imax-i),store_with = varid)
+# Creates a cmor variable.
+    def create_variable(self,varname,table,axisnames,gridname,unit,zdir=None,originalname=None):
+        self.load_table(table)
+        axisids,anames = [],axisnames
+        if("latitude" in axisnames and "longitude" in axisnames):
+            if(not gridname in self.grids): raise Exception("Grid",gridname,"was not created by this class")
+            anames.remove("latitude")
+            anames.remove("longitude")
+            axisids.append(self.grids[gridname])
+        for axis in anames:
+            if((table,axis) in self.depth_axes):
+                axisids.append(self.depth_axes[(table,axis)])
+                anames.remove(axis)
+                break
+        for axis in anames:
+            if((table,axis) in self.time_axes):
+                axisids.append(self.time_axes[(table,axis)])
+                anames.remove(axis)
+                break
+        if(len(anames) != 0): raise Exception("Combination of axes",axisnames,"could not be converted to valid id's. Axes causing problems are",anames)
+        return cmor.variable(table_entry=varname,units=unit,axis_ids=axisids,positive=zdir,original_name=originalname)
+
+# Writes the input array valarray to cmor,
+    def writevals(self,varid,valarray,factor = 1.0,psvarid = None,ncpsvar = None):
+        dims = len(valarray.shape)
+        times = if dims == 2 ? 1 else valarray.shape[0]
+        size = valarray.size / times
+        chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
+        for i in range(0,times,chunk):
+            imax = min(i + chunk,times)
+            vals = None
+            if(dims == 1): # We assume a time series here
+                vals = valarray[i:imax] * factor
+            elif(dims == 2): # We assume time constant lat/lon field
+                vals = valarray[:,:] * factor
+            elif(dims == 3): # We assume a time-varying lat/lon field
+                vals = numpy.transpose(valarray[i:imax,:,:],axes = [1,2,0]) * factor
+            elif(dims == 4): # We assume a time-varying volume field.
+                vals = numpy.transpose(valarray[i:imax,:,:,:],axes = [2,3,1,0]) * factor
+            else:
+                raise Exception("Arrays of dimensions",dims,"are not supported by ece2cmor")
+                cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
+                if(psvarid and ncpsvar):
+                    spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
+                    cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (imax-i),store_with = varid)
