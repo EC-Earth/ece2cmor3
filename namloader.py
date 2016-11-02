@@ -7,7 +7,8 @@ import cmor_task
 
 IFS_source_tag = 1
 Nemo_source_tag = 2
-
+ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifs.par")
+nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemo.par")
 nemo_grid_dict = {}
 
 # Loads the nemo 'iodef' xml file which contains information about which variable is defined on which grid
@@ -35,16 +36,30 @@ def load_nemo_iodef(xmlpath):
 
 
 # Loads the legacy ece2cmor input namelists to tasks:
-def load_task_namelists(varlist,ifspar = None,nemopar = None):
-    targetlist = load_targets_namelist(varlist)
+def load_task_namelists(varlist):
+    targetlist = []
+    if(isinstance(varlist,basestring)):
+        targetlist = load_targets_namelist(varlist)
+    elif(all(isinstance(t,cmor_target) for t in varlist)):
+        targetlist = varlist
+    elif(isinstance(varlist,dict)):
+        targetlist=[]
+        for table,val in varlist.iteritems():
+            varseq = [val] if isinstance(val,basestring) else val
+            for v in varseq: targetlist.append(ece2cmor.get_cmor_target(v,table))
+    else:
+        print "Cannot create a list of cmor-targets for argument",varlist
+    make_tasks(targetlist)
+
+
+# Creates tasks for the given targets, using the parameter tables in the resource folder
+def make_tasks(targets):
     parlist = []
-    if(ifspar):
-        ifsparlist = f90nml.read(ifspar)
-        parlist.extend(ifsparlist.get("parameter"))
+    ifsparlist = f90nml.read(ifs_par_file)
+    parlist.extend(ifsparlist.get("parameter"))
     ifslen = len(parlist)
-    if(nemopar):
-        nemoparlist = f90nml.read(nemopar)
-        parlist.extend(nemoparlist.get("parameter"))
+    nemoparlist = f90nml.read(nemo_par_file)
+    parlist.extend(nemoparlist.get("parameter"))
     index = 0
     for p in parlist:
         tag = IFS_source_tag
@@ -52,11 +67,25 @@ def load_task_namelists(varlist,ifspar = None,nemopar = None):
             tag = Nemo_source_tag
         index += 1
         varname = p["out_name"]
-        for tgt in targetlist:
+        for tgt in targets:
             if(tgt.variable != varname): continue
             if(tag == Nemo_source_tag and not tgt.realm in ["ocean","seaIce ocean"]): continue
             ece2cmor.add_task(create_cmor_task(create_cmor_source(p,tag),tgt,tag))
-            targetlist.remove(tgt)
+            targets.remove(tgt)
+
+# Loads the legacy ece2cmor input namelists to targets
+def load_targets_namelist(varlist):
+    vlist = f90nml.read(varlist)
+    targetlist = []
+    for sublist in vlist["varlist"]:
+        freq = sublist["freq"]
+        vars2d = sublist.get("vars2d",[])
+        vars3d = sublist.get("vars3d",[])
+        for v in (vars2d + vars3d):
+            tlist = ece2cmor.get_cmor_target(v)
+            tgt=[t for t in tlist if t.frequency == freq]
+            targetlist.extend(tgt)
+    return targetlist
 
 # Creates a cmor_source for the given parameter dictionary
 def create_cmor_source(paramdict,tag):
@@ -102,17 +131,3 @@ def create_cmor_task(src,tgt,tag):
             setattr(task,"conversion","pot2alt")
         if((code,oname) in expressions):
             setattr(task,"expr",expressions[(code,oname)])
-
-# Loads the legacy ece2cmor input namelists to targets
-def load_targets_namelist(varlist):
-    vlist = f90nml.read(varlist)
-    targetlist = []
-    for sublist in vlist["varlist"]:
-        freq = sublist["freq"]
-        vars2d = sublist.get("vars2d",[])
-        vars3d = sublist.get("vars3d",[])
-        for v in (vars2d + vars3d):
-            tlist = ece2cmor.get_cmor_target(v)
-            tgt=[t for t in tlist if t.frequency == freq]
-            targetlist.extend(tgt)
-    return targetlist
