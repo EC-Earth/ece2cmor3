@@ -200,11 +200,11 @@ def execute_netcdf_task(task):
 # Returns the conversion factor from the input string
 def get_conversion_factor(conversion):
     if(not conversion): return 1.0
-    if(conversion == "mean2inst"): return 1.0 / (3600 * output_freq_)
-    if(conversion == "inst2mean"): return (3600 * output_freq_)
+    if(conversion == "cum2inst"): return 1.0 / (3600 * output_freq_)
+    if(conversion == "inst2cum"): return (3600 * output_freq_)
     if(conversion == "pot2alt"): return 1.0 / 9.81
     if(conversion == "alt2pot"): return 9.81
-    if(conversion == "meanvol2instdens"): return 1000.0 / (3600 * output_freq_)
+    if(conversion == "vol2flux"): return 1000.0 / (3600 * output_freq_)
     raise Exception("Unknown explicit unit conversion: ",conversion)
 
 
