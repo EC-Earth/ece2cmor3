@@ -97,7 +97,7 @@ class cmorapi:
 # Writes the input array valarray to cmor,
     def writevals(self,varid,valarray,factor = 1.0,psvarid = None,ncpsvar = None):
         dims = len(valarray.shape)
-        times = if dims == 2 ? 1 else valarray.shape[0]
+        times = 1 if dims == 2 else valarray.shape[0]
         size = valarray.size / times
         chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
         for i in range(0,times,chunk):

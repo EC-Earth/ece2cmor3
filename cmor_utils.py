@@ -1,23 +1,40 @@
 import os
+import sys
 import re
 import math
 import numpy
 import datetime
+import logging
 import cmor
 
+
+# Handler to log uncaught exceptions
+def handle_exception(exctype,excvalue,exctrace):
+    logging.critical("Uncaught exception of type %s raised:" % exctype)
+    logging.critical("Value: %s" % excvalue)
+    logging.critical("Traceback: %s" % exctrace)
+    sys.exit(excvalue)
+
+
+# Sets the exception handler
+sys.excepthook = handle_exception
+
+
 # Enum utility class
-class cmor_enum(tuple): __getattr__=tuple.index
+class cmor_enum(tuple): __getattr__ = tuple.index
+
 
 # Grouping to dictionary utility function
 def group(objects,func):
-    d={}
+    d = {}
     for o in objects:
         k=func(o)
         if(k in d):
             d[k].append(o)
         else:
-            d[k]=[o]
+            d[k] = [o]
     return d
+
 
 # Turns a date or datetime into a datetime
 def make_datetime(time):
@@ -27,6 +44,7 @@ def make_datetime(time):
         return time
     else:
         raise Exception("Cannot convert object",time,"to datetime")
+
 
 #TODO: Make more flexible
 def make_cmor_frequency(s):
@@ -39,14 +57,17 @@ def make_cmor_frequency(s):
     elif(s=="3hr"):
         return dateutil.relativedelta(hours=3)
     else:
-        raise Exception("Could not convert argument",s,"to a relative time interval")
+        logging.error("Could not convert argument %s to a relative time interval" % s)
+        return None
+
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):
     if(end<start):
-        raise Exception("start date later than end date",start,end)
+        logging.warning("Start date %s later than end date %s" % (str(start),str(end)))
+        return []
     if(start+delta==start):
-        raise Exception("time interval should be positive",delta)
+        logging.warning("Time interval %s should be positive",str(delta))
     result=list()
     istart=start
     while((istart+delta)<end):
@@ -56,6 +77,7 @@ def make_time_intervals(start,end,delta):
     result.append((istart,end))
     return result
 
+
 # Finds all ifs output in the given directory. If expname is given, matches according output files.
 def find_ifs_output(path,expname=None):
     subexpr=".*"
@@ -64,14 +86,17 @@ def find_ifs_output(path,expname=None):
     expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+[0-9]{6}$")
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
+
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
     fname=os.path.basename(filepath)
     regex=re.search("\+[0-9]{6}",fname)
     if(not regex):
-        raise Exception("unable to parse time stamp from ifs file name",fname)
+        logging.error("Unable to parse time stamp from ifs file name %s" % fname)
+        return None
     ss=regex.group()[1:]
     return datetime.datetime.strptime(ss,"%Y%m").date()
+
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
 def find_nemo_output(path,expname=None):
@@ -81,30 +106,36 @@ def find_nemo_output(path,expname=None):
     expr=re.compile(subexpr+"_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
+
 # Returns the start and end date corresponding to the given nemo output file.
 def get_nemo_interval(filepath):
     fname=os.path.basename(filepath)
     regex=re.findall("_[0-9]{8}",fname)
     if(not regex or len(regex)!=2):
-        raise Exception("unable to parse dates from nemo file name",fname)
+        logging.error("Unable to parse dates from nemo file name %s" % fname)
     start=datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
     end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
+
 
 # Returns the frequency string for a given nemo output file.
 def get_nemo_frequency(filepath,expname):
     f=os.path.basename(filepath)
     expr=re.compile("^"+expname+".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if(not re.match(expr,f)):
-        raise Exception("file path",filepath,"does not correspond to nemo output of experiment",expname)
+        logger.error("File path %s does not correspond to nemo output of experiment %s" % (filepath,expname))
+        return None
     fstr=f[len(expname)+1:].split("_")[0]
     expr=re.compile("^(\d+)(h|d|m|y)")
     if(not re.match(expr,fstr)):
-        raise Exception("file path",filepath,"does not contain a valid frequency indicator")
+        logger.error("File path %s does not contain a valid frequency indicator" % filepath)
+        return None
     n=int(fstr[0:len(fstr)-1])
     if(n==0):
-        raise Exception("invalid frequency 0 parsed from file path",filepath)
+        logger.error("Invalid frequency 0 parsed from file path %s" % filepath)
+        return None
     return fstr
+
 
 # Returns the grid for the given file name.
 def get_nemo_grid(filepath,expname):
@@ -112,25 +143,32 @@ def get_nemo_grid(filepath,expname):
     expr=re.compile("(?<=^"+expname+"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result=re.search(expr,f)
     if(not result):
-        raise Exception("file path",filepath,"does not contain a grid string")
+        logger.error("File path %s does not contain a grid string" % filepath)
+        return None
     match=result.group(0)
     return match[0:len(match)-3]
 
-# TODO: Move to cmorapi, rename as it works for numpy arrays too.
+
+# Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid,ncvar,factor = 1.0,psvarid = None,ncpsvar = None):
-    times = ncvar.shape[0]
     dims = len(ncvar.shape)
+    times = 1 if dims == 2 else ncvar.shape[0]
     size = ncvar.size / times
     chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
     for i in range(0,times,chunk):
         imax = min(i + chunk,times)
         vals = None
-        if(dims == 3):
-            vals = numpy.transpose(ncvar[i:imax,:,:],axes = [1,2,0]) * factor     # Convert to CMOR Fortran-style ordering
-        elif(dims == 4):
-            vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [2,3,1,0]) * factor # Convert to CMOR Fortran-style ordering
+        if(dims == 1): # We assume a time series here
+            vals = ncvar[i:imax] * factor
+        elif(dims == 2): # We assume time constant lat/lon field
+            vals = ncvar[:,:] * factor
+        if(dims == 3): # We assume a time-dependent surface field
+            vals = numpy.transpose(ncvar[i:imax,:,:],axes = [1,2,0]) * factor
+        elif(dims == 4): # We assume a time-dependent volume field
+            vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [2,3,1,0]) * factor
         else:
-            raise Exception("Arrays of dimensions",dims,"are not supported by ece2cmor")
+            logger.error("Cmorizing arrays of rank %d is not supported" % dims)
+            return
         cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
         if(psvarid and ncpsvar):
             spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
