@@ -8,48 +8,42 @@ import nemo2cmor
 import ifs2cmor
 
 # ece2cmor master API.
-exp_name_=None
-prefix_=None
-table_dir_=None
-config_file_=None
-targets_=[]
-ifsdir_=None
-nemodir_=None
-tasks_=[]
-startdate_=None
-interval_=None
+exp_name = None
+prefix = "CMIP6"
+table_dir = os.path.join(os.path.dirname(__file__),"resources","tables")
+tasks = []
+targets = []
+ifsdir = None
+nemodir = None
+startdate = None
+interval = None
 
 # Initialization function, must be called before starting
-def initialize(exp_name,table_root,conf_path):
-    global exp_name_
-    global prefix_
-    global table_dir_
-    global conf_path_
-    global targets_
+def initialize(conf_path,exp_name_ = None):
+    global exp_name
+    global targets
 
-    exp_name_=exp_name
-    prefix_=os.path.splitext(os.path.basename(table_root))[0]
-    table_dir_=os.path.dirname(table_root)
+    exp_name = exp_name_
     conf_path_=conf_path
 
-    cmor.setup(table_dir_)
-    cmor.dataset_json(conf_path_)
-    targets_=cmor_target.create_targets(table_dir_,prefix_)
+    cmor.setup(table_dir)
+    cmor.dataset_json(conf_path)
+    targets=cmor_target.create_targets(table_dir,prefix)
 
 # Closes cmor
 def finalize():
-    global tasks_
-    global targets_
+    global tasks
+    global targets
     cmor.close()
-    targets_=[]
-    tasks_=[]
+    targets=[]
+    tasks=[]
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id,tab_id=None):
     if(tab_id==None):
-        return [t for t in targets_ if t.variable==var_id]
+        return [t for t in targets if t.variable==var_id]
     else:
-        results=[t for t in targets_ if t.variable==var_id and t.table==tab_id]
+        results=[t for t in targets if t.variable==var_id and t.table==tab_id]
         if(len(results)==1):
             return results[0]
         elif(len(results)==0):
@@ -57,62 +51,30 @@ def get_cmor_target(var_id,tab_id=None):
         else:
             raise Exception("Table validation error: multiple variables with id",var_id,"found in table",tab_id)
 
-# Sets the IFS output directory
-def set_ifs_dir(path):
-    global ifsdir_
-    if(os.path.isdir(path) and os.path.exists(path)):
-        ifsdir_=path
-    else:
-        raise Exception("Invalid IFS output directory given:",path)
-
-# Sets the nemo output directory
-def set_nemo_dir(path):
-    global nemodir_
-    if(os.path.isdir(path) and os.path.exists(path)):
-        nemodir_=path
-    else:
-        raise Exception("Invalid NEMO output directory given:",path)
-
-# Sets start date and interval
-def set_time_interval(startdate,interval):
-    global startdate_
-    global interval_
-    startdate_=startdate
-    interval_=interval
-
 # Adds a task to the task list.
 def add_task(tsk):
-    global tasks_
+    global tasks
     if(isinstance(tsk,cmor_task.cmor_task)):
-        if(tsk.target not in targets_):
+        if(tsk.target not in targets):
             raise Exception("Cannot append tasks with unknown target",tsk.target)
-        duptasks=[t for t in tasks_ if t.target is tsk.target]
+        duptasks=[t for t in tasks if t.target is tsk.target]
         if(len(duptasks)!=0):
-            tasks_.remove(duptasks[0])
-        tasks_.append(tsk)
+            tasks.remove(duptasks[0])
+        tasks.append(tsk)
     else:
         raise Exception("Can only append cmor_task to the list, attempt to append",tsk)
 
-# Returns the currently defined tasks:
-def get_tasks():
-    return tasks_
-
-# Clears all tasks.
-def clear_tasks():
-    global tasks_
-    tasks_=[]
-
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(postproc=True,tempdir=None):
-    ifs_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.ifs_source)]
-    tableroot=os.path.join(table_dir_,prefix_)
+    ifs_tasks=[t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
+    tableroot=os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    ifs2cmor.initialize(ifsdir_,exp_name_,tableroot,startdate_,interval_,startdate_,tempdir=tempdir)
+    ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,tempdir=tempdir)
     ifs2cmor.execute(ifs_tasks,postproc)
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks():
-    nemo_tasks=[t for t in tasks_ if isinstance(t.source,cmor_source.nemo_source)]
-    tableroot=os.path.join(table_dir_,prefix_)
-    nemo2cmor.initialize(nemodir_,exp_name_,tableroot,startdate_,interval_)
+    nemo_tasks=[t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
+    tableroot=os.path.join(table_dir,prefix)
+    nemo2cmor.initialize(nemodir,exp_name,tableroot,startdate,interval)
     nemo2cmor.execute(nemo_tasks)

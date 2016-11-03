@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<simulation>
+
+ <context id="nemo" time_origin="1950-01-01 00:00:00" >
+  <!--
+============================================================================================================
+=                                  definition of all existing variables                                    =
+=                                            DO NOT CHANGE                                                 =
+============================================================================================================
+    -->
+    <field_definition src="./field_def.xml"/>
+    <!--
+============================================================================================================
+=                                           output files definition                                        =
+=                                            Define your own files                                         =
+=                                         put the variables you want...                                    =
+============================================================================================================
+    -->
+
+    <file_definition type="multiple_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="10d" min_digits="4">
+
+      <file_group id="1h" output_freq="1h" output_level="10" enabled=".TRUE."/> <!-- 1h files -->
+
+      <file_group id="2h" output_freq="2h" output_level="10" enabled=".TRUE."/> <!-- 2h files -->
+
+      <file_group id="3h" output_freq="3h" output_level="10" enabled=".TRUE."> <!-- 3h files -->
+        <file id="file1" name_suffix="_grid_T" description="ocean T grid variables">
+          <field field_ref="sst"        name="tos"    long_name="sea_surface_temperature"/>
+        </file>
+      </file_group>
+
+      <file_group id="4h" output_freq="4h" output_level="10" enabled=".TRUE."/> <!-- 4h files -->
+
+      <file_group id="6h" output_freq="6h" output_level="10" enabled=".TRUE."/> <!-- 6h files -->
+
+      <file_group id="1d" output_freq="1d" output_level="10" enabled=".TRUE.">  <!-- 1d files -->
+        <file id="file2" name_suffix="_icemod" description="ice icemod variables" enabled=".TRUE.">
+          <field field_ref="uice_ipa"    name="sivelu"     long_name="sea_ice_velocity_u"/>
+          <field field_ref="vice_ipa"    name="sivelv"     long_name="sea_ice_velocity_v"/>
+          <field field_ref="iceconc"     name="siconc"     long_name="sea_ice_area_fraction"/>
+          <field field_ref="icethic_cea" name="sithic"     long_name="sea_ice_thickness"/>
+        </file>
+        <file id="file3" name_suffix="_grid_T" description="ocean T grid variables" enabled=".TRUE.">
+          <field field_ref="sss"         name="sos"        long_name="sea_surface_salinity"/>
+          <field field_ref="sst"         name="tos"        long_name="sea_surface_temperature"/>
+          <field field_ref="sst2"        name="tossq"      long_name="square_of_sea_surface_temperature"/>
+          <field field_ref="mldr10_1"    name="mlotst"     long_name="ocean_mixed_layer_thickness_defined_by_sigma_t"/>
+        </file>
+        <file id="file4" name_suffix="_grid_U" description="ocean U grid variables" enabled=".TRUE.">
+          <field field_ref="utau"        name="tauuo"      long_name="surface_downward_x_stress"/> <!-- available with key_diaar5 -->
+        </file>
+        <file id="file5" name_suffix="_grid_V" description="ocean V grid variables" enabled=".TRUE.">
+          <field field_ref="vtau"        name="tauvo"      long_name="surface_downward_y_stress"/> <!-- available with key_diaar5 -->
+        </file>
+      </file_group>
+
+      <file_group id="1m" output_freq="1m" output_level="10" enabled=".TRUE."> <!-- 1m files -->
+        <file id="file6" name_suffix="_grid_T" description="ocean T grid variables">
+          <field field_ref="sss"         name="sos"       long_name="sea_surface_salinity"/>
+          <field field_ref="sst"         name="tos"       long_name="sea_surface_temperature"/>
+          <field field_ref="sst2"        name="tossq"     long_name="square_of_sea_surface_temperature"/>
+          <field field_ref="ssh"         name="zos"       long_name="sea_surface_height_above_geoid"/>
+          <field field_ref="toce"        name="thetao"    long_name="sea_water_potential_temperature"/>
+          <field field_ref="soce"        name="so"        long_name="sea_water_salinity"/>
+          <field field_ref="ssh2"        name="zossq"     long_name="square_of_sea_surface_height_above_geoid"/>
+          <field field_ref="mldr10_1"    name="mlotst"    long_name="ocean_mixed_layer_thickness_defined_by_sigma_t"/>
+          <field field_ref="tpt_dep"     name="zfull"     long_name="depth_below_geoid"/>
+          <field field_ref="tif_dep"     name="zhalf"     long_name="depth_below_geoid"/>
+          <field field_ref="botpres"     name="pbo"       long_name="sea_water_pressure_at_sea_floor"/>
+          <field field_ref="e3t"         name="thkcello"  long_name="cell_thickness"/>
+          <field field_ref="runoffs"     name="friver"    long_name="water_flux_into_sea_water_from_rivers"/>
+          <field field_ref="calving_cea" name="ficeberg" long_name="water_flux_into_sea_water_from_icebergs"/>
+          <field field_ref="empmr"       name="wfo"       long_name="water_flux_into_sea_water"/>
+          <field field_ref="qsr3d"       name="rsdo"      long_name="downwelling_shortwave_flux_in_sea_water"/>
+        </file>
+        <file id="file7" name_suffix="_SBC" description="surface fluxes variables" enabled=".TRUE."> <!-- time step automaticaly defined based on nn_fsbc -->
+          <field field_ref="qsr_oce"    name="rsntds"  long_name="net_downward_shortwave_flux_at_sea_water_surface"/>
+          <field field_ref="qt_oce"     name="qt"      long_name="downward total flux at ocean surface"/>
+          <field field_ref="wspd"       name="windsp"/>
+          <field field_ref="precip"     name="precip"/> <!-- ice and snow -->
+          <field field_ref="snowpre"    name="prsn"    long_name="snowfall_flux"/>
+          <field field_ref="utau_ice"   name="utau_ice"/>
+          <field field_ref="vtau_ice"   name="vtau_ice"/>
+          <field field_ref="fsal_virt_cea" name="vsfsit" long_name="virtual_salt_flux_into_sea_water_due_to_sea_ice_thermodynamics"/>
+          <field field_ref="fsal_real_cea" name="sfdsi"  long_name="downward_sea_ice_basal_salt_flux"/>
+          <field field_ref="hflx_ice_cea"  name="hfsithermds" long_name="heat_flux_into_sea_water_due_to_sea_ice_thermodynamics"/>
+        </file>
+        <file id="file8" name_suffix="_grid_U" description="ocean U grid variables" enabled=".TRUE.">
+          <field field_ref="uoce"       name="uo"       long_name="sea_water_x_velocity"/>
+          <field field_ref="uoce2"      name="u2o"      long_name="square_of_sea_water_x_velocity"/>
+          <field field_ref="utau"       name="tauuo"    long_name="surface_downward_x_stress"/> <!-- available with key_diaar5 -->
+          <field field_ref="u_masstr"   name="vozomatr" long_name="ocean_mass_x_transport"/>
+          <field field_ref="u_heattr"   name="sozohetr"/>
+          <field field_ref="uocet"      name="uto"      long_name="product_of_xward_sea_water_velocity_and_temperature"/>
+          <field field_ref="uoces"      name="uso"      long_name="product_of_xward_sea_water_velocity_and_salinity"   />
+        </file>
+        <file id="file9" name_suffix="_grid_V" description="ocean V grid variables" enabled=".TRUE.">
+          <field field_ref="voce"       name="vo"       long_name="sea_water_y_velocity"/>
+          <field field_ref="voce2"      name="v2o"      long_name="square_of_sea_water_y_velocity"/>
+          <field field_ref="vtau"       name="tauvo"    long_name="surface_downward_y_stress"/> <!-- available with key_diaar5 -->
+          <field field_ref="v_masstr"   name="vomematr" long_name="ocean_mass_y_transport"/>
+          <field field_ref="v_heattr"   name="somehetr"/>
+          <field field_ref="vocet"      name="vto"      long_name="product_of_yward_sea_water_velocity_and_temperature"/>
+          <field field_ref="voces"      name="vso"      long_name="product_of_yward_sea_water_velocity_and_salinity"   />
+        </file>
+        <file id="file10" name_suffix="_grid_W" description="ocean W grid variables" enabled=".TRUE.">
+          <field field_ref="woce"       name="wo"        long_name="upward_sea_water_velocity"/>
+          <field field_ref="woce2"      name="w2o"       long_name="square_of_sea_water_upward_velocity"/>
+          <field field_ref="avt"        name="difvho"    long_name="ocean_vertical_heat_diffusivity"/>
+          <field field_ref="w_masstr"   name="vovematr"  long_name="upward_ocean_mass_transport"/>
+        </file>
+        <file id="file11" name_suffix="_icemod" description="ice variables" enabled=".TRUE.">
+          <field field_ref="snowthic_cea" name="snthic" long_name="surface_snow_thickness"/>
+          <field field_ref="icethic_cea"  name="sithic" long_name="sea_ice_thickness"/>
+          <field field_ref="iceconc"    name="siconc" long_name="sea_ice_area_fraction"/>
+          <field field_ref="ist_ipa"    name="tsice"  long_name="surface_temperature"/>
+          <field field_ref="uice_ipa"   name="sivelu"/>
+          <field field_ref="vice_ipa"   name="sivelv"/>
+          <field field_ref="u_imasstr"  name="transix" long_name="sea_ice_x_transport"/>
+          <field field_ref="v_imasstr"  name="transiy" long_name="sea_ice_y_transport"/>
+          <field field_ref="icealb_cea" name="ialb"/>
+        </file>
+        <file id="file12" name_suffix="_scalar" description="scalar variables" enabled=".TRUE.">
+          <field field_ref="voltot"     name="scvoltot"/>
+          <field field_ref="sshthster"  name="scsshtst"/>
+          <field field_ref="masstot"    name="scmastot"/>
+          <field field_ref="temptot"    name="sctemtot"/>
+          <field field_ref="saltot"     name="scsaltot"/>
+        </file>
+        <file id="file13" name_suffix="_PISC_T" description="PISCES T grid variables" enabled=".FALSE.">
+          <field field_ref="DIC"      name="DIC"        long_name="Dissolved inorganic Concentration"/>
+          <field field_ref="Alkalini" name="ALK"        long_name="Total Alkalinity Concentration"/>
+          <field field_ref="O2"       name="Oxygen"     long_name="Oxygen concentration"/>
+          <field field_ref="CaCO3"    name="Calcite"    long_name="Calcite concentration"/>
+          <field field_ref="PO4"      name="PO4"        long_name="Phosphate Concentration"/>
+          <field field_ref="POC"      name="POC"        long_name="Small organic carbon Concentration"/>
+          <field field_ref="Si"       name="Silicate"   long_name="Silicate concentration"/>
+          <field field_ref="PHY"      name="NANOPHY"    long_name="(Nano)Phytoplankton Concentration"/>
+          <field field_ref="ZOO"      name="MicroZoo"   long_name="(Micro)Zooplankton Concentration"/>
+          <field field_ref="DOC"      name="DOC"        long_name="Dissolved organic Concentration"/>
+          <field field_ref="PHY2"     name="DIAPHY"     long_name="Diatoms Concentration"/>
+          <field field_ref="ZOO2"     name="MesoZoo"    long_name="Mesozooplankton Concentration"/>
+          <field field_ref="DSi"      name="DSI"        long_name="Diatoms Silicate Concentration"/>
+          <field field_ref="Fer"      name="DISSFE"     long_name="Dissolved iron concentration"/>
+          <field field_ref="BFe"      name="BFE"        long_name="Big iron particles Concentration"/>
+          <field field_ref="GOC"      name="GOC"        long_name="Big organic carbon Concentration"/>
+          <field field_ref="SFe"      name="SFE"        long_name="Small iron particles Concentration"/>
+          <field field_ref="DFe"      name="DFE"        long_name="Diatoms iron  Concentration"/>
+          <field field_ref="GSi"      name="MicrZoo"    long_name="(Micro)Zooplankton Concentration"/>
+          <field field_ref="NFe"      name="NFE"        long_name="Nano iron Concentration"/>
+          <field field_ref="NCHL"     name="NCHL"       long_name="Nano chlorophyl Concentration"/>
+          <field field_ref="DCHL"     name="DCHL"       long_name="Diatoms chlorophyl Concentration"/>
+          <field field_ref="NO3"      name="Nitrate"    long_name="Nitrate Concentration"/>
+          <field field_ref="NH4"      name="Ammonium"   long_name="Ammonium Concentration"/>
+        </file>
+        <file id="file14" name_suffix="_PISC_series" description="PISCES T grid variables" enabled=".FALSE.">
+          <field field_ref="pno3tot"  name="PNO3TOT"  long_name="global mean nitrate concentration"/>
+          <field field_ref="psiltot"  name="PSILTOT"  long_name="global mean silicate concentration"/>
+          <field field_ref="palktot"  name="PALKTOT"  long_name="global mean alkalinity concentration"/>
+          <field field_ref="pfertot"  name="PFERTOT"  long_name="global mean iron concentration"/>
+          <field field_ref="tcflx"    name="TCFLX"    long_name="total Flux of Carbon out of the ocean"/>
+          <field field_ref="tcflxcum" name="TCFLXCUM" long_name="cumulative total Flux of Carbon out of the ocean"/>
+          <field field_ref="tcexp"    name="C-export" long_name="total Carbon export at 100m"/>
+          <field field_ref="tintpp"   name="TINTPP"   long_name="global total integrated primary production"/>
+          <field field_ref="tnfix"    name="TNFIX"    long_name="global total nitrogen fixation"/>
+          <field field_ref="tdenit"   name="TDENIT"   long_name="Total denitrification"/>
+        </file>
+        <file id="file15" name_suffix="_diaar5" description="PISCES T grid variables" enabled=".FALSE.">
+          <field field_ref="TPP"       name="intTPP"    long_name="Total Primary production of phyto"/>
+          <field field_ref="TPNEW"     name="intTPPNEW" long_name="New Primary production of phyto"/>
+          <field field_ref="TPBFE"     name="intTPBFE"  long_name="Total biogenic iron production"/>
+          <field field_ref="INTDIC"    name="intDIC"    long_name="DIC content"/>
+          <field field_ref="O2MIN"     name="O2MIN"     long_name="Oxygen minimum concentration"/>
+          <field field_ref="ZO2MIN"    name="ZO2MIN"    long_name="Depth of Oxygen minimum concentration"/>
+          <field field_ref="INTNFIX"   name="intNFIX"   long_name="Nitrogen fixation rate : vert. integrated"/>
+          <field field_ref="INTPPPHY"  name="intPPPHY"  long_name="Vertically integrated primary production by nanophy"/>
+          <field field_ref="INTPPPHY2" name="intPPPHY2" long_name="Vertically integrated primary production by diatom"/>
+          <field field_ref="INTPP"     name="intPP"     long_name="Vertically integrated primary production by diatom"/>
+          <field field_ref="INTPNEW"   name="intPPNEW"  long_name="Vertically integrated new primary production"/>
+          <field field_ref="INTPBFE"   name="intPBFE"   long_name="Vertically integrated of biogenic iron production"/>
+          <field field_ref="INTPBSI"   name="intPBSI"   long_name="Vertically integrated of biogenic Si production"/>
+          <field field_ref="INTPCAL"   name="intPBCAL"  long_name="Vertically integrated of calcite production"/>
+          <field field_ref="Cflx"      name="Cflx"      long_name="DIC flux"/>
+        </file>
+        <file id="file16" name_suffix="_diad_T" description="PISCES additional diagnostics on T grid" enabled=".FALSE.">
+          <field field_ref="REMIN"   name="remin"   long_name="Oxic remineralization of OM"/>
+          <field field_ref="DENIT"   name="denit"   long_name="Anoxic remineralization of OM"/>
+          <field field_ref="Nfix"    name="nfix"    long_name="Nitrogen fixation"/>
+          <field field_ref="Sdenit"  name="sdenit"  long_name="Nitrate reduction in the sediments"/>
+          <field field_ref="Dpco2"   name="dpco2"   long_name="Delta CO2"/>
+          <field field_ref="EPC100"  name="epc100"  long_name="Export of carbon particles at 100 m"/>
+          <field field_ref="EXPC"    name="expc"    long_name="Export of carbon"/>
+          <field field_ref="PAR"     name="PAR"     long_name="photosynthetically Available Radiation"/>
+          <field field_ref="LNnut"   name="LNnut"   long_name="Nutrient limitation term in Nanophyto"/>
+          <field field_ref="LDnut"   name="LDnut"   long_name="Nutrient limitation term in Diatoms"/>
+          <field field_ref="LNFe"    name="LNFe"    long_name="Iron limitation term in Nanophyoto"/>
+          <field field_ref="LDFe"    name="LDFe"    long_name="Iron limitation term in Diatoms"/>
+          <field field_ref="LNlight" name="LNlight" long_name="Light limitation term in Nanophyto"/>
+          <field field_ref="LDlight" name="LDlight" long_name="Light limitation term in Diatoms"/>
+          <field field_ref="GRAZ1"   name="GRAZ1"   long_name="Grazing by microzooplankton"/>
+          <field field_ref="GRAZ2"   name="GRAZ2"   long_name="Grazing by mesozooplankton"/>
+          <field field_ref="Mumax"   name="Mumax"   long_name="Maximum growth rate"/>
+          <field field_ref="MuN"     name="MuN"     long_name="Realized growth rate for nanophyto"/>
+          <field field_ref="MuD"     name="MuD"     long_name="Realized growth rate for diatomes"/>
+          <field field_ref="PPNEWN"  name="PPNEWN"  long_name="New Primary production of nanophyto"/>
+          <field field_ref="PPNEWD"  name="PPNEWD"  long_name="New Primary production of diatoms"/>
+        </file>
+      </file_group>
+      <file_group id="3d"  output_freq="3d"  output_level="10" enabled=".TRUE."/> <!-- 3d files -->
+      <file_group id="5d"  output_freq="5d"  output_level="10" enabled=".TRUE."/> <!-- 5d files -->
+      <file_group id="1m"  output_freq="1mo" output_level="10" enabled=".TRUE."/> <!-- real monthly files -->
+      <file_group id="2m"  output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
+      <file_group id="3m"  output_freq="3mo" output_level="10" enabled=".TRUE."/> <!-- real 3m files -->
+      <file_group id="4m"  output_freq="4mo" output_level="10" enabled=".TRUE."/> <!-- real 4m files -->
+      <file_group id="6m"  output_freq="6mo" output_level="10" enabled=".TRUE."/> <!-- real 6m files -->
+      <file_group id="1y"  output_freq="1y"  output_level="10" enabled=".TRUE."/> <!-- real yearly files -->
+      <file_group id="2y"  output_freq="2y"  output_level="10" enabled=".TRUE."/> <!-- real 2y files -->
+      <file_group id="5y"  output_freq="5y"  output_level="10" enabled=".TRUE."/> <!-- real 5y files -->
+      <file_group id="10y" output_freq="10y" output_level="10" enabled=".TRUE."/> <!-- real 10y files -->
+    </file_definition>
+    <!--
+============================================================================================================
+= grid definition = = DO NOT CHANGE =
+============================================================================================================
+    -->
+    <axis_definition>
+      <axis id="deptht" long_name="Vertical T levels" unit="m" positive="down"/>
+      <axis id="depthu" long_name="Vertical U levels" unit="m" positive="down"/>
+      <axis id="depthv" long_name="Vertical V levels" unit="m" positive="down"/>
+      <axis id="depthw" long_name="Vertical W levels" unit="m" positive="down"/>
+      <axis id="nfloat" long_name="Float number" unit="-"/>
+      <axis id="icbcla" long_name="Iceberg class" unit="-"/>
+      <axis id="ncatice" long_name="Ice categories" unit="-"/>
+    </axis_definition>
+    <domain_definition src="./domain_def.xml"/>
+    <grid_definition>
+      <grid id="grid_T_2D" domain_ref="grid_T"/>
+      <grid id="grid_T_3D" domain_ref="grid_T" axis_ref="deptht"/>
+      <grid id="grid_U_2D" domain_ref="grid_U"/>
+      <grid id="grid_U_3D" domain_ref="grid_U" axis_ref="depthu"/>
+      <grid id="grid_V_2D" domain_ref="grid_V"/>
+      <grid id="grid_V_3D" domain_ref="grid_V" axis_ref="depthv"/>
+      <grid id="grid_W_2D" domain_ref="grid_W"/>
+      <grid id="grid_W_3D" domain_ref="grid_W" axis_ref="depthw"/>
+    </grid_definition>
+  </context>
+</simulation>

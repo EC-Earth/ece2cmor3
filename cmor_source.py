@@ -109,19 +109,20 @@ class ifs_source(cmor_source):
             if(len(varstrs) == 0 or not s.replace(" ","").startswith(varstrs[0] + "=")):
                 raise Exception('Unable to read grib codes from expression',s)
             else:
-                codes=list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs)))
+                newcode = grib_code(int(varstrs[0][3:]),128)
+                incodes = list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])))
                 cls = ifs_source(None)
-                if(codes[0] in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
-                    raise Exception("Invalid expression code",codes[0],"already reserved for direct output")
-                cls.code_ = codes[0]
-                spec3d = len(codes)>1 and codes[1] in ifs_source.grib_codes_3D
-                for c in codes[1:]:
-                    if(c not in ifs_source.grib_codes): raise Exception("Unknown grib code",c,"in expression",s,"found")
+                if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
+                    raise Exception("Invalid expression code",newcode.var_id,"already reserved for direct output")
+                cls.code_ = newcode
+                spec3d = len(incodes)>0 and incodes[0] in ifs_source.grib_codes_3D
+                for c in incodes:
+                    if(c not in ifs_source.grib_codes): raise Exception("Unknown grib code",c.var_id,"in expression",s,"found")
                     if(spec3d and c not in ifs_source.grib_codes_3D):
                         raise Exception("Invalid combination of gridpoint and spectral variables in expression",s)
                 cls.grid_ = ifs_grid.spec if spec3d else ifs_grid.point
                 cls.spatial_dims = 3 if spec3d else 2
-                setattr(cls,"root_codes",codes[1:])
+                setattr(cls,"root_codes",incodes)
                 setattr(cls,"expr",s)
         return cls
 
