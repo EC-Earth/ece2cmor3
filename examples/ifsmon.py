@@ -8,19 +8,19 @@ import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
 
-# This example script performs cmorization of one month of ocean data, starting at \
+# This example script performs cmorization of one month of IFS data, starting at \
 # januari 1st 1990. It requires an output directory, a configuration json-file \
 # and an experiment name/prefix to determine the output data files and configure \
 # cmor3 correctly. The processed variables are listed in the "variables" dictionary
 
-variables = {"Omon" : ["sos","tos"]}
+variables = {"Amon" : ["tas","uas","vas"]}
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
 
 def main(args):
 
     parser = optparse.OptionParser()
-    parser.add_option("-d","--dir" ,dest = "dir" ,help = "NEMO output directory")
+    parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
     parser.add_option("-c","--conf",dest = "conf",help = "CMOR3 meta data json file path",metavar = "FILE")
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
     (opt,args) = parser.parse_args()
@@ -39,7 +39,7 @@ def main(args):
     namloader.load_targets(variables)
 
     # Execute the cmorization:
-    ece2cmor.perform_nemo_tasks()
+    ece2cmor.perform_ifs_tasks()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
