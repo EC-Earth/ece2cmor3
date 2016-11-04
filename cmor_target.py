@@ -1,9 +1,14 @@
-from datetime import timedelta
 import os
 import re
 import json
+import logging
 
+# Log object.
+log = logging.getLogger(__name__)
+
+# Axes information read from tables.
 axes={}
+
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
@@ -13,16 +18,18 @@ class cmor_target(object):
         self.table=tab_id__
         self.dims=2
 
+
 # Derives the table id for the given file path
 def get_table_id(filepath,prefix):
     fname=os.path.basename(filepath)
     regex=re.search("^"+prefix+"_.*.json$",fname)
     if(not regex):
-        raise Exception("Invalid cmor table file name encountered:",fname)
+        raise Exception("Unable to match file name",fname,"as cmor table json-file with prefix",prefix)
     return regex.group()[len(prefix)+1:len(fname)-5]
 
+
 # Json file keys:
-head_key="Header"
+head_key="header"
 axis_key="axis_entry"
 var_key="variable_entry"
 freq_key="frequency"
@@ -32,6 +39,7 @@ levs_key="generic_levels"
 cell_measures_key="cell_measures"
 cell_measure_axes=["time","area","volume","latitude","longitude","depth"]
 
+
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath,prefix):
     tabid=get_table_id(filepath,prefix)
@@ -40,31 +48,31 @@ def create_targets_for_file(filepath,prefix):
     try:
         data=json.loads(s)
     except ValueError as err:
-        print "Warning: table",filepath,"has been ignored. Reason:",format(err)
+        log.warning("Input table %s has been ignored. Reason: %s" % (filepath,format(err)))
         return result
-    # TODO: Use case insensitive search here
     freq=None
-    header=data.get(head_key,None)
+    header=get_lowercase(data,head_key,None)
     modlevs=None
     if(header):
-        freq=header.get(freq_key,None)
-        realm=header.get(realm_key,None)
-        modlevs=header.get(levs_key,None)
-    axes_entries=data.get(axis_key,{})
+        freq=get_lowercase(header,freq_key,None)
+        realm=get_lowercase(header,realm_key,None)
+        modlevs=get_lowercase(header,levs_key,None)
+    axes_entries=get_lowercase(data,axis_key,{})
     if(modlevs):
         for modlev in modlevs.split():
             axes_entries[modlev]={"requested":"all"}
     axes[tabid]=axes_entries
-    var_entries=data.get(var_key,{})
+    var_entries=get_lowercase(data,var_key,{})
     for k,v in var_entries.iteritems():
         target=cmor_target(k,tabid)
         target.frequency=freq
         target.realm=realm
         for k2,v2 in v.iteritems():
-            setattr(target,k2,v2)
-            if(k2==dims_key):
-                target.dims=len(v2.split())-1 # don't count time dimension
-            if(k2==cell_measures_key):
+            key = k2.lower()
+            setattr(target,key,v2)
+            if(key == dims_key.lower()):
+                target.dims=len([s for s in v2.split() if not s.lower().startswith("time")])
+            if(key == cell_measures_key.lower()):
                 v3=v2.strip()
                 if(v3):
                     for token in cell_measure_axes:
@@ -74,6 +82,16 @@ def create_targets_for_file(filepath,prefix):
                         setattr(target,k4.strip()+"_operator",v4.strip())
         result.append(target)
     return result
+
+
+# Utility function for lower-case dictionary searches
+def get_lowercase(dictionary,key,default):
+    if(not isinstance(key,basestring)): return dictionary.get(key,default)
+    lowerkey=key.lower()
+    for k,v in dictionary.iteritems():
+        if(isinstance(k,basestring) and k.lower() == lowerkey): return v
+    return default
+
 
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
 def create_targets(path,prefix):

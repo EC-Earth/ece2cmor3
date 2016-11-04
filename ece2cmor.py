@@ -1,11 +1,15 @@
 import cmor
 import os
 import f90nml
+import logging
 import cmor_source
 import cmor_target
 import cmor_task
 import nemo2cmor
 import ifs2cmor
+
+# Logger instance
+log = logging.getLogger(__name__)
 
 # ece2cmor master API.
 exp_name = None
@@ -22,10 +26,8 @@ interval = None
 def initialize(conf_path,exp_name_ = None):
     global exp_name
     global targets
-
     exp_name = exp_name_
     conf_path_=conf_path
-
     cmor.setup(table_dir)
     cmor.dataset_json(conf_path)
     targets=cmor_target.create_targets(table_dir,prefix)
@@ -49,20 +51,21 @@ def get_cmor_target(var_id,tab_id=None):
         elif(len(results)==0):
             return None
         else:
-            raise Exception("Table validation error: multiple variables with id",var_id,"found in table",tab_id)
+            log.error("Table validation error: multiple variables with name %s found in table %s" % (var_id,tab_id))
 
 # Adds a task to the task list.
 def add_task(tsk):
     global tasks
     if(isinstance(tsk,cmor_task.cmor_task)):
         if(tsk.target not in targets):
-            raise Exception("Cannot append tasks with unknown target",tsk.target)
+            log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
+            return
         duptasks=[t for t in tasks if t.target is tsk.target]
         if(len(duptasks)!=0):
             tasks.remove(duptasks[0])
         tasks.append(tsk)
     else:
-        raise Exception("Can only append cmor_task to the list, attempt to append",tsk)
+        log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
 
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(postproc=True,tempdir=None):

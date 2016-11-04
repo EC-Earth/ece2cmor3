@@ -1,14 +1,18 @@
 import os
+import logging
+import itertools
 import numpy
-from dateutil.relativedelta import relativedelta as deltat
 import datetime
-import cmor
+import dateutil.relativedelta
+import netCDF4
 import cdo
+import cmor
 import cmor_utils
 import cmor_source
 import cmor_target
-import netCDF4
-import itertools
+
+# Logger construction
+log = logging.getLogger(__name__)
 
 # Experiment name
 exp_name_=None
@@ -38,7 +42,7 @@ ref_date_=None
 
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month=1),tempdir=None):
+def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.relativedelta.relativedelta(month=1),tempdir=None):
     global exp_name_
     global table_root_
     global ifs_gridpoint_file_
@@ -58,7 +62,8 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
     shfiles=[f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
     if(not (len(gpfiles)==1 and len(shfiles)==1)):
         #TODO: Support postprocessing over multiple files
-        raise Exception("Expected a single grid point and spectral file to process, found:",datafiles)
+        log.warning("Expected a single grid point and spectral file to process, found %s and %s; \
+                     will take first file of each list." % (str(gpfiles),str(shfiles)))
     ifs_gridpoint_file_=gpfiles[0]
     ifs_spectral_file_=shfiles[0]
     if(tempdir):
@@ -71,9 +76,9 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=deltat(month
 
 # Execute the postprocessing+cmorization tasks
 def execute(tasks,postprocess=True):
-    print "Post-processing IFS data..."
+    log.info("Executing %d IFS tasks..." % len(tasks))
+    log.info("Post-processing IFS tasks...")
     postproc(tasks,postprocess)
-    print "Cmorizing IFS data..."
     cmor.load_table(table_root_+"_grids.json")
     gridid=create_grid_from_grib(getattr(tasks[0],"path"))
     filteredtasks=[]
@@ -85,9 +90,11 @@ def execute(tasks,postprocess=True):
             setattr(task,"grid_id",gridid)
             filteredtasks.append(task)
         elif(haslat or haslon):
-            print "Variable ",task.target.variable," has unsupported combination of dimensions ",tgtdims," and will be skipped..."
+            # TODO: Support meriodinal variables
+            log.error("Variable %s has unsupported combination of dimensions %s and will be skipped." % (task.target.variable,tgtdims))
         else:
             filteredtasks.append(task)
+    log.info("Cmorizing IFS tasks...")
     cmorize(filteredtasks)
 
 
@@ -105,11 +112,13 @@ def cmorize(tasks):
         except:
             print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
             continue
-        # TODO: unify with nemo logic
+        log.info("Creating time axes for table %s..." % tab)
         create_time_axes(tskgroup)
+        log.info("Creating depth axes for table %s..." % tab)
         create_depth_axes(tskgroup)
         # TODO: parallelize
         for task in tskgroup:
+            log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
             execute_netcdf_task(task)
 
 
@@ -125,7 +134,8 @@ def get_cdo_level_commands(task):
     axisinfos=cmor_target.axes.get(task.target.table,{})
     axisinfo=axisinfos.get(axisname,None)
     if(not axisinfo):
-        raise Exception("Could not retrieve information for axis",axisname,"in table",task.target.table)
+        log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
+        return [None,None]
     ret=[None,None]
     oname=axisinfo.get("standard_name",None)
     if(oname=="air_pressure"):
@@ -133,8 +143,8 @@ def get_cdo_level_commands(task):
     elif(oname=="height"):
         ret[0]="selzaxis,height"
     else:
-        #TODO: Figure out what axis to select
-        raise Exception("This needs to be implemented")
+        log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
+        return [None,None]
     zlevs=axisinfo.get("requested",[])
     if(len(zlevs)==0):
         val=axisinfo.get("value",None)
@@ -147,11 +157,10 @@ def get_cdo_level_commands(task):
 
 # Executes a single task
 def execute_netcdf_task(task):
-    print "cmorizing source variable",task.source.get_grib_code(),"to target variable",task.target.variable,"..."
     storevar=getattr(task,"store_with",None)
     sppath=getattr(task,"sp_path",None)
     if(storevar and not sppath):
-        print "Could not find file containing surface pressure for model level variable...skipping cmor step"
+        log.error("Could not find file containing surface pressure for model level variable...skipping variable %s" % task.target.variable)
         return
     axes=[]
     grid_id=getattr(task,"grid_id",0)
@@ -164,7 +173,6 @@ def execute_netcdf_task(task):
     if(time_id!=0):
         axes.append(time_id)
     filepath=getattr(task,"path")
-    #TODO: unit conversion
     cdocmd=cdo.Cdo()
     codestr=str(task.source.get_grib_code().var_id)
     sel_op="selcode,"+codestr
@@ -175,15 +183,14 @@ def execute_netcdf_task(task):
     try:
         ncvars=cdocmd.copy(input=command,returnCdf=True).variables
     except Exception:
-        print "cdo command failed:",command
+        log.error("CDO command %s has failed...skipping variable" % (command,task.target.variable))
         return
     varlist=[v for v in ncvars if str(getattr(ncvars[v],"code",None))==codestr]
-    if(len(varlist)==0):
+    if(len(varlist) == 0):
         varlist=[v for v in ncvars if str(v)=="var"+codestr]
-    if(not len(varlist)==1):
-        raise Exception("Cdo final post-processing resulted in ",len(varlist),"netcdf variables, 1 expected")
+    if(len(varlist) > 1):
+        log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
     ncvar=ncvars[varlist[0]]
-    #TODO: refactor to general utils, share with nemo.
     unit=getattr(ncvar,"units",None)
     if((not unit) or hasattr(task,"converter")):
         unit=getattr(task.target,"units")
@@ -205,7 +212,8 @@ def get_conversion_factor(conversion):
     if(conversion == "pot2alt"): return 1.0 / 9.81
     if(conversion == "alt2pot"): return 9.81
     if(conversion == "vol2flux"): return 1000.0 / (3600 * output_freq_)
-    raise Exception("Unknown explicit unit conversion: ",conversion)
+    log.error("Unknown explicit unit conversion: %s" % conversion)
+    return 1.0
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
@@ -233,7 +241,8 @@ def create_depth_axes(tasks):
         zdims=list(set(tgtdims.split())-set(["latitude","longitude","time","time1","time2","time3"]))
         if(len(zdims)==0): continue
         if(len(zdims)>1):
-            raise Exception("Variable",task.target.variable,"with dimensions",tgtdims,"cannot be interpreted as 3d variable")
+            log.error("Skipping variable %s in table %s with dimensions %s with multiple directions." % (task.target.variable,task.target.table,tgtdims))
+            continue
         zdim=str(zdims[0])
         setattr(task,"z_axis",zdim)
         if zdim in depth_axes:
@@ -259,7 +268,7 @@ def create_depth_axes(tasks):
                 levels.append(value)
             unit=axis.get("units",None)
             if(len(levels)==0):
-                print "Skipping axis",zdim,"with no values"
+                log.warning("Skipping axis %s in table %s with no levels" % (zdim,task.target.table))
                 continue
             else:
                 vals=[float(l) for l in levels]
@@ -267,7 +276,7 @@ def create_depth_axes(tasks):
             depth_axes[zdim]=axisid
             setattr(task,"z_axis_id",axisid)
         else:
-            raise Exception("Vertical dimension",zdim,"not found in table header")
+            log.error("Vertical dimension %s for variable %s not found in header of table %s" % (zdim,task.target.variable,task.target.table))
 
 
 # Creates the hybrid model vertical axis in cmor.
@@ -304,7 +313,8 @@ def create_time_axis(freq,path):
     times=command.showtimestamp(input=path)[0].split()
     datetimes=sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
     if(len(datetimes)==0):
-        raise Exception("Empty time step list encountered at time axis creation for files",files)
+        log.error("Empty time step list encountered at time axis creation for files %s",str(files))
+        return;
     timhrs=[(d-cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
     n=len(timhrs)
     times=numpy.array(timhrs)
@@ -356,11 +366,11 @@ def postprocsp(tasks,postprocess=True):
                 try:
                     command.sp2gpl(input=opstr+ifs_spectral_file_,output=sppath,options="-P 4 -f nc")
                 except Exception:
-                    print "CDO failed to extract surface pressure from input spectral data file"
+                    log.error("CDO failed to extract surface pressure from input spectral data file %s" % ifs_spectral_file_)
         if(not get_spvar(sppath)):
             sppath=None
         if(not sppath):
-            print "Warning: no surface pressure found in input data, you won't be able to cmorize model level data"
+            log.warning("No surface pressure found in input data, you won't be able to cmorize model level data")
         for task in taskgroup:
             setattr(task,"sp_path",sppath)
 
@@ -386,7 +396,7 @@ def get_spvar(ncpath):
 # Does splitting of files according to frequency and remaps the grids.
 # TODO: Add selmon...
 def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
-    print "Post-processing IFS tasks with frequency",freq,"on the",cmor_source.ifs_grid[grid],"grid"
+    log.info("Post-processing IFS tasks with frequency %s on the %s grid" % (freq,cmor_source.ifs_grid[grid]))
     if(len(tasks) == 0): return
     timops = get_cdo_timop(freq,timop)
     gcodes = []
@@ -499,7 +509,7 @@ def create_grid_from_grib(filepath):
             yvals.extend([float(s) for s in ylist.split()])
             continue
     if(len(yvals)!=ysize):
-        raise Exception("Invalid number of y-values given in file",filepath)
+        log.error("Invalid number of y-values given in file %s" % filepath)
     return create_gauss_grid(xsize,xstart,ysize,numpy.array(yvals))
 
 

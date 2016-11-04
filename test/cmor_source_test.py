@@ -2,6 +2,7 @@ import logging
 import unittest
 from cmor_source import ifs_source,grib_code,nemo_source,nemo_grid
 from nose.tools import eq_,ok_,raises
+from testfixtures import LogCapture
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -33,9 +34,10 @@ class cmor_source_tests(unittest.TestCase):
         src=ifs_source.create(133,128)
         eq_(src.get_grib_code(),grib_code(133,128))
 
-    @raises(Exception)
     def test_invalid_codes(self):
-        src=ifs_source.create(88,128)
+        with LogCapture() as logc:
+            src=ifs_source.create(88,128)
+            ok_("cmor_source ERROR" in str(logc))
 
     def test_create_from_string(self):
         src=ifs_source.read("133.128")
@@ -50,20 +52,23 @@ class cmor_source_tests(unittest.TestCase):
         eq_(src.grid(),"point")
         eq_(src.spatial_dims,2)
 
-    @raises(Exception)
     def test_invalid_expression1(self):
-        expr="var141=sqrt(sq(var165)+sq(var166))"
-        src=ifs_source.read(expr)
+        with LogCapture() as logc:
+            expr="var141=sqrt(sq(var165)+sq(var166))"
+            src=ifs_source.read(expr)
+            ok_("cmor_source ERROR" in str(logc))
 
-    @raises(Exception)
     def test_invalid_expression2(self):
-        expr="var89=sqrt(sq(var88)+sq(var166))"
-        src=ifs_source.read(expr)
+        with LogCapture() as logc:
+            expr="var89=sqrt(sq(var88)+sq(var166))"
+            src=ifs_source.read(expr)
+            ok_("cmor_source ERROR" in str(logc))
 
-    @raises(Exception)
     def test_invalid_expression3(self):
-        expr="var89=sqrt(sq(var133)+sq(var166))"
-        src=ifs_source.read(expr)
+        with LogCapture() as logc:
+            expr="var89=sqrt(sq(var133)+sq(var166))"
+            src=ifs_source.read(expr)
+            ok_("cmor_source ERROR" in str(logc))
 
     def test_create_nemo_source(self):
         src=nemo_source("tos",nemo_grid.grid_T)

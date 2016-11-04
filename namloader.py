@@ -1,11 +1,14 @@
 import os
 import re
+import logging
 import f90nml
 import xml.etree.ElementTree as elemtree
 import ece2cmor
 import cmor_source
 import cmor_target
 import cmor_task
+
+log = logging.getLogger(__name__)
 
 IFS_source_tag = 1
 Nemo_source_tag = 2
@@ -31,9 +34,9 @@ def load_targets(varlist):
                 if(target):
                     targetlist.append(target)
                 else:
-                    print "Could not find cmor target for variable",v,"in table",table
+                    log.error("Could not find cmor target for variable %s in table %s" % (v,table))
     else:
-        print "Cannot create a list of cmor-targets for argument",varlist
+        log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
     create_tasks(targetlist)
 
 
@@ -49,10 +52,10 @@ def create_tasks(targets):
     for target in targets:
         pars = [p for p in parlist if target.variable == p["out_name"]]
         if(len(pars) == 0):
-            print "Could not find parameter table entry for",target.variable,"...skipping variable"
+            log.error("Could not find parameter table entry for %s...skipping variable" % target.variable)
             continue
         if(len(pars) > 1):
-            print "Multiple parameter table entries found for",target.variable,"...choosing first"
+            log.error("Multiple parameter table entries found for %s...choosing first" % target.variable)
         par = pars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         ece2cmor.add_task(create_cmor_task(create_cmor_source(par,tag),target,tag))
@@ -70,7 +73,7 @@ def load_targets_namelist(varlist):
             tlist = ece2cmor.get_cmor_target(v)
             tgt=[t for t in tlist if t.frequency == freq]
             if(len(tgt) == 0):
-                print "Could not find cmor targets of variable",v,"with frequency",freq,"in current set of tables"
+                log.error("Could not find cmor targets of variable %s with frequency %s in current set of tables" % (v,freq))
             targetlist.extend(tgt)
     return targetlist
 
@@ -105,12 +108,15 @@ def create_cmor_source(paramdict,tag):
             raise Exception("Unknown grid detected:",grid,"for parameter",parstr)
         return cmor_source.nemo_source(parstr,grid_id)
     else:
-        raise Exception("Unknown tag passed:",tag)
+        return None
 
 
 # Creates a cmor task, sets the correct post-processing attributes
 def create_cmor_task(src,tgt,tag):
     task = cmor_task.cmor_task(src,tgt)
+    if(tag == Nemo_source_tag):
+        if((src.var(),tgt.out_name) == ("tossq","tossq")):
+            setattr(task,"conversion","tossqfix")
     if(tag == IFS_source_tag):
         code,oname = src.get_grib_code().var_id,tgt.out_name
         if((code,oname) in [(205,"mrro"),(8,"mrros"),(228,"pr"),(143,"prc"),(144,"prsn"),(44,"sbl"),(182,"evspsbl")]):

@@ -6,19 +6,10 @@ import numpy
 import datetime
 import logging
 import cmor
+import dateutil.relativedelta
 
-
-# Handler to log uncaught exceptions
-def handle_exception(exctype,excvalue,exctrace):
-    logging.critical("Uncaught exception of type %s raised:" % exctype)
-    logging.critical("Value: %s" % excvalue)
-    logging.critical("Traceback: %s" % exctrace)
-    sys.exit(excvalue)
-
-
-# Sets the exception handler
-sys.excepthook = handle_exception
-
+# Log object
+log = logging.getLogger(__name__)
 
 # Enum utility class
 class cmor_enum(tuple): __getattr__ = tuple.index
@@ -46,28 +37,33 @@ def make_datetime(time):
         raise Exception("Cannot convert object",time,"to datetime")
 
 
-#TODO: Make more flexible
+# Creates a time interval from the input string, assuming ec-earth conventions
 def make_cmor_frequency(s):
-    if(s=="mon" or s=="monClim"):
-        return dateutil.relativedelta(month=1)
-    elif(s=="day"):
-        return dateutil.relativedelta(day=1)
-    elif(s=="6hr"):
-        return dateutil.relativedelta(hours=6)
-    elif(s=="3hr"):
-        return dateutil.relativedelta(hours=3)
-    else:
-        logging.error("Could not convert argument %s to a relative time interval" % s)
-        return None
+    if(isinstance(s,dateutil.relativedelta.relativedelta) or isinstance(s,datetime.timedelta)):
+        return s
+    if(isinstance(s,basestring)):
+        if(s == "monClim"):
+            return dateutil.relativedelta.relativedelta(month=1)
+        elif(s.endswith("mon")):
+            n = 1 if s == "mon" else int(s[:-3])
+            return dateutil.relativedelta.relativedelta(month=n)
+        elif(s.endswith("day")):
+            n = 1 if s == "day" else int(s[:-3])
+            return dateutil.relativedelta.relativedelta(day=n)
+        elif(s.endswith("hr")):
+            n = 1 if s == "hr" else int(s[:-2])
+            return dateutil.relativedelta.relativedelta(hours=n)
+    raise Exception("Could not convert argument",s,"to a relative time interval")
 
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):
     if(end<start):
-        logging.warning("Start date %s later than end date %s" % (str(start),str(end)))
+        log.warning("Start date %s later than end date %s" % (str(start),str(end)))
         return []
     if(start+delta==start):
-        logging.warning("Time interval %s should be positive",str(delta))
+        log.warning("Cannot partition time interval into zero-length intervals")
+        return []
     result=list()
     istart=start
     while((istart+delta)<end):
@@ -92,7 +88,7 @@ def get_ifs_date(filepath):
     fname=os.path.basename(filepath)
     regex=re.search("\+[0-9]{6}",fname)
     if(not regex):
-        logging.error("Unable to parse time stamp from ifs file name %s" % fname)
+        log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
     ss=regex.group()[1:]
     return datetime.datetime.strptime(ss,"%Y%m").date()
@@ -112,7 +108,7 @@ def get_nemo_interval(filepath):
     fname=os.path.basename(filepath)
     regex=re.findall("_[0-9]{8}",fname)
     if(not regex or len(regex)!=2):
-        logging.error("Unable to parse dates from nemo file name %s" % fname)
+        log.error("Unable to parse dates from nemo file name %s" % fname)
     start=datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
     end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
