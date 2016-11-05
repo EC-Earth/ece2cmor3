@@ -64,21 +64,30 @@
   long_name  = "Total column ice water"
   out_name   = clivi
 /
-! Produced by ece2cmor script
 &parameter
   param      = 80.128
   units      = "%"
   long_name  = "2 m relative humidity"
   out_name   = hurs
 /
-! Produced by ece2cmor script
 &parameter
   param      = 80.128
   units      = "%"
   long_name  = "Near-Surface Relative Humidity"
   out_name   = rhs
 /
-! Produced by ece2cmor script
+&parameter
+  param      = 80.128
+  units      = "%"
+  long_name  = "Near-Surface Relative Humidity"
+  out_name   = rhsmin
+/
+&parameter
+  param      = 80.128
+  units      = "%"
+  long_name  = "Near-Surface Relative Humidity"
+  out_name   = rhsmax
+/
 &parameter
   param      = 81.128
   units      = "kg kg-1"
@@ -113,18 +122,21 @@
   long_name  = "CALIPSO High Level Cloud Fraction"
   out_name   = clhcalipso
 /
+! Not produced...
 &parameter
   param      = 92.128
   units      = "%"
   long_name  = "ISCCP Total Cloud Fraction"
   out_name   = cltisccp
 /
+! Not produced...
 &parameter
   param      = 93.128
   units      = "Pa"
   long_name  = "ISCCP Mean Cloud Top Pressure"
   out_name   = pctisccp
 /
+! Not produced...
 &parameter
   param      = 94.128
   units      = "(0 -1)"

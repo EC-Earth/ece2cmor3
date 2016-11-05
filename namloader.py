@@ -79,7 +79,12 @@ def load_targets_namelist(varlist):
 
 
 # Post-processing attributes for IFS output:
-expressions = {(95,"rsus"):         "var95=var176-var169",
+expressions = {(80,"hurs"):         "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
+               (80,"rhs"):          "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
+               (80,"rhsmin"):       "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
+               (80,"rhsmax"):       "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
+               (81,"huss"):         "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))"
+               (95,"rsus"):         "var95=var176-var169",
                (96,"rlus"):         "var96=var177-var175",
                (97,"rsut"):         "var97=var178-var212",
                (98,"rsutcs"):       "var98=var208-var212",
