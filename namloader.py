@@ -83,7 +83,7 @@ expressions = {(80,"hurs"):         "var80=100.*exp(17.62*((var168-273.15)/(var1
                (80,"rhs"):          "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
                (80,"rhsmin"):       "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
                (80,"rhsmax"):       "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))",
-               (81,"huss"):         "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))"
+               (81,"huss"):         "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))",
                (95,"rsus"):         "var95=var176-var169",
                (96,"rlus"):         "var96=var177-var175",
                (97,"rsut"):         "var97=var178-var212",
@@ -121,18 +121,16 @@ def create_cmor_task(src,tgt,tag):
     task = cmor_task.cmor_task(src,tgt)
     if(tag == Nemo_source_tag):
         if((src.var(),tgt.out_name) == ("tossq","tossq")):
-            setattr(task,"conversion","tossqfix")
+            setattr(task,cmor_task.conversion_key,"tossqfix")
     if(tag == IFS_source_tag):
         code,oname = src.get_grib_code().var_id,tgt.out_name
         if((code,oname) in [(205,"mrro"),(8,"mrros"),(228,"pr"),(143,"prc"),(144,"prsn"),(44,"sbl"),(182,"evspsbl")]):
-            setattr(task,"conversion","vol2flux")
+            setattr(task,cmor_task.conversion_key,"vol2flux")
         if((code,oname) in [(95,"rsus"),(96,"rlus"),(97,"rsut"),(98,"rsutcs"),(146,"hfls"),(147,"hfss"),(169,"rsds"),(175,"rlds"),(176,"ssr"),(177,"str"),\
                             (178,"tsr"),(179,"rlut"),(108,"tsrc"),(209,"rlutcs"),(210,"ssrc"),(211,"strc"),(212,"rsdt"),(180,"tauu"),(181,"tauv")]):
-            setattr(task,"conversion","cum2inst")
+            setattr(task,cmor_task.conversion_key,"cum2inst")
         if((code,oname) in [(129,"zg"),(129,"orog")]):
-            setattr(task,"conversion","pot2alt")
-        if((code,oname) in expressions):
-            setattr(task,"expr",expressions[(code,oname)])
+            setattr(task,cmor_task.conversion_key,"pot2alt")
     return task
 
 

@@ -1,6 +1,8 @@
 import cmor_source
 import cmor_target
 
+conversion_key = "convert"
+
 # Cmorization task class, containing source and targets.
 class cmor_task(object):
 

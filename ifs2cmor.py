@@ -10,6 +10,7 @@ import cmor
 import cmor_utils
 import cmor_source
 import cmor_target
+import cmor_task
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -192,14 +193,14 @@ def execute_netcdf_task(task):
         log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
     ncvar=ncvars[varlist[0]]
     unit=getattr(ncvar,"units",None)
-    if((not unit) or hasattr(task,"converter")):
+    if((not unit) or hasattr(task,cmor_task.conversion_key)):
         unit=getattr(task.target,"units")
     varid=0
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes,positive="down")
     else:
         varid=cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes)
-    factor=get_conversion_factor(getattr(task,"conversion",None))
+    factor=get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
 
@@ -341,7 +342,7 @@ def postproc(tasks,postprocess=True):
     taskdict=cmor_utils.group(tasks,lambda t:(t.target.frequency,
                                               getattr(t.target,"time_operator","mean"),
                                               cmor_source.ifs_grid.index(t.source.grid()),
-                                              hasattr(t.source,"expr")))
+                                              hasattr(t.source,cmor_source.expression_key)))
     # TODO: Distribute loop over processes
     for k,v in taskdict.iteritems():
         ppcdo(v,k[0],k[1],k[2],k[3],postprocess)
@@ -407,7 +408,7 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     command = cdo.Cdo()
     freqstr = freq if(timop in ["mean","point"]) else timops[0]
     exprstr = "_expr" if isexpr else ""
-    cdoexpr = map(lambda t: "expr," + getattr(t.source,"expr"),tasks) if isexpr else None
+    cdoexpr = map(lambda t: "expr," + getattr(t.source,cmor_source.expression_key),tasks) if isexpr else None
     comstr = None
     if(grid == cmor_source.ifs_grid.point):
         ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")

@@ -7,6 +7,7 @@ import netCDF4
 import cmor
 import cmor_utils
 import cmor_source
+import cmor_task
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -119,7 +120,7 @@ def execute_netcdf_task(task,dataset,tableid):
     axes.append(time_axes_[tableid])
     varid=create_cmor_variable(task,dataset,axes)
     ncvar=dataset.variables[task.source.var()]
-    factor=get_conversion_factor(getattr(task,"conversion",None))
+    factor=get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,factor)
     cmor.close(varid)
 
