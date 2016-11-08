@@ -449,9 +449,9 @@ def get_cdo_timop(freq,timop):
     elif(freq == "day"):
         return ("day" + cdoop,"shifttime,-3hours")
     elif(freq == "6hr"):
-        if(cdoop == "point"): return ("selhour,0,6,12,18",None)
+        if(cdoop in ["point","mean"]): return ("selhour,0,6,12,18",None)
     elif(freq == "3hr" or freq == "1hr"):
-        if(cdoop == "point"): return (None,None)
+        if(cdoop in ["point","mean"]): return (None,None)
     raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
 
 

@@ -120,10 +120,10 @@ def create_cmor_source(paramdict,tag):
 def create_cmor_task(src,tgt,tag):
     task = cmor_task.cmor_task(src,tgt)
     if(tag == Nemo_source_tag):
-        if((src.var(),tgt.out_name) == ("tossq","tossq")):
+        if((src.var(),tgt.variable) == ("tossq","tossq")):
             setattr(task,cmor_task.conversion_key,"tossqfix")
     if(tag == IFS_source_tag):
-        code,oname = src.get_grib_code().var_id,tgt.out_name
+        code,oname = src.get_grib_code().var_id,tgt.variable
         if((code,oname) in [(205,"mrro"),(8,"mrros"),(228,"pr"),(143,"prc"),(144,"prsn"),(44,"sbl"),(182,"evspsbl")]):
             setattr(task,cmor_task.conversion_key,"vol2flux")
         if((code,oname) in [(95,"rsus"),(96,"rlus"),(97,"rsut"),(98,"rsutcs"),(146,"hfls"),(147,"hfss"),(169,"rsds"),(175,"rlds"),(176,"ssr"),(177,"str"),\
