@@ -35,7 +35,7 @@ class namloader_test(unittest.TestCase):
     def test_load_ovars(self):
         ece2cmor.initialize(configfile)
         try:
-            namloader.load_targets({"Omon":["tossq","so","thetao"],"Oday":["tossq"]})
+            namloader.load_targets({"Omon":["tossq","so","thetao"],"Oday":["orog"]})
             eq_(len(ece2cmor.tasks),4)
         finally:
             ece2cmor.finalize()

@@ -11,11 +11,14 @@ import ifs2cmor
 
 logging.basicConfig(level=logging.DEBUG)
 
+def get_table_path(tab_id = None):
+    directory = os.path.join(os.path.dirname(cmor_target.__file__),"resources","tables")
+    return os.path.join(directory,"CMIP6_" + tab_id + ".json") if tab_id else directory
+
 class ifs2cmor_tests(unittest.TestCase):
 
     def test_postproc_gridmean(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(79,128)
         target = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
@@ -27,8 +30,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,79 ICMGG " + path)
 
     def test_postproc_gridmeans(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source1 = cmor_source.ifs_source.create(79,128)
         target1 = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
@@ -43,8 +45,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,32,79 ICMGG " + path)
 
     def test_postproc_specmean(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(133,128)
         target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
@@ -56,8 +57,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,133 ICMSH " + path)
 
     def test_postproc_specgrid(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source1 = cmor_source.ifs_source.create(133,128)
         target1 = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
@@ -76,8 +76,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task2,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,79 ICMGG " + path2)
 
     def test_postproc_daymax(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(165,128)
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
@@ -89,8 +88,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -daymax -shifttime,-3hours -setgridtype,regular -selcode,165 ICMGG " + path)
 
     def test_postproc_windspeed(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88 = sqrt(sq(var165) + sq(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
@@ -103,8 +101,7 @@ class ifs2cmor_tests(unittest.TestCase):
                                                    "-expr,var88 = sqrt(sq(var165) + sq(var166)) -setgridtype,regular -selcode,165,166 ICMGG " + path)
 
     def test_postproc_maxwindspeed(self):
-        path = os.path.dirname(cmor_target.__file__) + "/../../input/cmip6/cmip6-cmor-tables/Tables/"
-        abspath = os.path.abspath(path)
+        abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88 = sqrt(sq(var165) + sq(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
