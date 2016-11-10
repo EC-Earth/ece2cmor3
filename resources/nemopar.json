@@ -1,0 +1,304 @@
+[
+ {
+  "source": "thetao", 
+  "grid": "grid_T", 
+  "target": "thetao", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "so", 
+  "grid": "grid_T", 
+  "target": "so", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "tos", 
+  "grid": "grid_T", 
+  "target": "tos", 
+  "table": "day"
+ }, 
+ {
+  "source": "tos", 
+  "grid": "grid_T", 
+  "target": "tos", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "tos", 
+  "grid": "grid_T", 
+  "target": "tos", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "tossq", 
+  "convert": "tossqfix", 
+  "grid": "grid_T", 
+  "target": "tossq", 
+  "table": "day"
+ }, 
+ {
+  "source": "tossq", 
+  "convert": "tossqfix", 
+  "grid": "grid_T", 
+  "target": "tossq", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "soga", 
+  "grid": "scalar", 
+  "target": "soga", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "sos", 
+  "grid": "grid_T", 
+  "target": "sos", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "zos", 
+  "grid": "grid_T", 
+  "target": "zos", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "mlotst", 
+  "grid": "grid_T", 
+  "target": "mlotst", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "uo", 
+  "grid": "grid_U", 
+  "target": "uo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "tauuo", 
+  "grid": "grid_U", 
+  "target": "tauuo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "vo", 
+  "grid": "grid_V", 
+  "target": "vo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "tauvo", 
+  "grid": "grid_V", 
+  "target": "tauvo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "sic", 
+  "grid": "icemod", 
+  "target": "sic", 
+  "table": "day"
+ }, 
+ {
+  "source": "sic", 
+  "grid": "icemod", 
+  "target": "sic", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "sic", 
+  "grid": "icemod", 
+  "target": "sic", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "sit", 
+  "grid": "icemod", 
+  "target": "sit", 
+  "table": "day"
+ }, 
+ {
+  "source": "sit", 
+  "grid": "icemod", 
+  "target": "sit", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "snd", 
+  "grid": "icemod", 
+  "target": "snd", 
+  "table": "LImon"
+ }, 
+ {
+  "source": "snd", 
+  "grid": "icemod", 
+  "target": "snd", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "usi", 
+  "grid": "icemod", 
+  "target": "usi", 
+  "table": "day"
+ }, 
+ {
+  "source": "vsi", 
+  "grid": "icemod", 
+  "target": "vsi", 
+  "table": "day"
+ }, 
+ {
+  "source": "zfull", 
+  "grid": "grid_T", 
+  "target": "zfull", 
+  "table": "emYr"
+ }, 
+ {
+  "source": "zfull", 
+  "grid": "grid_T", 
+  "target": "zfull", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "zfull", 
+  "grid": "grid_T", 
+  "target": "zfull", 
+  "table": "Oclim"
+ }, 
+ {
+  "source": "zhalf", 
+  "grid": "grid_T", 
+  "target": "zhalf", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "zhalf", 
+  "grid": "grid_T", 
+  "target": "zhalf", 
+  "table": "Oclim"
+ }, 
+ {
+  "source": "masso", 
+  "grid": "scalar", 
+  "target": "masso", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "pbo", 
+  "grid": "grid_T", 
+  "target": "pbo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "volo", 
+  "grid": "scalar", 
+  "target": "volo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "thetaoga", 
+  "grid": "scalar", 
+  "target": "thetaoga", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "wmo", 
+  "grid": "grid_W", 
+  "target": "wmo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "hfds", 
+  "grid": "SBC", 
+  "target": "hfds", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "hfds", 
+  "grid": "SBC", 
+  "target": "hfds", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "vsfsit", 
+  "grid": "SBC", 
+  "target": "vsfsit", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "sfdsi", 
+  "grid": "SBC", 
+  "target": "sfdsi", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "hfsithermds2d", 
+  "grid": "SBC", 
+  "target": "hfsithermds2d", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "zossq", 
+  "grid": "grid_T", 
+  "target": "zossq", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "thkcello", 
+  "grid": "grid_T", 
+  "target": "thkcello", 
+  "table": "fx"
+ }, 
+ {
+  "source": "thkcello", 
+  "grid": "grid_T", 
+  "target": "thkcello", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "umo", 
+  "grid": "grid_U", 
+  "target": "umo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "vmo", 
+  "grid": "grid_V", 
+  "target": "vmo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "friver", 
+  "grid": "grid_T", 
+  "target": "friver", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "ficeberg2d", 
+  "grid": "grid_T", 
+  "target": "ficeberg2d", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "wfo", 
+  "grid": "grid_T", 
+  "target": "wfo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "rsntds", 
+  "grid": "SBC", 
+  "target": "rsntds", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "rsdo", 
+  "grid": "grid_T", 
+  "target": "rsdo", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "wo", 
+  "grid": "grid_W", 
+  "target": "wo", 
+  "table": "emMon"
+ }
+]

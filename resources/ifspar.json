@@ -1,0 +1,2085 @@
+[
+ {
+  "source": "8.128", 
+  "convert": "vol2flux", 
+  "target": "mrros", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "8.128", 
+  "convert": "vol2flux", 
+  "target": "mrros", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "8.128", 
+  "convert": "vol2flux", 
+  "target": "mrros", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "31.128", 
+  "target": "ci", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "31.128", 
+  "target": "ci", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "34.128", 
+  "target": "tso", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "43.128", 
+  "expr": "var43=70*var39+210*var40+720*var41+1890*var42", 
+  "target": "mrso", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "43.128", 
+  "expr": "var43=70*var39+210*var40+720*var41+1890*var42", 
+  "target": "mrso", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "44.128", 
+  "convert": "vol2flux", 
+  "target": "sbl", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "44.128", 
+  "convert": "vol2flux", 
+  "target": "sbl", 
+  "table": "LImon"
+ }, 
+ {
+  "source": "44.128", 
+  "convert": "vol2flux", 
+  "target": "sbl", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "44.128", 
+  "convert": "vol2flux", 
+  "target": "sbl", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "54.128", 
+  "target": "pfull", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "54.128", 
+  "target": "pfull", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "54.128", 
+  "target": "pfull", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "54.128", 
+  "target": "pfull", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "78.128", 
+  "target": "clwvi", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "78.128", 
+  "target": "clwvi", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "78.128", 
+  "target": "clwvi", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "78.128", 
+  "target": "clwvi", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "79.128", 
+  "target": "clivi", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "79.128", 
+  "target": "clivi", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "79.128", 
+  "target": "clivi", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "79.128", 
+  "target": "clivi", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "80.128", 
+  "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))", 
+  "target": "hurs", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "80.128", 
+  "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))", 
+  "target": "hurs", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "80.128", 
+  "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))", 
+  "target": "rhs", 
+  "table": "day"
+ }, 
+ {
+  "source": "80.128", 
+  "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))", 
+  "target": "rhsmin", 
+  "table": "day"
+ }, 
+ {
+  "source": "80.128", 
+  "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))", 
+  "target": "rhsmax", 
+  "table": "day"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "em3hrpt"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "day"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "81.128", 
+  "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))", 
+  "target": "huss", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "88.128", 
+  "target": "cltcalipso", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "88.128", 
+  "target": "cltcalipso", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "88.128", 
+  "target": "cltcalipso", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "89.128", 
+  "target": "cllcalipso", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "89.128", 
+  "target": "cllcalipso", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "89.128", 
+  "target": "cllcalipso", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "90.128", 
+  "target": "clmcalipso", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "90.128", 
+  "target": "clmcalipso", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "90.128", 
+  "target": "clmcalipso", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "91.128", 
+  "target": "clhcalipso", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "91.128", 
+  "target": "clhcalipso", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "91.128", 
+  "target": "clhcalipso", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "92.128", 
+  "target": "cltisccp", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "92.128", 
+  "target": "cltisccp", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "93.128", 
+  "target": "pctisccp", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "93.128", 
+  "target": "pctisccp", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "94.128", 
+  "target": "albisccp", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "94.128", 
+  "target": "albisccp", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "day"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "95.128", 
+  "convert": "cum2inst", 
+  "expr": "var95=var176-var169", 
+  "target": "rsus", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "day"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "96.128", 
+  "convert": "cum2inst", 
+  "expr": "var96=var177-var175", 
+  "target": "rlus", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "97.128", 
+  "convert": "cum2inst", 
+  "expr": "var97=var178-var212", 
+  "target": "rsut", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "98.128", 
+  "convert": "cum2inst", 
+  "expr": "var98=var208-var212", 
+  "target": "rsutcs", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "98.128", 
+  "convert": "cum2inst", 
+  "expr": "var98=var208-var212", 
+  "target": "rsutcs", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "98.128", 
+  "convert": "cum2inst", 
+  "expr": "var98=var208-var212", 
+  "target": "rsutcs", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "98.128", 
+  "convert": "cum2inst", 
+  "expr": "var98=var208-var212", 
+  "target": "rsutcs", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "98.128", 
+  "convert": "cum2inst", 
+  "expr": "var98=var208-var212", 
+  "target": "rsutcs", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "day"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "99.128", 
+  "expr": "var99=70*var39", 
+  "target": "mrsos", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "103.128", 
+  "target": "tslsi", 
+  "table": "day"
+ }, 
+ {
+  "source": "103.128", 
+  "target": "tslsi", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "day"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "zg", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "AmonAdj"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "SImon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "fx"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "LImon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Oday"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aero"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "em3hrpt"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Oyr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aerannual"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "day"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emYr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aerfixed"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emFx"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "Oclim"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "aerhourly"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "129.128", 
+  "convert": "pot2alt", 
+  "target": "orog", 
+  "table": "emMonZ"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "day"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "130.128", 
+  "target": "ta700", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "AmonAdj"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "SImon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "fx"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "LImon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Oday"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aero"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "em3hrpt"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Oyr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aerannual"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "day"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emYr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aerfixed"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emFx"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "Oclim"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "aerhourly"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "134.128", 
+  "target": "ps", 
+  "table": "emMonZ"
+ }, 
+ {
+  "source": "137.128", 
+  "target": "prw", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "137.128", 
+  "target": "prw", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "137.128", 
+  "target": "prw", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "137.128", 
+  "target": "prw", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "137.128", 
+  "target": "prw", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "138.128", 
+  "target": "vortmean", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "day"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "143.128", 
+  "convert": "vol2flux", 
+  "target": "prc", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "day"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "144.128", 
+  "convert": "vol2flux", 
+  "target": "prsn", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "day"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "146.128", 
+  "convert": "cum2inst", 
+  "target": "hfls", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "day"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "147.128", 
+  "convert": "cum2inst", 
+  "target": "hfss", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "em3hrpt"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "day"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "151.128", 
+  "target": "psl", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "day"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "157.128", 
+  "target": "hur", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "164.128", 
+  "target": "clt", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "164.128", 
+  "target": "clt", 
+  "table": "day"
+ }, 
+ {
+  "source": "164.128", 
+  "target": "clt", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "164.128", 
+  "target": "clt", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "164.128", 
+  "target": "clt", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "165.128", 
+  "target": "uas", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "165.128", 
+  "target": "uas", 
+  "table": "day"
+ }, 
+ {
+  "source": "165.128", 
+  "target": "uas", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "165.128", 
+  "target": "uas", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "165.128", 
+  "target": "uas", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "166.128", 
+  "target": "vas", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "166.128", 
+  "target": "vas", 
+  "table": "day"
+ }, 
+ {
+  "source": "166.128", 
+  "target": "vas", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "166.128", 
+  "target": "vas", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "166.128", 
+  "target": "vas", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "em3hrpt"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "day"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "167.128", 
+  "target": "tas", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "168.128", 
+  "target": "tdps", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "day"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "169.128", 
+  "convert": "cum2inst", 
+  "target": "rsds", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "day"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "175.128", 
+  "convert": "cum2inst", 
+  "target": "rlds", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "day"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "179.128", 
+  "convert": "cum2inst", 
+  "target": "rlut", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "180.128", 
+  "convert": "cum2inst", 
+  "target": "tauu", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "180.128", 
+  "convert": "cum2inst", 
+  "target": "tauu", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "181.128", 
+  "convert": "cum2inst", 
+  "target": "tauv", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "181.128", 
+  "convert": "cum2inst", 
+  "target": "tauv", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "182.128", 
+  "convert": "vol2flux", 
+  "target": "evspsbl", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "182.128", 
+  "convert": "vol2flux", 
+  "target": "evspsbl", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "201.128", 
+  "target": "tasmax", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "201.128", 
+  "target": "tasmax", 
+  "table": "day"
+ }, 
+ {
+  "source": "201.128", 
+  "target": "tasmax", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "201.128", 
+  "target": "tasmax", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "202.128", 
+  "target": "tasmin", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "202.128", 
+  "target": "tasmin", 
+  "table": "day"
+ }, 
+ {
+  "source": "202.128", 
+  "target": "tasmin", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "202.128", 
+  "target": "tasmin", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "205.128", 
+  "convert": "vol2flux", 
+  "target": "mrro", 
+  "table": "day"
+ }, 
+ {
+  "source": "205.128", 
+  "convert": "vol2flux", 
+  "target": "mrro", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "205.128", 
+  "convert": "vol2flux", 
+  "target": "mrro", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "205.128", 
+  "convert": "vol2flux", 
+  "target": "mrro", 
+  "table": "Lmon"
+ }, 
+ {
+  "source": "205.128", 
+  "convert": "vol2flux", 
+  "target": "mrro", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "207.128", 
+  "target": "sfcWind", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "207.128", 
+  "target": "sfcWind", 
+  "table": "day"
+ }, 
+ {
+  "source": "207.128", 
+  "target": "sfcWind", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "207.128", 
+  "target": "sfcWind", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "209.128", 
+  "convert": "cum2inst", 
+  "target": "rlutcs", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "209.128", 
+  "convert": "cum2inst", 
+  "target": "rlutcs", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "209.128", 
+  "convert": "cum2inst", 
+  "target": "rlutcs", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "209.128", 
+  "convert": "cum2inst", 
+  "target": "rlutcs", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "209.128", 
+  "convert": "cum2inst", 
+  "target": "rlutcs", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "212.128", 
+  "convert": "cum2inst", 
+  "target": "rsdt", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "212.128", 
+  "convert": "cum2inst", 
+  "target": "rsdt", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "212.128", 
+  "convert": "cum2inst", 
+  "target": "rsdt", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "212.128", 
+  "convert": "cum2inst", 
+  "target": "rsdt", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "212.128", 
+  "convert": "cum2inst", 
+  "target": "rsdt", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "214.128", 
+  "expr": "var214=sqrt(sq(var165)+sq(var166))", 
+  "target": "sfcWindmax", 
+  "table": "day"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "day"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "131.128", 
+  "target": "ua", 
+  "table": "emMonZ"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "6hrPlev"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "day"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "132.128", 
+  "target": "va", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "6hrLev"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "day"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "133.128", 
+  "target": "hus", 
+  "table": "emDayZ"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "day"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "135.128", 
+  "target": "wap", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "227.128", 
+  "target": "wap500", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "em3hr"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "emSubhr"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "day"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "3hr"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "Omon"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "aerdaily"
+ }, 
+ {
+  "source": "228.128", 
+  "convert": "vol2flux", 
+  "target": "pr", 
+  "table": "cf3hr"
+ }, 
+ {
+  "source": "139.128", 
+  "target": "ts", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "139.128", 
+  "target": "ts", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "139.128", 
+  "target": "ts", 
+  "table": "emDay"
+ }, 
+ {
+  "source": "139.128", 
+  "target": "ts", 
+  "table": "6hrPlevpt"
+ }, 
+ {
+  "source": "238.128", 
+  "target": "tsn", 
+  "table": "LImon"
+ }, 
+ {
+  "source": "243.128", 
+  "target": "al", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "246.128", 
+  "target": "clw", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "246.128", 
+  "target": "clw", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "246.128", 
+  "target": "clw", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "246.128", 
+  "target": "clw", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "247.128", 
+  "target": "cli", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "247.128", 
+  "target": "cli", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "247.128", 
+  "target": "cli", 
+  "table": "aermonthly"
+ }, 
+ {
+  "source": "247.128", 
+  "target": "cli", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "cl", 
+  "table": "Amon"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "cl", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "cl", 
+  "table": "cfsites"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "cl", 
+  "table": "emMon"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "clcalipso", 
+  "table": "cfMon"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "clcalipso", 
+  "table": "cfDay"
+ }, 
+ {
+  "source": "248.128", 
+  "target": "clcalipso", 
+  "table": "cf3hr"
+ }
+]

@@ -110,7 +110,7 @@
    name = so20chgt
    units = "m"
    long_name = "Depth of 20C isotherm"
-   out_name = t20d
+   out_name = so20chgt
 /
 &parameter
    name = so28chgt

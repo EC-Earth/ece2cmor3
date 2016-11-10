@@ -14,6 +14,7 @@ Nemo_source_tag = 2
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifs.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemo.json")
 
+json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
@@ -81,7 +82,7 @@ def create_tasks(targets):
 
 # Creates a single task from the target and paramater table entry
 def create_cmor_task(pardict,target,tag):
-    src = pardict.get("source",None)
+    src = pardict.get(json_source_key,None)
     expr = pardict.get(cmor_source.expression_key,None)
     if(not src and not expr):
         log.error("Could not find a source entry for parameter table entry %s...skipping variable %s for table %s." % (str(pardict.__dict__),target.variable,target.table))
