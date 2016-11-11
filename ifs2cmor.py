@@ -417,21 +417,27 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
             opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
         else:
             opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
+        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
+        for task in tasks:
+            log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
         if(callcdo):
             command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
-        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
     else:
         ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
         if(timop == "mean" and not isexpr):
             opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
+            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
+            for task in tasks:
+                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
             if(callcdo):
                 command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
         else:
             opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
+            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
+            for task in tasks:
+                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
             if(callcdo):
                 command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
     for task in tasks:
         setattr(task,"path",ofile)
         setattr(task,"cdo_command",comstr)
