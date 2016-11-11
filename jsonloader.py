@@ -11,8 +11,8 @@ log = logging.getLogger(__name__)
 
 IFS_source_tag = 1
 Nemo_source_tag = 2
-ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifs.json")
-nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemo.json")
+ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
+nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
 
 json_source_key = "source"
 json_target_key = "target"
@@ -92,10 +92,11 @@ def create_cmor_task(pardict,target,tag):
         cmorsrc = cmor_source.ifs_source.read(expr if expr != None else src)
     elif(tag == Nemo_source_tag):
         grid = pardict.get(json_grid_key,None)
-        if(not grid):
+        if(not (grid in cmor_source.nemo_grid)):
             log.error("Could not find a grid value in the nemo parameter table for %s...skipping variable." % src)
             return None
-        cmorsrc = cmor_source.nemo_source(src,grid)
+        cmorsrc = cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
     task = cmor_task.cmor_task(cmorsrc,target)
-    conv = paramdict.get(cmor_task.conversion_key,None)
+    conv = pardict.get(cmor_task.conversion_key,None)
     if conv: setattr(task,cmor_task.conversion_key,conv)
+    return task

@@ -4,10 +4,11 @@ import os
 import sys
 import f90nml
 import json
-import ece2cmor
+import cmor_utils
 import cmor_source
 import cmor_target
 import cmor_task
+import ece2cmor
 import namloader
 import jsonloader
 
@@ -16,6 +17,7 @@ import jsonloader
 # format for later use by ece2cmor. This scripts can be executed if the fortran
 # namelist files are more complete than the json files and the latter need syncing.
 
+# Converts the input fortran namelist file to json
 def convert_parlist(inputfile,outputfile):
     ifsparlist = f90nml.read(inputfile)
     pardictlist = ifsparlist.get("parameter")
@@ -28,16 +30,16 @@ def convert_parlist(inputfile,outputfile):
         else:
             targets.extend(t)
     namloader.load_targets(targets)
-    dictlist = map(makedict,ece2cmor.tasks)
+    taskgroups = cmor_utils.group(ece2cmor.tasks,lambda t:t.target.variable)
+    dictlist = map(makedict,[v[0] for (k,v) in taskgroups.iteritems()])
     with open(outputfile,'w') as ofile:
         json.dump(dictlist,ofile,indent=True)
 
-
+# Creates a ece2cmor-compliant dictionary for the given task
 def makedict(task):
     result = {}
     result[jsonloader.json_source_key] = task.source.var_id if isinstance(task.source,cmor_source.nemo_source) else str(task.source.get_grib_code())
     result[jsonloader.json_target_key] = task.target.variable
-    result[jsonloader.json_table_key] = task.target.table
     if(isinstance(task.source,cmor_source.nemo_source)):
         result[jsonloader.json_grid_key] = task.source.grid()
     if(hasattr(task.source,cmor_source.expression_key)):
@@ -46,7 +48,7 @@ def makedict(task):
         result[cmor_task.conversion_key] = getattr(task,cmor_task.conversion_key)
     return result
 
-
+# Main program
 def main(args):
 
     ifs_input = os.path.join(os.path.dirname(ece2cmor.__file__),"resources","ifs.par")
