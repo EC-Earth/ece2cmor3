@@ -91,13 +91,21 @@ def execute(tasks):
         log.info("Creating depth axes for table %s..." % tab)
         if(not tab_id in depth_axes_):
             depth_axes_[tab_id]=create_depth_axes(tab_id,files)
+        taskmask = dict([t,False] for t in tskgroup)
         # Loop over files:
         for ncf in files:
             ds=netCDF4.Dataset(ncf,'r')
             for task in tskgroup:
                 if(task.source.var() in ds.variables):
-                    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
-                    execute_netcdf_task(task,ds,tab_id)
+                    if(taskmask[task]):
+                        log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
+                    else:
+                        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
+                        execute_netcdf_task(task,ds,tab_id)
+                        taskmask[task] = True
+        for task,executed in taskmask.iteritems():
+            if(not executed):
+                log.error("The source variable %s could not be found in the input NEMO data" % task.source.var_id)
 
 
 # Performs a single task.

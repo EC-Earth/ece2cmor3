@@ -111,7 +111,7 @@ def create_cmor_source(paramdict,tag):
             grid_id = cmor_source.nemo_grid.index(grid)
         except:
             raise Exception("Unknown grid detected:",grid,"for parameter",parstr)
-        return cmor_source.nemo_source(parstr,grid_id)
+        return cmor_source.nemo_source(ioname,grid_id)
     else:
         return None
 
