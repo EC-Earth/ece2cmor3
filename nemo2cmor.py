@@ -137,7 +137,7 @@ def create_cmor_variable(task,dataset,axes):
     srcvar=task.source.var()
     ncvar=dataset.variables[srcvar]
     unit=getattr(ncvar,"units",None)
-    if((not unit) or hasattr(task,"conversion")): # Explicit unit conversion
+    if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
         unit=getattr(task.target,"units")
     if(hasattr(task.target,"positive") and len(task.target.positive)!=0):
         return cmor.variable(table_entry=str(task.target.variable),units=str(unit),axis_ids=axes,original_name=str(srcvar),positive="down")

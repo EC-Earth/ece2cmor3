@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 import ece2cmor
-import namloader
+import jsonloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -14,16 +14,15 @@ from dateutil.relativedelta import relativedelta
 # and an experiment name/prefix to determine the output data files and configure \
 # cmor3 correctly. The processed variables are listed in the "variables" dictionary
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
-variables = {"Omon" : ["sos","tos"]}
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
 
 def main(args):
 
     parser = optparse.OptionParser()
-    parser.add_option("-d","--dir" ,dest = "dir" ,help = "NEMO output directory")
+    parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
     parser.add_option("-c","--conf",dest = "conf",help = "CMOR3 meta data json file path",metavar = "FILE")
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
     (opt,args) = parser.parse_args()
@@ -39,10 +38,10 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    namloader.load_targets(variables)
+    jsonloader.load_targets("primavera_atm.json")
 
     # Execute the cmorization:
-    ece2cmor.perform_nemo_tasks()
+    ece2cmor.perform_ifs_tasks()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -44,14 +44,14 @@ def load_targets(varlist):
 # Loads a json file containing the cmor targets.
 def load_targets_json(varlistfile):
     vartext = open(varlistfile).read()
-    varlist = json.loads(varlistfile)
+    varlist = json.loads(vartext)
     targets = []
     for tab,var in varlist.iteritems():
         if(isinstance(var,basestring)):
             targets.append(ece2cmor.get_cmor_target(var,tab))
         else:
             for v in var:
-                targets.append(ece2cmor.get_cmor_target(v,table))
+                targets.append(ece2cmor.get_cmor_target(v,tab))
     return targets
 
 

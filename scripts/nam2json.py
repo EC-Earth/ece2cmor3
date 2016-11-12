@@ -2,8 +2,10 @@
 
 import os
 import sys
+import logging
 import f90nml
 import json
+import argparse
 import cmor_utils
 import cmor_source
 import cmor_target
@@ -17,7 +19,9 @@ import jsonloader
 # format for later use by ece2cmor. This scripts can be executed if the fortran
 # namelist files are more complete than the json files and the latter need syncing.
 
-# Converts the input fortran namelist file to json
+logging.basicConfig(level=logging.WARNING)
+
+# Converts the input fortran parameter namelist file to json
 def convert_parlist(inputfile,outputfile):
     ifsparlist = f90nml.read(inputfile)
     pardictlist = ifsparlist.get("parameter")
@@ -33,7 +37,7 @@ def convert_parlist(inputfile,outputfile):
     taskgroups = cmor_utils.group(ece2cmor.tasks,lambda t:t.target.variable)
     dictlist = map(makedict,[v[0] for (k,v) in taskgroups.iteritems()])
     with open(outputfile,'w') as ofile:
-        json.dump(dictlist,ofile,indent=True)
+        json.dump(dictlist,ofile,indent = 4,separators = (',', ': '))
 
 # Creates a ece2cmor-compliant dictionary for the given task
 def makedict(task):
@@ -48,20 +52,53 @@ def makedict(task):
         result[cmor_task.conversion_key] = getattr(task,cmor_task.conversion_key)
     return result
 
+
+# Converts the input fortran variable namelist file to json
+def convert_varlist(inputfile):
+    namloader.load_targets(inputfile)
+    nemotasks = cmor_utils.group([t for t in ece2cmor.tasks if isinstance(t.source,cmor_source.nemo_source)],lambda t:t.target.table)
+    nemodict = dict([k,[t.target.variable for t in v]] for k,v in nemotasks.iteritems())
+    nemofile = os.path.basename(inputfile) + "_oce.json"
+    with open(nemofile,'w') as ofile:
+        json.dump(nemodict,ofile,indent = 4,separators = (',', ': '))
+    ifstasks = cmor_utils.group([t for t in ece2cmor.tasks if isinstance(t.source,cmor_source.ifs_source)],lambda t:t.target.table)
+    ifsdict = dict([k,[t.target.variable for t in v]] for k,v in ifstasks.iteritems())
+    ifsfile = os.path.basename(inputfile) + "_atm.json"
+    with open(ifsfile,'w') as ofile:
+        json.dump(ifsdict,ofile,indent = 4,separators = (',', ': '))
+
+
 # Main program
+# TODO: clean up tmp directory
 def main(args):
 
-    ifs_input = os.path.join(os.path.dirname(ece2cmor.__file__),"resources","ifs.par")
-    ifs_output = "ifspar.json"
-    nemo_input = os.path.join(os.path.dirname(ece2cmor.__file__),"resources","nemo.par")
-    nemo_output = "nemopar.json"
+    ifs_default_input = os.path.join(os.path.dirname(ece2cmor.__file__),"resources","ifs.par")
+    ifs_default_output = "ifspar.json"
+    nemo_default_input = os.path.join(os.path.dirname(ece2cmor.__file__),"resources","nemo.par")
+    nemo_default_output = "nemopar.json"
 
-    ece2cmor.initialize(os.path.join(os.path.dirname(ece2cmor.__file__),"test","test_data","cmor3_metadata.json"))
-    convert_parlist(ifs_input,ifs_output)
-    ece2cmor.finalize()
-    ece2cmor.initialize(os.path.join(os.path.dirname(ece2cmor.__file__),"test","test_data","cmor3_metadata.json"))
-    convert_parlist(nemo_input,nemo_output)
-    ece2cmor.finalize()
+    parser = argparse.ArgumentParser(description="Input fortran namelist for ece2cmor to convert to json (optional)")
+    parser.add_argument("--file",dest = "file",help = "input fortran namelist file (optional)",default = None)
+
+    args = parser.parse_args()
+
+    ifile = args.file
+    if(not ifile):
+        ece2cmor.initialize(os.path.join(os.path.dirname(ece2cmor.__file__),"test","test_data","cmor3_metadata.json"))
+        convert_parlist(ifs_default_input,ifs_default_output)
+        ece2cmor.finalize()
+        ece2cmor.initialize(os.path.join(os.path.dirname(ece2cmor.__file__),"test","test_data","cmor3_metadata.json"))
+        convert_parlist(nemo_default_input,nemo_default_output)
+        ece2cmor.finalize()
+    elif(os.path.exists(ifile)):
+        ece2cmor.initialize(os.path.join(os.path.dirname(ece2cmor.__file__),"test","test_data","cmor3_metadata.json"))
+        if(os.path.basename(ifile) in ["ifs.par","nemo.par"]):
+            convert_parlist(os.path.abspath(ifile),os.path.basename(ifile).replace(".","") + ".json")
+        else:
+            convert_varlist(os.path.abspath(ifile))
+        ece2cmor.finalize()
+    else:
+        logging.error("Could not find file % s" % ifile)
 
 
 if __name__ == "__main__":

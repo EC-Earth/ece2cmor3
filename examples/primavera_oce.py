@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 import ece2cmor
-import namloader
+import jsonloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -14,9 +14,8 @@ from dateutil.relativedelta import relativedelta
 # and an experiment name/prefix to determine the output data files and configure \
 # cmor3 correctly. The processed variables are listed in the "variables" dictionary
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
-variables = {"Omon" : ["sos","tos"]}
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
 
@@ -39,7 +38,7 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    namloader.load_targets(variables)
+    jsonloader.load_targets("primavera_oce.json")
 
     # Execute the cmorization:
     ece2cmor.perform_nemo_tasks()

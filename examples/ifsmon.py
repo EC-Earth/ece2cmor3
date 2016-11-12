@@ -2,6 +2,7 @@
 
 import os
 import sys
+import logging
 import ece2cmor
 import namloader
 import optparse
@@ -12,6 +13,8 @@ from dateutil.relativedelta import relativedelta
 # januari 1st 1990. It requires an output directory, a configuration json-file \
 # and an experiment name/prefix to determine the output data files and configure \
 # cmor3 correctly. The processed variables are listed in the "variables" dictionary
+
+logging.basicConfig(level=logging.WARNING)
 
 variables = {"Amon" : ["tas","uas","vas"]}
 startdate = datetime.date(1990,1,1)
