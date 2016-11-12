@@ -34,7 +34,7 @@ def main(args):
     ece2cmor.initialize(opt.conf,opt.exp)
 
     # Set directory and time interval for cmorization step:
-    ece2cmor.nemodir = odir
+    ece2cmor.ifsdir = odir
     ece2cmor.startdate = startdate
     ece2cmor.interval = interval
 

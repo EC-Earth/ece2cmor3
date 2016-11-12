@@ -22,7 +22,7 @@ interval = relativedelta(months=1)
 def main(args):
 
     parser = optparse.OptionParser()
-    parser.add_option("-d","--dir" ,dest = "dir" ,help = "NEMO output directory")
+    parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
     parser.add_option("-c","--conf",dest = "conf",help = "CMOR3 meta data json file path",metavar = "FILE")
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
     (opt,args) = parser.parse_args()
@@ -33,7 +33,7 @@ def main(args):
     ece2cmor.initialize(opt.conf,opt.exp)
 
     # Set directory and time interval for cmorization step:
-    ece2cmor.nemodir = odir
+    ece2cmor.ifsdir = odir
     ece2cmor.startdate = startdate
     ece2cmor.interval = interval
 
@@ -41,7 +41,7 @@ def main(args):
     jsonloader.load_targets("primavera_oce.json")
 
     # Execute the cmorization:
-    ece2cmor.perform_nemo_tasks()
+    ece2cmor.perform_ifs_tasks()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
