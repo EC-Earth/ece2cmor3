@@ -73,7 +73,7 @@ class ifs_source(cmor_source):
     grib_codes_2D_dyn = read_grib_codes_group(grib_codes_file,"MFP2DF")
     grib_codes_2D_phy = read_grib_codes_group(grib_codes_file,"MFPPHY")
     grib_codes_extra = read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
-    grib_codes = grib_codes_3D + grib_codes_2D_phy + grib_codes_2D_phy + grib_codes_extra
+    grib_codes = grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
 
     # Constructor.
     def __init__(self,code):

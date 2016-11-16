@@ -166,6 +166,8 @@ def netcdf2cmor(varid,ncvar,factor = 1.0,psvarid = None,ncpsvar = None):
             logger.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
         cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
+	del vals
         if(psvarid and ncpsvar):
             spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
             cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (imax-i),store_with = varid)
+	    del spvals

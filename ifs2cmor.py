@@ -373,6 +373,7 @@ def ppcdo_worker(q,postprocess):
 def postprocsp(tasks,postprocess=True):
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
     for freq,taskgroup in tasksbyfreq.iteritems():
+        if(not any("alevel" in getattr(t.target,cmor_target.dims_key).split() for t in taskgroup)): continue
         sptasks = [t for t in taskgroup if hasattr(t,"sp_path")]
         sppath = None
         if(len(sptasks) != 0):
@@ -429,7 +430,19 @@ def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
     command = cdo.Cdo()
     freqstr = freq if(timop in ["mean","point"]) else timops[0]
     exprstr = "_expr" if isexpr else ""
-    cdoexpr = map(lambda t: "expr," + getattr(t.source,cmor_source.expression_key),tasks) if isexpr else None
+    cdoexpr = None
+    if isexpr:
+        exprdict = {}
+        for t in tasks:
+            vid = t.source.get_grib_code().var_id
+	    expr = getattr(t.source,cmor_source.expression_key)
+	    if(vid in exprdict):
+	        if(expr != exprdict[vid]):
+		    log.warning("Different expressions for the same variable encountered: var%d is assigned to %s and %s. Will choose the former." % (vid,exprdict[vid],expr))
+		continue
+	    else:
+		exprdict[vid] = expr
+	cdoexpr = "expr," + "'" + ";".join([v for k,v in exprdict.iteritems()]) + "'"
     comstr = None
     if(grid == cmor_source.ifs_grid.point):
         ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")

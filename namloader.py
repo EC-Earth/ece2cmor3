@@ -88,8 +88,8 @@ expressions = {(80,"hurs"):         "var80=100.*exp(17.62*((var168-273.15)/(var1
                (96,"rlus"):         "var96=var177-var175",
                (97,"rsut"):         "var97=var178-var212",
                (98,"rsutcs"):       "var98=var208-var212",
-               (214,"sfcWind"):     "var214=sqrt(sq(var165)+sq(var166))",
-               (214,"sfcWindmax"):  "var214=sqrt(sq(var165)+sq(var166))",
+               (214,"sfcWind"):     "var214=sqrt(sqr(var165)+sqr(var166))",
+               (214,"sfcWindmax"):  "var214=sqrt(sqr(var165)+sqr(var166))",
                (99,"mrsos"):        "var99=70*var39",
                (43,"mrso"):         "var43=70*var39+210*var40+720*var41+1890*var42"}
 

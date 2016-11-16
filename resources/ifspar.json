@@ -236,11 +236,6 @@
         "target": "ta700"
     },
     {
-        "source": "214.128",
-        "target": "sfcWindmax",
-        "expr": "var214=sqrt(sq(var165)+sq(var166))"
-    },
-    {
         "source": "135.128",
         "target": "wap"
     },
@@ -254,8 +249,14 @@
         "target": "prw"
     },
     {
-        "source": "207.128",
-        "target": "sfcWind"
+        "source": "214.128",
+        "target": "sfcWind",
+        "expr": "var214=sqrt(sqr(var165)+sqr(var166))"
+    },
+    {
+        "source": "214.128",
+        "target": "sfcWindmax",
+        "expr": "var214=sqrt(sqr(var165)+sqr(var166))"
     },
     {
         "source": "182.128",
