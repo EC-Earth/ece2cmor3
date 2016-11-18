@@ -68,6 +68,6 @@ class namloader_test(unittest.TestCase):
         ece2cmor.initialize(configfile)
         try:
             namloader.load_targets({"day":["sfcWindmax"]})
-            eq_("var214=sqrt(sq(var165)+sq(var166))",getattr(ece2cmor.tasks[0].source,"expr"))
+            eq_("var214=sqrt(sqr(var165)+sqr(var166))",getattr(ece2cmor.tasks[0].source,"expr"))
         finally:
             ece2cmor.finalize()

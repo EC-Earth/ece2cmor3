@@ -34,7 +34,7 @@ start_date_ = None
 output_interval_ = None
 
 # Output frequency. Minimal interval between output variables.
-output_freq_ = None
+output_freq_ = 3
 
 # Fast storage temporary path
 temp_dir_ = os.getcwd()
@@ -126,7 +126,7 @@ def cmorize(tasks):
         create_depth_axes(tskgroup)
         # TODO: parallelize
         for task in tskgroup:
-            log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
+            log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,task.target.variable))
             execute_netcdf_task(task)
 
 
@@ -158,7 +158,9 @@ def get_cdo_level_commands(task):
         val = axisinfo.get("value",None)
         if(val):
             zlevs = [val]
-    if(len(zlevs) != 0):
+    if(len(zlevs) == 1 and task.source.spatial_dims == 2):
+	return (None,None)
+    if(len(zlevs) > 1):
         ret[1] = ",".join(["sellevel"] + zlevs)
     return ret
 
@@ -183,7 +185,7 @@ def execute_netcdf_task(task):
     filepath = getattr(task,"path")
     cdocmd = cdo.Cdo()
     codestr = str(task.source.get_grib_code().var_id)
-    sel_op = "selcode,"+codestr
+    sel_op = "selcode," + codestr
     lev_ops = get_cdo_level_commands(task)
     command = chain_cdo_commands(lev_ops[1],lev_ops[0],sel_op) + filepath
     print "cdo command:",command
@@ -236,7 +238,7 @@ def create_time_axes(tasks):
             if(tdim in time_axes):
                 tid = time_axes[tdim]
             else:
-                tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"))
+                tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"),name = tdim)
             setattr(task,"time_axis",tid)
 
 
@@ -265,6 +267,10 @@ def create_depth_axes(tasks):
             setattr(task,"z_axis_id",axisid)
             setattr(task,"store_with",psid)
             continue
+	elif zdim in ["sdepth","sdepth1"]:
+            axisid = create_soil_depth_axis(0,zdim)
+            depth_axes[zdim] = axisid
+            setattr(task,"z_axis_id",axisid)
         elif zdim in cmor_target.axes[task.target.table]:
             axisid = 0
             axis = cmor_target.axes[task.target.table][zdim]
@@ -313,9 +319,19 @@ def create_hybrid_level_axis(task):
     storewith = cmor.zfactor(zaxis_id = axid,zfactor_name = "ps",axis_ids = [getattr(task,"grid_id"),getattr(task,"time_axis")],units = "Pa")
     return (axid,storewith)
 
+# Creates a soil depth axis
+# TODO: move to some IFS model class
+soil_depth_bounds = [0.0,0.07,0.28,1.0,2.89]
+
+def create_soil_depth_axis(layer,name):
+    vals = [0.5*(soil_depth_bounds[layer] + soil_depth_bounds[layer + 1])]
+    bounds = numpy.empty([1,2])
+    bounds[0,0] = soil_depth_bounds[layer]
+    bounds[0,1] = soil_depth_bounds[layer + 1]
+    return cmor.axis(table_entry = name,coord_vals = vals,cell_bounds = bounds,units = "m")
 
 # Makes a time axis for the given table
-def create_time_axis(freq,path):
+def create_time_axis(freq,path,name):
     command = cdo.Cdo()
     datetimes = []
     times = command.showtimestamp(input = path)[0].split()
@@ -336,17 +352,16 @@ def create_time_axis(freq,path):
         bndvar[1:n,0] = midtimes[:]
         bndvar[0:n-1,1] = midtimes[:]
         bndvar[n-1,1] = 1.5*times[n-1] - 0.5*times[n-2]
-    name = "time"
-    if(freq.endswith("hr")):
-        # TODO: Find the correct condition here...
-        name = "time1"
-    ax_id = cmor.axis(table_entry = name,units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
+    ax_id = cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
     return ax_id
 
+def make_tim_op(task):
+    op = getattr(task.target,"time_operator","mean")
+    return "mean" if op == "point" else op
 # Does the postprocessing of independent tasks
 def postproc(tasks,postprocess=True):
     taskdict = cmor_utils.group(tasks,lambda t:(t.target.frequency,
-                                                getattr(t.target,"time_operator","mean"),
+                                                make_tim_op(t),
                                                 cmor_source.ifs_grid.index(t.source.grid()),
                                                 hasattr(t.source,cmor_source.expression_key)))
     if do_threading:

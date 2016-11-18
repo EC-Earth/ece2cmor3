@@ -38,6 +38,8 @@ dims_key = "dimensions"
 levs_key = "generic_levels"
 cell_measures_key = "cell_measures"
 cell_methods_key = "cell_methods"
+valid_min_key = "valid_min"
+valid_max_key = "valid_max"
 cell_measure_axes = ["time","area","volume","latitude","longitude","depth"]
 
 
@@ -84,7 +86,7 @@ def create_targets_for_file(filepath,prefix):
                             setattr(target,k4.strip() + "_operator",v4.strip())
                     except ValueError:
                         log.error("Could not parse cell measure operators for variable %s in table %s",k,tabid)
-        result.append(target)
+	if(validate_target(target)): result.append(target)
     return result
 
 
@@ -110,3 +112,15 @@ def create_targets(path,prefix):
         return result
     else:
         return []
+
+# Validates a CMOR target, skipping those that do not make any sense
+def validate_target(target):
+    minstr = getattr(target,valid_min_key,"").strip()
+    maxstr = getattr(target,valid_max_key,"").strip()
+    min = float(minstr) if minstr else -float("inf")
+    max = float(maxstr) if maxstr else float("inf")
+    if(min == max):
+        log.error("The target variable %s in table %s has invalid bounds...skipping this target" % (target.variable,target.table))
+        return False
+    return True
+
