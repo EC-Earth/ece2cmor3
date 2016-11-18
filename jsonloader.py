@@ -31,11 +31,7 @@ def load_targets(varlist):
         for table,val in varlist.iteritems():
             varseq = [val] if isinstance(val,basestring) else val
             for v in varseq:
-                target = ece2cmor.get_cmor_target(v,table)
-                if(target):
-                    targetlist.append(target)
-                else:
-                    log.error("Could not find cmor target for variable %s in table %s" % (v,table))
+		add_target(v,table,targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
     create_tasks(targetlist)
@@ -48,12 +44,20 @@ def load_targets_json(varlistfile):
     targets = []
     for tab,var in varlist.iteritems():
         if(isinstance(var,basestring)):
-            targets.append(ece2cmor.get_cmor_target(var,tab))
+	    add_target(var,tab,targets)
         else:
             for v in var:
-                targets.append(ece2cmor.get_cmor_target(v,tab))
+		add_target(v,tab,targets)
     return targets
 
+def add_target(variable,table,targetlist):
+    target = ece2cmor.get_cmor_target(variable,table)
+    if(target): 
+	targetlist.append(target)
+	return True
+    else: 
+	log.error("Could not find cmor target for variable %s in table %s" % (variable,table))
+	return False
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets):

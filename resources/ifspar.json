@@ -72,10 +72,6 @@
         "target": "wap500"
     },
     {
-        "source": "103.128",
-        "target": "tslsi"
-    },
-    {
         "source": "228.128",
         "convert": "vol2flux",
         "target": "pr"

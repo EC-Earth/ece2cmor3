@@ -35,14 +35,14 @@ class ifs2cmor_tests(unittest.TestCase):
         source1 = cmor_source.ifs_source.create(79,128)
         target1 = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
         task1 = cmor_task.cmor_task(source1,target1)
-        source2 = cmor_source.ifs_source.create(32,128)
-        target2 = [t for t in targets if t.variable == "albsn" and t.table == "emDay"][0]
+        source2 = cmor_source.ifs_source.create(164,128)
+        target2 = [t for t in targets if t.variable == "clt" and t.table == "day"][0]
         task2 = cmor_task.cmor_task(source2,target2)
         ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
         ifs2cmor.postproc([task1,task2],False)
         path = os.path.join(os.getcwd(),"ICMGG_day.nc")
         nose.tools.eq_(getattr(task1,"path"),path)
-        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,32,79 ICMGG " + path)
+        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,164,79 ICMGG " + path)
 
     def test_postproc_specmean(self):
         abspath = get_table_path()
@@ -90,7 +90,7 @@ class ifs2cmor_tests(unittest.TestCase):
     def test_postproc_windspeed(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.read("var88 = sqrt(sq(var165) + sq(var166))")
+        source = cmor_source.ifs_source.read("var88 = sqrt(sqr(var165) + sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
         task = cmor_task.cmor_task(source,target)
         ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
@@ -98,12 +98,12 @@ class ifs2cmor_tests(unittest.TestCase):
         path = os.path.join(os.getcwd(),"ICMGG_6hr_expr.nc")
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -selhour,0,6,12,18 -selcode,88 "
-                                                   "-expr,var88 = sqrt(sq(var165) + sq(var166)) -setgridtype,regular -selcode,165,166 ICMGG " + path)
+                                                   "-expr,'var88 = sqrt(sqr(var165) + sqr(var166))' -setgridtype,regular -selcode,165,166 ICMGG " + path)
 
     def test_postproc_maxwindspeed(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.read("var88 = sqrt(sq(var165) + sq(var166))")
+        source = cmor_source.ifs_source.read("var88 = sqrt(sqr(var165) + sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
         ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
@@ -111,4 +111,4 @@ class ifs2cmor_tests(unittest.TestCase):
         path = os.path.join(os.getcwd(),"ICMGG_daymax_expr.nc")
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -daymax -shifttime,-3hours -selcode,88 "
-                                                   "-expr,var88 = sqrt(sq(var165) + sq(var166)) -setgridtype,regular -selcode,165,166 ICMGG " + path)
+                                                   "-expr,'var88 = sqrt(sqr(var165) + sqr(var166))' -setgridtype,regular -selcode,165,166 ICMGG " + path)

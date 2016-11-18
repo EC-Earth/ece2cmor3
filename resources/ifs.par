@@ -178,12 +178,6 @@
   out_name   = "mrsos"
 /
 &parameter
-  param      = 103.128
-  units      = "K"
-  long_name  = "Surface Temperature Where Land or Sea Ice"
-  out_name   = "tslsi"
-/
-&parameter
   param      = 129.128
   units      = "m"
   long_name  = "Geopotential height"
