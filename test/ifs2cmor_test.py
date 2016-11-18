@@ -87,6 +87,18 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -daymax -shifttime,-3hours -setgridtype,regular -selcode,165 ICMGG " + path)
 
+    def test_postproc_tasmax(self):
+        abspath = get_table_path()
+        targets = cmor_target.create_targets(abspath,"CMIP6")
+        source = cmor_source.ifs_source.create(201,128)
+        target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
+        task = cmor_task.cmor_task(source,target)
+        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
+        ifs2cmor.postproc([task],False)
+        path = os.path.join(os.getcwd(),"ICMGG_mon_daymax.nc")
+        nose.tools.eq_(getattr(task,"path"),path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -timmean -daymax -shifttime,-3hours -setgridtype,regular -selcode,201 ICMGG " + path)
+
     def test_postproc_windspeed(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
