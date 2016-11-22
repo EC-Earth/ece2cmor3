@@ -544,13 +544,7 @@
   out_name   = "hus"
 /
 &parameter
-  param      = 226.128
-  units      = "Pa s-1"
-  long_name  = "Omega (=dp/dt)"
-  out_name   = "wap"
-/
-&parameter
-  param      = 227.128
+  param      = 135.128
   units      = "Pa s-1"
   long_name  = "Omega (=dp/dt)"
   out_name   = "wap500"
