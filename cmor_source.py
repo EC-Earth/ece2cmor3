@@ -86,7 +86,7 @@ class ifs_source(cmor_source):
                 log.error("Unknown grib code %d.%d passed to IFS source parameter constructor" % (code.var_id,code.tab_id))
             self.code_ = code
             self.spatial_dims = -1
-            if(code in ifs_source.grib_codes_3D):
+            if(code in ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn):
                 self.grid_ = ifs_grid.spec
                 self.spatial_dims = 3
             else:
