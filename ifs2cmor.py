@@ -210,7 +210,13 @@ def execute_netcdf_task(task):
     else:
         varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes)
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    cmor_utils.netcdf2cmor(varid,ncvar,factor,storevar,get_spvar(sppath))
+    timdim,index = -1,0
+    for d in ncvar.dimensions:
+	if(d.startswith("time")):
+	    timdim = index
+	    break
+	index += 1
+    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
 
 
@@ -337,7 +343,7 @@ def create_time_axis(freq,path,name):
     times = command.showtimestamp(input = path)[0].split()
     datetimes = sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
     if(len(datetimes) == 0):
-        log.error("Empty time step list encountered at time axis creation for files %s" % str(files))
+        log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return;
     timhrs = [(d - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
     n = len(timhrs)

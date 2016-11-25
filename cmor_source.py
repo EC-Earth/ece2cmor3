@@ -73,6 +73,7 @@ class ifs_source(cmor_source):
     grib_codes_2D_dyn = read_grib_codes_group(grib_codes_file,"MFP2DF")
     grib_codes_2D_phy = read_grib_codes_group(grib_codes_file,"MFPPHY")
     grib_codes_extra = read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
+    grib_codes_sh = read_grib_codes_group(grib_codes_file,"ICMSH")
     grib_codes = grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
 
     # Constructor.
@@ -86,12 +87,8 @@ class ifs_source(cmor_source):
                 log.error("Unknown grib code %d.%d passed to IFS source parameter constructor" % (code.var_id,code.tab_id))
             self.code_ = code
             self.spatial_dims = -1
-            if(code in ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn):
-                self.grid_ = ifs_grid.spec
-                self.spatial_dims = 3
-            else:
-                self.grid_ = ifs_grid.point
-                self.spatial_dims = 2
+            self.grid_ = ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
+            self.spatial_dims = 3 if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn) else 2
 
     # Returns the grid.
     def grid(self):

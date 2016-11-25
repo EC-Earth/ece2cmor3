@@ -129,7 +129,7 @@ def execute_netcdf_task(task,dataset,tableid):
     varid=create_cmor_variable(task,dataset,axes)
     ncvar=dataset.variables[task.source.var()]
     factor=get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    cmor_utils.netcdf2cmor(varid,ncvar,factor)
+    cmor_utils.netcdf2cmor(varid,ncvar,0,factor)
     cmor.close(varid)
 
 
