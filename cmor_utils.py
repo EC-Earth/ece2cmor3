@@ -155,17 +155,17 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
         imax = min(i + chunk,times)
         vals = None
         if(dims == 1):
-	    if(timdim < 0):
-		vals = ncvar[:]
-	    elif(timdim == 0):
-            vals = ncvar[i:imax]
+            if(timdim < 0):
+                vals = ncvar[:]
+            elif(timdim == 0):
+                vals = ncvar[i:imax]
         elif(dims == 2):
-	    if(timdim < 0):
-            vals = ncvar[:,:]
-	    elif(timdim == 0):
-            vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
-	    elif(timdim == 1):
-            vals = ncvar[:,i:imax]
+            if(timdim < 0):
+                vals = ncvar[:,:]
+            elif(timdim == 0):
+                vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
+            elif(timdim == 1):
+                vals = ncvar[:,i:imax]
         elif(dims == 3):
             if(timdim < 0):
                 vals = numpy.transpose(ncvar[:,:,:],axes = [1,2,0])
