@@ -158,39 +158,39 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
 	    if(timdim < 0):
 		vals = ncvar[:]
 	    elif(timdim == 0):
-                vals = ncvar[i:imax]
+            vals = ncvar[i:imax]
         elif(dims == 2):
 	    if(timdim < 0):
-            	vals = ncvar[:,:]
+            vals = ncvar[:,:]
 	    elif(timdim == 0):
-		vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
+            vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
 	    elif(timdim == 1):
-		vals = ncvar[:,i:imax]
+            vals = ncvar[:,i:imax]
         elif(dims == 3):
-	    if(timdim < 0):
-		vals = numpy.transpose(ncvar[:,:,:],axes = [1,2,0])
-	    elif(timdim == 0):
+            if(timdim < 0):
+                vals = numpy.transpose(ncvar[:,:,:],axes = [1,2,0])
+            elif(timdim == 0):
             	vals = numpy.transpose(ncvar[i:imax,:,:],axes = [1,2,0])
-	    elif(timdim == 2):
-		vals = ncvar[:,:,i:imax]
-	    else:
-		log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
-		return
+            elif(timdim == 2):
+                vals = ncvar[:,:,i:imax]
+            else:
+                log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
+                return
         elif(dims == 4):
-	    if(timdim == 0):
+            if(timdim == 0):
             	vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [2,3,1,0])
-	    elif(timdim == 3):
-		vals = ncvar[:,:,:,i:imax]
-	    else:
-		log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
-		return
+            elif(timdim == 3):
+                vals = ncvar[:,:,:,i:imax]
+            else:
+                log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
+                return
         else:
             logger.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
         cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - i)))
         if(psvarid and ncpsvar):
-	    if(len(ncpsvar.shape) == 3):
+            if(len(ncpsvar.shape) == 3):
             	spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
-	    elif(len(ncpsvar.shape) == 4):
+            elif(len(ncpsvar.shape) == 4):
             	spvals = numpy.transpose(ncpsvar[i:imax,0,:,:],axes = [1,2,0])
             cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)

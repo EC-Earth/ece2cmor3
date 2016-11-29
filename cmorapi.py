@@ -2,6 +2,8 @@ import os
 import numpy
 import cmor
 
+float cache_size_gb = 4.0
+
 # Wrapper for cmor external dependency. All calls to cmor should go via this class.
 class cmorapi:
 
@@ -94,26 +96,57 @@ class cmorapi:
         if(len(anames) != 0): raise Exception("Combination of axes",axisnames,"could not be converted to valid id's. Axes causing problems are",anames)
         return cmor.variable(table_entry=varname,units=unit,axis_ids=axisids,positive=zdir,original_name=originalname)
 
-# Writes the input array valarray to cmor,
-    def writevals(self,varid,valarray,factor = 1.0,psvarid = None,ncpsvar = None):
-        dims = len(valarray.shape)
-        times = 1 if dims == 2 else valarray.shape[0]
+# Writes the input array valarray to cmor. Returns the number of time slices written
+    @staticmethod
+    def writevals(varid,valarray,time_index = 0,factor = 1.0,store_with = None):
+        times = 1 if time_index < 0 else valarray.shape[time_index]
         size = valarray.size / times
-        chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
+        chunk = int(math.floor(cache_size_gb / (8 * size))) # Use max 4 GB of memory
         for i in range(0,times,chunk):
+            imin = i
             imax = min(i + chunk,times)
-            vals = None
-            if(dims == 1): # We assume a time series here
-                vals = valarray[i:imax] * factor
-            elif(dims == 2): # We assume time constant lat/lon field
-                vals = valarray[:,:] * factor
-            elif(dims == 3): # We assume a time-varying lat/lon field
-                vals = numpy.transpose(valarray[i:imax,:,:],axes = [1,2,0]) * factor
-            elif(dims == 4): # We assume a time-varying volume field.
-                vals = numpy.transpose(valarray[i:imax,:,:,:],axes = [2,3,1,0]) * factor
+            vals = cmorapi.timeslice(valarray,time_index,imin,imax)
+            if(not vals): return i
+            if(store_with == None):
+                cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - imin)))
             else:
-                raise Exception("Arrays of dimensions",dims,"are not supported by ece2cmor")
-                cmor.write(varid,numpy.asfortranarray(vals),ntimes_passed = (imax-i))
-                if(psvarid and ncpsvar):
-                    spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
-                    cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (imax-i),store_with = varid)
+                cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - imin)),store_with = store_with)
+        return times
+
+# Takes the appropriate slices and transposes the resulting array to suitable chunk of data for CMOR
+    @staticmethod
+    def timeslice(valarray,time_index,imin,imax):
+        rank = len(valarray.shape)
+        if(time_index >= rank):
+            log.error("Invalid time index %d assigned to array of rank %d" % (time_index,rank))
+            return None
+        if(rank == 1):
+            if(time_index < 0):
+                return valarray[:]
+            if(time_index == 0):
+                return valarray[imin:imax]
+        if(rank == 2):
+            if(time_index < 0):
+                return valarray[:,:]
+            if(time_index == 0):
+                return numpy.transpose(valarray[imin:imax,:],axes = [1,0])
+            if(time_index == 1):
+                return valarray[:,imin:imax]
+        if(rank == 3):
+            if(time_index < 0):
+                return numpy.transpose(valarray[:,:,:],axes = [1,2,0])
+            if(time_index == 0):
+            	return numpy.transpose(valarray[imin:imax,:,:],axes = [1,2,0])
+            if(time_index == 2):
+                return valarray[:,:,imin:imax]
+            log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
+            return None
+        if(rank == 4):
+            if(time_index == 0):
+            	return numpy.transpose(valarray[imin:imax,:,:,:],axes = [2,3,1,0])
+            if(time_index == 3):
+                return valarray[:,:,:,i:imax]
+            log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % time_index)
+            return None
+        logger.error("Cmorizing arrays of rank %d is not supported" % rank)
+        return None
