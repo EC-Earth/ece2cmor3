@@ -81,9 +81,16 @@ def create_targets_for_file(filepath,prefix):
                     for token in cell_measure_axes:
                         v3 = v3.replace(token + ":","#" + token + ":")
                     try:
-                        d = dict(s.split(":") for s in v3[1:].split("#"))
-                        for k4,v4 in d.iteritems():
-                            setattr(target,k4.strip() + "_operator",v4.strip())
+                        measurelist = v3[1:].split("#")
+                        for measure in measurelist:
+                            words = measure.split(":")
+                            if(len(words) != 2):
+                                log.error("Error parsing cell measures %s for variable %s in table %s" % (v2,k,tabid))
+                            key = words[0].strip() + "_operator"
+                            if(hasattr(target,key)):
+                                getattr(target,key).append(words[1].strip())
+                            else:
+                                setattr(target,key,[words[1].strip()])
                     except ValueError:
                         log.error("Could not parse cell measure operators for variable %s in table %s",k,tabid)
 	if(validate_target(target)): result.append(target)
@@ -123,4 +130,3 @@ def validate_target(target):
         log.error("The target variable %s in table %s has invalid bounds...skipping this target" % (target.variable,target.table))
         return False
     return True
-

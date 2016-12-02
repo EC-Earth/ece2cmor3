@@ -130,41 +130,6 @@ def cmorize(tasks):
             execute_netcdf_task(task)
 
 
-# Utility function for vertical axis selection
-def get_cdo_level_commands(task):
-    axisname = getattr(task,"z_axis",None)
-    if not axisname:
-        return [None,None]
-    if(axisname == "alevel"):
-        return ["selzaxis,hybrid",None]
-    if(axisname == "alevhalf"):
-        raise Exception("Half-level fields are not implemented yet")
-    axisinfos = cmor_target.axes.get(task.target.table,{})
-    axisinfo = axisinfos.get(axisname,None)
-    if(not axisinfo):
-        log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
-        return [None,None]
-    ret = [None,None]
-    oname = axisinfo.get("standard_name",None)
-    if(oname == "air_pressure"):
-        ret[0] = "selzaxis,pressure"
-    elif(oname == "height"):
-        ret[0] = "selzaxis,height"
-    else:
-        log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
-        return [None,None]
-    zlevs = axisinfo.get("requested",[])
-    if(len(zlevs) == 0):
-        val = axisinfo.get("value",None)
-        if(val):
-            zlevs = [val]
-    if(len(zlevs) == 1 and task.source.spatial_dims == 2):
-	return (None,None)
-    if(len(zlevs) > 1):
-        ret[1] = ",".join(["sellevel"] + zlevs)
-    return ret
-
-
 # Executes a single task
 def execute_netcdf_task(task):
     storevar = getattr(task,"store_with",None)
@@ -361,9 +326,15 @@ def create_time_axis(freq,path,name):
     ax_id = cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
     return ax_id
 
+
 def make_tim_op(task):
-    op = getattr(task.target,"time_operator","mean")
-    return "mean" if op == "point" else op
+    op = getattr(task.target,"time_operator",[])
+    if(len(op) == 1): return "mean" if op[0] == "point" else op[0]
+    if(len(op) == 0): return "mean"
+    if(len(op) > 1):
+        log.error("Multiple time operators are not supported yet")
+        return "mean" if op[0] == "point" else op[0]
+
 # Does the postprocessing of independent tasks
 def postproc(tasks,postprocess=True):
     taskdict = cmor_utils.group(tasks,lambda t:(t.target.frequency,
