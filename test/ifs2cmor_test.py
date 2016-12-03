@@ -47,19 +47,19 @@ class ifs2cmor_tests(unittest.TestCase):
     def test_postproc_specmean(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.create(133,128)
+        source = cmor_source.ifs_source.create(130,128)
         target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
         ifs2cmor.ifs_spectral_file_ = "ICMSH"
         ifs2cmor.postproc([task],False)
         path = os.path.join(os.getcwd(),"ICMSH_mon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,133 ICMSH " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,130 ICMSH " + path)
 
     def test_postproc_specgrid(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source1 = cmor_source.ifs_source.create(133,128)
+        source1 = cmor_source.ifs_source.create(130,128)
         target1 = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
         task1 = cmor_task.cmor_task(source1,target1)
         source2 = cmor_source.ifs_source.create(79,128)
@@ -70,7 +70,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postproc([task1,task2],False)
         path1 = os.path.join(os.getcwd(),"ICMSH_mon.nc")
         nose.tools.eq_(getattr(task1,"path"),path1)
-        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,133 ICMSH " + path1)
+        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,130 ICMSH " + path1)
         path2 = os.path.join(os.getcwd(),"ICMGG_day.nc")
         nose.tools.eq_(getattr(task2,"path"),path2)
         nose.tools.eq_(getattr(task2,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,79 ICMGG " + path2)

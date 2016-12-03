@@ -19,7 +19,7 @@ class cmor_source_tests(unittest.TestCase):
         ok_(code in ifs_source.grib_codes_2D_dyn)
 
     def test_specific_humidity(self):
-        code=grib_code(133,128)
+        code=grib_code(135,128)
         src=ifs_source(code)
         eq_(src.grid(),"spec")
         eq_(src.dims(),3)
