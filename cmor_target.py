@@ -76,23 +76,26 @@ def create_targets_for_file(filepath,prefix):
             if(key == dims_key.lower()):
                 target.dims = len([s for s in v2.split() if not s.lower().startswith("time")])
             if(key in [cell_measures_key.lower(),cell_methods_key.lower()]):
-                v3 = v2.strip()
-                if(v3 and v3 != "@OPT" and v3 != "--OPT"):
-                    for token in cell_measure_axes:
-                        v3 = v3.replace(token + ":","#" + token + ":")
-                    try:
-                        measurelist = v3[1:].split("#")
-                        for measure in measurelist:
-                            words = measure.split(":")
-                            if(len(words) != 2):
-                                log.error("Error parsing cell measures %s for variable %s in table %s" % (v2,k,tabid))
-                            key = words[0].strip() + "_operator"
-                            if(hasattr(target,key)):
-                                getattr(target,key).append(words[1].strip())
-                            else:
-                                setattr(target,key,[words[1].strip()])
-                    except ValueError:
-                        log.error("Could not parse cell measure operators for variable %s in table %s",k,tabid)
+                cell_measure_str = v2.strip()
+                if(cell_measure_str not in ["@OPT","--OPT","",None]):
+                    cell_measures = cell_measure_str.split(':')
+                    for i in range(1,len(cell_measures)):
+                        prev_words = cell_measures[i-1].split()
+                        if(len(prev_words) == 0):
+                            log.error("Error parsing cell measures %s for variable %s in table %s" % (v2,k,tabid))
+                            break
+                        measure_dim = prev_words[-1].strip().lower()
+                        if(measure_dim not in cell_measure_axes):
+                            log.error("Error parsing cell measures %s for variable %s in table %s" % (v2,k,tabid))
+                            break
+                        key = measure_dim + "_operator"
+                        value = cell_measures[i].strip().lower()
+                        if(i < len(cell_measures) - 1):
+                            value = ' '.join(value.split(' ')[:-1])
+                        if(hasattr(target,key)):
+                            getattr(target,key).append(value)
+                        else:
+                            setattr(target,key,[value])
 	if(validate_target(target)): result.append(target)
     return result
 

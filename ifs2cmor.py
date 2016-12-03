@@ -185,6 +185,39 @@ def execute_netcdf_task(task):
     cmor.close(varid)
 
 
+# Translates the cmor vertical level post-processing operation to a cdo command-line option
+def get_cdo_level_commands(task):
+    axisname = getattr(task,"z_axis",None)
+    if not axisname:
+        return [None,None]
+    if(axisname == "alevel"):
+        return ["selzaxis,hybrid",None]
+    if(axisname == "alevhalf"):
+        raise Exception("Half-level fields are not implemented yet")
+    axisinfos = cmor_target.axes.get(task.target.table,{})
+    axisinfo = axisinfos.get(axisname,None)
+    if(not axisinfo):
+        log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
+        return [None,None]
+    ret = [None,None]
+    oname = axisinfo.get("standard_name",None)
+    if(oname == "air_pressure"):
+        ret[0] = "selzaxis,pressure"
+    elif(oname == "height"):
+        ret[0] = "selzaxis,height"
+    else:
+        log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
+        return [None,None]
+    zlevs = axisinfo.get("requested",[])
+    if(len(zlevs) == 0):
+        val = axisinfo.get("value",None)
+        if(val): zlevs = [val]
+    if(len(zlevs) == 1 and task.source.spatial_dims == 2):
+	return (None,None)
+    if(len(zlevs) > 1): ret[1] = ",".join(["sellevel"] + zlevs)
+    return ret
+
+
 # Returns the conversion factor from the input string
 def get_conversion_factor(conversion):
     if(not conversion): return 1.0
