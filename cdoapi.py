@@ -13,6 +13,7 @@ class cdo_command:
     spectral_operator     = "sp2gpl"
     gridtype_operator     = "setgridtype"
     select_z_operator     = "selzaxis"
+    select_lev_operator   = "sellevel"
     min_time_operators    = {"day":"daymin","mon":"monmin"}
     max_time_operators    = {"day":"daymax","mon":"monmax"}
     mean_time_operators   = {"day":"daymean","mon":"monmean"}
@@ -31,9 +32,9 @@ class cdo_command:
     modellevel            = "hybrid"
 
     # Optimized operator ordering for CDO:
-    operator_ordering = [mean_time_operators[month],min_time_operators[month],max_time_operators[month],
-                         mean_time_operators[day],min_time_operators[day],max_time_operators[day],
-                         expression_operator,spectral_operator,gridtype_operator,select_z_operator,
+    operator_ordering = [mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
+                         mean_time_operators[day],min_time_operators[day],max_time_operators[day],\
+                         expression_operator,spectral_operator,gridtype_operator,select_lev_operator,select_z_operator,\
                          select_hour_operator,select_day_operator,select_month_operator,select_code_operator]
 
     # Constructor
