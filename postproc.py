@@ -6,16 +6,17 @@ import cmor_target
 
 # Creates a cdo postprocessing command for the given IFS task.
 def create_command(task):
-    if(not isinstance(cmor_source.ifs_source,task.source)):
+    if(not isinstance(task.source,cmor_source.ifs_source)):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
-    result = cdo_command(code = task.source.get_grib_code().var_id)
-    if(task.source.grid() == cmor_source.ifs_grid.spec):
-        result.add_operator(cdoapi.spectral_operator)
+    expr = getattr(task.source,cmor_source.expression_key,None)
+    result = cdoapi.cdo_command() if expr else cdoapi.cdo_command(code = task.source.get_grib_code().var_id)
+    if(task.source.grid() == cmor_source.ifs_grid[cmor_source.ifs_grid.spec]):
+        result.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        result.add_operator(cdoapi.gridtype_operator,cdoapi.regular_grid_type)
-    expr = task.source.getattr(cmor_source.expression_key,None)
+        result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
     if(expr):
-        result.add_operator(cdoapi.expression_operator,expr)
+        result.add_operator(cdoapi.cdo_command.expression_operator,expr)
+        result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     freq = task.target.frequency
     timops = getattr(task.target,"time_operator",["point"])
     add_time_operators(result,freq,timops)
@@ -33,17 +34,17 @@ def add_time_operators(cdo,freq,operators):
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
             return
-        if(operator == ["maximum"]):
+        if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
             return
-        if(operator == ["minimum"]):
+        if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
             return
-        if(operator == ["maximum within days","mean over days"]):
+        if(operators == ["maximum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
             return
-        if(operator == ["minimum within days","mean over days"]):
+        if(operators == ["minimum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
             return
@@ -54,10 +55,10 @@ def add_time_operators(cdo,freq,operators):
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
             return
-        if(operator == ["maximum"]):
+        if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
             return
-        if(operator == ["minimum"]):
+        if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             return
     if(freq == "6hr"):
@@ -70,7 +71,7 @@ def add_time_operators(cdo,freq,operators):
 
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
-def get_cdo_level_commands(cdo,task):
+def add_level_operators(cdo,task):
     axisname = getattr(task,"z_axis",None)
     if not axisname:
         return
