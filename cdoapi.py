@@ -41,19 +41,23 @@ class cdo_command:
     def __init__(self,code = 0):
         self.operators = {}
         if(code > 0):
-            add_operator(select_code_operator,code)
+            self.add_operator(cdo_command.select_code_operator,code)
 
     # Adds an operator
     def add_operator(self,operator,*args):
         if(operator in cdo_command.operator_ordering):
-            self.operators[operator] = list(*args)
+            addedargs = ["'" + a + "'" for a in args] if operator == cdo_command.expression_operator else list(args)
+            if(operator not in self.operators):
+                self.operators[operator] = addedargs
+            else:
+                self.operators[operator].extend(addedargs)
         else:
             log.error("Unknown operator was rejected: ",operator)
 
     # Creates a command string from the given data
     def create_command(self):
-        keys = cdo_command.optimize_order(self.operators.keys.sort(key=lambda k: cdo_command.operator_ordering.index(k)))
-        return " -".join([make_option(k,self.operators[k]) for k keys])
+        keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
+        return " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys])
 
     # Applies the command to the given input, to produce the output file ofile. If not given, the method returns a netcdf array.
     def apply(self,ifile,ofile = None,threads = 4):
@@ -63,6 +67,11 @@ class cdo_command:
             app.copy(input = self.create_command() + " " + ifile,output = ofile,options = "-f nc" + threadopstr)
             return ofile
         return app.copy(input = self.create_command() + " " + ifile,returnCdf = True,options = threadopstr).variables
+
+    @staticmethod
+    def make_option(key,args):
+        option = "-" + key
+        return (option + "," + ",".join([str(a) for a in args])) if any(args) else option
 
     # Reshuffles operator ordering to increase performance
     @staticmethod
@@ -74,3 +83,5 @@ class cdo_command:
         while(i > 0):
             if(oplist[i-1] in nonlinear_operators): break
             oplist[i-1],oplist[i] = oplist[i],oplist[i-1]
+            i-=1
+        return oplist
