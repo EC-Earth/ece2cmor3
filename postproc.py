@@ -1,4 +1,7 @@
 import logging
+import threading
+import os
+import Queue
 import cdoapi
 import cmor_source
 import cmor_target
@@ -12,7 +15,7 @@ def post_process(tasks,path):
     comdict = {}
     commbuf = {}
     for task in tasks:
-        command = create_command(tasks)
+        command = create_command(task)
         commstr = command.create_command()
         if(commstr not in commbuf):
             commbuf[commstr] = command
@@ -22,11 +25,11 @@ def post_process(tasks,path):
             comdict[command].append(task)
         else:
             comdict[command] = [task]
-    for (comm,tasklist) in comdict:
+    for comm,tasklist in comdict.iteritems():
         if(not validate_tasklist(tasklist)):
             comdict.pop(comm)
     if(task_threads <= 2):
-        for (comm,tasklist) in comdict:
+        for comm,tasklist in comdict.iteritems():
             apply_command((comm,tasklist),path)
     else:
         q = Queue.Queue()
@@ -80,7 +83,9 @@ def apply_command(tup,basepath):
     if(not tasklist):
         log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
     ifile = getattr(tasklist[0],"path")
-    ofile = "_".join(basepath,tasklist[0].target.variable,tasklist[0].target.table) + ".nc"
+    ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc")
+    for task in tasklist:
+        setattr(task,"cdo_command",command.create_command())
     if(apply_cdo):
         command.apply(ifile,ofile,cdo_threads)
     for task in tasklist:

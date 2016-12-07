@@ -136,7 +136,7 @@ class ifs_source(cmor_source):
 
     # Creates in instance from the input codes.
     @classmethod
-    def create(cls,vid,tid):
+    def create(cls,vid,tid = 128):
         cls = ifs_source(grib_code(vid,tid))
         return cls
 

@@ -3,8 +3,6 @@ import logging
 import itertools
 import numpy
 import datetime
-import threading
-import Queue
 import dateutil.relativedelta
 import netCDF4
 import cdo
@@ -13,6 +11,7 @@ import cmor_utils
 import cmor_source
 import cmor_target
 import cmor_task
+import postproc
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -42,12 +41,6 @@ temp_dir_ = os.getcwd()
 # Reference date, times will be converted to hours since refdate
 # TODO: set in init
 ref_date_ = None
-
-# Number of postprocessing task threads:
-num_pp_threads = 4
-
-# Determines whether to process cdo tasks in parallelize
-do_threading = True
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.relativedelta.relativedelta(month=1),tempdir=None):
@@ -83,31 +76,67 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.rel
 
 
 # Execute the postprocessing+cmorization tasks
-def execute(tasks,postprocess=True):
-    log.info("Executing %d IFS tasks..." % len(tasks))
-    log.info("Post-processing IFS tasks...")
-    postproc(tasks,postprocess)
-    cmor.load_table(table_root_ + "_grids.json")
-    gridid = create_grid_from_grib(getattr(tasks[0],"path"))
-    filteredtasks = []
+def execute(tasks):
+    supportedtasks = filter_tasks(tasks)
+    log.info("Executing %d IFS tasks..." % len(supportedtasks))
+    postprocess(supportedtasks)
+    log.info("Cmorizing IFS tasks...")
+    cmorize(supportedtasks)
+
+
+# Creates a sub-list of tasks that we believe we can succesfully process
+def filter_tasks(tasks):
+    result = []
     for task in tasks:
         tgtdims=getattr(task.target,cmor_target.dims_key).split()
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
         if(haslat and haslon):
-            setattr(task,"grid_id",gridid)
-            filteredtasks.append(task)
+            result.append(task)
         elif(haslat or haslon):
             # TODO: Support meriodinal variables
             log.error("Variable %s has unsupported combination of dimensions %s and will be skipped." % (task.target.variable,tgtdims))
         else:
-            filteredtasks.append(task)
-    log.info("Cmorizing IFS tasks...")
-    cmorize(filteredtasks)
+            result.append(task)
+    return result
+
+
+# Postprocessing of IFS tasks
+def postprocess(tasks):
+    log.info("Post-processing IFS tasks...")
+    for task in tasks:
+        setattr(task,"path",ifs_spectral_file_ if task.source.grid() == cmor_source.ifs_grid[cmor_source.ifs_grid.spec] else ifs_gridpoint_file_)
+    postproc.post_process(tasks,temp_dir_)
+    log.info("Post-processing surface pressures...")
+    tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
+    sptasks = []
+    for freq,taskgroup in tasksbyfreq.iteritems():
+        if(not any("alevel" in getattr(t.target,cmor_target.dims_key).split() for t in taskgroup)): continue
+        spsource = cmor_source.ifs_source.create(134)
+        sptarget = cmor_target()
+        sptarget.variable,sptarget.frequency = "sp",freq
+        setattr(sptarget,"table",freq)
+        sptask = cmor_task.cmor_task(spsource,sptarget)
+        setattr(sptask,"time_operator",["mean"])
+        setattr(sptask,"path",ifs_spectral_file_)
+        sptasks.append(sptask)
+    postproc.post_process(sptasks,temp_dir_)
+    i = -1
+    for freq,taskgroup in tasksbyfreq.iteritems():
+        i = i + 1
+        for task in taskgroup:
+            if("alevel" in getattr(task.target,cmor_target.dims_key).split()):
+                setattr(task,"sp_path",getattr(sptasks[i],"path"))
 
 
 # Do the cmorization tasks
 def cmorize(tasks):
+    cmor.load_table(table_root_ + "_grids.json")
+    gridid = create_grid_from_grib(getattr(tasks[0],"path"))
+    for task in tasks:
+        tgtdims = getattr(task.target,cmor_target.dims_key).split()
+        if("latitude" in tgtdims and "longitude" in tgtdims):
+            setattr(task,"grid_id",gridid)
     taskdict=cmor_utils.group(tasks,lambda t:t.target.table)
     for k,v in taskdict.iteritems():
         tab = k
@@ -183,39 +212,6 @@ def execute_netcdf_task(task):
 	index += 1
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
-
-
-# Translates the cmor vertical level post-processing operation to a cdo command-line option
-def get_cdo_level_commands(task):
-    axisname = getattr(task,"z_axis",None)
-    if not axisname:
-        return [None,None]
-    if(axisname == "alevel"):
-        return ["selzaxis,hybrid",None]
-    if(axisname == "alevhalf"):
-        raise Exception("Half-level fields are not implemented yet")
-    axisinfos = cmor_target.axes.get(task.target.table,{})
-    axisinfo = axisinfos.get(axisname,None)
-    if(not axisinfo):
-        log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
-        return [None,None]
-    ret = [None,None]
-    oname = axisinfo.get("standard_name",None)
-    if(oname == "air_pressure"):
-        ret[0] = "selzaxis,pressure"
-    elif(oname == "height"):
-        ret[0] = "selzaxis,height"
-    else:
-        log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
-        return [None,None]
-    zlevs = axisinfo.get("requested",[])
-    if(len(zlevs) == 0):
-        val = axisinfo.get("value",None)
-        if(val): zlevs = [val]
-    if(len(zlevs) == 1 and task.source.spatial_dims == 2):
-	return (None,None)
-    if(len(zlevs) > 1): ret[1] = ",".join(["sellevel"] + zlevs)
-    return ret
 
 
 # Returns the conversion factor from the input string
@@ -360,68 +356,6 @@ def create_time_axis(freq,path,name):
     return ax_id
 
 
-def make_tim_op(task):
-    op = getattr(task.target,"time_operator",[])
-    if(len(op) == 1): return "mean" if op[0] == "point" else op[0]
-    if(len(op) == 0): return "mean"
-    if(len(op) > 1):
-        log.error("Multiple time operators are not supported yet")
-        return "mean" if op[0] == "point" else op[0]
-
-# Does the postprocessing of independent tasks
-def postproc(tasks,postprocess=True):
-    taskdict = cmor_utils.group(tasks,lambda t:(t.target.frequency,
-                                                make_tim_op(t),
-                                                cmor_source.ifs_grid.index(t.source.grid()),
-                                                hasattr(t.source,cmor_source.expression_key)))
-    if do_threading:
-        numthreads = 4
-        q = Queue.Queue()
-        for i in range(numthreads):
-            worker = threading.Thread(target = ppcdo_worker,args = (q,postprocess))
-            worker.setDaemon(True)
-            worker.start()
-        for (k,v) in taskdict.iteritems():
-            q.put((v,k[0],k[1],k[2],k[3]))
-        q.join()
-    else:
-        for (k,v) in taskdict.iteritems():
-            ppcdo(v,k[0],k[1],k[2],k[3],postprocess)
-    postprocsp(tasks,postprocess)
-
-def ppcdo_worker(q,postprocess):
-    ppcdoargs = q.get()
-    ppcdo(ppcdoargs[0],ppcdoargs[1],ppcdoargs[2],ppcdoargs[3],ppcdoargs[4],postprocess)
-    q.task_done()
-
-# Does the postprocessing of surface pressure co-variable
-def postprocsp(tasks,postprocess=True):
-    tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
-    for freq,taskgroup in tasksbyfreq.iteritems():
-        if(not any("alevel" in getattr(t.target,cmor_target.dims_key).split() for t in taskgroup)): continue
-        sptasks = [t for t in taskgroup if hasattr(t,"sp_path")]
-        sppath = None
-        if(len(sptasks) != 0):
-            sppath = getattr(sptasks[0],"sp_path")
-        else:
-            timop = "point" if freq in ["3hr","6hr"] else "mean"
-            timops = get_cdo_timop(freq,timop)
-            opstr = chain_cdo_commands(timops[0],timops[1],"selcode,134")
-            sppath = os.path.join(temp_dir_,"ICMSH_134_" + freq + ".nc")
-            if(postprocess):
-                command = cdo.Cdo()
-                try:
-                    command.sp2gpl(input = opstr + ifs_spectral_file_,output = sppath,options = "-P 4 -f nc")
-                except Exception:
-                    log.error("CDO failed to extract surface pressure from input spectral data file %s" % ifs_spectral_file_)
-        if(not get_spvar(sppath)):
-            sppath = None
-        if(not sppath):
-            log.warning("No surface pressure found in input data, you won't be able to cmorize model level data")
-        for task in taskgroup:
-            setattr(task,"sp_path",sppath)
-
-
 # Surface pressure variable lookup utility
 def get_spvar(ncpath):
     if(not ncpath):
@@ -438,100 +372,6 @@ def get_spvar(ncpath):
         return None
     except:
         return None
-
-
-# Does splitting of files according to frequency and remaps the grids.
-# TODO: Add selmon...
-def ppcdo(tasks,freq,timop,grid,isexpr,callcdo = True):
-    log.info("Post-processing IFS tasks with frequency %s on the %s grid" % (freq,cmor_source.ifs_grid[grid]))
-    if(len(tasks) == 0):
-        return
-    timops = get_cdo_timop(freq,timop)
-    gcodes = []
-    for task in tasks: gcodes.extend(task.source.get_root_codes())
-    varids = list(set(map(lambda c:c.var_id,gcodes)))
-    sel_op = "selcode," + (",".join(map(lambda i:str(i),varids)))
-    sel_op2 = "selcode," + (",".join(map(lambda i:str(i),set([t.source.get_grib_code().var_id for t in tasks])))) if isexpr else None
-    command = cdo.Cdo()
-    freqstr = freq if(timop in ["mean","point"]) else timops[0]
-    exprstr = "_expr" if isexpr else ""
-    cdoexpr = None
-    if isexpr:
-        exprdict = {}
-        for t in tasks:
-            vid = t.source.get_grib_code().var_id
-	    expr = getattr(t.source,cmor_source.expression_key)
-	    if(vid in exprdict):
-	        if(expr != exprdict[vid]):
-		    log.warning("Different expressions for the same variable encountered: var%d is assigned to %s and %s. Will choose the former." % (vid,exprdict[vid],expr))
-		continue
-	    else:
-		exprdict[vid] = expr
-	cdoexpr = "expr," + "'" + ";".join([v for k,v in exprdict.iteritems()]) + "'"
-    comstr = None
-    if(grid == cmor_source.ifs_grid.point):
-        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")
-        opstr = None
-        if(timop == "mean" and not isexpr):
-            opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
-        else:
-            opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
-        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
-        for task in tasks:
-            log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-        if(callcdo):
-            command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
-    else:
-        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
-        if(timop == "mean" and not isexpr):
-            opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
-            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
-            for task in tasks:
-                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-            if(callcdo):
-                command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-        else:
-            opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
-            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
-            for task in tasks:
-                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-            if(callcdo):
-                command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-    for task in tasks:
-        setattr(task,"path",ofile)
-        setattr(task,"cdo_command",comstr)
-        if(134 in varids):
-            setattr(task,"sp_path",ofile)
-
-
-# Helper function for cdo time operator commands
-# TODO: find out about the time shifts
-# TODO: fix this mess with instantaneous sampling
-def get_cdo_timop(freq,timop):
-    cdoop = timop[0:3] if timop in ["maximum","minimum"] else timop
-    if(freq == "mon"):
-        return ("mon" + cdoop,"shifttime,-3hours")
-    elif(freq == "day"):
-        return ("day" + cdoop,"shifttime,-3hours")
-    elif(freq == "6hr"):
-        if(cdoop in ["point","mean"]): return ("selhour,0,6,12,18",None)
-    elif(freq == "3hr" or freq == "1hr"):
-        if(cdoop in ["point","mean"]): return (None,None)
-    raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
-
-
-# Utility to chain cdo commands
-#TODO: move to cdo_utils and add input file argument
-def chain_cdo_commands(*args):
-    op = ""
-    if(len(args) == 0): return op
-    for arg in args:
-        if(arg == None or arg == ""): continue
-        if(isinstance(arg,list)):
-            for s in arg: op += (" -" + str(s))
-        else:
-            op += (" -" + str(arg))
-    return op + " "
 
 
 # Retrieves all IFS output files in the input directory.

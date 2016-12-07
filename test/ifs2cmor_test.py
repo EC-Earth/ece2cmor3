@@ -8,6 +8,7 @@ import cmor_source
 import cmor_target
 import cmor_task
 import ifs2cmor
+import postproc
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -23,11 +24,11 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(79,128)
         target = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMGG_day.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"clwvi_cfDay.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,79 ICMGG " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
 
     def test_postproc_gridmeans(self):
         abspath = get_table_path()
@@ -38,11 +39,11 @@ class ifs2cmor_tests(unittest.TestCase):
         source2 = cmor_source.ifs_source.create(164,128)
         target2 = [t for t in targets if t.variable == "clt" and t.table == "day"][0]
         task2 = cmor_task.cmor_task(source2,target2)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task1,task2],False)
-        path = os.path.join(os.getcwd(),"ICMGG_day.nc")
-        nose.tools.eq_(getattr(task1,"path"),path)
-        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,164,79 ICMGG " + path)
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task1,task2])
+        path = os.path.join(os.getcwd(),"clt_day.nc")
+        nose.tools.eq_(getattr(task2,"path"),path)
+        nose.tools.eq_(getattr(task1,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
 
     def test_postproc_specmean(self):
         abspath = get_table_path()
@@ -50,11 +51,11 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(130,128)
         target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_spectral_file_ = "ICMSH"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMSH_mon.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"ta_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,130 ICMSH " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-sp2gpl -monmean -selcode,130")
 
     def test_postproc_specgrid(self):
         abspath = get_table_path()
@@ -65,15 +66,10 @@ class ifs2cmor_tests(unittest.TestCase):
         source2 = cmor_source.ifs_source.create(79,128)
         target2 = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
         task2 = cmor_task.cmor_task(source2,target2)
-        ifs2cmor.ifs_spectral_file_ = "ICMSH"
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task1,task2],False)
-        path1 = os.path.join(os.getcwd(),"ICMSH_mon.nc")
-        nose.tools.eq_(getattr(task1,"path"),path1)
-        nose.tools.eq_(getattr(task1,"cdo_command"),"cdo -P 4 -f nc sp2gpl -monmean -shifttime,-3hours -selcode,130 ICMSH " + path1)
-        path2 = os.path.join(os.getcwd(),"ICMGG_day.nc")
-        nose.tools.eq_(getattr(task2,"path"),path2)
-        nose.tools.eq_(getattr(task2,"cdo_command"),"cdo -P 4 -f nc copy -setgridtype,regular -daymean -shifttime,-3hours -selcode,79 ICMGG " + path2)
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task1,task2])
+        nose.tools.eq_(getattr(task1,"cdo_command"),"-sp2gpl -monmean -selcode,130")
+        nose.tools.eq_(getattr(task2,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
@@ -81,11 +77,11 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(165,128)
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMGG_daymax.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -daymax -shifttime,-3hours -setgridtype,regular -selcode,165 ICMGG " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -setgridtype,regular -selcode,165")
 
     def test_postproc_tasmax(self):
         abspath = get_table_path()
@@ -93,34 +89,32 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(201,128)
         target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMGG_mon_daymax.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"tasmax_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -timmean -daymax -shifttime,-3hours -setgridtype,regular -selcode,201 ICMGG " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -selcode,201")
 
     def test_postproc_windspeed(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.read("var88 = sqrt(sqr(var165) + sqr(var166))")
+        source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMGG_6hr_expr.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"sfcWind_6hrPlevpt.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -selhour,0,6,12,18 -selcode,88 "
-                                                   "-expr,'var88 = sqrt(sqr(var165) + sqr(var166))' -setgridtype,regular -selcode,165,166 ICMGG " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selhour,0,6,12,18 -selcode,165,166")
 
     def test_postproc_maxwindspeed(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.read("var88 = sqrt(sqr(var165) + sqr(var166))")
+        source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
-        ifs2cmor.ifs_gridpoint_file_ = "ICMGG"
-        ifs2cmor.postproc([task],False)
-        path = os.path.join(os.getcwd(),"ICMGG_daymax_expr.nc")
+        postproc.apply_cdo = False
+        ifs2cmor.postprocess([task])
+        path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"cdo -P 4 -f nc copy -daymax -shifttime,-3hours -selcode,88 "
-                                                   "-expr,'var88 = sqrt(sqr(var165) + sqr(var166))' -setgridtype,regular -selcode,165,166 ICMGG " + path)
+        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selcode,165,166")
