@@ -85,7 +85,9 @@ def apply_command(tup,basepath):
     ifile = getattr(tasklist[0],"path")
     ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc")
     for task in tasklist:
-        setattr(task,"cdo_command",command.create_command())
+        commstr = command.create_command()
+        log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
+        setattr(task,"cdo_command",commstr)
     if(apply_cdo):
         command.apply(ifile,ofile,cdo_threads)
     for task in tasklist:

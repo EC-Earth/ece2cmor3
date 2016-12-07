@@ -7,6 +7,7 @@ import cmor_target
 import cmor_task
 import nemo2cmor
 import ifs2cmor
+import postproc
 
 # Logger instance
 log = logging.getLogger(__name__)
