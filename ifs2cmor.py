@@ -37,6 +37,7 @@ output_freq_ = 3
 
 # Fast storage temporary path
 temp_dir_ = os.getcwd()
+tempdir_created_ = False
 
 # Reference date, times will be converted to hours since refdate
 # TODO: set in init
@@ -50,6 +51,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.rel
     global ifs_spectral_file_
     global output_interval
     global temp_dir_
+    global tempdir_created_
     global ref_date_
     global start_date_
 
@@ -70,6 +72,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.rel
     if(tempdir):
         if(not os.path.exists(tempdir)):
             os.makedirs(tempdir)
+            tempdir_created_ = True
         temp_dir_ = tempdir
     #TODO: set after conversion to netcdf
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
@@ -82,6 +85,18 @@ def execute(tasks):
     postprocess(supportedtasks)
     log.info("Cmorizing IFS tasks...")
     cmorize(supportedtasks)
+
+
+# Deletes all temporary paths and removes temp directory
+def cleanup(tasks):
+    for task in tasks:
+        ncpath = getattr(task,"path",None)
+        if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):
+            os.remove(ncpath)
+        delattr(task,"path")
+    if(tempdir_created_ and len(os.listdir(temp_dir_)) == 0):
+        os.rmdir(temp_dir_)
+        temp_dir_=None
 
 
 # Creates a sub-list of tasks that we believe we can succesfully process
