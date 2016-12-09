@@ -66,6 +66,7 @@ def convert_varlist(inputfile):
     ifsfile = os.path.basename(inputfile) + "_atm.json"
     with open(ifsfile,'w') as ofile:
         json.dump(ifsdict,ofile,indent = 4,separators = (',', ': '))
+    logging.info("File %s written" % ifsfile)
 
 
 # Main program

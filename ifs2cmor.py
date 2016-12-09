@@ -113,7 +113,7 @@ def postprocess(tasks):
     for freq,taskgroup in tasksbyfreq.iteritems():
         if(not any("alevel" in getattr(t.target,cmor_target.dims_key).split() for t in taskgroup)): continue
         spsource = cmor_source.ifs_source.create(134)
-        sptarget = cmor_target()
+        sptarget = cmor_target.cmor_target()
         sptarget.variable,sptarget.frequency = "sp",freq
         setattr(sptarget,"table",freq)
         sptask = cmor_task.cmor_task(spsource,sptarget)

@@ -38,7 +38,7 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    jsonloader.load_targets("primavera_atm.json")
+    jsonloader.load_targets("varlist.json")
 
     # Execute the cmorization:
     ece2cmor.perform_ifs_tasks()
