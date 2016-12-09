@@ -76,7 +76,7 @@ def perform_ifs_tasks(applycdo=True,tempdir=None,taskthreads=4,cdothreads=4):
     ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,tempdir=tempdir)
     postproc.apply_cdo = applycdo
     postproc.cdo_threads = cdothreads
-    postproc.task_threads = task_threads
+    postproc.task_threads = taskthreads
     ifs2cmor.execute(ifs_tasks)
 
 # Performs a NEMO cmorization processing:

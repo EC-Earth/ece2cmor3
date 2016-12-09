@@ -6,8 +6,14 @@ import cdoapi
 import cmor_source
 import cmor_target
 
+# Log object
+log = logging.getLogger(__name__)
+
+# Threading parameters
 task_threads = 1
 cdo_threads = 4
+
+# Flag to control whether to execute cdo.
 apply_cdo = True
 
 # Post-processes a list of tasks
@@ -30,14 +36,14 @@ def post_process(tasks,path):
             comdict.pop(comm)
     if(task_threads <= 2):
         for comm,tasklist in comdict.iteritems():
-            apply_command((comm,tasklist),path)
+            apply_command(comm,tasklist,path)
     else:
         q = Queue.Queue()
-        for i in range(numthreads):
-            worker = threading.Thread(target = apply_command,args = (q,basepath))
+        for i in range(task_threads):
+            worker = threading.Thread(target = cdo_worker,args = (q,path))
             worker.setDaemon(True)
             worker.start()
-        for (comm,tasklist) in comdict:
+        for (comm,tasklist) in comdict.iteritems():
             q.put((comm,tasklist))
         q.join()
 
@@ -48,9 +54,9 @@ def validate_tasklist(tasks):
         log.error("Multiple grib codes joined to single cdo command: %s" % str(srcset))
         return False
     tgtset = set(map(lambda t:t.target.variable,tasks))
-    if(len(tgtset) != 1):
-        log.error("Multiple target variables joined to single cdo command: %s" % str(tgtset))
-        return False
+#    if(len(tgtset) != 1):
+#        log.error("Multiple target variables joined to single cdo command: %s" % str(tgtset))
+#        return False
     freqset = set(map(lambda t:t.target.frequency,tasks))
     if(len(freqset) != 1):
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
@@ -76,10 +82,15 @@ def create_command(task):
     add_level_operators(result,task)
     return result
 
+def cdo_worker(q,basepath):
+    while True:
+        args = q.get()
+        apply_command(args[0],args[1],basepath)
+        q.task_done()
+
 # Executes the command (first item of tup), and replaces the path attribute for all tasks in the tasklist (2nd item of tup)
 # to the output of cdo. This path is constructed from the basepath and the first task.
-def apply_command(tup,basepath):
-    command,tasklist = tup[0],tup[1]
+def apply_command(command,tasklist,basepath):
     if(not tasklist):
         log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
     ifile = getattr(tasklist[0],"path")
