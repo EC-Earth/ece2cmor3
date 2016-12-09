@@ -69,3 +69,12 @@ class ifs2cmor_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selcode,165,166")
+
+    def test_postproc_wap500(self):
+        abspath = get_table_path()
+        targets = cmor_target.create_targets(abspath,"CMIP6")
+        source = cmor_source.ifs_source.create(135,128)
+        target = [t for t in targets if t.variable == "wap500" and t.table == "cfDay"][0]
+        task = cmor_task.cmor_task(source,target)
+        command = postproc.create_command(task)
+        nose.tools.eq_(command.create_command(),"-daymean -selcode,135 -sellevel,500 -selzaxis,pressure")

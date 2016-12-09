@@ -54,6 +54,7 @@ def create_targets_for_file(filepath,prefix):
         log.warning("Input table %s has been ignored. Reason: %s" % (filepath,format(err)))
         return result
     freq = None
+    realm = None
     header = get_lowercase(data,head_key,None)
     modlevs = None
     if(header):
