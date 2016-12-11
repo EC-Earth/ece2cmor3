@@ -6,6 +6,7 @@ import logging
 # Log object.
 log = logging.getLogger(__name__)
 
+
 # Axes information read from tables.
 axes = {}
 
@@ -75,7 +76,11 @@ def create_targets_for_file(filepath,prefix):
             key = k2.lower()
             setattr(target,key,v2)
             if(key == dims_key.lower()):
-                target.dims = len([s for s in v2.split() if not s.lower().startswith("time")])
+                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - set(["basin"]))
+                target.dims = len(spacedims)
+                zdims = list(set(spacedims)-set(["latitude","longitude"]))
+                if(any(zdims)):
+                    setattr(target,"z_dims",zdims)
             if(key in [cell_measures_key.lower(),cell_methods_key.lower()]):
                 cell_measure_str = v2.strip()
                 if(cell_measure_str not in ["@OPT","--OPT","",None]):

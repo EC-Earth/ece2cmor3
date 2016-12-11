@@ -152,9 +152,12 @@ def add_time_operators(cdo,freq,operators):
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo,task):
-    axisname = getattr(task,"z_axis",None)
-    if not axisname:
-        return
+    if(task.source.spatial_dims == 2): return
+    zdims = getattr(task.target,"z_dims",[])
+    if(len(zdims) == 0): return
+    if(len(zdims) > 1):
+        log.error("Multiple level dimensions in table %s are not supported by this post-processing software",(task.target.table))
+    axisname = zdims[0]
     if(axisname == "alevel"):
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
     if(axisname == "alevhalf"):
@@ -177,7 +180,7 @@ def add_level_operators(cdo,task):
     if(len(zlevs) == 0):
         val = axisinfo.get("value",None)
         if(val): zlevs = [val]
-    if(len(zlevs) == 1 and task.source.spatial_dims == 2):
-        return
-    if(len(zlevs) > 1):
-        cdo.add_operator(cdoapi.cdo_command.select_lev_operator,zlevs)
+    if(len(zlevs) > 0):
+        if(oname == "air_pressure"):
+            zlevs = [int(0.01*float(p)) for p in zlevs] # convert to hPa
+        cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)

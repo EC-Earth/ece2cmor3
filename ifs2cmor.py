@@ -263,13 +263,12 @@ def create_depth_axes(tasks):
     for task in tasks:
         tgtdims = getattr(task.target,cmor_target.dims_key)
         #TODO: Use table axes information to extract vertical axes
-        zdims = list(set(tgtdims.split())-set(["latitude","longitude","time","time1","time2","time3"]))
+        zdims = getattr(task.target,"z_dims")
         if(len(zdims) == 0): continue
         if(len(zdims) > 1):
             log.error("Skipping variable %s in table %s with dimensions %s with multiple directions." % (task.target.variable,task.target.table,tgtdims))
             continue
         zdim = str(zdims[0])
-        setattr(task,"z_axis",zdim)
         if zdim in depth_axes:
             setattr(task,"z_axis_id",depth_axes[zdim])
             if(zdim == "alevel"):

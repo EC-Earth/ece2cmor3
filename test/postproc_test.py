@@ -28,11 +28,11 @@ class ifs2cmor_tests(unittest.TestCase):
     def test_postproc_specmean(self):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
-        source = cmor_source.ifs_source.create(130,128)
-        target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
+        source = cmor_source.ifs_source.create(131,128)
+        target = [t for t in targets if t.variable == "ua" and t.table == "cfDay"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-sp2gpl -monmean -selcode,130")
+        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -selcode,131")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
@@ -77,4 +77,4 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "wap500" and t.table == "cfDay"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-daymean -selcode,135 -sellevel,500 -selzaxis,pressure")
+        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -sellevel,500 -selzaxis,pressure -selcode,135")

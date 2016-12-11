@@ -55,21 +55,8 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"ta_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-sp2gpl -monmean -selcode,130")
-
-    def test_postproc_specgrid(self):
-        abspath = get_table_path()
-        targets = cmor_target.create_targets(abspath,"CMIP6")
-        source1 = cmor_source.ifs_source.create(130,128)
-        target1 = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
-        task1 = cmor_task.cmor_task(source1,target1)
-        source2 = cmor_source.ifs_source.create(79,128)
-        target2 = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
-        task2 = cmor_task.cmor_task(source2,target2)
-        postproc.apply_cdo = False
-        ifs2cmor.postprocess([task1,task2])
-        nose.tools.eq_(getattr(task1,"cdo_command"),"-sp2gpl -monmean -selcode,130")
-        nose.tools.eq_(getattr(task2,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-sp2gpl -monmean -sellevel,1000,925,850,700,600,500,400,300,250,200,150,100,70,50,30,20,10,5,1 "
+                                                   "-selzaxis,pressure -selcode,130")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
