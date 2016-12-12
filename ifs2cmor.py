@@ -193,14 +193,9 @@ def execute_netcdf_task(task):
         axes.append(time_id)
     filepath = getattr(task,"path")
     cdocmd = cdo.Cdo()
-    codestr = str(task.source.get_grib_code().var_id)
-    sel_op = "selcode," + codestr
-    lev_ops = get_cdo_level_commands(task)
-    command = chain_cdo_commands(lev_ops[1],lev_ops[0],sel_op) + filepath
-    print "cdo command:",command
     ncvars = []
     try:
-        ncvars = cdocmd.copy(input = command,returnCdf = True).variables
+        ncvars = cdocmd.copy(input = filepath,returnCdf = True).variables
     except Exception:
         log.error("CDO command %s has failed...skipping variable" % (command,task.target.variable))
         return
