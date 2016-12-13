@@ -76,7 +76,7 @@ def create_command(task):
     if(expr):
         result.add_operator(cdoapi.cdo_command.expression_operator,expr)
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
-    freq = task.target.frequency
+    freq = getattr(task.target,cmor_target.freq_key,None)
     timops = getattr(task.target,"time_operator",["point"])
     add_time_operators(result,freq,timops)
     add_level_operators(result,task)
@@ -99,7 +99,7 @@ def apply_command(command,tasklist,basepath):
         commstr = command.create_command()
         log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
         setattr(task,"cdo_command",commstr)
-    if(apply_cdo):
+    if(apply_cdo or not os.path.exists(ofile)):
         command.apply(ifile,ofile,cdo_threads)
     for task in tasklist:
         setattr(task,"path",ofile)
@@ -173,10 +173,11 @@ def add_level_operators(cdo,task):
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.pressure)
     elif(oname == "height"):
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.height)
-    else:
+    elif(axisname not in ["alevel","alevhalf"]):
         log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
         return
     zlevs = axisinfo.get("requested",[])
+    if(zlevs == "all"): return
     if(len(zlevs) == 0):
         val = axisinfo.get("value",None)
         if(val): zlevs = [val]

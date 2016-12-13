@@ -124,24 +124,19 @@ def postprocess(tasks):
     postproc.post_process(tasks,temp_dir_)
     log.info("Post-processing surface pressures...")
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
-    sptasks = []
     for freq,taskgroup in tasksbyfreq.iteritems():
-        if(not any("alevel" in getattr(t.target,cmor_target.dims_key).split() for t in taskgroup)): continue
-        spsource = cmor_source.ifs_source.create(134)
-        sptarget = cmor_target.cmor_target()
-        sptarget.variable,sptarget.frequency = "sp",freq
-        setattr(sptarget,"table",freq)
-        sptask = cmor_task.cmor_task(spsource,sptarget)
-        setattr(sptask,"time_operator",["mean"])
-        setattr(sptask,"path",ifs_spectral_file_)
-        sptasks.append(sptask)
-    postproc.post_process(sptasks,temp_dir_)
-    i = -1
-    for freq,taskgroup in tasksbyfreq.iteritems():
-        i = i + 1
-        for task in taskgroup:
-            if("alevel" in getattr(task.target,cmor_target.dims_key).split()):
-                setattr(task,"sp_path",getattr(sptasks[i],"path"))
+        tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
+        if(not any(tasks3d)): continue
+        sptasks = [t for t in taskgroup if t.source.get_grib_code().var_id == 134 and getattr(t,"time_operator","point") in ["mean","point"]]
+        sptask = sptasks[0] if any(sptasks) else None
+        if(sptask == None or not getattr(sptask,"path","").endswith(".nc")):
+            sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
+            setattr(sptask.target,cmor_target.freq_key,freq)
+            setattr(sptask,"time_operator",["mean"])
+            setattr(sptask,"path",ifs_spectral_file_)
+            postproc.post_process([sptask],temp_dir_)
+        for task in tasks3d:
+            setattr(task,"sp_path",getattr(sptask,"path"))
 
 
 # Do the cmorization tasks

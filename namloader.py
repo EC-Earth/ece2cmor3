@@ -56,6 +56,9 @@ def create_tasks(targets):
             continue
         if(len(pars) > 1):
             log.error("Multiple parameter table entries found for %s...choosing first" % target.variable)
+            print "All the parameter blocks are"
+            for par in pars:
+                print "the source is ",par["param"]
         par = pars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         ece2cmor.add_task(create_cmor_task(create_cmor_source(par,tag),target,tag))

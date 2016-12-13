@@ -19,6 +19,7 @@ json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
 
+
 # API function: loads the argument list of targets
 def load_targets(varlist):
     targetlist = []
@@ -44,20 +45,23 @@ def load_targets_json(varlistfile):
     targets = []
     for tab,var in varlist.iteritems():
         if(isinstance(var,basestring)):
-	    add_target(var,tab,targets)
+            add_target(var,tab,targets)
         else:
             for v in var:
 		add_target(v,tab,targets)
     return targets
 
+
+# Small utility loading targets from the list
 def add_target(variable,table,targetlist):
     target = ece2cmor.get_cmor_target(variable,table)
-    if(target): 
-	targetlist.append(target)
-	return True
-    else: 
+    if(target):
+        targetlist.append(target)
+        return True
+    else:
 	log.error("Could not find cmor target for variable %s in table %s" % (variable,table))
 	return False
+
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets):
@@ -70,18 +74,27 @@ def create_tasks(targets):
     nemoparlist = json.loads(nemopartext)
     parlist.extend(nemoparlist)
     for target in targets:
-        pars = [p for p in parlist if target.variable == p[json_target_key] and target.table == p.get(json_table_key,target.table)]
-        tabpars = [p for p in pars if json_table_key in p]
+        pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
             log.error("Could not find parameter table entry for %s...skipping variable." % target.variable)
             continue
+        tabpars = [p for p in pars if json_table_key in p]
         if(len(pars) > 1):
             if(len(tabpars) != 1):
                 log.error("Multiple parameter table entries found for %s...choosing first found." % target.variable)
+                for p in pars: log.error("Par table entry found: %s" % p.__dict__)
         par = pars[0] if len(tabpars) == 0 else tabpars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         task = create_cmor_task(par,target,tag)
         if task: ece2cmor.add_task(task)
+
+
+# Checks whether the variable matches the parameter table block
+def matchvarpar(variable,parblock):
+    parvars = parblock[json_target_key]
+    if(isinstance(parvars,list)): return (variable in parvars)
+    if(isinstance(parvars,basestring)): return (variable == parvars)
+    return False
 
 
 # Creates a single task from the target and paramater table entry
