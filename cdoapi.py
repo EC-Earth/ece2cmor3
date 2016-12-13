@@ -20,6 +20,7 @@ class cdo_command:
     select_hour_operator  = "selhour"
     select_day_operator   = "selday"
     select_month_operator = "selmon"
+    shift_time_operator   = "shifttime"
 
     # CDO operator argument strings
     regular_grid_type     = "regular"
@@ -35,7 +36,7 @@ class cdo_command:
     operator_ordering = [mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
                          mean_time_operators[day],min_time_operators[day],max_time_operators[day],\
                          expression_operator,spectral_operator,gridtype_operator,select_lev_operator,select_z_operator,\
-                         select_hour_operator,select_day_operator,select_month_operator,select_code_operator]
+                         select_hour_operator,select_day_operator,select_month_operator,shift_time_operator,select_code_operator]
 
     # Constructor
     def __init__(self,code = 0):

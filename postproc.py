@@ -16,6 +16,9 @@ cdo_threads = 4
 # Flag to control whether to execute cdo.
 apply_cdo = True
 
+# Output frequency of IFS (in hours)
+output_frequency_ = 3
+
 # Post-processes a list of tasks
 def post_process(tasks,path):
     comdict = {}
@@ -106,6 +109,7 @@ def apply_command(command,tasklist,basepath):
 
 # Translates the cmor time post-processing operation to a cdo command-line option
 def add_time_operators(cdo,freq,operators):
+    timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
@@ -113,20 +117,25 @@ def add_time_operators(cdo,freq,operators):
             return
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["maximum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["minimum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
     if(freq == "day"):
         if(operators == ["point"]):
@@ -134,12 +143,15 @@ def add_time_operators(cdo,freq,operators):
             return
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
         if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
             return
     if(freq == "6hr"):
         if(operators == ["point"] or operators == ["mean"]):
@@ -182,6 +194,4 @@ def add_level_operators(cdo,task):
         val = axisinfo.get("value",None)
         if(val): zlevs = [val]
     if(len(zlevs) > 0):
-        if(oname == "air_pressure"):
-            zlevs = [int(0.01*float(p)) for p in zlevs] # convert to hPa
         cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)

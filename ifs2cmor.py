@@ -33,7 +33,7 @@ start_date_ = None
 output_interval_ = None
 
 # Output frequency. Minimal interval between output variables.
-output_freq_ = 3
+output_frequency_ = 3
 
 # Fast storage temporary path
 temp_dir_ = os.getcwd()
@@ -44,23 +44,25 @@ tempdir_created_ = False
 ref_date_ = None
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,refdate,interval=dateutil.relativedelta.relativedelta(month=1),tempdir=None):
+def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None):
     global exp_name_
     global table_root_
     global ifs_gridpoint_file_
     global ifs_spectral_file_
-    global output_interval
+    global output_interval_
     global temp_dir_
     global tempdir_created_
     global ref_date_
     global start_date_
+    global output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
     start_date_ = start
-    output_interval = interval
+    output_interval_ = interval
+    output_frequency_ = outputfreq
     ref_date_ = refdate
-    datafiles = select_files(path,exp_name_,start,length,output_interval)
+    datafiles = select_files(path,exp_name_,start,length,output_interval_)
     gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
     if(not (len(gpfiles) == 1 and len(shfiles) == 1)):
@@ -121,6 +123,7 @@ def postprocess(tasks):
     log.info("Post-processing IFS tasks...")
     for task in tasks:
         setattr(task,"path",ifs_spectral_file_ if task.source.grid() == cmor_source.ifs_grid[cmor_source.ifs_grid.spec] else ifs_gridpoint_file_)
+    postproc.output_frequency_ = output_frequency_
     postproc.post_process(tasks,temp_dir_)
     log.info("Post-processing surface pressures...")
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
@@ -180,8 +183,7 @@ def execute_netcdf_task(task):
     grid_id = getattr(task,"grid_id",0)
     if(grid_id != 0):
         axes.append(grid_id)
-    z_axis = getattr(task,"z_axis",None)
-    if(z_axis):
+    if(hasattr(task,"z_axis_id")):
         axes.append(getattr(task,"z_axis_id"))
     time_id = getattr(task,"time_axis",0)
     if(time_id != 0):
@@ -194,6 +196,7 @@ def execute_netcdf_task(task):
     except Exception:
         log.error("CDO command %s has failed...skipping variable" % (command,task.target.variable))
         return
+    codestr = str(task.source.get_grib_code().var_id)
     varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
     if(len(varlist) == 0):
         varlist = [v for v in ncvars if str(v) == "var" + codestr]
@@ -222,11 +225,11 @@ def execute_netcdf_task(task):
 # Returns the conversion factor from the input string
 def get_conversion_factor(conversion):
     if(not conversion): return 1.0
-    if(conversion == "cum2inst"): return 1.0 / (3600 * output_freq_)
-    if(conversion == "inst2cum"): return (3600 * output_freq_)
+    if(conversion == "cum2inst"): return 1.0 / (3600 * output_frequency_)
+    if(conversion == "inst2cum"): return (3600 * output_frequency_)
     if(conversion == "pot2alt"): return 1.0 / 9.81
     if(conversion == "alt2pot"): return 9.81
-    if(conversion == "vol2flux"): return 1000.0 / (3600 * output_freq_)
+    if(conversion == "vol2flux"): return 1000.0 / (3600 * output_frequency_)
     log.error("Unknown explicit unit conversion: %s" % conversion)
     return 1.0
 
