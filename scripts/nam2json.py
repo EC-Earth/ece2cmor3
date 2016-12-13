@@ -36,8 +36,25 @@ def convert_parlist(inputfile,outputfile):
     namloader.load_targets(targets)
     taskgroups = cmor_utils.group(ece2cmor.tasks,lambda t:t.target.variable)
     dictlist = map(makedict,[v[0] for (k,v) in taskgroups.iteritems()])
+    jsondata = reduce(lambda dlist,d:reduce_dictlist(dlist,d),dictlist)
     with open(outputfile,'w') as ofile:
-        json.dump(dictlist,ofile,indent = 4,separators = (',', ': '))
+        json.dump(jsondata,ofile,indent = 4,separators = (',', ': '))
+
+# Joins multiple task entries (e.g. ua,ua4,ua7c,...) to a single entry
+def reduce_dictlist(dictlist,newdict):
+    if(not(isinstance(dictlist,list))):
+        return reduce_dictlist([dictlist],newdict)
+    for d in dictlist:
+        if({k:v for k,v in d.iteritems() if k != jsonloader.json_target_key} == {k:v for k,v in newdict.iteritems() if k != jsonloader.json_target_key}):
+            existingtarget = d[jsonloader.json_target_key]
+            newtarget = newdict[jsonloader.json_target_key]
+            if(isinstance(existingtarget,list)):
+                existingtarget.append(newtarget)
+            else:
+                d[jsonloader.json_target_key] = [existingtarget,newtarget]
+            return dictlist
+    dictlist.append(newdict)
+    return dictlist
 
 # Creates a ece2cmor-compliant dictionary for the given task
 def makedict(task):
