@@ -1,11 +1,24 @@
 [
     {
-        "source": "138.128",
-        "target": "vortmean"
+        "source": "131.128",
+        "target": [
+            "ua7c",
+            "ua850",
+            "ua4",
+            "ua"
+        ]
     },
     {
         "source": "31.128",
         "target": "ci"
+    },
+    {
+        "source": "135.128",
+        "target": [
+            "wap4",
+            "wap500",
+            "wap"
+        ]
     },
     {
         "source": "169.128",
@@ -17,8 +30,13 @@
         "target": "cltcalipso"
     },
     {
-        "source": "167.128",
-        "target": "tas"
+        "source": "132.128",
+        "target": [
+            "va",
+            "va7c",
+            "va850",
+            "va4"
+        ]
     },
     {
         "source": "144.128",
@@ -27,7 +45,12 @@
     },
     {
         "source": "80.128",
-        "target": "rhsmin",
+        "target": [
+            "rhsmin",
+            "rhsmax",
+            "hurs",
+            "rhs"
+        ],
         "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
     },
     {
@@ -49,8 +72,11 @@
         "target": "ps"
     },
     {
-        "source": "132.128",
-        "target": "va"
+        "source": "248.128",
+        "target": [
+            "cl",
+            "clcalipso"
+        ]
     },
     {
         "source": "209.128",
@@ -68,8 +94,12 @@
         "target": "clmcalipso"
     },
     {
-        "source": "135.128",
-        "target": "wap500"
+        "source": "168.128",
+        "target": "tdps"
+    },
+    {
+        "source": "235.128",
+        "target": "tslsi"
     },
     {
         "source": "228.128",
@@ -79,6 +109,10 @@
     {
         "source": "34.128",
         "target": "tso"
+    },
+    {
+        "source": "167.128",
+        "target": "tas"
     },
     {
         "source": "143.128",
@@ -92,17 +126,13 @@
         "expr": "var96=var177-var175"
     },
     {
-        "source": "248.128",
-        "target": "clcalipso"
+        "source": "129.128",
+        "target": "zg7h"
     },
     {
         "source": "175.128",
         "convert": "cum2inst",
         "target": "rlds"
-    },
-    {
-        "source": "248.128",
-        "target": "cl"
     },
     {
         "source": "139.128",
@@ -112,11 +142,6 @@
         "source": "43.128",
         "target": "mrso",
         "expr": "var43=70*var39+210*var40+720*var41+1890*var42"
-    },
-    {
-        "source": "80.128",
-        "target": "rhsmax",
-        "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
     },
     {
         "source": "164.128",
@@ -131,8 +156,19 @@
         "target": "clw"
     },
     {
+        "source": "133.128",
+        "target": [
+            "hus7c",
+            "hus4",
+            "hus"
+        ]
+    },
+    {
         "source": "130.128",
-        "target": "ta"
+        "target": [
+            "ta",
+            "ta700"
+        ]
     },
     {
         "source": "93.128",
@@ -150,11 +186,10 @@
     {
         "source": "129.128",
         "convert": "pot2alt",
-        "target": "zg"
-    },
-    {
-        "source": "202.128",
-        "target": "tasmin"
+        "target": [
+            "zg",
+            "orog"
+        ]
     },
     {
         "source": "151.128",
@@ -165,24 +200,9 @@
         "target": "cltisccp"
     },
     {
-        "source": "80.128",
-        "target": "hurs",
-        "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
-    },
-    {
-        "source": "80.128",
-        "target": "rhs",
-        "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
-    },
-    {
         "source": "99.128",
         "target": "mrsos",
         "expr": "var99=70*var39"
-    },
-    {
-        "source": "179.128",
-        "convert": "cum2inst",
-        "target": "rlut"
     },
     {
         "source": "8.128",
@@ -211,10 +231,6 @@
         "target": "hur"
     },
     {
-        "source": "133.128",
-        "target": "hus"
-    },
-    {
         "source": "44.128",
         "convert": "vol2flux",
         "target": "sbl"
@@ -228,12 +244,13 @@
         "target": "clivi"
     },
     {
-        "source": "130.128",
-        "target": "ta700"
+        "source": "202.128",
+        "target": "tasmin"
     },
     {
-        "source": "135.128",
-        "target": "wap"
+        "source": "179.128",
+        "convert": "cum2inst",
+        "target": "rlut"
     },
     {
         "source": "205.128",
@@ -245,9 +262,8 @@
         "target": "prw"
     },
     {
-        "source": "214.128",
-        "target": "sfcWind",
-        "expr": "var214=sqrt(sqr(var165)+sqr(var166))"
+        "source": "207.128",
+        "target": "sfcWind"
     },
     {
         "source": "214.128",
@@ -294,20 +310,7 @@
         "target": "clhcalipso"
     },
     {
-        "source": "168.128",
-        "target": "tdps"
-    },
-    {
-        "source": "131.128",
-        "target": "ua"
-    },
-    {
         "source": "89.128",
         "target": "cllcalipso"
-    },
-    {
-        "source": "129.128",
-        "convert": "pot2alt",
-        "target": "orog"
     }
 ]
