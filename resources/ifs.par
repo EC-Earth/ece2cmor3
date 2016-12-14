@@ -540,12 +540,6 @@
   out_name   = "mrro"
 /
 &parameter
-  param      = 207.128
-  units      = "m s-1"
-  long_name  = "Near-Surface Wind Speed"
-  out_name   = "sfcWind"
-/
-&parameter
   param      = 208.128
   units      = "J m-2"
   long_name  = "Top Net Solar Radiation, Clear Sky"
@@ -577,6 +571,12 @@
   long_name  = "TOA Incident Solar Radiation"
   out_name   = "rsdt"
   positive   = "down"
+/
+&parameter
+  param      = 214.128
+  units      = "m s-1"
+  long_name  = "Near-Surface Wind Speed"
+  out_name   = "sfcWind"
 /
 &parameter
   param      = 214.128

@@ -262,12 +262,11 @@
         "target": "prw"
     },
     {
-        "source": "207.128",
-        "target": "sfcWind"
-    },
-    {
         "source": "214.128",
-        "target": "sfcWindmax",
+        "target": [
+            "sfcWind",
+            "sfcWindmax"
+        ],
         "expr": "var214=sqrt(sqr(var165)+sqr(var166))"
     },
     {
