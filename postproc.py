@@ -56,10 +56,6 @@ def validate_tasklist(tasks):
     if(len(srcset) != 1):
         log.error("Multiple grib codes joined to single cdo command: %s" % str(srcset))
         return False
-    tgtset = set(map(lambda t:t.target.variable,tasks))
-#    if(len(tgtset) != 1):
-#        log.error("Multiple target variables joined to single cdo command: %s" % str(tgtset))
-#        return False
     freqset = set(map(lambda t:t.target.frequency,tasks))
     if(len(freqset) != 1):
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
@@ -70,9 +66,12 @@ def validate_tasklist(tasks):
 def create_command(task):
     if(not isinstance(task.source,cmor_source.ifs_source)):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
+    if(hasattr(task,"paths") and len(getattr(task,"paths")) > 1):
+        raise Exception("Multiple merged cdo commands are not supported yet")
     expr = getattr(task.source,cmor_source.expression_key,None)
     result = cdoapi.cdo_command() if expr else cdoapi.cdo_command(code = task.source.get_grib_code().var_id)
-    if(task.source.grid() == cmor_source.ifs_grid[cmor_source.ifs_grid.spec]):
+    grid = task.source.grid_id()
+    if(grid == cmor_source.ifs_grid.spec):
         result.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
         result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
@@ -96,15 +95,20 @@ def cdo_worker(q,basepath):
 def apply_command(command,tasklist,basepath):
     if(not tasklist):
         log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
-    ifile = getattr(tasklist[0],"path")
+    ifiles = getattr(tasklist[0],"paths")
+    if(len(ifiles) != 1):
+        raise Exception("Multiple merged cdo commands are not supported yet")
+    ifile = ifiles[0]
     ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc")
     for task in tasklist:
         commstr = command.create_command()
         log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
         setattr(task,"cdo_command",commstr)
-    if(apply_cdo or not os.path.exists(ofile)):
+    if(apply_cdo): # or not os.path.exists(ofile)):
         command.apply(ifile,ofile,cdo_threads)
     for task in tasklist:
+        delattr(task,"paths")
+        delattr(task,"grids")
         setattr(task,"path",ofile)
 
 # Translates the cmor time post-processing operation to a cdo command-line option

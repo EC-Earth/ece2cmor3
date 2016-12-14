@@ -94,6 +94,10 @@ class ifs_source(cmor_source):
     def grid(self):
         return ifs_grid[self.grid_] if self.grid_ >= 0 else None
 
+    # Returns the grid id.
+    def grid_id(self):
+        return self.grid_
+
     # Returns the grib code.
     def get_grib_code(self):
         return grib_code(self.code_.var_id,self.code_.tab_id) if self.code_ else None

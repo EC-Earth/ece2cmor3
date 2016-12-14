@@ -122,7 +122,10 @@ def filter_tasks(tasks):
 def postprocess(tasks):
     log.info("Post-processing IFS tasks...")
     for task in tasks:
-        setattr(task,"path",ifs_spectral_file_ if task.source.grid() == cmor_source.ifs_grid[cmor_source.ifs_grid.spec] else ifs_gridpoint_file_)
+        ifiles = [ifs_spectral_file_ if c in cmor_source.ifs_source.grib_codes_sh else ifs_gridpoint_file_ for c in task.source.get_root_codes()]
+        igrids = [cmor_source.ifs_grid.spec if c in cmor_source.ifs_source.grib_codes_sh else cmor_source.ifs_grid.point for c in task.source.get_root_codes()]
+        setattr(task,"paths",ifiles)
+        setattr(task,"grids",igrids)
     postproc.output_frequency_ = output_frequency_
     postproc.post_process(tasks,temp_dir_)
     log.info("Post-processing surface pressures...")
@@ -136,7 +139,8 @@ def postprocess(tasks):
             sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
-            setattr(sptask,"path",ifs_spectral_file_)
+            setattr(sptask,"paths",[ifs_spectral_file_])
+            setattr(sptask,"grids",[cmor_source.ifs_grid.spec])
             postproc.post_process([sptask],temp_dir_)
         for task in tasks3d:
             setattr(task,"sp_path",getattr(sptask,"path"))
