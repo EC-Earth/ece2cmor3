@@ -26,7 +26,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(79,128)
         target = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"clwvi_cfDay.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -41,7 +42,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source2 = cmor_source.ifs_source.create(164,128)
         target2 = [t for t in targets if t.variable == "clt" and t.table == "day"][0]
         task2 = cmor_task.cmor_task(source2,target2)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task1,task2])
         path = os.path.join(os.getcwd(),"clt_day.nc")
         nose.tools.eq_(getattr(task2,"path"),path)
@@ -53,7 +55,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(130,128)
         target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"ta_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -67,7 +70,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(165,128)
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -79,7 +83,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(201,128)
         target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"tasmax_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -91,7 +96,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"sfcWind_6hrPlevpt.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -103,7 +109,8 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
-        postproc.apply_cdo = False
+        postproc.mode = postproc.skip
+        ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)

@@ -36,7 +36,7 @@ output_interval_ = None
 output_frequency_ = 3
 
 # Fast storage temporary path
-temp_dir_ = os.getcwd()
+temp_dir_ = None
 tempdir_created_ = False
 
 # Reference date, times will be converted to hours since refdate
@@ -72,12 +72,10 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     ifs_gridpoint_file_ = gpfiles[0]
     ifs_spectral_file_ = shfiles[0]
     if(tempdir):
-        if(not os.path.exists(tempdir)):
-            os.makedirs(tempdir)
+        temp_dir_ = os.path.abspath(tempdir)
+        if(not os.path.exists(temp_dir_)):
+            os.makedirs(temp_dir_)
             tempdir_created_ = True
-        temp_dir_ = tempdir
-    #TODO: set after conversion to netcdf
-    cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
 
 
 # Execute the postprocessing+cmorization tasks
@@ -149,6 +147,7 @@ def postprocess(tasks):
 
 # Do the cmorization tasks
 def cmorize(tasks):
+    cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
     gridid = create_grid_from_grib(getattr(tasks[0],"path"))
     for task in tasks:
@@ -464,36 +463,6 @@ def create_gauss_grid(nx,x0,ny,yvals):
                      longitude = lonarr,
                      latitude_vertices = vertlats,
                      longitude_vertices = vertlons)
-
-
-# Helper function for cdo time operator commands
-# TODO: find out about the time shifts
-# TODO: fix this mess with instantaneous sampling
-def get_cdo_timop(freq,timop):
-    cdoop = timop[0:3] if timop in ["maximum","minimum"] else timop
-    if(freq == "mon"):
-        return ("mon" + cdoop,"shifttime,-3hours")
-    elif(freq == "day"):
-        return ("day" + cdoop,"shifttime,-3hours")
-    elif(freq == "6hr"):
-        if(cdoop in ["point","mean"]): return ("selhour,0,6,12,18",None)
-    elif(freq == "3hr" or freq == "1hr"):
-        if(cdoop in ["point","mean"]): return (None,None)
-    raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
-
-
-# Utility to chain cdo commands
-#TODO: move to cdo_utils and add input file argument
-def chain_cdo_commands(*args):
-    op = ""
-    if(len(args) == 0): return op
-    for arg in args:
-        if(arg == None or arg == ""): continue
-        if(isinstance(arg,list)):
-            for s in arg: op += (" -" + str(s))
-        else:
-            op += (" -" + str(arg))
-    return op + " "
 
 
 # Retrieves all IFS output files in the input directory.

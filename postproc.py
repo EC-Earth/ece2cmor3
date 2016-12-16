@@ -24,7 +24,7 @@ modes = [skip,append,recreate]
 
 
 # Mode for post-processing
-mode = 1
+mode = 3
 
 
 # Output frequency of IFS (in hours)
