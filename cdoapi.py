@@ -68,16 +68,16 @@ class cdo_command:
         func = getattr(app,keys[0],None)
         appargs = None
         if(func):
-            appargs = ",".join([str(a) for a in self.operators[firstkey]])
+            appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
         else:
             func = getattr(app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
         f = ofile
-        if(firstargs and ofile):
-            f = func(firstargs,input = inputstr,output = ofile,options = optionstr)
-        elif(firstargs):
-            f = func(firstargs,input = inputstr,options = optionstr)
+        if(appargs and ofile):
+            f = func(appargs,input = inputstr,output = ofile,options = optionstr)
+        elif(appargs):
+            f = func(appargs,input = inputstr,options = optionstr)
         elif(ofile):
             f = func(input = inputstr,output = ofile,options = optionstr)
         else:
@@ -92,13 +92,13 @@ class cdo_command:
         func = getattr(app,keys[0],None)
         appargs = None
         if(func):
-            appargs = ",".join([str(a) for a in self.operators[firstkey]])
+            appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
         else:
             func = getattr(app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
-        if(firstargs):
-            return func(firstargs,input = inputstr,options = optionstr,returnCdf = True).variables
+        if(appargs):
+            return func(appargs,input = inputstr,options = optionstr,returnCdf = True).variables
         else:
             return func(input = inputstr,options = optionstr,returnCdf = True).variables
 
