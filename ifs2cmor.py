@@ -198,7 +198,7 @@ def execute_netcdf_task(task):
     try:
         ncvars = cdocmd.copy(input = filepath,returnCdf = True).variables
     except Exception:
-        log.error("CDO command %s has failed...skipping variable" % (command,task.target.variable))
+        log.error("CDO command copy has failed...skipping variable" % (task.target.variable))
         return
     codestr = str(task.source.get_grib_code().var_id)
     varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
@@ -260,7 +260,7 @@ def create_depth_axes(tasks):
     for task in tasks:
         tgtdims = getattr(task.target,cmor_target.dims_key)
         #TODO: Use table axes information to extract vertical axes
-        zdims = getattr(task.target,"z_dims")
+        zdims = getattr(task.target,"z_dims",[])
         if(len(zdims) == 0): continue
         if(len(zdims) > 1):
             log.error("Skipping variable %s in table %s with dimensions %s with multiple directions." % (task.target.variable,task.target.table,tgtdims))
@@ -383,6 +383,149 @@ def get_spvar(ncpath):
         return None
     except:
         return None
+
+
+# Retrieves all IFS output files in the input directory.
+def select_files(path,expname,start,length,interval):
+    allfiles = cmor_utils.find_ifs_output(path,expname)
+    startdate = cmor_utils.make_datetime(start).date()
+    enddate = cmor_utils.make_datetime(start + length).date()
+    return [f for f in allfiles if cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate]
+
+
+# Creates the regular gaussian grids from the postprocessed file argument.
+def create_grid_from_grib(filepath):
+    command = cdo.Cdo()
+    griddescr = command.griddes(input = filepath)
+    xsize = 0
+    ysize = 0
+    yvals = []
+    xstart = 0.0
+    reading_ys = False
+    for s in griddescr:
+        sstr = str(s)
+        if(reading_ys):
+            yvals.extend([float(s) for s in sstr.split()])
+            continue
+        if(sstr.startswith("gridtype")):
+            gtype = sstr.split("=")[1].strip()
+            if(gtype != "gaussian"):
+                raise Exception("Cannot read other grids then regular gaussian grids, current grid type was:",gtype)
+        if(sstr.startswith("xsize")):
+            xsize = int(sstr.split("=")[1].strip())
+            continue
+        if(sstr.startswith("xfirst")):
+            xfirst = float(sstr.split("=")[1].strip())
+            continue
+        if(sstr.startswith("ysize")):
+            ysize = int(sstr.split("=")[1].strip())
+            continue
+        if(sstr.startswith("yvals")):
+            reading_ys = True
+            ylist = sstr.split("=")[1].strip()
+            yvals.extend([float(s) for s in ylist.split()])
+            continue
+    if(len(yvals) != ysize):
+        log.error("Invalid number of y-values given in file %s" % filepath)
+    return create_gauss_grid(xsize,xstart,ysize,numpy.array(yvals))
+
+
+# Creates the regular gaussian grid from its arguments.
+def create_gauss_grid(nx,x0,ny,yvals):
+    i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
+    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(ny,0,-1)))
+    xincr = 360./nx
+    xvals = numpy.array([x0 + i*xincr for i in range(nx)])
+    lonarr = numpy.tile(xvals,(ny,1)).transpose()
+    latarr = numpy.tile(yvals,(nx,1))
+    lonmids = numpy.append(xvals - 0.5*xincr,360.-0.5*xincr)
+    lonmids[0] = lonmids[nx]
+    latmids = numpy.empty([ny + 1])
+    latmids[0] = 90.
+    latmids[1:ny] = 0.5*(yvals[0:ny - 1]+yvals[1:ny])
+    latmids[ny] = -90.
+    numpy.append(latmids,-90.)
+    vertlats = numpy.empty([nx,ny,4])
+    vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1))
+    vertlats[:,:,1] = vertlats[:,:,0]
+    vertlats[:,:,2] = numpy.tile(latmids[1:ny+1],(nx,1))
+    vertlats[:,:,3] = vertlats[:,:,2]
+    vertlons = numpy.empty([nx,ny,4])
+    vertlons[:,:,0] = numpy.tile(lonmids[0:nx],(ny,1)).transpose()
+    vertlons[:,:,3] = vertlons[:,:,0]
+    vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1)).transpose()
+    vertlons[:,:,2] = vertlons[:,:,1]
+    return cmor.grid(axis_ids = [j_index_id,i_index_id],
+                     latitude = latarr,
+                     longitude = lonarr,
+                     latitude_vertices = vertlats,
+                     longitude_vertices = vertlons)
+	exprdict[vid] = expr
+	cdoexpr = "expr," + "'" + ";".join([v for k,v in exprdict.iteritems()]) + "'"
+    comstr = None
+    if(grid == cmor_source.ifs_grid.point):
+        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")
+        opstr = None
+        if(timop == "mean" and not isexpr):
+            opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
+        else:
+            opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
+        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
+        for task in tasks:
+            log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
+        if(callcdo or not os.path.exists(ofile)):
+            command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
+    else:
+        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
+        if(timop == "mean" and not isexpr):
+            opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
+            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
+            for task in tasks:
+                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
+            if(callcdo or not os.path.exists(ofile)):
+                command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
+        else:
+            opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
+            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
+            for task in tasks:
+                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
+            if(callcdo or not os.path.exists(ofile)):
+                command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
+    for task in tasks:
+        setattr(task,"path",ofile)
+        setattr(task,"cdo_command",comstr)
+        if(134 in varids):
+            setattr(task,"sp_path",ofile)
+
+
+# Helper function for cdo time operator commands
+# TODO: find out about the time shifts
+# TODO: fix this mess with instantaneous sampling
+def get_cdo_timop(freq,timop):
+    cdoop = timop[0:3] if timop in ["maximum","minimum"] else timop
+    if(freq == "mon"):
+        return ("mon" + cdoop,"shifttime,-3hours")
+    elif(freq == "day"):
+        return ("day" + cdoop,"shifttime,-3hours")
+    elif(freq == "6hr"):
+        if(cdoop in ["point","mean"]): return ("selhour,0,6,12,18",None)
+    elif(freq == "3hr" or freq == "1hr"):
+        if(cdoop in ["point","mean"]): return (None,None)
+    raise Exception("Invalid combination of frequency",freq,"and time operator",timop)
+
+
+# Utility to chain cdo commands
+#TODO: move to cdo_utils and add input file argument
+def chain_cdo_commands(*args):
+    op = ""
+    if(len(args) == 0): return op
+    for arg in args:
+        if(arg == None or arg == ""): continue
+        if(isinstance(arg,list)):
+            for s in arg: op += (" -" + str(s))
+        else:
+            op += (" -" + str(arg))
+    return op + " "
 
 
 # Retrieves all IFS output files in the input directory.
