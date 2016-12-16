@@ -122,12 +122,14 @@ def filter_tasks(tasks):
 def postprocess(tasks):
     log.info("Post-processing IFS tasks...")
     for task in tasks:
-        ifiles = [ifs_spectral_file_ if c in cmor_source.ifs_source.grib_codes_sh else ifs_gridpoint_file_ for c in task.source.get_root_codes()]
-        igrids = [cmor_source.ifs_grid.spec if c in cmor_source.ifs_source.grib_codes_sh else cmor_source.ifs_grid.point for c in task.source.get_root_codes()]
-        setattr(task,"paths",ifiles)
-        setattr(task,"grids",igrids)
+        ifiles = list(set([ifs_spectral_file_ if c in cmor_source.ifs_source.grib_codes_sh else ifs_gridpoint_file_ for c in task.source.get_root_codes()]))
+        if(len(ifiles)==1):
+            setattr(task,"path",ifiles[0])
+        else:
+            log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
+                       This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
-    postproc.post_process(tasks,temp_dir_)
+    postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_)
     log.info("Post-processing surface pressures...")
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
     for freq,taskgroup in tasksbyfreq.iteritems():
@@ -139,8 +141,7 @@ def postprocess(tasks):
             sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
-            setattr(sptask,"paths",[ifs_spectral_file_])
-            setattr(sptask,"grids",[cmor_source.ifs_grid.spec])
+            setattr(sptask,"path",ifs_spectral_file_)
             postproc.post_process([sptask],temp_dir_)
         for task in tasks3d:
             setattr(task,"sp_path",getattr(sptask,"path"))
@@ -178,10 +179,14 @@ def cmorize(tasks):
 
 # Executes a single task
 def execute_netcdf_task(task):
+    filepath = getattr(task,"path",None)
+    if(not path):
+        log.error("Could not find file containing data for variable %s in table" % (task.target.variable,task.target.table))
+        return
     storevar = getattr(task,"store_with",None)
     sppath = getattr(task,"sp_path",None)
     if(storevar and not sppath):
-        log.error("Could not find file containing surface pressure for model level variable...skipping variable %s" % task.target.variable)
+        log.error("Could not find file containing surface pressure for model level variable...skipping variable %s in table %s" % (task.target.variable,task.target.table))
         return
     axes = []
     grid_id = getattr(task,"grid_id",0)
@@ -192,13 +197,12 @@ def execute_netcdf_task(task):
     time_id = getattr(task,"time_axis",0)
     if(time_id != 0):
         axes.append(time_id)
-    filepath = getattr(task,"path")
-    cdocmd = cdo.Cdo()
     ncvars = []
     try:
-        ncvars = cdocmd.copy(input = filepath,returnCdf = True).variables
+        dataset = netCDF4.Dataset(filepath,'r')
+        ncvars = dataset.variables
     except Exception:
-        log.error("CDO command copy has failed...skipping variable" % (task.target.variable))
+        log.error("Could not read netcdf file %s while cmorizing variable %s in table %s" % (filepath,task.target.variable,task.target.table))
         return
     codestr = str(task.source.get_grib_code().var_id)
     varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
@@ -460,42 +464,6 @@ def create_gauss_grid(nx,x0,ny,yvals):
                      longitude = lonarr,
                      latitude_vertices = vertlats,
                      longitude_vertices = vertlons)
-	exprdict[vid] = expr
-	cdoexpr = "expr," + "'" + ";".join([v for k,v in exprdict.iteritems()]) + "'"
-    comstr = None
-    if(grid == cmor_source.ifs_grid.point):
-        ofile = os.path.join(temp_dir_,"ICMGG_" + freqstr + exprstr + ".nc")
-        opstr = None
-        if(timop == "mean" and not isexpr):
-            opstr = chain_cdo_commands("setgridtype,regular",timops[0],timops[1],sel_op)
-        else:
-            opstr = chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"setgridtype,regular",sel_op)
-        comstr = "cdo -P 4 -f nc copy" + opstr + " ".join([ifs_gridpoint_file_,ofile])
-        for task in tasks:
-            log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-        if(callcdo or not os.path.exists(ofile)):
-            command.copy(input = opstr + ifs_gridpoint_file_,output = ofile,options = "-P 4 -f nc")
-    else:
-        ofile = os.path.join(temp_dir_,"ICMSH_" + freqstr + exprstr + ".nc")
-        if(timop == "mean" and not isexpr):
-            opstr = chain_cdo_commands(timops[0],timops[1],sel_op)
-            comstr = "cdo -P 4 -f nc sp2gpl" + opstr + " ".join([ifs_spectral_file_,ofile])
-            for task in tasks:
-                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-            if(callcdo or not os.path.exists(ofile)):
-                command.sp2gpl(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-        else:
-            opstr=chain_cdo_commands(timops[0],timops[1],sel_op2,cdoexpr,"sp2gpl",sel_op)
-            comstr = "cdo -P 4 -f nc copy " + opstr + " ".join([ifs_spectral_file_,ofile])
-            for task in tasks:
-                log.info("Processing %s in table %s: %s" % (task.target.variable,task.target.table,comstr))
-            if(callcdo or not os.path.exists(ofile)):
-                command.copy(input=opstr + ifs_spectral_file_,output = ofile,options = "-P 4 -f nc")
-    for task in tasks:
-        setattr(task,"path",ofile)
-        setattr(task,"cdo_command",comstr)
-        if(134 in varids):
-            setattr(task,"sp_path",ofile)
 
 
 # Helper function for cdo time operator commands

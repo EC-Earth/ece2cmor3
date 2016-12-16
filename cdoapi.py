@@ -55,20 +55,54 @@ class cdo_command:
         else:
             log.error("Unknown operator was rejected: ",operator)
 
-    # Creates a command string from the given data
+    # Creates a command string from the given operator list
     def create_command(self):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         return " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys])
 
-    # Applies the command to the given input, to produce the output file ofile. If not given, the method returns a netcdf array.
+    # Applies the current set of operators to the input file
     def apply(self,ifile,ofile = None,threads = 4):
+        keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         app = cdo.Cdo()
-        threadopstr = "" if threads < 2 else (" -P " + str(threads))
-        if(ofile):
-            app.copy(input = self.create_command() + " " + ifile,output = ofile,options = "-f nc" + threadopstr)
-            return ofile
-        return app.copy(input = self.create_command() + " " + ifile,returnCdf = True,options = threadopstr).variables
+        optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
+        func = getattr(app,keys[0],None)
+        appargs = None
+        if(func):
+            appargs = ",".join([str(a) for a in self.operators[firstkey]])
+            inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
+        else:
+            func = getattr(app,"copy")
+            inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
+        f = ofile
+        if(firstargs and ofile):
+            f = func(firstargs,input = inputstr,output = ofile,options = optionstr)
+        elif(firstargs):
+            f = func(firstargs,input = inputstr,options = optionstr)
+        elif(ofile):
+            f = func(input = inputstr,output = ofile,options = optionstr)
+        else:
+            f = func(input = inputstr,options = optionstr)
+        return f
 
+    # Applies the current set of operators and returns the netcdf variables in memory:
+    def applycdf(self,ifile,threads = 4):
+        keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
+        app = cdo.Cdo()
+        optionstr = "" if threads < 2 else ("-P " + str(threads))
+        func = getattr(app,keys[0],None)
+        appargs = None
+        if(func):
+            appargs = ",".join([str(a) for a in self.operators[firstkey]])
+            inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
+        else:
+            func = getattr(app,"copy")
+            inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
+        if(firstargs):
+            return func(firstargs,input = inputstr,options = optionstr,returnCdf = True).variables
+        else:
+            return func(input = inputstr,options = optionstr,returnCdf = True).variables
+
+    # Option writing utility function
     @staticmethod
     def make_option(key,args):
         option = "-" + key

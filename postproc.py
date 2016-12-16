@@ -6,18 +6,30 @@ import cdoapi
 import cmor_source
 import cmor_target
 
+
 # Log object
 log = logging.getLogger(__name__)
+
 
 # Threading parameters
 task_threads = 1
 cdo_threads = 4
 
-# Flag to control whether to execute cdo.
-apply_cdo = True
+
+# Flags to control whether to execute cdo.
+skip = 1
+append = 2
+recreate = 3
+modes = [skip,append,recreate]
+
+
+# Mode for post-processing
+mode = 1
+
 
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
+
 
 # Post-processes a list of tasks
 def post_process(tasks,path):
@@ -50,6 +62,7 @@ def post_process(tasks,path):
             q.put((comm,tasklist))
         q.join()
 
+
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_tasklist(tasks):
     srcset = set(map(lambda t:t.source.get_grib_code().var_id,tasks))
@@ -61,6 +74,7 @@ def validate_tasklist(tasks):
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
         return False
     return True
+
 
 # Creates a cdo postprocessing command for the given IFS task.
 def create_command(task):
@@ -84,32 +98,37 @@ def create_command(task):
     add_level_operators(result,task)
     return result
 
+
+# Multi-thread function wrapper.
 def cdo_worker(q,basepath):
     while True:
         args = q.get()
         apply_command(args[0],args[1],basepath)
         q.task_done()
 
+
 # Executes the command (first item of tup), and replaces the path attribute for all tasks in the tasklist (2nd item of tup)
 # to the output of cdo. This path is constructed from the basepath and the first task.
-def apply_command(command,tasklist,basepath):
+def apply_command(command,tasklist,basepath = None):
     if(not tasklist):
         log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
-    ifiles = getattr(tasklist[0],"paths")
-    if(len(ifiles) != 1):
-        raise Exception("Multiple merged cdo commands are not supported yet")
-    ifile = ifiles[0]
-    ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc")
+    if(basepath == None and mode in [skip,append]):
+        log.warning("Executing post-processing in skip/append mode without directory given: this will skip the entire task.")
+    ifile = getattr(tasklist[0],"path")
+    ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc") if basepath else None
     for task in tasklist:
         commstr = command.create_command()
         log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
         setattr(task,"cdo_command",commstr)
-    if(apply_cdo): # or not os.path.exists(ofile)):
-        command.apply(ifile,ofile,cdo_threads)
-    for task in tasklist:
-        delattr(task,"paths")
-        delattr(task,"grids")
-        setattr(task,"path",ofile)
+    result = ofile
+    if(mode != skip):
+        if(mode == recreate or (mode == append and not os.path.exists(ofile))):
+            result = command.apply(ifile,ofile,cdo_threads)
+    if(result):
+        for task in tasklist:
+            setattr(task,"path",result)
+    return result
+
 
 # Translates the cmor time post-processing operation to a cdo command-line option
 def add_time_operators(cdo,freq,operators):
