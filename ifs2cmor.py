@@ -221,10 +221,10 @@ def execute_netcdf_task(task):
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     timdim,index = -1,0
     for d in ncvar.dimensions:
-	if(d.startswith("time")):
-	    timdim = index
-	    break
-	index += 1
+        if(d.startswith("time")):
+            timdim = index
+            break
+        index += 1
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
 
@@ -333,16 +333,20 @@ def create_hybrid_level_axis(task):
     storewith = cmor.zfactor(zaxis_id = axid,zfactor_name = "ps",axis_ids = [getattr(task,"grid_id"),getattr(task,"time_axis")],units = "Pa")
     return (axid,storewith)
 
+
 # Creates a soil depth axis
-# TODO: move to some IFS model class
+# TODO: Read from file
 soil_depth_bounds = [0.0,0.07,0.28,1.0,2.89]
 
+
+# Creates a soil depth axis.
 def create_soil_depth_axis(layer,name):
     vals = [0.5*(soil_depth_bounds[layer] + soil_depth_bounds[layer + 1])]
     bounds = numpy.empty([1,2])
     bounds[0,0] = soil_depth_bounds[layer]
     bounds[0,1] = soil_depth_bounds[layer + 1]
     return cmor.axis(table_entry = name,coord_vals = vals,cell_bounds = bounds,units = "m")
+
 
 # Makes a time axis for the given table
 def create_time_axis(freq,path,name):
@@ -470,7 +474,7 @@ def select_files(path,expname,start,length,interval):
     allfiles = cmor_utils.find_ifs_output(path,expname)
     startdate = cmor_utils.make_datetime(start).date()
     enddate = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate]
+    return [f for f in allfiles if ((not f.endswith("000000")) and cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
@@ -518,11 +522,11 @@ def create_gauss_grid(nx,x0,ny,yvals):
     xvals = numpy.array([x0 + i*xincr for i in range(nx)])
     lonarr = numpy.tile(xvals,(ny,1)).transpose()
     latarr = numpy.tile(yvals,(nx,1))
-    lonmids = numpy.append(xvals - 0.5*xincr,360.-0.5*xincr)
+    lonmids = numpy.append(xvals - 0.5*xincr,360. - 0.5*xincr)
     lonmids[0] = lonmids[nx]
     latmids = numpy.empty([ny + 1])
     latmids[0] = 90.
-    latmids[1:ny] = 0.5*(yvals[0:ny - 1]+yvals[1:ny])
+    latmids[1:ny] = 0.5*(yvals[0:ny - 1] + yvals[1:ny])
     latmids[ny] = -90.
     numpy.append(latmids,-90.)
     vertlats = numpy.empty([nx,ny,4])
