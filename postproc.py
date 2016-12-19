@@ -104,10 +104,10 @@ def create_command(task):
 
 
 # Multi-thread function wrapper.
-def cdo_worker(q,basepath,threadid):
+def cdo_worker(q,basepath):
     while True:
         args = q.get()
-        apply_command(command = args[0],tasklist = args[1],basepath = basepath,threadid = threadid)
+        apply_command(command = args[0],tasklist = args[1],basepath = basepath)
         q.task_done()
 
 
