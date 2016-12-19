@@ -89,6 +89,7 @@ def execute(tasks):
 
 # Deletes all temporary paths and removes temp directory
 def cleanup(tasks):
+    postproc.cleanup()
     for task in tasks:
         ncpath = getattr(task,"path",None)
         if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):

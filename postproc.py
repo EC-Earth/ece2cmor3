@@ -63,6 +63,10 @@ def post_process(tasks,path):
         q.join()
 
 
+# Cleans up temporary files (beware, call it when temp files are longer necessary)
+def cleanup():
+    cdoapi.cleanup()
+
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_tasklist(tasks):
     srcset = set(map(lambda t:t.source.get_grib_code().var_id,tasks))
@@ -100,10 +104,10 @@ def create_command(task):
 
 
 # Multi-thread function wrapper.
-def cdo_worker(q,basepath):
+def cdo_worker(q,basepath,threadid):
     while True:
         args = q.get()
-        apply_command(args[0],args[1],basepath)
+        apply_command(command = args[0],tasklist = args[1],basepath = basepath,threadid = threadid)
         q.task_done()
 
 

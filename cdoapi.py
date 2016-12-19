@@ -1,8 +1,17 @@
+import threading
 import logging
 import cdo
 
 # Log object
 log = logging.getLogger(__name__)
+
+# CDO instances
+cdo_instances = {}
+
+def cleanup():
+    for k,v in cdo_instances.iteritems():
+        del v
+    cdo_instances = {}
 
 # Class for interfacing with the CDO python wrapper.
 class cdo_command:
@@ -63,7 +72,13 @@ class cdo_command:
     # Applies the current set of operators to the input file
     def apply(self,ifile,ofile = None,threads = 4):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
-        app = cdo.Cdo()
+        app = None
+        threadid = threading.get_ident()
+        if(threadid in cdo_instances):
+            app = cdo_instances[threadid]
+        else:
+            app = cdo.Cdo()
+            cdo_instances[threadid] = app
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
         func = getattr(app,keys[0],None)
         appargs = None
