@@ -38,13 +38,14 @@ output_frequency_ = 3
 # Fast storage temporary path
 temp_dir_ = None
 tempdir_created_ = False
+max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
 # TODO: set in init
 ref_date_ = None
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None):
+def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
     global exp_name_
     global table_root_
     global ifs_gridpoint_file_
@@ -52,6 +53,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     global output_interval_
     global temp_dir_
     global tempdir_created_
+    global max_size_
     global ref_date_
     global start_date_
     global output_frequency_
@@ -76,15 +78,19 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
         if(not os.path.exists(temp_dir_)):
             os.makedirs(temp_dir_)
             tempdir_created_ = True
+    max_size_ = maxsize
 
 
 # Execute the postprocessing+cmorization tasks
 def execute(tasks):
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
-    postprocess(supportedtasks)
-    log.info("Cmorizing IFS tasks...")
-    cmorize(supportedtasks)
+    taskstodo = supportedtasks
+    while(any(taskstodo)):
+        processedtasks = postprocess(supportedtasks)
+        cmorize(processedtasks)
+        postproc.cleanup()
+        taskstodo = list(set(taskstodo)-set(processedtasks))
 
 
 # Deletes all temporary paths and removes temp directory
@@ -119,7 +125,7 @@ def filter_tasks(tasks):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
-    log.info("Post-processing IFS tasks...")
+    log.info("Post-processing %d IFS tasks..." % len(tasks))
     for task in tasks:
         ifiles = list(set([ifs_spectral_file_ if c in cmor_source.ifs_source.grib_codes_sh else ifs_gridpoint_file_ for c in task.source.get_root_codes()]))
         if(len(ifiles)==1):
@@ -128,9 +134,9 @@ def postprocess(tasks):
             log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                        This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
-    postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_)
+    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_)
     log.info("Post-processing surface pressures...")
-    tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
+    tasksbyfreq = cmor_utils.group(tasks_done,lambda t:t.target.frequency)
     for freq,taskgroup in tasksbyfreq.iteritems():
         tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
         if(not any(tasks3d)): continue
@@ -144,10 +150,12 @@ def postprocess(tasks):
             postproc.post_process([sptask],temp_dir_)
         for task in tasks3d:
             setattr(task,"sp_path",getattr(sptask,"path"))
+    return tasks_done
 
 
 # Do the cmorization tasks
 def cmorize(tasks):
+    log.info("Cmorizing %d IFS tasks..." % len(tasks))
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
     gridid = create_grid_from_grib(getattr(tasks[0],"path"))

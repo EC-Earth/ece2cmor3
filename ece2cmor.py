@@ -69,11 +69,11 @@ def add_task(tsk):
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthreads = 4,cdothreads = 4,cleanup = True,outputfreq = 3):
+def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthreads = 4,cdothreads = 4,cleanup = True,outputfreq = 3,maxsizegb = float("inf")):
     ifs_tasks=[t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     tableroot=os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir)
+    ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads

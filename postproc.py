@@ -32,9 +32,10 @@ output_frequency_ = 3
 
 
 # Post-processes a list of tasks
-def post_process(tasks,path):
+def post_process(tasks,path,max_size_gb):
     comdict = {}
     commbuf = {}
+    max_size = 1000000000.*max_size_gb
     for task in tasks:
         command = create_command(task)
         commstr = command.create_command()
@@ -50,17 +51,26 @@ def post_process(tasks,path):
         if(not validate_tasklist(tasklist)):
             comdict.pop(comm)
     if(task_threads <= 2):
+        tmpsize = 0.
+        result = []
         for comm,tasklist in comdict.iteritems():
-            apply_command(comm,tasklist,path)
+            if(tmpsize >= max_size):
+                break
+            f = apply_command(comm,tasklist,path)
+            tmpsize += float(os.path.getsize(f))
+            result.extend(tasklist)
+        return result
     else:
         q = Queue.Queue()
+        status = ([],0)
         for i in range(task_threads):
-            worker = threading.Thread(target = cdo_worker,args = (q,path))
+            worker = threading.Thread(target = cdo_worker,args = (q,path,max_size,status))
             worker.setDaemon(True)
             worker.start()
         for (comm,tasklist) in comdict.iteritems():
             q.put((comm,tasklist))
         q.join()
+        return status[0]
 
 
 # Cleans up temporary files (beware, call it when temp files are longer necessary)
@@ -104,10 +114,12 @@ def create_command(task):
 
 
 # Multi-thread function wrapper.
-def cdo_worker(q,basepath):
-    while True:
+def cdo_worker(q,basepath,maxsize,stattuple):
+    while (stattuple[1] < maxsize):
         args = q.get()
-        apply_command(command = args[0],tasklist = args[1],basepath = basepath)
+        f = apply_command(command = args[0],tasklist = args[1],basepath = basepath)
+        stattuple[0].extend(tasklist)
+        stattuple[1] += float(os.path.getsize(f))
         q.task_done()
 
 
