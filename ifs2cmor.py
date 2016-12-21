@@ -78,7 +78,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
         if(not os.path.exists(temp_dir_)):
             os.makedirs(temp_dir_)
             tempdir_created_ = True
-    max_size_ = maxsize
+    max_size_ = maxsizegb
 
 
 # Execute the postprocessing+cmorization tasks

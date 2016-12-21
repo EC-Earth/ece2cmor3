@@ -62,7 +62,7 @@ def post_process(tasks,path,max_size_gb):
         return result
     else:
         q = Queue.Queue()
-        status = ([],0)
+        status = [[],0]
         for i in range(task_threads):
             worker = threading.Thread(target = cdo_worker,args = (q,path,max_size,status))
             worker.setDaemon(True)
@@ -114,12 +114,13 @@ def create_command(task):
 
 
 # Multi-thread function wrapper.
-def cdo_worker(q,basepath,maxsize,stattuple):
-    while (stattuple[1] < maxsize):
+def cdo_worker(q,basepath,maxsize,statlist):
+    while (statlist[1] < maxsize):
         args = q.get()
-        f = apply_command(command = args[0],tasklist = args[1],basepath = basepath)
-        stattuple[0].extend(tasklist)
-        stattuple[1] += float(os.path.getsize(f))
+	tasklist = args[1]
+        f = apply_command(command = args[0],tasklist = tasklist,basepath = basepath)
+        statlist[0].extend(tasklist)
+        statlist[1] += float(os.path.getsize(f))
         q.task_done()
 
 

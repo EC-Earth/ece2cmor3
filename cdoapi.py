@@ -1,4 +1,4 @@
-import threading
+import thread
 import logging
 import cdo
 
@@ -72,13 +72,7 @@ class cdo_command:
     # Applies the current set of operators to the input file
     def apply(self,ifile,ofile = None,threads = 4):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
-        app = None
-        threadid = threading.get_ident()
-        if(threadid in cdo_instances):
-            app = cdo_instances[threadid]
-        else:
-            app = cdo.Cdo()
-            cdo_instances[threadid] = app
+        app = cdo_command.get_cdo()
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
         func = getattr(app,keys[0],None)
         appargs = None
@@ -102,7 +96,7 @@ class cdo_command:
     # Applies the current set of operators and returns the netcdf variables in memory:
     def applycdf(self,ifile,threads = 4):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
-        app = cdo.Cdo()
+        app = cdo_command.get_cdo()
         optionstr = "" if threads < 2 else ("-P " + str(threads))
         func = getattr(app,keys[0],None)
         appargs = None
@@ -116,6 +110,15 @@ class cdo_command:
             return func(appargs,input = inputstr,options = optionstr,returnCdf = True).variables
         else:
             return func(input = inputstr,options = optionstr,returnCdf = True).variables
+
+    # Returns the thread-specific cdo instance, or adds it if necessary
+    @staticmethod
+    def get_cdo():
+	global cdo_instances
+        threadid = thread.get_ident()
+        if(threadid not in cdo_instances):
+            cdo_instances[threadid] = cdo.Cdo()
+        return cdo_instances[threadid]
 
     # Option writing utility function
     @staticmethod
