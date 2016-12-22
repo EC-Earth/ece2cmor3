@@ -118,7 +118,7 @@ def cdo_worker(q,basepath,maxsize,statlist):
     while (True):
         if(statlist[1] < maxsize):
             args = q.get()
-	        tasklist = args[1]
+	    tasklist = args[1]
             f = apply_command(command = args[0],tasklist = tasklist,basepath = basepath)
             statlist[0].extend(tasklist)
             statlist[1] += float(os.path.getsize(f))
