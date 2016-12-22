@@ -30,8 +30,10 @@ mode = 3
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
 
+
 # Helper list of tasks
 finished_tasks_ = []
+
 
 # Post-processes a list of tasks
 def post_process(tasks,path,max_size_gb = float("inf")):
@@ -77,6 +79,7 @@ def post_process(tasks,path,max_size_gb = float("inf")):
 def cleanup():
     cdoapi.cleanup()
 
+
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_tasklist(tasks):
     srcset = set(map(lambda t:t.source.get_grib_code().var_id,tasks))
@@ -111,6 +114,7 @@ def create_command(task):
     add_time_operators(result,freq,timops)
     add_level_operators(result,task)
     return result
+
 
 # Multi-thread function wrapper.
 def cdo_worker(q,basepath,maxsize):
