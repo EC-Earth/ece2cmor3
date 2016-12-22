@@ -30,9 +30,11 @@ mode = 3
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
 
+# Helper list of tasks
+finished_tasks_ = []
 
 # Post-processes a list of tasks
-def post_process(tasks,path,max_size_gb):
+def post_process(tasks,path,max_size_gb = float("inf")):
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
@@ -50,27 +52,25 @@ def post_process(tasks,path,max_size_gb):
     for comm,tasklist in comdict.iteritems():
         if(not validate_tasklist(tasklist)):
             comdict.pop(comm)
+    finished_tasks_ = []
     if(task_threads <= 2):
         tmpsize = 0.
-        result = []
         for comm,tasklist in comdict.iteritems():
             if(tmpsize >= max_size):
                 break
             f = apply_command(comm,tasklist,path)
             tmpsize += float(os.path.getsize(f))
-            result.extend(tasklist)
-        return result
+            finished_tasks_.extend(tasklist)
     else:
         q = Queue.Queue()
-        status = [[],0]
         for i in range(task_threads):
-            worker = threading.Thread(target = cdo_worker,args = (q,path,max_size,status))
+            worker = threading.Thread(target = cdo_worker,args = (q,path,max_size))
             worker.setDaemon(True)
             worker.start()
         for (comm,tasklist) in comdict.iteritems():
             q.put((comm,tasklist))
         q.join()
-        return status[0]
+    return finished_tasks_
 
 
 # Cleans up temporary files (beware, call it when temp files are longer necessary)
@@ -112,16 +112,13 @@ def create_command(task):
     add_level_operators(result,task)
     return result
 
-
 # Multi-thread function wrapper.
-def cdo_worker(q,basepath,maxsize,statlist):
-    while (True):
-        if(statlist[1] < maxsize):
-            args = q.get()
-	        tasklist = args[1]
-            f = apply_command(command = args[0],tasklist = tasklist,basepath = basepath)
-            statlist[0].extend(tasklist)
-            statlist[1] += float(os.path.getsize(f))
+def cdo_worker(q,basepath,maxsize):
+    while(True):
+        args = q.get()
+        if(sum(map(lambda t:os.path.getsize(getattr(t,"path")) if hasattr(t,"path") else 0,finished_tasks_)) < maxsize):
+            apply_command(command = args[0],tasklist = tasklist,basepath = basepath)
+            finished_tasks_.extend(tasklist)
         q.task_done()
 
 
