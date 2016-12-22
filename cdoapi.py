@@ -9,6 +9,8 @@ log = logging.getLogger(__name__)
 cdo_instances = {}
 
 def cleanup():
+    global cdo_instances
+    print "CALLING CDO CLEANUP METHOD"
     for k,v in cdo_instances.iteritems():
         del v
     cdo_instances = {}

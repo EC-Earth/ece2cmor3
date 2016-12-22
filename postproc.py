@@ -37,6 +37,7 @@ finished_tasks_ = []
 
 # Post-processes a list of tasks
 def post_process(tasks,path,max_size_gb = float("inf")):
+    global finished_tasks_
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
@@ -72,11 +73,12 @@ def post_process(tasks,path,max_size_gb = float("inf")):
         for (comm,tasklist) in comdict.iteritems():
             q.put((comm,tasklist))
         q.join()
-    return finished_tasks_
+    return list(finished_tasks_)
 
 
 # Cleans up temporary files (beware, call it when temp files are longer necessary)
 def cleanup():
+    print "CALLING PP CLEANUP METHOD"
     cdoapi.cleanup()
 
 
@@ -120,9 +122,11 @@ def create_command(task):
 def cdo_worker(q,basepath,maxsize):
     while(True):
         args = q.get()
-        if(sum(map(lambda t:os.path.getsize(getattr(t,"path")) if hasattr(t,"path") else 0,finished_tasks_)) < maxsize):
-            apply_command(command = args[0],tasklist = tasklist,basepath = basepath)
-            finished_tasks_.extend(tasklist)
+	files = list(set(map(lambda t:getattr(t,"path",None),finished_tasks_)))
+        if(sum(map(lambda f:os.path.getsize(f),files)) < maxsize):
+	    tasks = args[1]
+            apply_command(command = args[0],tasklist = tasks,basepath = basepath)
+            finished_tasks_.extend(tasks)
         q.task_done()
 
 

@@ -135,6 +135,7 @@ def postprocess(tasks):
                        This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
     tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_)
+    log.info("Post-processed batch of %d tasks." % len(tasks_done))
     log.info("Post-processing surface pressures...")
     tasksbyfreq = cmor_utils.group(tasks_done,lambda t:t.target.frequency)
     for freq,taskgroup in tasksbyfreq.iteritems():
