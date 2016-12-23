@@ -87,7 +87,7 @@ def execute(tasks):
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
     while(any(taskstodo)):
-        processedtasks = postprocess(supportedtasks)
+        processedtasks = postprocess(taskstodo)
         cmorize(processedtasks)
 	cleanup(processedtasks,False)
         taskstodo = list(set(taskstodo)-set(processedtasks))
@@ -160,6 +160,7 @@ def postprocess(tasks):
 # Do the cmorization tasks
 def cmorize(tasks):
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
+    return
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
     gridid = create_grid_from_grib(getattr(tasks[0],"path"))
