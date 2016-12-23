@@ -89,19 +89,22 @@ def execute(tasks):
     while(any(taskstodo)):
         processedtasks = postprocess(supportedtasks)
         cmorize(processedtasks)
-        postproc.cleanup()
+	cleanup(processedtasks,False)
         taskstodo = list(set(taskstodo)-set(processedtasks))
 
 
 # Deletes all temporary paths and removes temp directory
-def cleanup(tasks):
-    postproc.cleanup()
+def cleanup(tasks,cleanupdir = True):
     for task in tasks:
         ncpath = getattr(task,"path",None)
         if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):
             os.remove(ncpath)
-        delattr(task,"path")
-    if(tempdir_created_ and len(os.listdir(temp_dir_)) == 0):
+            delattr(task,"path")
+        sppath = getattr(task,"sp_path",None)
+        if(sppath != None and os.path.exists(sppath)):
+            os.remove(sppath)
+            delattr(task,"sp_path")
+    if(cleanupdir and tempdir_created_ and len(os.listdir(temp_dir_)) == 0):
         os.rmdir(temp_dir_)
         temp_dir_=None
 
@@ -189,7 +192,7 @@ def cmorize(tasks):
 # Executes a single task
 def execute_netcdf_task(task):
     filepath = getattr(task,"path",None)
-    if(not path):
+    if(not filepath):
         log.error("Could not find file containing data for variable %s in table" % (task.target.variable,task.target.table))
         return
     storevar = getattr(task,"store_with",None)
