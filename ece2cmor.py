@@ -77,9 +77,11 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads
-    ifs2cmor.execute(ifs_tasks)
-    if(cleanup):
-        ifs2cmor.cleanup(ifs_tasks)
+    try:
+        ifs2cmor.execute(ifs_tasks)
+    finally:
+        if(cleanup):
+            ifs2cmor.cleanup(ifs_tasks)
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks():

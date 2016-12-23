@@ -76,11 +76,6 @@ def post_process(tasks,path,max_size_gb = float("inf")):
     return list(finished_tasks_)
 
 
-# Cleans up temporary files (beware, call it when temp files are longer necessary)
-def cleanup():
-    print "CALLING PP CLEANUP METHOD"
-    cdoapi.cleanup()
-
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_tasklist(tasks):
@@ -138,7 +133,8 @@ def apply_command(command,tasklist,basepath = None):
     if(basepath == None and mode in [skip,append]):
         log.warning("Executing post-processing in skip/append mode without directory given: this will skip the entire task.")
     ifile = getattr(tasklist[0],"path")
-    ofile = os.path.join(basepath,tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc") if basepath else None
+    ofname = tasklist[0].target.variable + "_" + tasklist[0].target.table + ".nc"
+    ofile = os.path.join(basepath,ofname) if basepath else None
     for task in tasklist:
         commstr = command.create_command()
         log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
@@ -146,7 +142,12 @@ def apply_command(command,tasklist,basepath = None):
     result = ofile
     if(mode != skip):
         if(mode == recreate or (mode == append and not os.path.exists(ofile))):
-            result = command.apply(ifile,ofile,cdo_threads)
+            opath = command.apply(ifile,ofile,cdo_threads)
+            if(opath and not basepath):
+                tmppath = os.path.dirname(opath)
+                ofile = os.path.join(tmppath,ofname)
+                os.rename(opath,ofile)
+                result = ofile
     if(result):
         for task in tasklist:
             setattr(task,"path",result)

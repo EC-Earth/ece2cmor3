@@ -5,16 +5,6 @@ import cdo
 # Log object
 log = logging.getLogger(__name__)
 
-# CDO instances
-cdo_instances = {}
-
-def cleanup():
-    global cdo_instances
-    print "CALLING CDO CLEANUP METHOD"
-    for k,v in cdo_instances.iteritems():
-        del v
-    cdo_instances = {}
-
 # Class for interfacing with the CDO python wrapper.
 class cdo_command:
 
@@ -52,6 +42,7 @@ class cdo_command:
     # Constructor
     def __init__(self,code = 0):
         self.operators = {}
+        self.app = cdo.Cdo()
         if(code > 0):
             self.add_operator(cdo_command.select_code_operator,code)
 
@@ -71,12 +62,11 @@ class cdo_command:
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         return " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys])
 
-    # Applies the current set of operators to the input file
+    # Applies the current set of operators to the input file.
     def apply(self,ifile,ofile = None,threads = 4):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
-        app = cdo_command.get_cdo()
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
-        func = getattr(app,keys[0],None)
+        func = getattr(self.app,keys[0],None)
         appargs = None
         if(func):
             appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
@@ -98,9 +88,8 @@ class cdo_command:
     # Applies the current set of operators and returns the netcdf variables in memory:
     def applycdf(self,ifile,threads = 4):
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
-        app = cdo_command.get_cdo()
         optionstr = "" if threads < 2 else ("-P " + str(threads))
-        func = getattr(app,keys[0],None)
+        func = getattr(self.app,keys[0],None)
         appargs = None
         if(func):
             appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
@@ -112,15 +101,6 @@ class cdo_command:
             return func(appargs,input = inputstr,options = optionstr,returnCdf = True).variables
         else:
             return func(input = inputstr,options = optionstr,returnCdf = True).variables
-
-    # Returns the thread-specific cdo instance, or adds it if necessary
-    @staticmethod
-    def get_cdo():
-	global cdo_instances
-        threadid = thread.get_ident()
-        if(threadid not in cdo_instances):
-            cdo_instances[threadid] = cdo.Cdo()
-        return cdo_instances[threadid]
 
     # Option writing utility function
     @staticmethod
