@@ -10,6 +10,20 @@ Required nonstandard python modules:
 * dateutil
 * f90nml (only for namelist loading)
 
+Installation:
+
+With pip: Optionally create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
+```shell
+python setup.py install
+```
+to install the python wrapper in your python environment. Finally run
+```shell
+pip install requirements.txt
+```
+to install the remaining dependencies
+
+With anaconda: Optionally create a virtual anaconda environment.
+
 Usage: See the scripts in the examples folder.
 
 Design:
