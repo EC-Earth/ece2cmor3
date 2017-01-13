@@ -86,11 +86,22 @@ def execute(tasks):
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
+    oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
+    sptasks = oldsptasks + newsptasks
+    log.info("Post-processing surface pressures...")
+    proc_sptasks = postprocess(sptasks)
+    for task in taskstodo:
+        sptask = getattr(task,"sp_task",None)
+        if(sptask): 
+            setattr(task,"sp_path",getattr(sptask,"path",None))
+            delattr(task,"sp_task")
     while(any(taskstodo)):
         processedtasks = postprocess(taskstodo)
         cmorize(processedtasks)
 	cleanup(processedtasks,False)
         taskstodo = list(set(taskstodo)-set(processedtasks))
+    cmorize(oldsptasks)
+    cleanup(proc_sptasks)
 
 
 # Deletes all temporary paths and removes temp directory
@@ -100,10 +111,6 @@ def cleanup(tasks,cleanupdir = True):
         if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):
             os.remove(ncpath)
             delattr(task,"path")
-        sppath = getattr(task,"sp_path",None)
-        if(sppath != None and os.path.exists(sppath)):
-            os.remove(sppath)
-            delattr(task,"sp_path")
     if(cleanupdir and tempdir_created_ and len(os.listdir(temp_dir_)) == 0):
         os.rmdir(temp_dir_)
         temp_dir_=None
@@ -125,6 +132,26 @@ def filter_tasks(tasks):
             result.append(task)
     return result
 
+def get_sp_tasks(tasks):
+    tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
+    existing_tasks,extra_tasks = [],[]
+    for freq,taskgroup in tasksbyfreq.iteritems():
+        tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
+        if(not any(tasks3d)): continue
+        sptasks = [t for t in taskgroup if t.source.get_grib_code().var_id == 134 and getattr(t,"time_operator","point") in ["mean","point"]]
+        sptask = sptasks[0] if any(sptasks) else None
+        if(sptask):
+            existing_tasks.append(sptask)
+        else:
+            sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
+            setattr(sptask.target,cmor_target.freq_key,freq)
+            setattr(sptask,"time_operator",["mean"])
+            setattr(sptask,"path",ifs_spectral_file_)
+            extra_tasks.append(sptask)
+        for task in tasks3d:
+            setattr(task,"sp_task",sptask)
+    return existing_tasks,extra_tasks
+
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
@@ -139,21 +166,6 @@ def postprocess(tasks):
     postproc.output_frequency_ = output_frequency_
     tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
-    log.info("Post-processing surface pressures...")
-    tasksbyfreq = cmor_utils.group(tasks_done,lambda t:t.target.frequency)
-    for freq,taskgroup in tasksbyfreq.iteritems():
-        tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
-        if(not any(tasks3d)): continue
-        sptasks = [t for t in taskgroup if t.source.get_grib_code().var_id == 134 and getattr(t,"time_operator","point") in ["mean","point"]]
-        sptask = sptasks[0] if any(sptasks) else None
-        if(sptask == None or not getattr(sptask,"path","").endswith(".nc")):
-            sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
-            setattr(sptask.target,cmor_target.freq_key,freq)
-            setattr(sptask,"time_operator",["mean"])
-            setattr(sptask,"path",ifs_spectral_file_)
-            postproc.post_process([sptask],temp_dir_)
-        for task in tasks3d:
-            setattr(task,"sp_path",getattr(sptask,"path"))
     return tasks_done
 
 
