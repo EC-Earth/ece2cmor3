@@ -1,0 +1,70 @@
+name: ece2cmor3
+channels: !!python/tuple
+- !!python/unicode 'defaults'
+dependencies:
+- auto::cdo=1.2.3=py27_0
+- conda-forge::expat=2.1.0=2
+- conda-forge::g2clib=1.6.0=2
+- conda-forge::jasper=1.900.1=1
+- conda-forge::lapack=3.6.1=1
+- conda-forge::libpng=1.6.28=0
+- conda-forge::udunits2=2.2.20=2
+- conda-forge::xz=5.2.2=0
+- curl=7.49.0=1
+- dateutil=2.4.1=py27_0
+- hdf4=4.2.12=0
+- hdf5=1.8.17=1
+- jbig=2.1=0
+- jpeg=8d=2
+- libgfortran=3.0.0=1
+- libnetcdf=4.4.1=0
+- libtiff=4.0.6=2
+- mkl=2017.0.1=0
+- netcdf4=1.2.4=np111py27_0
+- nose=1.3.7=py27_1
+- numpy=1.11.3=py27_0
+- openssl=1.0.2j=0
+- pcmdi::cmor=3.2.1=np111py27_0
+- pip=9.0.1=py27_1
+- python=2.7.13=0
+- readline=6.2=2
+- setuptools=27.2.0=py27_0
+- six=1.10.0=py27_0
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- uvcdat::cdat_info=2.8=py27_2
+- uvcdat::cdms2=2.8.1=np111py27_0
+- uvcdat::cdtime=2.8=np111py27_2
+- uvcdat::clapack=3.2.1=2
+- uvcdat::distarray=2.8=py27_2
+- uvcdat::esmf=ESMF_6_3_0rp1_ESMP_01=np111py27_2
+- uvcdat::libcdms=2.8=2
+- uvcdat::libcf=1.0.beta11=py27_2
+- uvcdat::libdrs_c=1.0.1=2
+- uvcdat::libdrs_f=1.0.1=2
+- uvcdat::ossuuid=1.6.2=2
+- wheel=0.29.0=py27_0
+- zlib=1.2.8=3
+- pip:
+  - boto==2.43.0
+  - bz2file==0.98
+  - cdat-info==0.0.0
+  - docopt==0.6.2
+  - f90nml==0.19
+  - functools32==3.2.3.post2
+  - gensim==0.13.3
+  - glob2==0.5
+  - jsonschema==2.5.1
+  - mv2==3.0.0
+  - pattern==2.6
+  - pipreqs==0.4.6
+  - python-dateutil==2.4.1
+  - python-frontmatter==0.2.1
+  - pyyaml==3.11
+  - regrid2==3.0.0
+  - requests==2.12.4
+  - rfc3987==1.3.5
+  - scipy==0.18.1
+  - smart-open==1.3.5
+  - testfixtures==4.13.1
+  - yarg==0.1.9

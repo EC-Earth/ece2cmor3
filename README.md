@@ -1,18 +1,19 @@
 ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
-Required nonstandard python modules:
+## Required python packages:
 
 * netCDF4
 * cmor3
 * cdo (only for atmosphere post-processing)
-* nosetests (only for testing)
-* testfixture (only for testing)
-* dateutil
+* nose (only for testing)
+* testfixtures (only for testing)
+* python-dateutil
 * f90nml (only for namelist loading)
 
-Installation:
+## Installation:
 
-With pip: Optionally create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
+#### With pip: 
+Optionally create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
 ```shell
 python setup.py install
 ```
@@ -22,11 +23,17 @@ pip install requirements.txt
 ```
 to install the remaining dependencies
 
-With anaconda: Optionally create a virtual anaconda environment.
+#### With anaconda: 
+Optionally create a virtual anaconda environment:
+```shell
+conda create --name ece2cmor3 --file environment.yml
+```
+or run the conda install command with the environment yaml file as argument.
 
-Usage: See the scripts in the examples folder.
+## Usage: 
+See the scripts in the examples folder.
 
-Design:
+## Design:
 
 The package consists for 2 main modules, ifs2cmor and nemo2cmor. The main api module ece2cmor calls initialization and processing functions in these ocean and atmosphere specific codes. The full workload is divided into tasks, which consist of a source (an IFS grib code or NEMO parameter id) and a target (a cmor3 CMIP6 table entry). The tasks are constructed by the Fortran namelist legacy loader (namloader.py) or by the new json-loader (to be constructed). The working is similar to the previous ece2cmor tool: the loader reads parameter tables and creates tasks as it receives a dictionary of desired targets from the caller script.
 
