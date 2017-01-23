@@ -24,12 +24,12 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(79,128)
-        target = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
+        target = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         postproc.mode = postproc.skip
         ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
-        path = os.path.join(os.getcwd(),"clwvi_cfDay.nc")
+        path = os.path.join(os.getcwd(),"clwvi_CFday.nc")
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"-setgridtype,regular -daymean -shifttime,-3hours -selcode,79")
 
@@ -37,7 +37,7 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source1 = cmor_source.ifs_source.create(79,128)
-        target1 = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
+        target1 = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
         task1 = cmor_task.cmor_task(source1,target1)
         source2 = cmor_source.ifs_source.create(164,128)
         target2 = [t for t in targets if t.variable == "clt" and t.table == "day"][0]
@@ -94,12 +94,12 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
-        target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
+        target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevPt"][0]
         task = cmor_task.cmor_task(source,target)
         postproc.mode = postproc.skip
         ifs2cmor.temp_dir_ = os.getcwd()
         ifs2cmor.postprocess([task])
-        path = os.path.join(os.getcwd(),"sfcWind_6hrPlevpt.nc")
+        path = os.path.join(os.getcwd(),"sfcWind_6hrPlevPt.nc")
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"-expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selhour,0,6,12,18 -selcode,165,166")
 

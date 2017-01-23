@@ -61,8 +61,8 @@ def post_process(tasks,path,max_size_gb = float("inf")):
         for comm,tasklist in comdict.iteritems():
             if(tmpsize >= max_size):
                 break
-            f = apply_command(comm,tasklist,path)
-            tmpsize += float(os.path.getsize(f))
+            f = apply_command(comm, tasklist,path)
+            if(os.path.exists(f)): tmpsize += float(os.path.getsize(f))
             finished_tasks_.extend(tasklist)
     else:
         q = Queue.Queue()
@@ -222,7 +222,7 @@ def add_level_operators(cdo,task):
     if(axisname == "alevhalf"):
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",(task.target.table))
         return
-    axisinfos = cmor_target.axes.get(task.target.table,{})
+    axisinfos = cmor_target.get_axis_info(task.target.table)
     axisinfo = axisinfos.get(axisname,None)
     if(not axisinfo):
         log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))

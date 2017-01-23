@@ -21,13 +21,13 @@ class ece2cmor_tests(unittest.TestCase):
 
     def test_lookup_target(self):
         ece2cmor_tests.init()
-        tgt=ece2cmor.get_cmor_target("clwvi","cfDay")
+        tgt=ece2cmor.get_cmor_target("clwvi","CFday")
         ok_(tgt!=None,"CMOR target successfully created")
         ece2cmor.finalize()
 
     def test_create_task(self):
         ece2cmor_tests.init()
-        tgt=ece2cmor.get_cmor_target("clwvi","cfDay")
+        tgt=ece2cmor.get_cmor_target("clwvi","CFday")
         src=cmor_source.ifs_source.read("79.128")
         tsk=cmor_task.cmor_task(src,tgt)
         ece2cmor.add_task(tsk)
@@ -36,7 +36,7 @@ class ece2cmor_tests(unittest.TestCase):
 
     def test_duplicate_task(self):
         ece2cmor_tests.init()
-        tgt=ece2cmor.get_cmor_target("clwvi","cfDay")
+        tgt=ece2cmor.get_cmor_target("clwvi","CFday")
         src1=cmor_source.ifs_source.read("49.128")
         tsk1=cmor_task.cmor_task(src1,tgt)
         ece2cmor.add_task(tsk1)

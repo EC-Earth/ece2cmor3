@@ -20,7 +20,7 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(79,128)
-        target = [t for t in targets if t.variable == "clwvi" and t.table == "cfDay"][0]
+        target = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),"-setgridtype,regular -daymean -shifttime,-3hours -selcode,79")
@@ -29,7 +29,7 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(131,128)
-        target = [t for t in targets if t.variable == "ua" and t.table == "cfDay"][0]
+        target = [t for t in targets if t.variable == "ua" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -shifttime,-3hours -selcode,131")
@@ -56,7 +56,7 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
-        target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevpt"][0]
+        target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevPt"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),"-expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selhour,0,6,12,18 -selcode,165,166")
@@ -74,7 +74,7 @@ class ifs2cmor_tests(unittest.TestCase):
         abspath = get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(135,128)
-        target = [t for t in targets if t.variable == "wap500" and t.table == "cfDay"][0]
+        target = [t for t in targets if t.variable == "wap500" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -sellevel,50000. -selzaxis,pressure -shifttime,-3hours -selcode,135")

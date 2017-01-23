@@ -3,12 +3,22 @@ import re
 import json
 import logging
 
+
 # Log object.
 log = logging.getLogger(__name__)
 
 
 # Axes information read from tables.
 axes = {}
+
+
+# Returns the axes defined for the input table.
+def get_axis_info(table_id):
+    result = axes.get(coord_file,{})
+    overrides = axes.get(table_id,{})
+    for k,v in overrides.iteritems():
+        result[k] = v
+    return result
 
 
 # Class for cmor target objects, which represent output variables.
@@ -27,6 +37,10 @@ def get_table_id(filepath,prefix):
     if(not regex):
         raise Exception("Unable to match file name",fname,"as cmor table json-file with prefix",prefix)
     return regex.group()[len(prefix) + 1:len(fname) - 5]
+
+
+# Special files:
+coord_file = "coordinate"
 
 
 # Json file keys:
@@ -106,6 +120,20 @@ def create_targets_for_file(filepath,prefix):
     return result
 
 
+# Creates axes info dictionaries for given file
+def create_axes_for_file(filepath,prefix):
+    tabid = get_table_id(filepath,prefix)
+    s = open(filepath).read()
+    result = []
+    try:
+        data = json.loads(s)
+    except ValueError as err:
+        log.warning("Input table %s has been ignored. Reason: %s" % (filepath,format(err)))
+        return result
+    axes_entries = get_lowercase(data,axis_key,{})
+    axes[tabid] = axes_entries
+
+
 # Utility function for lower-case dictionary searches
 def get_lowercase(dictionary,key,default):
     if(not isinstance(key,basestring)): return dictionary.get(key,default)
@@ -120,6 +148,9 @@ def create_targets(path,prefix):
     if(os.path.isfile(path)):
         return create_targets_for_file(path,prefix)
     elif(os.path.isdir(path)):
+        coordfilepath = os.path.join(path,prefix + "_" + coord_file + ".json")
+        if(os.path.exists(coordfilepath)):
+            create_axes_for_file(coordfilepath,prefix)
         expr = re.compile("^"+prefix+"_.*.json$")
         paths = [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
         result = []
@@ -128,6 +159,7 @@ def create_targets(path,prefix):
         return result
     else:
         return []
+
 
 # Validates a CMOR target, skipping those that do not make any sense
 def validate_target(target):

@@ -35,7 +35,7 @@ class namloader_test(unittest.TestCase):
     def test_load_ovars(self):
         ece2cmor.initialize(configfile)
         try:
-            namloader.load_targets({"Omon":["tossq","so","thetao"],"Oday":["orog"]})
+            namloader.load_targets({"Omon":["tossq","so","thetao"],"Oday":["sos"]})
             eq_(len(ece2cmor.tasks),4)
         finally:
             ece2cmor.finalize()
@@ -53,14 +53,14 @@ class namloader_test(unittest.TestCase):
     def test_load_unit_conv(self):
         ece2cmor.initialize(configfile)
         try:
-            namloader.load_targets({"Amon":["prc","rsus","orog"]})
+            namloader.load_targets({"Amon":["prc","rsus","zg"]})
             eq_(len(ece2cmor.tasks),3)
             prctask = [t for t in ece2cmor.tasks if t.target.variable == "prc"][0]
             rsustask = [t for t in ece2cmor.tasks if t.target.variable == "rsus"][0]
-            orogtask = [t for t in ece2cmor.tasks if t.target.variable == "orog"][0]
+            zgtask = [t for t in ece2cmor.tasks if t.target.variable == "zg"][0]
             eq_("vol2flux",getattr(prctask,cmor_task.conversion_key))
             eq_("cum2inst",getattr(rsustask,cmor_task.conversion_key))
-            eq_("pot2alt",getattr(orogtask,cmor_task.conversion_key))
+            eq_("pot2alt",getattr(zgtask,cmor_task.conversion_key))
         finally:
             ece2cmor.finalize()
 
