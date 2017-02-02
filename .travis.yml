@@ -15,7 +15,7 @@ install:
     - conda update -q conda
     - conda info -a
     - conda env create -f environment.yml
-    - source activate testenv
+    - source activate ece2cmor3
 script:
     - nosetests -v
 
