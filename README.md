@@ -26,7 +26,7 @@ to install the remaining dependencies
 #### With anaconda: 
 Optionally create a virtual anaconda environment:
 ```shell
-conda create --name ece2cmor3 --file environment.yml
+conda env create -f environment.yml
 ```
 or run the conda install command with the environment yaml file as argument.
 
