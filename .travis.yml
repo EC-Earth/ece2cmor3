@@ -17,6 +17,6 @@ install:
     - conda env create -f environment.yml
     - source activate ece2cmor3
 script:
-    - nosetests -v
+    - nosetests -v -s
 
 
