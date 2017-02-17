@@ -1,0 +1,37 @@
+if ( levelType is "sfc" ) 
+{
+    write "[gridType]_3h";
+    if ( param is "134.128" && ( dataTime == 0 || dataTime == 600 || dataTime == 1200 || dataTime == 1800 ) )
+    {
+	write "[gridType]_6h";
+    }
+}
+else 
+{
+    if ( levelType is "pl" ) 
+    {
+	if ( ( ( param is "152.128" ) && level == 1000 ) ) 
+	{
+	    write "[gridType]_3h";
+	}
+	else
+	{
+	    if ( ( ( param is "131.128" || param is "132.128" ) && level == 850 ) )
+	    {
+	        write "[gridType]_3h";
+		if ( dataTime == 0 || dataTime == 600 || dataTime == 1200 || dataTime == 1800 )
+		{
+		     write "[gridType]_6h";
+		}
+	    }
+	    else
+	    {
+		write "[gridType]_6h";
+	    }
+	}
+    }
+    else 
+    {
+        write "[gridType]_6h";
+    }
+}
