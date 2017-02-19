@@ -25,17 +25,34 @@ log = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-if __name__ == "__main__":
-    paths = reduce(lambda lst,elem:lst + glob.glob(elem),sys.argv[1:],[])
+def get_drq(args):
+    drqarg = getattr(args,"drq",None)
+    if(not drqarg):
+        logging.warning("No data request csv file list given: returning empty variable list")
+        return []
+    expr = drqarg
+    if(os.path.isdir(drqarg)):
+        expr = os.path.join(drqarg,"*.csv")
+    paths = reduce(lambda lst,elem:lst + glob.glob(elem),expr,[])
     files = list(set([os.path.abspath(p) for p in paths]))
-    result = {}
+    result = []
     for f in files:
         if(not os.path.exists(f)):
             log.error("Skipping non-existing file %s" % f)
-            continue
-        if(not f.endswith(".csv")):
+        elif(not f.endswith(".csv")):
             log.error("Skipping non-csv file %s" % f)
-            continue
+        else:
+            result.append(f)
+    return result
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Produce variable list from input data request and CMIP tables")
+    parser.add_argument("--drq",dest = "drq",help = "Input data request csv file list",default = None)
+    args = parser.parse_args()
+    csvfiles = get_drq(args)
+    result = {}
+    for f in csvfiles:
         try:
             csvf = open(f)
             table = os.path.basename(f)[:-4]
