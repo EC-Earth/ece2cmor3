@@ -23,10 +23,11 @@ truewords = ["true","x","yes","y","1"]
 # Logger construction
 log = logging.getLogger(__name__)
 
+# Logging configuration
 logging.basicConfig(level=logging.DEBUG)
 
-def get_drq(args):
-    drqarg = getattr(args,"drq",None)
+# Retrieve all csv files from input string
+def get_drq(drqarg):
     if(not drqarg):
         logging.warning("No data request csv file list given: returning empty variable list")
         return []
@@ -45,12 +46,8 @@ def get_drq(args):
             result.append(f)
     return result
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Produce variable list from input data request and CMIP tables")
-    parser.add_argument("--drq",dest = "drq",help = "Input data request csv file list",default = None)
-    args = parser.parse_args()
-    csvfiles = get_drq(args)
+# Write varlist json from EC-Earth fields in drq csv files
+def write_varlist(csvfiles):
     result = {}
     for f in csvfiles:
         try:
@@ -80,3 +77,11 @@ if __name__ == "__main__":
     with open(ofile,'w') as output:
         json.dump(result,output,indent = 4,separators = (',', ': '))
         log.info("File %s written" % ofile)
+
+# Main program
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Produce variable list from input data request and CMIP tables")
+    parser.add_argument("--drq",dest = "drq",help = "Input data request csv file list",default = None)
+    args = parser.parse_args()
+    csvfiles = get_drq(args.drq)
+    write_varlist(csvfiles)
