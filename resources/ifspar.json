@@ -2,10 +2,13 @@
     {
         "source": "131.128",
         "target": [
-            "ua7c",
-            "ua850",
+            "ua",
             "ua4",
-            "ua"
+            "ua7c",
+            "ua7h",
+            "ua27",
+            "ua850",
+            "ua100m"
         ]
     },
     {
@@ -33,9 +36,12 @@
         "source": "132.128",
         "target": [
             "va",
+            "va4",
             "va7c",
+            "va7h",
+            "va27",
             "va850",
-            "va4"
+            "va100m"
         ]
     },
     {
@@ -46,10 +52,9 @@
     {
         "source": "80.128",
         "target": [
-            "rhsmin",
-            "rhsmax",
             "hurs",
-            "rhs"
+            "hursmin",
+            "hursmax"
         ],
         "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
     },
@@ -161,6 +166,7 @@
         "target": [
             "hus7c",
             "hus4",
+            "hus27",
             "hus"
         ]
     },
@@ -209,6 +215,11 @@
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros"
+    },
+    {
+        "source": "9.128",
+        "convert": "vol2flux",
+        "target": "mrrob"
     },
     {
         "source": "243.128",
@@ -285,6 +296,21 @@
         "convert": "cum2inst",
         "target": "rsut",
         "expr": "var97=var178-var212"
+    },
+    {
+        "source": "100.128",
+        "target": "ut",
+        "expr": "var100=var131*var130"
+    },
+    {
+        "source": "101.128",
+        "target": "vt",
+        "expr": "var101=var132*var130"
+    },
+    {
+        "source": "102.128",
+        "target": "snw",
+        "expr": "var102=var33*var141"
     },
     {
         "source": "78.128",

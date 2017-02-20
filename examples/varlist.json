@@ -1,10 +1,16 @@
 {
-    "emMon": [
-        "ua7c",
-        "va7c",
-        "hus7c"
+    "Emon": [
+        "ua",
+        "ua27",
+        "va27",
+        "ut",
+        "vt",
+        "hus",
+        "hus27",
+        "ut",
+        "vt"
     ],
-    "cfMon": [
+    "CFmon": [
         "rlu",
         "rsu",
         "rld",
@@ -17,6 +23,12 @@
         "tossq",
         "tos",
         "sos"
+    ],
+    "SIday": [
+        "siu",
+        "siv",
+        "siconc",
+        "sithick"
     ],
     "LImon": [
         "snw",
@@ -36,7 +48,6 @@
         "huss",
         "mrsos",
         "tslsi",
-        "tos",
         "prc",
         "prsn",
         "mrro",
@@ -71,16 +82,17 @@
         "wfo",
         "vsfsit",
         "sfdsi",
-        "hfsithermds",
         "rsntds",
         "rsdo",
         "hfds",
-        "zfull",
-        "zhalf"
+        "zfullo",
+        "zhalfo"
     ],
-    "emDayZ": [
-        "zg17",
-        "zg23"
+    "SImon": [
+        "siu",
+        "siv",
+        "siconc",
+        "sithick"
     ],
     "Amon": [
         "tas",
@@ -126,33 +138,34 @@
         "wap",
         "zg"
     ],
-    "emDay": [
-        "hus23",
-        "ta23",
-        "ua23",
-        "va23",
-        "wap23",
-        "zg23"
-    ],
-    "aero": [
-        "orog",
-        "ps"
+    "Eday": [
+        "hus",
+        "ta",
+        "ua",
+        "va",
+        "wap",
+        "snw",
+        "mrro",
+        "mrros",
+        "mrrob"
     ],
     "6hrPlev": [
         "psl",
         "zg7h",
-        "ua4",
-        "va4",
+        "ua",
+        "va",
+        "ua7h",
+        "va7h",
+        "ua850",
+        "va850",
+        "ua100m",
+        "ua100m",
         "wap4",
         "hus4"
     ],
-    "emDaypt": [
-        "ua",
-        "va"
-    ],
     "Oclim": [
-        "zfull",
-        "zhalf"
+        "zfullo",
+        "zhalfo"
     ],
     "day": [
         "huss",
@@ -162,15 +175,10 @@
         "pr",
         "psl",
         "sfcWind",
-        "tossq",
-        "tos",
-        "rhs",
         "clt",
         "tslsi",
-        "snw",
         "prc",
         "prsn",
-        "mrro",
         "uas",
         "vas",
         "sfcWindmax",
@@ -181,24 +189,22 @@
         "rsds",
         "rsus",
         "rlut",
-        "usi",
-        "vsi",
-        "sic",
-        "sit",
         "ta",
         "hur",
+        "hurs",
+        "hursmin",
+        "hursmax",
         "hus",
         "wap",
         "va",
         "ua"
     ],
-    "em3hrpt": [
+    "E3hrPt": [
         "ua850",
         "va850",
         "psl"
     ],
-    "cfDay": [
-        "orog",
+    "CFday": [
         "ps",
         "rsdt",
         "rsut",
@@ -208,12 +214,6 @@
         "clivi",
         "wap500",
         "ta700",
-        "prc",
-        "rlds",
-        "rlus",
-        "rsds",
-        "rsus",
-        "rlut",
         "ua",
         "va",
         "ta",
@@ -235,9 +235,10 @@
         "mrlsl",
         "lai"
     ],
-    "6hrPlevpt": [
+    "6hrPlevPt": [
         "uas",
         "vas",
-        "vortmean"
+        "vortmean",
+        "snw"
     ]
 }

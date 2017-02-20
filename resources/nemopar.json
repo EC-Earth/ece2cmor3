@@ -48,7 +48,7 @@
     {
         "source": "sivelv",
         "grid": "icemod",
-        "target": "vsi"
+        "target": "siv"
     },
     {
         "source": "zossq",
@@ -73,7 +73,7 @@
     {
         "source": "sivelu",
         "grid": "icemod",
-        "target": "usi"
+        "target": "siu"
     },
     {
         "source": "thetao",
@@ -83,7 +83,7 @@
     {
         "source": "siconc",
         "grid": "icemod",
-        "target": "sic"
+        "target": "siconc"
     },
     {
         "source": "friver",
@@ -153,7 +153,7 @@
     {
         "source": "zfull",
         "grid": "grid_T",
-        "target": "zfull"
+        "target": "zfullo"
     },
     {
         "source": "mlotst",
@@ -188,6 +188,6 @@
     {
         "source": "zhalf",
         "grid": "grid_T",
-        "target": "zhalf"
+        "target": "zhalfo"
     }
 ]
