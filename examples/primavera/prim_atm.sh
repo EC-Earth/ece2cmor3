@@ -22,5 +22,5 @@ mv sh_3h 3hr/ICMSH$expname+$outputdate
 mv sh_6h 6hr/ICMSH$expname+$outputdate
 rm filter6h
 cd -
-./prim_atm_6hr.py -d $tmppath/6hr -c primavera.json -e $expname -t $tmppath &
-./prim_atm_3hr.py -d $tmppath/3hr -c primavera.json -e $expname -t $tmppath 
+./prim_atm_6hr.py -d $tmppath/6hr -e $expname -t $tmppath &
+./prim_atm_3hr.py -d $tmppath/3hr -e $expname -t $tmppath 

@@ -18,6 +18,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
+curdir = os.path.dirname(os.path.abspath(__file__))
+
 
 def main(args):
 
@@ -29,7 +31,7 @@ def main(args):
     if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
 
     # Initialize ece2cmor with metadata and experiment prefix:
-    ece2cmor.initialize("primavera.json",opt.exp)
+    ece2cmor.initialize(os.path.join(curdir,"primavera.json"),opt.exp)
 
     # Set directory and time interval for cmorization step:
     ece2cmor.ifsdir = odir
@@ -37,10 +39,10 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    jsonloader.load_targets("varlist.json")
+    jsonloader.load_targets(os.path.join(curdir,"varlist.json"))
 
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks()
+    ece2cmor.perform_nemo_tasks()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
