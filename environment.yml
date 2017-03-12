@@ -9,7 +9,8 @@ dependencies:
 - conda-forge::libpng=1.6.28=0
 - conda-forge::udunits2=2.2.20=2
 - conda-forge::xz=5.2.2=0
-- conda-forge::cdo=1.7.2=0
+- conda-forge::cdo=1.7.2=2
+- conda-forge::python-cdo=1.3.0=py27_0
 - curl=7.49.0=1
 - dateutil=2.4.1=py27_0
 - hdf5=1.8.17=1
