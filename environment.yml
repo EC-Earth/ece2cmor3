@@ -15,7 +15,7 @@ dependencies:
 - dateutil=2.4.1=py27_0
 - hdf5=1.8.17=1
 - jbig=2.1=0
-- jpeg=8d=2
+- jpeg=9b=0
 - libgfortran=3.0.0=1
 - libnetcdf=4.4.1=0
 - libtiff=4.0.6=2
