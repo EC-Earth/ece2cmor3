@@ -67,10 +67,14 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     datafiles = select_files(path,exp_name_,start,length,output_interval_)
     gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
-    if(not (len(gpfiles) == 1 and len(shfiles) == 1)):
+    if(len(gpfiles) == 0 or len(shfiles) == 0):
+        filetype = "Gridpoint" if len(gpfiles) == 0 else "Spectral"
+        log.error("%s file not found in directory %s, aborting..." % (filetype,path))
+        return False
+    if(len(gpfiles) > 1 or len(shfiles) > 1):
         #TODO: Support postprocessing over multiple files
-        log.warning("Expected a single grid point and spectral file to process, found %s and %s; \
-                     will take first file of each list." % (str(gpfiles),str(shfiles)))
+        log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
+                     will take first file of each list." % (path,str(gpfiles),str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0]
     ifs_spectral_file_ = shfiles[0]
     if(tempdir):
@@ -79,6 +83,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
             os.makedirs(temp_dir_)
             tempdir_created_ = True
     max_size_ = maxsizegb
+    return True
 
 
 # Execute the postprocessing+cmorization tasks
@@ -92,7 +97,7 @@ def execute(tasks):
     proc_sptasks = postprocess(sptasks)
     for task in taskstodo:
         sptask = getattr(task,"sp_task",None)
-        if(sptask): 
+        if(sptask):
             setattr(task,"sp_path",getattr(sptask,"path",None))
             delattr(task,"sp_task")
     while(any(taskstodo)):

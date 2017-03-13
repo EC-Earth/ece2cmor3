@@ -73,7 +73,8 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)
+    if(not ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
+        return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads
@@ -87,5 +88,6 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
 def perform_nemo_tasks():
     nemo_tasks = [t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
     tableroot = os.path.join(table_dir,prefix)
-    nemo2cmor.initialize(nemodir,exp_name,tableroot,startdate,interval)
+    if(not nemo2cmor.initialize(nemodir,exp_name,tableroot,startdate,interval)):
+        return
     nemo2cmor.execute(nemo_tasks)

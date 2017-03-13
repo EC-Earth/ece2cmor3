@@ -48,6 +48,7 @@ def initialize(path,expname,tableroot,start,length):
     cmor.load_table(tableroot + "_grids.json")
     log.info("Creating NEMO grids in CMOR...")
     create_grids()
+    return True
 
 
 # Resets the module globals.
