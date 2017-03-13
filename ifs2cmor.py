@@ -104,8 +104,8 @@ def execute(tasks):
     while(any(taskstodo)):
         processedtasks = postprocess(taskstodo)
         cmorize(processedtasks)
-	cleanup(processedtasks,False)
-        taskstodo = list(set(taskstodo)-set(processedtasks))
+        cleanup(processedtasks,False)
+        taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
     cmorize(oldsptasks)
     cleanup(proc_sptasks)
 
