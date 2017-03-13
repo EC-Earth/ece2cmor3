@@ -44,6 +44,7 @@ max_size_ = float("inf")
 # TODO: set in init
 ref_date_ = None
 
+
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
     global exp_name_
@@ -137,6 +138,8 @@ def filter_tasks(tasks):
             result.append(task)
     return result
 
+
+# Creates extra tasks for surface pressure
 def get_sp_tasks(tasks):
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
     existing_tasks,extra_tasks = [],[]
@@ -177,6 +180,7 @@ def postprocess(tasks):
 # Do the cmorization tasks
 def cmorize(tasks):
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
+    if(not any(tasks)): return
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
     gridid = create_grid_from_grib(getattr(tasks[0],"path"))
