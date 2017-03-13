@@ -23,9 +23,9 @@ def is3hrtask(task):
 
 logging.basicConfig(level=logging.DEBUG)
 
-startdate = datetime.date(1990,1,1)
+startdate = datetime.date(1950,1,1)
 interval = relativedelta(months=1)
-curdir = os.path.dirname(os.path.abspath(__file__))
+curdir = os.path.join(os.path.dirname(os.path.abspath(ece2cmor.__file__)),"examples","primavera")
 
 def main(args):
 
@@ -33,6 +33,8 @@ def main(args):
     parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
     parser.add_option("-t","--tmp" ,dest = "temp" ,help = "Temporary working directory")
+    parser.add_option("-v","--var" ,dest = "varlist" ,help = "Input variable list (optional)")
+
     (opt,args) = parser.parse_args()
     odir = os.path.abspath(opt.dir)
     if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
@@ -46,7 +48,7 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    jsonloader.load_targets(os.path.join(curdir,"varlist.json"))
+    jsonloader.load_targets(getattr(opt,"varlist",os.path.join(curdir,"varlist.json")))
 
     # Remove targets that are constructed from six-hourly data:
     ece2cmor.tasks = [t for t in ece2cmor.tasks if is3hrtask(t)]
