@@ -146,6 +146,7 @@ def get_nemo_grid(filepath,expname):
 
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
+#@profile
 def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None):
     dims = len(ncvar.shape)
     times = 1 if timdim < 0 else ncvar.shape[timdim]
@@ -188,6 +189,7 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
             logger.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
         cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - i)))
+        del vals
         if(psvarid and ncpsvar):
             if(len(ncpsvar.shape) == 3):
             	spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
@@ -195,3 +197,4 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
                 projvar = ncpsvar[i:imax,0,:,:]
             	spvals = numpy.transpose(projvar,axes = [1,2,0])
             cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)
+            del spvals
