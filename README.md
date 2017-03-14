@@ -12,7 +12,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Installation:
 
-#### With pip: 
+#### With pip:
 Optionally create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
 ```shell
 python setup.py install
@@ -23,15 +23,18 @@ pip install requirements.txt
 ```
 to install the remaining dependencies
 
-#### With anaconda: 
+#### With anaconda:
 Optionally create a virtual anaconda environment:
 ```shell
 conda env create -f environment.yml
 ```
 or run the conda install command with the environment yaml file as argument.
 
-## Usage: 
-See the scripts in the examples folder.
+## Usage:
+See the scripts in the examples folder. If you didn't clone the repository with the ```--recursive``` flag, clone the CMIP6 tables by typing
+```shell
+git submodule update --init --recursive
+```
 
 ## Design:
 
