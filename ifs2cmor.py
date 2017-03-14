@@ -322,13 +322,13 @@ def create_depth_axes(tasks):
             setattr(task,"z_axis_id",axisid)
             setattr(task,"store_with",psid)
             continue
-	elif zdim in ["sdepth","sdepth1"]:
+        elif zdim in ["sdepth","sdepth1"]:
             axisid = create_soil_depth_axis(0,zdim)
             depth_axes[zdim] = axisid
             setattr(task,"z_axis_id",axisid)
-        elif zdim in cmor_target.axes[task.target.table]:
+        elif zdim in cmor_target.get_axis_info(task.target.table):
             axisid = 0
-            axis = cmor_target.axes[task.target.table][zdim]
+            axis = cmor_target.get_axis_info(task.target.table)[zdim]
             levels = axis.get("requested",[])
             if(levels == ""):
                 levels = []
