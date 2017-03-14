@@ -165,8 +165,8 @@ def get_sp_tasks(tasks):
 def postprocess(tasks):
     log.info("Post-processing %d IFS tasks..." % len(tasks))
     for task in tasks:
-        ifiles = list(set([ifs_spectral_file_ if c in cmor_source.ifs_source.grib_codes_sh else ifs_gridpoint_file_ for c in task.source.get_root_codes()]))
-        if(len(ifiles)==1):
+        ifiles = get_source_files(task.source.get_root_codes())
+        if(len(ifiles)):
             setattr(task,"path",ifiles[0])
         else:
             log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
@@ -175,6 +175,13 @@ def postprocess(tasks):
     tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
+
+
+# Counts the (minimal) number of source files needed for the given list of codes
+def get_source_files(gribcodes):
+    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_gg)): return [ifs_gridpoint_file_]
+    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_sh)): return [ifs_spectral_file_]
+    return [ifs_gridpoint_file_,ifs_spectral_file_]
 
 
 # Do the cmorization tasks
