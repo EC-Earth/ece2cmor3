@@ -26,6 +26,8 @@ def main(args):
     parser = optparse.OptionParser()
     parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
+    parser.add_option("-v","--var" ,dest = "varlist" ,help = "Input variable list (optional)")
+
     (opt,args) = parser.parse_args()
     odir = os.path.abspath(opt.dir)
     if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
@@ -39,7 +41,8 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    jsonloader.load_targets(os.path.join(curdir,"varlist.json"))
+    varlist = opt.varlist if opt.varlist else os.path.join(curdir,"varlist.json")
+    jsonloader.load_targets(varlist)
 
     # Execute the cmorization:
     ece2cmor.perform_nemo_tasks()

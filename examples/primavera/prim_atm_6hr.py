@@ -49,7 +49,8 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    jsonloader.load_targets(getattr(opt,"varlist",os.path.join(curdir,"varlist.json")))
+    varlist = opt.varlist if opt.varlist else os.path.join(curdir,"varlist.json")
+    jsonloader.load_targets(varlist)
 
     # Remove targets that are constructed from three-hourly data:
     ece2cmor.tasks = [t for t in ece2cmor.tasks if is6hrtask(t)]
