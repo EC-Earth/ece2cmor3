@@ -35,6 +35,7 @@ def load_targets(varlist):
 		add_target(v,table,targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
+    log.info("Found %d cmor target variables in input variable list." % len(targetlist))
     create_tasks(targetlist)
 
 
@@ -73,6 +74,7 @@ def create_tasks(targets):
     nemopartext = open(nemo_par_file).read()
     nemoparlist = json.loads(nemopartext)
     parlist.extend(nemoparlist)
+    ntasks = 0
     for target in targets:
         pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
@@ -86,7 +88,10 @@ def create_tasks(targets):
         par = pars[0] if len(tabpars) == 0 else tabpars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         task = create_cmor_task(par,target,tag)
-        if task: ece2cmor.add_task(task)
+        if task:
+            ece2cmor.add_task(task)
+            ntasks += 1
+    log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
 
 
 # Checks whether the variable matches the parameter table block
