@@ -124,19 +124,20 @@ def cleanup(tasks,cleanupdir = True):
 
 
 # Creates a sub-list of tasks that we believe we can succesfully process
+# TODO: Extend this to a full validation.
 def filter_tasks(tasks):
+    log.info("Inspecting %d tasks." % len(tasks))
     result = []
     for task in tasks:
-        tgtdims=getattr(task.target,cmor_target.dims_key).split()
+        tgtdims = getattr(task.target,cmor_target.dims_key,[]).split()
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
-        if(haslat and haslon):
+        if((haslat and haslon) or (not haslat and not haslon)):
             result.append(task)
-        elif(haslat or haslon):
-            # TODO: Support meriodinal variables
-            log.error("Variable %s has unsupported combination of dimensions %s and will be skipped." % (task.target.variable,tgtdims))
         else:
-            result.append(task)
+            # TODO: Support zonal variables
+            log.error("Variable %s has unsupported combination of dimensions %s and will be skipped." % (task.target.variable,tgtdims))
+    log.info("Validated %d tasks for processing." % len(result))
     return result
 
 
