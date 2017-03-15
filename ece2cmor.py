@@ -70,7 +70,9 @@ def add_task(tsk):
 
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthreads = 4,cdothreads = 4,cleanup = True,outputfreq = 3,maxsizegb = float("inf")):
+    global tasks
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
+    log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
     if(not ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
@@ -86,7 +88,9 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks():
+    global tasks
     nemo_tasks = [t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
+    log.info("Selected %d NEMO tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
     if(not nemo2cmor.initialize(nemodir,exp_name,tableroot,startdate,interval)):
         return
