@@ -12,33 +12,6 @@ log = logging.getLogger(__name__)
 axes = {}
 
 
-# Returns the axes defined for the input table.
-def get_axis_info(table_id):
-    result = axes.get(coord_file,{})
-    overrides = axes.get(table_id,{})
-    for k,v in overrides.iteritems():
-        result[k] = v
-    return result
-
-
-# Class for cmor target objects, which represent output variables.
-class cmor_target(object):
-
-    def __init__(self,var_id__,tab_id__):
-        self.variable = var_id__
-        self.table = tab_id__
-        self.dims = 2
-
-
-# Derives the table id for the given file path
-def get_table_id(filepath,prefix):
-    fname = os.path.basename(filepath)
-    regex = re.search("^" + prefix + "_.*.json$",fname)
-    if(not regex):
-        raise Exception("Unable to match file name",fname,"as cmor table json-file with prefix",prefix)
-    return regex.group()[len(prefix) + 1:len(fname) - 5]
-
-
 # Special files:
 coord_file = "coordinate"
 
@@ -58,8 +31,37 @@ valid_max_key = "valid_max"
 cell_measure_axes = ["time","area","volume","latitude","longitude","depth"]
 
 
+# Returns the axes defined for the input table.
+def get_axis_info(table_id):
+    global axes,coord_file
+    result = axes.get(coord_file,{})
+    overrides = axes.get(table_id,{})
+    for k,v in overrides.iteritems():
+        result[k] = v
+    return result
+
+
+# Class for cmor target objects, which represent output variables.
+class cmor_target(object):
+    def __init__(self,var_id__,tab_id__):
+        self.variable = var_id__
+        self.table = tab_id__
+        self.dims = 2
+
+
+# Derives the table id for the given file path
+def get_table_id(filepath,prefix):
+    fname = os.path.basename(filepath)
+    regex = re.search("^" + prefix + "_.*.json$",fname)
+    if(not regex):
+        raise Exception("Unable to match file name",fname,"as cmor table json-file with prefix",prefix)
+    return regex.group()[len(prefix) + 1:len(fname) - 5]
+
+
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath,prefix):
+    global log,axes,head_key,freq_key,realm_key,levs_key,axis_key,var_key,dims_key,target_key
+    global cell_methods_key,cell_measures_key,cell_measure_axes
     tabid = get_table_id(filepath,prefix)
     s = open(filepath).read()
     result = []
@@ -122,6 +124,7 @@ def create_targets_for_file(filepath,prefix):
 
 # Creates axes info dictionaries for given file
 def create_axes_for_file(filepath,prefix):
+    global log,axes,axis_key
     tabid = get_table_id(filepath,prefix)
     s = open(filepath).read()
     result = []
@@ -145,6 +148,7 @@ def get_lowercase(dictionary,key,default):
 
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
 def create_targets(path,prefix):
+    global coord_file
     if(os.path.isfile(path)):
         return create_targets_for_file(path,prefix)
     elif(os.path.isdir(path)):
@@ -163,6 +167,7 @@ def create_targets(path,prefix):
 
 # Validates a CMOR target, skipping those that do not make any sense
 def validate_target(target):
+    global log,valid_min_key,valid_max_key
     minstr = getattr(target,valid_min_key,"").strip()
     maxstr = getattr(target,valid_max_key,"").strip()
     min = float(minstr) if minstr else -float("inf")

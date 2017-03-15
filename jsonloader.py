@@ -22,6 +22,7 @@ json_grid_key = "grid"
 
 # API function: loads the argument list of targets
 def load_targets(varlist):
+    global log
     targetlist = []
     if(isinstance(varlist,basestring)):
         targetlist = load_targets_json(varlist)
@@ -55,6 +56,7 @@ def load_targets_json(varlistfile):
 
 # Small utility loading targets from the list
 def add_target(variable,table,targetlist):
+    global log
     target = ece2cmor.get_cmor_target(variable,table)
     if(target):
         targetlist.append(target)
@@ -66,6 +68,7 @@ def add_target(variable,table,targetlist):
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets):
+    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,json_table_key
     parlist = []
     ifspartext = open(ifs_par_file).read()
     ifsparlist = json.loads(ifspartext)
@@ -96,6 +99,7 @@ def create_tasks(targets):
 
 # Checks whether the variable matches the parameter table block
 def matchvarpar(variable,parblock):
+    global json_target_key
     parvars = parblock[json_target_key]
     if(isinstance(parvars,list)): return (variable in parvars)
     if(isinstance(parvars,basestring)): return (variable == parvars)
@@ -104,6 +108,7 @@ def matchvarpar(variable,parblock):
 
 # Creates a single task from the target and paramater table entry
 def create_cmor_task(pardict,target,tag):
+    global log,IFS_source_tag,Nemo_source_tag,json_source_key,json_grid_key
     src = pardict.get(json_source_key,None)
     expr = pardict.get(cmor_source.expression_key,None)
     if(not src and not expr):

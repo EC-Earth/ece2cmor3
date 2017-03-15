@@ -58,6 +58,7 @@ def make_cmor_frequency(s):
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):
+    global log
     if(end<start):
         log.warning("Start date %s later than end date %s" % (str(start),str(end)))
         return []
@@ -85,6 +86,7 @@ def find_ifs_output(path,expname=None):
 
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
+    global log
     fname=os.path.basename(filepath)
     regex=re.search("\+[0-9]{6}",fname)
     if(not regex):
@@ -105,6 +107,7 @@ def find_nemo_output(path,expname=None):
 
 # Returns the start and end date corresponding to the given nemo output file.
 def get_nemo_interval(filepath):
+    global log
     fname=os.path.basename(filepath)
     regex=re.findall("_[0-9]{8}",fname)
     if(not regex or len(regex)!=2):
@@ -116,30 +119,32 @@ def get_nemo_interval(filepath):
 
 # Returns the frequency string for a given nemo output file.
 def get_nemo_frequency(filepath,expname):
+    global log
     f=os.path.basename(filepath)
     expr=re.compile("^"+expname+".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if(not re.match(expr,f)):
-        logger.error("File path %s does not correspond to nemo output of experiment %s" % (filepath,expname))
+        log.error("File path %s does not correspond to nemo output of experiment %s" % (filepath,expname))
         return None
     fstr=f[len(expname)+1:].split("_")[0]
     expr=re.compile("^(\d+)(h|d|m|y)")
     if(not re.match(expr,fstr)):
-        logger.error("File path %s does not contain a valid frequency indicator" % filepath)
+        log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
     n=int(fstr[0:len(fstr)-1])
     if(n==0):
-        logger.error("Invalid frequency 0 parsed from file path %s" % filepath)
+        log.error("Invalid frequency 0 parsed from file path %s" % filepath)
         return None
     return fstr
 
 
 # Returns the grid for the given file name.
 def get_nemo_grid(filepath,expname):
+    global log
     f=os.path.basename(filepath)
     expr=re.compile("(?<=^"+expname+"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result=re.search(expr,f)
     if(not result):
-        logger.error("File path %s does not contain a grid string" % filepath)
+        log.error("File path %s does not contain a grid string" % filepath)
         return None
     match=result.group(0)
     return match[0:len(match)-3]
@@ -148,6 +153,7 @@ def get_nemo_grid(filepath,expname):
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 #@profile
 def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None):
+    global log
     dims = len(ncvar.shape)
     times = 1 if timdim < 0 else ncvar.shape[timdim]
     size = ncvar.size / times
@@ -186,7 +192,7 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
         else:
-            logger.error("Cmorizing arrays of rank %d is not supported" % dims)
+            log.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
         cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - i)))
         del vals

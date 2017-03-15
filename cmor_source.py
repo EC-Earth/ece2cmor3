@@ -79,6 +79,7 @@ class ifs_source(cmor_source):
 
     # Constructor.
     def __init__(self,code):
+        global log
         if(not code):
             self.code_ = None
             self.spatial_dims = -1
@@ -113,6 +114,7 @@ class ifs_source(cmor_source):
     # Creates an instance from the input string s.
     @classmethod
     def read(cls,s):
+        global log
         if re.match("[0-9]{1,3}.[0-9]{3}",s) or re.match("[0-9]{1,3}",s):
             gc = grib_code.read(s)
             cls = ifs_source(gc)

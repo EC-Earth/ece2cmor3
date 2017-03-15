@@ -32,9 +32,7 @@ time_axes_ = {}
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
-    global nemo_files_
-    global exp_name_
-    global table_root_
+    global log,nemo_files_,exp_name_,table_root_
     exp_name_ = expname
     table_root_ = tableroot
     nemo_files_ = select_files(path,expname,start,length)
@@ -53,10 +51,7 @@ def initialize(path,expname,tableroot,start,length):
 
 # Resets the module globals.
 def finalize():
-    global nemo_files_
-    global grid_ids_
-    global depth_axes_
-    global time_axes_
+    global nemo_files_,grid_ids_,depth_axes_,time_axes_
     nemo_files_ = []
     grid_ids_ = {}
     depth_axes_ = {}
@@ -65,8 +60,7 @@ def finalize():
 
 # Executes the processing loop.
 def execute(tasks):
-    global time_axes_
-    global depth_axes_
+    global log,time_axes_,depth_axes_,table_root_,nemo_files_
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -111,6 +105,7 @@ def execute(tasks):
 
 # Performs a single task.
 def execute_netcdf_task(task,dataset,tableid):
+    global log,grid_ids_,depth_axes_,time_axes_
     dims = task.target.dims
     globvar = (task.source.grid() == cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
     if(globvar):
@@ -136,6 +131,7 @@ def execute_netcdf_task(task,dataset,tableid):
 
 # Unit conversion utility method
 def get_conversion_factor(conversion):
+    global log
     if(not conversion): return 1.0
     if(conversion == "tossqfix"): return 1.0
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
@@ -156,6 +152,7 @@ def create_cmor_variable(task,dataset,axes):
 
 # Creates all depth axes for the given table from the given files
 def create_depth_axes(tab_id,files):
+    global log,exp_name_
     result = {}
     for f in files:
         gridstr = cmor_utils.get_nemo_grid(f,exp_name_)
@@ -174,6 +171,7 @@ def create_depth_axes(tab_id,files):
 
 # Creates a cmor depth axis
 def create_depth_axis(ncfile,gridchar):
+    global log
     ds=netCDF4.Dataset(ncfile)
     varname="depth" + gridchar
     if(not varname in ds.variables):
@@ -189,6 +187,7 @@ def create_depth_axis(ncfile,gridchar):
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
+    global log
     vals = None
     units = None
     ds = None
@@ -213,6 +212,7 @@ def create_time_axis(freq,files):
 
 # Selects files with data with the given frequency
 def select_freq_files(freq):
+    global exp_name_,nemo_files_
     nemfreq = None
     if(freq == "monClim"):
         nemfreq = "1m"
@@ -252,7 +252,7 @@ def read_calendar(ncfile):
 
 # Reads all the NEMO grid data from the input files.
 def create_grids():
-    global grid_ids
+    global grid_ids_,nemo_files_
     spatial_grids = [grd for grd in cmor_source.nemo_grid if grd != cmor_source.nemo_grid.scalar]
     for g in spatial_grids:
         gridfiles = [f for f in nemo_files_ if f.endswith(g + ".nc")]

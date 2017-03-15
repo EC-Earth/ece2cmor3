@@ -48,6 +48,7 @@ class cdo_command:
 
     # Adds an operator
     def add_operator(self,operator,*args):
+        global log
         if(operator in cdo_command.operator_ordering):
             addedargs = ["'" + a + "'" for a in args] if operator == cdo_command.expression_operator else list(args)
             if(operator not in self.operators):

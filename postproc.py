@@ -37,7 +37,7 @@ finished_tasks_ = []
 
 # Post-processes a list of tasks
 def post_process(tasks,path,max_size_gb = float("inf")):
-    global finished_tasks_
+    global finished_tasks_,task_threads
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
@@ -79,6 +79,7 @@ def post_process(tasks,path,max_size_gb = float("inf")):
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_tasklist(tasks):
+    global log
     srcset = set(map(lambda t:t.source.get_grib_code().var_id,tasks))
     if(len(srcset) != 1):
         log.error("Multiple grib codes joined to single cdo command: %s" % str(srcset))
@@ -115,6 +116,7 @@ def create_command(task):
 
 # Multi-thread function wrapper.
 def cdo_worker(q,basepath,maxsize):
+    global finished_tasks_
     while(True):
         args = q.get()
 	files = list(set(map(lambda t:getattr(t,"path",None),finished_tasks_)))
@@ -128,6 +130,7 @@ def cdo_worker(q,basepath,maxsize):
 # Executes the command (first item of tup), and replaces the path attribute for all tasks in the tasklist (2nd item of tup)
 # to the output of cdo. This path is constructed from the basepath and the first task.
 def apply_command(command,tasklist,basepath = None):
+    global log,cdo_threads,skip,append,recreate,mode
     if(not tasklist):
         log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
     if(basepath == None and mode in [skip,append]):
@@ -156,6 +159,7 @@ def apply_command(command,tasklist,basepath = None):
 
 # Translates the cmor time post-processing operation to a cdo command-line option
 def add_time_operators(cdo,freq,operators):
+    global output_frequency_
     timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
         if(operators == ["point"]):
@@ -211,6 +215,7 @@ def add_time_operators(cdo,freq,operators):
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo,task):
+    global log
     if(task.source.spatial_dims == 2): return
     zdims = getattr(task.target,"z_dims",[])
     if(len(zdims) == 0): return

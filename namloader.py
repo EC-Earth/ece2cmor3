@@ -20,6 +20,7 @@ nemo_grid_dict = {}
 
 # API function: loads the argument list of targets
 def load_targets(varlist):
+    global log
     targetlist = []
     if(isinstance(varlist,basestring)):
         targetlist = load_targets_namelist(varlist)
@@ -42,6 +43,7 @@ def load_targets(varlist):
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets):
+    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,nemo_iodef_file
     parlist = []
     ifsparlist = f90nml.read(ifs_par_file)
     parlist.extend(ifsparlist.get("parameter"))
@@ -66,6 +68,7 @@ def create_tasks(targets):
 
 # Loads the legacy ece2cmor input namelists to targets
 def load_targets_namelist(varlist):
+    global log
     vlist = f90nml.read(varlist)
     targetlist = []
     for sublist in vlist["varlist"]:
@@ -99,6 +102,7 @@ expressions = {(80,"hurs"):         "var80=100.*exp(17.62*((var168-273.15)/(var1
 
 # Creates a cmor_source for the given parameter dictionary
 def create_cmor_source(paramdict,tag):
+    global IFS_source_tag,Nemo_source_tag,nemo_grid_dict
     parstr = paramdict["out_name"]
     if(tag == IFS_source_tag):
         code = str(paramdict["param"])
@@ -121,6 +125,7 @@ def create_cmor_source(paramdict,tag):
 
 # Creates a cmor task, sets the correct post-processing attributes
 def create_cmor_task(src,tgt,tag):
+    global IFS_source_tag,Nemo_source_tag
     task = cmor_task.cmor_task(src,tgt)
     if(tag == Nemo_source_tag):
         if((src.var(),tgt.variable) == ("tossq","tossq")):

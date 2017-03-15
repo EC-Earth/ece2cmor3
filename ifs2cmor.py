@@ -32,7 +32,7 @@ start_date_ = None
 # Output interval. Denotes the 0utput file periods.
 output_interval_ = None
 
-# Output frequency. Minimal interval between output variables.
+# Output frequency (hrs). Minimal interval between output variables.
 output_frequency_ = 3
 
 # Fast storage temporary path
@@ -47,17 +47,8 @@ ref_date_ = None
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global exp_name_
-    global table_root_
-    global ifs_gridpoint_file_
-    global ifs_spectral_file_
-    global output_interval_
-    global temp_dir_
-    global tempdir_created_
-    global max_size_
-    global ref_date_
-    global start_date_
-    global output_frequency_
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_
+    global temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -89,6 +80,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
 
 # Execute the postprocessing+cmorization tasks
 def execute(tasks):
+    global log
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
@@ -112,7 +104,7 @@ def execute(tasks):
 
 # Deletes all temporary paths and removes temp directory
 def cleanup(tasks,cleanupdir = True):
-    global temp_dir_
+    global temp_dir_,ifs_gridpoint_file_,ifs_spectral_file_,tempdir_created_
     for task in tasks:
         ncpath = getattr(task,"path",None)
         if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):
@@ -126,6 +118,7 @@ def cleanup(tasks,cleanupdir = True):
 # Creates a sub-list of tasks that we believe we can succesfully process
 # TODO: Extend this to a full validation.
 def filter_tasks(tasks):
+    global log
     log.info("Inspecting %d tasks." % len(tasks))
     result = []
     for task in tasks:
@@ -143,6 +136,7 @@ def filter_tasks(tasks):
 
 # Creates extra tasks for surface pressure
 def get_sp_tasks(tasks):
+    global ifs_spectral_file_
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
     existing_tasks,extra_tasks = [],[]
     for freq,taskgroup in tasksbyfreq.iteritems():
@@ -165,6 +159,7 @@ def get_sp_tasks(tasks):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
+    global log,output_frequency_,temp_dir_,max_size_
     log.info("Post-processing %d IFS tasks..." % len(tasks))
     for task in tasks:
         ifiles = get_source_files(task.source.get_root_codes())
@@ -181,6 +176,7 @@ def postprocess(tasks):
 
 # Counts the (minimal) number of source files needed for the given list of codes
 def get_source_files(gribcodes):
+    global ifs_gridpoint_file_,ifs_spectral_file_
     if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_gg)): return [ifs_gridpoint_file_]
     if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_sh)): return [ifs_spectral_file_]
     return [ifs_gridpoint_file_,ifs_spectral_file_]
@@ -188,6 +184,7 @@ def get_source_files(gribcodes):
 
 # Do the cmorization tasks
 def cmorize(tasks):
+    global log,table_root_
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
     if(not any(tasks)): return
     cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
@@ -221,6 +218,7 @@ def cmorize(tasks):
 
 # Executes a single task
 def execute_netcdf_task(task):
+    global log
     filepath = getattr(task,"path",None)
     if(not filepath):
         log.error("Could not find file containing data for variable %s in table" % (task.target.variable,task.target.table))
@@ -274,6 +272,7 @@ def execute_netcdf_task(task):
 
 # Returns the conversion factor from the input string
 def get_conversion_factor(conversion):
+    global log,output_frequency_
     if(not conversion): return 1.0
     if(conversion == "cum2inst"): return 1.0 / (3600 * output_frequency_)
     if(conversion == "inst2cum"): return (3600 * output_frequency_)
@@ -302,6 +301,7 @@ def create_time_axes(tasks):
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
 def create_depth_axes(tasks):
+    global log
     depth_axes = {}
     for task in tasks:
         tgtdims = getattr(task.target,cmor_target.dims_key)
@@ -393,6 +393,7 @@ def create_soil_depth_axis(layer,name):
 
 # Makes a time axis for the given table
 def create_time_axis(freq,path,name):
+    global log,start_date_,ref_date_
     command = cdo.Cdo()
     datetimes = []
     times = command.showtimestamp(input = path)[0].split()
@@ -445,6 +446,7 @@ def select_files(path,expname,start,length,interval):
 
 # Creates the regular gaussian grids from the postprocessed file argument.
 def create_grid_from_grib(filepath):
+    global log
     command = cdo.Cdo()
     griddescr = command.griddes(input = filepath)
     xsize = 0
@@ -522,6 +524,7 @@ def select_files(path,expname,start,length,interval):
 
 # Creates the regular gaussian grids from the postprocessed file argument.
 def create_grid_from_grib(filepath):
+    global log
     command = cdo.Cdo()
     griddescr = command.griddes(input = filepath)
     xsize = 0
