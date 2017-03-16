@@ -72,12 +72,6 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
     global log,tasks,exp_name,table_dir,prefix,ifsdir,startdate,interval
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
-#    if(len(ifs_tasks) == 0):
-    log.info("Extra info for bug#16: the given input tasks are...")
-    for t in tasks:
-        log.info("Target variable: %s (table: %s), source: %s" % (t.target.variable,t.target.table,type(t.source)))
-        if(isinstance(t.source,cmor_source.ifs_source)):
-            log.info("...with grib code %s" % str(t.source.get_grib_code()))
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
     if(not ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
