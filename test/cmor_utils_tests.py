@@ -83,20 +83,20 @@ class utils_tests(unittest.TestCase):
         fstr=get_nemo_frequency(filepath,"my_exp")
         eq_(fstr,"3h")
 
-    @raises(Exception)
     def test_bad_nemo_frequency(self):
         filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_icemod.nc")
         fstr=get_nemo_frequency(filepath,"exp")
+        eq_(fstr,None)
 
-    @raises(Exception)
     def test_bad_nemo_frequency2(self):
         filepath=os.path.join(os.path.dirname(__file__),"exp_3s_19992131_20000102_icemod.nc")
         fstr=get_nemo_frequency(filepath,"exp")
+        eq_(fstr,None)
 
-    @raises(Exception)
     def test_bad_nemo_frequency3(self):
         filepath=os.path.join(os.path.dirname(__file__),"exp_0d_19992131_20000102_icemod.nc")
         fstr=get_nemo_frequency(filepath,"exp")
+        eq_(fstr,None)
 
     def test_get_nemo_grid(self):
         filepath=os.path.join(os.path.dirname(__file__),"my_exp_3h_19992131_20000102_icemod.nc")

@@ -112,6 +112,7 @@ def get_nemo_interval(filepath):
     regex=re.findall("_[0-9]{8}",fname)
     if(not regex or len(regex)!=2):
         log.error("Unable to parse dates from nemo file name %s" % fname)
+        return None
     start=datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
     end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
