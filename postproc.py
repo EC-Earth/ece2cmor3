@@ -109,7 +109,7 @@ def create_command(task):
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     freq = getattr(task.target,cmor_target.freq_key,None)
     timops = getattr(task.target,"time_operator",["point"])
-    add_time_operators(result,freq,timops)
+    add_time_operators(result,freq,-1,timops,True)
     add_level_operators(result,task)
     return result
 
@@ -158,52 +158,40 @@ def apply_command(command,tasklist,basepath = None):
 
 
 # Translates the cmor time post-processing operation to a cdo command-line option
-def add_time_operators(cdo,freq,operators):
+def add_time_operators(cdo,freq,mon,operators,shift=False):
     global output_frequency_
     timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
             cdo.add_operator(cdoapi.cdo_command.select_day_operator,15)
-            return
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["maximum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["minimum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
+        if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
+        if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
+        return
     if(freq == "day"):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
-            return
         if(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
         if(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
-            cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-            return
+        if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
+        if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
+        return
     if(freq == "6hr"):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
