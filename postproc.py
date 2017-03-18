@@ -109,7 +109,8 @@ def create_command(task):
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     freq = getattr(task.target,cmor_target.freq_key,None)
     timops = getattr(task.target,"time_operator",["point"])
-    add_time_operators(result,freq,-1,timops,True)
+    timeshift = (task.source.get_grib_code() in cmor_source.ifs_source.grib_codes_accum)
+    add_time_operators(result,freq,-1,timops,timeshift)
     add_level_operators(result,task)
     return result
 

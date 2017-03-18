@@ -23,7 +23,7 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-setgridtype,regular -daymean -shifttime,-3hours -selcode,79")
+        nose.tools.eq_(command.create_command(),"-setgridtype,regular -daymean -selcode,79")
 
     def test_postproc_specmean(self):
         abspath = get_table_path()
@@ -32,7 +32,7 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "ua" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -shifttime,-3hours -selcode,131")
+        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -selcode,131")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
@@ -41,7 +41,7 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-daymax -setgridtype,regular -shifttime,-3hours -selcode,165")
+        nose.tools.eq_(command.create_command(),"-daymax -setgridtype,regular -selcode,165")
 
     def test_postproc_tasmax(self):
         abspath = get_table_path()
@@ -68,7 +68,7 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -shifttime,-3hours -selcode,165,166")
+        nose.tools.eq_(command.create_command(),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selcode,165,166")
 
     def test_postproc_wap500(self):
         abspath = get_table_path()
@@ -77,4 +77,4 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "wap500" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -sellevel,50000. -selzaxis,pressure -shifttime,-3hours -selcode,135")
+        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -sellevel,50000. -selzaxis,pressure -selcode,135")
