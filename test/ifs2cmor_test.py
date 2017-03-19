@@ -11,8 +11,8 @@ import ifs2cmor
 import postproc
 
 logging.basicConfig(level=logging.DEBUG)
-ifs2cmor.ifs_gridpoint_file_ ="ICMGG"
-ifs2cmor.ifs_spectral_file_ ="ICMSH"
+ifs2cmor.ifs_gridpoint_file_ ="ICMGG+199003"
+ifs2cmor.ifs_spectral_file_ ="ICMSH+199003"
 
 def get_table_path(tab_id = None):
     directory = os.path.join(os.path.dirname(cmor_target.__file__),"resources","tables")
@@ -31,7 +31,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"clwvi_CFday.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-setgridtype,regular -daymean -selmon,3 -selcode,79")
 
     def test_postproc_gridmeans(self):
         abspath = get_table_path()
@@ -47,7 +47,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task1,task2])
         path = os.path.join(os.getcwd(),"clt_day.nc")
         nose.tools.eq_(getattr(task2,"path"),path)
-        nose.tools.eq_(getattr(task1,"cdo_command"),"-setgridtype,regular -daymean -selcode,79")
+        nose.tools.eq_(getattr(task1,"cdo_command"),"-setgridtype,regular -daymean -selmon,3 -selcode,79")
 
     def test_postproc_specmean(self):
         abspath = get_table_path()
@@ -62,7 +62,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"-sp2gpl -monmean -sellevel,100000.,92500.,85000.,70000.,"
                                                    "60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100. "
-                                                   "-selzaxis,pressure -selcode,130")
+                                                   "-selzaxis,pressure -selmon,3 -selcode,130")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
@@ -75,7 +75,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -setgridtype,regular -selcode,165")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -setgridtype,regular -selmon,3 -selcode,165")
 
     def test_postproc_tasmax(self):
         abspath = get_table_path()
@@ -88,7 +88,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"tasmax_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -shifttime,-3hours -selcode,201")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -selmon,3 -shifttime,-3hours -selcode,201")
 
     def test_postproc_windspeed(self):
         abspath = get_table_path()
@@ -114,4 +114,4 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"sfcWindmax_day.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selcode,165,166")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selmon,3 -selcode,165,166")

@@ -110,7 +110,7 @@ def create_command(task):
     freq = getattr(task.target,cmor_target.freq_key,None)
     timops = getattr(task.target,"time_operator",["point"])
     timeshift = (task.source.get_grib_code() in cmor_source.ifs_source.grib_codes_accum)
-    add_time_operators(result,freq,-1,timops,timeshift)
+    add_time_operators(result,freq,int(getattr(task,"path","-1")[-2:]),timops,timeshift)
     add_level_operators(result,task)
     return result
 
