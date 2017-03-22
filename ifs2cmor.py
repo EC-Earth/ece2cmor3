@@ -198,13 +198,13 @@ def cmorize(tasks):
     for k,v in taskdict.iteritems():
         tab = k
         tskgroup = v
-        print "Loading CMOR table",tab,"..."
+        log.info("Loading CMOR table %s..." % tab)
         tab_id = -1
         try:
             tab_id = cmor.load_table("_".join([table_root_,tab]) + ".json")
             cmor.set_table(tab_id)
         except:
-            print "CMOR failed to load table",tab,", the following variables will be skipped: ",[t.target.variable for t in tskgroup]
+            log.error("CMOR failed to load table %s, the following variables will be skipped: %s" % (tab,str([t.target.variable for t in tskgroup])))
             continue
         log.info("Creating time axes for table %s..." % tab)
         create_time_axes(tskgroup)
@@ -295,7 +295,9 @@ def create_time_axes(tasks):
             if(tdim in time_axes):
                 tid = time_axes[tdim]
             else:
-                tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"),name = tdim)
+                timop = getattr(task.target,"time_operator",["mean"])
+                tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"),name = tdim,hasbnds = (timop != ["point"]))
+                time_axes[tdim] = tid
             setattr(task,"time_axis",tid)
 
 
@@ -392,7 +394,7 @@ def create_soil_depth_axis(layer,name):
 
 
 # Makes a time axis for the given table
-def create_time_axis(freq,path,name):
+def create_time_axis(freq,path,name,hasbnds):
     global log,start_date_,ref_date_
     command = cdo.Cdo()
     datetimes = []
@@ -404,18 +406,19 @@ def create_time_axis(freq,path,name):
     timhrs = [(d - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
     n = len(timhrs)
     times = numpy.array(timhrs)
-    bndvar = numpy.empty([n,2])
-    if(n == 1):
-        bndvar[0,0] = (cmor_utils.make_datetime(start_date_) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
-        bndvar[0,1] = 2*times[0] - bndvar[0,0]
-    else:
-        midtimes = 0.5*(times[0:n-1] + times[1:n])
-        bndvar[0,0] = 1.5*times[0] - 0.5*times[1]
-        bndvar[1:n,0] = midtimes[:]
-        bndvar[0:n-1,1] = midtimes[:]
-        bndvar[n-1,1] = 1.5*times[n-1] - 0.5*times[n-2]
-    ax_id = cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
-    return ax_id
+    if(hasbnds):
+        bndvar = numpy.empty([n,2])
+        if(n == 1):
+            bndvar[0,0] = (cmor_utils.make_datetime(start_date_) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
+            bndvar[0,1] = 2*times[0] - bndvar[0,0]
+        else:
+            midtimes = 0.5*(times[0:n-1] + times[1:n])
+            bndvar[0,0] = 1.5*times[0] - 0.5*times[1]
+            bndvar[1:n,0] = midtimes[:]
+            bndvar[0:n-1,1] = midtimes[:]
+            bndvar[n-1,1] = 1.5*times[n-1] - 0.5*times[n-2]
+        return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
+    return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times)
 
 
 # Surface pressure variable lookup utility
