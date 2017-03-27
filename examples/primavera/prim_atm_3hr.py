@@ -23,7 +23,7 @@ def is3hrtask(task):
 
 logging.basicConfig(level=logging.DEBUG)
 
-startdate = datetime.date(1950,1,1)
+startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
 curdir = os.path.join(os.path.dirname(os.path.abspath(ece2cmor.__file__)),"examples","primavera")
 
