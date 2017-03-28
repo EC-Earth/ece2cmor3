@@ -100,7 +100,7 @@ def execute(tasks):
             delattr(task,"sp_task")
     while(any(taskstodo)):
         processedtasks = postprocess(taskstodo)
-        cmorize(processedtasks)
+        cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
         cleanup(processedtasks,False)
         taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
     cmorize(oldsptasks)

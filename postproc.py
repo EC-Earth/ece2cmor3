@@ -154,9 +154,8 @@ def apply_command(command,tasklist,basepath = None):
                 ofile = os.path.join(tmppath,ofname)
                 os.rename(opath,ofile)
                 result = ofile
-    if(result):
-        for task in tasklist:
-            setattr(task,"path",result)
+    for task in tasklist:
+        setattr(task,"path",result)
     return result
 
 
