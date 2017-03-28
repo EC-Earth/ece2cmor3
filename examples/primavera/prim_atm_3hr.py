@@ -25,22 +25,29 @@ logging.basicConfig(level=logging.DEBUG)
 
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
-curdir = os.path.join(os.path.dirname(os.path.abspath(ece2cmor.__file__)),"examples","primavera")
+srcdir = os.path.dirname(os.path.abspath(ece2cmor.__file__))
+curdir = os.path.join(srcdir,"examples","primavera")
+datdir = os.path.join(srcdir,"test","test_data","ifsdata","3hr")
+tmpdir = os.path.join(curdir,"tmp")
+varfile = os.path.join(curdir,"varlist.json")
+conffile = os.path.join(curdir,"primavera.json")
 
 def main(args):
 
     parser = optparse.OptionParser()
-    parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory")
-    parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)")
-    parser.add_option("-t","--tmp" ,dest = "temp" ,help = "Temporary working directory")
-    parser.add_option("-v","--var" ,dest = "varlist" ,help = "Input variable list (optional)")
+    parser.add_option("-d","--dir", dest = "dir",  help = "IFS output directory (optional)",       default = datdir)
+    parser.add_option("-c","--conf",dest = "conf", help = "Input variable list (optional)",        default = conffile)
+    parser.add_option("-e","--exp", dest = "exp",  help = "Experiment prefix (optional)",          default = "ECE3")
+    parser.add_option("-t","--tmp", dest = "temp", help = "Temporary working directory (optional)",default = tmpdir)
+    parser.add_option("-v","--var", dest = "vars", help = "Input variable list (optional)",        default = varfile)
 
     (opt,args) = parser.parse_args()
-    odir = os.path.abspath(opt.dir)
-    if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
 
     # Initialize ece2cmor with experiment prefix:
-    ece2cmor.initialize(os.path.join(curdir,"primavera.json"),opt.exp)
+    ece2cmor.initialize(opt.conf,opt.exp)
+
+    odir = os.path.abspath(opt.dir)
+    if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
 
     # Set directory and time interval for cmorization step:
     ece2cmor.ifsdir = odir
@@ -48,14 +55,15 @@ def main(args):
     ece2cmor.interval = interval
 
     # Load the variables as task targets:
-    varlist = opt.varlist if opt.varlist else os.path.join(curdir,"varlist.json")
-    jsonloader.load_targets(varlist)
+    jsonloader.load_targets(opt.vars)
 
     # Remove targets that are constructed from six-hourly data:
     ece2cmor.tasks = [t for t in ece2cmor.tasks if is3hrtask(t)]
 
+    if(not os.path.isdir(opt.temp)): os.makedirs(opt.temp)
+
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks(outputfreq = 3,tempdir=opt.temp,maxsizegb = 128)
+    ece2cmor.perform_ifs_tasks(outputfreq = 3,tempdir = opt.temp,cleanup=False)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -61,7 +61,7 @@ def add_task(tsk):
             log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
             return
         duptasks=[t for t in tasks if t.target is tsk.target]
-        if(len(duptasks)!=0):
+        if(len(duptasks) != 0):
             tasks.remove(duptasks[0])
         tasks.append(tsk)
     else:
