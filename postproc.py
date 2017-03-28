@@ -36,13 +36,13 @@ finished_tasks_ = []
 
 
 # Post-processes a list of tasks
-def post_process(tasks,path,max_size_gb = float("inf")):
+def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
     global finished_tasks_,task_threads
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
     for task in tasks:
-        command = create_command(task)
+        command = create_command(task,griddes)
         commstr = command.create_command()
         if(commstr not in commbuf):
             commbuf[commstr] = command
@@ -92,7 +92,7 @@ def validate_tasklist(tasks):
 
 
 # Creates a cdo postprocessing command for the given IFS task.
-def create_command(task):
+def create_command(task,griddes = {}):
     if(not isinstance(task.source,cmor_source.ifs_source)):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if(hasattr(task,"paths") and len(getattr(task,"paths")) > 1):
@@ -103,7 +103,9 @@ def create_command(task):
     if(grid == cmor_source.ifs_grid.spec):
         result.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
+        gridtype = griddes.get("gridtype","gaussian reduced")
+        if(gridtype == "gaussian reduced"):
+            result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
     if(expr):
         result.add_operator(cdoapi.cdo_command.expression_operator,expr)
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
@@ -120,9 +122,9 @@ def cdo_worker(q,basepath,maxsize):
     global finished_tasks_
     while(True):
         args = q.get()
-	files = list(set(map(lambda t:getattr(t,"path",None),finished_tasks_)))
-        if(sum(map(lambda f:os.path.getsize(f),files)) < maxsize):
-	    tasks = args[1]
+        files = list(set(map(lambda t:getattr(t,"path",None),finished_tasks_)))
+        if(sum(map(lambda f:os.path.getsize(f),[f for f in files if os.path.exists(f)])) < maxsize):
+            tasks = args[1]
             apply_command(command = args[0],tasklist = tasks,basepath = basepath)
             finished_tasks_.extend(tasks)
         q.task_done()

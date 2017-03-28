@@ -12,6 +12,7 @@ import cmor_source
 import cmor_target
 import cmor_task
 import postproc
+import cdoapi
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -25,6 +26,9 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
+
+# IFS grid description data
+ifs_grid_descr_ = {}
 
 # Start date of the processed data
 start_date_ = None
@@ -47,7 +51,7 @@ ref_date_ = None
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_,ifs_grid_descr_
     global temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
@@ -68,6 +72,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path,str(gpfiles),str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0]
+    ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0]
     if(tempdir):
         temp_dir_ = os.path.abspath(tempdir)
@@ -159,7 +164,7 @@ def get_sp_tasks(tasks):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
-    global log,output_frequency_,temp_dir_,max_size_
+    global log,output_frequency_,temp_dir_,max_size_,ifs_grid_descr_
     log.info("Post-processing %d IFS tasks..." % len(tasks))
     for task in tasks:
         ifiles = get_source_files(task.source.get_root_codes())
@@ -169,7 +174,7 @@ def postprocess(tasks):
             log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                        This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
-    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_)
+    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 
@@ -450,43 +455,24 @@ def select_files(path,expname,start,length,interval):
 # Creates the regular gaussian grids from the postprocessed file argument.
 def create_grid_from_grib(filepath):
     global log
-    command = cdo.Cdo()
-    griddescr = command.griddes(input = filepath)
-    xsize = 0
-    ysize = 0
-    yvals = []
-    xstart = 0.0
-    reading_ys = False
-    for s in griddescr:
-        sstr = str(s)
-        if(reading_ys):
-            yvals.extend([float(s) for s in sstr.split()])
-            continue
-        if(sstr.startswith("gridtype")):
-            gtype = sstr.split("=")[1].strip()
-            if(gtype != "gaussian"):
-                raise Exception("Cannot read other grids then regular gaussian grids, current grid type was:",gtype)
-        if(sstr.startswith("xsize")):
-            xsize = int(sstr.split("=")[1].strip())
-            continue
-        if(sstr.startswith("xfirst")):
-            xfirst = float(sstr.split("=")[1].strip())
-            continue
-        if(sstr.startswith("ysize")):
-            ysize = int(sstr.split("=")[1].strip())
-            continue
-        if(sstr.startswith("yvals")):
-            reading_ys = True
-            ylist = sstr.split("=")[1].strip()
-            yvals.extend([float(s) for s in ylist.split()])
-            continue
-    if(len(yvals) != ysize):
-        log.error("Invalid number of y-values given in file %s" % filepath)
-    return create_gauss_grid(xsize,xstart,ysize,numpy.array(yvals))
+    command = cdoapi.cdo_command()
+    griddescr = command.get_griddes(filepath)
+    gridtype = griddescr.get("gridtype","unknown")
+    if(gridtype != "gaussian"):
+        log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s" % (filepath,gridtype))
+        return None
+    xsize = griddescr.get("xsize",0)
+    xfirst = griddescr.get("xfirst",0)
+    yvals = griddescr.get("yvals",numpy.array([]))
+    if(not (xsize > 0 and len(yvals) > 0)):
+        log.error("Invalid grid detected in post-processed data: %s" % str(griddescr))
+        return None
+    return create_gauss_grid(xsize,xfirst,yvals)
 
 
 # Creates the regular gaussian grid from its arguments.
-def create_gauss_grid(nx,x0,ny,yvals):
+def create_gauss_grid(nx,x0,yvals):
+    ny = len(yvals)
     i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
     j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(ny,0,-1)))
     xincr = 360./nx
