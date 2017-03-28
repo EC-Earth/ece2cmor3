@@ -94,7 +94,7 @@ class cmorapi:
                 anames.remove(axis)
                 break
         if(len(anames) != 0): raise Exception("Combination of axes",axisnames,"could not be converted to valid id's. Axes causing problems are",anames)
-        return cmor.variable(table_entry=varname,units=unit,axis_ids=axisids,positive=zdir,original_name=originalname)
+        return cmor.variable(table_entry = varname,units = unit,axis_ids = axisids,positive = zdir,original_name = originalname)
 
 # Writes the input array valarray to cmor. Returns the number of time slices written
     @staticmethod
