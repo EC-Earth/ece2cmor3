@@ -18,21 +18,25 @@ def example(ifile,ofile,levels):
         gid = grib_new_from_file(fin)
         if(not gid): break
         if(grib_get(gid,"typeOfLevel") == "hybrid"):
-            nlevs = grib_get_int(gid,"numberOfVerticalCoordinateValues")/2 - 1
+            nlevs = int(grib_get(gid,"numberOfVerticalCoordinateValues"))/2 - 1
             frac = nlevs/levels
             if(frac > 0):
                 indices = numpy.arange(nlevs,1,-frac)[::-1]
-                lev = grib_get_int(gid,"level")
-                if(lev not in indices): continue
-                newlev = indices.tolist().index(lev)
+                lev = int(grib_get(gid,"level"))
+                code = int(grib_get(gid,"indicatorOfParameter"))
+                if(code not in [134,152]):
+                    if(lev not in indices): continue
+                    newlev = indices.tolist().index(lev)
+                    grib_set(gid,"level",newlev)
                 pv = grib_get_array(gid,"pv")
-                grib_set(gid,"level",newlev)
-                grib_set(gid,"numberOfVerticalCoordinateValues",2*(levels + 1))
-                newpv = []
+                newpv = [pv[0]]
                 for i in indices:
-                    newpv.append(pv[2*i])
-                    newpv.append(pv[2*i+1])
+                    newpv.append(pv[i-1])
+                newpv.append(pv[nlevs])
+                for i in indices:
+                    newpv.append(pv[nlevs+i-1])
                 grib_set_array(gid,"pv",newpv)
+                grib_set(gid,"numberOfVerticalCoordinateValues",2*(levels + 1))
         grib_write(gid,fout)
         grib_release(gid)
     fout.close()

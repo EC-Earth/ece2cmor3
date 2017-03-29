@@ -91,6 +91,7 @@ def execute(tasks):
     taskstodo = supportedtasks
     oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
     sptasks = oldsptasks + newsptasks
+    taskstodo = list(set(taskstodo)-set(sptasks))
     log.info("Post-processing surface pressures...")
     proc_sptasks = postprocess(sptasks)
     for task in taskstodo:
@@ -98,12 +99,12 @@ def execute(tasks):
         if(sptask):
             setattr(task,"sp_path",getattr(sptask,"path",None))
             delattr(task,"sp_task")
+    cmorize(oldsptasks)
     while(any(taskstodo)):
         processedtasks = postprocess(taskstodo)
         cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
         cleanup(processedtasks,False)
         taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
-    cmorize(oldsptasks)
     cleanup(proc_sptasks)
 
 
