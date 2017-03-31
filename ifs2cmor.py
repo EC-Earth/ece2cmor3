@@ -105,6 +105,7 @@ def execute(tasks):
         cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
         cleanup(processedtasks,False)
         taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
+    cleanup(oldsptasks)
     cleanup(proc_sptasks)
 
 
@@ -274,6 +275,7 @@ def execute_netcdf_task(task):
         index += 1
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath))
     cmor.close(varid)
+    if(storevar): cmor.close(storevar)
 
 
 # Returns the conversion factor from the input string
@@ -323,12 +325,12 @@ def create_depth_axes(tasks):
         if zdim in depth_axes:
             setattr(task,"z_axis_id",depth_axes[zdim])
             if(zdim == "alevel"):
-                zfactor = cmor.zfactor(zaxis_id = depth_axes[zdim],zfactor_name = "ps",axis_ids = [getattr(task,"grid_id"),getattr(task,"time_axis")],units = "Pa")
-                setattr(task,"store_with",zfactor)
+                setattr(task,"z_axis_id",depth_axes[zdim][0])
+                setattr(task,"store_with",depth_axes[zdim][1])
             continue
         elif zdim == "alevel":
             axisid,psid = create_hybrid_level_axis(task)
-            depth_axes[zdim] = axisid
+            depth_axes[zdim] = (axisid,psid)
             setattr(task,"z_axis_id",axisid)
             setattr(task,"store_with",psid)
             continue
