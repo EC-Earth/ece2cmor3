@@ -117,7 +117,7 @@ def cleanup(tasks,cleanupdir = True):
         if(ncpath != None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_,ifs_gridpoint_file_]):
             os.remove(ncpath)
             delattr(task,"path")
-    if(cleanupdir and tempdir_created_ and len(os.listdir(temp_dir_)) == 0):
+    if(cleanupdir and tempdir_created_ and temp_dir_ and len(os.listdir(temp_dir_)) == 0):
         os.rmdir(temp_dir_)
         temp_dir_=None
 
