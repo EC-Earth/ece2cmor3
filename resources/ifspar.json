@@ -47,6 +47,12 @@
         ]
     },
     {
+        "source": "138.128",
+        "target": [
+            "rv850"
+        ]
+    },
+    {
         "source": "144.128",
         "convert": "vol2flux",
         "target": "prsn"
@@ -147,7 +153,8 @@
     {
         "source": "129.128",
         "convert": "pot2alt",
-        "target": "zg7h"
+        "target": "zg7h",
+        "target": "zg1000"
     },
     {
         "source": "175.128",
