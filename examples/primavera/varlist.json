@@ -1,9 +1,5 @@
 {
     "CFmon": [
-        "rlu",
-        "rsu",
-        "rld",
-        "rsd",
         "ta",
         "hur",
         "hus"
@@ -142,7 +138,8 @@
         "ua850",
         "va850",
         "wap4",
-        "hus4"
+        "hus4",
+        "rv850"
     ],
     "Oclim": [
         "zfullo",
@@ -221,7 +218,6 @@
     ],
     "6hrPlevPt": [
         "uas",
-        "vas",
-        "vortmean"
+        "vas"
     ]
 }
