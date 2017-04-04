@@ -7,6 +7,7 @@
             "ua7c",
             "ua7h",
             "ua27",
+            "ua200",
             "ua850",
             "ua100m"
         ]
@@ -40,8 +41,15 @@
             "va7c",
             "va7h",
             "va27",
+            "va200",
             "va850",
             "va100m"
+        ]
+    },
+    {
+        "source": "138.128",
+        "target": [
+            "rv850"
         ]
     },
     {
@@ -95,6 +103,18 @@
         "expr": "var98=var208-var212"
     },
     {
+        "source": "103.128",
+        "convert": "cum2inst",
+        "target": "rsdscs",
+        "expr": "var103=var211+var177-var175"
+    },
+    {
+        "source": "104.128",
+        "convert": "cum2inst",
+        "target": "rsuscs",
+        "expr": "var104=var210+var176"
+    },
+    {
         "source": "90.128",
         "target": "clmcalipso"
     },
@@ -133,7 +153,8 @@
     {
         "source": "129.128",
         "convert": "pot2alt",
-        "target": "zg7h"
+        "target": "zg7h",
+        "target": "zg1000"
     },
     {
         "source": "175.128",
@@ -164,17 +185,20 @@
     {
         "source": "133.128",
         "target": [
-            "hus7c",
+            "hus",
             "hus4",
+            "hus7c",
             "hus27",
-            "hus"
+            "hus850"
         ]
     },
     {
         "source": "130.128",
         "target": [
             "ta",
-            "ta700"
+            "ta500",
+            "ta700",
+            "ta850"
         ]
     },
     {
