@@ -1,4 +1,5 @@
 import thread
+import numpy
 import logging
 import cdo
 
@@ -65,6 +66,7 @@ class cdo_command:
 
     # Applies the current set of operators to the input file.
     def apply(self,ifile,ofile = None,threads = 4):
+        global log
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
         func = getattr(self.app,keys[0],None)
@@ -76,14 +78,18 @@ class cdo_command:
             func = getattr(app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
         f = ofile
-        if(appargs and ofile):
-            f = func(appargs,input = inputstr,output = ofile,options = optionstr)
-        elif(appargs):
-            f = func(appargs,input = inputstr,options = optionstr)
-        elif(ofile):
-            f = func(input = inputstr,output = ofile,options = optionstr)
-        else:
-            f = func(input = inputstr,options = optionstr)
+        try:
+            if(appargs and ofile):
+                f = func(appargs,input = inputstr,output = ofile,options = optionstr)
+            elif(appargs):
+                f = func(appargs,input = inputstr,options = optionstr)
+            elif(ofile):
+                f = func(input = inputstr,output = ofile,options = optionstr)
+            else:
+                f = func(input = inputstr,options = optionstr)
+        except cdo.CDOException as e:
+            log.error(str(e))
+            return None
         return f
 
     # Applies the current set of operators and returns the netcdf variables in memory:
@@ -98,10 +104,49 @@ class cdo_command:
         else:
             func = getattr(app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
-        if(appargs):
-            return func(appargs,input = inputstr,options = optionstr,returnCdf = True).variables
-        else:
-            return func(input = inputstr,options = optionstr,returnCdf = True).variables
+        try:
+            if(appargs):
+                return func(appargs,input = inputstr,options = optionstr,returnCdf = True).variables
+            else:
+                return func(input = inputstr,options = optionstr,returnCdf = True).variables
+        except cdo.CDOException as e:
+            log.error(str(e))
+            return None
+
+    # Grid description method
+    def get_griddes(self,ifile):
+        global log
+        intfields = ["gridsize","np","xsize","ysize"]
+        realfields = ["xfirst","xinc","yfirst","yinc"]
+        arrayfields = ["xvals","yvals"]
+        infolist = self.app.griddes(input = ifile)
+        infodict = {}
+        prevkey = ""
+        for info in infolist:
+            s = str(info)
+            if(len(s) == 0): continue
+            if(s[0] == '#'): continue
+            slist = s.split('=')
+            if(len(slist) == 0):
+                continue
+            elif(len(slist) == 1):
+                if(prevkey in infodict):
+                    infodict[prevkey] += (' ' + slist[0].strip())
+                else:
+                    log.error("Could not connect grid description line %s to an existing key-value pair" % slist[0])
+                    continue
+            elif(len(slist) == 2):
+                key = slist[0].strip()
+                infodict[key] = slist[1].strip()
+                prevkey = key
+            else:
+                log.error("Could not parse grid description line %s as a key-value pair" % s)
+                continue
+        for k,v in infodict.iteritems():
+            if(k in intfields): infodict[k] = int(v)
+            if(k in realfields): infodict[k] = float(v)
+            if(k in arrayfields): infodict[k] = numpy.array([float(x) for x in v.split()])
+        return infodict
 
     # Option writing utility function
     @staticmethod
