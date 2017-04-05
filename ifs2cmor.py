@@ -293,20 +293,22 @@ def get_conversion_factor(conversion):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
+    global log
     time_axes = {}
     for task in tasks:
         tgtdims = getattr(task.target,cmor_target.dims_key)
         # TODO: better to check in the table axes if the standard name of the dimension equals "time"
-        tdims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
-        for tdim in tdims:
+        for tdim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             tid = 0
             if(tdim in time_axes):
                 tid = time_axes[tdim]
             else:
                 timop = getattr(task.target,"time_operator",["mean"])
+                log.info("Creating time axis using variable %s..." % task.target.variable)
                 tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"),name = tdim,hasbnds = (timop != ["point"]))
                 time_axes[tdim] = tid
             setattr(task,"time_axis",tid)
+            break
 
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
@@ -329,6 +331,7 @@ def create_depth_axes(tasks):
                 setattr(task,"store_with",depth_axes[zdim][1])
             continue
         elif zdim == "alevel":
+            log.info("Creating model level axis using variable %s..." % task.target.variable)
             axisid,psid = create_hybrid_level_axis(task)
             depth_axes[zdim] = (axisid,psid)
             setattr(task,"z_axis_id",axisid)
@@ -353,6 +356,7 @@ def create_depth_axes(tasks):
                 continue
             else:
                 vals = [float(l) for l in levels]
+                log.info("Creating vertical axis for %s..." % str(zdim))
                 axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit)
             depth_axes[zdim] = axisid
             setattr(task,"z_axis_id",axisid)
