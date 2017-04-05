@@ -1,0 +1,75 @@
+{
+    "Prim6hrPt": [
+        "thetapv2",
+        "ua1000",
+        "va1000",
+        "hus1000"
+    ],
+    "Prim6hr": [
+        "wsgmax",
+        "sfcWindmax",
+        "pr",
+        "rsds",
+        "ps",
+        "clt",
+        "ua4",
+        "va4",
+        "hus4"
+    ],
+    "Prim3hrPt": [
+        "ua100m",
+        "va100m",
+        "ua100",
+        "va100",
+        "ta100",
+        "hus100",
+        "vortmean",
+        "zg7h",
+        "ua1000",
+        "va1000"
+    ],
+    "Prim3hr": [
+        "sfcWind",
+        "evspsbl",
+        "sfcWindmax"
+    ],
+    "PrimOmon": [
+        "vto",
+        "uto",
+        "u2o",
+        "v2o",
+        "uso",
+        "vso",
+        "w2o",
+        "wo"
+    ],
+    "Primmon": [
+        "lwp"
+    ],
+    "PrimdayPt": [
+        "ua",
+        "va"
+    ],
+    "Primday": [
+        "prmax",
+        "prmin",
+        "mrso",
+        "mrlsl",
+        "evspsbl",
+        "ts",
+        "hus23",
+        "ta23",
+        "ua23",
+        "va23",
+        "wap23",
+        "zg23"
+    ],
+    "PrimOday": [
+        "mlotst",
+        "tauuo",
+        "tauvo",
+        "thetao",
+        "so",
+        "zos"
+    ]
+}
