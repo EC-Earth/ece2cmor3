@@ -19,9 +19,10 @@
     {
         "source": "135.128",
         "target": [
+            "wap",
+            "wap2",
             "wap4",
-            "wap500",
-            "wap"
+            "wap500"
         ]
     },
     {
@@ -82,9 +83,7 @@
     },
     {
         "source": "248.128",
-        "target": [
-            "cl"
-        ]
+        "target": "cl"
     },
     {
         "source": "209.128",
@@ -144,8 +143,11 @@
     {
         "source": "129.128",
         "convert": "pot2alt",
-        "target": "zg7h",
-        "target": "zg1000"
+        "target": [
+          "zg7h",
+          "zg27",
+          "zg1000"
+        ]
     },
     {
         "source": "175.128",
@@ -179,6 +181,7 @@
             "hus",
             "hus4",
             "hus7c",
+            "hus7h",
             "hus27",
             "hus850"
         ]
@@ -187,6 +190,8 @@
         "source": "130.128",
         "target": [
             "ta",
+            "ta7h",
+            "ta27",
             "ta500",
             "ta700",
             "ta850"
