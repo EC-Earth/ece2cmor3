@@ -30,10 +30,6 @@
         "target": "rsds"
     },
     {
-        "source": "88.128",
-        "target": "cltcalipso"
-    },
-    {
         "source": "132.128",
         "target": [
             "va",
@@ -87,8 +83,7 @@
     {
         "source": "248.128",
         "target": [
-            "cl",
-            "clcalipso"
+            "cl"
         ]
     },
     {
@@ -113,10 +108,6 @@
         "convert": "cum2inst",
         "target": "rsuscs",
         "expr": "var104=var210+var176"
-    },
-    {
-        "source": "90.128",
-        "target": "clmcalipso"
     },
     {
         "source": "168.128",
@@ -354,13 +345,5 @@
         "convert": "cum2inst",
         "target": "rsus",
         "expr": "var95=var176-var169"
-    },
-    {
-        "source": "91.128",
-        "target": "clhcalipso"
-    },
-    {
-        "source": "89.128",
-        "target": "cllcalipso"
     }
 ]
