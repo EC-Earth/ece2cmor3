@@ -13,4 +13,7 @@ mkdir -p ${MIP}
             rm -f ${ofile}
         fi
     done
+    ../../scripts/drq2json.py --drq ${MIP}/
+    mv varlist.json ${MIP}/
 done
+
