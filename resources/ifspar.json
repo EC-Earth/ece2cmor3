@@ -19,13 +19,21 @@
     },
     {
         "source": "43.128",
-        "target": "mrso",
+        "target": [
+          "mrso",
+          "mrlsl"
+        ],
         "expr": "var43=70*var39+210*var40+720*var41+1890*var42"
     },
     {
         "source": "44.128",
         "convert": "vol2flux",
         "target": "sbl"
+    },
+    {
+        "source": "45.128",
+        "target": "snm",
+        "convert": "vol2flux"
     },
     {
         "source": "54.128",
@@ -106,79 +114,79 @@
     },
     {
         "source": "102.128",
-        "target": "snw",
-        "expr": "var102=var33*var141"
-    },
-    {
-        "source": "103.128",
         "convert": "cum2inst",
         "target": "rsdscs",
         "expr": "var103=var210-var176+var169"
     },
     {
-        "source": "104.128",
+        "source": "103.128",
         "convert": "cum2inst",
         "target": "rsutcs",
         "expr": "var104=var212-var208"
     },
     {
-        "source": "105.128",
+        "source": "104.128",
         "convert": "cum2inst",
         "target": "rldscs",
         "expr": "var105=var211-var177+var175"
     },
     {
-        "source": "106.128",
+        "source": "105.128",
         "convert": "cum2inst",
         "target": "rlut",
         "expr": "var106=-var179"
     },
     {
-        "source": "107.128",
+        "source": "106.128",
         "convert": "cum2inst",
         "target": "rlutcs",
         "expr": "var107=-var209"
     },
     {
-      "source": "108.128",
-      "target": "u2",
-      "expr": "var108=var131*var131"
+        "source": "107.128",
+        "target": "u2",
+        "expr": "var108=var131*var131"
     },
     {
-      "source": "109.128",
-      "target": "v2",
-      "expr": "var109=var132*var132"
+        "source": "108.128",
+        "target": "v2",
+        "expr": "var109=var132*var132"
     },
     {
-      "source": "110.128",
-      "target": "uv",
-      "expr": "var110=var131*var132"
+        "source": "109.128",
+        "target": "uv",
+        "expr": "var110=var131*var132"
     },
     {
-      "source": "111.128",
-      "target": "t2",
-      "expr": "var111=var130*var130"
+        "source": "110.128",
+        "target": "t2",
+        "expr": "var111=var130*var130"
     },
     {
-      "source": "112.128",
-      "target": "uwap",
-      "expr": "var112=var131*var135"
+        "source": "111.128",
+        "target": "uwap",
+        "expr": "var112=var131*var135"
     },
     {
-      "source": "113.128",
-      "target": "vwap",
-      "expr": "var113=var132*var135"
+        "source": "112.128",
+        "target": "vwap",
+        "expr": "var113=var132*var135"
     },
     {
-      "source": "114.128",
-      "target": "twap",
-      "expr": "var114=var130*var135"
+        "source": "113.128",
+        "target": "twap",
+        "expr": "var114=var130*var135"
     },
     {
-      "source": "115.128",
-      "target": "evspsblsoi",
-      "expr": "var115=var182-var44",
-      "convert": "vol2flux",
+        "source": "114.128",
+        "target": "evspsblsoi",
+        "expr": "var115=var182-var44",
+        "convert": "vol2flux"
+    },
+    {
+        "source": "115.128",
+        "target": "snd",
+        "expr": "var115=1000*var141/var33"
     },
     {
         "source": "129.128",
@@ -259,12 +267,22 @@
     {
         "source": "138.128",
         "target": [
-            "rv850"
+            "rv",
+            "rv850",
+            "vortmean"
         ]
     },
     {
         "source": "139.128",
         "target": "ts"
+    },
+    {
+        "source": "141.128",
+        "target": [
+          "snw",
+          "lwsnl"
+        ],
+        "convert": "vol2massl"
     },
     {
         "source": "143.128",

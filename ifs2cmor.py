@@ -287,6 +287,7 @@ def get_conversion_factor(conversion):
     if(conversion == "pot2alt"): return 1.0 / 9.81
     if(conversion == "alt2pot"): return 9.81
     if(conversion == "vol2flux"): return 1000.0 / (3600 * output_frequency_)
+    if(conversion == "vol2massl"): return 1000.0
     log.error("Unknown explicit unit conversion: %s" % conversion)
     return 1.0
 

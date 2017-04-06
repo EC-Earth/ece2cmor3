@@ -58,7 +58,7 @@
     {
         "source": "sithic",
         "grid": "icemod",
-        "target": "sit"
+        "target": "sithick"
     },
     {
         "source": "tos",
@@ -113,7 +113,7 @@
     {
         "source": "snthic",
         "grid": "icemod",
-        "target": "snd"
+        "target": "sisnthick"
     },
     {
         "source": "sfdsi",
