@@ -36,12 +36,16 @@
         "convert": "vol2flux"
     },
     {
+        "source": "49.128",
+        "target": "wsgmax"
+    },
+    {
         "source": "54.128",
         "target": "pfull"
     },
     {
         "source": "78.128",
-        "target": "clwvi"
+        "target": "lwp"
     },
     {
         "source": "79.128",
@@ -189,11 +193,17 @@
         "expr": "var115=1000*var141/var33"
     },
     {
+        "source": "116.128",
+        "target": "clwvi",
+        "expr": "var116=var78+var79"
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
           "zg",
           "zg7h",
+          "zg23",
           "zg27",
           "zg1000",
           "orog"
@@ -204,10 +214,13 @@
         "target": [
             "ta",
             "ta7h",
+            "ta23",
             "ta27",
+            "ta100",
             "ta500",
             "ta700",
-            "ta850"
+            "ta850",
+            "thetapv2"
         ]
     },
     {
@@ -217,9 +230,12 @@
             "ua4",
             "ua7c",
             "ua7h",
+            "ua23",
             "ua27",
+            "ua100",
             "ua200",
             "ua850",
+            "ua1000",
             "ua100m"
         ]
     },
@@ -230,9 +246,12 @@
             "va4",
             "va7c",
             "va7h",
+            "va23",
             "va27",
+            "va100",
             "va200",
             "va850",
+            "va1000",
             "va100m"
         ]
     },
@@ -243,8 +262,11 @@
             "hus4",
             "hus7c",
             "hus7h",
+            "hus23",
             "hus27",
-            "hus850"
+            "hus100",
+            "hus850",
+            "hus1000"
         ]
     },
     {
@@ -257,6 +279,7 @@
             "wap",
             "wap2",
             "wap4",
+            "wap23",
             "wap500"
         ]
     },
@@ -389,7 +412,11 @@
     {
         "source": "228.128",
         "convert": "vol2flux",
-        "target": "pr"
+        "target": [
+          "pr",
+          "prmin",
+          "prmax"
+        ]
     },
     {
         "source": "235.128",
