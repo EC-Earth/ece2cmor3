@@ -40,10 +40,6 @@
         "target": "pfull"
     },
     {
-        "source": "78.128",
-        "target": "clwvi"
-    },
-    {
         "source": "79.128",
         "target": "clivi"
     },
@@ -187,6 +183,11 @@
         "source": "115.128",
         "target": "snd",
         "expr": "var115=1000*var141/var33"
+    },
+    {
+        "source": "116.128",
+        "target": "clwvi",
+        "expr": "var116=var78+var79"
     },
     {
         "source": "129.128",
