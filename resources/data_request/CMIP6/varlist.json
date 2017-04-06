@@ -6,8 +6,7 @@
         "rsdt",
         "prw",
         "clwvi",
-        "clivi",
-        "rsutcs"
+        "clivi"
     ],
     "SImon": [
         "sipr"
@@ -147,10 +146,6 @@
         "snw",
         "mrro",
         "sic"
-    ],
-    "AERmon": [
-        "orog",
-        "ps"
     ],
     "Emon": [
         "ta27",
