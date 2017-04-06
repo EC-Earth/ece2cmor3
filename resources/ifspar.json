@@ -175,6 +175,12 @@
       "expr": "var114=var130*var135"
     },
     {
+      "source": "115.128",
+      "target": "evspsblsoi",
+      "expr": "var115=var182-var44",
+      "convert": "vol2flux",
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
