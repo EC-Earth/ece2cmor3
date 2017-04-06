@@ -87,7 +87,7 @@ def create_tasks(targets):
         if(len(pars) > 1):
             if(len(tabpars) != 1):
                 log.error("Multiple parameter table entries found for %s in table %s...choosing first found." % (target.variable,target.table))
-                for p in pars: log.error("Par table entry found: %s" % p.__dict__)
+                for p in pars: log.error("Par table entry found: %s" % str(p))
         par = pars[0] if len(tabpars) == 0 else tabpars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         task = create_cmor_task(par,target,tag)
