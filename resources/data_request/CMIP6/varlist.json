@@ -1,27 +1,13 @@
 {
-    "3hr": [
-        "pr",
-        "tas",
-        "hfls",
-        "hfss",
-        "rlds",
-        "rlus",
-        "rsds",
-        "rsus",
-        "uas",
-        "vas",
-        "huss",
-        "mrsos",
-        "tslsi",
-        "tso",
-        "prc",
-        "prsn",
-        "mrro",
-        "rldscs",
-        "rsdscs",
-        "rsuscs",
-        "ps",
-        "clt"
+    "E3hr": [
+        "rlut",
+        "rsut",
+        "rlutcs",
+        "rsdt",
+        "prw",
+        "clwvi",
+        "clivi",
+        "rsutcs"
     ],
     "SImon": [
         "sipr"
@@ -72,8 +58,7 @@
         "hus",
         "hur",
         "wap",
-        "zg",
-        "pfull"
+        "zg"
     ],
     "CFmon": [
         "ta",
@@ -128,15 +113,29 @@
         "siu",
         "siv"
     ],
-    "E3hr": [
-        "rlut",
-        "rsut",
-        "rlutcs",
-        "rsdt",
-        "prw",
-        "clwvi",
-        "clivi",
-        "rsutcs"
+    "3hr": [
+        "pr",
+        "tas",
+        "hfls",
+        "hfss",
+        "rlds",
+        "rlus",
+        "rsds",
+        "rsus",
+        "uas",
+        "vas",
+        "huss",
+        "mrsos",
+        "tslsi",
+        "tso",
+        "prc",
+        "prsn",
+        "mrro",
+        "rldscs",
+        "rsdscs",
+        "rsuscs",
+        "ps",
+        "clt"
     ],
     "6hrPlev": [
         "psl",
@@ -195,7 +194,6 @@
         "ta",
         "hus",
         "wap",
-        "zg",
         "hur",
         "cl",
         "clw",
@@ -215,13 +213,11 @@
     "Lmon": [
         "mrsos",
         "mrso",
-        "mrfso",
         "mrros",
         "mrro",
         "evspsblsoi",
         "mrlsl",
-        "tsl",
-        "lai"
+        "tsl"
     ],
     "LImon": [
         "snw",
@@ -237,7 +233,6 @@
         "huss",
         "mrlsl",
         "mrsos",
-        "pfull27",
         "psl",
         "sfcWind",
         "snw",
@@ -267,7 +262,6 @@
         "hurs",
         "hursmin",
         "hursmax",
-        "snc",
         "clt",
         "tslsi",
         "prc",

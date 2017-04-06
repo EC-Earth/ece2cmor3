@@ -5,16 +5,9 @@
         "va1000",
         "hus1000"
     ],
-    "Prim6hr": [
-        "wsgmax",
-        "sfcWindmax",
-        "pr",
-        "rsds",
-        "ps",
-        "clt",
-        "ua4",
-        "va4",
-        "hus4"
+    "PrimdayPt": [
+        "ua",
+        "va"
     ],
     "Prim3hrPt": [
         "ua100m",
@@ -33,6 +26,17 @@
         "evspsbl",
         "sfcWindmax"
     ],
+    "Prim6hr": [
+        "wsgmax",
+        "sfcWindmax",
+        "pr",
+        "rsds",
+        "ps",
+        "clt",
+        "ua4",
+        "va4",
+        "hus4"
+    ],
     "PrimOmon": [
         "vto",
         "uto",
@@ -45,10 +49,6 @@
     ],
     "Primmon": [
         "lwp"
-    ],
-    "PrimdayPt": [
-        "ua",
-        "va"
     ],
     "Primday": [
         "prmax",
