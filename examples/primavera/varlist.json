@@ -134,8 +134,7 @@
         "rsdt",
         "prw",
         "clwvi",
-        "clivi",
-        "rsutcs"
+        "clivi"
     ],
     "6hrPlev": [
         "psl",
@@ -146,12 +145,7 @@
         "tauv",
         "snw",
         "mrro",
-        "sic",
         "snd"
-    ],
-    "AERmon": [
-        "orog",
-        "ps"
     ],
     "Emon": [
         "ta27",
@@ -161,8 +155,6 @@
         "hus27",
         "uqint",
         "vqint",
-        "ua",
-        "va",
         "u2",
         "v2",
         "wap2",
