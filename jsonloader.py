@@ -81,13 +81,13 @@ def create_tasks(targets):
     for target in targets:
         pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
-            log.error("Could not find parameter table entry for %s...skipping variable." % target.variable)
+            log.error("Could not find parameter table entry for %s in table %s...skipping variable." % (target.variable,target.table))
             continue
         tabpars = [p for p in pars if json_table_key in p]
         if(len(pars) > 1):
             if(len(tabpars) != 1):
-                log.error("Multiple parameter table entries found for %s...choosing first found." % target.variable)
-                for p in pars: log.error("Par table entry found: %s" % p.__dict__)
+                log.error("Multiple parameter table entries found for %s in table %s...choosing first found." % (target.variable,target.table))
+                for p in pars: log.error("Par table entry found: %s" % str(p))
         par = pars[0] if len(tabpars) == 0 else tabpars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         task = create_cmor_task(par,target,tag)
