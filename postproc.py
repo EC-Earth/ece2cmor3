@@ -167,41 +167,45 @@ def add_time_operators(cdo,freq,mon,operators,shift=False):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
             cdo.add_operator(cdoapi.cdo_command.select_day_operator,15)
-        if(operators == ["mean"]):
+        elif(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        if(operators == ["maximum"]):
+        elif(operators == ["mean within years","mean over years"]):
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+        elif(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
-        if(operators == ["minimum"]):
+        elif(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
-        if(operators == ["maximum within days","mean over days"]):
+        elif(operators == ["maximum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        if(operators == ["minimum within days","mean over days"]):
+        elif(operators == ["minimum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
         if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-        return
-    if(freq == "day"):
+    elif(freq == "day"):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
-        if(operators == ["mean"]):
+        elif(operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
-        if(operators == ["maximum"]):
+        elif(operators == ["mean within years","mean over years"]):
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
+        elif(operators == ["maximum"]):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
-        if(operators == ["minimum"]):
+        elif(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
+        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
         if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
-        return
-    if(freq == "6hr"):
+    elif(freq == "6hr"):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
-            return
-    if(freq in ["1hr","3hr"]):
-        if(operators == ["point"] or operators == ["mean"]): return
-    raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
-
+        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+    elif(freq in ["1hr","3hr"]):
+        if(operators != ["point"] and operators != ["mean"]):
+            raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+    else: raise Exception("Unsupported frequency ",freq," encountered")
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo,task):
