@@ -44,6 +44,8 @@ def main(args):
 
     (opt,args) = parser.parse_args()
 
+    ece2cmor.prefix = "PRIMAVERA"
+
     # Initialize ece2cmor with experiment prefix:
     ece2cmor.initialize(opt.conf,opt.exp)
 
