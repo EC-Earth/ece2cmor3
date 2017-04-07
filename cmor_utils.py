@@ -5,7 +5,7 @@ import math
 import numpy
 import datetime
 import logging
-import cmor
+#import cmor
 import dateutil.relativedelta
 
 # Log object
@@ -43,13 +43,13 @@ def make_cmor_frequency(s):
         return s
     if(isinstance(s,basestring)):
         if(s == "monClim"):
-            return dateutil.relativedelta.relativedelta(month=1)
+            return dateutil.relativedelta.relativedelta(months=1)
         elif(s.endswith("mon")):
             n = 1 if s == "mon" else int(s[:-3])
-            return dateutil.relativedelta.relativedelta(month=n)
+            return dateutil.relativedelta.relativedelta(months=n)
         elif(s.endswith("day")):
             n = 1 if s == "day" else int(s[:-3])
-            return dateutil.relativedelta.relativedelta(day=n)
+            return dateutil.relativedelta.relativedelta(days=n)
         elif(s.endswith("hr")):
             n = 1 if s == "hr" else int(s[:-2])
             return dateutil.relativedelta.relativedelta(hours=n)
