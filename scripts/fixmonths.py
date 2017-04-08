@@ -10,7 +10,7 @@ import datetime
 import dateutil.relativedelta
 import optparse
 import logging
-from gribapi import *
+import gribapi
 
 VERBOSE=1 # verbose error reporting
 accum_key = "ACCUMFLD"
@@ -43,7 +43,7 @@ def get_ifs_date(filepath):
 
 # Function writing a grib record
 def write_record(msgid,files):
-    grib_write(msgid,files[0])
+    gribapi.grib_write(msgid,files[0])
 
 # Grib codes of accumulated fields
 accum_codes = load_accum_codes(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","resources","grib_codes.json"))
@@ -70,40 +70,40 @@ def merge_months(month,prevmonfile,curmonfile,ofiles,writer = write_record):
 # Function writing instantaneous midnight fields from previous month
 def merge_prev_months(month,fin,fouts,writer):
     while True:
-        gid = grib_new_from_file(fin)
+        gid = gribapi.grib_new_from_file(fin)
         if(not gid): break
-        date = int(grib_get(gid,"dataDate"))
+        date = int(gribapi.grib_get(gid,"dataDate"))
         mon = (date % 10000)/100
         if(mon == month):
-            code = make_grib_tuple(grib_get(gid,"param"))
+            code = make_grib_tuple(gribapi.grib_get(gid,"param"))
             if(code in accum_codes): continue
             writer(gid,fouts)
-        grib_release(gid)
+        gribapi.grib_release(gid)
 
 # Function writing data from current monthly file, optionally shifting accumulated fields
 # and skipping next month instantaneous fields
 def merge_cur_months(month,fin,fouts,writer):
     while True:
-        gid = grib_new_from_file(fin)
+        gid = gribapi.grib_new_from_file(fin)
         if(not gid): break
-        date = int(grib_get(gid,"dataDate"))
+        date = int(gribapi.grib_get(gid,"dataDate"))
         mon = (date % 10**4)/10**2
         if(mon not in [month,(month + 1)%12]): continue
         curdate = datetime.date(date / 10**4,mon,date % 10**2) if timeshift else None
-        code = make_grib_tuple(grib_get(gid,"param"))
+        code = make_grib_tuple(gribapi.grib_get(gid,"param"))
         if(code in accum_codes and timeshift):
-            newtime = int(grib_get(gid,"dataTime")) - 100 * timeshift
+            newtime = int(gribapi.grib_get(gid,"dataTime")) - 100 * timeshift
             newdate = date
             if(newtime < 0):
                 prevdate = curdate - datetime.timedelta(days = 1)
                 mon = prevdate.month
                 newdate = prevdate.year*10**4 + mon*10**2 + prevdate.day
                 newtime = 2400 + newtime
-            grib_set(gid,"dataDate",newdate)
-            grib_set(gid,"dataTime",newtime)
+            gribapi.grib_set(gid,"dataDate",newdate)
+            gribapi.grib_set(gid,"dataTime",newtime)
         if(mon == month):
             writer(gid,fouts)
-        grib_release(gid)
+        gribapi.grib_release(gid)
 
 def main(args):
 
@@ -111,7 +111,7 @@ def main(args):
 
     parser = optparse.OptionParser(usage = "usage: %prog [options] file")
     parser.add_option("-p","--prev",  dest = "pfile", help = "Previous month grib file", default = None)
-    parser.add_option("-d","--shift", dest = "shift", help = "Time shift (in hrs) for cumulative fields", default = "0")
+    parser.add_option("-s","--shift", dest = "shift", help = "Time shift (in hrs) for cumulative fields", default = "0")
     parser.add_option("-o","--out",   dest = "ofile", help = "Output file name",default = None)
 
     (opt,args) = parser.parse_args()
@@ -122,6 +122,7 @@ def main(args):
         return 1
     ifile = os.path.abspath(ifile)
     log.info("Found input file: %s",ifile)
+
     date = get_ifs_date(ifile)
     if(date == None):
         log.error("Could not detect year and month from input file %s" % ifile)
@@ -155,7 +156,7 @@ def main(args):
     if(not ofile):
         ofile = os.path.abspath(os.path.join(".",os.path.basename(ifile)))
     if(os.path.exists(ofile)):
-        log.error("Output path %s already exists")
+        log.error("Output path %s already exists" % ofile)
         return 1
     log.info("Producing output file %s" % ofile)
 
