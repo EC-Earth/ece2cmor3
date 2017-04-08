@@ -64,7 +64,7 @@ def main(args):
     ece2cmor.tasks = [t for t in ece2cmor.tasks if is6hrtask(t)]
 
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks(outputfreq = 6,tempdir = opt.temp)
+    ece2cmor.perform_ifs_tasks(outputfreq = 6,tempdir = opt.temp,taskthreads=1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
