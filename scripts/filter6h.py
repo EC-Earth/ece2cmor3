@@ -82,7 +82,7 @@ def main(args):
     log.info("Producing output files %s and %s" % (file3hr,file6hr))
 
     try:
-        fixmonths.timeshift = 3
+        fixmonths.timeshift = 3 if pfile else 0
         fixmonths.merge_months(month,pfile,ifile,[file3hr,file6hr],filter_record)
     except GribInternalError,err:
         if VERBOSE:
