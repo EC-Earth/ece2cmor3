@@ -5,7 +5,7 @@ import math
 import numpy
 import datetime
 import logging
-#import cmor
+import cmor
 import dateutil.relativedelta
 
 # Log object
