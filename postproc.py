@@ -111,8 +111,7 @@ def create_command(task,griddes = {}):
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     freq = getattr(task.target,cmor_target.freq_key,None)
     timops = getattr(task.target,"time_operator",["point"])
-    timeshift = (task.source.get_grib_code() in cmor_source.ifs_source.grib_codes_accum)
-    add_time_operators(result,freq,int(getattr(task,"path","-1")[-2:]),timops,timeshift)
+    add_time_operators(result,freq,int(getattr(task,"path","-1")[-2:]),timops)
     add_level_operators(result,task)
     return result
 
@@ -160,7 +159,7 @@ def apply_command(command,tasklist,basepath = None):
 
 
 # Translates the cmor time post-processing operation to a cdo command-line option
-def add_time_operators(cdo,freq,mon,operators,shift=False):
+def add_time_operators(cdo,freq,mon,operators):
     global output_frequency_
     timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
@@ -183,7 +182,6 @@ def add_time_operators(cdo,freq,mon,operators,shift=False):
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
         else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
-        if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
     elif(freq == "day"):
         if(operators == ["point"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,12)
@@ -197,7 +195,6 @@ def add_time_operators(cdo,freq,mon,operators,shift=False):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
         else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
-        if(shift): cdo.add_operator(cdoapi.cdo_command.shift_time_operator,timeshift)
     elif(freq == "6hr"):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
