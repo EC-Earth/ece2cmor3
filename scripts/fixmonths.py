@@ -12,7 +12,7 @@ import optparse
 import logging
 import gribapi
 
-VERBOSE=1 # verbose error reporting
+verbose=1 # verbose error reporting
 accum_key = "ACCUMFLD"
 timeshift = 0
 logging.basicConfig(level=logging.DEBUG)
@@ -47,8 +47,8 @@ def write_record(msgid,files):
 
 # Sets the pressure level axis with levels < 1 hPa to a format that CDO can understand
 def fix_Pa_pressure_levels(gid):
-    levtype = int(grib_api.grib_get(gid,"indicatorOfTypeOfLevel"))
-    if(levtype == 210): grib_api.grib_set(gid,"indicatorOfTypeOfLevel",99)
+    levtype = gribapi.grib_get(gid,"indicatorOfTypeOfLevel",int)
+    if(levtype == 210): gribapi.grib_set(gid,"indicatorOfTypeOfLevel",99)
 
 # Grib codes of accumulated fields
 accum_codes = load_accum_codes(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","resources","grib_codes.json"))
@@ -177,7 +177,7 @@ def main(args):
         timeshift = shift
         merge_months(month,pfile,ifile,ofile)
     except gribapi.GribInternalError,err:
-        if VERBOSE:
+        if verbose:
             traceback.print_exc(file=sys.stderr)
         else:
             log.error(sys.stderr,err.msg)
