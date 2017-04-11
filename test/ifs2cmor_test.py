@@ -88,7 +88,7 @@ class ifs2cmor_tests(unittest.TestCase):
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"tasmax_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
-        nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -selmon,3 -shifttime,-3hours -selcode,201")
+        nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -selmon,3 -selcode,201")
 
     def test_postproc_windspeed(self):
         abspath = get_table_path()
