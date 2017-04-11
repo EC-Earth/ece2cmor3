@@ -47,8 +47,8 @@ def write_record(msgid,files):
 
 # Sets the pressure level axis with levels < 1 hPa to a format that CDO can understand
 def fix_Pa_pressure_levels(gid):
-    levtype = int(grib_get(gid,"indicatorOfTypeOfLevel"))
-    if(levtype == 210): grib_set(gid,"indicatorOfTypeOfLevel",99)
+    levtype = int(grib_api.grib_get(gid,"indicatorOfTypeOfLevel"))
+    if(levtype == 210): grib_api.grib_set(gid,"indicatorOfTypeOfLevel",99)
 
 # Grib codes of accumulated fields
 accum_codes = load_accum_codes(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","resources","grib_codes.json"))
@@ -180,7 +180,7 @@ def main(args):
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:
-            log.error(>>sys.stderr,err.msg)
+            log.error(sys.stderr,err.msg)
         return 1
 
 if __name__ == '__main__':
