@@ -45,6 +45,11 @@ def get_ifs_date(filepath):
 def write_record(msgid,files):
     grib_write(msgid,files[0])
 
+# Sets the pressure level axis with levels < 1 hPa to a format that CDO can understand
+def fix_Pa_pressure_levels(gid):
+    levtype = int(grib_get(gid,"indicatorOfTypeOfLevel"))
+    if(levtype == 210): grib_set(gid,"indicatorOfTypeOfLevel",99)
+
 # Grib codes of accumulated fields
 accum_codes = load_accum_codes(os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","resources","grib_codes.json"))
 
@@ -77,6 +82,7 @@ def merge_prev_months(month,fin,fouts,writer):
         if(mon == month):
             code = make_grib_tuple(grib_get(gid,"param"))
             if(code in accum_codes): continue
+            fix_Pa_pressure_levels(gid)
             writer(gid,fouts)
         grib_release(gid)
 
@@ -102,9 +108,11 @@ def merge_cur_months(month,fin,fouts,writer):
             grib_set(gid,"dataDate",newdate)
             grib_set(gid,"dataTime",newtime)
         if(mon == month):
+            fix_Pa_pressure_levels(gid)
             writer(gid,fouts)
         grib_release(gid)
 
+# Main function
 def main(args):
 
     global timeshift
