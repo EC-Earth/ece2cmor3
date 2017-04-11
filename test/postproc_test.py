@@ -50,7 +50,7 @@ class ifs2cmor_tests(unittest.TestCase):
         target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-monmean -daymax -setgridtype,regular -shifttime,-3hours -selcode,201")
+        nose.tools.eq_(command.create_command(),"-monmean -daymax -setgridtype,regular -selcode,201")
 
     def test_postproc_windspeed(self):
         abspath = get_table_path()
