@@ -112,7 +112,6 @@ def merge_cur_months(month,fin,fouts,writer):
             writer(gid,fouts)
         grib_release(gid)
 
-# Main function
 def main(args):
 
     global timeshift
@@ -123,6 +122,12 @@ def main(args):
     parser.add_option("-o","--out",   dest = "ofile", help = "Output file name",default = None)
 
     (opt,args) = parser.parse_args()
+
+    if(len(args)<1):
+        log.error("No argument grib file given...aborting")
+        return 1
+    elif(len(args)>1):
+        log.warning("Multiple grib files given...will take first")
 
     ifile = args[0]
     if(not (os.path.isfile(ifile) or os.path.islink(ifile))):
@@ -170,11 +175,11 @@ def main(args):
     try:
         timeshift = shift
         merge_months(month,pfile,ifile,ofile)
-    except GribInternalError,err:
+    except gribapi.GribInternalError,err:
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:
-            print >>sys.stderr,err.msg
+            log.error(>>sys.stderr,err.msg)
         return 1
 
 if __name__ == '__main__':
