@@ -40,6 +40,13 @@ def main(args):
     (opt,args) = parser.parse_args()
 
     ifile = args[0]
+
+    if(len(args)<1):
+        log.error("No argument grib file given...aborting")
+        return 1
+    elif(len(args)>1):
+        log.warning("Multiple grib files given...will take first")
+
     if(not (os.path.isfile(ifile) or os.path.islink(ifile))):
         log.error("Invalid input file path %s given" % ifile)
         return 1
@@ -83,12 +90,13 @@ def main(args):
 
     try:
         fixmonths.timeshift = 3 if pfile else 0
+        print "Merging months..."
         fixmonths.merge_months(month,pfile,ifile,[file3hr,file6hr],filter_record)
-    except GribInternalError,err:
+    except gribapi.GribInternalError,err:
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:
-            print >>sys.stderr,err.msg
+            log.error(>>sys.stderr,err.msg)
         return 1
 
 
