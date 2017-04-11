@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import traceback
 import sys
 import os
 import logging
@@ -10,6 +11,7 @@ import fixmonths
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
+verbose = 1
 
 def filter_record(msgid,files):
     levtype = gribapi.grib_get(msgid,"levelType")
@@ -93,7 +95,7 @@ def main(args):
         print "Merging months..."
         fixmonths.merge_months(month,pfile,ifile,[file3hr,file6hr],filter_record)
     except gribapi.GribInternalError,err:
-        if VERBOSE:
+        if verbose:
             traceback.print_exc(file=sys.stderr)
         else:
             log.error(sys.stderr,err.msg)
