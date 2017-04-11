@@ -18,7 +18,7 @@ def filter_record(msgid,files):
     time = int(gribapi.grib_get(msgid,"dataTime"))
     code = int(gribapi.grib_get(msgid,"paramId"))
 
-    if(levtype in ["ml","pl"]):
+    if(levtype in ["ml","pl","99"]):
         if(time % 600 == 0):
             gribapi.grib_write(msgid,files[1])
         lev = float(gribapi.grib_get(msgid,"level"))
