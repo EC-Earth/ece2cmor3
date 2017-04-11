@@ -96,7 +96,7 @@ def main(args):
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:
-            log.error(>>sys.stderr,err.msg)
+            log.error(sys.stderr,err.msg)
         return 1
 
 
