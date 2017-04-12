@@ -1,0 +1,122 @@
+{
+    "3hr": [
+        "ps"
+    ],
+    "SImon": [
+        "sipr"
+    ],
+    "Amon": [
+        "ps",
+        "cl",
+        "clw",
+        "cli",
+        "ta",
+        "ua",
+        "va",
+        "hus",
+        "hur",
+        "wap",
+        "zg"
+    ],
+    "CFmon": [
+        "ta",
+        "hur",
+        "hus"
+    ],
+    "Omon": [
+        "tauuo",
+        "tauvo",
+        "masso",
+        "pbo",
+        "volo",
+        "zos",
+        "zossq",
+        "thkcello",
+        "thetao",
+        "thetaoga",
+        "tos",
+        "tossq",
+        "so",
+        "soga",
+        "sos",
+        "mlotst",
+        "uo",
+        "vo",
+        "wmo",
+        "umo",
+        "vmo",
+        "friver",
+        "ficeberg2d",
+        "wfo",
+        "rsntds",
+        "rsdo",
+        "hfds",
+        "zfullo",
+        "zhalfo"
+    ],
+    "SIday": [
+        "sithick",
+        "siu",
+        "siv"
+    ],
+    "6hrPlev": [
+        "wap4"
+    ],
+    "Emon": [
+        "ta27",
+        "ua27",
+        "va27",
+        "zg27",
+        "hus27",
+        "u2",
+        "v2",
+        "wap2",
+        "t2",
+        "uv",
+        "uwap",
+        "vwap",
+        "ut",
+        "vt",
+        "twap"
+    ],
+    "CFday": [
+        "ps",
+        "wap500",
+        "ta700",
+        "ua",
+        "va",
+        "ta",
+        "hus",
+        "wap",
+        "hur",
+        "cl",
+        "clw",
+        "cli",
+        "pfull"
+    ],
+    "Oday": [
+        "tossq",
+        "tos",
+        "sos"
+    ],
+    "6hrPlevPt": [
+        "hus27",
+        "ta27",
+        "vortmean",
+        "zg27",
+        "hus7h",
+        "ta7h",
+        "va7h",
+        "ua7h",
+        "zg7h"
+    ],
+    "day": [
+        "ta",
+        "hur",
+        "hus",
+        "wap",
+        "va",
+        "ua",
+        "zg"
+    ]
+}
