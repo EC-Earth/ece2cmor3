@@ -4,7 +4,7 @@ import sys
 import os
 import logging
 import argparse
-import ece2cmor
+import ece2cmorlib
 import jsonloader
 
 # Logging configuration
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         sys.exit(1)
     log.info("Checking against table files %s/%s_*.json" % (tabdir,prefix))
 
-    ece2cmor.prefix = prefix
-    ece2cmor.table_dir = tabdir
-    ece2cmor.initialize()
+    ece2cmorlib.prefix = prefix
+    ece2cmorlib.table_dir = tabdir
+    ece2cmorlib.initialize()
     jsonloader.load_targets(varlist)
