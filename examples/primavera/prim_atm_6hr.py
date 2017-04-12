@@ -5,8 +5,8 @@ import sys
 import logging
 import ece2cmor
 import ifs2cmor
-import jsonloader
 import cmor_source
+import jsonloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -24,20 +24,19 @@ def is6hrtask(task):
 
 logging.basicConfig(level=logging.DEBUG)
 
-startdate = datstartdate = datetime.date(1990,1,1)
+startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
 srcdir = os.path.dirname(os.path.abspath(ece2cmor.__file__))
 curdir = os.path.join(srcdir,"examples","primavera")
 datdir = os.path.join(srcdir,"test","test_data","ifsdata","6hr")
 tmpdir = os.path.join(curdir,"tmp")
 varfile = os.path.join(curdir,"varlist.json")
-conffile = os.path.join(curdir,"primavera.json")
 
 def main(args):
 
     parser = optparse.OptionParser()
     parser.add_option("-d","--dir", dest = "dir",  help = "IFS output directory (optional)",       default = datdir)
-    parser.add_option("-c","--conf",dest = "conf", help = "Input variable list (optional)",        default = conffile)
+    parser.add_option("-c","--conf",dest = "conf", help = "Input variable list (optional)",        default = ece2cmor.conf_path_default)
     parser.add_option("-e","--exp", dest = "exp",  help = "Experiment prefix (optional)",          default = "ECE3")
     parser.add_option("-t","--tmp", dest = "temp", help = "Temporary working directory (optional)",default = tmpdir)
     parser.add_option("-v","--var", dest = "vars", help = "Input variable list (optional)",        default = varfile)
@@ -45,15 +44,7 @@ def main(args):
     (opt,args) = parser.parse_args()
 
     # Initialize ece2cmor with experiment prefix:
-    ece2cmor.initialize(opt.conf,opt.exp)
-
-    odir = os.path.abspath(opt.dir)
-    if(not os.path.isdir(odir)): raise Exception("Nonexistent output directory given:",odir)
-
-    # Set directory and time interval for cmorization step:
-    ece2cmor.ifsdir = odir
-    ece2cmor.startdate = startdate
-    ece2cmor.interval = interval
+    ece2cmor.initialize(opt.conf)
 
     # Load the variables as task targets:
     jsonloader.load_targets(opt.vars)
@@ -62,7 +53,7 @@ def main(args):
     ece2cmor.tasks = [t for t in ece2cmor.tasks if is6hrtask(t)]
 
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks(outputfreq = 6,tempdir = opt.temp)
+    ece2cmor.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
