@@ -4,12 +4,27 @@ import os
 import sys
 import logging
 import argparse
+import cmor_source
 import ece2cmorlib
 import jsonloader
 import dateutil.parser
 import dateutil.relativedelta
 
 logging.basicConfig(level=logging.DEBUG)
+
+def is3hrtask(task):
+   if(not isinstance(task.source,cmor_source.ifs_source)): return False
+   if(task.target.variable in ["ua850","va850"]): return True
+   return (task.source.spatial_dims == 2)
+
+def is6hrtask(task):
+   if(not isinstance(task.source,cmor_source.ifs_source)): return False
+   if(task.target.variable in ["ua850","va850"]): return False
+   if(getattr(task.target,"frequency",None) == "3hr"): return False
+   return (task.source.spatial_dims == 3)
+
+varlistcmip = os.path.join(os.path.dirname(__file__),"resources","data_request","CMIP6","varlist.json")
+varlistprim = os.path.join(os.path.dirname(__file__),"resources","data_request","PRIMAVERA","varlist.json")
 
 def main(args):
 
@@ -20,13 +35,11 @@ def main(args):
 
     parser.add_argument("datadir",  metavar = "DIR",        type = str)
     parser.add_argument("date",     metavar = "YYYY-mm-dd", type = str)
-    parser.add_argument("--vars",   metavar = "FILE.json",  type = str,     default = varlist_path_default,help = "json-file containing cmor variables")
     parser.add_argument("--conf",   metavar = "FILE.json",  type = str,     default = ece2cmorlib.conf_path_default,help = "Input metadata file")
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
     parser.add_argument("--mode",   metavar = "MODE",       type = str,     default = "preserve",help = "CMOR netcdf mode",choices = ["preserve","replace","append"])
-    parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours")
-    parser.add_argument("--tabdir", metavar = "DIR",        type = str,     default = ece2cmorlib.table_dir_default,help = "Cmorization table directory")
-    parser.add_argument("--tabid",  metavar = "PREFIX",     type = str,     default = ece2cmorlib.prefix_default,help = "Cmorization table prefix string")
+    parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours",choices = [3,6])
+    parser.add_argument("--tabid",  metavar = "PREFIX",     type = str,     default = "CMIP6",help = "Cmorization table prefix string",choices = ["CMIP6","PRIMAVERA"])
     parser.add_argument("--tmpdir", metavar = "DIR",        type = str,     default = "/tmp/ece2cmor3", help = "Temporary working directory")
     parser.add_argument("--npp",    metavar = "N",          type = int,     default = 8, help = "Number of post-processing threads")
     parser.add_argument("--tmpsize",metavar = "X",          type = float,   default = float("inf"),help = "Size of tempdir (in GB) that triggers flushing")
@@ -39,10 +52,10 @@ def main(args):
     modedict = {"preserve":ece2cmorlib.PRESERVE,"append":ece2cmorlib.APPEND,"replace":ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tabledir = args.tabdir,tableprefix = args.tabid)
+    ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tableprefix = args.tabid)
 
     # Load the variables as task targets:
-    jsonloader.load_targets(args.vars)
+    jsonloader.load_targets(varlistcmip if args.tabid == "CMIP6" else varlistprim)
 
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm
@@ -51,7 +64,13 @@ def main(args):
 
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months = 1)
+    if(prococean):
+        ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
     if(procatmos):
+
+        filterfunc = is6hrtask if args.freq == 6 else is3hrtask
+        ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if filterfunc(t)]
+
         # Create temporary working directory:
         if(not os.path.isdir(args.tmpdir)): os.makedirs(args.tmpdir)
         # Execute the atmosphere cmorization:
@@ -60,8 +79,6 @@ def main(args):
                                                                              taskthreads = args.npp,
                                                                              cdothreads = args.ncdo,
                                                                              maxsizegb = args.tmpsize)
-    if(prococean):
-        ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
