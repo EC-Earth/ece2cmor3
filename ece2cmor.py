@@ -37,6 +37,7 @@ def main(args):
     parser.add_argument("date",     metavar = "YYYY-mm-dd", type = str)
     parser.add_argument("--conf",   metavar = "FILE.json",  type = str,     default = ece2cmorlib.conf_path_default,help = "Input metadata file")
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
+    parser.add_argument("--vars",   metavar = "FILE.json",  type = str,     default = None,help = "json-file containing cmor variables")
     parser.add_argument("--mode",   metavar = "MODE",       type = str,     default = "preserve",help = "CMOR netcdf mode",choices = ["preserve","replace","append"])
     parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours",choices = [3,6])
     parser.add_argument("--tabid",  metavar = "PREFIX",     type = str,     default = "CMIP6",help = "Cmorization table prefix string",choices = ["CMIP6","PRIMAVERA"])
@@ -54,8 +55,12 @@ def main(args):
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tableprefix = args.tabid)
 
+    varlist = args.vars
+    if(not varlist):
+        varlist = varlistcmip if args.tabid == "CMIP6" else varlistprim
+
     # Load the variables as task targets:
-    jsonloader.load_targets(varlistcmip if args.tabid == "CMIP6" else varlistprim)
+    jsonloader.load_targets(varlist)
 
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm
