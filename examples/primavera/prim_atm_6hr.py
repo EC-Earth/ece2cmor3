@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-import ece2cmor
+import ece2cmorlib
 import ifs2cmor
 import cmor_source
 import jsonloader
@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
-srcdir = os.path.dirname(os.path.abspath(ece2cmor.__file__))
+srcdir = os.path.dirname(os.path.abspath(ece2cmorlib.__file__))
 curdir = os.path.join(srcdir,"examples","primavera")
 datdir = os.path.join(srcdir,"test","test_data","ifsdata","6hr")
 tmpdir = os.path.join(curdir,"tmp")
@@ -36,7 +36,7 @@ def main(args):
 
     parser = optparse.OptionParser()
     parser.add_option("-d","--dir", dest = "dir",  help = "IFS output directory (optional)",       default = datdir)
-    parser.add_option("-c","--conf",dest = "conf", help = "Input variable list (optional)",        default = ece2cmor.conf_path_default)
+    parser.add_option("-c","--conf",dest = "conf", help = "Input variable list (optional)",        default = ece2cmorlib.conf_path_default)
     parser.add_option("-e","--exp", dest = "exp",  help = "Experiment prefix (optional)",          default = "ECE3")
     parser.add_option("-t","--tmp", dest = "temp", help = "Temporary working directory (optional)",default = tmpdir)
     parser.add_option("-v","--var", dest = "vars", help = "Input variable list (optional)",        default = varfile)
@@ -44,16 +44,16 @@ def main(args):
     (opt,args) = parser.parse_args()
 
     # Initialize ece2cmor with experiment prefix:
-    ece2cmor.initialize(opt.conf,tableprefix="PRIMAVERA")
+    ece2cmorlib.initialize(opt.conf,tableprefix="PRIMAVERA")
 
     # Load the variables as task targets:
     jsonloader.load_targets(opt.vars)
 
     # Remove targets that are constructed from three-hourly data:
-    ece2cmor.tasks = [t for t in ece2cmor.tasks if is6hrtask(t)]
+    ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if is6hrtask(t)]
 
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp)
+    ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

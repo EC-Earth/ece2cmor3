@@ -3,7 +3,7 @@ import re
 import logging
 import f90nml
 import xml.etree.ElementTree as elemtree
-import ece2cmor
+import ece2cmorlib
 import cmor_source
 import cmor_target
 import cmor_task
@@ -31,7 +31,7 @@ def load_targets(varlist):
         for table,val in varlist.iteritems():
             varseq = [val] if isinstance(val,basestring) else val
             for v in varseq:
-                target = ece2cmor.get_cmor_target(v,table)
+                target = ece2cmorlib.get_cmor_target(v,table)
                 if(target):
                     targetlist.append(target)
                 else:
@@ -63,10 +63,10 @@ def create_tasks(targets):
                 print "the source is ",par["param"]
         par = pars[0]
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
-        ece2cmor.add_task(create_cmor_task(create_cmor_source(par,tag),target,tag))
+        ece2cmorlib.add_task(create_cmor_task(create_cmor_source(par,tag),target,tag))
 
 
-# Loads the legacy ece2cmor input namelists to targets
+# Loads the legacy ece2cmorlib input namelists to targets
 def load_targets_namelist(varlist):
     global log
     vlist = f90nml.read(varlist)
@@ -76,7 +76,7 @@ def load_targets_namelist(varlist):
         vars2d = sublist.get("vars2d",[])
         vars3d = sublist.get("vars3d",[])
         for v in (vars2d + vars3d):
-            tlist = ece2cmor.get_cmor_target(v)
+            tlist = ece2cmorlib.get_cmor_target(v)
             tgt=[t for t in tlist if t.frequency == freq]
             if(len(tgt) == 0):
                 log.error("Could not find cmor targets of variable %s with frequency %s in current set of tables" % (v,freq))
