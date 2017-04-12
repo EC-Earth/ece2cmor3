@@ -10,7 +10,7 @@ import datetime
 import dateutil.relativedelta
 import optparse
 import logging
-from gribapi import *
+import gribapi
 
 verbose=1 # verbose error reporting
 accum_key = "ACCUMFLD"
@@ -43,7 +43,7 @@ def get_ifs_date(filepath):
 
 # Function writing a grib record
 def write_record(msgid,files):
-    grib_write(msgid,files[0])
+    gribapi.grib_write(msgid,files[0])
 
 # Sets the pressure level axis with levels < 1 hPa to a format that CDO can understand
 def fix_Pa_pressure_levels(gid):
@@ -75,42 +75,42 @@ def merge_months(month,prevmonfile,curmonfile,ofiles,writer = write_record):
 # Function writing instantaneous midnight fields from previous month
 def merge_prev_months(month,fin,fouts,writer):
     while True:
-        gid = grib_new_from_file(fin)
+        gid = gribapi.grib_new_from_file(fin)
         if(not gid): break
-        date = int(grib_get(gid,"dataDate"))
+        date = int(gribapi.grib_get(gid,"dataDate"))
         mon = (date % 10000)/100
         if(mon == month):
-            code = make_grib_tuple(grib_get(gid,"param"))
+            code = make_grib_tuple(gribapi.grib_get(gid,"param"))
             if(code in accum_codes): continue
             fix_Pa_pressure_levels(gid)
             writer(gid,fouts)
-        grib_release(gid)
+        gribapi.grib_release(gid)
 
 # Function writing data from current monthly file, optionally shifting accumulated fields
 # and skipping next month instantaneous fields
 def merge_cur_months(month,fin,fouts,writer):
     while True:
-        gid = grib_new_from_file(fin)
+        gid = gribapi.grib_new_from_file(fin)
         if(not gid): break
-        date = int(grib_get(gid,"dataDate"))
+        date = int(gribapi.grib_get(gid,"dataDate"))
         mon = (date % 10**4)/10**2
         if(mon not in [month,(month + 1)%12]): continue
         curdate = datetime.date(date / 10**4,mon,date % 10**2) if timeshift else None
-        code = make_grib_tuple(grib_get(gid,"param"))
+        code = make_grib_tuple(gribapi.grib_get(gid,"param"))
         if(code in accum_codes and timeshift):
-            newtime = int(grib_get(gid,"dataTime")) - 100 * timeshift
+            newtime = int(gribapi.grib_get(gid,"dataTime")) - 100 * timeshift
             newdate = date
             if(newtime < 0):
                 prevdate = curdate - datetime.timedelta(days = 1)
                 mon = prevdate.month
                 newdate = prevdate.year*10**4 + mon*10**2 + prevdate.day
                 newtime = 2400 + newtime
-            grib_set(gid,"dataDate",newdate)
-            grib_set(gid,"dataTime",newtime)
+            gribapi.grib_set(gid,"dataDate",newdate)
+            gribapi.grib_set(gid,"dataTime",newtime)
         if(mon == month):
             fix_Pa_pressure_levels(gid)
             writer(gid,fouts)
-        grib_release(gid)
+        gribapi.grib_release(gid)
 
 def main(args):
 
