@@ -12,25 +12,62 @@ import postproc
 # Logger instance
 log = logging.getLogger(__name__)
 
+# Module configuration defaults
+conf_path_default = os.path.join(os.path.dirname(__file__),"resources","metadata-template.json")
+cmor_mode_default = cmor.CMOR_PRESERVE
+prefix_default = "CMIP6"
+table_dir_default = os.path.join(os.path.dirname(__file__),"resources","tables")
+
 # ece2cmor master API.
-exp_name = None
-prefix = "CMIP6"
-table_dir = os.path.join(os.path.dirname(__file__),"resources","tables")
+conf_path = conf_path_default
+cmor_mode = cmor_mode_default
+prefix = prefix_default
+table_dir = table_dir_default
 tasks = []
 targets = []
-ifsdir = None
-nemodir = None
-startdate = None
-interval = None
+
+# CMOR modes
+APPEND = cmor.CMOR_APPEND
+APPEND_NC3 = cmor.CMOR_APPEND_3
+REPLACE = cmor.CMOR_REPLACE
+REPLACE_NC3 = cmor.CMOR_REPLACE_3
+PRESERVE = cmor.CMOR_PRESERVE
+PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 
 # Initialization function, must be called before starting
-def initialize(conf_path = os.path.join(os.path.dirname(__file__),"test","test_data","cmor3_metadata.json"),exp_name_ = None):
-    global exp_name,prefix,table_dir,targets
-    exp_name = exp_name_
-    conf_path_ = conf_path
+def initialize(metadata = conf_path_default,mode = cmor_mode_default,tabledir = table_dir_default,tableprefix = prefix_default):
+    global exp_name,prefix,table_dir,targets,conf_path,cmor_mode
+    conf_path = metadata
+    cmor_mode = mode
+    table_dir = tabledir
+    prefix = tableprefix
+    validate_setup_settings()
     cmor.setup(table_dir)
     cmor.dataset_json(conf_path)
     targets = cmor_target.create_targets(table_dir,prefix)
+
+# Validation of setup configuration
+def validate_setup_settings():
+    global prefix,table_dir,conf_path,cmor_mode
+    if(not conf_path or not isinstance(conf_path,str)):
+        log.error("Invalid metadata json file string given...aborting")
+        raise Exception("Metadata file path is empty or not a string")
+    if(not os.path.isfile(conf_path)):
+        log.error("Metadata json file %s does not exist...aborting" % conf_path)
+        raise Exception("Metadata file does not exist or has invalid extension")
+    if(not table_dir or not isinstance(table_dir,str)):
+        log.error("Invalid cmorization table string given...aborting")
+        raise Exception("Cmorization table directory is empty or not a string")
+    if(not os.path.exists(table_dir)):
+        log.error("Cmorization table directory %s does not exist" % table_dir)
+        raise Exception("Cmorization table directory does not exist")
+    if(not prefix or not isinstance(prefix,str)):
+        log.error("Cmorization table prefix is empty or not a string")
+        raise Exception("Cmorization table prefix is empty or not a string")
+    if(cmor_mode not in [APPEND,APPEND_NC3,REPLACE,REPLACE_NC3,PRESERVE,PRESERVE_NC3]):
+        log.error("Invalid CMOR netcdf file action %s given" % str(cmor_mode))
+        raise Exception("Invalid CMOR netcdf file action")
+    return 0
 
 # Closes cmor
 def finalize():
@@ -68,13 +105,21 @@ def add_task(tsk):
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthreads = 4,cdothreads = 4,cleanup = True,outputfreq = 3,maxsizegb = float("inf")):
-    global log,tasks,exp_name,table_dir,prefix,ifsdir,startdate,interval
+def perform_ifs_tasks(datadir,expname,startdate,interval,postprocmode = postproc.recreate,
+                                                         tempdir = None,
+                                                         taskthreads = 4,
+                                                         cdothreads = 4,
+                                                         cleanup = True,
+                                                         outputfreq = 3,
+                                                         maxsizegb = float("inf")):
+    global log,tasks,table_dir,prefix
+    validate_setup_settings()
+    validate_run_settings(datadir,expname)
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    if(not ifs2cmor.initialize(ifsdir,exp_name,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
+    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
@@ -86,11 +131,25 @@ def perform_ifs_tasks(postprocmode = postproc.recreate,tempdir = None,taskthread
             ifs2cmor.cleanup(ifs_tasks)
 
 # Performs a NEMO cmorization processing:
-def perform_nemo_tasks():
-    global log,tasks,exp_name,table_dir,prefix,nemodir,startdate,interval
+def perform_nemo_tasks(datadir,expname,startdate,interval):
+    global log,tasks,table_dir,prefix
+    validate_setup_settings()
+    validate_run_settings(datadir,expname)
     nemo_tasks = [t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
-    log.info("Selected %d NEMO tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
+    log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
-    if(not nemo2cmor.initialize(nemodir,exp_name,tableroot,startdate,interval)):
+    if(not nemo2cmor.initialize(datadir,expname,tableroot,startdate,interval)):
         return
     nemo2cmor.execute(nemo_tasks)
+
+# Validation of cmor session configuration
+def validate_run_settings(datadir,expname):
+    if(not datadir or not isinstance(datadir,str)):
+        log.error("Invalid output data directory string given...aborting")
+        raise Exception("Output data directory is empty or not a string")
+    if(not os.path.exists(datadir)):
+        log.error("Output data directory %s does not exist" % table_dir)
+        raise Exception("Output data directory does not exist")
+    if(not expname):
+        log.error("Invalid empty experiment name given...aborting")
+        raise Exception("Experiment name is empty string or None")
