@@ -2,7 +2,7 @@ import os
 import re
 import logging
 import json
-import ece2cmor
+import ece2cmorlib
 import cmor_source
 import cmor_target
 import cmor_task
@@ -57,7 +57,7 @@ def load_targets_json(varlistfile):
 # Small utility loading targets from the list
 def add_target(variable,table,targetlist):
     global log
-    target = ece2cmor.get_cmor_target(variable,table)
+    target = ece2cmorlib.get_cmor_target(variable,table)
     if(target):
         targetlist.append(target)
         return True
@@ -92,7 +92,7 @@ def create_tasks(targets):
         tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
         task = create_cmor_task(par,target,tag)
         if task:
-            ece2cmor.add_task(task)
+            ece2cmorlib.add_task(task)
             ntasks += 1
     log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
 

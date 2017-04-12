@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-import ece2cmor
+import ece2cmorlib
 import jsonloader
 import optparse
 import datetime
@@ -19,25 +19,25 @@ logging.basicConfig(level=logging.DEBUG)
 variables = {"Amon" : ["tas","uas","vas"]}
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
-srcdir = os.path.dirname(os.path.abspath(ece2cmor.__file__))
+srcdir = os.path.dirname(os.path.abspath(ece2cmorlib.__file__))
 datadir = os.path.join(srcdir,"test","test_data","ifsdata","3hr")
 
 def main(args):
 
     parser = optparse.OptionParser()
-    parser.add_option("-c","--conf",dest = "conf",help = "CMOR3 meta data json file path",metavar = "FILE",default = ece2cmor.conf_path_default)
+    parser.add_option("-c","--conf",dest = "conf",help = "CMOR3 meta data json file path",metavar = "FILE",default = ece2cmorlib.conf_path_default)
     parser.add_option("-d","--dir" ,dest = "dir" ,help = "IFS output directory",default = datadir)
     parser.add_option("-e","--exp" ,dest = "exp" ,help = "Experiment name (prefix)",default = "ECE3")
     (opt,args) = parser.parse_args()
 
-    # Initialize ece2cmor with metadata and experiment prefix:
-    ece2cmor.initialize(opt.conf)
+    # Initialize ece2cmorlib with metadata and experiment prefix:
+    ece2cmorlib.initialize(opt.conf)
 
     # Load the variables as task targets:
     jsonloader.load_targets(variables)
 
     # Execute the cmorization:
-    ece2cmor.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir="./tmp",cleanup=False)
+    ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir="./tmp",cleanup=False)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
