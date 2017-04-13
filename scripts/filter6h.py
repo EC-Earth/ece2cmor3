@@ -25,7 +25,8 @@ def filter_record(msgid,files):
         if((code,lev) in [(152,1000.),(131,850.),(132,850.)]):
             gribapi.grib_write(msgid,files[0])
     else:
-        if(code!=3):
+        if(code == 129): return
+        if(code != 3):
             gribapi.grib_write(msgid,files[0])
         else:
             gribapi.grib_write(msgid,files[1])
