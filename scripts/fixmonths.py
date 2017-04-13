@@ -69,7 +69,8 @@ def merge_months(month,prevmonfile,curmonfile,ofiles,writer = write_record):
         fin1 = open(curmonfile)
         fin2 = open(curmonfile)
         merge_cur_months(month,fin1,fin2,fouts,writer)
-        fin.close()
+        fin1.close()
+        fin2.close()
     for fout in fouts:
         fout.close()
 
