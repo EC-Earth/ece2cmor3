@@ -66,9 +66,11 @@ def merge_months(month,prevmonfile,curmonfile,ofiles,writer = write_record):
         merge_prev_months(month,fin,fouts,writer)
         fin.close()
     if(curmonfile):
-        fin = open(curmonfile)
-        merge_cur_months(month,fin,fouts,writer)
-        fin.close()
+        fin1 = open(curmonfile)
+        fin2 = open(curmonfile)
+        merge_cur_months(month,fin1,fin2,fouts,writer)
+        fin1.close()
+        fin2.close()
     for fout in fouts:
         fout.close()
 
@@ -88,29 +90,70 @@ def merge_prev_months(month,fin,fouts,writer):
 
 # Function writing data from current monthly file, optionally shifting accumulated fields
 # and skipping next month instantaneous fields
-def merge_cur_months(month,fin,fouts,writer):
+def merge_cur_months(month,fin1,fin2,fouts,writer):
+    gidinst,gidcum = -1,-1
+    timinst,timcum = -1,-1
+    procinst,proccum = True,True
+    instmode = False
     while True:
-        gid = gribapi.grib_new_from_file(fin)
-        if(not gid): break
-        date = int(gribapi.grib_get(gid,"dataDate"))
-        mon = (date % 10**4)/10**2
-        if(mon not in [month,(month + 1)%12]): continue
-        curdate = datetime.date(date / 10**4,mon,date % 10**2) if timeshift else None
-        code = make_grib_tuple(gribapi.grib_get(gid,"param"))
-        if(code in accum_codes and timeshift):
-            newtime = int(gribapi.grib_get(gid,"dataTime")) - 100 * timeshift
-            newdate = date
-            if(newtime < 0):
-                prevdate = curdate - datetime.timedelta(days = 1)
-                mon = prevdate.month
-                newdate = prevdate.year*10**4 + mon*10**2 + prevdate.day
-                newtime = 2400 + newtime
-            gribapi.grib_set(gid,"dataDate",newdate)
-            gribapi.grib_set(gid,"dataTime",newtime)
-        if(mon == month):
-            fix_Pa_pressure_levels(gid)
-            writer(gid,fouts)
-        gribapi.grib_release(gid)
+        if(instmode):
+            if(procinst):
+                if(gidinst!=-1): gribapi.grib_release(gidinst)
+                gidinst = gribapi.grib_new_from_file(fin1)
+            if(not gidinst):
+                break
+            time = int(gribapi.grib_get(gidinst,"dataTime"))
+            if(timinst == -1): timinst = time
+            if(time != timinst):
+                timinst = time
+                procinst = False
+                instmode = False
+                continue
+            else:
+                procinst = True
+            code = make_grib_tuple(gribapi.grib_get(gidinst,"param"))
+            if(code in accum_codes):
+                continue
+            date = int(gribapi.grib_get(gidinst,"dataDate"))
+            mon = (date % 10**4)/10**2
+            if(mon == month):
+                fix_Pa_pressure_levels(gidinst)
+                writer(gidinst,fouts)
+        else:
+            if(proccum):
+                if(gidinst!=-1): gribapi.grib_release(gidcum)
+                gidcum  = gribapi.grib_new_from_file(fin2)
+            if(not gidcum):
+                procinst = False
+                instmode = True
+                continue
+            time = int(gribapi.grib_get(gidcum,"dataTime"))
+            if(timcum == -1): timcum = time
+            if(time != timcum):
+                timcum = time
+                proccum = False
+                instmode = True
+                continue
+            else:
+                proccum = True
+            code = make_grib_tuple(gribapi.grib_get(gidcum,"param"))
+            if(code not in accum_codes): continue
+            if(timeshift > 0):
+                date = int(gribapi.grib_get(gidcum,"dataDate"))
+                mon = (date % 10**4)/10**2
+                newdate = date
+                newtime = time - 100 * timeshift
+                if(newtime < 0):
+                    curdate = datetime.date(date / 10**4,mon,date % 10**2)
+                    prevdate = curdate - datetime.timedelta(days = 1)
+                    mon = prevdate.month
+                    newdate = prevdate.year*10**4 + mon*10**2 + prevdate.day
+                    newtime = 2400 + newtime
+                gribapi.grib_set(gidcum,"dataDate",newdate)
+                gribapi.grib_set(gidcum,"dataTime",newtime)
+            if(mon == month):
+                fix_Pa_pressure_levels(gidcum)
+                writer(gidcum,fouts)
 
 def main(args):
 
@@ -118,7 +161,7 @@ def main(args):
 
     parser = optparse.OptionParser(usage = "usage: %prog [options] file")
     parser.add_option("-p","--prev",  dest = "pfile", help = "Previous month grib file", default = None)
-    parser.add_option("-d","--shift", dest = "shift", help = "Time shift (in hrs) for cumulative fields", default = "0")
+    parser.add_option("-s","--shift", dest = "shift", help = "Time shift (in hrs) for cumulative fields", default = "0")
     parser.add_option("-o","--out",   dest = "ofile", help = "Output file name",default = None)
 
     (opt,args) = parser.parse_args()
@@ -135,6 +178,7 @@ def main(args):
         return 1
     ifile = os.path.abspath(ifile)
     log.info("Found input file: %s",ifile)
+
     date = get_ifs_date(ifile)
     if(date == None):
         log.error("Could not detect year and month from input file %s" % ifile)
@@ -168,7 +212,7 @@ def main(args):
     if(not ofile):
         ofile = os.path.abspath(os.path.join(".",os.path.basename(ifile)))
     if(os.path.exists(ofile)):
-        log.error("Output path %s already exists")
+        log.error("Output path %s already exists" % ofile)
         return 1
     log.info("Producing output file %s" % ofile)
 
