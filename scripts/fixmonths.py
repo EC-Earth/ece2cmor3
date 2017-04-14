@@ -138,11 +138,12 @@ def merge_cur_months(month,fin1,fin2,fouts,writer):
                 proccum = True
             code = make_grib_tuple(gribapi.grib_get(gidcum,"param"))
             if(code not in accum_codes): continue
-            newtime = time - 100 * timeshift
             date = int(gribapi.grib_get(gidcum,"dataDate"))
             mon = (date % 10**4)/10**2
             newdate = date
+            newtime = time - 100 * timeshift
             if(newtime < 0):
+                curdate = datetime.date(date / 10**4,mon,date % 10**2) if timeshift else None
                 prevdate = curdate - datetime.timedelta(days = 1)
                 mon = prevdate.month
                 newdate = prevdate.year*10**4 + mon*10**2 + prevdate.day
