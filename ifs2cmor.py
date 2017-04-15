@@ -13,6 +13,8 @@ import cmor_target
 import cmor_task
 import postproc
 import cdoapi
+import threading
+import Queue
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -157,6 +159,7 @@ def get_sp_tasks(tasks):
             sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
+            # TODO: Make this more flexible, often sp is in gridpoint file...
             setattr(sptask,"path",ifs_spectral_file_)
             extra_tasks.append(sptask)
         for task in tasks3d:
@@ -217,10 +220,22 @@ def cmorize(tasks):
         create_time_axes(tskgroup)
         log.info("Creating depth axes for table %s..." % tab)
         create_depth_axes(tskgroup)
-        # TODO: parallelize
+        q = Queue.Queue()
+        for i in range(postproc.task_threads):
+            worker = threading.Thread(target = cmor_worker,args = [q)
+            worker.setDaemon(True)
+            worker.start()
         for task in tskgroup:
-            log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,task.target.variable))
-            execute_netcdf_task(task)
+            q.put(task)
+        q.join()
+
+
+def cmor_worker(queue):
+    while(True):
+        task = queue.get()
+        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,task.target.variable))
+        execute_netcdf_task(task)
+        queue.task_done()
 
 
 # Executes a single task
