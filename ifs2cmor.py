@@ -222,7 +222,7 @@ def cmorize(tasks):
         create_depth_axes(tskgroup)
         q = Queue.Queue()
         for i in range(postproc.task_threads):
-            worker = threading.Thread(target = cmor_worker,args = [q)
+            worker = threading.Thread(target = cmor_worker,args = [q])
             worker.setDaemon(True)
             worker.start()
         for task in tskgroup:
