@@ -371,9 +371,17 @@ def create_depth_axes(tasks):
                 log.warning("Skipping axis %s in table %s with no levels" % (zdim,task.target.table))
                 continue
             else:
-                vals = [float(l) for l in levels]
                 log.info("Creating vertical axis for %s..." % str(zdim))
-                axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit)
+                vals = [float(l) for l in levels]
+                if(axis.get("must_have_bounds","no") == "yes"):
+                    print "blablabla"
+                    bndlist,n = axis.get("requested_bounds",[]),len(vals)
+                    bndarr = numpy.empty([n,2])
+                    for i in range(n):
+                        bndarr[i,0],bndarr[i,1] = bndlist[2*i],bndlist[2*i+1]
+                    axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit,cell_bounds = bndarr)
+                else:
+                    axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit)
             depth_axes[zdim] = axisid
             setattr(task,"z_axis_id",axisid)
         else:
