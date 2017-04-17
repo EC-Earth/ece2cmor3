@@ -1,5 +1,9 @@
 [
     {
+        "source": "3.128",
+        "target": "thetapv2"
+    },
+    {
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros"
@@ -219,8 +223,7 @@
             "ta100",
             "ta500",
             "ta700",
-            "ta850",
-            "thetapv2"
+            "ta850"
         ]
     },
     {
