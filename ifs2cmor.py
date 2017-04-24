@@ -28,6 +28,7 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
+ifs_ps_file_ = None
 
 # IFS grid description data
 ifs_grid_descr_ = {}
@@ -52,9 +53,10 @@ ref_date_ = None
 
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_,ifs_grid_descr_
-    global temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
+def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),
+               outputfreq = 3,spectralps = False,tempdir = None,maxsizegb = float("inf")):
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,ifs_ps_file_,output_interval_
+    global ifs_grid_descr_,temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -76,6 +78,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     ifs_gridpoint_file_ = gpfiles[0]
     ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0]
+    ifs_ps_file_ = ifs_spectral_file_ if spectralps else ifs_gridpoint_file_
     if(tempdir):
         temp_dir_ = os.path.abspath(tempdir)
         if(not os.path.exists(temp_dir_)):
@@ -159,8 +162,7 @@ def get_sp_tasks(tasks):
             sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
-            # TODO: Make this more flexible, often sp is in gridpoint file...
-            setattr(sptask,"path",ifs_gridpoint_file_)
+            setattr(sptask,"path",ifs_ps_file_)
             extra_tasks.append(sptask)
         for task in tasks3d:
             setattr(task,"sp_task",sptask)
@@ -186,10 +188,16 @@ def postprocess(tasks):
 
 # Counts the (minimal) number of source files needed for the given list of codes
 def get_source_files(gribcodes):
-    global ifs_gridpoint_file_,ifs_spectral_file_
-    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_gg)): return [ifs_gridpoint_file_]
-    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_sh)): return [ifs_spectral_file_]
-    return [ifs_gridpoint_file_,ifs_spectral_file_]
+    global ifs_gridpoint_file_,ifs_spectral_file_,ifs_ps_file_
+    files = []
+    for gc in gribcodes:
+        if(gc.var_id == 134):
+            files.append(ifs_ps_file_)
+        elif(gc in cmor_source.ifs_source.grib_codes_gg):
+            files.append(ifs_gridpoint_file_)
+        else:
+            files.append(ifs_spectral_file_)
+    return list(set(files))
 
 
 # Do the cmorization tasks
