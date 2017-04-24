@@ -160,7 +160,7 @@ def get_sp_tasks(tasks):
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
             # TODO: Make this more flexible, often sp is in gridpoint file...
-            setattr(sptask,"path",ifs_spectral_file_)
+            setattr(sptask,"path",ifs_gridpoint_file_)
             extra_tasks.append(sptask)
         for task in tasks3d:
             setattr(task,"sp_task",sptask)
