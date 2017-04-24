@@ -111,6 +111,7 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,postprocmode = postproc
                                                          cdothreads = 4,
                                                          cleanup = True,
                                                          outputfreq = 3,
+                                                         spectralps = False,
                                                          maxsizegb = float("inf")):
     global log,tasks,table_dir,prefix
     validate_setup_settings()
@@ -119,11 +120,14 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,postprocmode = postproc
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
+    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,startdate,
+                               outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb,
+                               spectralps = spectralps)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads
+    ifs2cmor.spectralps = spectralps
     try:
         ifs2cmor.execute(ifs_tasks)
     finally:

@@ -33,6 +33,7 @@ def main(args):
     parser.add_argument("--ncdo",   metavar = "N",          type = int,     default = 4,help = "Number of available threads per CDO postprocessing task")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for ocean data")
+    parser.add_argument("--pssh", action = "store_true", default = False, help = "Search surface pressure in spectral files")
 
     args = parser.parse_args()
 
@@ -59,7 +60,8 @@ def main(args):
                                                                              tempdir = args.tmpdir,
                                                                              taskthreads = args.npp,
                                                                              cdothreads = args.ncdo,
-                                                                             maxsizegb = args.tmpsize)
+                                                                             maxsizegb = args.tmpsize,
+                                                                             spectralps = args.pssh)
     if(prococean):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 
