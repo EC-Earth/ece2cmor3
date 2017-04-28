@@ -119,7 +119,8 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,postprocmode = postproc
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
     # TODO: Add support for reference date other that startdate
-    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,startdate,outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
+    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,startdate,
+                               outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
