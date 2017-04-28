@@ -3,9 +3,11 @@
 import traceback
 import sys
 import numpy
+import logging
 from gribapi import *
 
 VERBOSE=1 # verbose error reporting
+log = logging.getLogger(__name__)
 
 def example(ifile,ofile,levels):
     """
@@ -49,7 +51,7 @@ def main(ifile,ofile,levels):
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:
-            print >>sys.stderr,err.msg
+            log.error(sys.stderr,err.msg)
         return 1
 
 if __name__ == '__main__':
