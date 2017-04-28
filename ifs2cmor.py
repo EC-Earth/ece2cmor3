@@ -374,7 +374,6 @@ def create_depth_axes(tasks):
                 log.info("Creating vertical axis for %s..." % str(zdim))
                 vals = [float(l) for l in levels]
                 if(axis.get("must_have_bounds","no") == "yes"):
-                    print "blablabla"
                     bndlist,n = axis.get("requested_bounds",[]),len(vals)
                     bndarr = numpy.empty([n,2])
                     for i in range(n):
