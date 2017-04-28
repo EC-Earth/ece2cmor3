@@ -29,6 +29,10 @@ table_root_ = None
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
 
+# IFS surface pressure grib codes
+surface_pressure = cmor_source.grib_code(134)
+ln_surface_pressure = cmor_source.grib_code(152)
+
 # IFS grid description data
 ifs_grid_descr_ = {}
 
@@ -52,9 +56,10 @@ ref_date_ = None
 
 
 # Initializes the processing loop.
-def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_,ifs_grid_descr_
-    global temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
+def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),
+               outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_
+    global ifs_grid_descr_,temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -151,16 +156,16 @@ def get_sp_tasks(tasks):
     for freq,taskgroup in tasksbyfreq.iteritems():
         tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
         if(not any(tasks3d)): continue
-        sptasks = [t for t in taskgroup if t.source.get_grib_code().var_id == 134 and getattr(t,"time_operator","point") in ["mean","point"]]
+        sptasks = [t for t in taskgroup if t.source.get_grib_code() == surface_pressure and
+                                           getattr(t,"time_operator","point") in ["mean","point"]]
         sptask = sptasks[0] if any(sptasks) else None
         if(sptask):
             existing_tasks.append(sptask)
         else:
-            sptask = cmor_task.cmor_task(cmor_source.ifs_source.create(134),cmor_target.cmor_target("sp",freq))
+            sptask = cmor_task.cmor_task(surface_pressure,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask,"time_operator",["mean"])
-            # TODO: Make this more flexible, often sp is in gridpoint file...
-            setattr(sptask,"path",ifs_gridpoint_file_)
+            find_sp_variable(sptask)
             extra_tasks.append(sptask)
         for task in tasks3d:
             setattr(task,"sp_task",sptask)
@@ -169,27 +174,55 @@ def get_sp_tasks(tasks):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
-    global log,output_frequency_,temp_dir_,max_size_,ifs_grid_descr_
+    global log,output_frequency_,temp_dir_,max_size_,ifs_grid_descr_,surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
     for task in tasks:
-        ifiles = get_source_files(task.source.get_root_codes())
-        if(len(ifiles)):
-            setattr(task,"path",ifiles[0])
+        rootcodes = task.source.get_root_codes()
+        if(rootcodes == [surface_pressure]):
+            find_sp_variable(task)
         else:
-            log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
-                       This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
+            ifiles = get_source_files(rootcodes)
+            if(len(ifiles)):
+                setattr(task,"path",ifiles[0])
+            else:
+                log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
+                           This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
     tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 
 
+# Finds the surface pressure data source: gives priority to SH file.
+def find_sp_variable(task):
+    global ifs_gridpoint_file_,ifs_spectral_file_,surface_pressure,ln_surface_pressure
+    log.info("Looking for surface pressure variable in input files...")
+    command = cdo.Cdo()
+    shcodestr = command.showcode(input = ifs_spectral_file_)
+    shcodes = [cmor_source.grib_code(int(c)) for c in shcodestr[0].split()]
+    if(surface_pressure in shcodes):
+        log.info("Found surface pressure in spectral file")
+        setattr(task,"path",ifs_spectral_file_)
+        return
+    if(ln_surface_pressure in shcodes):
+        log.info("Found lnsp in spectral file")
+        setattr(task,"path",ifs_spectral_file_)
+        setattr(task,"expr","var134=exp(var152)")
+        return
+    log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
+    setattr(task,"path",ifs_gridpoint_file_)
+
+
 # Counts the (minimal) number of source files needed for the given list of codes
 def get_source_files(gribcodes):
     global ifs_gridpoint_file_,ifs_spectral_file_
-    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_gg)): return [ifs_gridpoint_file_]
-    if(set(gribcodes).issubset(cmor_source.ifs_source.grib_codes_sh)): return [ifs_spectral_file_]
-    return [ifs_gridpoint_file_,ifs_spectral_file_]
+    files = []
+    for gc in gribcodes:
+        if(gc in cmor_source.ifs_source.grib_codes_gg):
+            files.append(ifs_gridpoint_file_)
+        else:
+            files.append(ifs_spectral_file_)
+    return list(set(files))
 
 
 # Do the cmorization tasks

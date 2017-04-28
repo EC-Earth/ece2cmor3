@@ -84,6 +84,8 @@ def main(args):
                                                                              taskthreads = args.npp,
                                                                              cdothreads = args.ncdo,
                                                                              maxsizegb = args.tmpsize)
+    if(prococean):
+        ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
