@@ -203,14 +203,17 @@ def find_sp_variable(task):
     if(surface_pressure in shcodes):
         log.info("Found surface pressure in spectral file")
         setattr(task,"path",ifs_spectral_file_)
+        task.source.grid_ = 1
         return
     if(ln_surface_pressure in shcodes):
         log.info("Found lnsp in spectral file")
         setattr(task,"path",ifs_spectral_file_)
         setattr(task,"expr","var134=exp(var152)")
+        task.source.grid_ = 1
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
     setattr(task,"path",ifs_gridpoint_file_)
+    task.source.grid_ = 0
 
 
 # Counts the (minimal) number of source files needed for the given list of codes
