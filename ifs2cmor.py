@@ -356,7 +356,7 @@ def create_time_axes(tasks):
             if(tdim in time_axes):
                 tid = time_axes[tdim]
             else:
-                timop = getattr(task.target,"time_operator",["mean"])
+                timop = getattr(task.target,"time_operator",["point"])
                 log.info("Creating time axis using variable %s..." % task.target.variable)
                 tid = create_time_axis(freq = task.target.frequency,path = getattr(task,"path"),name = tdim,hasbnds = (timop != ["point"]))
                 time_axes[tdim] = tid
@@ -480,15 +480,11 @@ def create_time_axis(freq,path,name,hasbnds):
     times = numpy.array(timhrs)
     if(hasbnds):
         bndvar = numpy.empty([n,2])
-        if(n == 1):
-            bndvar[0,0] = (cmor_utils.make_datetime(start_date_) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
-            bndvar[0,1] = 2*times[0] - bndvar[0,0]
-        else:
-            midtimes = 0.5*(times[0:n-1] + times[1:n])
-            bndvar[0,0] = 1.5*times[0] - 0.5*times[1]
-            bndvar[1:n,0] = midtimes[:]
-            bndvar[0:n-1,1] = midtimes[:]
-            bndvar[n-1,1] = 1.5*times[n-1] - 0.5*times[n-2]
+        midtimes = 0.5*(times[0:n-1] + times[1:n])
+        bndvar[0,0] = (cmor_utils.get_rounded_time(freq,datetimes[0]) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
+        bndvar[1:n,0] = midtimes[:]
+        bndvar[0:n-1,1] = midtimes[:]
+        bndvar[n-1,1] = (cmor_utils.get_rounded_time(freq,datetimes[n-1],1) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
         return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
     return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times)
 

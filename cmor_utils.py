@@ -43,7 +43,7 @@ def make_cmor_frequency(s):
         return s
     if(isinstance(s,basestring)):
         if(s == "monClim"):
-            return dateutil.relativedelta.relativedelta(months=1)
+            return dateutil.relativedelta.relativedelta(years=1)
         elif(s.endswith("mon")):
             n = 1 if s == "mon" else int(s[:-3])
             return dateutil.relativedelta.relativedelta(months=n)
@@ -53,7 +53,24 @@ def make_cmor_frequency(s):
         elif(s.endswith("hr")):
             n = 1 if s == "hr" else int(s[:-2])
             return dateutil.relativedelta.relativedelta(hours=n)
+        elif(s.endswith("hrs")):
+            n = 1 if s == "hrs" else int(s[:-2])
+            return dateutil.relativedelta.relativedelta(hours=n)
     raise Exception("Could not convert argument",s,"to a relative time interval")
+
+
+# Creates a time interval from the input string, assuming ec-earth conventions
+def get_rounded_time(freq,time,offset = 0):
+    interval = make_cmor_frequency(freq)
+    if(interval == dateutil.relativedelta.relativedelta(days=1)):
+        return datetime.datetime(year = time.year,month = time.month,day = time.day) + offset*interval
+    if(interval == dateutil.relativedelta.relativedelta(months=1)):
+        return datetime.datetime(year = time.year,month = time.month,day = 1) + offset*interval
+    if(interval == dateutil.relativedelta.relativedelta(years=1)):
+        return datetime.datetime(year = time.year,month = 1,day = 1) + offset*interval
+    n = int(offset) if offset > 0 else int(offset) - 1
+    delta = ((time + n*interval) - time)/2
+    return time + delta
 
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
