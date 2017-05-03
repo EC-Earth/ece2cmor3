@@ -55,7 +55,11 @@ def main(args):
     if(not os.path.isdir(opt.temp)): os.makedirs(opt.temp)
 
     # Execute the cmorization:
-    ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp)
+    if(opt.dir == datdir):
+        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp,taskthreads=1)
+    else:
+        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
