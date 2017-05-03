@@ -53,7 +53,10 @@ def main(args):
     ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if is6hrtask(t)]
 
     # Execute the cmorization:
-    ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp)
+    if(opt.dir == datdir):
+        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp,taskthreads=1)
+    else:
+        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 6,tempdir = opt.temp)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
