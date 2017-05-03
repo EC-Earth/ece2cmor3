@@ -38,6 +38,7 @@ def main(args):
     parser.add_argument("--conf",   metavar = "FILE.json",  type = str,     default = ece2cmorlib.conf_path_default,help = "Input metadata file")
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
     parser.add_argument("--vars",   metavar = "FILE.json",  type = str,     default = None,help = "json-file containing cmor variables")
+    parser.add_argument("--refd",   metavar = "YYYY-mm-dd", type = str,     default = None,help = "Reference date (for atmosphere data), by default 1950-01-01")
     parser.add_argument("--mode",   metavar = "MODE",       type = str,     default = "preserve",help = "CMOR netcdf mode",choices = ["preserve","replace","append"])
     parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours",choices = [3,6])
     parser.add_argument("--tabid",  metavar = "PREFIX",     type = str,     default = "CMIP6",help = "Cmorization table prefix string",choices = ["CMIP6","PRIMAVERA"])
@@ -72,14 +73,14 @@ def main(args):
     if(prococean):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
     if(procatmos):
-
         filterfunc = is6hrtask if args.freq == 6 else is3hrtask
         ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if filterfunc(t)]
-
+        refdate = dateutil.parser.parse(args.refd) if args.refd else datetime.date(1950,1,1)
         # Create temporary working directory:
         if(not os.path.isdir(args.tmpdir)): os.makedirs(args.tmpdir)
         # Execute the atmosphere cmorization:
-        ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,outputfreq = args.freq,
+        ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,refdate = refdate,
+                                                                             outputfreq = args.freq,
                                                                              tempdir = args.tmpdir,
                                                                              taskthreads = args.npp,
                                                                              cdothreads = args.ncdo,
