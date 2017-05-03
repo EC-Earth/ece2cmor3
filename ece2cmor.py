@@ -23,6 +23,7 @@ def main(args):
     parser.add_argument("--vars",   metavar = "FILE.json",  type = str,     default = varlist_path_default,help = "json-file containing cmor variables")
     parser.add_argument("--conf",   metavar = "FILE.json",  type = str,     default = ece2cmorlib.conf_path_default,help = "Input metadata file")
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
+    parser.add_argument("--refd",   metavar = "YYYY-mm-dd", type = str,     default = None,help = "Reference date (for atmosphere data), by default the start date")
     parser.add_argument("--mode",   metavar = "MODE",       type = str,     default = "preserve",help = "CMOR netcdf mode",choices = ["preserve","replace","append"])
     parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours")
     parser.add_argument("--tabdir", metavar = "DIR",        type = str,     default = ece2cmorlib.table_dir_default,help = "Cmorization table directory")
@@ -52,10 +53,12 @@ def main(args):
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months = 1)
     if(procatmos):
+        refdate = dateutil.parser.parse(args.refd) if args.refd else None
         # Create temporary working directory:
         if(not os.path.isdir(args.tmpdir)): os.makedirs(args.tmpdir)
         # Execute the atmosphere cmorization:
-        ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,outputfreq = args.freq,
+        ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,refdate = refdate,
+                                                                             outputfreq = args.freq,
                                                                              tempdir = args.tmpdir,
                                                                              taskthreads = args.npp,
                                                                              cdothreads = args.ncdo,
