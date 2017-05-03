@@ -14,6 +14,7 @@ import cmor_task
 import postproc
 import cdoapi
 import threading
+import math
 import Queue
 
 # Logger construction
@@ -182,7 +183,7 @@ def postprocess(tasks):
             find_sp_variable(task)
         else:
             ifiles = get_source_files(rootcodes)
-            if(len(ifiles)):
+            if(len(ifiles) == 1):
                 setattr(task,"path",ifiles[0])
             else:
                 log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
@@ -221,10 +222,10 @@ def get_source_files(gribcodes):
     global ifs_gridpoint_file_,ifs_spectral_file_
     files = []
     for gc in gribcodes:
-        if(gc in cmor_source.ifs_source.grib_codes_gg):
-            files.append(ifs_gridpoint_file_)
-        else:
+        if(gc in cmor_source.ifs_source.grib_codes_sh):
             files.append(ifs_spectral_file_)
+        else:
+            files.append(ifs_gridpoint_file_)
     return list(set(files))
 
 
@@ -324,7 +325,7 @@ def execute_netcdf_task(task):
             timdim = index
             break
         index += 1
-    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath))
+    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = True,fliplat = True)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
 
@@ -540,18 +541,16 @@ def create_grid_from_grib(filepath):
 def create_gauss_grid(nx,x0,yvals):
     ny = len(yvals)
     i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
-    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(ny,0,-1)))
-    xincr = 360./nx
-    xvals = numpy.array([x0 + i*xincr for i in range(nx)])
+    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
+    dx = 360./nx
+    xvals = numpy.array([math.fmod(x0 + (i + 0.5)*dx,360.) for i in range(nx)])
     lonarr = numpy.tile(xvals,(ny,1)).transpose()
-    latarr = numpy.tile(yvals,(nx,1))
-    lonmids = numpy.append(xvals - 0.5*xincr,360.-0.5*xincr)
-    lonmids[0] = lonmids[nx]
+    latarr = numpy.tile(-yvals[::-1],(nx,1))
+    lonmids = numpy.array([math.fmod(x0 + i*dx,360.) for i in range(nx + 1)])
     latmids = numpy.empty([ny + 1])
-    latmids[0] = 90.
-    latmids[1:ny] = 0.5*(yvals[0:ny - 1]+yvals[1:ny])
-    latmids[ny] = -90.
-    numpy.append(latmids,-90.)
+    latmids[0] = -90.
+    latmids[1:ny] = 0.5*(yvals[0:ny - 1] + yvals[1:ny])
+    latmids[ny] = 90.
     vertlats = numpy.empty([nx,ny,4])
     vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1))
     vertlats[:,:,1] = vertlats[:,:,0]
@@ -562,7 +561,7 @@ def create_gauss_grid(nx,x0,yvals):
     vertlons[:,:,3] = vertlons[:,:,0]
     vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1)).transpose()
     vertlons[:,:,2] = vertlons[:,:,1]
-    return cmor.grid(axis_ids = [j_index_id,i_index_id],
+    return cmor.grid(axis_ids = [i_index_id,j_index_id],
                      latitude = latarr,
                      longitude = lonarr,
                      latitude_vertices = vertlats,

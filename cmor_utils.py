@@ -153,7 +153,7 @@ def get_nemo_grid(filepath,expname):
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 #@profile
-def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None):
+def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None,swaplatlon = False,fliplat = False):
     global log
     dims = len(ncvar.shape)
     times = 1 if timdim < 0 else ncvar.shape[timdim]
@@ -169,39 +169,41 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
                 vals = ncvar[i:imax]
         elif(dims == 2):
             if(timdim < 0):
-                vals = ncvar[:,:]
+                vals = ncvar[:,:].transpose() if swaplatlon else ncvar[:,:]
             elif(timdim == 0):
                 vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
             elif(timdim == 1):
                 vals = ncvar[:,i:imax]
         elif(dims == 3):
             if(timdim < 0):
-                vals = numpy.transpose(ncvar[:,:,:],axes = [1,2,0])
+                vals = numpy.transpose(ncvar[:,:,:],axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 0):
-            	vals = numpy.transpose(ncvar[i:imax,:,:],axes = [1,2,0])
+            	vals = numpy.transpose(ncvar[i:imax,:,:],axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 2):
-                vals = ncvar[:,:,i:imax]
+                vals = numpy.transpose(ncvar[:,:,i:imax],axes = [1,0,2]) if swaplatlon else ncvar[:,:,i:imax]
             else:
                 log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
                 return
         elif(dims == 4):
             if(timdim == 0):
-            	vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [2,3,1,0])
+            	vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [3,2,1,0] if swaplatlon else [2,3,1,0])
             elif(timdim == 3):
-                vals = ncvar[:,:,:,i:imax]
+                vals = numpy.transpose(ncvar[:,:,:,i:imax],axes = [1,0,2,3]) if swaplatlon else ncvar[:,:,:,i:imax]
             else:
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
         else:
             log.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
-        cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - i)))
+        if(fliplat and (dims > 1 or timdim < 0)): numpy.fliplr(vals)
+        cmor.write(varid,factor * vals,ntimes_passed = (0 if timdim < 0 else (imax - i)))
         del vals
         if(psvarid and ncpsvar):
             if(len(ncpsvar.shape) == 3):
-            	spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [1,2,0])
+            	spvals = numpy.transpose(ncpsvar[i:imax,:,:],axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(len(ncpsvar.shape) == 4):
                 projvar = ncpsvar[i:imax,0,:,:]
-            	spvals = numpy.transpose(projvar,axes = [1,2,0])
-            cmor.write(psvarid,numpy.asfortranarray(spvals),ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)
+            	spvals = numpy.transpose(projvar,axes = [2,1,0] if swaplatlon else [1,2,0])
+            if(fliplat): numpy.fliplr(spvals)
+            cmor.write(psvarid,spvals,ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)
             del spvals
