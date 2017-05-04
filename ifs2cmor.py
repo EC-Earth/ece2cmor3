@@ -325,7 +325,7 @@ def execute_netcdf_task(task):
             timdim = index
             break
         index += 1
-    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = True,fliplat = True)
+    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
 
@@ -539,26 +539,23 @@ def create_gauss_grid(nx,x0,yvals):
     i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
     j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
     dx = 360./nx
-    xvals = numpy.array([math.fmod(x0 + (i + 0.5)*dx,360.) for i in range(nx)])
-    lonarr = numpy.tile(xvals,(ny,1)).transpose()
-    latarr = numpy.tile(-yvals[::-1],(nx,1))
-    lonmids = numpy.array([math.fmod(x0 + i*dx,360.) for i in range(nx + 1)])
+    xvals = numpy.array([x0 + (i + 0.5)*dx for i in range(nx)])
+    lonarr = numpy.tile(xvals,(ny,1))
+    latarr = numpy.tile(yvals[::-1],(nx,1)).transpose()
+    lonmids = numpy.array([x0 + i*dx for i in range(nx + 1)])
     latmids = numpy.empty([ny + 1])
-    latmids[0] = -90.
+    latmids[0] = 90.
     latmids[1:ny] = 0.5*(yvals[0:ny - 1] + yvals[1:ny])
-    latmids[ny] = 90.
-    vertlats = numpy.empty([nx,ny,4])
-    vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1))
+    latmids[ny] = -90.
+    vertlats = numpy.empty([ny,nx,4])
+    vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1)).transpose()
     vertlats[:,:,1] = vertlats[:,:,0]
-    vertlats[:,:,2] = numpy.tile(latmids[1:ny+1],(nx,1))
+    vertlats[:,:,2] = numpy.tile(latmids[1:ny+1],(nx,1)).transpose()
     vertlats[:,:,3] = vertlats[:,:,2]
-    vertlons = numpy.empty([nx,ny,4])
-    vertlons[:,:,0] = numpy.tile(lonmids[0:nx],(ny,1)).transpose()
+    vertlons = numpy.empty([ny,nx,4])
+    vertlons[:,:,0] = numpy.tile(lonmids[0:nx],(ny,1))
     vertlons[:,:,3] = vertlons[:,:,0]
-    vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1)).transpose()
+    vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1))
     vertlons[:,:,2] = vertlons[:,:,1]
-    return cmor.grid(axis_ids = [i_index_id,j_index_id],
-                     latitude = latarr,
-                     longitude = lonarr,
-                     latitude_vertices = vertlats,
-                     longitude_vertices = vertlons)
+    return cmor.grid(axis_ids = [j_index_id,i_index_id],latitude = latarr,longitude = lonarr,
+                     latitude_vertices = vertlats,longitude_vertices = vertlons)
