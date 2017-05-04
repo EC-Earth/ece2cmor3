@@ -212,7 +212,7 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
         else:
             log.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
-        if(fliplat and (dims > 1 or timdim < 0)): numpy.fliplr(vals)
+        if(fliplat and (dims > 1 or timdim < 0)): vals = numpy.flipud(vals)
         cmor.write(varid,factor * vals,ntimes_passed = (0 if timdim < 0 else (imax - i)))
         del vals
         if(psvarid and ncpsvar):
@@ -221,6 +221,6 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
             elif(len(ncpsvar.shape) == 4):
                 projvar = ncpsvar[i:imax,0,:,:]
             	spvals = numpy.transpose(projvar,axes = [2,1,0] if swaplatlon else [1,2,0])
-            if(fliplat): numpy.fliplr(spvals)
+            if(fliplat): spvals = numpy.flipud(spvals)
             cmor.write(psvarid,spvals,ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)
             del spvals
