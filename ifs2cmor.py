@@ -469,23 +469,23 @@ def create_soil_depth_axis(layer,name):
 def create_time_axis(freq,path,name,hasbnds):
     global log,start_date_,ref_date_
     command = cdo.Cdo()
-    datetimes = []
     times = command.showtimestamp(input = path)[0].split()
     datetimes = sorted(set(map(lambda s:datetime.datetime.strptime(s,"%Y-%m-%dT%H:%M:%S"),times)))
     if(len(datetimes) == 0):
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return;
-    timhrs = [(d - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600 for d in datetimes]
-    n = len(timhrs)
-    times = numpy.array(timhrs)
+    refdt = cmor_utils.make_datetime(ref_date_)
+    timconv = lambda d:(cmor_utils.get_rounded_time(freq,d) - refdt).total_seconds()/3600.
     if(hasbnds):
+        n = len(datetimes)
         bndvar = numpy.empty([n,2])
-        midtimes = 0.5*(times[0:n-1] + times[1:n])
-        bndvar[0,0] = (cmor_utils.get_rounded_time(freq,datetimes[0]) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
-        bndvar[1:n,0] = midtimes[:]
-        bndvar[0:n-1,1] = midtimes[:]
-        bndvar[n-1,1] = (cmor_utils.get_rounded_time(freq,datetimes[n-1],1) - cmor_utils.make_datetime(ref_date_)).total_seconds()/3600
+        roundedtimes = map(timconv,datetimes)
+        bndvar[:,0] = roundedtimes[:]
+        bndvar[0:n-1,1] = roundedtimes[1:n]
+        bndvar[n-1,1] = (cmor_utils.get_rounded_time(freq,datetimes[n-1],1) - refdt).total_seconds()/3600.
+        times[:] = bndvar[:,0] + (bndvar[:,1] - bndvar[:,0])/2
         return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times,cell_bounds = bndvar)
+    times = numpy.array([(d - refdt).total_seconds()/3600 for d in datetimes])
     return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times)
 
 
