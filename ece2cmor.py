@@ -9,6 +9,7 @@ import ece2cmorlib
 import jsonloader
 import dateutil.parser
 import dateutil.relativedelta
+import datetime
 
 logging.basicConfig(level=logging.DEBUG)
 
