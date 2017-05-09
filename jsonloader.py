@@ -18,7 +18,8 @@ json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
-
+json_mask_key = "mask"
+json_maskexpr_key = "maskexpr"
 
 # API function: loads the argument list of targets
 def load_targets(varlist):
@@ -95,6 +96,15 @@ def create_tasks(targets):
             ece2cmorlib.add_task(task)
             ntasks += 1
     log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
+    for par in (ifsparlist + nemoparlist):
+        if(json_mask_key in par):
+            masktype = par[json_mask_key]
+            if(not json_source_key in par):
+                log.error("Could not find a source entry for mask %s...skipping variable" % masktype)
+                continue
+            source = create_cmor_source(par,IFS_source_tag if par in ifsparlist else Nemo_source_tag)
+            maskexpr = getattr(ifspar,json_maskexpr_key,"> 0")
+            ece2cmorlib.add_mask(masktype,source,maskexpr)
 
 
 # Checks whether the variable matches the parameter table block
@@ -109,6 +119,12 @@ def matchvarpar(variable,parblock):
 # Creates a single task from the target and paramater table entry
 def create_cmor_task(pardict,target,tag):
     global log,IFS_source_tag,Nemo_source_tag,json_source_key,json_grid_key
+    task = cmor_task.cmor_task(create_cmor_source(pardict,tag),target)
+    conv = pardict.get(cmor_task.conversion_key,None)
+    if conv: setattr(task,cmor_task.conversion_key,conv)
+    return task
+
+def create_cmor_source(pardict,tag):
     src = pardict.get(json_source_key,None)
     expr = pardict.get(cmor_source.expression_key,None)
     if(not src and not expr):
@@ -116,14 +132,11 @@ def create_cmor_task(pardict,target,tag):
         return None
     cmorsrc = None
     if(tag == IFS_source_tag):
-        cmorsrc = cmor_source.ifs_source.read(expr if expr != None else src)
+        return cmor_source.ifs_source.read(expr if expr != None else src)
     elif(tag == Nemo_source_tag):
         grid = pardict.get(json_grid_key,None)
         if(not (grid in cmor_source.nemo_grid)):
             log.error("Could not find a grid value in the nemo parameter table for %s...skipping variable." % src)
             return None
-        cmorsrc = cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
-    task = cmor_task.cmor_task(cmorsrc,target)
-    conv = pardict.get(cmor_task.conversion_key,None)
-    if conv: setattr(task,cmor_task.conversion_key,conv)
-    return task
+        return cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
+    return None

@@ -8,8 +8,10 @@ import logging
 import cmor
 import dateutil.relativedelta
 
+
 # Log object
 log = logging.getLogger(__name__)
+
 
 # Enum utility class
 class cmor_enum(tuple): __getattr__ = tuple.index
@@ -98,7 +100,10 @@ def find_ifs_output(path,expname=None):
     if(expname):
         subexpr=expname
     expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+[0-9]{6}$")
-    return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
+    result = []
+    for root,dirs,files in os.walk(path):
+        result.extend([os.path.join(root,f) for f in files if re.match(expr,f)])
+    return result
 
 
 # Returns the start date for the given file path
