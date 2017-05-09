@@ -36,13 +36,13 @@ finished_tasks_ = []
 
 
 # Post-processes a list of tasks
-def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
+def post_process(tasks,path,max_size_gb = float("inf"),griddes = {},maskpath = None):
     global finished_tasks_,task_threads
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
     for task in tasks:
-        command = create_command(task,griddes)
+        command = create_command(task,griddes,maskpath)
         commstr = command.create_command()
         if(commstr not in commbuf):
             commbuf[commstr] = command
@@ -92,27 +92,20 @@ def validate_tasklist(tasks):
 
 
 # Creates a cdo postprocessing command for the given IFS task.
-def create_command(task,griddes = {}):
+def create_command(task,griddes = {},maskpath = None):
     if(not isinstance(task.source,cmor_source.ifs_source)):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if(hasattr(task,"paths") and len(getattr(task,"paths")) > 1):
         raise Exception("Multiple merged cdo commands are not supported yet")
     expr = getattr(task.source,cmor_source.expression_key,None)
     result = cdoapi.cdo_command() if expr else cdoapi.cdo_command(code = task.source.get_grib_code().var_id)
-    grid = task.source.grid_id()
-    if(grid == cmor_source.ifs_grid.spec):
-        result.add_operator(cdoapi.cdo_command.spectral_operator)
-    else:
-        gridtype = griddes.get("gridtype","gaussian reduced")
-        if(gridtype == "gaussian reduced"):
-            result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
+    add_grid_operators(result,task,griddes)
     if(expr):
         result.add_operator(cdoapi.cdo_command.expression_operator,expr)
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
-    freq = getattr(task.target,cmor_target.freq_key,None)
-    timops = getattr(task.target,"time_operator",["point"])
-    add_time_operators(result,freq,int(getattr(task,"path","-1")[-2:]),timops)
+    add_time_operators(result,task)
     add_level_operators(result,task)
+    add_mask_operators(result,task,maskpath)
     return result
 
 
@@ -157,10 +150,23 @@ def apply_command(command,tasklist,basepath = None):
         setattr(task,"path",result)
     return result
 
+# Adds grid remapping operators to the cdo commands for the given task
+def add_grid_operators(cdo,task,griddes):
+    grid = task.source.grid_id()
+    if(grid == cmor_source.ifs_grid.spec):
+        cdo.add_operator(cdoapi.cdo_command.spectral_operator)
+    else:
+        gridtype = griddes.get("gridtype","gaussian reduced")
+        if(gridtype == "gaussian reduced"):
+            cdo.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
 
-# Translates the cmor time post-processing operation to a cdo command-line option
-def add_time_operators(cdo,freq,mon,operators):
+
+# Adds time averaging operators to the cdo command for the given task
+def add_time_operators(cdo,task):
     global output_frequency_
+    freq = getattr(task.target,cmor_target.freq_key,None)
+    operators = getattr(task.target,"time_operator",["point"])
+    mon = int(getattr(task,"path","-1")[-2:])
     timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
         if(operators == ["point"]):
@@ -204,6 +210,7 @@ def add_time_operators(cdo,freq,mon,operators):
             raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
     else: raise Exception("Unsupported frequency ",freq," encountered")
 
+
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo,task):
     global log
@@ -238,3 +245,13 @@ def add_level_operators(cdo,task):
         if(val): zlevs = [val]
     if(len(zlevs) > 0):
         cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)
+
+
+# Adds area mask operators to the cdo command for the given task
+def add_mask_operators(cdo,task,maskpath):
+    global log
+    for area_operator in getattr(task.target,"area_operator",[]):
+        words = area_operator.split()
+        if(len(words) == 3 and words[1] == "where"):
+            masktype = words[2]
+            # TODO: Add mask operations
