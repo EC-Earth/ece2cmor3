@@ -56,6 +56,9 @@ max_size_ = float("inf")
 # Reference date, times will be converted to hours since refdate
 ref_date_ = None
 
+# Available geospatial masks, assigned by ece2cmorlib
+masks = {}
+
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),
@@ -105,6 +108,11 @@ def execute(tasks):
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
+    masktasks = get_mask_tasks(supportedtasks)
+    processedtasks = postprocess(masktasks)
+    for task in processedtasks:
+        read_mask(task.target.variable,getattr(task,"path"))
+    cleanup(processedtasks)
     oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
     sptasks = oldsptasks + newsptasks
     taskstodo = list(set(taskstodo)-set(sptasks))
@@ -123,6 +131,47 @@ def execute(tasks):
         taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
     cleanup(oldsptasks)
     cleanup(proc_sptasks)
+
+
+def get_mask_tasks(tasks):
+    global log,masks
+    selected_masks = []
+    for task in tasks:
+        for area_operator in getattr(task.target,"area_operator",[]):
+            words = area_operator.split()
+            if(len(words) == 3 and words[1] == "where"):
+                maskname = words[2]
+                if(maskname not in masks):
+                    log.warning("Mask %s is not supported as an IFS mask, skipping masking")
+                else:
+                    selected_masks.append(maskname)
+                    setattr(task,"mask",maskname)
+    result = []
+    for m in set(selected_masks):
+        target = cmor_target.cmor_target(m,"fx")
+        setattr(target,cmor_target.freq_key,0)
+        setattr(target,"time_operator",["point"])
+        result.add(cmor_task.cmor_task(getattr(masks[m],"source",None),target))
+    return result
+
+
+def read_mask(name,filepath):
+    global masks
+    try:
+        dataset = netCDF4.Dataset(filepath,'r')
+        ncvars = dataset.variables
+    except Exception:
+        log.error("Could not read netcdf file %s while reading mask %s" % (filepath,name))
+        return
+    codestr = str(task.source.get_grib_code().var_id)
+    varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
+    if(len(varlist) == 0):
+        varlist = [v for v in ncvars if str(v) == "var" + codestr]
+    if(len(varlist) > 1):
+        log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+    ncvar = ncvars[varlist[0]]
+    func = masks[name]["predicate"]
+    masks[name]["array"] = func(ncvar[:,:])
 
 
 # Deletes all temporary paths and removes temp directory
@@ -173,7 +222,7 @@ def get_sp_tasks(tasks):
         else:
             sptask = cmor_task.cmor_task(surface_pressure,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
-            setattr(sptask,"time_operator",["mean"])
+            setattr(sptask.target,"time_operator",["mean"])
             find_sp_variable(sptask)
             extra_tasks.append(sptask)
         for task in tasks3d:
@@ -192,12 +241,15 @@ def postprocess(tasks):
         else:
             ifiles = get_source_files(rootcodes)
             if(len(ifiles) == 1):
-                setattr(task,"path",ifiles[0])
+                if(ifiles[0] == ifs_gridpoint_file_ and getattr(task.target,cmor_target.freq_key) == 0):
+                    setattr(task,"path",ifs_init_gridpoint_file_)
+                else:
+                    setattr(task,"path",ifiles[0])
             else:
                 log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                            This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
-    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_,ifs_init_gridpoint_file_)
+    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 
@@ -333,7 +385,11 @@ def execute_netcdf_task(task):
             timdim = index
             break
         index += 1
-    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True)
+    mask = getattr(task,"mask",None)
+    if(mask in masks):
+        maskarr = getattr(masks[mask],"array",None)
+        missval = getattr(task.target,cmor_target.missval_key)
+    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
 
