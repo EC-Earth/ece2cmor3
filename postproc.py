@@ -6,15 +6,12 @@ import cdoapi
 import cmor_source
 import cmor_target
 
-
 # Log object
 log = logging.getLogger(__name__)
-
 
 # Threading parameters
 task_threads = 1
 cdo_threads = 4
-
 
 # Flags to control whether to execute cdo.
 skip = 1
@@ -22,27 +19,24 @@ append = 2
 recreate = 3
 modes = [skip,append,recreate]
 
-
 # Mode for post-processing
 mode = 3
 
-
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
-
 
 # Helper list of tasks
 finished_tasks_ = []
 
 
 # Post-processes a list of tasks
-def post_process(tasks,path,max_size_gb = float("inf"),griddes = {},maskpath = None):
+def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
     global finished_tasks_,task_threads
     comdict = {}
     commbuf = {}
     max_size = 1000000000.*max_size_gb
     for task in tasks:
-        command = create_command(task,griddes,maskpath)
+        command = create_command(task,griddes)
         commstr = command.create_command()
         if(commstr not in commbuf):
             commbuf[commstr] = command
@@ -92,7 +86,7 @@ def validate_tasklist(tasks):
 
 
 # Creates a cdo postprocessing command for the given IFS task.
-def create_command(task,griddes = {},maskpath = None):
+def create_command(task,griddes = {}):
     if(not isinstance(task.source,cmor_source.ifs_source)):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if(hasattr(task,"paths") and len(getattr(task,"paths")) > 1):
@@ -105,7 +99,6 @@ def create_command(task,griddes = {},maskpath = None):
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     add_time_operators(result,task)
     add_level_operators(result,task)
-    add_mask_operators(result,task,maskpath)
     return result
 
 
@@ -205,7 +198,7 @@ def add_time_operators(cdo,task):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
         else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
-    elif(freq in ["1hr","3hr"]):
+    elif(freq in ["1hr","3hr",0]):
         if(operators != ["point"] and operators != ["mean"]):
             raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
     else: raise Exception("Unsupported frequency ",freq," encountered")
@@ -245,13 +238,3 @@ def add_level_operators(cdo,task):
         if(val): zlevs = [val]
     if(len(zlevs) > 0):
         cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)
-
-
-# Adds area mask operators to the cdo command for the given task
-def add_mask_operators(cdo,task,maskpath):
-    global log
-    for area_operator in getattr(task.target,"area_operator",[]):
-        words = area_operator.split()
-        if(len(words) == 3 and words[1] == "where"):
-            masktype = words[2]
-            # TODO: Add mask operations

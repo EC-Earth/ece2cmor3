@@ -25,6 +25,7 @@ prefix = prefix_default
 table_dir = table_dir_default
 tasks = []
 targets = []
+masks = {}
 
 # CMOR modes
 APPEND = cmor.CMOR_APPEND
@@ -71,10 +72,11 @@ def validate_setup_settings():
 
 # Closes cmor
 def finalize():
-    global tasks,targets
+    global tasks,targets,masks
     cmor.close()
     targets = []
     tasks = []
+    masks = {}
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id,tab_id=None):
@@ -104,6 +106,12 @@ def add_task(tsk):
     else:
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
 
+# Adds a mask
+def add_mask(name,src,func):
+    global masks
+    masks[name]["source"] = src
+    masks[name]["predicate"] = func
+
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
                                                          postprocmode = postproc.recreate,
@@ -113,14 +121,14 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
                                                          cleanup = True,
                                                          outputfreq = 3,
                                                          maxsizegb = float("inf")):
-    global log,tasks,table_dir,prefix
+    global log,tasks,table_dir,prefix,masks
     validate_setup_settings()
     validate_run_settings(datadir,expname)
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
-    refd = refdate if refdate else startdate
-    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,refd,
+    ifs2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k][0],cmor_source.ifs_source)}
+    if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,refdate if refdate else startdate,
                                outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
@@ -140,6 +148,7 @@ def perform_nemo_tasks(datadir,expname,startdate,interval):
     nemo_tasks = [t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
+    nemo2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k][0],cmor_source.nemo_source)}
     if(not nemo2cmor.initialize(datadir,expname,tableroot,startdate,interval)):
         return
     nemo2cmor.execute(nemo_tasks)
