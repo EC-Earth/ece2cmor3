@@ -21,6 +21,14 @@ json_grid_key = "grid"
 json_mask_key = "mask"
 json_maskexpr_key = "maskexpr"
 
+mask_predicates = {"=": lambda x,a:x==a,
+                   "==":lambda x,a:x==a,
+                   "!=":lambda x,a:x!=a,
+                   "<": lambda x,a:x<a,
+                   "<=":lambda x,a:x<=a,
+                   ">": lambda x,a:x>a,
+                   ">=":lambda x,a:x>=a}
+
 # API function: loads the argument list of targets
 def load_targets(varlist):
     global log
@@ -98,19 +106,48 @@ def create_tasks(targets):
     log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
     for par in (ifsparlist + nemoparlist):
         if(json_mask_key in par):
-            masktype = par[json_mask_key]
-            if(not json_source_key in par):
-                log.error("Could not find a source entry for mask %s...skipping variable" % masktype)
-                continue
-            source = create_cmor_source(par,IFS_source_tag if par in ifsparlist else Nemo_source_tag)
-            maskexpr = getattr(ifspar,json_maskexpr_key,"> 0")
-            ece2cmorlib.add_mask(masktype,source,maskexpr)
+            name = par[json_mask_key]
+            expr = par.get(cmor_source.expression_key,None)
+            if(not expr):
+                log.error("No expression given for mask %s, ignoring mask definition" % name)
+            else:
+                srcstr,func,val = parse_maskexpr(expr)
+                src = None
+                if par in ifsparlist:
+                    src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
+                else:
+                    grid = getattr(par,json_grid_key,None)
+                    if(not grid):
+                        grids = [getattr(p,json_grid_key,None) for p in nemoparlist if getattr(p,json_source_key) == srcstr and hasattr(p,json_grid_key)]
+                        if(any(grids)):
+                            grid = grids[0]
+                        else:
+                            log.error("No valid grid found for mask %s" % str(par))
+                            continue
+                    src = create_cmor_source({json_source_key: srcstr,json_grid_key: grid},Nemo_source_tag)
+                ece2cmorlib.add_mask(name,src,lambda x:func(x,val))
+
+
+# Parses the input mask expression
+def parse_maskexpr(exprstring):
+    ops = mask_predicates.keys
+    ops.sort(key=len)
+    for op in ops[::-1]:
+        tokens = exprstring.split(op)
+        if(len(tokens) == 2):
+            src = tokens[0].strip()
+            if(src.startswith("var")): src = src[3:]
+            if(len(src.split("."))==1): src += ".128"
+            func = mask_predicates[op]
+            val = float(tokens[1].strip())
+            return src,func,val
+    log.error("Expression %s could not be parsed to a valid mask expression")
 
 
 # Checks whether the variable matches the parameter table block
 def matchvarpar(variable,parblock):
     global json_target_key
-    parvars = parblock[json_target_key]
+    parvars = parblock.get(json_target_key,None)
     if(isinstance(parvars,list)): return (variable in parvars)
     if(isinstance(parvars,basestring)): return (variable == parvars)
     return False

@@ -44,7 +44,8 @@ class grib_code:
 
     @classmethod
     def read(cls,istr):
-        strpair = istr.split('.')
+        s = istr[3:] if istr.startswith("var") else istr
+        strpair = s.split('.')
         if(len(strpair) > 2):
             raise Exception("Invalid input string for grib code:",istr)
         vid = int(strpair[0])
@@ -115,7 +116,7 @@ class ifs_source(cmor_source):
     @classmethod
     def read(cls,s):
         global log
-        if re.match("[0-9]{1,3}.[0-9]{3}",s) or re.match("[0-9]{1,3}",s):
+        if re.match("[0-9]{1,3}.[0-9]{3}",s) or re.match("[0-9]{1,3}",s) or re.match("[0-9]{1,3}",s):
             gc = grib_code.read(s)
             cls = ifs_source(gc)
         else:
