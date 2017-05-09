@@ -29,6 +29,7 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
+ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -44,6 +45,7 @@ start_date_ = None
 output_interval_ = None
 
 # Output frequency (hrs). Minimal interval between output variables.
+# TODO: Read from input
 output_frequency_ = 3
 
 # Fast storage temporary path
@@ -52,14 +54,13 @@ tempdir_created_ = False
 max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
-# TODO: set in init
 ref_date_ = None
 
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),
                outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,ifs_init_gridpoint_file_,output_interval_
     global ifs_grid_descr_,temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
@@ -69,10 +70,11 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     output_frequency_ = outputfreq
     ref_date_ = refdate
     datafiles = select_files(path,exp_name_,start,length,output_interval_)
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
-    if(len(gpfiles) == 0 or len(shfiles) == 0):
-        filetype = "Gridpoint" if len(gpfiles) == 0 else "Spectral"
+    inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
+    gpfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
+    shfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+    if(not any(gpfiles) or not any(shfiles)):
+        filetype = "Gridpoint" if not any(gpfiles) else "Spectral"
         log.error("%s file not found in directory %s, aborting..." % (filetype,path))
         return False
     if(len(gpfiles) > 1 or len(shfiles) > 1):
@@ -82,6 +84,12 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     ifs_gridpoint_file_ = gpfiles[0]
     ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0]
+    if(any(inifiles)):
+        ifs_init_gridpoint_file_ = inifiles[0]
+        if(len(inifiles) > 1):
+            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
+    else:
+        ifs_init_gridpoint_file_ = ifs_gridpoint_file_
     if(tempdir):
         temp_dir_ = os.path.abspath(tempdir)
         if(not os.path.exists(temp_dir_)):
@@ -189,7 +197,7 @@ def postprocess(tasks):
                 log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                            This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
     postproc.output_frequency_ = output_frequency_
-    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_)
+    tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_,ifs_init_gridpoint_file_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 
@@ -512,7 +520,8 @@ def select_files(path,expname,start,length,interval):
     allfiles = cmor_utils.find_ifs_output(path,expname)
     startdate = cmor_utils.make_datetime(start).date()
     enddate = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate]
+    return [f for f in allfiles if f.endswith("ICMGG" + expname + "+000000") or
+            (cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
