@@ -133,6 +133,7 @@ def execute(tasks):
     cleanup(proc_sptasks)
 
 
+# Converts the masks that are needed into a set of tasks
 def get_mask_tasks(tasks):
     global log,masks
     selected_masks = []
@@ -151,10 +152,11 @@ def get_mask_tasks(tasks):
         target = cmor_target.cmor_target(m,"fx")
         setattr(target,cmor_target.freq_key,0)
         setattr(target,"time_operator",["point"])
-        result.add(cmor_task.cmor_task(getattr(masks[m],"source",None),target))
+        result.append(cmor_task.cmor_task(masks[m]["source"],target))
     return result
 
 
+# Reads the post-processed mask variable and converts it into a boolean array
 def read_mask(name,filepath):
     global masks
     try:
@@ -163,15 +165,25 @@ def read_mask(name,filepath):
     except Exception:
         log.error("Could not read netcdf file %s while reading mask %s" % (filepath,name))
         return
-    codestr = str(task.source.get_grib_code().var_id)
+    codestr = str(masks[name]["source"].get_grib_code().var_id)
     varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
     if(len(varlist) == 0):
         varlist = [v for v in ncvars if str(v) == "var" + codestr]
     if(len(varlist) > 1):
         log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
     ncvar = ncvars[varlist[0]]
-    func = masks[name]["predicate"]
-    masks[name]["array"] = func(ncvar[:,:])
+    var = None
+    if(len(ncvar.shape) == 2):
+        var = ncvar[:,:]
+    elif(len(ncvar.shape) == 3 and ncvar.shape[0] == 1):
+        var = ncvar[0,:,:]
+    elif(len(ncvar.shape) == 4 and ncvar.shape[0] == 1 and ncvar.shape[1] == 1):
+        var = ncvar[0,0,:,:]
+    else:
+        log.error("After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(ncvar.shape))
+        return
+    func = numpy.vectorize(masks[name]["predicate"])
+    masks[name]["array"] = func(var[:,:])
 
 
 # Deletes all temporary paths and removes temp directory
@@ -387,7 +399,7 @@ def execute_netcdf_task(task):
         index += 1
     mask = getattr(task,"mask",None)
     if(mask in masks):
-        maskarr = getattr(masks[mask],"array",None)
+        maskarr = masks[mask].get("array",None)
         missval = getattr(task.target,cmor_target.missval_key)
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
