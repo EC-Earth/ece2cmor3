@@ -6,15 +6,12 @@ import cdoapi
 import cmor_source
 import cmor_target
 
-
 # Log object
 log = logging.getLogger(__name__)
-
 
 # Threading parameters
 task_threads = 1
 cdo_threads = 4
-
 
 # Flags to control whether to execute cdo.
 skip = 1
@@ -22,14 +19,11 @@ append = 2
 recreate = 3
 modes = [skip,append,recreate]
 
-
 # Mode for post-processing
 mode = 3
 
-
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
-
 
 # Helper list of tasks
 finished_tasks_ = []
@@ -99,19 +93,11 @@ def create_command(task,griddes = {}):
         raise Exception("Multiple merged cdo commands are not supported yet")
     expr = getattr(task.source,cmor_source.expression_key,None)
     result = cdoapi.cdo_command() if expr else cdoapi.cdo_command(code = task.source.get_grib_code().var_id)
-    grid = task.source.grid_id()
-    if(grid == cmor_source.ifs_grid.spec):
-        result.add_operator(cdoapi.cdo_command.spectral_operator)
-    else:
-        gridtype = griddes.get("gridtype","gaussian reduced")
-        if(gridtype == "gaussian reduced"):
-            result.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
+    add_grid_operators(result,task,griddes)
     if(expr):
         result.add_operator(cdoapi.cdo_command.expression_operator,expr)
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
-    freq = getattr(task.target,cmor_target.freq_key,None)
-    timops = getattr(task.target,"time_operator",["point"])
-    add_time_operators(result,freq,int(getattr(task,"path","-1")[-2:]),timops)
+    add_time_operators(result,task)
     add_level_operators(result,task)
     return result
 
@@ -157,10 +143,23 @@ def apply_command(command,tasklist,basepath = None):
         setattr(task,"path",result)
     return result
 
+# Adds grid remapping operators to the cdo commands for the given task
+def add_grid_operators(cdo,task,griddes):
+    grid = task.source.grid_id()
+    if(grid == cmor_source.ifs_grid.spec):
+        cdo.add_operator(cdoapi.cdo_command.spectral_operator)
+    else:
+        gridtype = griddes.get("gridtype","gaussian reduced")
+        if(gridtype == "gaussian reduced"):
+            cdo.add_operator(cdoapi.cdo_command.gridtype_operator,cdoapi.cdo_command.regular_grid_type)
 
-# Translates the cmor time post-processing operation to a cdo command-line option
-def add_time_operators(cdo,freq,mon,operators):
+
+# Adds time averaging operators to the cdo command for the given task
+def add_time_operators(cdo,task):
     global output_frequency_
+    freq = getattr(task.target,cmor_target.freq_key,None)
+    operators = getattr(task.target,"time_operator",["point"])
+    mon = int(getattr(task,"path","-1")[-2:])
     timeshift = "-" + str(output_frequency_) + "hours"
     if(freq == "mon"):
         if(operators == ["point"]):
@@ -202,7 +201,12 @@ def add_time_operators(cdo,freq,mon,operators):
     elif(freq in ["1hr","3hr"]):
         if(operators != ["point"] and operators != ["mean"]):
             raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+    elif(freq == 0):
+        if(operators == ["point"] or operators == ["mean"]):
+            cdo.add_operator(cdoapi.cdo_command.select_step_operator,1)
+        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
     else: raise Exception("Unsupported frequency ",freq," encountered")
+
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo,task):

@@ -18,7 +18,15 @@ json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
+json_mask_key = "mask"
 
+mask_predicates = {"=": lambda x,a:x==a,
+                   "==":lambda x,a:x==a,
+                   "!=":lambda x,a:x!=a,
+                   "<": lambda x,a:x<a,
+                   "<=":lambda x,a:x<=a,
+                   ">": lambda x,a:x>a,
+                   ">=":lambda x,a:x>=a}
 
 # API function: loads the argument list of targets
 def load_targets(varlist):
@@ -95,12 +103,39 @@ def create_tasks(targets):
             ece2cmorlib.add_task(task)
             ntasks += 1
     log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
+    for par in ifsparlist:
+        if(json_mask_key in par):
+            name = par[json_mask_key]
+            expr = par.get(cmor_source.expression_key,None)
+            if(not expr):
+                log.error("No expression given for mask %s, ignoring mask definition" % name)
+            else:
+                srcstr,func,val = parse_maskexpr(expr)
+                src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
+                ece2cmorlib.add_mask(name,src,lambda x:func(x,val))
+
+
+# Parses the input mask expression
+def parse_maskexpr(exprstring):
+    global mask_predicates
+    ops = list(mask_predicates.keys())
+    ops.sort(key=len)
+    for op in ops[::-1]:
+        tokens = exprstring.split(op)
+        if(len(tokens) == 2):
+            src = tokens[0].strip()
+            if(src.startswith("var")): src = src[3:]
+            if(len(src.split("."))==1): src += ".128"
+            func = mask_predicates[op]
+            val = float(tokens[1].strip())
+            return src,func,val
+    log.error("Expression %s could not be parsed to a valid mask expression")
 
 
 # Checks whether the variable matches the parameter table block
 def matchvarpar(variable,parblock):
     global json_target_key
-    parvars = parblock[json_target_key]
+    parvars = parblock.get(json_target_key,None)
     if(isinstance(parvars,list)): return (variable in parvars)
     if(isinstance(parvars,basestring)): return (variable == parvars)
     return False
@@ -109,6 +144,14 @@ def matchvarpar(variable,parblock):
 # Creates a single task from the target and paramater table entry
 def create_cmor_task(pardict,target,tag):
     global log,IFS_source_tag,Nemo_source_tag,json_source_key,json_grid_key
+    task = cmor_task.cmor_task(create_cmor_source(pardict,tag),target)
+    conv = pardict.get(cmor_task.conversion_key,None)
+    if conv: setattr(task,cmor_task.conversion_key,conv)
+    return task
+
+
+# Creates an ece2cmor task source from the input dictionary
+def create_cmor_source(pardict,tag):
     src = pardict.get(json_source_key,None)
     expr = pardict.get(cmor_source.expression_key,None)
     if(not src and not expr):
@@ -116,14 +159,11 @@ def create_cmor_task(pardict,target,tag):
         return None
     cmorsrc = None
     if(tag == IFS_source_tag):
-        cmorsrc = cmor_source.ifs_source.read(expr if expr != None else src)
+        return cmor_source.ifs_source.read(expr if expr != None else src)
     elif(tag == Nemo_source_tag):
         grid = pardict.get(json_grid_key,None)
         if(not (grid in cmor_source.nemo_grid)):
             log.error("Could not find a grid value in the nemo parameter table for %s...skipping variable." % src)
             return None
-        cmorsrc = cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
-    task = cmor_task.cmor_task(cmorsrc,target)
-    conv = pardict.get(cmor_task.conversion_key,None)
-    if conv: setattr(task,cmor_task.conversion_key,conv)
-    return task
+        return cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
+    return None

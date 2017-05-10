@@ -8,8 +8,10 @@ import logging
 import cmor
 import dateutil.relativedelta
 
+
 # Log object
 log = logging.getLogger(__name__)
+
 
 # Enum utility class
 class cmor_enum(tuple): __getattr__ = tuple.index
@@ -98,7 +100,10 @@ def find_ifs_output(path,expname=None):
     if(expname):
         subexpr=expname
     expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+[0-9]{6}$")
-    return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
+    result = []
+    for root,dirs,files in os.walk(path):
+        result.extend([os.path.join(root,f) for f in files if re.match(expr,f)])
+    return result
 
 
 # Returns the start date for the given file path
@@ -169,13 +174,13 @@ def get_nemo_grid(filepath,expname):
 
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
-#@profile
-def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None,swaplatlon = False,fliplat = False):
+def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None,swaplatlon = False,fliplat = False,mask = None,missval = 1.e+20):
     global log
     dims = len(ncvar.shape)
     times = 1 if timdim < 0 else ncvar.shape[timdim]
     size = ncvar.size / times
     chunk = int(math.floor(4.0E+9 / (8 * size))) # Use max 4 GB of memory
+    missval_in = float(getattr(ncvar,"missing_value",missval))
     for i in range(0,times,chunk):
         imax = min(i + chunk,times)
         vals = None
@@ -186,26 +191,30 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
                 vals = ncvar[i:imax]
         elif(dims == 2):
             if(timdim < 0):
-                vals = ncvar[:,:].transpose() if swaplatlon else ncvar[:,:]
+                vals = (apply_mask(ncvar[:,:],mask,missval_in,missval)).transpose() if swaplatlon else array
             elif(timdim == 0):
-                vals = numpy.transpose(ncvar[i:imax,:],axes = [1,0])
+                vals = numpy.transpose(apply_mask(ncvar[i:imax,:],None,missval_in,missval),axes = [1,0])
             elif(timdim == 1):
-                vals = ncvar[:,i:imax]
+                vals = apply_mask(ncvar[:,i:imax],None,missval_in,missval)
         elif(dims == 3):
             if(timdim < 0):
-                vals = numpy.transpose(ncvar[:,:,:],axes = [2,1,0] if swaplatlon else [1,2,0])
+                vals = numpy.transpose(apply_mask(ncvar[:,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 0):
-            	vals = numpy.transpose(ncvar[i:imax,:,:],axes = [2,1,0] if swaplatlon else [1,2,0])
+            	vals = numpy.transpose(apply_mask(ncvar[i:imax,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 2):
-                vals = numpy.transpose(ncvar[:,:,i:imax],axes = [1,0,2]) if swaplatlon else ncvar[:,:,i:imax]
+                if(mask is not None):
+                    log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
+                vals = numpy.transpose(apply_mask(ncvar[:,:,i:imax],None,missval_in,missval),axes = [1,0,2]) if swaplatlon else array
             else:
                 log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
                 return
         elif(dims == 4):
             if(timdim == 0):
-            	vals = numpy.transpose(ncvar[i:imax,:,:,:],axes = [3,2,1,0] if swaplatlon else [2,3,1,0])
+            	vals = numpy.transpose(apply_mask(ncvar[i:imax,:,:,:],mask,missval_in,missval),axes = [3,2,1,0] if swaplatlon else [2,3,1,0])
             elif(timdim == 3):
-                vals = numpy.transpose(ncvar[:,:,:,i:imax],axes = [1,0,2,3]) if swaplatlon else ncvar[:,:,:,i:imax]
+                if(mask is not None):
+                    log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
+                vals = numpy.transpose(apply_mask(ncvar[:,:,:,i:imax],mask,missval_in,missval),axes = [1,0,2,3]) if swaplatlon else array
             else:
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
@@ -224,3 +233,12 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
             if(fliplat): spvals = numpy.flipud(spvals)
             cmor.write(psvarid,spvals,ntimes_passed = (0 if timdim < 0 else (imax - i)),store_with = varid)
             del spvals
+
+
+# Applies the mask to the 2 trailing dimensions of the input array, or else replaces the missing values.
+def apply_mask(array,mask,missval_in,missval_out):
+    if(mask is not None):
+        numpy.putmask(array,numpy.broadcast_to(numpy.invert(mask),array.shape),missval)
+    elif(missval_in != missval_out):
+        array[array == missval_in] = missval_out
+    return array

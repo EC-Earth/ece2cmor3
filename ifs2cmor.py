@@ -29,6 +29,7 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
+ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -44,6 +45,7 @@ start_date_ = None
 output_interval_ = None
 
 # Output frequency (hrs). Minimal interval between output variables.
+# TODO: Read from input
 output_frequency_ = 3
 
 # Fast storage temporary path
@@ -52,14 +54,16 @@ tempdir_created_ = False
 max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
-# TODO: set in init
 ref_date_ = None
+
+# Available geospatial masks, assigned by ece2cmorlib
+masks = {}
 
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.relativedelta.relativedelta(month = 1),
                outputfreq = 3,tempdir = None,maxsizegb = float("inf")):
-    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,output_interval_
+    global log,exp_name_,table_root_,ifs_gridpoint_file_,ifs_spectral_file_,ifs_init_gridpoint_file_,output_interval_
     global ifs_grid_descr_,temp_dir_,tempdir_created_,max_size_,ref_date_,start_date_,output_frequency_
 
     exp_name_ = expname
@@ -69,10 +73,11 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     output_frequency_ = outputfreq
     ref_date_ = refdate
     datafiles = select_files(path,exp_name_,start,length,output_interval_)
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
-    if(len(gpfiles) == 0 or len(shfiles) == 0):
-        filetype = "Gridpoint" if len(gpfiles) == 0 else "Spectral"
+    inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
+    gpfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
+    shfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+    if(not any(gpfiles) or not any(shfiles)):
+        filetype = "Gridpoint" if not any(gpfiles) else "Spectral"
         log.error("%s file not found in directory %s, aborting..." % (filetype,path))
         return False
     if(len(gpfiles) > 1 or len(shfiles) > 1):
@@ -82,6 +87,12 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     ifs_gridpoint_file_ = gpfiles[0]
     ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0]
+    if(any(inifiles)):
+        ifs_init_gridpoint_file_ = inifiles[0]
+        if(len(inifiles) > 1):
+            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
+    else:
+        ifs_init_gridpoint_file_ = ifs_gridpoint_file_
     if(tempdir):
         temp_dir_ = os.path.abspath(tempdir)
         if(not os.path.exists(temp_dir_)):
@@ -97,6 +108,11 @@ def execute(tasks):
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
+    masktasks = get_mask_tasks(supportedtasks)
+    processedtasks = postprocess(masktasks)
+    for task in processedtasks:
+        read_mask(task.target.variable,getattr(task,"path"))
+    cleanup(processedtasks)
     oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
     sptasks = oldsptasks + newsptasks
     taskstodo = list(set(taskstodo)-set(sptasks))
@@ -115,6 +131,59 @@ def execute(tasks):
         taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
     cleanup(oldsptasks)
     cleanup(proc_sptasks)
+
+
+# Converts the masks that are needed into a set of tasks
+def get_mask_tasks(tasks):
+    global log,masks
+    selected_masks = []
+    for task in tasks:
+        for area_operator in getattr(task.target,"area_operator",[]):
+            words = area_operator.split()
+            if(len(words) == 3 and words[1] == "where"):
+                maskname = words[2]
+                if(maskname not in masks):
+                    log.warning("Mask %s is not supported as an IFS mask, skipping masking")
+                else:
+                    selected_masks.append(maskname)
+                    setattr(task,"mask",maskname)
+    result = []
+    for m in set(selected_masks):
+        target = cmor_target.cmor_target(m,"fx")
+        setattr(target,cmor_target.freq_key,0)
+        setattr(target,"time_operator",["point"])
+        result.append(cmor_task.cmor_task(masks[m]["source"],target))
+    return result
+
+
+# Reads the post-processed mask variable and converts it into a boolean array
+def read_mask(name,filepath):
+    global masks
+    try:
+        dataset = netCDF4.Dataset(filepath,'r')
+        ncvars = dataset.variables
+    except Exception:
+        log.error("Could not read netcdf file %s while reading mask %s" % (filepath,name))
+        return
+    codestr = str(masks[name]["source"].get_grib_code().var_id)
+    varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
+    if(len(varlist) == 0):
+        varlist = [v for v in ncvars if str(v) == "var" + codestr]
+    if(len(varlist) > 1):
+        log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+    ncvar = ncvars[varlist[0]]
+    var = None
+    if(len(ncvar.shape) == 2):
+        var = ncvar[:,:]
+    elif(len(ncvar.shape) == 3 and ncvar.shape[0] == 1):
+        var = ncvar[0,:,:]
+    elif(len(ncvar.shape) == 4 and ncvar.shape[0] == 1 and ncvar.shape[1] == 1):
+        var = ncvar[0,0,:,:]
+    else:
+        log.error("After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(ncvar.shape))
+        return
+    func = numpy.vectorize(masks[name]["predicate"])
+    masks[name]["array"] = func(var[:,:])
 
 
 # Deletes all temporary paths and removes temp directory
@@ -165,7 +234,7 @@ def get_sp_tasks(tasks):
         else:
             sptask = cmor_task.cmor_task(surface_pressure,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
-            setattr(sptask,"time_operator",["mean"])
+            setattr(sptask.target,"time_operator",["mean"])
             find_sp_variable(sptask)
             extra_tasks.append(sptask)
         for task in tasks3d:
@@ -184,7 +253,10 @@ def postprocess(tasks):
         else:
             ifiles = get_source_files(rootcodes)
             if(len(ifiles) == 1):
-                setattr(task,"path",ifiles[0])
+                if(ifiles[0] == ifs_gridpoint_file_ and getattr(task.target,cmor_target.freq_key) == 0):
+                    setattr(task,"path",ifs_init_gridpoint_file_)
+                else:
+                    setattr(task,"path",ifiles[0])
             else:
                 log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                            This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
@@ -267,6 +339,7 @@ def cmorize(tasks):
         q.join()
 
 
+# Worker function for parallel cmorization (not working at the present...)
 def cmor_worker(queue):
     while(True):
         task = queue.get()
@@ -325,7 +398,10 @@ def execute_netcdf_task(task):
             timdim = index
             break
         index += 1
-    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True)
+    mask = getattr(task,"mask",None)
+    maskarr = masks[mask].get("array",None) if mask in masks else None
+    missval = getattr(task.target,cmor_target.missval_key,1.e+20)
+    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
 
@@ -512,7 +588,8 @@ def select_files(path,expname,start,length,interval):
     allfiles = cmor_utils.find_ifs_output(path,expname)
     startdate = cmor_utils.make_datetime(start).date()
     enddate = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate]
+    return [f for f in allfiles if f.endswith("ICMGG" + expname + "+000000") or
+            (cmor_utils.get_ifs_date(f) < enddate and cmor_utils.get_ifs_date(f) >= startdate)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
