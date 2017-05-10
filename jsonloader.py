@@ -130,7 +130,8 @@ def create_tasks(targets):
 
 # Parses the input mask expression
 def parse_maskexpr(exprstring):
-    ops = mask_predicates.keys
+    global mask_predicates
+    ops = list(mask_predicates.keys())
     ops.sort(key=len)
     for op in ops[::-1]:
         tokens = exprstring.split(op)
