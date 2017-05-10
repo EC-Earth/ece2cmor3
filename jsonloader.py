@@ -19,7 +19,6 @@ json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
 json_mask_key = "mask"
-json_maskexpr_key = "maskexpr"
 
 mask_predicates = {"=": lambda x,a:x==a,
                    "==":lambda x,a:x==a,
@@ -104,7 +103,7 @@ def create_tasks(targets):
             ece2cmorlib.add_task(task)
             ntasks += 1
     log.info("Created %d ece2cmor tasks from input variable list." % ntasks)
-    for par in (ifsparlist + nemoparlist):
+    for par in ifsparlist:
         if(json_mask_key in par):
             name = par[json_mask_key]
             expr = par.get(cmor_source.expression_key,None)
@@ -112,19 +111,7 @@ def create_tasks(targets):
                 log.error("No expression given for mask %s, ignoring mask definition" % name)
             else:
                 srcstr,func,val = parse_maskexpr(expr)
-                src = None
-                if par in ifsparlist:
-                    src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
-                else:
-                    grid = getattr(par,json_grid_key,None)
-                    if(not grid):
-                        grids = [getattr(p,json_grid_key,None) for p in nemoparlist if getattr(p,json_source_key) == srcstr and hasattr(p,json_grid_key)]
-                        if(any(grids)):
-                            grid = grids[0]
-                        else:
-                            log.error("No valid grid found for mask %s" % str(par))
-                            continue
-                    src = create_cmor_source({json_source_key: srcstr,json_grid_key: grid},Nemo_source_tag)
+                src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
                 ece2cmorlib.add_mask(name,src,lambda x:func(x,val))
 
 
@@ -162,6 +149,8 @@ def create_cmor_task(pardict,target,tag):
     if conv: setattr(task,cmor_task.conversion_key,conv)
     return task
 
+
+# Creates an ece2cmor task source from the input dictionary
 def create_cmor_source(pardict,tag):
     src = pardict.get(json_source_key,None)
     expr = pardict.get(cmor_source.expression_key,None)

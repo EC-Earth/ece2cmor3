@@ -147,7 +147,6 @@ def perform_nemo_tasks(datadir,expname,startdate,interval):
     nemo_tasks = [t for t in tasks if isinstance(t.source,cmor_source.nemo_source)]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
-    nemo2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k][0],cmor_source.nemo_source)}
     if(not nemo2cmor.initialize(datadir,expname,tableroot,startdate,interval)):
         return
     nemo2cmor.execute(nemo_tasks)
