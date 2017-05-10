@@ -339,6 +339,7 @@ def cmorize(tasks):
         q.join()
 
 
+# Worker function for parallel cmorization (not working at the present...)
 def cmor_worker(queue):
     while(True):
         task = queue.get()
@@ -398,9 +399,8 @@ def execute_netcdf_task(task):
             break
         index += 1
     mask = getattr(task,"mask",None)
-    if(mask in masks):
-        maskarr = masks[mask].get("array",None)
-        missval = getattr(task.target,cmor_target.missval_key)
+    maskarr = masks[mask].get("array",None) if mask in masks else None
+    missval = getattr(task.target,cmor_target.missval_key,1.e+20)
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
