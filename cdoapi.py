@@ -11,6 +11,7 @@ class cdo_command:
 
     # CDO operator strings
     select_code_operator  = "selcode"
+    set_code_operator     = "setcode"
     expression_operator   = "expr"
     spectral_operator     = "sp2gpl"
     gridtype_operator     = "setgridtype"
@@ -36,7 +37,7 @@ class cdo_command:
     modellevel            = "hybrid"
 
     # Optimized operator ordering for CDO:
-    operator_ordering = [mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
+    operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
                          mean_time_operators[day],min_time_operators[day],max_time_operators[day],\
                          expression_operator,spectral_operator,gridtype_operator,select_lev_operator,select_z_operator,\
                          select_hour_operator,select_day_operator,select_month_operator,shift_time_operator,\
