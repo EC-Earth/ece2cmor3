@@ -7,6 +7,7 @@ import netCDF4
 import cmor
 import cmor_utils
 import cmor_source
+import cmor_target
 import cmor_task
 
 # Logger object
@@ -29,6 +30,7 @@ depth_axes_ = {}
 
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_ = {}
+
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
@@ -125,7 +127,7 @@ def execute_netcdf_task(task,dataset,tableid):
     varid = create_cmor_variable(task,dataset,axes)
     ncvar = dataset.variables[task.source.var()]
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    cmor_utils.netcdf2cmor(varid,ncvar,0,factor)
+    cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
     cmor.close(varid)
 
 
@@ -184,6 +186,7 @@ def create_depth_axis(ncfile,gridchar):
     b = bndvar[:,:]
     b[b<0] = 0
     return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:],cell_bounds = b)
+
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,files):
