@@ -467,7 +467,7 @@ def create_depth_axes(tasks):
             setattr(task,"store_with",psid)
             continue
         elif zdim in ["sdepth","sdepth1"]:
-            axisid = create_soil_depth_axis(0,zdim)
+            axisid = create_soil_depth_axis(zdim,getattr(task,"path"))
             depth_axes[zdim] = axisid
             setattr(task,"z_axis_id",axisid)
         elif zdim in cmor_target.get_axis_info(task.target.table):
@@ -527,18 +527,45 @@ def create_hybrid_level_axis(task):
     return (axid,storewith)
 
 
-# Creates a soil depth axis
-# TODO: Read from file
-soil_depth_bounds = [0.0,0.07,0.28,1.0,2.89]
-
-
 # Creates a soil depth axis.
-def create_soil_depth_axis(layer,name):
-    vals = [0.5*(soil_depth_bounds[layer] + soil_depth_bounds[layer + 1])]
-    bounds = numpy.empty([1,2])
-    bounds[0,0] = soil_depth_bounds[layer]
-    bounds[0,1] = soil_depth_bounds[layer + 1]
-    return cmor.axis(table_entry = name,coord_vals = vals,cell_bounds = bounds,units = "m")
+def create_soil_depth_axis(name,filepath):
+    global log
+    try:
+        dataset = netCDF4.Dataset(filepath,'r')
+        ncvar = dataset.variables.get("depth",None)
+        if(not ncvar):
+            log.error("Could retrieve depth coordinate from file %s" % filepath)
+            return 0
+        units = getattr(ncvar,"units","cm")
+        factor = 0
+        if(units == "mm"):
+            factor = 0.001
+        elif(units == "cm"):
+            factor = 0.01
+        elif(units == "m"):
+            factor = 1
+        else:
+            log.error("Unknown units for depth axis in file %s" % filepath)
+            return 0
+        vals = factor*ncvar[:]
+        ncvar = dataset.variables.get("depth_bnds",None)
+        bndvals = None
+        if(not ncvar):
+            n = len(vals)
+            bndvals = numpy.empty([n,2])
+            bndvals[0,0] = 0.
+            if(n > 1):
+                bndvals[1:,0] = (vals[0:n-1] + vals[1:])/2
+                bndvals[0:n - 1,1] = bndvals[1:n,0]
+                bndvals[n - 1,1] = (3*vals[n-1] - bndvals[n - 1,0])/2
+            else:
+                bndvals[0,1] = 2*vals[0]
+        else:
+            bndvals = factor*ncvar[:,:]
+        return cmor.axis(table_entry = name,coord_vals = vals,cell_bounds = bndvals,units = "m")
+    except Exception:
+        log.error("Could not read netcdf file %s while creating soil depth axis" % filepath)
+    return 0
 
 
 # Makes a time axis for the given table
