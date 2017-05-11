@@ -105,6 +105,7 @@ def create_command(task,griddes = {}):
     return result
 
 def is_merge_expr(expr):
+    if(not expr): return False
     sides = expr.split('=')
     return (len(sides) == 2 and sides[1].startswith("merge"))
 
@@ -139,7 +140,8 @@ def apply_command(command,tasklist,basepath = None):
     result = ofile
     if(mode != skip):
         if(mode == recreate or (mode == append and not os.path.exists(ofile))):
-            opath = command.apply(ifile,ofile,cdo_threads)
+            mergeexpr = is_merge_expr(getattr(task.source,cmor_source.expression_key,None))
+            opath = command.apply(ifile,ofile,cdo_threads,grib_first = mergeexpr)
             if(opath and not basepath):
                 tmppath = os.path.dirname(opath)
                 ofile = os.path.join(tmppath,ofname)
