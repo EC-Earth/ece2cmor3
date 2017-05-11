@@ -2,6 +2,7 @@ import thread
 import numpy
 import logging
 import cdo
+import os
 
 # Log object
 log = logging.getLogger(__name__)
@@ -68,28 +69,35 @@ class cdo_command:
         return " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys])
 
     # Applies the current set of operators to the input file.
-    def apply(self,ifile,ofile = None,threads = 4):
+    def apply(self,ifile,ofile = None,threads = 4,grib_first = False):
         global log
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
+        if(grib_first):
+            optionstr = "" if threads < 2 else ("-P " + str(threads))
         func = getattr(self.app,keys[0],None)
         appargs = None
         if(func):
             appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
         else:
-            func = getattr(app,"copy")
+            func = getattr(self.app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
+        outputfile = ofile[:-3]+".grib" if grib_first else ofile
         f = ofile
         try:
             if(appargs and ofile):
-                f = func(appargs,input = inputstr,output = ofile,options = optionstr)
+                f = func(appargs,input = inputstr,output = outputfile,options = optionstr)
             elif(appargs):
                 f = func(appargs,input = inputstr,options = optionstr)
             elif(ofile):
-                f = func(input = inputstr,output = ofile,options = optionstr)
+                f = func(input = inputstr,output = outputfile,options = optionstr)
             else:
                 f = func(input = inputstr,options = optionstr)
+            if(grib_first):
+                optionstr = "-f nc"
+                self.app.copy(input = outputfile,output = ofile,options = optionstr)
+                os.remove(outputfile)
         except cdo.CDOException as e:
             log.error(str(e))
             return None
