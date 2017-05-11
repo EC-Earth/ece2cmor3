@@ -95,12 +95,18 @@ def create_command(task,griddes = {}):
     result = cdoapi.cdo_command() if expr else cdoapi.cdo_command(code = task.source.get_grib_code().var_id)
     add_grid_operators(result,task,griddes)
     if(expr):
-        result.add_operator(cdoapi.cdo_command.expression_operator,expr)
+        if(is_merge_expr(expr)):
+            result.add_operator(cdoapi.cdo_command.set_code_operator,task.source.get_grib_code().var_id)
+        else:
+            result.add_operator(cdoapi.cdo_command.expression_operator,expr)
         result.add_operator(cdoapi.cdo_command.select_code_operator,*[c.var_id for c in task.source.get_root_codes()])
     add_time_operators(result,task)
     add_level_operators(result,task)
     return result
 
+def is_merge_expr(expr):
+    sides = expr.split('=')
+    return (len(sides) == 2 and sides[1].startswith("merge"))
 
 # Multi-thread function wrapper.
 def cdo_worker(q,basepath,maxsize):
