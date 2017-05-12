@@ -253,7 +253,6 @@ def add_level_operators(cdo,task):
     if(task.source.spatial_dims == 2): return
     zdims = getattr(task.target,"z_dims",[])
     if(len(zdims) == 0): return
-    leveltypes = cdo.get_z_axes(getattr(task,"path",None),task.source.get_grib_code().var_id)
     if(len(zdims) > 1):
         log.error("Multiple level dimensions in table %s are not supported by this post-processing software",(task.target.table))
     axisname = zdims[0]
@@ -268,13 +267,24 @@ def add_level_operators(cdo,task):
         log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
         return
     oname = axisinfo.get("standard_name",None)
+    leveltypes = cdo.get_z_axes(getattr(task,"path",None),task.source.get_grib_code().var_id)
+    ml2pl,ml2hl = False,False
     if(oname == "air_pressure"):
-        if(cdoapi.cdo_command.pressure_level_code not in leveltypes):
-            print "WE HAVE TO INTERPOLATE
+        if(cdoapi.cdo_command.pressure_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
+            log.warning("Could not find pressure levels for %s, will interpolate from model levels",task.target.variable)
+            cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
+            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+            ml2pl = True
         else:
             cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.pressure)
-    elif(oname == "height"):
-        cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.height)
+    elif(oname in ["height","altitude"]):
+        if(cdoapi.cdo_command.height_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
+            log.warning("Could not find height levels for %s, will interpolate from model levels",task.target.variable)
+            cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
+            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+            ml2hl = True
+        else:
+            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.height)
     elif(axisname not in ["alevel","alevhalf"]):
         log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
         return
@@ -284,4 +294,10 @@ def add_level_operators(cdo,task):
         val = axisinfo.get("value",None)
         if(val): zlevs = [val]
     if(len(zlevs) > 0):
-        cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)
+        if(ml2pl):
+            print "Levels:",zlevs
+            cdo.add_operator(cdoapi.cdo_command.ml2pl_operator,*zlevs)
+        elif(ml2hl):
+            cdo.add_operator(cdoapi.cdo_command.ml2hl_operator,*zlevs)
+        else:
+            cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)

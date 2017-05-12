@@ -28,6 +28,8 @@ class cdo_command:
     select_month_operator   = "selmon"
     select_step_operator    = "seltimestep"
     shift_time_operator     = "shifttime"
+    ml2pl_operator          = "ml2pl"
+    ml2hl_operator          = "ml2hl"
 
     # CDO operator argument strings
     regular_grid_type       = "regular"
@@ -42,14 +44,14 @@ class cdo_command:
     # Vertical axes codes
     hybrid_level_code       = 109
     pressure_level_code     = 100
-    generic_level_code      = 210
+    height_level_code      = 210
 
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
                          mean_time_operators[day],min_time_operators[day],max_time_operators[day],add_expression_operator,\
-                         expression_operator,spectral_operator,gridtype_operator,select_lev_operator,select_z_operator,\
-                         select_hour_operator,select_day_operator,select_month_operator,shift_time_operator,\
-                         select_step_operator,select_code_operator]
+                         expression_operator,spectral_operator,gridtype_operator,ml2pl_operator,ml2hl_operator,\
+                         select_lev_operator,select_z_operator,select_hour_operator,select_day_operator,select_month_operator,\
+                         shift_time_operator,select_step_operator,select_code_operator]
 
     # Constructor
     def __init__(self,code = 0):
@@ -172,7 +174,7 @@ class cdo_command:
         if(not ifile): return []
         seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
         output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
-        return [] if not output else [int(s) for s in output[0]]
+        return [] if not output else [int(s) for s in output]
 
 
     # Option writing utility function
