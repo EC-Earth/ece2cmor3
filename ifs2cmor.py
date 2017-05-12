@@ -138,6 +138,10 @@ def get_mask_tasks(tasks):
     global log,masks
     selected_masks = []
     for task in tasks:
+        msk = getattr(task.target,cmor_target.mask_key,None)
+        if(msk):
+            selected_masks.append(msk)
+            continue
         for area_operator in getattr(task.target,"area_operator",[]):
             words = area_operator.split()
             if(len(words) == 3 and words[1] == "where"):
@@ -146,7 +150,7 @@ def get_mask_tasks(tasks):
                     log.warning("Mask %s is not supported as an IFS mask, skipping masking")
                 else:
                     selected_masks.append(maskname)
-                    setattr(task,"mask",maskname)
+                    setattr(task.target,cmor_target.mask_key,maskname)
     result = []
     for m in set(selected_masks):
         target = cmor_target.cmor_target(m,"fx")
@@ -387,7 +391,9 @@ def execute_netcdf_task(task):
     if((not unit) or hasattr(task,cmor_task.conversion_key)):
         unit = getattr(task.target,"units")
     varid = 0
+    flipsign = False
     if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
+        flipsign = (getattr(task.target,"positive") == "up")
         varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,positive = "down")
     else:
         varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes)
@@ -398,9 +404,10 @@ def execute_netcdf_task(task):
             timdim = index
             break
         index += 1
-    mask = getattr(task,"mask",None)
+    mask = getattr(task.target,cmor_target.mask_key,None)
     maskarr = masks[mask].get("array",None) if mask in masks else None
     missval = getattr(task.target,cmor_target.missval_key,1.e+20)
+    if(flipsign): missval = -missval
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
     if(storevar): cmor.close(storevar)
