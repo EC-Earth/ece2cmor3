@@ -12,6 +12,7 @@ class cdo_command:
 
     # CDO operator strings
     select_code_operator    = "selcode"
+    select_var_operator     = "selvar"
     set_code_operator       = "setcode"
     expression_operator     = "expr"
     add_expression_operator = "aexpr"
@@ -37,6 +38,11 @@ class cdo_command:
     height                  = "height"
     pressure                = "pressure"
     modellevel              = "hybrid"
+
+    # Vertical axes codes
+    hybrid_level_code       = 109
+    pressure_level_code     = 100
+    generic_level_code      = 210
 
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
@@ -159,6 +165,15 @@ class cdo_command:
             if(k in realfields): infodict[k] = float(v)
             if(k in arrayfields): infodict[k] = numpy.array([float(x) for x in v.split()])
         return infodict
+
+
+    # Returns a list vertical axes corrspoding to the input variable
+    def get_z_axes(self,ifile,var):
+        if(not ifile): return []
+        seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
+        output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
+        return [] if not output else [int(s) for s in output[0]]
+
 
     # Option writing utility function
     @staticmethod
