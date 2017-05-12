@@ -11,35 +11,36 @@ log = logging.getLogger(__name__)
 class cdo_command:
 
     # CDO operator strings
-    select_code_operator  = "selcode"
-    set_code_operator     = "setcode"
-    expression_operator   = "expr"
-    spectral_operator     = "sp2gpl"
-    gridtype_operator     = "setgridtype"
-    select_z_operator     = "selzaxis"
-    select_lev_operator   = "sellevel"
-    min_time_operators    = {"day":"daymin","mon":"monmin"}
-    max_time_operators    = {"day":"daymax","mon":"monmax"}
-    mean_time_operators   = {"day":"daymean","mon":"monmean"}
-    select_hour_operator  = "selhour"
-    select_day_operator   = "selday"
-    select_month_operator = "selmon"
-    select_step_operator  = "seltimestep"
-    shift_time_operator   = "shifttime"
+    select_code_operator    = "selcode"
+    set_code_operator       = "setcode"
+    expression_operator     = "expr"
+    add_expression_operator = "aexpr"
+    spectral_operator       = "sp2gpl"
+    gridtype_operator       = "setgridtype"
+    select_z_operator       = "selzaxis"
+    select_lev_operator     = "sellevel"
+    min_time_operators      = {"day":"daymin","mon":"monmin"}
+    max_time_operators      = {"day":"daymax","mon":"monmax"}
+    mean_time_operators     = {"day":"daymean","mon":"monmean"}
+    select_hour_operator    = "selhour"
+    select_day_operator     = "selday"
+    select_month_operator   = "selmon"
+    select_step_operator    = "seltimestep"
+    shift_time_operator     = "shifttime"
 
     # CDO operator argument strings
-    regular_grid_type     = "regular"
-    hour                  = "hr"
-    day                   = "day"
-    month                 = "mon"
-    year                  = "year"
-    height                = "height"
-    pressure              = "pressure"
-    modellevel            = "hybrid"
+    regular_grid_type       = "regular"
+    hour                    = "hr"
+    day                     = "day"
+    month                   = "mon"
+    year                    = "year"
+    height                  = "height"
+    pressure                = "pressure"
+    modellevel              = "hybrid"
 
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
-                         mean_time_operators[day],min_time_operators[day],max_time_operators[day],\
+                         mean_time_operators[day],min_time_operators[day],max_time_operators[day],add_expression_operator,\
                          expression_operator,spectral_operator,gridtype_operator,select_lev_operator,select_z_operator,\
                          select_hour_operator,select_day_operator,select_month_operator,shift_time_operator,\
                          select_step_operator,select_code_operator]
