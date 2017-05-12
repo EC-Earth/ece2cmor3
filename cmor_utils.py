@@ -186,35 +186,35 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
         vals = None
         if(dims == 1):
             if(timdim < 0):
-                vals = ncvar[:]
+                vals = factor*ncvar[:]
             elif(timdim == 0):
-                vals = ncvar[i:imax]
+                vals = factor*ncvar[i:imax]
         elif(dims == 2):
             if(timdim < 0):
-                vals = (apply_mask(ncvar[:,:],mask,missval_in,missval)).transpose() if swaplatlon else array
+                vals = (apply_mask(factor*ncvar[:,:],mask,missval_in,missval)).transpose() if swaplatlon else array
             elif(timdim == 0):
-                vals = numpy.transpose(apply_mask(ncvar[i:imax,:],None,missval_in,missval),axes = [1,0])
+                vals = numpy.transpose(apply_mask(factor*ncvar[i:imax,:],None,missval_in,missval),axes = [1,0])
             elif(timdim == 1):
-                vals = apply_mask(ncvar[:,i:imax],None,missval_in,missval)
+                vals = apply_mask(factor*ncvar[:,i:imax],None,missval_in,missval)
         elif(dims == 3):
             if(timdim < 0):
-                vals = numpy.transpose(apply_mask(ncvar[:,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
+                vals = numpy.transpose(apply_mask(factor*ncvar[:,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 0):
-            	vals = numpy.transpose(apply_mask(ncvar[i:imax,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
+            	vals = numpy.transpose(apply_mask(factor*ncvar[i:imax,:,:],mask,missval_in,missval),axes = [2,1,0] if swaplatlon else [1,2,0])
             elif(timdim == 2):
                 if(mask is not None):
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
-                vals = numpy.transpose(apply_mask(ncvar[:,:,i:imax],None,missval_in,missval),axes = [1,0,2]) if swaplatlon else array
+                vals = numpy.transpose(apply_mask(factor*ncvar[:,:,i:imax],None,missval_in,missval),axes = [1,0,2]) if swaplatlon else array
             else:
                 log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
                 return
         elif(dims == 4):
             if(timdim == 0):
-            	vals = numpy.transpose(apply_mask(ncvar[i:imax,:,:,:],mask,missval_in,missval),axes = [3,2,1,0] if swaplatlon else [2,3,1,0])
+            	vals = numpy.transpose(apply_mask(factor*ncvar[i:imax,:,:,:],mask,missval_in,missval),axes = [3,2,1,0] if swaplatlon else [2,3,1,0])
             elif(timdim == 3):
                 if(mask is not None):
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
-                vals = numpy.transpose(apply_mask(ncvar[:,:,:,i:imax],mask,missval_in,missval),axes = [1,0,2,3]) if swaplatlon else array
+                vals = numpy.transpose(apply_mask(factor*ncvar[:,:,:,i:imax],mask,missval_in,missval),axes = [1,0,2,3]) if swaplatlon else array
             else:
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
@@ -222,7 +222,7 @@ def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = Non
             log.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
         if(fliplat and (dims > 1 or timdim < 0)): vals = numpy.flipud(vals)
-        cmor.write(varid,factor * vals,ntimes_passed = (0 if timdim < 0 else (imax - i)))
+        cmor.write(varid,vals,ntimes_passed = (0 if timdim < 0 else (imax - i)))
         del vals
         if(psvarid and ncpsvar):
             if(len(ncpsvar.shape) == 3):

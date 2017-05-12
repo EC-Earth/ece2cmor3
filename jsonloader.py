@@ -19,6 +19,7 @@ json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
 json_mask_key = "mask"
+json_masked_key = "masked"
 
 mask_predicates = {"=": lambda x,a:x==a,
                    "==":lambda x,a:x==a,
@@ -146,6 +147,8 @@ def create_cmor_task(pardict,target,tag):
     global log,IFS_source_tag,Nemo_source_tag,json_source_key,json_grid_key
     task = cmor_task.cmor_task(create_cmor_source(pardict,tag),target)
     conv = pardict.get(cmor_task.conversion_key,None)
+    mask = pardict.get(json_masked_key,None)
+    if mask: setattr(task.target,cmor_target.mask_key,mask)
     if conv: setattr(task,cmor_task.conversion_key,conv)
     return task
 
