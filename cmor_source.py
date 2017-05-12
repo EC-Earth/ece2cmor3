@@ -116,8 +116,11 @@ class ifs_source(cmor_source):
     @classmethod
     def read(cls,s):
         global log
-        if re.match("[0-9]{1,3}.[0-9]{3}",s) or re.match("[0-9]{1,3}",s) or re.match("[0-9]{1,3}",s):
+        if re.match("^[0-9]{1,3}.[0-9]{3}$",s) or re.match("^[0-9]{1,3}$",s) or re.match("^[0-9]{1,3}$",s):
             gc = grib_code.read(s)
+            cls = ifs_source(gc)
+        elif re.match("^var[0-9]{1,3}$",s):
+            gc = grib_code.read(s[3:])
             cls = ifs_source(gc)
         else:
             varstrs = re.findall("var[0-9]{1,3}",s)
