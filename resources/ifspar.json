@@ -434,12 +434,18 @@
         "target": "clw"
     },
     {
-        "source": "248.128",
-        "target": "cl"
-    },
-    {
         "source": "247.128",
         "target": "cli"
+    },
+    {
+        "source": "248.128",
+        "target": [
+          "cl",
+          "clcalipso",
+          "clhcalipso",
+          "clmcalipso",
+          "cllcalipso"
+        ]
     },
     {
         "mask": "land",
