@@ -6,12 +6,14 @@
     {
         "source": "8.128",
         "convert": "vol2flux",
-        "target": "mrros"
+        "target": "mrros",
+        "masked": "land"
     },
     {
         "source": "9.128",
         "convert": "vol2flux",
-        "target": "mrrob"
+        "target": "mrrob",
+        "masked": "land"
     },
     {
         "source": "31.128",
@@ -24,7 +26,8 @@
     {
         "source": "43.128",
         "target": "mrso",
-        "expr": "var43=70*var39+210*var40+720*var41+1890*var42"
+        "expr": "var43=70*var39+210*var40+720*var41+1890*var42",
+        "masked": "land"
     },
     {
         "source": "44.128",
@@ -34,7 +37,8 @@
     {
         "source": "45.128",
         "target": "snm",
-        "convert": "vol2flux"
+        "convert": "vol2flux",
+        "masked": "land"
     },
     {
         "source": "54.128",
@@ -97,7 +101,8 @@
     {
         "source": "99.128",
         "target": "mrsos",
-        "expr": "var99=70*var39"
+        "expr": "var99=70*var39+30*var40",
+        "masked": "land"
     },
     {
         "source": "100.128",
@@ -178,7 +183,8 @@
         "source": "114.128",
         "target": "evspsblsoi",
         "expr": "var115=var182-var44",
-        "convert": "vol2flux"
+        "convert": "vol2flux",
+        "masked": "land"
     },
     {
         "source": "115.128",
@@ -193,12 +199,14 @@
     {
         "source": "117.128",
         "target": "tsl",
-        "expr": "var117=merge(var139,var170,var183,var236)"
+        "expr": "var117=merge(var139,var170,var183,var236)",
+        "masked": "land"
     },
     {
         "source": "118.128",
         "target": "mrlsl",
-        "expr": "var118=merge(70*var39,210*var40,720*var41,1890*var42)"
+        "expr": "var118=merge(70*var39,210*var40,720*var41,1890*var42)",
+        "masked": "land"
     },
     {
         "source": "129.128",
@@ -294,7 +302,8 @@
           "snw",
           "lwsnl"
         ],
-        "convert": "vol2massl"
+        "convert": "vol2massl",
+        "masked": "land"
     },
     {
         "source": "143.128",
@@ -380,7 +389,8 @@
     {
         "source": "205.128",
         "convert": "vol2flux",
-        "target": "mrro"
+        "target": "mrro",
+        "masked": "land"
     },
     {
         "source": "212.128",
@@ -405,11 +415,15 @@
     },
     {
         "source": "235.128",
-        "target": "tslsi"
+        "target": "tslsi",
+        "masked": "land"
     },
     {
         "source": "238.128",
-        "target": "tsn"
+        "target": [
+          "tsn",
+          "tsns"
+        ]
     },
     {
         "source": "243.128",

@@ -30,7 +30,7 @@ cell_methods_key = "cell_methods"
 valid_min_key = "valid_min"
 valid_max_key = "valid_max"
 cell_measure_axes = ["time","area","volume","latitude","longitude","depth"]
-
+mask_key = "mask"
 
 # Returns the axes defined for the input table.
 def get_axis_info(table_id):
