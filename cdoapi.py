@@ -174,7 +174,8 @@ class cdo_command:
         if(not ifile): return []
         seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
         output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
-        return [] if not output else [int(s) for s in output]
+        if(isinstance(output,list)): output = output[0]
+        return [] if not output else [int(s) for s in output.split()]
 
 
     # Option writing utility function
