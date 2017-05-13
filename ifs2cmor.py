@@ -495,10 +495,16 @@ def create_depth_axes(tasks):
                 vals = [float(l) for l in levels]
                 if(axis.get("must_have_bounds","no") == "yes"):
                     bndlist,n = axis.get("requested_bounds",[]),len(vals)
-                    bndarr = numpy.empty([n,2])
-                    for i in range(n):
-                        bndarr[i,0],bndarr[i,1] = bndlist[2*i],bndlist[2*i+1]
-                    axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit,cell_bounds = bndarr)
+                    if(not bndlist):
+                        bndlist = [float(x) for x in axis.get("bounds_values",[]).split()]
+                    if(len(bndlist)==2*n):
+                        bndarr = numpy.empty([n,2])
+                        for i in range(n):
+                            bndarr[i,0],bndarr[i,1] = bndlist[2*i],bndlist[2*i+1]
+                        axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit,cell_bounds = bndarr)
+                    else:
+                        log.error("Failed to retrieve bounds for vertical axis %s" % str(zdim))
+                        axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit)
                 else:
                     axisid = cmor.axis(table_entry = str(zdim),coord_vals = vals,units = unit)
             depth_axes[zdim] = axisid
