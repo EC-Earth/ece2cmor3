@@ -1,8 +1,8 @@
 import logging
 import threading
-import os
 import re
 import Queue
+import os
 import cdoapi
 import cmor_source
 import cmor_target
@@ -267,7 +267,7 @@ def add_level_operators(cdo,task):
         log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
         return
     oname = axisinfo.get("standard_name",None)
-    leveltypes = cdo.get_z_axes(getattr(task,"path",None),task.source.get_grib_code().var_id)
+    leveltypes = cdo.get_z_axes(getattr(task,"path",None),task.source.get_root_codes()[0].var_id)
     ml2pl,ml2hl = False,False
     if(oname == "air_pressure"):
         if(cdoapi.cdo_command.pressure_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
@@ -295,7 +295,6 @@ def add_level_operators(cdo,task):
         if(val): zlevs = [val]
     if(len(zlevs) > 0):
         if(ml2pl):
-            print "Levels:",zlevs
             cdo.add_operator(cdoapi.cdo_command.ml2pl_operator,*zlevs)
         elif(ml2hl):
             cdo.add_operator(cdoapi.cdo_command.ml2hl_operator,*zlevs)
