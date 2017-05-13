@@ -57,12 +57,13 @@ class ifs2cmor_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source,target)
         postproc.mode = postproc.skip
         ifs2cmor.temp_dir_ = os.getcwd()
+        ifs2cmor.ifs_spectral_file_ = os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001"
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"ta_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
         nose.tools.eq_(getattr(task,"cdo_command"),"-sp2gpl -monmean -sellevel,100000.,92500.,85000.,70000.,"
                                                    "60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100. "
-                                                   "-selzaxis,pressure -selmon,3 -selcode,130")
+                                                   "-selzaxis,pressure -selmon,1 -selcode,130")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
