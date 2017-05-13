@@ -31,8 +31,9 @@ class ifs2cmor_tests(unittest.TestCase):
         source = cmor_source.ifs_source.create(131,128)
         target = [t for t in targets if t.variable == "ua" and t.table == "CFday"][0]
         task = cmor_task.cmor_task(source,target)
+        setattr(task,"path",os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001")
         command = postproc.create_command(task)
-        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -selcode,131")
+        nose.tools.eq_(command.create_command(),"-sp2gpl -daymean -selzaxis,hybrid -selmon,1 -selcode,131")
 
     def test_postproc_daymax(self):
         abspath = get_table_path()
