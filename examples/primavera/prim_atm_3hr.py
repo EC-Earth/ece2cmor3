@@ -52,8 +52,6 @@ def main(args):
     # Remove targets that are constructed from six-hourly data:
     ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if is3hrtask(t)]
 
-    if(not os.path.isdir(opt.temp)): os.makedirs(opt.temp)
-
     # Execute the cmorization:
     if(opt.dir == datdir):
         ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp,taskthreads=1)

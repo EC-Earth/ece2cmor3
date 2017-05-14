@@ -92,7 +92,8 @@ class cdo_command:
         else:
             func = getattr(self.app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
-        outputfile = ofile[:-3]+".grib" if grib_first else ofile
+        outputfile = ofile
+        if(ofile and grib_first): outputfile = ofile[:-3] + ".grib"
         f = ofile
         try:
             if(appargs and ofile):
