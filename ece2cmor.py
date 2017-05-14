@@ -54,8 +54,6 @@ def main(args):
     length = dateutil.relativedelta.relativedelta(months = 1)
     if(procatmos):
         refdate = dateutil.parser.parse(args.refd) if args.refd else None
-        # Create temporary working directory:
-        if(not os.path.isdir(args.tmpdir)): os.makedirs(args.tmpdir)
         # Execute the atmosphere cmorization:
         ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,refdate = refdate,
                                                                              outputfreq = args.freq,

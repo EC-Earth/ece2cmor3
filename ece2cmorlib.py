@@ -128,16 +128,12 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
     tableroot = os.path.join(table_dir,prefix)
     ifs2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k]["source"],cmor_source.ifs_source)}
     if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,refdate if refdate else startdate,
-                               outputfreq = outputfreq,tempdir=tempdir,maxsizegb = maxsizegb)):
+                               outputfreq = outputfreq,tempdir = tempdir,maxsizegb = maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads
-    try:
-        ifs2cmor.execute(ifs_tasks)
-    finally:
-        if(cleanup):
-            ifs2cmor.cleanup(ifs_tasks)
+    ifs2cmor.execute(ifs_tasks,cleanup = cleanup)
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir,expname,startdate,interval):
