@@ -450,5 +450,9 @@
     {
         "mask": "land",
         "expr": "var172>0.5"
+    },
+    {
+        "mask": "sea",
+        "expr": "var172<0.5"
     }
 ]

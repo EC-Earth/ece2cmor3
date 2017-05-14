@@ -59,7 +59,7 @@ def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
         for comm,tasklist in comdict.iteritems():
             if(tmpsize >= max_size):
                 break
-            f = apply_command(comm, tasklist,path)
+            f = apply_command(comm,tasklist,path)
             if(os.path.exists(f)): tmpsize += float(os.path.getsize(f))
             finished_tasks_.extend(tasklist)
     else:
