@@ -77,8 +77,6 @@ def main(args):
         filterfunc = is6hrtask if args.freq == 6 else is3hrtask
         ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if filterfunc(t)]
         refdate = dateutil.parser.parse(args.refd) if args.refd else datetime.date(1950,1,1)
-        # Create temporary working directory:
-        if(not os.path.isdir(args.tmpdir)): os.makedirs(args.tmpdir)
         # Execute the atmosphere cmorization:
         ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,refdate = refdate,
                                                                              outputfreq = args.freq,

@@ -103,34 +103,45 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
 
 
 # Execute the postprocessing+cmorization tasks
-def execute(tasks):
-    global log
+def execute(tasks,cleanup = True):
+    global log,tempdir_created_
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = supportedtasks
     masktasks = get_mask_tasks(supportedtasks)
-    processedtasks = postprocess(masktasks)
-    for task in processedtasks:
-        read_mask(task.target.variable,getattr(task,"path"))
-    cleanup(processedtasks)
+    processedtasks = []
+    try:
+        processedtasks = postprocess(masktasks)
+        for task in processedtasks:
+            read_mask(task.target.variable,getattr(task,"path"))
+    except:
+        if(cleanup):
+            clean_tmp_data(processedtasks,True)
+            processedtasks = []
+        raise
+    finally:
+        if(cleanup): clean_tmp_data(processedtasks,False)
     oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
     sptasks = oldsptasks + newsptasks
     taskstodo = list(set(taskstodo)-set(sptasks))
     log.info("Post-processing surface pressures...")
-    proc_sptasks = postprocess(sptasks)
-    for task in taskstodo:
-        sptask = getattr(task,"sp_task",None)
-        if(sptask):
-            setattr(task,"sp_path",getattr(sptask,"path",None))
-            delattr(task,"sp_task")
-    cmorize(oldsptasks)
-    while(any(taskstodo)):
-        processedtasks = postprocess(taskstodo)
-        cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
-        cleanup(processedtasks,False)
-        taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
-    cleanup(oldsptasks)
-    cleanup(proc_sptasks)
+    try:
+        proc_sptasks = postprocess(sptasks)
+        for task in taskstodo:
+            sptask = getattr(task,"sp_task",None)
+            if(sptask):
+                setattr(task,"sp_path",getattr(sptask,"path",None))
+                delattr(task,"sp_task")
+        cmorize(oldsptasks)
+        while(any(taskstodo)):
+            try:
+                processedtasks = postprocess(taskstodo)
+                cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
+            finally:
+                if(cleanup): clean_tmp_data(processedtasks,False)
+            taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
+    finally:
+        if(cleanup): clean_tmp_data(oldsptasks + proc_sptasks,True)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -147,7 +158,7 @@ def get_mask_tasks(tasks):
             if(len(words) == 3 and words[1] == "where"):
                 maskname = words[2]
                 if(maskname not in masks):
-                    log.warning("Mask %s is not supported as an IFS mask, skipping masking")
+                    log.warning("Mask %s is not supported as an IFS mask, skipping masking" % maskname)
                 else:
                     selected_masks.append(maskname)
                     setattr(task.target,cmor_target.mask_key,maskname)
@@ -191,7 +202,7 @@ def read_mask(name,filepath):
 
 
 # Deletes all temporary paths and removes temp directory
-def cleanup(tasks,cleanupdir = True):
+def clean_tmp_data(tasks,cleanupdir = True):
     global temp_dir_,ifs_gridpoint_file_,ifs_spectral_file_,tempdir_created_
     for task in tasks:
         ncpath = getattr(task,"path",None)
@@ -200,7 +211,7 @@ def cleanup(tasks,cleanupdir = True):
             delattr(task,"path")
     if(cleanupdir and tempdir_created_ and temp_dir_ and len(os.listdir(temp_dir_)) == 0):
         os.rmdir(temp_dir_)
-        temp_dir_=None
+        temp_dir_ =  None
 
 
 # Creates a sub-list of tasks that we believe we can succesfully process
