@@ -132,7 +132,7 @@ class nemo2cmor_tests(unittest.TestCase):
     def test_init_nemo2cmor(self):
         dirname = datapath()
         tabdir = get_table_path()
-        confpath = os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        confpath = os.path.join(os.path.dirname(nemo2cmor.__file__),"resources","metadata-template.json")
         cmor.setup(tabdir)
         cmor.dataset_json(confpath)
         nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=100))
@@ -142,7 +142,7 @@ class nemo2cmor_tests(unittest.TestCase):
     def test_cmor_single_task(self):
         dirname = datapath()
         tabdir = get_table_path()
-        confpath = os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        confpath = os.path.join(os.path.dirname(nemo2cmor.__file__),"resources","metadata-template.json")
         cmor.setup(tabdir)
         cmor.dataset_json(confpath)
         nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=365))
@@ -159,7 +159,7 @@ class nemo2cmor_tests(unittest.TestCase):
     def test_cmor_single_task3d(self):
         dirname = datapath()
         tabdir = get_table_path()
-        confpath = os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
+        confpath = os.path.join(os.path.dirname(nemo2cmor.__file__),"resources","metadata-template.json")
         cmor.setup(tabdir)
         cmor.dataset_json(confpath)
         nemo2cmor.initialize(dirname,"exp",os.path.join(tabdir,"CMIP6"),datetime.datetime(1990,3,1),datetime.timedelta(days=365))
