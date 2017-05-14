@@ -102,14 +102,14 @@ def main(args):
 
     ifile = args.file
     if(not ifile):
-        ece2cmorlib.initialize(os.path.join(os.path.dirname(ece2cmorlib.__file__),"test","test_data","cmor3_metadata.json"))
+        ece2cmorlib.initialize()
         convert_parlist(ifs_default_input,ifs_default_output)
         ece2cmorlib.finalize()
-        ece2cmorlib.initialize(os.path.join(os.path.dirname(ece2cmorlib.__file__),"test","test_data","cmor3_metadata.json"))
+        ece2cmorlib.initialize()
         convert_parlist(nemo_default_input,nemo_default_output)
         ece2cmorlib.finalize()
     elif(os.path.exists(ifile)):
-        ece2cmorlib.initialize(os.path.join(os.path.dirname(ece2cmorlib.__file__),"test","test_data","cmor3_metadata.json"))
+        ece2cmorlib.initialize()
         if(os.path.basename(ifile) in ["ifs.par","nemo.par"]):
             convert_parlist(os.path.abspath(ifile),os.path.basename(ifile).replace(".","") + ".json")
         else:

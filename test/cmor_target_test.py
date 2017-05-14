@@ -26,7 +26,7 @@ class cmor_target_tests(unittest.TestCase):
         eq_(len(toss),1)
         tos=toss[0]
         eq_(tos.frequency,"mon")
-        eq_(tos.units,"degC")
+        eq_(tos.units,"K")
         eq_(tos.dimensions,"longitude latitude time")
 
     def test_make_CMIP6_vars(self):
