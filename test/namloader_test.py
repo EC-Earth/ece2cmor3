@@ -9,12 +9,10 @@ import cmor_task
 
 logging.basicConfig(level=logging.DEBUG)
 
-configfile = os.path.join(os.path.dirname(__file__),"test_data","cmor3_metadata.json")
-
 class namloader_test(unittest.TestCase):
 
     def test_load_clt(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"3hr":["clt"]})
             eq_(len(ece2cmorlib.tasks),1)
@@ -24,7 +22,7 @@ class namloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     def test_load_avars(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"3hr":["clt","uas","vas"],"Amon":["vas","tas"]})
             eq_(len(ece2cmorlib.tasks),5)
@@ -33,7 +31,7 @@ class namloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     def test_load_ovars(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"Omon":["tossq","so","thetao"],"Oday":["sos"]})
             eq_(len(ece2cmorlib.tasks),4)
@@ -41,7 +39,7 @@ class namloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     def test_load_oavars(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"3hr":["clt","uas"],"Amon":["vas","tas"],"Omon":["tossq"]})
             eq_(len(ece2cmorlib.tasks),5)
@@ -51,7 +49,7 @@ class namloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     def test_load_unit_conv(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"Amon":["prc","rsus","zg"]})
             eq_(len(ece2cmorlib.tasks),3)
@@ -65,7 +63,7 @@ class namloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     def test_load_expressions(self):
-        ece2cmorlib.initialize(configfile)
+        ece2cmorlib.initialize()
         try:
             namloader.load_targets({"day":["sfcWindmax"]})
             eq_("var214=sqrt(sqr(var165)+sqr(var166))",getattr(ece2cmorlib.tasks[0].source,"expr"))

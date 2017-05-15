@@ -12,8 +12,7 @@ class ece2cmorlib_tests(unittest.TestCase):
 
     @staticmethod
     def init():
-        conf=os.path.dirname(__file__)+"/test_data/cmor3_metadata.json"
-        ece2cmorlib.initialize(metadata=conf)
+        ece2cmorlib.initialize()
 
     def test_initialize(self):
         ece2cmorlib_tests.init()
