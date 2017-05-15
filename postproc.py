@@ -238,7 +238,7 @@ def add_time_operators(cdo,task):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
         else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
     elif(freq in ["1hr","3hr"]):
-        if(operators != ["point"] and operators != ["mean"]):
+        if(operators != ["point"] and operators != ["mean"] and operators != ["maximum"] and operators != ["minimum"]):
             raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
     elif(freq == 0):
         if(operators == ["point"] or operators == ["mean"]):
