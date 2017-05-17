@@ -63,18 +63,6 @@
         "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))"
     },
     {
-        "source": "92.128",
-        "target": "cltisccp"
-    },
-    {
-        "source": "93.128",
-        "target": "pctisccp"
-    },
-    {
-        "source": "94.128",
-        "target": "albisccp"
-    },
-    {
         "source": "95.128",
         "convert": "cum2inst",
         "target": [
@@ -209,6 +197,17 @@
         "masked": "land"
     },
     {
+        "source": "119.128",
+        "target": "snc",
+        "expr": "var119=100*(var141>0)"
+    },
+    {
+        "source": "120.128",
+        "target": "hfdsn",
+        "expr": "var120=(var141>0)*(var146+var147)",
+        "convert": "cum2inst"
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
@@ -335,7 +334,11 @@
     },
     {
         "source": "164.128",
-        "target": "clt"
+        "target": [
+          "clt",
+          "cltcalipso"
+        ],
+        "convert": "frac2percent"
     },
     {
         "source": "165.128",
@@ -445,7 +448,8 @@
           "clhcalipso",
           "clmcalipso",
           "cllcalipso"
-        ]
+        ],
+        "convert": "frac2percent"
     },
     {
         "mask": "land",

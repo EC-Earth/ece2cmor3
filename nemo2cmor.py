@@ -136,6 +136,8 @@ def get_conversion_factor(conversion):
     global log
     if(not conversion): return 1.0
     if(conversion == "tossqfix"): return 1.0
+    if(conversion == "frac2percent"): return 100.0
+    if(conversion == "percent2frac"): return 0.01
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0
 
