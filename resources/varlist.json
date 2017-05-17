@@ -78,9 +78,11 @@
         "ta",
         "hur",
         "hus",
+        "cltcalipso",
         "cllcalipso",
         "clmcalipso",
-        "clhcalipso"
+        "clhcalipso",
+        "clcalipso"
     ],
     "Omon": [
         "tauuo",
@@ -100,7 +102,6 @@
         "soga",
         "sos",
         "mlotst",
-        "mlotstsq",
         "uo",
         "vo",
         "wmo",
@@ -109,7 +110,6 @@
         "hfbasin",
         "hfx",
         "hfy",
-        "mfo",
         "friver",
         "ficeberg2d",
         "wfo",
@@ -125,7 +125,8 @@
     "SIday": [
         "sithick",
         "siu",
-        "siv"
+        "siv",
+        "siconc"
     ],
     "E3hr": [
         "rlut",
@@ -134,7 +135,8 @@
         "rsdt",
         "prw",
         "clwvi",
-        "clivi"
+        "clivi",
+        "rsutcs"
     ],
     "6hrPlev": [
         "psl",
@@ -151,14 +153,17 @@
         "lwsnl",
         "snm"
     ],
+    "AERmon": [
+        "orog",
+        "ps"
+    ],
     "Emon": [
         "ta27",
         "ua27",
         "va27",
         "zg27",
         "hus27",
-        "uqint",
-        "vqint",
+        "wap",
         "u2",
         "v2",
         "wap2",
@@ -183,6 +188,7 @@
         "clivi",
         "wap500",
         "ta700",
+        "cltcalipso",
         "cllcalipso",
         "clmcalipso",
         "clhcalipso",
@@ -191,10 +197,12 @@
         "ta",
         "hus",
         "wap",
+        "zg",
         "hur",
         "cl",
         "clw",
         "cli",
+        "clcalipso",
         "pfull"
     ],
     "Oday": [
@@ -217,6 +225,7 @@
         "tsl"
     ],
     "LImon": [
+        "snc",
         "snw",
         "snd",
         "lwsnl",
@@ -259,6 +268,7 @@
         "hurs",
         "hursmin",
         "hursmax",
+        "snc",
         "clt",
         "tslsi",
         "prc",
@@ -279,6 +289,8 @@
         "wap",
         "va",
         "ua",
-        "zg"
+        "zg",
+        "snw",
+        "mrro"
     ]
 }

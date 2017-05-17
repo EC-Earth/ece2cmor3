@@ -15,7 +15,7 @@ ofile = "varlist.json"
 ecewords = ["ec-earth","ecearth","ECEarth (KNMI)","ECEarth (SMHI)","ECEarth (BSC)","ECEarth (CNR)"]
 
 # Output name key:
-onamekeys = ["out_name","CMOR Name"]
+onamekeys = ["out_name","CMOR Name","Variable Name"]
 
 # Supported affirmative keywords:
 truewords = ["true","x","yes","y","1"]
@@ -67,9 +67,15 @@ def write_varlist(csvfiles):
                 log.warning("Multiple ec-earth columns found in file %s: will proceed with the first one" % f)
             if(len(ecearthfields) != 0): ecefield = ecearthfields[0]
             for row in reader:
-                var = row[namekey]
                 include = True if ecefield == None else (row[ecefield] in truewords)
                 if(include):
+                    var = None
+                    for namekey in onamekeys:
+                        if(namekey in reader.fieldnames): var = row[namekey]
+                        if(var): break
+                    if(not var):
+                        log.error("Could not find a target name in data request row %s" % str(row))
+                        continue
                     if(table in result):
                         result[table].append(var)
                     else:
