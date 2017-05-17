@@ -12,10 +12,10 @@ import argparse
 ofile = "varlist.json"
 
 # Supported EC-Earth column names:
-ecewords = ["ec-earth","ecearth"]
+ecewords = ["ec-earth","ecearth","ECEarth (KNMI)","ECEarth (SMHI)","ECEarth (BSC)","ECEarth (CNR)"]
 
 # Output name key:
-onamekey = "out_name"
+onamekeys = ["out_name","CMOR Name","Variable Name"]
 
 # Supported affirmative keywords:
 truewords = ["true","x","yes","y","1"]
@@ -34,8 +34,7 @@ def get_drq(drqarg):
     expr = drqarg
     if(os.path.isdir(drqarg)):
         expr = os.path.join(drqarg,"*.csv")
-    paths = reduce(lambda lst,elem:lst + glob.glob(elem),expr,[])
-    files = list(set([os.path.abspath(p) for p in paths]))
+    files = list(set([os.path.abspath(p) for p in glob.glob(expr)]))
     result = []
     for f in files:
         if(not os.path.exists(f)):
@@ -54,10 +53,13 @@ def write_varlist(csvfiles):
             csvf = open(f)
             table = os.path.basename(f)[:-4]
             reader = csv.DictReader(csvf)
-            if(not onamekey in reader.fieldnames):
-                log.error("Field name %s was not found in csv file %s: skipping file" % (onamekey,f))
+            namekey = None
+            for k in onamekeys:
+                if k in reader.fieldnames: namekey = k
+            if(not namekey):
+                log.error("None of the columns %s were not found in csv file %s: skipping file" % (str(onamekeys),f))
                 continue
-            ecearthfields = [f for f in reader.fieldnames if f.lower() in ecewords]
+            ecearthfields = [f for f in reader.fieldnames if f.lower() in [w.lower() for w in ecewords]]
             ecefield = None
             if(len(ecearthfields) == 0):
                 log.warning("No valid ec-earth column could be found in %s: we will append all variables to the list" % f)
@@ -65,9 +67,15 @@ def write_varlist(csvfiles):
                 log.warning("Multiple ec-earth columns found in file %s: will proceed with the first one" % f)
             if(len(ecearthfields) != 0): ecefield = ecearthfields[0]
             for row in reader:
-                var = row[onamekey]
                 include = True if ecefield == None else (row[ecefield] in truewords)
                 if(include):
+                    var = None
+                    for namekey in onamekeys:
+                        if(namekey in reader.fieldnames): var = row[namekey]
+                        if(var): break
+                    if(not var):
+                        log.error("Could not find a target name in data request row %s" % str(row))
+                        continue
                     if(table in result):
                         result[table].append(var)
                     else:
