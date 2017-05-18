@@ -29,7 +29,7 @@ cell_measures_key = "cell_measures"
 cell_methods_key = "cell_methods"
 valid_min_key = "valid_min"
 valid_max_key = "valid_max"
-cell_measure_axes = ["time","area","volume","latitude","longitude","depth"]
+cell_measure_axes = ["time","area","volume","latitude","longitude","depth","grid_latitude","grid_longitude"]
 mask_key = "mask"
 
 # Returns the axes defined for the input table.
