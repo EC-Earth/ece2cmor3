@@ -130,8 +130,9 @@ class ifs_source(cmor_source):
                 newcode = grib_code(int(varstrs[0][3:]),128)
                 incodes = list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])))
                 cls = ifs_source(None)
-                if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
-                    log.error("New expression code %d.%d already reserved for existing output variable" % (newcode.var_id,newcode.tab_id))
+                if(s.replace(" ","") != "var134=exp(var152)"):
+                    if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
+                        log.error("New expression code %d.%d already reserved for existing output variable" % (newcode.var_id,newcode.tab_id))
                 cls.code_ = newcode
                 spec3d = len(incodes)>0 and incodes[0] in ifs_source.grib_codes_3D
                 for c in incodes:
