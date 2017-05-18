@@ -40,6 +40,7 @@ class cdo_command:
     height                  = "height"
     pressure                = "pressure"
     modellevel              = "hybrid"
+    surflevel               = "surface"
 
     # Vertical axes codes
     hybrid_level_code       = 109
