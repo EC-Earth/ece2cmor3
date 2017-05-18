@@ -296,7 +296,7 @@ def find_sp_variable(task):
     if(ln_surface_pressure in shcodes):
         log.info("Found lnsp in spectral file")
         setattr(task,"path",ifs_spectral_file_)
-        setattr(task,"expr","var134=exp(var152)")
+        setattr(task.source,cmor_source.expression_key,"var134=exp(var152)")
         task.source.grid_ = 1
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
