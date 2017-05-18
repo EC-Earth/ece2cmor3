@@ -273,7 +273,7 @@ def add_level_operators(cdo,task):
         if(cdoapi.cdo_command.pressure_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
             log.warning("Could not find pressure levels for %s, will interpolate from model levels",task.target.variable)
             cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+            cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surfacelevel])
             ml2pl = True
         else:
             cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.pressure)
@@ -281,7 +281,7 @@ def add_level_operators(cdo,task):
         if(cdoapi.cdo_command.height_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
             log.warning("Could not find height levels for %s, will interpolate from model levels",task.target.variable)
             cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+            cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surfacelevel])
             ml2hl = True
         else:
             cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.height)
