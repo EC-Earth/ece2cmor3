@@ -52,7 +52,7 @@ class cdo_command:
                          mean_time_operators[day],min_time_operators[day],max_time_operators[day],add_expression_operator,\
                          expression_operator,spectral_operator,gridtype_operator,ml2pl_operator,ml2hl_operator,\
                          select_lev_operator,select_z_operator,select_hour_operator,select_day_operator,select_month_operator,\
-                         shift_time_operator,select_step_operator,select_code_operator]
+                         shift_time_operator,select_code_operator,select_step_operator]
 
     # Constructor
     def __init__(self,code = 0):
@@ -171,11 +171,11 @@ class cdo_command:
         return infodict
 
 
-    # Returns a list vertical axes corrspoding to the input variable
+    # Returns a list vertical axes corresponding to the input variable
     def get_z_axes(self,ifile,var):
         if(not ifile): return []
         seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
-        output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
+        output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),cdo_command.make_option(cdo_command.select_step_operator,[1]),ifile]))
         if(isinstance(output,list)): output = output[0]
         return [] if not output else [int(s) for s in output.split()]
 
