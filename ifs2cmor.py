@@ -125,6 +125,7 @@ def execute(tasks,cleanup = True):
     sptasks = oldsptasks + newsptasks
     taskstodo = list(set(taskstodo)-set(sptasks))
     log.info("Post-processing surface pressures...")
+    proc_sptasks = []
     try:
         proc_sptasks = postprocess(sptasks)
         for task in taskstodo:
