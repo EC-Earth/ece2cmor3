@@ -77,12 +77,7 @@
     "CFmon": [
         "ta",
         "hur",
-        "hus",
-        "cltcalipso",
-        "cllcalipso",
-        "clmcalipso",
-        "clhcalipso",
-        "clcalipso"
+        "hus"
     ],
     "Omon": [
         "tauuo",
@@ -188,10 +183,6 @@
         "clivi",
         "wap500",
         "ta700",
-        "cltcalipso",
-        "cllcalipso",
-        "clmcalipso",
-        "clhcalipso",
         "ua",
         "va",
         "ta",
@@ -202,7 +193,6 @@
         "cl",
         "clw",
         "cli",
-        "clcalipso",
         "pfull"
     ],
     "Oday": [
