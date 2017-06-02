@@ -355,10 +355,7 @@
     },
     {
         "source": "164.128",
-        "target": [
-          "clt",
-          "cltcalipso"
-        ],
+        "target": "clt",
         "convert": "frac2percent"
     },
     {
@@ -467,13 +464,7 @@
     },
     {
         "source": "248.128",
-        "target": [
-          "cl",
-          "clcalipso",
-          "clhcalipso",
-          "clmcalipso",
-          "cllcalipso"
-        ],
+        "target": "cl",
         "convert": "frac2percent"
     },
     {
