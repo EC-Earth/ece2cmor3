@@ -296,7 +296,7 @@ def find_sp_variable(task):
     if(ln_surface_pressure in shcodes):
         log.info("Found lnsp in spectral file")
         setattr(task,"path",ifs_spectral_file_)
-        setattr(task,"expr","var134=exp(var152)")
+        setattr(task.source,cmor_source.expression_key,"var134=exp(var152)")
         task.source.grid_ = 1
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
@@ -434,6 +434,8 @@ def get_conversion_factor(conversion):
     if(conversion == "alt2pot"): return 9.81
     if(conversion == "vol2flux"): return 1000.0 / (3600 * output_frequency_)
     if(conversion == "vol2massl"): return 1000.0
+    if(conversion == "frac2percent"): return 100.0
+    if(conversion == "percent2frac"): return 0.01
     log.error("Unknown explicit unit conversion: %s" % conversion)
     return 1.0
 
