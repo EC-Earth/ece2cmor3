@@ -486,7 +486,7 @@ def create_depth_axes(tasks):
             setattr(task,"z_axis_id",axisid)
             setattr(task,"store_with",psid)
             continue
-        elif zdim in ["sdepth","sdepth1"]:
+        elif zdim in ["sdepth"]:
             axisid = create_soil_depth_axis(zdim,getattr(task,"path"))
             depth_axes[zdim] = axisid
             setattr(task,"z_axis_id",axisid)
@@ -581,9 +581,9 @@ def create_soil_depth_axis(name,filepath):
             bndvals = numpy.empty([n,2])
             bndvals[0,0] = 0.
             if(n > 1):
-                bndvals[1:,0] = (vals[0:n-1] + vals[1:])/2
+                bndvals[1:,0] = (vals[0:n - 1] + vals[1:])/2
                 bndvals[0:n - 1,1] = bndvals[1:n,0]
-                bndvals[n - 1,1] = (3*vals[n-1] - bndvals[n - 1,0])/2
+                bndvals[n - 1,1] = (3*vals[n - 1] - bndvals[n - 1,0])/2
             else:
                 bndvals[0,1] = 2*vals[0]
         else:
