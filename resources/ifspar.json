@@ -208,6 +208,13 @@
         "convert": "cum2inst"
     },
     {
+        "source": "121.128",
+        "target": "mrlsl",
+        "table": "6hrPlevPt",
+        "expr": "var118=70*var39",
+        "masked": "land"
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
@@ -294,6 +301,12 @@
     {
         "source": "139.128",
         "target": "ts"
+    },
+    {
+        "source": "139.128",
+        "target": "tsl",
+        "table": "6hrPlevPt",
+        "masked": "land"
     },
     {
         "source": "141.128",
