@@ -43,7 +43,7 @@ def initialize(metadata = conf_path_default,mode = cmor_mode_default,tabledir = 
     table_dir = tabledir
     prefix = tableprefix
     validate_setup_settings()
-    cmor.setup(table_dir)
+    cmor.setup(table_dir,cmor_mode)
     cmor.dataset_json(conf_path)
     targets = cmor_target.create_targets(table_dir,prefix)
 
