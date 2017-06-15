@@ -71,8 +71,6 @@ def main(args):
 
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months = 1)
-    if(prococean):
-        ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
     if(procatmos):
         filterfunc = is6hrtask if args.freq == 6 else is3hrtask
         ece2cmorlib.tasks = [t for t in ece2cmorlib.tasks if filterfunc(t)]
