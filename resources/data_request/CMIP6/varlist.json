@@ -24,7 +24,23 @@
         "clt"
     ],
     "SImon": [
-        "sipr"
+        "siprn",
+        "siconc",
+        "sisnthick",
+        "sispeed",
+        "sitemptop",
+        "sithick",
+        "siu",
+        "siv",
+        "sivol",
+        "siage",
+        "sidivvel",
+        "sicompstren",
+        "sidmassevapsubl",
+        "siflswdtop",
+        "sistrxdtop",
+        "sistrydtop",
+        "sisali"
     ],
     "Amon": [
         "tas",
@@ -114,6 +130,7 @@
         "zfullo",
         "zhalfo",
         "msftyrho",
+        "precip",
         "tosga",
         "bigthetaoga"
     ],
@@ -121,6 +138,8 @@
         "sithick",
         "siu",
         "siv",
+        "sistrxdtop",
+        "sistrydtop",
         "siconc"
     ],
     "E3hr": [

@@ -120,7 +120,7 @@ def execute_netcdf_task(task,dataset,tableid):
     if((globvar and dims == 1) or (not globvar and dims == 3)):
         grid_index = cmor_source.nemo_grid.index(task.source.grid())
         if(not grid_index in cmor_source.nemo_depth_axes):
-            log.error("Depth axis for grid %s has not been created; skipping variable." % task.source.grid())
+            log.error("Depth axis for grid %s has not been created; skipping variable. " % task.source.grid())
         zaxid = depth_axes_[tableid][grid_index]
         axes.append(zaxid)
     axes.append(time_axes_[tableid])

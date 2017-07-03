@@ -158,7 +158,7 @@ class ifs_source(cmor_source):
 nemo_grid = cmor_utils.cmor_enum(["grid_U","grid_V","grid_W","grid_T","icemod","SBC","scalar"])
 
 # NEMO depth axes dictionary.
-nemo_depth_axes = {nemo_grid.grid_U:"u",nemo_grid.grid_V:"v",nemo_grid.grid_W:"w",nemo_grid.grid_T:"t"}
+nemo_depth_axes = {nemo_grid.grid_U:"u",nemo_grid.grid_V:"v",nemo_grid.grid_W:"w",nemo_grid.grid_T:"t",nemo_grid.SBC:"t"}
 
 # NEMO source subclass, constructed from NEMO output variable id, grid type and dimensions.
 # TODO: grid type and dimensions should follow from Nemo's field_def.xml
