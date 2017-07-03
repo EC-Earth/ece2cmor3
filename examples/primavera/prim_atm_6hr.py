@@ -43,8 +43,8 @@ def main(args):
 
     (opt,args) = parser.parse_args()
 
-    # Initialize ece2cmor with experiment prefix:
-    ece2cmorlib.initialize(opt.conf,tableprefix="PRIMAVERA")
+    # Initialize ece2cmorlib with experiment prefix:
+    ece2cmorlib.initialize(opt.conf)
 
     # Load the variables as task targets:
     jsonloader.load_targets(opt.vars)

@@ -76,17 +76,22 @@ def merge_months(month,prevmonfile,curmonfile,ofiles,writer = write_record):
 
 # Function writing instantaneous midnight fields from previous month
 def merge_prev_months(month,fin,fouts,writer):
-    while True:
-        gid = gribapi.grib_new_from_file(fin)
-        if(not gid): break
-        date = int(gribapi.grib_get(gid,"dataDate"))
-        mon = (date % 10000)/100
-        if(mon == month):
-            code = make_grib_tuple(gribapi.grib_get(gid,"param"))
-            if(code in accum_codes): continue
-            fix_Pa_pressure_levels(gid)
-            writer(gid,fouts)
-        gribapi.grib_release(gid)
+      print fin
+      gid = gribapi.grib_new_from_file(fin)
+      if(not gid): return
+      print gid
+      try:
+          date = int(gribapi.grib_get(gid,"dataDate"))
+      except Exception,e:
+          print str(e)
+      mon = (date % 10000)/100
+      print mon, month
+      if(mon == month):
+          code = make_grib_tuple(gribapi.grib_get(gid,"param"))
+          if(code in accum_codes): return
+          fix_Pa_pressure_levels(gid)
+          writer(gid,fouts)
+      gribapi.grib_release(gid)
 
 # Function writing data from current monthly file, optionally shifting accumulated fields
 # and skipping next month instantaneous fields
@@ -151,6 +156,7 @@ def merge_cur_months(month,fin1,fin2,fouts,writer):
                     newtime = 2400 + newtime
                 gribapi.grib_set(gidcum,"dataDate",newdate)
                 gribapi.grib_set(gidcum,"dataTime",newtime)
+            mon = 1
             if(mon == month):
                 fix_Pa_pressure_levels(gidcum)
                 writer(gidcum,fouts)
