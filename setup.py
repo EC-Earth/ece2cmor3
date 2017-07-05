@@ -36,5 +36,3 @@ setup(name="ece2cmor3",
                    "License :: OSI Approved :: Apache Software License",
                    ],
       )
-
-print data_files
