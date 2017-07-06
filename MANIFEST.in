@@ -1,3 +1,4 @@
 include README.md
 include requirements.txt
 recursive-include resources *
+prune resources/cmip6-cmor-tables
