@@ -11,7 +11,10 @@ import dateutil.relativedelta
 
 logging.basicConfig(level=logging.DEBUG)
 
-def main(args):
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
 
     varlist_path_default = os.path.join(os.path.dirname(__file__),"resources","varlist.json")
 
@@ -65,4 +68,4 @@ def main(args):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
