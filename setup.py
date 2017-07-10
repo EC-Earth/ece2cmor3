@@ -11,7 +11,7 @@ def read(fname):
 
 #data_files = []
 package_data = {}
-directories = ('resources', 'resources/tables')
+directories = ('ece2cmor3/resources', 'ece2cmor3/resources/tables')
 for d in directories:
     files = [os.path.join(d,f) for f in os.listdir(d) if os.path.isfile(os.path.join(d,f))]
     #data_files.append((os.path.join(get_python_lib(), d), files))
@@ -26,7 +26,7 @@ setup(name="ece2cmor3",
       license="Apache License, Version 2.0",
       url="https://github.com/goord/ece2cmor3",
       packages=find_packages(exclude=('tests', 'examples')),
-      py_modules=("cdoapi", "cmorapi", "cmor_source", "cmor_target", "cmor_task", "cmor_utils", "ece2cmorlib", "ece2cmor", "ifs2cmor", "jsonloader", "namloader", "nemo2cmor", "postproc"),
+      #py_modules=("cdoapi", "cmorapi", "cmor_source", "cmor_target", "cmor_task", "cmor_utils", "ece2cmorlib", "ece2cmor", "ifs2cmor", "jsonloader", "namloader", "nemo2cmor", "postproc"),
       #data_files=data_files,
       package_data=package_data,
       include_package_data=True,
