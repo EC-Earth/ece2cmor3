@@ -1,6 +1,5 @@
 import os
 from setuptools import setup, find_packages
-#from distutils.sysconfig import get_python_lib
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -9,12 +8,10 @@ from setuptools import setup, find_packages
 def read(fname):
         return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-#data_files = []
 package_data = {}
 directories = ('ece2cmor3/resources', 'ece2cmor3/resources/tables')
 for d in directories:
     files = [os.path.join(d,f) for f in os.listdir(d) if os.path.isfile(os.path.join(d,f))]
-    #data_files.append((os.path.join(get_python_lib(), d), files))
     package_data[d] = files
 
 setup(name="ece2cmor3",
@@ -26,26 +23,23 @@ setup(name="ece2cmor3",
       license="Apache License, Version 2.0",
       url="https://github.com/goord/ece2cmor3",
       packages=find_packages(exclude=('tests', 'examples')),
-      #py_modules=("cdoapi", "cmorapi", "cmor_source", "cmor_target", "cmor_task", "cmor_utils", "ece2cmorlib", "ece2cmor", "ifs2cmor", "jsonloader", "namloader", "nemo2cmor", "postproc"),
-      #data_files=data_files,
       package_data=package_data,
       include_package_data=True,
       long_description=read('README.md'),
       entry_points={'console_scripts': [
-                       'ece2cmor =  ece2cmor3.ece2cmor:main',
-                       'checkvarlist =  ece2cmor3.scripts.checkvarlist:main',
-                       'drq2json =  ece2cmor3.scripts.drq2json:main',
-                       'fixmonths =  ece2cmor3.scripts.fixmonths:main',
-                       'nam2json =  ece2cmor3.scripts.nam2json:main',
-                       'splitvars =  ece2cmor3.scripts.splitvars:main',
-                       ]
-                   },
+          'ece2cmor =  ece2cmor3.ece2cmor:main',
+          'checkvarlist =  ece2cmor3.scripts.checkvarlist:main',
+          'drq2json =  ece2cmor3.scripts.drq2json:main',
+          'fixmonths =  ece2cmor3.scripts.fixmonths:main',
+          'nam2json =  ece2cmor3.scripts.nam2json:main',
+          'splitvars =  ece2cmor3.scripts.splitvars:main'
+      ]},
       classifiers=["Development Status :: 3 - Alpha",
                    "Intended Audience :: Science/Research",
                    "Programming Language :: Python",
                    "Operating System :: OS Independent",
                    "Topic :: Utilities",
                    "Topic :: Scientific/Engineering :: Atmospheric Science",
-                   "License :: OSI Approved :: Apache Software License",
+                   "License :: OSI Approved :: Apache Software License"
                    ],
       )
