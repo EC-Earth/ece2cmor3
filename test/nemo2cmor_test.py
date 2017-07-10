@@ -5,11 +5,11 @@ import numpy
 import math
 import datetime
 import nose.tools
-import nemo2cmor
+from ece2cmor3 import nemo2cmor
 import test_utils
-import cmor_source
-import cmor_target
-import cmor_task
+from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
 import shutil
 import cmor
 

@@ -1,12 +1,12 @@
 import logging
 import unittest
 import os
-import postproc
+from ece2cmor3 import postproc
 import nose.tools
 import test_utils
-import cmor_source
-import cmor_target
-import cmor_task
+from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
 
 logging.basicConfig(level=logging.DEBUG)
 

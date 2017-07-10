@@ -3,7 +3,7 @@ import unittest
 import os
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_
-import cmor_target
+from ece2cmor3 import cmor_target
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -4,8 +4,8 @@ import sys
 import os
 import logging
 import argparse
-import ece2cmorlib
-import jsonloader
+from ece2cmor3 import ece2cmorlib
+from ece2cmor3 import jsonloader
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)

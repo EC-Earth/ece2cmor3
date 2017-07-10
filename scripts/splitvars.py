@@ -4,11 +4,11 @@ import sys
 import os.path
 import argparse
 import json
-import ece2cmorlib
-import ece2cmor
-import jsonloader
-import cmor_target
-import cmor_task
+from ece2cmor3 import ece2cmorlib
+from ece2cmor3 import ece2cmor
+from ece2cmor3 import jsonloader
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
 
 frequencies = {"fx":float("inf"),"yr":8640.,"mon":720.,"day":24.,"6hr":6.,"3hr":3.,"hr":1.,"subhr":0.2}
 

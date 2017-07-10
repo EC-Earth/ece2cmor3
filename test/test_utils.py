@@ -4,7 +4,7 @@ import numpy
 import netCDF4
 import datetime
 import dateutil
-import cmor_source
+from ece2cmor3 import cmor_source
 
 class nemo_output_factory(object):
 

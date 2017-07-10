@@ -1,6 +1,6 @@
 import logging
 import unittest
-import cdoapi
+from ece2cmor3 import cdoapi
 import nose.tools
 
 logging.basicConfig(level=logging.DEBUG)

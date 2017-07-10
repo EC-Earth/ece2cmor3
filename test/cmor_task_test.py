@@ -2,8 +2,9 @@ import logging
 import unittest
 import os
 from nose.tools import eq_,ok_,raises
-import cmor_source
-import cmor_target
+from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
 
 logging.basicConfig(level=logging.DEBUG)
 

@@ -6,13 +6,13 @@ import logging
 import f90nml
 import json
 import argparse
-import cmor_utils
-import cmor_source
-import cmor_target
-import cmor_task
-import ece2cmorlib
-import namloader
-import jsonloader
+from ece2cmor3 import cmor_utils
+from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
+from ece2cmor3 import ece2cmorlib
+from ece2cmor3 import namloader
+from ece2cmor3 import jsonloader
 
 # This script reads all variables from the fortran namelists in the resources and
 # creates tasks for them. Then these tasks are serialized to the preferred json
