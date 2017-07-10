@@ -68,7 +68,9 @@ def splitvars(varlist,ngroups,modlevs,tabid):
         i += 1
         write_varlist(tasklist,fname + "_" + str(i) + ".json")
 
-def main(args):
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
 
     parser = argparse.ArgumentParser(description = "Load-balanced splitter of variable lists",
                                      formatter_class = argparse.ArgumentDefaultsHelpFormatter)
@@ -83,4 +85,4 @@ def main(args):
     splitvars(args.varlist,args.groups,args.levs,args.tabid)
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

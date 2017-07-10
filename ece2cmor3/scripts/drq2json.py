@@ -87,9 +87,12 @@ def write_varlist(csvfiles):
         log.info("File %s written" % ofile)
 
 # Main program
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Produce variable list from input data request and CMIP tables")
     parser.add_argument("--drq",dest = "drq",help = "Input data request csv file list",default = None)
     args = parser.parse_args()
     csvfiles = get_drq(args.drq)
     write_varlist(csvfiles)
+
+if __name__ == "__main__":
+    main()

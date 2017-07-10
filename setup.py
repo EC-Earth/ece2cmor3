@@ -32,7 +32,12 @@ setup(name="ece2cmor3",
       include_package_data=True,
       long_description=read('README.md'),
       entry_points={'console_scripts': [
-                       'ece2cmor =  ece2cmor:main',
+                       'ece2cmor =  ece2cmor3.ece2cmor:main',
+                       'checkvarlist =  ece2cmor3.scripts.checkvarlist:main',
+                       'drq2json =  ece2cmor3.scripts.drq2json:main',
+                       'fixmonths =  ece2cmor3.scripts.fixmonths:main',
+                       'nam2json =  ece2cmor3.scripts.nam2json:main',
+                       'splitvars =  ece2cmor3.scripts.splitvars:main',
                        ]
                    },
       classifiers=["Development Status :: 3 - Alpha",

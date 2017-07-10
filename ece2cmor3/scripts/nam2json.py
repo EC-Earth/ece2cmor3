@@ -88,7 +88,9 @@ def convert_varlist(inputfile):
 
 # Main program
 # TODO: clean up tmp directory
-def main(args):
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
 
     ifs_default_input = os.path.join(os.path.dirname(ece2cmorlib.__file__),"resources","ifs.par")
     ifs_default_output = "ifspar.json"
@@ -120,4 +122,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

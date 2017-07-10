@@ -155,7 +155,9 @@ def merge_cur_months(month,fin1,fin2,fouts,writer):
                 fix_Pa_pressure_levels(gidcum)
                 writer(gidcum,fouts)
 
-def main(args):
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
 
     global timeshift
 
@@ -227,4 +229,4 @@ def main(args):
         return 1
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())

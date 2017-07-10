@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 # Main program
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Validate input variable list against CMIP tables")
     parser.add_argument("--vars",dest = "varlist",help = "Input variable list json file",default = "varlist.json")
     parser.add_argument("--tabdir",dest = "tables",help = "CMIP tables directory (default: ../resources/tables)",
@@ -48,3 +48,6 @@ if __name__ == "__main__":
     ece2cmorlib.table_dir = tabdir
     ece2cmorlib.initialize()
     jsonloader.load_targets(varlist)
+
+if __name__ == "__main__":
+    main()
