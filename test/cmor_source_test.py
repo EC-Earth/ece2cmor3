@@ -64,12 +64,6 @@ class cmor_source_tests(unittest.TestCase):
             src=ifs_source.read(expr)
             ok_("cmor_source ERROR" in str(logc))
 
-    def test_invalid_expression3(self):
-        with LogCapture() as logc:
-            expr="var89=sqrt(sq(var133)+sq(var166))"
-            src=ifs_source.read(expr)
-            ok_("cmor_source ERROR" in str(logc))
-
     def test_create_nemo_source(self):
         src=nemo_source("tos",nemo_grid.grid_T)
         eq_(src.grid(),"grid_T")
