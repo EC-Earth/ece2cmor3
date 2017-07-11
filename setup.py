@@ -15,7 +15,7 @@ for d in directories:
     package_data[d] = files
 
 setup(name="ece2cmor3",
-      version="0.0.1",
+      version="1.0.0",
       author="Gijs van den Oord",
       author_email="g.vandenoord@esciencecenter.nl",
       install_requires=read('requirements.txt').splitlines(),
