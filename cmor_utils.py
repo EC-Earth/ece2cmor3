@@ -41,29 +41,22 @@ def make_datetime(time):
 
 # Creates a time interval from the input string, assuming ec-earth conventions
 def make_cmor_frequency(s):
-    log.info("The input type is %s" % str(type(s)))
     if(isinstance(s,dateutil.relativedelta.relativedelta) or isinstance(s,datetime.timedelta)):
-        log.info("No casting done")
         return s
     if(isinstance(s,basestring)):
         if(s == "monClim"):
-            log.info("Casting to year...")
             return dateutil.relativedelta.relativedelta(years=1)
         elif(s.endswith("mon")):
             n = 1 if s == "mon" else int(s[:-3])
-            log.info("Casting to months...")
             return dateutil.relativedelta.relativedelta(months=n)
         elif(s.endswith("day")):
             n = 1 if s == "day" else int(s[:-3])
-            log.info("Casting to days...")
             return dateutil.relativedelta.relativedelta(days=n)
         elif(s.endswith("hr")):
             n = 1 if s == "hr" else int(s[:-2])
-            log.info("Casting to hours...")
             return dateutil.relativedelta.relativedelta(hours=n)
         elif(s.endswith("hrs")):
             n = 1 if s == "hrs" else int(s[:-2])
-            log.info("Casting to hours...")
             return dateutil.relativedelta.relativedelta(hours=n)
     raise Exception("Could not convert argument",s,"to a relative time interval")
 
@@ -71,8 +64,6 @@ def make_cmor_frequency(s):
 # Creates a time interval from the input string, assuming ec-earth conventions
 def get_rounded_time(freq,time,offset = 0):
     interval = make_cmor_frequency(freq)
-    log.info("The interval type is %s" % str(type(interval)))
-    log.info("The offset type is %s" % str(type(offset)))
     if(interval == dateutil.relativedelta.relativedelta(days=1)):
         return datetime.datetime(year = time.year,month = time.month,day = time.day) + offset*interval
     if(interval == dateutil.relativedelta.relativedelta(months=1)):
