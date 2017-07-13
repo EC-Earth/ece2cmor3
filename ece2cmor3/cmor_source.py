@@ -130,17 +130,20 @@ class ifs_source(cmor_source):
                 newcode = grib_code(int(varstrs[0][3:]),128)
                 incodes = list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])))
                 cls = ifs_source(None)
-                if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
-                    log.error("New expression code %d.%d already reserved for existing output variable" % (newcode.var_id,newcode.tab_id))
+                if(s.replace(" ","") != "var134=exp(var152)"):
+                    if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
+                        log.error("New expression code %d.%d already reserved for existing output variable" % (newcode.var_id,newcode.tab_id))
                 cls.code_ = newcode
-                spec3d = len(incodes)>0 and incodes[0] in ifs_source.grib_codes_3D
+                grid = ifs_grid.spec if (len(incodes)>0 and incodes[0] in ifs_source.grib_codes_sh) else ifs_grid.point
+                dims = 3 if (len(incodes)>0 and incodes[0] in ifs_source.grib_codes_3D) else 2
                 for c in incodes:
                     if(c not in ifs_source.grib_codes):
                         log.error("Unknown grib code %d.%d in expression %s found" % (c.var_id,c.tab_id,s))
-                    if(spec3d and c not in ifs_source.grib_codes_3D):
-                        log.error("Invalid combination of gridpoint and spectral variables in expression %s" % s)
-                cls.grid_ = ifs_grid.spec if spec3d else ifs_grid.point
-                cls.spatial_dims = 3 if spec3d else 2
+                    cgrid = ifs_grid.spec if (c in ifs_source.grib_codes_sh) else ifs_grid.point
+                    if(cgrid != grid): log.error("Invalid combination of gridpoint and spectral variables in expression %s" % s)
+                    if(c in ifs_source.grib_codes_3D): dims = 3
+                cls.grid_ = grid
+                cls.spatial_dims = dims
                 setattr(cls,"root_codes",incodes)
                 setattr(cls,expression_key,s)
         return cls
