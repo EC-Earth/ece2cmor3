@@ -5,7 +5,7 @@ import cmor
 # Wrapper for cmor external dependency. All calls to cmor should go via this class.
 class cmorapi:
 
-    float cache_size_gb = 4.
+    cache_size_gb = 4.
 
     def __init__(self,table_root_,config_file):
         self.table_root = table_root_
