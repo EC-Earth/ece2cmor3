@@ -53,7 +53,6 @@ def main(args):
     args = parser.parse_args()
 
     modedict = {"preserve":ece2cmorlib.PRESERVE,"append":ece2cmorlib.APPEND,"replace":ece2cmorlib.REPLACE}
-
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tableprefix = args.tabid)
 

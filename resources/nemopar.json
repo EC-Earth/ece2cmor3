@@ -1,6 +1,6 @@
 [
     {
-        "source": "vomematr",
+        "source": "vmo",
         "grid": "grid_V",
         "target": "vmo"
     },
@@ -10,19 +10,24 @@
         "target": "thkcello"
     },
     {
-        "source": "vozomatr",
+        "source": "umo",
         "grid": "grid_U",
         "target": "umo"
     },
     {
-        "source": "scvoltot",
+        "source": "volo",
         "grid": "scalar",
         "target": "volo"
     },
     {
-        "source": "qt",
+        "source": "qt_oce",
         "grid": "SBC",
         "target": "hfds"
+    },
+    {
+        "source": "qsr3d",
+        "grid": "SBC",
+        "target": "rsdo"
     },
     {
         "source": "vo",
@@ -30,8 +35,8 @@
         "target": "vo"
     },
     {
-        "source": "ficeberg",
-        "grid": "grid_T",
+        "source": "calving",
+        "grid": "SBC",
         "target": "ficeberg2d"
     },
     {
@@ -46,9 +51,64 @@
         "target": "tossq"
     },
     {
-        "source": "sivelv",
+        "source": "sistrxdtop",
+        "grid": "icemod",
+        "target": "sistrxdtop"
+    },
+    {
+        "source": "sistrydtop",
+        "grid": "icemod",
+        "target": "sistrydtop"
+    },
+    {
+        "source": "siv",
         "grid": "icemod",
         "target": "siv"
+    },
+    {
+        "source": "sivol",
+        "grid": "icemod",
+        "target": "sivol"
+    },
+    {
+        "source": "sidivvel",
+        "grid": "icemod",
+        "target": "sidivvel"
+    },
+    {
+        "source": "sidmassevapsubl",
+        "grid": "icemod",
+        "target": "sidmassevapsubl"
+    },
+    {
+        "source": "siflswdtop",
+        "grid": "icemod",
+        "target": "siflswdtop"
+    },
+    {
+        "source": "siitdconc",
+        "grid": "icemod",
+        "target": "siitdconc"
+    },
+    {
+        "source": "siitdsnthick",
+        "grid": "icemod",
+        "target": "isiitdsnthick"
+    },
+    {
+        "source": "sisali",
+        "grid": "icemod",
+        "target": "sisali"
+    },
+    {
+        "source": "sicompstren",
+        "grid": "icemod",
+        "target": "sicompstren"
+    },
+    {
+        "source": "siage",
+        "grid": "icemod",
+        "target": "siage"
     },
     {
         "source": "zossq",
@@ -56,7 +116,7 @@
         "target": "zossq"
     },
     {
-        "source": "sithic",
+        "source": "sithick",
         "grid": "icemod",
         "target": "sithick"
     },
@@ -71,7 +131,12 @@
         "target": "soga"
     },
     {
-        "source": "sivelu",
+        "source": "so",
+        "grid": "grid_T",
+        "target": "soga"
+    },
+    {
+        "source": "siu",
         "grid": "icemod",
         "target": "siu"
     },
@@ -86,8 +151,8 @@
         "target": "siconc"
     },
     {
-        "source": "friver",
-        "grid": "grid_T",
+        "source": "runoffs",
+        "grid": "SBC",
         "target": "friver"
     },
     {
@@ -96,7 +161,7 @@
         "target": "zos"
     },
     {
-        "source": "vovematr",
+        "source": "wmo",
         "grid": "grid_W",
         "target": "wmo"
     },
@@ -106,12 +171,22 @@
         "target": "hfsithermds2d"
     },
     {
-        "source": "scmastot",
+        "source": "masso",
         "grid": "scalar",
         "target": "masso"
     },
     {
-        "source": "snthic",
+        "source": "sispeed",
+        "grid": "icemod",
+        "target": "sispeed"
+    },
+    {
+        "source": "sitemptop",
+        "grid": "icemod",
+        "target": "sitemptop"
+    },
+    {
+        "source": "sisnthick",
         "grid": "icemod",
         "target": "sisnthick"
     },
@@ -124,11 +199,6 @@
         "source": "wo",
         "grid": "grid_W",
         "target": "wo"
-    },
-    {
-        "source": "rsdo",
-        "grid": "grid_T",
-        "target": "rsdo"
     },
     {
         "source": "sctemtot",
@@ -176,7 +246,7 @@
         "target": "so"
     },
     {
-        "source": "rsntds",
+        "source": "qsr_oce",
         "grid": "SBC",
         "target": "rsntds"
     },
@@ -192,7 +262,47 @@
     },
     {
         "source": "precip",
+        "grid": "SBC",
+        "target": "precip"
+    },
+    {
+        "source": "u2o",
+        "grid": "grid_U",
+        "target": "u2o"
+    },
+    {
+        "source": "uto",
+        "grid": "grid_U",
+        "target": "uto"
+    },
+    {
+        "source": "tso",
         "grid": "grid_T",
-        "target": "sipr"
+        "target": "tso"
+    },
+    {
+        "source": "uso",
+        "grid": "grid_U",
+        "target": "uso"
+    },
+    {
+        "source": "v2o",
+        "grid": "grid_V",
+        "target": "v2o"
+    },
+    {
+        "source": "vto",
+        "grid": "grid_V",
+        "target": "vto"
+    },
+    {
+        "source": "vso",
+        "grid": "grid_V",
+        "target": "vso"
+    },
+    {
+        "source": "w2o",
+        "grid": "grid_W",
+        "target": "w2o"
     }
 ]
