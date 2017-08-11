@@ -4,7 +4,17 @@ import numpy
 import netCDF4
 import datetime
 import dateutil
+import cmor_target
 import cmor_source
+
+def get_table_path(tab_id = None):
+    directory = os.path.join(os.path.dirname(cmor_target.__file__),"resources","tables")
+    return os.path.join(directory,"CMIP6_" + tab_id + ".json") if tab_id else directory
+
+def is_lfs_ref(filename):
+    f = open(filename,"rb")
+    bytes35 = str(f.read(35))
+    return bytes35 == "version https://git-lfs.github.com/"
 
 class nemo_output_factory(object):
 

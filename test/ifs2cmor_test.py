@@ -14,14 +14,10 @@ logging.basicConfig(level=logging.DEBUG)
 ifs2cmor.ifs_gridpoint_file_ ="ICMGG+199003"
 ifs2cmor.ifs_spectral_file_ ="ICMSH+199003"
 
-def get_table_path(tab_id = None):
-    directory = os.path.join(os.path.dirname(cmor_target.__file__),"resources","tables")
-    return os.path.join(directory,"CMIP6_" + tab_id + ".json") if tab_id else directory
-
 class ifs2cmor_tests(unittest.TestCase):
 
     def test_postproc_gridmean(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(79,128)
         target = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
@@ -34,7 +30,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"-setgridtype,regular -daymean -selmon,3 -selcode,79")
 
     def test_postproc_gridmeans(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source1 = cmor_source.ifs_source.create(79,128)
         target1 = [t for t in targets if t.variable == "clwvi" and t.table == "CFday"][0]
@@ -50,14 +46,18 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task1,"cdo_command"),"-setgridtype,regular -daymean -selmon,3 -selcode,79")
 
     def test_postproc_specmean(self):
-        abspath = get_table_path()
+        testdata = os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001"
+        if(test_utils.is_lfs_ref(testdata)):
+            logging.info("Skipping test_postproc_specmean, download test data from lfs first")
+            return
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(130,128)
         target = [t for t in targets if t.variable == "ta" and t.table == "Amon"][0]
         task = cmor_task.cmor_task(source,target)
         postproc.mode = postproc.skip
         ifs2cmor.temp_dir_ = os.getcwd()
-        ifs2cmor.ifs_spectral_file_ = os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001"
+        ifs2cmor.ifs_spectral_file_ = testdata
         ifs2cmor.postprocess([task])
         path = os.path.join(os.getcwd(),"ta_Amon.nc")
         nose.tools.eq_(getattr(task,"path"),path)
@@ -66,7 +66,7 @@ class ifs2cmor_tests(unittest.TestCase):
                                                    "-selzaxis,pressure -selmon,1 -selcode,130")
 
     def test_postproc_daymax(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(165,128)
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
@@ -79,7 +79,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"-daymax -setgridtype,regular -selmon,3 -selcode,165")
 
     def test_postproc_tasmax(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.create(201,128)
         target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
@@ -92,7 +92,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"-monmean -daymax -setgridtype,regular -selmon,3 -selcode,201")
 
     def test_postproc_windspeed(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevPt"][0]
@@ -105,7 +105,7 @@ class ifs2cmor_tests(unittest.TestCase):
         nose.tools.eq_(getattr(task,"cdo_command"),"-expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selhour,0,6,12,18 -selcode,165,166")
 
     def test_postproc_maxwindspeed(self):
-        abspath = get_table_path()
+        abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath,"CMIP6")
         source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
