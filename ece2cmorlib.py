@@ -1,6 +1,5 @@
 import cmor
 import os
-import f90nml
 import logging
 import cmor_source
 import cmor_target
