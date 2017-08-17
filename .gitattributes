@@ -1,0 +1,2 @@
+test/test_data/ifsdata/3hr/ICM* filter=lfs diff=lfs merge=lfs -text
+test/test_data/ifsdata/6hr/ICM* filter=lfs diff=lfs merge=lfs -text

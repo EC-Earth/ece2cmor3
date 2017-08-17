@@ -34,7 +34,7 @@ class cmor_target_tests(unittest.TestCase):
         targets=cmor_target.create_targets(abspath,"CMIP6")
         ok_(len(targets)>0)
         toss=[t for t in targets if t.variable=="tos"]
-        eq_(len(toss),3)
+        eq_(len(toss),4)
         tosfreqs=[v.frequency for v in toss]
         ok_("mon" in tosfreqs)
         ok_("day" in tosfreqs)
