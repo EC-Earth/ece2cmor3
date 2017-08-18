@@ -1,6 +1,6 @@
 import logging
 import unittest
-from cmor_source import ifs_source,grib_code,nemo_source,nemo_grid
+from ece2cmor3.cmor_source import ifs_source,grib_code,nemo_source,nemo_grid
 from nose.tools import eq_,ok_,raises
 from testfixtures import LogCapture
 

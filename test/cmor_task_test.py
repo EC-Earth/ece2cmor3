@@ -2,8 +2,9 @@ import logging
 import unittest
 import os
 from nose.tools import eq_,ok_,raises
-import cmor_source
-import cmor_target
+from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_task
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -21,7 +22,7 @@ class cmor_task_tests(unittest.TestCase):
         tgt="invalid"
         task=cmor_task.cmor_task(src,tgt)
 
-    @raises(Exception)
+    #@raises(Exception)
     def test_constructor(self):
         src=cmor_source.ifs_source.read("79.128")
         tgt=cmor_target.cmor_target("clwvi","Amon")

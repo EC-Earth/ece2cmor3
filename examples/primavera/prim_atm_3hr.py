@@ -3,10 +3,10 @@
 import os
 import sys
 import logging
-import ece2cmorlib
-import ifs2cmor
-import cmor_source
-import jsonloader
+from ece2cmor3 import ece2cmorlib
+from ece2cmor3 import ifs2cmor
+from ece2cmor3 import cmor_source
+from ece2cmor3 import jsonloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta

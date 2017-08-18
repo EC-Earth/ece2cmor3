@@ -1,4 +1,4 @@
-cdo==1.3.2
+cdo==1.3.3
 # Compile cmor source and run python setup.py install
 # CMOR==3.2.3
 f90nml==0.20

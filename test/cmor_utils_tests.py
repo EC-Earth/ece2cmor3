@@ -4,7 +4,7 @@ import os
 import datetime
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_,ok_,raises
-from cmor_utils import make_time_intervals,find_ifs_output,get_ifs_date,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid,group
+from ece2cmor3.cmor_utils import make_time_intervals,find_ifs_output,get_ifs_date,find_nemo_output,get_nemo_interval,get_nemo_frequency,get_nemo_grid,group
 
 logging.basicConfig(level=logging.DEBUG)
 

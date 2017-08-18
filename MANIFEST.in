@@ -1,0 +1,5 @@
+include README.md
+include requirements.txt
+recursive-include ece2cmor3/resources *
+recursive-include ece2cmor3/resources/tables *
+prune ece2cmor3/resources/cmip6-cmor-tables

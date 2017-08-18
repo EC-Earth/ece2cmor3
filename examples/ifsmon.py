@@ -3,8 +3,8 @@
 import os
 import sys
 import logging
-import ece2cmorlib
-import jsonloader
+from ece2cmor3 import ece2cmorlib
+from ece2cmor3 import jsonloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -19,8 +19,10 @@ logging.basicConfig(level=logging.DEBUG)
 variables = {"Amon" : ["tas","uas","vas"]}
 startdate = datetime.date(1990,1,1)
 interval = relativedelta(months=1)
-srcdir = os.path.dirname(os.path.abspath(ece2cmorlib.__file__))
-datadir = os.path.join(srcdir,"test","test_data","ifsdata","3hr")
+#srcdir = os.path.dirname(os.path.abspath(ece2cmorlib.__file__))
+#datadir = os.path.join(srcdir,"test","test_data","ifsdata","3hr")
+mydir = os.path.dirname(os.path.abspath(__file__))
+datadir = os.path.join(mydir,"..","test","test_data","ifsdata","3hr")
 
 def main(args):
 

@@ -4,8 +4,8 @@ import numpy
 import netCDF4
 import datetime
 import dateutil
-import cmor_target
-import cmor_source
+from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_source
 
 def get_table_path(tab_id = None):
     directory = os.path.join(os.path.dirname(cmor_target.__file__),"resources","tables")
