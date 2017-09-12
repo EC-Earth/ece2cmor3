@@ -76,17 +76,13 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
     gpfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
-    if(not any(gpfiles) or not any(shfiles)):
-        filetype = "Gridpoint" if not any(gpfiles) else "Spectral"
-        log.error("%s file not found in directory %s, aborting..." % (filetype,path))
-        return False
     if(len(gpfiles) > 1 or len(shfiles) > 1):
         #TODO: Support postprocessing over multiple files
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path,str(gpfiles),str(shfiles)))
-    ifs_gridpoint_file_ = gpfiles[0]
+    ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
     ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
-    ifs_spectral_file_ = shfiles[0]
+    ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
     if(any(inifiles)):
         ifs_init_gridpoint_file_ = inifiles[0]
         if(len(inifiles) > 1):
@@ -247,7 +243,8 @@ def get_sp_tasks(tasks):
         if(sptask):
             existing_tasks.append(sptask)
         else:
-            sptask = cmor_task.cmor_task(surface_pressure,cmor_target.cmor_target("sp",freq))
+            source = cmor_source.ifs_source(surface_pressure)
+            sptask = cmor_task.cmor_task(source,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask.target,"time_operator",["mean"])
             find_sp_variable(sptask)
