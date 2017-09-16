@@ -98,55 +98,60 @@ class cmorapi:
 
 # Writes the input array valarray to cmor. Returns the number of time slices written
     @staticmethod
-    def writevals(varid,valarray,time_index = 0,factor = 1.0,store_with = None):
-        times = 1 if time_index < 0 else valarray.shape[time_index]
-        size = valarray.size / times
+    def writevals(varid,array,timeaxis = 0,lataxis = 1,lonaxis = 2,
+                              factor = 1.0,fliplat = False,transpose = False,
+                              mask  = None,storewith = None):
+        times = 1 if timeaxis < 0 else valarray.shape[timeaxis]
+        size = array.size / times
         chunk = int(math.floor(cache_size_gb / (8 * size))) # Use max 4 GB of memory
         for i in range(0,times,chunk):
             imin = i
             imax = min(i + chunk,times)
-            vals = cmorapi.timeslice(valarray,time_index,imin,imax)
+            haslat,haslon = lataxis >= 0,lonaxis >= 0
+            array = numpy.flip(array,axis = lataxis) if (fliplat and haslat) else array
+            array = numpy.swapaxes(array,axis1 = lataxis,axis2 = lonaxis) if (transpose and haslat and haslon) else array
+            vals = cmorapi.timeslice(array,timeaxis,imin,imax)
             if(not vals): return i
-            if(store_with == None):
-                cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - imin)))
+            if(storewith):
+                cmor.write(varid,vals,ntimes_passed = (0 if timeaxis < 0 else (imax - imin)),store_with = storewith)
             else:
-                cmor.write(varid,numpy.asfortranarray(factor * vals),ntimes_passed = (0 if timdim < 0 else (imax - imin)),store_with = store_with)
+                cmor.write(varid,vals,ntimes_passed = (0 if timeaxis < 0 else (imax - imin)))
         return times
 
 # Takes the appropriate slices and transposes the resulting array to suitable chunk of data for CMOR
     @staticmethod
-    def timeslice(valarray,time_index,imin,imax):
+    def timeslice(valarray,timeaxis,imin,imax):
         rank = len(valarray.shape)
-        if(time_index >= rank):
-            log.error("Invalid time index %d assigned to array of rank %d" % (time_index,rank))
+        if(timeaxis >= rank):
+            log.error("Invalid time index %d assigned to array of rank %d" % (timeaxis,rank))
             return None
         if(rank == 1):
-            if(time_index < 0):
+            if(timeaxis < 0):
                 return valarray[:]
-            if(time_index == 0):
+            if(timeaxis == 0):
                 return valarray[imin:imax]
         if(rank == 2):
-            if(time_index < 0):
+            if(timeaxis < 0):
                 return valarray[:,:]
-            if(time_index == 0):
+            if(timeaxis == 0):
                 return numpy.transpose(valarray[imin:imax,:],axes = [1,0])
-            if(time_index == 1):
+            if(timeaxis == 1):
                 return valarray[:,imin:imax]
         if(rank == 3):
-            if(time_index < 0):
+            if(timeaxis < 0):
                 return numpy.transpose(valarray[:,:,:],axes = [1,2,0])
-            if(time_index == 0):
+            if(timeaxis == 0):
             	return numpy.transpose(valarray[imin:imax,:,:],axes = [1,2,0])
-            if(time_index == 2):
+            if(timeaxis == 2):
                 return valarray[:,:,imin:imax]
             log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
             return None
         if(rank == 4):
-            if(time_index == 0):
+            if(timeaxis == 0):
             	return numpy.transpose(valarray[imin:imax,:,:,:],axes = [2,3,1,0])
-            if(time_index == 3):
+            if(timeaxis == 3):
                 return valarray[:,:,:,i:imax]
-            log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % time_index)
+            log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timeaxis)
             return None
         logger.error("Cmorizing arrays of rank %d is not supported" % rank)
         return None

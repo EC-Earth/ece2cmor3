@@ -98,16 +98,17 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     return True
 
 
-# Execute the postprocessing+cmorization tasks
+# Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then rgular tasks.
 def execute(tasks,cleanup = True):
     global log,tempdir_created_
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
-    taskstodo = supportedtasks
+    taskstodo = [t for t in supportedtasks if t.status == cmor_task.status_initialized]
     masktasks = get_mask_tasks(supportedtasks)
     processedtasks = []
     try:
-        processedtasks = postprocess(masktasks)
+        log.info("Post-processing mask variables...")
+        processedtasks = postprocess([t for t in masktasks if t.status == cmor_task.status_initialized])
         for task in processedtasks:
             read_mask(task.target.variable,getattr(task,"path"))
     except:
@@ -117,27 +118,22 @@ def execute(tasks,cleanup = True):
         raise
     finally:
         if(cleanup): clean_tmp_data(processedtasks,False)
-    oldsptasks,newsptasks = get_sp_tasks(supportedtasks)
-    sptasks = oldsptasks + newsptasks
-    taskstodo = list(set(taskstodo)-set(sptasks))
-    log.info("Post-processing surface pressures...")
+    sptasks = get_sp_tasks([t for t in supportedtasks if t.status >= 0])
     try:
-        proc_sptasks = postprocess(sptasks)
-        for task in taskstodo:
-            sptask = getattr(task,"sp_task",None)
-            if(sptask):
-                setattr(task,"sp_path",getattr(sptask,"path",None))
-                delattr(task,"sp_task")
-        cmorize(oldsptasks)
-        while(any(taskstodo)):
+        log.info("Post-processing surface pressures...")
+        proc_sptasks = postprocess([t for t in sptasks if t.status == cmor_task.status_initialized])
+        log.info("Cmorizing surface pressures...")
+        cmorize(list(set(proc_sptasks) & set(taskstodo)))
+        while(any([t for t in taskstodo if t.status >= 0 and t.status < cmor_task.status_cmorized])):
             try:
-                processedtasks = postprocess(taskstodo)
-                cmorize([t for t in processedtasks if getattr(t,"path",None) != None])
+                log.info("Post-processing regular variables...")
+                processedtasks = postprocess([t for t in taskstodo if t.status == cmor_task.status_initialized])
+                log.info("Cmorizing regular variables...")
+                cmorize(processedtasks)
             finally:
                 if(cleanup): clean_tmp_data(processedtasks,False)
-            taskstodo = [t for t in set(taskstodo)-set(processedtasks) if hasattr(t,"path")]
     finally:
-        if(cleanup): clean_tmp_data(oldsptasks + proc_sptasks,True)
+        if(cleanup): clean_tmp_data(sptasks,True)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -233,7 +229,7 @@ def filter_tasks(tasks):
 def get_sp_tasks(tasks):
     global ifs_spectral_file_
     tasksbyfreq = cmor_utils.group(tasks,lambda t:t.target.frequency)
-    existing_tasks,extra_tasks = [],[]
+    result = []
     for freq,taskgroup in tasksbyfreq.iteritems():
         tasks3d = [t for t in taskgroup if "alevel" in getattr(t.target,cmor_target.dims_key).split()]
         if(not any(tasks3d)): continue
@@ -241,17 +237,17 @@ def get_sp_tasks(tasks):
                                            getattr(t,"time_operator","point") in ["mean","point"]]
         sptask = sptasks[0] if any(sptasks) else None
         if(sptask):
-            existing_tasks.append(sptask)
+            result.append(sptask)
         else:
             source = cmor_source.ifs_source(surface_pressure)
             sptask = cmor_task.cmor_task(source,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask.target,"time_operator",["mean"])
             find_sp_variable(sptask)
-            extra_tasks.append(sptask)
+            result.append(sptask)
         for task in tasks3d:
             setattr(task,"sp_task",sptask)
-    return existing_tasks,extra_tasks
+    return result
 
 
 # Postprocessing of IFS tasks
@@ -362,12 +358,14 @@ def cmor_worker(queue):
 # Executes a single task
 def execute_netcdf_task(task):
     global log
+    task.next_state()
     filepath = getattr(task,"path",None)
     if(not filepath):
         log.error("Could not find file containing data for variable %s in table" % (task.target.variable,task.target.table))
         return
     storevar = getattr(task,"store_with",None)
-    sppath = getattr(task,"sp_path",None)
+    sptask = getattr(task,"sp_task",None)
+    sppath = getattr(sptask,"path",None) if sptask else None
     if(storevar and not sppath):
         log.error("Could not find file containing surface pressure for model level variable...skipping variable %s in table %s" % (task.target.variable,task.target.table))
         return
@@ -417,6 +415,7 @@ def execute_netcdf_task(task):
     if(flipsign): missval = -missval
     cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
     cmor.close(varid)
+    task.next_state()
     if(storevar): cmor.close(storevar)
 
 

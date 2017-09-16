@@ -52,6 +52,8 @@ def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
         if(not validate_tasklist(tasklist)):
             invalid_commands.append(comm)
     for comm in invalid_commands:
+        for t in comdict[comm]:
+            t.set_failed()
         comdict.pop(comm)
     finished_tasks_ = []
     if(task_threads <= 2):
@@ -71,7 +73,7 @@ def post_process(tasks,path,max_size_gb = float("inf"),griddes = {}):
         for (comm,tasklist) in comdict.iteritems():
             q.put((comm,tasklist))
         q.join()
-    return list(finished_tasks_)
+    return [t for t in list(finished_tasks_) if t.status >= 0]
 
 
 
@@ -106,10 +108,12 @@ def add_expr_operators(cdo,task):
     sides = expr.split('=')
     if(len(sides)!=2):
         log.error("Could not parse expression %s" % expr)
+        task.set_failed()
         return
     regex = "var[0-9]{1,3}"
     if(not re.match(regex,sides[0])):
         log.error("Could not parse expression %s" % expr)
+        task.set_failed()
         return
     newcode = int(sides[0].strip()[3:])
     if(sides[1].startswith("merge(") and sides[1].endswith(")")):
@@ -152,7 +156,7 @@ def cdo_worker(q,basepath,maxsize):
         q.task_done()
 
 
-# Executes the command (first item of tup), and replaces the path attribute for all tasks in the tasklist (2nd item of tup)
+# Executes the command and replaces the path attribute for all tasks in the tasklist
 # to the output of cdo. This path is constructed from the basepath and the first task.
 def apply_command(command,tasklist,basepath = None):
     global log,cdo_threads,skip,append,recreate,mode
@@ -167,18 +171,24 @@ def apply_command(command,tasklist,basepath = None):
         commstr = command.create_command()
         log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (task.target.variable,task.target.table,ifile,commstr))
         setattr(task,"cdo_command",commstr)
+        task.next_state()
     result = ofile
     if(mode != skip):
         if(mode == recreate or (mode == append and not os.path.exists(ofile))):
             mergeexpr = (cdoapi.cdo_command.set_code_operator in command.operators)
             opath = command.apply(ifile,ofile,cdo_threads,grib_first = mergeexpr)
+            if(not opath):
+                for task in tasklist:
+                    task.set_failed()
             if(opath and not basepath):
                 tmppath = os.path.dirname(opath)
                 ofile = os.path.join(tmppath,ofname)
                 os.rename(opath,ofile)
                 result = ofile
     for task in tasklist:
-        setattr(task,"path",result)
+        if(task.status >= 0):
+            setattr(task,"path",result)
+            task.next_state()
     return result
 
 
@@ -218,7 +228,9 @@ def add_time_operators(cdo,task):
         elif(operators == ["minimum within days","mean over days"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+        else:
+            log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq,str(operators)))
+            task.set_failed()
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
     elif(freq == "day"):
         if(operators == ["point"]):
@@ -231,20 +243,29 @@ def add_time_operators(cdo,task):
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
         elif(operators == ["minimum"]):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
-        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+        else:
+            log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq,str(operators)))
+            task.set_failed()
         if(mon > 0): cdo.add_operator(cdoapi.cdo_command.select_month_operator,mon)
     elif(freq == "6hr"):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator,0,6,12,18)
-        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+        else:
+            log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq,str(operators)))
+            task.set_failed()
     elif(freq in ["1hr","3hr"]):
         if(operators != ["point"] and operators != ["mean"] and operators != ["maximum"] and operators != ["minimum"]):
-            raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
+            log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq,str(operators)))
+            task.set_failed()
     elif(freq == 0):
         if(operators == ["point"] or operators == ["mean"]):
             cdo.add_operator(cdoapi.cdo_command.select_step_operator,1)
-        else: raise Exception("Unsupported combination of frequency ",freq," with time operators ",operators,"encountered")
-    else: raise Exception("Unsupported frequency ",freq," encountered")
+        else:
+            log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq,str(operators)))
+            task.set_failed()
+    else:
+        log.error("Unsupported frequency %s encountered" % freq)
+        task.set_failed()
 
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
@@ -255,48 +276,56 @@ def add_level_operators(cdo,task):
     if(len(zdims) == 0): return
     if(len(zdims) > 1):
         log.error("Multiple level dimensions in table %s are not supported by this post-processing software",(task.target.table))
+        task.set_failed()
+        return
     axisname = zdims[0]
     if(axisname == "alevel"):
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
     if(axisname == "alevhalf"):
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",(task.target.table))
+        task.set_failed()
         return
     axisinfos = cmor_target.get_axis_info(task.target.table)
     axisinfo = axisinfos.get(axisname,None)
     if(not axisinfo):
         log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
+        task.set_failed()
         return
+    levels = axisinfo.get("requested",[])
+    if(len(levels) == 0):
+        val = axisinfo.get("value",None)
+        if(val): levels = [val]
+    leveltypes = [cdoapi.cdo_command.hybrid_level_code,cdoapi.cdo_command.pressure_level_code,cdoapi.cdo_command.height_level_code]
+    if(getattr(task,"path",None)):
+        leveltypes = cdo.get_z_axes(task.path,task.source.get_root_codes()[0].var_id)
     oname = axisinfo.get("standard_name",None)
-    leveltypes = cdo.get_z_axes(getattr(task,"path",None),task.source.get_root_codes()[0].var_id)
-    ml2pl,ml2hl = False,False
     if(oname == "air_pressure"):
-        if(cdoapi.cdo_command.pressure_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
-            log.warning("Could not find pressure levels for %s, will interpolate from model levels",task.target.variable)
-            cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surflevel])
-            ml2pl = True
-        else:
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.pressure)
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.pressure,cdoapi.cdo_command.pressure_level_code)
     elif(oname in ["height","altitude"]):
-        if(cdoapi.cdo_command.height_level_code not in leveltypes and cdoapi.cdo_command.hybrid_level_code in leveltypes):
-            log.warning("Could not find height levels for %s, will interpolate from model levels",task.target.variable)
-            cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surflevel])
-            ml2hl = True
-        else:
-            cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.height)
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.height,cdoapi.cdo_command.height_level_code)
     elif(axisname not in ["alevel","alevhalf"]):
         log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
-        return
-    zlevs = axisinfo.get("requested",[])
-    if(zlevs == "all"): return
-    if(len(zlevs) == 0):
-        val = axisinfo.get("value",None)
-        if(val): zlevs = [val]
-    if(len(zlevs) > 0):
-        if(ml2pl):
-            cdo.add_operator(cdoapi.cdo_command.ml2pl_operator,*zlevs)
-        elif(ml2hl):
-            cdo.add_operator(cdoapi.cdo_command.ml2hl_operator,*zlevs)
-        else:
-            cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*zlevs)
+        task.set_failed()
+
+# Helper funcion for setting the vertical axis and levels selection
+def add_zaxis_operators(cdo,task,lev_types,req_levs,axis_type,axis_code):
+    if(axis_code not in lev_types and cdoapi.cdo_command.hybrid_level_code in lev_types):
+        log.warning("Could not find %s levels for %s, will interpolate from model levels" % (axis_type,task.target.variable))
+        cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
+        cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surflevel])
+        if(isinstance(req_levs,list) and any(req_levs)): cdo.add_operator(cdoapi.cdo_command.ml2pl_operator,*req_levs)
+    elif(axis_code in lev_types):
+        if(isinstance(req_levs,list) and any(req_levs)):
+            nclevs = [float(s) for s in req_levs]
+            if(getattr(task,"path",None)):
+                nclevs = cdo.get_levels(task.path,task.source.get_root_codes()[0].var_id,axis_type)
+            if(set([float(s) for s in req_levs]) <= set(nclevs)):
+                cdo.add_operator(cdoapi.cdo_command.select_z_operator,axis_type)
+                cdo.add_operator(cdoapi.cdo_command.select_lev_operator,*req_levs)
+            else:
+                log.error("Could not retrieve %s levels %s from levels %s in file for variable %s"
+                            % (axis_type,req_levs,nclevs,task.target.variable))
+                task.set_failed()
+    else:
+        log.error("Could not retrieve %s levels for %s with axes %s" % (axis_type,task.target.variable,str(lev_types)))
+        task.set_failed()

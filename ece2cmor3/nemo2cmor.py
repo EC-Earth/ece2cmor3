@@ -108,6 +108,7 @@ def execute(tasks):
 # Performs a single task.
 def execute_netcdf_task(task,dataset,tableid):
     global log,grid_ids_,depth_axes_,time_axes_
+    task.status = cmor_task.status_cmorizing
     dims = task.target.dims
     globvar = (task.source.grid() == cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
     if(globvar):
@@ -129,6 +130,7 @@ def execute_netcdf_task(task,dataset,tableid):
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
     cmor.close(varid)
+    task.status = cmor_task.status_cmorized
 
 
 # Unit conversion utility method

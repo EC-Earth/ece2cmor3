@@ -28,7 +28,7 @@ class cdo_command:
     select_month_operator   = "selmon"
     select_step_operator    = "seltimestep"
     shift_time_operator     = "shifttime"
-    ml2pl_operator          = "ml2pl"
+    ml2pl_operator          = "ml2plx"
     ml2hl_operator          = "ml2hl"
 
     # CDO operator argument strings
@@ -45,7 +45,7 @@ class cdo_command:
     # Vertical axes codes
     hybrid_level_code       = 109
     pressure_level_code     = 100
-    height_level_code      = 210
+    height_level_code       = 210
 
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
@@ -141,7 +141,11 @@ class cdo_command:
         intfields = ["gridsize","np","xsize","ysize"]
         realfields = ["xfirst","xinc","yfirst","yinc"]
         arrayfields = ["xvals","yvals"]
-        infolist = self.app.griddes(input = ifile)
+        infolist = []
+        try:
+            infolist = self.app.griddes(input = ifile)
+        except cdo.CDOException as e:
+            log.error(str(e))
         infodict = {}
         prevkey = ""
         for info in infolist:
@@ -171,13 +175,31 @@ class cdo_command:
         return infodict
 
 
-    # Returns a list vertical axes corrspoding to the input variable
+    # Returns a list vertical axes corresponding to the input variable
     def get_z_axes(self,ifile,var):
         if(not ifile): return []
         seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
-        output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
+        try:
+            output = self.app.showltype(input = " ".join([cdo_command.make_option(seloperator,[var]),ifile]))
+        except cdo.CDOException as e:
+            log.error(str(e))
+            return []
         if(isinstance(output,list)): output = output[0]
         return [] if not output else [int(s) for s in output.split()]
+
+    # Returns a list of levels for a given variable and axis
+    def get_levels(self,ifile,var,axis):
+        if(not ifile): return []
+        seloperator = cdo_command.select_code_operator if isinstance(var,int) else cdo_command.select_var_operator
+        selvaroperator = cdo_command.make_option(seloperator,[var])
+        selaxisoperator = cdo_command.make_option(cdo_command.select_z_operator,[axis])
+        try:
+            output = self.app.showlevel(input = " ".join([selaxisoperator,selvaroperator,ifile]))
+        except cdo.CDOException as e:
+            log.error(str(e))
+            return []
+        if(isinstance(output,list)): output = output[0]
+        return [] if not output else [float(s) for s in output.split()]
 
 
     # Option writing utility function
