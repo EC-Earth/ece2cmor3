@@ -127,8 +127,13 @@ def execute_netcdf_task(task,dataset,tableid):
     axes.append(time_axes_[tableid])
     varid = create_cmor_variable(task,dataset,axes)
     ncvar = dataset.variables[task.source.var()]
+    missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+    if(globvar): # Fix for global averages
+        vals = numpy.copy(ncvar[:,:,:])
+        vals[vals == missval] = numpy.nan
+	ncvar = numpy.nanmean(vals[:,:,:],axis = (1,2))
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
+    cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,missval))
     ncvar.close()
     cmor.close(varid)
     task.status = cmor_task.status_cmorized
@@ -181,8 +186,7 @@ def create_depth_axis(ncfile,gridchar):
     global log
     ds=netCDF4.Dataset(ncfile)
     varname="depth" + gridchar
-    if(not varname in ds.variables):
-        log.error("Could not find depth axis variable %s in NEMO output file %s; skipping depth axis creation." % (varname,gridchar))
+    if(not varname in ds.variables): # No 3D variables in this file... skip depth axis
         return 0
     depthvar = ds.variables[varname]
     depthbnd = getattr(depthvar,"bounds")
@@ -214,8 +218,10 @@ def create_time_axis(freq,files):
     if(len(vals) == 0 or units == None):
         log.error("No time values or units could be read from NEMO output files %s" % str(files))
         return 0
-    ax_id = cmor.axis(table_entry = "time",units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
-    return ax_id
+    if(freq.endswith("hr")):
+    	return cmor.axis(table_entry = "time1",units = units,coord_vals = vals)
+    else:
+    	return cmor.axis(table_entry = "time", units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
 
 
 # Selects files with data with the given frequency
@@ -283,11 +289,18 @@ def write_grid(grid):
     ny = grid.lons.shape[1]
     i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
     j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
+    if(ny == 1):
+        return cmor.grid(axis_ids = [i_index_id],
+                latitude = grid.lats[:,0],
+                longitude = grid.lons[:,0],
+                latitude_vertices = grid.vertex_lats,
+                longitude_vertices = grid.vertex_lons)
     return cmor.grid(axis_ids = [i_index_id,j_index_id],
                      latitude = grid.lats,
                      longitude = grid.lons,
                      latitude_vertices = grid.vertex_lats,
                      longitude_vertices = grid.vertex_lons)
+
 
 
 # Class holding a NEMO grid, including bounds arrays
@@ -305,8 +318,13 @@ class nemogrid(object):
     def create_vertex_lons(a):
         nx = a.shape[0]
         ny = a.shape[1]
-        b = numpy.zeros([nx,ny,4])
         f = numpy.vectorize(lambda x:x % 360)
+        if(ny == 1):
+            b = numpy.zeros([nx,2])
+            b[1:nx,0]=f(0.5 * (a[0:nx - 1,0] + a[1:nx,0]))
+            b[0:nx - 1,1] = b[1:nx,1]
+            return b
+        b = numpy.zeros([nx,ny,4])
         b[1:nx,:,0]=f(0.5 * (a[0:nx - 1,:] + a[1:nx,:]))
         b[0,:,0] = b[nx - 1,:,0]
         b[0:nx - 1,:,1] = b[1:nx,:,0]
@@ -319,8 +337,13 @@ class nemogrid(object):
     def create_vertex_lats(a):
         nx = a.shape[0]
         ny = a.shape[1]
-        b = numpy.zeros([nx,ny,4])
         f = numpy.vectorize(lambda x:(x + 90) % 180 - 90)
+        if(ny == 1): # Longitudes were integrated out
+            b = numpy.zeros([nx,2])
+            b[:,0] = f(a[:,0])
+            b[:,1] = f(a[:,0])
+            return b
+        b = numpy.zeros([nx,ny,4])
         b[:,0,0] = f(1.5 * a[:,0] - 0.5 * a[:,1])
         b[:,1:ny,0] = f(0.5 * (a[:,0:ny - 1] + a[:,1:ny]))
         b[:,:,1] = b[:,:,0]
@@ -338,6 +361,7 @@ class nemogrid(object):
     def smoothen(a):
         nx = a.shape[0]
         ny = a.shape[1]
+        if(ny == 1): return a
         mod = numpy.vectorize(nemogrid.modlon2)
         b = numpy.empty([nx,ny])
         for i in range(0,nx):
