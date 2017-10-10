@@ -78,15 +78,14 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     shfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
     if(not any(gpfiles) or not any(shfiles)):
         filetype = "Gridpoint" if not any(gpfiles) else "Spectral"
-        log.error("%s file not found in directory %s, aborting..." % (filetype,path))
-        return False
+        log.warning("%s file not found in directory %s, aborting..." % (filetype,path))
     if(len(gpfiles) > 1 or len(shfiles) > 1):
         #TODO: Support postprocessing over multiple files
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path,str(gpfiles),str(shfiles)))
-    ifs_gridpoint_file_ = gpfiles[0]
+    ifs_gridpoint_file_ = gpfiles[0] if any(gpfiles) else ""
     ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(ifs_gridpoint_file_) else {}
-    ifs_spectral_file_ = shfiles[0]
+    ifs_spectral_file_ = shfiles[0] if any(shfiles) else ""
     if(any(inifiles)):
         ifs_init_gridpoint_file_ = inifiles[0]
         if(len(inifiles) > 1):
