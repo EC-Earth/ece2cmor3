@@ -347,12 +347,12 @@
     {
         "source": "146.128",
         "convert": "cum2inst",
-        "target": "hfls"
+        "target": "hfss"
     },
     {
         "source": "147.128",
         "convert": "cum2inst",
-        "target": "hfss"
+        "target": "hfls"
     },
     {
         "source": "151.128",

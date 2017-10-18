@@ -373,14 +373,14 @@
   units      = "J m-2"
   long_name  = "Surface upward sensible heat flux"
   positive   = "down"
-  out_name   = "hfls"
+  out_name   = "hfss"
 /
 &parameter
   param      = 147.128
   units      = "J m-2"
   long_name  = "Surface upward latent heat flux"
   positive  = "down"
-  out_name   = "hfss"
+  out_name   = "hfls"
 /
 &parameter
   param      = 151.128
