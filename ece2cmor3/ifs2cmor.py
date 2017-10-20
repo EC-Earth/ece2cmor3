@@ -395,13 +395,8 @@ def execute_netcdf_task(task):
     unit = getattr(ncvar,"units",None)
     if((not unit) or hasattr(task,cmor_task.conversion_key)):
         unit = getattr(task.target,"units")
-    varid = 0
-    flipsign = False
-    if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
-        flipsign = (getattr(task.target,"positive") == "up")
-        varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,positive = "down")
-    else:
-        varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes)
+    varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,positive = "down")
+    flipsign = (getattr(task.target,"positive",None) == "up")
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     timdim,index = -1,0
     for d in ncvar.dimensions:
