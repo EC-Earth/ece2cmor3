@@ -133,6 +133,7 @@ def execute_netcdf_task(task,dataset,tableid):
 	ncvar = numpy.nanmean(vals[:,:,:],axis = (1,2))
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,missval))
+    ncvar.close()
     cmor.close(varid)
 
 
