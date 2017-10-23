@@ -168,29 +168,32 @@ def read_mask(name,filepath):
     global masks
     try:
         dataset = netCDF4.Dataset(filepath,'r')
-        ncvars = dataset.variables
     except Exception:
         log.error("Could not read netcdf file %s while reading mask %s" % (filepath,name))
         return
-    codestr = str(masks[name]["source"].get_grib_code().var_id)
-    varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
-    if(len(varlist) == 0):
-        varlist = [v for v in ncvars if str(v) == "var" + codestr]
-    if(len(varlist) > 1):
-        log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
-    ncvar = ncvars[varlist[0]]
-    var = None
-    if(len(ncvar.shape) == 2):
-        var = ncvar[:,:]
-    elif(len(ncvar.shape) == 3 and ncvar.shape[0] == 1):
-        var = ncvar[0,:,:]
-    elif(len(ncvar.shape) == 4 and ncvar.shape[0] == 1 and ncvar.shape[1] == 1):
-        var = ncvar[0,0,:,:]
-    else:
-        log.error("After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(ncvar.shape))
-        return
-    func = numpy.vectorize(masks[name]["predicate"])
-    masks[name]["array"] = func(var[:,:])
+    try:
+        ncvars = dataset.variables
+        codestr = str(masks[name]["source"].get_grib_code().var_id)
+        varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
+        if(len(varlist) == 0):
+            varlist = [v for v in ncvars if str(v) == "var" + codestr]
+        if(len(varlist) > 1):
+            log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+        ncvar = ncvars[varlist[0]]
+        var = None
+        if(len(ncvar.shape) == 2):
+            var = ncvar[:,:]
+        elif(len(ncvar.shape) == 3 and ncvar.shape[0] == 1):
+            var = ncvar[0,:,:]
+        elif(len(ncvar.shape) == 4 and ncvar.shape[0] == 1 and ncvar.shape[1] == 1):
+            var = ncvar[0,0,:,:]
+        else:
+            log.error("After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(ncvar.shape))
+            return
+        func = numpy.vectorize(masks[name]["predicate"])
+        masks[name]["array"] = func(var[:,:])
+    finally:
+        dataset.close()
 
 
 # Deletes all temporary paths and removes temp directory
@@ -381,42 +384,45 @@ def execute_netcdf_task(task):
     ncvars = []
     try:
         dataset = netCDF4.Dataset(filepath,'r')
-        ncvars = dataset.variables
     except Exception:
         log.error("Could not read netcdf file %s while cmorizing variable %s in table %s" % (filepath,task.target.variable,task.target.table))
         return
-    codestr = str(task.source.get_grib_code().var_id)
-    varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
-    if(len(varlist) == 0):
-        varlist = [v for v in ncvars if str(v) == "var" + codestr]
-    if(len(varlist) > 1):
-        log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
-    ncvar = ncvars[varlist[0]]
-    unit = getattr(ncvar,"units",None)
-    if((not unit) or hasattr(task,cmor_task.conversion_key)):
-        unit = getattr(task.target,"units")
-    varid = 0
-    flipsign = False
-    if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
-        flipsign = (getattr(task.target,"positive") == "up")
-        varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,positive = "down")
-    else:
-        varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes)
-    factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    timdim,index = -1,0
-    for d in ncvar.dimensions:
-        if(d.startswith("time")):
-            timdim = index
-            break
-        index += 1
-    mask = getattr(task.target,cmor_target.mask_key,None)
-    maskarr = masks[mask].get("array",None) if mask in masks else None
-    missval = getattr(task.target,cmor_target.missval_key,1.e+20)
-    if(flipsign): missval = -missval
-    cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
-    cmor.close(varid)
-    task.next_state()
-    if(storevar): cmor.close(storevar)
+    try:
+        ncvars = dataset.variables
+        codestr = str(task.source.get_grib_code().var_id)
+        varlist = [v for v in ncvars if str(getattr(ncvars[v],"code",None)) == codestr]
+        if(len(varlist) == 0):
+            varlist = [v for v in ncvars if str(v) == "var" + codestr]
+        if(len(varlist) > 1):
+            log.warning("CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+        ncvar = ncvars[varlist[0]]
+        unit = getattr(ncvar,"units",None)
+        if((not unit) or hasattr(task,cmor_task.conversion_key)):
+            unit = getattr(task.target,"units")
+        varid = 0
+        flipsign = False
+        if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
+            flipsign = (getattr(task.target,"positive") == "up")
+            varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,positive = "down")
+        else:
+            varid = cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes)
+        factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
+        timdim,index = -1,0
+        for d in ncvar.dimensions:
+            if(d.startswith("time")):
+                timdim = index
+                break
+            index += 1
+        mask = getattr(task.target,cmor_target.mask_key,None)
+        maskarr = masks[mask].get("array",None) if mask in masks else None
+        missval = getattr(task.target,cmor_target.missval_key,1.e+20)
+        if(flipsign): missval = -missval
+        cmor_utils.netcdf2cmor(varid,ncvar,timdim,factor,storevar,get_spvar(sppath),swaplatlon = False,fliplat = True,mask = maskarr,missval = missval)
+        cmor.close(varid)
+        task.next_state()
+        if(storevar): cmor.close(storevar)
+    finally:
+        dataset.close()
 
 
 # Returns the conversion factor from the input string
@@ -525,27 +531,30 @@ def create_depth_axes(tasks):
 def create_hybrid_level_axis(task):
     pref = 80000 # TODO: Move reference pressure level to model config
     path = getattr(task,"path")
-    ds = netCDF4.Dataset(path)
-    am = ds.variables["hyam"]
-    aunit = getattr(am,"units")
-    bm = ds.variables["hybm"]
-    bunit = getattr(bm,"units")
-    hcm = am[:]/pref+bm[:]
-    n = hcm.shape[0]
-    ai = ds.variables["hyai"]
-    abnds = numpy.empty([n,2])
-    abnds[:,0] = ai[0:n]
-    abnds[:,1] = ai[1:n+1]
-    bi = ds.variables["hybi"]
-    bbnds = numpy.empty([n,2])
-    bbnds[:,0] = bi[0:n]
-    bbnds[:,1] = bi[1:n+1]
-    hcbnds = abnds/pref+bbnds
-    axid = cmor.axis(table_entry = "alternate_hybrid_sigma",coord_vals = hcm,cell_bounds = hcbnds,units = "1")
-    cmor.zfactor(zaxis_id = axid,zfactor_name = "ap",units = str(aunit),axis_ids = [axid],zfactor_values = am[:],zfactor_bounds = abnds)
-    cmor.zfactor(zaxis_id = axid,zfactor_name = "b",units = str(bunit),axis_ids = [axid],zfactor_values = bm[:],zfactor_bounds = bbnds)
-    storewith = cmor.zfactor(zaxis_id = axid,zfactor_name = "ps",axis_ids = [getattr(task,"grid_id"),getattr(task,"time_axis")],units = "Pa")
-    return (axid,storewith)
+    try:
+        ds = netCDF4.Dataset(path)
+        am = ds.variables["hyam"]
+        aunit = getattr(am,"units")
+        bm = ds.variables["hybm"]
+        bunit = getattr(bm,"units")
+        hcm = am[:]/pref+bm[:]
+        n = hcm.shape[0]
+        ai = ds.variables["hyai"]
+        abnds = numpy.empty([n,2])
+        abnds[:,0] = ai[0:n]
+        abnds[:,1] = ai[1:n+1]
+        bi = ds.variables["hybi"]
+        bbnds = numpy.empty([n,2])
+        bbnds[:,0] = bi[0:n]
+        bbnds[:,1] = bi[1:n+1]
+        hcbnds = abnds/pref+bbnds
+        axid = cmor.axis(table_entry = "alternate_hybrid_sigma",coord_vals = hcm,cell_bounds = hcbnds,units = "1")
+        cmor.zfactor(zaxis_id = axid,zfactor_name = "ap",units = str(aunit),axis_ids = [axid],zfactor_values = am[:],zfactor_bounds = abnds)
+        cmor.zfactor(zaxis_id = axid,zfactor_name = "b",units = str(bunit),axis_ids = [axid],zfactor_values = bm[:],zfactor_bounds = bbnds)
+        storewith = cmor.zfactor(zaxis_id = axid,zfactor_name = "ps",axis_ids = [getattr(task,"grid_id"),getattr(task,"time_axis")],units = "Pa")
+        return (axid,storewith)
+    finally:
+        ds.close()
 
 
 # Creates a soil depth axis.
@@ -586,6 +595,8 @@ def create_soil_depth_axis(name,filepath):
         return cmor.axis(table_entry = name,coord_vals = vals,cell_bounds = bndvals,units = "m")
     except Exception:
         log.error("Could not read netcdf file %s while creating soil depth axis" % filepath)
+    finally:
+        dataset.close()
     return 0
 
 
@@ -629,6 +640,8 @@ def get_spvar(ncpath):
         return None
     except:
         return None
+    finally:
+        dataset.close()
 
 
 # Retrieves all IFS output files in the input directory.

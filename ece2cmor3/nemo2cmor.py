@@ -129,6 +129,7 @@ def execute_netcdf_task(task,dataset,tableid):
     ncvar = dataset.variables[task.source.var()]
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
+    ncvar.close()
     cmor.close(varid)
     task.status = cmor_task.status_cmorized
 
