@@ -5,7 +5,7 @@ import os
 import logging
 import argparse
 import json
-from ece2cmor3 import ece2cmorlib,taskloader,cmor_source
+from ece2cmor3 import ece2cmorlib,taskloader,cmor_source,cmor_utils
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
@@ -19,7 +19,7 @@ def write_varlist(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     tgtdict = dict([k,[t.variable for t in v]] for k,v in tgtgroups.iteritems())
     with open(opath,'w') as ofile:
-        json.dump(nemodict,ofile,indent = 4,separators = (',', ': '))
+        json.dump(tgtdict,ofile,indent = 4,separators = (',', ': '))
     logging.info("File %s written" % opath)
 
 

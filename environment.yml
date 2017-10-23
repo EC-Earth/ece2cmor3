@@ -64,3 +64,4 @@ dependencies:
   - smart-open==1.3.5
   - testfixtures==4.13.1
   - yarg==0.1.9
+  - xlrd==1.0.0

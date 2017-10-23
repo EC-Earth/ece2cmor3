@@ -8,3 +8,4 @@ numpy==1.11.3
 python-dateutil==2.6.0
 six==1.10.0
 testfixtures==4.13.3
+xlrd==1.0.0

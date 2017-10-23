@@ -5,16 +5,16 @@ import sys
 import logging
 import argparse
 import ece2cmorlib
-import jsonloader
+import taskloader
 import dateutil.parser
 import dateutil.relativedelta
 
 logging.basicConfig(level=logging.DEBUG)
 
-def main(args=None):
+def main(args = None):
+
     if args is None:
         args = sys.argv[1:]
-
 
     varlist_path_default = os.path.join(os.path.dirname(__file__),"resources","varlist.json")
 
@@ -23,7 +23,7 @@ def main(args=None):
 
     parser.add_argument("datadir",  metavar = "DIR",        type = str)
     parser.add_argument("date",     metavar = "YYYY-mm-dd", type = str)
-    parser.add_argument("--vars",   metavar = "FILE.json",  type = str,     default = varlist_path_default,help = "json-file containing cmor variables")
+    parser.add_argument("--vars",   metavar = "FILE"     ,  type = str,     default = varlist_path_default,help = "File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--conf",   metavar = "FILE.json",  type = str,     default = ece2cmorlib.conf_path_default,help = "Input metadata file")
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
     parser.add_argument("--refd",   metavar = "YYYY-mm-dd", type = str,     default = None,help = "Reference date (for atmosphere data), by default the start date")
@@ -45,13 +45,13 @@ def main(args=None):
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tabledir = args.tabdir,tableprefix = args.tabid)
 
-    # Load the variables as task targets:
-    jsonloader.load_targets(args.vars)
-
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm
     if(not procatmos and not prococean):
         procatmos,prococean = True,True
+
+    # Load the variables as task targets:
+    taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
 
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months = 1)
@@ -66,6 +66,8 @@ def main(args=None):
                                                                              maxsizegb = args.tmpsize)
     if(prococean):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
+
+    ece2cmorlib.finalize()
 
 if __name__ == "__main__":
     main()
