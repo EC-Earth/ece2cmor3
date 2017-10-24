@@ -23,14 +23,25 @@ def write_varlist(targets,opath):
     logging.info("File %s written" % opath)
 
 
+def write_varlist_ascii(targets,opath):
+    tgtgroups = cmor_utils.group(targets,lambda t:t.table)
+    ofile = open(opath,'w')
+    for k,vlist in tgtgroups.iteritems():
+        for tgtvar in vlist:
+            ofile.write(tgtvar.table + '\t\t' + tgtvar.variable + '\t\t\t' + getattr(tgtvar,"long_name","unknown") + '\n')
+#           ofile.write(tgtvar.table + '\t\t' + tgtvar.variable + '\t\t\t' + getattr(tgtvar,"long_name","unknown") + '\t\t\t' + getattr(tgtvar,"dimensions","unknown") + '\n')
+    ofile.close()
+
+
 # Main program
 def main():
 
     parser = argparse.ArgumentParser(description = "Validate input variable list against CMIP tables")
-    parser.add_argument("--vars",   metavar = "FILE",   type = str, required = True, help = "File (json|f90 namelist|xlsx) containing cmor variables")
+    parser.add_argument("--vars",   metavar = "FILE",   type = str, required = True, help = "File (json|f90 namelist|xlsx) containing cmor variables (Required)")
     parser.add_argument("--tabdir", metavar = "DIR",    type = str, default = ece2cmorlib.table_dir_default, help = "Cmorization table directory")
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
+    parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write ASCII file with verbose output")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
 
@@ -50,7 +61,10 @@ def main():
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
         write_varlist(loadedtargets,ofile + ".json")
-        write_varlist(skippedtargets,ofile + ".err.json" )
+        write_varlist(skippedtargets,ofile + ".missing.json")
+        if(args.verbose):
+            write_varlist_ascii(loadedtargets,ofile + ".txt")
+            write_varlist_ascii(skippedtargets,ofile + ".missing.txt")
 
     # Finishing up
     ece2cmorlib.finalize()
