@@ -26,7 +26,10 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
+#   ofile.write('{}'.format('Table      variable             variable description\n'))
+    ofile.write('{}'.format('Table      Dimension format of variable             variable             variable description\n'))
     for k,vlist in tgtgroups.iteritems():
+        ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
 #           ofile.write('{:10}       {:20} {} {}'.format(tgtvar.table,                                         tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
             ofile.write('{:10} {:40} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
