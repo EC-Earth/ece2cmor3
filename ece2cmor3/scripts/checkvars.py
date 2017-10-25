@@ -28,8 +28,8 @@ def write_varlist_ascii(targets,opath):
     ofile = open(opath,'w')
     for k,vlist in tgtgroups.iteritems():
         for tgtvar in vlist:
-            ofile.write(tgtvar.table + '\t\t' + tgtvar.variable + '\t\t\t' + getattr(tgtvar,"long_name","unknown") + '\n')
-#           ofile.write(tgtvar.table + '\t\t' + tgtvar.variable + '\t\t\t' + getattr(tgtvar,"long_name","unknown") + '\t\t\t' + getattr(tgtvar,"dimensions","unknown") + '\n')
+#           ofile.write('{:10}       {:20} {} {}'.format(tgtvar.table,                                         tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
+            ofile.write('{:10} {:40} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
     ofile.close()
 
 
