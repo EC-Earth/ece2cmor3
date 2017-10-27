@@ -91,15 +91,18 @@ def execute(tasks):
         taskmask = dict([t,False] for t in tskgroup)
         # Loop over files:
         for ncf in files:
-            ds = netCDF4.Dataset(ncf,'r')
-            for task in tskgroup:
-                if(task.source.var() in ds.variables):
-                    if(taskmask[task]):
-                        log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
-                    else:
-                        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
-                        execute_netcdf_task(task,ds,tab_id)
-                        taskmask[task] = True
+            try:
+                ds = netCDF4.Dataset(ncf,'r')
+                for task in tskgroup:
+                    if(task.source.var() in ds.variables):
+                        if(taskmask[task]):
+                            log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
+                        else:
+                            log.info("Cmorizing source variable %s to target variable %s..." % (task.source.var_id,task.target.variable))
+                            execute_netcdf_task(task,ds,tab_id)
+                            taskmask[task] = True
+            finally:
+                ds.close()
         for task,executed in taskmask.iteritems():
             if(not executed):
                 log.error("The source variable %s could not be found in the input NEMO data" % task.source.var_id)
@@ -133,7 +136,6 @@ def execute_netcdf_task(task,dataset,tableid):
 	ncvar = numpy.nanmean(vals[:,:,:],axis = (1,2))
     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,missval))
-    ncvar.close()
     cmor.close(varid)
 
 
@@ -182,17 +184,20 @@ def create_depth_axes(tab_id,files):
 # Creates a cmor depth axis
 def create_depth_axis(ncfile,gridchar):
     global log
-    ds=netCDF4.Dataset(ncfile)
-    varname="depth" + gridchar
-    if(not varname in ds.variables): # No 3D variables in this file... skip depth axis
-        return 0
-    depthvar = ds.variables[varname]
-    depthbnd = getattr(depthvar,"bounds")
-    units = getattr(depthvar,"units")
-    bndvar = ds.variables[depthbnd]
-    b = bndvar[:,:]
-    b[b<0] = 0
-    return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:],cell_bounds = b)
+    try:
+        ds=netCDF4.Dataset(ncfile)
+        varname="depth" + gridchar
+        if(not varname in ds.variables): # No 3D variables in this file... skip depth axis
+            return 0
+        depthvar = ds.variables[varname]
+        depthbnd = getattr(depthvar,"bounds")
+        units = getattr(depthvar,"units")
+        bndvar = ds.variables[depthbnd]
+        b = bndvar[:,:]
+        b[b<0] = 0
+        return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:],cell_bounds = b)
+    finally:
+        ds.close()
 
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
@@ -211,8 +216,7 @@ def create_time_axis(freq,files):
             units = getattr(timvar,"units")
             break
         except:
-            if(ds):
-                ds.close()
+            ds.close()
     if(len(vals) == 0 or units == None):
         log.error("No time values or units could be read from NEMO output files %s" % str(files))
         return 0
@@ -250,16 +254,18 @@ def select_files(path,expname,start,length):
 
 # Reads the calendar attribute from the time dimension.
 def read_calendar(ncfile):
-    ds = netCDF4.Dataset(ncfile,'r')
-    if(not ds):
-        return None
-    timvar = ds.variables["time_centered"]
-    if(timvar):
-        result = getattr(timvar,"calendar")
+    try:
+        ds = netCDF4.Dataset(ncfile,'r')
+        if(not ds):
+            return None
+        timvar = ds.variables["time_centered"]
+        if(timvar):
+            result = getattr(timvar,"calendar")
+            return result
+        else:
+            return None
+    finally:
         ds.close()
-        return result
-    else:
-        return None
 
 
 # Reads all the NEMO grid data from the input files.
@@ -275,10 +281,13 @@ def create_grids():
 
 # Reads a particular NEMO grid from the given input file.
 def read_grid(ncfile):
-    ds = netCDF4.Dataset(ncfile,'r')
-    lons = ds.variables['nav_lon'][:,:]
-    lats = ds.variables['nav_lat'][:,:]
-    return nemogrid(lons,lats)
+    try:
+        ds = netCDF4.Dataset(ncfile,'r')
+        lons = ds.variables['nav_lon'][:,:]
+        lats = ds.variables['nav_lat'][:,:]
+        return nemogrid(lons,lats)
+    finally:
+        ds.close()
 
 
 # Transfers the grid to cmor.
