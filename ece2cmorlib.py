@@ -106,9 +106,9 @@ def add_task(tsk):
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
 
 # Adds a mask
-def add_mask(name,src,func):
+def add_mask(name,src,func,val):
     global masks
-    masks[name] = {"source":src,"predicate":func}
+    masks[name] = {"source":src,"operator":func,"rhs":val}
 
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
@@ -116,8 +116,7 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
                                                          tempdir = None,
                                                          taskthreads = 4,
                                                          cdothreads = 4,
-                                                         cleanup = False,
-#                                                         cleanup = True,
+                                                         cleanup = True,
                                                          outputfreq = 3,
                                                          maxsizegb = float("inf")):
     global log,tasks,table_dir,prefix,masks
