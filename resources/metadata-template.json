@@ -13,7 +13,7 @@
     "data_specs_version":           "1.3.15",
     "experiment_id":                "historical",
     "forcing_index":                "1",
-    "further_info_url":             "http://furtherinfo.es-doc.org/CMIP6.KNMI.EC-Earth.historical",
+    "further_info_url":             "http://furtherinfo.es-doc.org/historical",
     "history":                      "",
     "initialization_index":         "1",
     "institution_id":               "EC-Earth-Consortium",
@@ -39,5 +39,6 @@
     "sub_experiment_id":            "none",
     "variant_info":                 "forcing: Nat.Ant.",
     "variant_label":                "r1i1:m1:f1",
-    "tracking_prefix":              "hdl:21.14100"
+    "tracking_prefix":              "hdl:21.14100",
+    "frequency":                    "3hr"
 }
