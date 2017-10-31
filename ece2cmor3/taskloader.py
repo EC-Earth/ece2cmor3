@@ -170,8 +170,9 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 log.error("No expression given for mask %s, ignoring mask definition" % name)
             else:
                 srcstr,func,val = parse_maskexpr(expr)
-                src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
-                ece2cmorlib.add_mask(name,src,lambda x:func(x,val))
+                if(srcstr):
+                    src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
+                    ece2cmorlib.add_mask(name,src,func,val)
     return loadedtargets,skippedtargets
 
 
@@ -190,6 +191,7 @@ def parse_maskexpr(exprstring):
             val = float(tokens[1].strip())
             return src,func,val
     log.error("Expression %s could not be parsed to a valid mask expression")
+    return None,None,None
 
 
 # Checks whether the variable matches the parameter table block
