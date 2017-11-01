@@ -59,15 +59,17 @@ def main():
         procatmos,prococean = True,True
 
     # Load the variables as task targets:
-    loadedtargets,skippedtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
+    loadedtargets,ignoredtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
 
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
         write_varlist(loadedtargets,ofile + ".json")
-        write_varlist(skippedtargets,ofile + ".missing.json")
+        write_varlist(ignoredtargets,ofile + ".ignored.json")
+        write_varlist(missingtargets,ofile + ".missing.json")
         if(args.verbose):
             write_varlist_ascii(loadedtargets,ofile + ".txt")
-            write_varlist_ascii(skippedtargets,ofile + ".missing.txt")
+            write_varlist_ascii(ignoredtargets,ofile + ".ignored.txt")
+            write_varlist_ascii(missingtargets,ofile + ".missing.txt")
 
     # Finishing up
     ece2cmorlib.finalize()

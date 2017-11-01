@@ -13,6 +13,7 @@ IFS_source_tag = 1
 Nemo_source_tag = 2
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
+ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","ignored.json")
 
 json_source_key = "source"
 json_target_key = "target"
@@ -122,22 +123,28 @@ def add_target(variable,table,targetlist):
         targetlist.append(target)
         return True
     else:
-        log.error("Could not find cmor target for variable %s in table %s" % (variable,table))
+        log.error("The %s variable does not appear in the CMOR table file CMIP6_%s.json" % (variable,table))
 	return False
 
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
-    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,json_table_key
+    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,ignored_vars_file,son_table_key
     parlist = []
-    ifspartext = open(ifs_par_file).read()
-    ifsparlist = json.loads(ifspartext)
-    parlist.extend(ifsparlist)
+    if(os.path.isfile(ifs_par_file)):
+        with open(ifs_par_file) as f:
+            ifsparlist = json.loads(f.read())
+            parlist.extend(ifsparlist)
     ifslen = len(parlist)
-    nemopartext = open(nemo_par_file).read()
-    nemoparlist = json.loads(nemopartext)
-    parlist.extend(nemoparlist)
-    loadedtargets,skippedtargets = [],[]
+    if(os.path.isfile(nemo_par_file)):
+        with open(nemo_par_file) as f:
+            nemoparlist = json.loads(f.read())
+            parlist.extend(nemoparlist)
+    ignoredvarlist = []
+    if(os.path.isfile(ignored_vars_file)):
+        with open(ignored_vars_file) as f:
+            ignoredvarlist.extend(json.loads(f.read()))
+    loadedtargets,ignoredtargets,missingtargets = [],[], []
     for target in targets:
         realms = getattr(target,cmor_target.realm_key,None).split()
         atmrealms = ["atmos","atmosChem","land","landIce"]
@@ -148,8 +155,13 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
             continue
         pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
-            log.error("Could not find parameter table entry for %s in table %s...skipping variable." % (target.variable,target.table))
-            skippedtargets.append(target)
+            if(target.variable in ignoredvarlist):
+            	varword = "ignored"
+                ignoredtargets.append(target)
+            else:
+            	varword = "missing"
+                missingtargets.append(target)
+            log.error("Could not find parameter table entry for %s in table %s...skipping variable. This variable is %s" % (target.variable,target.table,varword))
             continue
         tabpars = [p for p in pars if json_table_key in p]
         if(len(pars) > 1):
@@ -172,7 +184,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 srcstr,func,val = parse_maskexpr(expr)
                 src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
                 ece2cmorlib.add_mask(name,src,lambda x:func(x,val))
-    return loadedtargets,skippedtargets
+    return loadedtargets,ignoredtargets,missingtargets
 
 
 # Parses the input mask expression
