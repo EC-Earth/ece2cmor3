@@ -190,7 +190,8 @@ def read_mask(name,filepath):
         else:
             log.error("After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(ncvar.shape))
             return
-        func = numpy.vectorize(masks[name]["predicate"])
+        f,v = masks[name]["operator"],masks[name]["rhs"]
+        func = numpy.vectorize(lambda x:f(x,v))
         masks[name]["array"] = func(var[:,:])
     finally:
         dataset.close()
