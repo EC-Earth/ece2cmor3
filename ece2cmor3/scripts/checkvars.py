@@ -26,14 +26,45 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-#   ofile.write('{}'.format('Table      variable             variable description\n'))
     ofile.write('{}'.format('Table      Dimension format of variable             variable             variable description\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-#           ofile.write('{:10}       {:20} {} {}'.format(tgtvar.table,                                         tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
             ofile.write('{:10} {:40} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
     ofile.close()
+
+
+def write_varlist_excel(targets,opath):
+    import xlsxwriter
+    tgtgroups = cmor_utils.group(targets,lambda t:t.table)
+    workbook = xlsxwriter.Workbook(opath)
+    worksheet = workbook.add_worksheet()
+
+    worksheet.write(0, 0, 'Table')
+    worksheet.write(0, 1, '')
+    worksheet.write(0, 2, 'Dimension format of variable')
+    worksheet.write(0, 3, '')
+    worksheet.write(0, 4, '')
+    worksheet.write(0, 5, '')
+    worksheet.write(0, 6, 'variable')
+    worksheet.write(0, 7, '')
+    worksheet.write(0, 8, 'variable description')
+    row_counter = 1
+    for k,vlist in tgtgroups.iteritems():
+        worksheet.write(row_counter, 0, '')
+        row_counter += 1
+        for tgtvar in vlist:
+            worksheet.write(row_counter, 0, tgtvar.table)
+            worksheet.write(row_counter, 1, '')
+            worksheet.write(row_counter, 2, getattr(tgtvar,"dimensions","unknown"))
+            worksheet.write(row_counter, 3, '')
+            worksheet.write(row_counter, 4, '')
+            worksheet.write(row_counter, 5, '')
+            worksheet.write(row_counter, 6, tgtvar.variable)
+            worksheet.write(row_counter, 7, '')
+            worksheet.write(row_counter, 8, getattr(tgtvar,"long_name","unknown"))
+            row_counter += 1
+    workbook.close()
 
 
 # Main program
@@ -63,13 +94,17 @@ def main():
 
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
-        write_varlist(loadedtargets,ofile + ".json")
+        write_varlist(loadedtargets,ofile + ".available.json")
         write_varlist(ignoredtargets,ofile + ".ignored.json")
         write_varlist(missingtargets,ofile + ".missing.json")
         if(args.verbose):
-            write_varlist_ascii(loadedtargets,ofile + ".txt")
+            write_varlist_ascii(loadedtargets,ofile + ".available.txt")
             write_varlist_ascii(ignoredtargets,ofile + ".ignored.txt")
             write_varlist_ascii(missingtargets,ofile + ".missing.txt")
+
+            write_varlist_excel(loadedtargets,ofile + ".available.xlsx")
+            write_varlist_excel(ignoredtargets,ofile + ".ignored.xlsx")
+            write_varlist_excel(missingtargets,ofile + ".missing.xlsx")
 
     # Finishing up
     ece2cmorlib.finalize()
