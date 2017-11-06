@@ -13,7 +13,7 @@ IFS_source_tag = 1
 Nemo_source_tag = 2
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
-ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","ignored.json")
+ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
 
 json_source_key = "source"
 json_target_key = "target"
@@ -127,9 +127,35 @@ def add_target(variable,table,targetlist):
 	return False
 
 
+# Loads the basic excel ignored file containing the cmor variables for which has been decided that they will be not taken into account.
+def load_basic_ignored_variables_excel(basic_ignored_excel_file):
+    global log
+    import xlrd
+    targets = []
+    var_colname = "variable"
+    comment_colname = "comment"
+    book = xlrd.open_workbook(basic_ignored_excel_file)
+    varlist = {}
+    for sheetname in book.sheet_names():
+        if(sheetname.lower() in ["notes"]): continue
+        sheet = book.sheet_by_name(sheetname)
+        header = sheet.row_values(0)
+        coldict = {}
+        for colname in [var_colname,comment_colname]:
+            if(colname not in header):
+                log.error("Could not find the column %s in sheet %s for file %s: skipping sheet" % (colname,sheet,varlist))
+                continue
+            coldict[colname] = header.index(colname)
+        varnames = [c.value for c in sheet.col_slice(colx = coldict[var_colname],start_rowx = 1)]
+        comments = [c.value for c in sheet.col_slice(colx = coldict[comment_colname],start_rowx = 1)]
+        for i in range(len(varnames)):
+            varlist[varnames[i]] = comments[i]
+    return varlist
+
+
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
-    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,ignored_vars_file,son_table_key
+    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,ignored_vars_file,json_table_key
     parlist = []
     if(os.path.isfile(ifs_par_file)):
         with open(ifs_par_file) as f:
@@ -140,11 +166,11 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         with open(nemo_par_file) as f:
             nemoparlist = json.loads(f.read())
             parlist.extend(nemoparlist)
-    ignoredvarlist = []
-    if(os.path.isfile(ignored_vars_file)):
-        with open(ignored_vars_file) as f:
-            ignoredvarlist.extend(json.loads(f.read()))
+
+    ignoredvarlist = load_basic_ignored_variables_excel(ignored_vars_file)
+
     loadedtargets,ignoredtargets,missingtargets = [],[], []
+
     for target in targets:
         realms = getattr(target,cmor_target.realm_key,None).split()
         atmrealms = ["atmos","atmosChem","land","landIce"]
@@ -157,6 +183,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         if(len(pars) == 0):
             if(target.variable in ignoredvarlist):
             	varword = "ignored"
+                target.ignore_comment = ignoredvarlist[target.variable]
                 ignoredtargets.append(target)
             else:
             	varword = "missing"

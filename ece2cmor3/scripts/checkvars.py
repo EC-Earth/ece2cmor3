@@ -26,11 +26,11 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-    ofile.write('{}'.format('Table      Dimension format of variable             variable             variable description\n'))
+    ofile.write('{:10} {:40} {:20} {:95} {} {}'.format('table', 'dimensions', 'variable', 'long_name', 'comment', '\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:40} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), '\n'))
+            ofile.write('{:10} {:40} {:20} {:95} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"ignore_comment",""), '\n'))
     ofile.close()
 
 
@@ -62,6 +62,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 1, getattr(tgtvar,"dimensions","unknown"))
             worksheet.write(row_counter, 2, tgtvar.variable)
             worksheet.write(row_counter, 3, getattr(tgtvar,"long_name","unknown"))
+            worksheet.write(row_counter, 4, getattr(tgtvar,"ignore_comment",""))
             row_counter += 1
     workbook.close()
 
