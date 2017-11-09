@@ -15,11 +15,11 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 ## Installation:
 
 #### Installation & running with anaconda (strongly recommended):
-The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems were one is not allowed to install complementary python packages to the default python distribution.
+The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems where one is not allowed to install complementary python packages to the default python distribution.
 
 ##### If Anaconda is not yet installed:
 
-Downlaod anaconda from: https://www.anaconda.com/download/ (e.g. the latest version for python 2.7), and
+Downlaod anaconda from: https://www.anaconda.com/download/ (e.g. take the latest anaconda version for python 2.7), and
  ```shell
  cd Downloads/
  chmod u+x Anaconda2-5.0.0.1-Linux-x86_64.sh
@@ -31,7 +31,7 @@ The anaconda installation added the anaconda python to your $PATH by appending a
 
 ##### Download ece3cmor3 by a git checkout
 
-For example we create the directoy {HOME}/cmorize/ for the ece2cmor tool:
+For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
 
 ```shell
 mkdir -p ${HOME}/cmorize/; cd ${HOME}/cmorize/
@@ -39,7 +39,7 @@ git clone https://github.com/goord/ece2cmor3.git
 git submodule update --init --recursive
 ```
 
-##### Creating a virtual Anaconda environment and installing ece3cmor3 therein:
+##### Creating a virtual conda environment and installing ece3cmor3 therein:
 
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/
@@ -49,7 +49,7 @@ python setup.py install
 source deactivate
 ```
 
-##### Running ece2cmor3 inside the Anaconda environment:
+##### Running ece2cmor3 inside the conda environment:
 
 ```shell
  source activate ece2cmor3
