@@ -15,7 +15,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 ## Installation:
 
 #### Installation & running with anaconda (strongly recommended):
-The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems were one is not allowed to install complemenatry python packages to the default python distribution.
+The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems were one is not allowed to install complementary python packages to the default python distribution.
 
 ##### If Anaconda is not yet installed:
 
@@ -49,7 +49,7 @@ python setup.py install
 source deactivate
 ```
 
-##### Running ece2cmor3 inside the Aaconda environment:
+##### Running ece2cmor3 inside the Anaconda environment:
 
 ```shell
  source activate ece2cmor3
@@ -61,7 +61,7 @@ source deactivate
 
 #### Note for developers: 
 
-For instance in case one is developpimg the checkvars.py script which uses the ece2cmor3 package, after any change in the ece2cmor code the line below has to be repeated in order to reload the ece2cmor3 package:
+For instance in case one is developing the checkvars.py script which uses the ece2cmor3 package, after any change in the ece2cmor code the line below has to be repeated in order to reload the ece2cmor3 package:
 ```shell
  cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
 ```
