@@ -134,6 +134,7 @@ def load_basic_ignored_variables_excel(basic_ignored_excel_file):
     targets = []
     var_colname = "variable"
     comment_colname = "comment"
+    author_colname = "comment author"
     book = xlrd.open_workbook(basic_ignored_excel_file)
     varlist = {}
     for sheetname in book.sheet_names():
@@ -141,15 +142,16 @@ def load_basic_ignored_variables_excel(basic_ignored_excel_file):
         sheet = book.sheet_by_name(sheetname)
         header = sheet.row_values(0)
         coldict = {}
-        for colname in [var_colname,comment_colname]:
+        for colname in [var_colname,comment_colname,author_colname]:
             if(colname not in header):
                 log.error("Could not find the column %s in sheet %s for file %s: skipping sheet" % (colname,sheet,varlist))
                 continue
             coldict[colname] = header.index(colname)
         varnames = [c.value for c in sheet.col_slice(colx = coldict[var_colname],start_rowx = 1)]
         comments = [c.value for c in sheet.col_slice(colx = coldict[comment_colname],start_rowx = 1)]
+        authors  = [c.value for c in sheet.col_slice(colx = coldict[author_colname],start_rowx = 1)]
         for i in range(len(varnames)):
-            varlist[varnames[i]] = comments[i]
+            varlist[varnames[i]] = (comments[i], authors[i])
     return varlist
 
 
@@ -183,7 +185,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         if(len(pars) == 0):
             if(target.variable in ignoredvarlist):
             	varword = "ignored"
-                target.ignore_comment = ignoredvarlist[target.variable]
+                target.ignore_comment, target.comment_author = ignoredvarlist[target.variable]
                 ignoredtargets.append(target)
             else:
             	varword = "missing"

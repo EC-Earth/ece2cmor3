@@ -26,11 +26,11 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-    ofile.write('{:10} {:40} {:20} {:95} {} {}'.format('table', 'dimensions', 'variable', 'long_name', 'comment', '\n'))
+    ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format('table', 'dimensions', 'variable', 'long_name', 'comment_author', 'comment', '\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:40} {:20} {:95} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"ignore_comment",""), '\n'))
+            ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ignore_comment",""), '\n'))
     ofile.close()
 
 
@@ -45,6 +45,7 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('C:C', 15)  # Adjust the column width of column C
     worksheet.set_column('D:D', 80)  # Adjust the column width of column D
     worksheet.set_column('E:E', 80)  # Adjust the column width of column E
+    worksheet.set_column('F:F', 15)  # Adjust the column width of column E
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -53,6 +54,7 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 2, 'variable', bold)
     worksheet.write(0, 3, 'variable description', bold)
     worksheet.write(0, 4, 'comment', bold)
+    worksheet.write(0, 5, 'comment author', bold)
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
         worksheet.write(row_counter, 0, '')
@@ -63,6 +65,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 2, tgtvar.variable)
             worksheet.write(row_counter, 3, getattr(tgtvar,"long_name","unknown"))
             worksheet.write(row_counter, 4, getattr(tgtvar,"ignore_comment",""))
+            worksheet.write(row_counter, 5, getattr(tgtvar,"comment_author",""))
             row_counter += 1
     workbook.close()
 
@@ -95,8 +98,6 @@ def main():
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
         write_varlist(loadedtargets,ofile + ".available.json")
-        write_varlist(ignoredtargets,ofile + ".ignored.json")
-        write_varlist(missingtargets,ofile + ".missing.json")
         if(args.verbose):
             write_varlist_ascii(loadedtargets,ofile + ".available.txt")
             write_varlist_ascii(ignoredtargets,ofile + ".ignored.txt")
