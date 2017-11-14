@@ -78,7 +78,7 @@ def main():
     parser.add_argument("--tabdir", metavar = "DIR",    type = str, default = ece2cmorlib.table_dir_default, help = "Cmorization table directory")
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
-    parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write ASCII file with verbose output")
+    parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
 
