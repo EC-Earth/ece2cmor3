@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1051094.svg)](https://doi.org/10.5281/zenodo.1051094)
+
 ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Required python packages:
