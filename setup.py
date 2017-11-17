@@ -27,7 +27,7 @@ setup(name = "ece2cmor3",
       long_description = read("README.md"),
       entry_points = {"console_scripts": [
           "ece2cmor =  ece2cmor3.ece2cmor:main",
-          "checkvars =  ece2cmor3.scripts.checkvarlist:main",
+          "checkvars =  ece2cmor3.scripts.checkvars:main",
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},
