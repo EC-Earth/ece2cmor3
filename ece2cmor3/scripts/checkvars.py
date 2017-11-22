@@ -44,9 +44,10 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('B:B', 35)  # Adjust the column width of column B
     worksheet.set_column('C:C', 15)  # Adjust the column width of column C
     worksheet.set_column('D:D', 80)  # Adjust the column width of column D
-    worksheet.set_column('E:E', 15)  # Adjust the column width of column G
+    worksheet.set_column('E:E',  3)  # Adjust the column width of column G
     worksheet.set_column('F:F', 80)  # Adjust the column width of column E
     worksheet.set_column('G:G', 15)  # Adjust the column width of column F
+    worksheet.set_column('H:H',300)  # Adjust the column width of column G
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -57,6 +58,7 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 4, 'link', bold)
     worksheet.write(0, 5, 'comment', bold)
     worksheet.write(0, 6, 'comment author', bold)
+    worksheet.write(0, 7, 'extensive variable description', bold)
     
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -67,9 +69,11 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 1, getattr(tgtvar,"dimensions","unknown"))
             worksheet.write(row_counter, 2, tgtvar.variable)
             worksheet.write(row_counter, 3, getattr(tgtvar,"long_name","unknown"))
-            worksheet.write(row_counter, 4, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"long_name","unknown").replace(' ', '_') + '","' + tgtvar.variable + '")')
+            worksheet.write(row_counter, 4, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"long_name","unknown").replace(' ', '_').lower() + '.html","web")')
+           #worksheet.write(row_counter, 4, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"long_name","unknown").replace(' ', '_').lower() + '.html","' + tgtvar.variable + '")')
             worksheet.write(row_counter, 5, getattr(tgtvar,"ignore_comment",""))
             worksheet.write(row_counter, 6, getattr(tgtvar,"comment_author",""))
+            worksheet.write(row_counter, 7, getattr(tgtvar,"comment","unknown"))
             row_counter += 1
     workbook.close()
 
