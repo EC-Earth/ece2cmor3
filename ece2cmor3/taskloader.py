@@ -100,6 +100,7 @@ def load_targets_excel(varlist):
     import xlrd
     targets = []
     cmor_colname = "CMOR Name"
+    vid_colname = "vid"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
         if(sheetname.lower() in ["notes","fx","Ofx"]): continue
@@ -109,17 +110,21 @@ def load_targets_excel(varlist):
             log.error("Could not find cmor variable column in sheet %s for file %s: skipping variable" % (sheet,varlist))
             continue
         index = row.index(cmor_colname)
+        vid_index = row.index(vid_colname)
         varnames = [c.value for c in sheet.col_slice(colx = index,start_rowx = 1)]
-        for v in varnames:
-            add_target(str(v),sheetname,targets)
+        vids = [c.value for c in sheet.col_slice(colx = vid_index,start_rowx = 1)]
+        for i in range(len(varnames)):
+            add_target(str(varnames[i]),sheetname,targets,vids[i])
     return targets
 
 
 # Small utility loading targets from the list
-def add_target(variable,table,targetlist):
+def add_target(variable,table,targetlist,vid = None):
     global log
     target = ece2cmorlib.get_cmor_target(variable,table)
     if(target):
+        if(vid):
+          target.vid = vid
         targetlist.append(target)
         return True
     else:
