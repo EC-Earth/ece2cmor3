@@ -81,7 +81,6 @@ dependencies:
 - cmor=3.2.8=py27had5b656_0
 - pip:
   - cdat-info==0.0.0
-  - ece2cmor3==1.0.0
   - f90nml==0.20
   - jsonschema==2.5.1
   - mv2==3.0.0
