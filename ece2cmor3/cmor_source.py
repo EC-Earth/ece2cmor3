@@ -176,3 +176,32 @@ class nemo_source(cmor_source):
 
     def var(self):
         return self.var_id
+
+
+#lpjg will run just in these two grids?!
+lpjg_grid = cmor_utils.cmor_enum(["grid_T255", "grid_T159"])
+
+#based on Table 4 in LUMIP gmd paper www.geosci-model-dev.net/9/2973/2016/
+lpjg_landuse = cmor_utils.cmor_enum(["psl","crp","pst","urb"])
+
+# simple copied and adapted the nemo_source as a starter
+class lpjg_source(cmor_source):
+
+    def __init__(self, colname_, filepath_, grid_):
+        self.colname = colname_
+        self.srcpath = filepath_
+
+#        self.var_id = var_id_
+#        if(grid_id_ >= len(lpjg_grid)):
+#            raise Exception("Invalid grid type passed to lpjg source parameter constructor:", grid_id_)
+#        self.grid_ = grid_id_
+#        self.spatial_dims = dims_
+        
+    def grid(self):
+        return lpjg_grid[self.grid_]
+
+    def colname(self):
+        return self.colname
+
+    def sourcepath(self):
+        return self.srcpath

@@ -1,0 +1,43 @@
+[
+    {
+        "source": "cSoil",
+        "filepath": "cpool.out.gz",
+        "target": "cSoil"
+    },
+    {
+        "source": "cVeg",
+        "filepath": "cpool.out.gz",
+        "target": "cVeg"
+    },
+    {
+        "source": "cLitter",
+        "filepath": "cpool.out.gz",
+        "target": "cLitter"
+    },
+    {
+        "source": "cSoilLut",
+        "filepath": [ 
+          "LUMIP/LUMIP_cSoil_URBAN.out.gz",
+          "LUMIP/LUMIP_cSoil_PEATLAND.out.gz",
+          "LUMIP/LUMIP_cSoil_PASTURE.out.gz",
+          "LUMIP/LUMIP_cSoil_NATURAL.out.gz",
+          "LUMIP/LUMIP_cSoil_FOREST.out.gz",
+          "LUMIP/LUMIP_cSoil_CROPLAND.out.gz",
+          "LUMIP/LUMIP_cSoil_BARREN.out.gz"
+        ],
+        "target": "cSoilLut"
+    },
+    {
+        "source": "cVegLut",
+        "filepath": [ 
+          "LUMIP_cVeg_URBAN.out.gz",
+          "LUMIP_cVeg_PEATLAND.out.gz",
+          "LUMIP_cVeg_PASTURE.out.gz",
+          "LUMIP_cVeg_NATURAL.out.gz",
+          "LUMIP_cVeg_FOREST.out.gz",
+          "LUMIP_cVeg_CROPLAND.out.gz",
+          "LUMIP_cVeg_BARREN.out.gz"
+        ],
+        "target": "cVegLut"
+    }    
+]

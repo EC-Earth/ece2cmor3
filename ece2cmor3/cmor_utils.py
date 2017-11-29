@@ -7,6 +7,11 @@ import datetime
 import logging
 import cmor
 import dateutil.relativedelta
+#lpjg related
+import gzip
+import io
+import csv
+#lpjg end
 
 
 # Log object
@@ -115,7 +120,8 @@ def get_ifs_date(filepath):
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
     ss=regex.group()[1:]
-    return datetime.datetime.strptime(ss,"%Y%m").date()
+    #prevent runtimeerror for "000000"
+    return datetime.datetime.strptime("000101","%Y%m").date() if ss.startswith("000000") else datetime.datetime.strptime(ss,"%Y%m").date()
 
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
@@ -172,6 +178,87 @@ def get_nemo_grid(filepath,expname):
     match=result.group(0)
     return match[0:len(match)-3]
 
+#LPJG related functions:
+#FIXME: Not sure, why the lpjg functions should be in here, it seems they are only used in lpjg2cmor 
+
+# Finds all lpjg output in the given path. expname is ignored
+def find_lpjg_output(path,expname=None,filemode="(out.gz|out)"):
+    #filemode: "out.gz" or "out" or "(out.gz|out)"
+    subexpr=".*"
+    expr=re.compile(subexpr+filemode)
+    result = []
+    for root,dirs,files in os.walk(path):
+        result.extend([os.path.join(root,f) for f in files if re.match(expr,f)])
+    return result
+
+def get_lpjg_frequency(lpjgfile):
+    fileio = None
+    fptr = None
+    if (lpjgfile.endswith(".gz")):
+        fptr = gzip.open(lpjgfile, "r")
+        fileio = io.BufferedReader(fptr) #python3: io.TextIOWrapper(fptr, newline="")
+    else:
+        fileio = io.open(lpjgfile, newline="")
+    result = ""
+    if fileio:
+        try:
+            reader = csv.reader(fileio, delimiter=" ", skipinitialspace=True)
+            headers = next(reader)
+            ncols = len(headers)
+            result = "yr"  #default
+            #Note: we ignore daily completely
+            if (ncols > 4):
+                if (headers[3] == "Jan") & (headers[4] == "Feb"):
+                    result = "mon"
+
+        except StopIteration: # could have some empty gzipped, that will cause the StopIteration exception
+            print("Bad: {!r} caused StopIteration.".format(lpjgfile))
+    if fileio:
+        fileio.close()
+    if fptr:
+        fptr.close()
+    return result
+ 
+def get_lpjg_interval(lpjgfile):
+    fileio = None
+    fptr = None
+    if (lpjgfile.endswith(".gz")):
+        fptr = gzip.open(lpjgfile, "r")
+        fileio = io.BufferedReader(fptr) #python3: io.TextIOWrapper(fptr, newline="")
+    else:
+        fileio = io.open(lpjgfile, newline="")
+    result = (None,None)
+    if fileio:
+        try:
+            reader = csv.reader(fileio, delimiter=" ", skipinitialspace=True)
+            years = []
+            lons = []
+            lats = []
+            headers = None
+            for row in reader:
+                lon = row[0]
+                if (headers == None) & (lon == "Lon"):
+                    headers = row
+                else:
+                    lat = row[1]
+                    year = row[2]
+                    if year not in years:
+                        years.append(year)
+                    if lon not in lons:
+                        lons.append(lon)
+                    if lat not in lats: 
+                        lats.append(lat)
+            minYear=int(min(years))
+            maxYear=int(max(years))
+            result=(datetime.datetime(minYear,1,1,0,0,0),datetime.datetime(maxYear,12,31,23,59,59))
+        except StopIteration: # could have some empty gzipped, that will cause the StopIteration exception
+            print("Bad: {!r} caused StopIteration.".format(lpjgfile))            
+    if fileio:
+        fileio.close()
+    if fptr:
+        fptr.close()
+        
+    return result
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid,ncvar,timdim = 0,factor = 1.0,psvarid = None,ncpsvar = None,swaplatlon = False,fliplat = False,mask = None,missval = 1.e+20):

@@ -67,6 +67,9 @@ def main(args = None):
     if(prococean):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 
+    #if(proclpjg):
+    #    ece2cmorlib.perform_lpjg_tasks(args.datadir,args.exp,startdate,length)
+    
     ece2cmorlib.finalize()
 
 if __name__ == "__main__":

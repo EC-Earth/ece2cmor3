@@ -11,8 +11,10 @@ log = logging.getLogger(__name__)
 
 IFS_source_tag = 1
 Nemo_source_tag = 2
+LPJG_source_tag = 3
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
+lpjg_par_file = os.path.join(os.path.dirname(__file__),"resources","lpjgpar.json")
 ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
 
 json_source_key = "source"
@@ -21,6 +23,7 @@ json_table_key = "table"
 json_grid_key = "grid"
 json_mask_key = "mask"
 json_masked_key = "masked"
+json_filepath_key = "filepath"
 
 mask_predicates = {"=": lambda x,a: x == a,
                    "==":lambda x,a: x == a,
@@ -54,7 +57,7 @@ def load_targets(varlist,load_atm_tasks = True,load_oce_tasks = True):
         for table,val in varlist.iteritems():
             varseq = [val] if isinstance(val,basestring) else val
             for v in varseq:
-		add_target(v,table,targetlist)
+                add_target(v,table,targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
     log.info("Found %d cmor target variables in input variable list." % len(targetlist))
@@ -156,8 +159,8 @@ def load_basic_ignored_variables_excel(basic_ignored_excel_file):
 
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
-def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
-    global log,IFS_source_tag,Nemo_source_tag,ifs_par_file,nemo_par_file,ignored_vars_file,json_table_key
+def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,load_lpjg_tasks = True):
+    global log,IFS_source_tag,Nemo_source_tag,LPJG_source_tag,ifs_par_file,nemo_par_file,lpjg_par_file,ignored_vars_file,json_table_key
     parlist = []
     if(os.path.isfile(ifs_par_file)):
         with open(ifs_par_file) as f:
@@ -168,6 +171,11 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         with open(nemo_par_file) as f:
             nemoparlist = json.loads(f.read())
             parlist.extend(nemoparlist)
+    nemolen = len(parlist)
+    if(os.path.isfile(lpjg_par_file)):
+        with open(lpjg_par_file) as f:
+            lpjgparlist = json.loads(f.read())
+            parlist.extend(lpjgparlist)
 
     ignoredvarlist = load_basic_ignored_variables_excel(ignored_vars_file)
 
@@ -181,14 +189,17 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         ocnrealms = ["ocean","ocnBgChem","seaIce"]
         if(not load_oce_tasks and any([r for r in ocnrealms if r in realms])):
             continue
+        lpjgrealms = ["land"] #what is that realm stuff, does lpjg also have "atmos"?
+        if (not load_lpjg_tasks and any([r for r in lpjgrealms if r in realms])):
+            continue
         pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
             if(target.variable in ignoredvarlist):
-            	varword = "ignored"
+                varword = "ignored"
                 target.ignore_comment, target.comment_author = ignoredvarlist[target.variable]
                 ignoredtargets.append(target)
             else:
-            	varword = "missing"
+                varword = "missing"
                 missingtargets.append(target)
             log.error("Could not find parameter table entry for %s in table %s...skipping variable. This variable is %s" % (target.variable,target.table,varword))
             continue
@@ -198,7 +209,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 log.warning("Multiple parameter table entries found for %s in table %s...choosing first found." % (target.variable,target.table))
                 for p in pars: log.warning("Parameter table entry found: %s" % str(p))
         par = pars[0] if len(tabpars) == 0 else tabpars[0]
-        tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag
+        tag = IFS_source_tag if parlist.index(par) < ifslen else Nemo_source_tag if parlist.index(par) < nemolen else LPJG_source_tag 
         task = create_cmor_task(par,target,tag)
         ece2cmorlib.add_task(task)
         loadedtargets.append(target)
@@ -271,4 +282,10 @@ def create_cmor_source(pardict,tag):
             log.error("Could not find a grid value in the nemo parameter table for %s...skipping variable." % src)
             return None
         return cmor_source.nemo_source(src,cmor_source.nemo_grid.index(grid))
+    elif(tag == LPJG_source_tag):
+        filepath = pardict.get(json_filepath_key,None)
+        #could add a "grid":"grid_T255" or "grid_T159" into the lpjgpar.json
+        grid = cmor_source.lpjg_grid.index("grid_T255") #hardwired grid_T255 or cmor_source.lpjg_grid[pardict.get(json_grid_key,"grid_T255")]
+        cmorsrc = cmor_source.lpjg_source(src,filepath,grid)
+        return cmorsrc
     return None

@@ -6,6 +6,7 @@ import cmor_target
 import cmor_task
 import nemo2cmor
 import ifs2cmor
+import lpjg2cmor
 import postproc
 
 # Logger instance
@@ -145,6 +146,19 @@ def perform_nemo_tasks(datadir,expname,startdate,interval):
     if(not nemo2cmor.initialize(datadir,expname,tableroot,startdate,interval)):
         return
     nemo2cmor.execute(nemo_tasks)
+
+# Performs a LPJG cmorization processing:
+def perform_lpjg_tasks(datadir,ncdir,expname,startdate,interval):
+    global log,tasks,table_dir,prefix
+    validate_setup_settings()
+    validate_run_settings(datadir,expname)
+    lpjg_tasks = [t for t in tasks if isinstance(t.source,cmor_source.lpjg_source)]
+    log.info("Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks),len(tasks)))
+    tableroot = os.path.join(table_dir,prefix)
+    if(not lpjg2cmor.initialize(datadir,ncdir,expname,tableroot,startdate,interval)):
+        return
+    lpjg2cmor.execute(lpjg_tasks)
+
 
 # Validation of cmor session configuration
 def validate_run_settings(datadir,expname):
