@@ -18,6 +18,7 @@ install:
     - source activate ece2cmor3
     - which cdo
     - cdo -V
+    - ls -lh test/test_data/ifsdata/6hr
 script:
 # Automatic "computer says no" to uv-cdat question to stream logging prompt...
     - echo "no" | nosetests -v
