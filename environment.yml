@@ -58,7 +58,7 @@ dependencies:
 - pyopenssl=17.2.0=py27_0
 - pysocks=1.6.7=py27_0
 - python=2.7.14=1
-- python-cdo=1.3.4=py27_0
+- python-cdo=1.3.3=py27_0
 - readline=6.2=0
 - requests=2.18.4=py27_1
 - setuptools=37.0.0=py27_0
