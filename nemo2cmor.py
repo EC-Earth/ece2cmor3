@@ -294,8 +294,8 @@ def read_grid(ncfile):
 def write_grid(grid):
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
-    i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
-    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
+    i_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
+    j_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
     if(ny == 1):
         return cmor.grid(axis_ids = [i_index_id],
                 latitude = grid.lats[:,0],
