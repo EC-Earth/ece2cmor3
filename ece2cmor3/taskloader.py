@@ -14,6 +14,7 @@ Nemo_source_tag = 2
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
 ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
+identified_missing_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-identified-missing-cmpi6-requested-variables.xlsx")
 
 json_source_key = "source"
 json_target_key = "target"
@@ -133,7 +134,9 @@ def add_target(variable,table,targetlist,vid = None):
 
 
 # Loads the basic excel ignored file containing the cmor variables for which has been decided that they will be not taken into account.
-def load_basic_ignored_variables_excel(basic_ignored_excel_file):
+# This function can be used to read any excel file which has been produced by the checkvars.py script, in other words it can read the
+# basic ignored, basic identified missing, available, ignored, identifiedmissing, and missing files.
+def load_checkvars_excel(basic_ignored_excel_file):
     global log
     import xlrd
     targets = []
@@ -174,9 +177,10 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
             nemoparlist = json.loads(f.read())
             parlist.extend(nemoparlist)
 
-    ignoredvarlist = load_basic_ignored_variables_excel(ignored_vars_file)
+    ignoredvarlist           = load_checkvars_excel(ignored_vars_file)
+    identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
 
-    loadedtargets,ignoredtargets,missingtargets = [],[], []
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = [],[],[],[]
 
     for target in targets:
         realms = getattr(target,cmor_target.realm_key,None).split()
@@ -190,8 +194,12 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         if(len(pars) == 0):
             if(target.variable in ignoredvarlist):
             	varword = "ignored"
-                target.ignore_comment, target.comment_author = ignoredvarlist[target.variable]
+                target.ecearth_comment, target.comment_author = ignoredvarlist[target.variable]
                 ignoredtargets.append(target)
+            elif(target.variable in identifiedmissingvarlist):
+            	varword = "identified missing"
+                target.ecearth_comment, target.comment_author = identifiedmissingvarlist[target.variable]
+                identifiedmissingtargets.append(target)
             else:
             	varword = "missing"
                 missingtargets.append(target)
@@ -219,7 +227,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 if(srcstr):
                     src = create_cmor_source({json_source_key: srcstr},IFS_source_tag)
                     ece2cmorlib.add_mask(name,src,func,val)
-    return loadedtargets,ignoredtargets,missingtargets
+    return loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets
 
 
 # Parses the input mask expression

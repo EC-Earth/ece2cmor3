@@ -30,7 +30,7 @@ def write_varlist_ascii(targets,opath):
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ignore_comment",""), '\n'))
+            ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
     ofile.close()
 
 
@@ -70,7 +70,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 2, tgtvar.variable)
             worksheet.write(row_counter, 3, getattr(tgtvar,"long_name","unknown"))
             worksheet.write(row_counter, 4, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"vid","unknown") + '.html","web")')
-            worksheet.write(row_counter, 5, getattr(tgtvar,"ignore_comment",""))
+            worksheet.write(row_counter, 5, getattr(tgtvar,"ecearth_comment",""))
             worksheet.write(row_counter, 6, getattr(tgtvar,"comment_author",""))
             worksheet.write(row_counter, 7, getattr(tgtvar,"comment","unknown"))
             row_counter += 1
@@ -100,19 +100,21 @@ def main():
         procatmos,prococean = True,True
 
     # Load the variables as task targets:
-    loadedtargets,ignoredtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
 
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
         write_varlist(loadedtargets,ofile + ".available.json")
         if(args.verbose):
-            write_varlist_ascii(loadedtargets,ofile + ".available.txt")
-            write_varlist_ascii(ignoredtargets,ofile + ".ignored.txt")
-            write_varlist_ascii(missingtargets,ofile + ".missing.txt")
+            write_varlist_ascii(loadedtargets           ,ofile + ".available.txt")
+            write_varlist_ascii(ignoredtargets          ,ofile + ".ignored.txt")
+            write_varlist_ascii(identifiedmissingtargets,ofile + ".identifiedmissing.xlsx")
+            write_varlist_ascii(missingtargets          ,ofile + ".missing.txt")
 
-            write_varlist_excel(loadedtargets,ofile + ".available.xlsx")
-            write_varlist_excel(ignoredtargets,ofile + ".ignored.xlsx")
-            write_varlist_excel(missingtargets,ofile + ".missing.xlsx")
+            write_varlist_excel(loadedtargets           ,ofile + ".available.xlsx")
+            write_varlist_excel(ignoredtargets          ,ofile + ".ignored.xlsx")
+            write_varlist_excel(identifiedmissingtargets,ofile + ".identifiedmissing.xlsx")
+            write_varlist_excel(missingtargets          ,ofile + ".missing.xlsx")
 
     # Finishing up
     ece2cmorlib.finalize()
