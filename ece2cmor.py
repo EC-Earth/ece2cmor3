@@ -49,12 +49,14 @@ def main(args):
     parser.add_argument("--ncdo",   metavar = "N",          type = int,     default = 4,help = "Number of available threads per CDO postprocessing task")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for ocean data")
+    parser.add_argument("--nomask"   , action = "store_true", default = False, help = "Disable masking of fields")
 
     args = parser.parse_args()
 
     modedict = {"preserve":ece2cmorlib.PRESERVE,"append":ece2cmorlib.APPEND,"replace":ece2cmorlib.REPLACE}
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tableprefix = args.tabid)
+    ece2cmorlib.enable_masks = not args.nomask
 
     varlist = args.vars
     if(not varlist):

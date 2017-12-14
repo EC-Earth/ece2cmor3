@@ -25,6 +25,7 @@ table_dir = table_dir_default
 tasks = []
 targets = []
 masks = {}
+enable_masks = True
 
 # CMOR modes
 APPEND = cmor.CMOR_APPEND
@@ -125,7 +126,10 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
     ifs_tasks = [t for t in tasks if isinstance(t.source,cmor_source.ifs_source)]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks),len(tasks)))
     tableroot = os.path.join(table_dir,prefix)
-    ifs2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k]["source"],cmor_source.ifs_source)}
+    if(enable_masks):
+        ifs2cmor.masks = {k:masks[k] for k in masks if isinstance(masks[k]["source"],cmor_source.ifs_source)}
+    else:
+        ifs2cmor.masks = {}
     if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,refdate if refdate else startdate,
                                outputfreq = outputfreq,tempdir = tempdir,maxsizegb = maxsizegb)):
         return
