@@ -143,7 +143,11 @@ def get_mask_tasks(tasks):
     for task in tasks:
         msk = getattr(task.target,cmor_target.mask_key,None)
         if(msk):
-            selected_masks.append(msk)
+            if(msk not in masks):
+                log.warning("Mask %s is not supported as an IFS mask, skipping masking" % msk)
+                delattr(task.target,cmor_target.mask_key)
+            else:
+                selected_masks.append(msk)
             continue
         for area_operator in getattr(task.target,"area_operator",[]):
             words = area_operator.split()

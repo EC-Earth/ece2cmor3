@@ -37,6 +37,7 @@ def main(args = None):
     parser.add_argument("--ncdo",   metavar = "N",          type = int,     default = 4,help = "Number of available threads per CDO postprocessing task")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for ocean data")
+    parser.add_argument("--nomask"   , action = "store_true", default = False, help = "Disable masking of fields")
 
     args = parser.parse_args()
 
@@ -44,6 +45,7 @@ def main(args = None):
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tabledir = args.tabdir,tableprefix = args.tabid)
+    ece2cmorlib.enable_masks = not args.nomask
 
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm
