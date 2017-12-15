@@ -255,7 +255,8 @@ def get_sp_tasks(tasks):
         if(sptask):
             existing_tasks.append(sptask)
         else:
-            sptask = cmor_task.cmor_task(surface_pressure,cmor_target.cmor_target("sp",freq))
+            source = cmor_source.ifs_source(surface_pressure)
+            sptask = cmor_task.cmor_task(source,cmor_target.cmor_target("sp",freq))
             setattr(sptask.target,cmor_target.freq_key,freq)
             setattr(sptask.target,"time_operator",["mean"])
             find_sp_variable(sptask)
