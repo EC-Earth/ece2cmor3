@@ -60,6 +60,12 @@ source deactivate
  ./scripts/checkvars.py -h
 ```
 
+#### Note that the nested CMOR tables require an update once in a while: 
+
+The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. Once in a while one of the ece2cmor3 developpers will update the nested repository of the CMOR tables. This will be visisble from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. In that case one has to repeat the following:
+```shell
+cd ${HOME}/cmorize/; git submodule update --init --recursive
+```
 
 #### Note for developers: 
 
