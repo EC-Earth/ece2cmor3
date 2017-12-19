@@ -73,7 +73,7 @@
           "rsus",
           "rsuscs"
         ],
-        "expr": "var95=var169-var176"
+        "expr": "var95=var176-var169"
     },
     {
         "source": "96.128",
@@ -82,13 +82,13 @@
           "rlus",
           "rluscs"
         ],
-        "expr": "var96=var175-var177"
+        "expr": "var96=var177-var175"
     },
     {
         "source": "97.128",
         "convert": "cum2inst",
         "target": "rsut",
-        "expr": "var97=var212-var178"
+        "expr": "var97=var178-var212"
     },
     {
         "source": "99.128",
@@ -116,25 +116,13 @@
         "source": "103.128",
         "convert": "cum2inst",
         "target": "rsutcs",
-        "expr": "var103=var212-var208"
+        "expr": "var103=var208-var212"
     },
     {
         "source": "104.128",
         "convert": "cum2inst",
         "target": "rldscs",
         "expr": "var104=var211-var177+var175"
-    },
-    {
-        "source": "105.128",
-        "convert": "cum2inst",
-        "target": "rlut",
-        "expr": "var105=-var179"
-    },
-    {
-        "source": "106.128",
-        "convert": "cum2inst",
-        "target": "rlutcs",
-        "expr": "var106=-var209"
     },
     {
         "source": "107.128",
@@ -394,6 +382,11 @@
         "target": "rlds"
     },
     {
+        "source": "179.128",
+        "convert": "cum2inst",
+        "target": "rlut"
+    },
+    {
         "source": "180.128",
         "convert": "cum2inst",
         "target": "tauu"
@@ -421,6 +414,11 @@
         "convert": "vol2flux",
         "target": "mrro",
         "masked": "land"
+    },
+    {
+        "source": "209.128",
+        "convert": "cum2inst",
+        "target": "rlutcs"
     },
     {
         "source": "212.128",
