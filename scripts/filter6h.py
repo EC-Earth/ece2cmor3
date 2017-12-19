@@ -95,6 +95,8 @@ def main(args):
         fixmonths.timeshift = 3 if pfile else 0
         print "Merging months..."
         fixmonths.merge_months(month,pfile,ifile,[file3hr,file6hr],filter_record)
+        for fpath in [file3hr,file6hr]:
+            if os.stat(fpath).st_size == 0: os.remove(fpath)
     except gribapi.GribInternalError,err:
         if verbose:
             traceback.print_exc(file=sys.stderr)
