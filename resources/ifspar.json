@@ -196,7 +196,7 @@
     {
         "source": "120.128",
         "target": "hfdsn",
-        "expr": "var120=(var141>0)*(var146+var147)",
+        "expr": "var120=(var141>0)*(var146+var147+var176+var177)",
         "convert": "cum2inst"
     },
     {
@@ -480,6 +480,6 @@
     },
     {
         "mask": "sea",
-        "expr": "var172<0.5"
+        "expr": "var172<=0.5"
     }
 ]
