@@ -108,7 +108,7 @@ def main():
         if(args.verbose):
             write_varlist_ascii(loadedtargets           ,ofile + ".available.txt")
             write_varlist_ascii(ignoredtargets          ,ofile + ".ignored.txt")
-            write_varlist_ascii(identifiedmissingtargets,ofile + ".identifiedmissing.xlsx")
+            write_varlist_ascii(identifiedmissingtargets,ofile + ".identifiedmissing.txt")
             write_varlist_ascii(missingtargets          ,ofile + ".missing.txt")
 
             write_varlist_excel(loadedtargets           ,ofile + ".available.xlsx")
