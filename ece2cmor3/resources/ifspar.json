@@ -87,6 +87,12 @@
         "expr": "var97=var178-var212"
     },
     {
+        "source": "98.128",
+        "convert": "cum2inst",
+        "target": "rtmt",
+        "expr": "var98=var178+var179"
+    },
+    {
         "source": "99.128",
         "target": "mrsos",
         "expr": "var99=70*var39+30*var40",
@@ -209,6 +215,7 @@
           "zg",
           "zg7h",
           "zg27",
+          "zg500",
           "zg1000",
           "orog"
         ]
