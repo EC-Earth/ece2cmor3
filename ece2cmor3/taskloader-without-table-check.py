@@ -141,7 +141,6 @@ def load_checkvars_excel(basic_ignored_excel_file):
     global log
     import xlrd
     targets = []
-    table_colname = "Table"
     var_colname = "variable"
     comment_colname = "comment"
     author_colname = "comment author"
@@ -152,17 +151,16 @@ def load_checkvars_excel(basic_ignored_excel_file):
         sheet = book.sheet_by_name(sheetname)
         header = sheet.row_values(0)
         coldict = {}
-        for colname in [table_colname,var_colname,comment_colname,author_colname]:
+        for colname in [var_colname,comment_colname,author_colname]:
             if(colname not in header):
                 log.error("Could not find the column %s in sheet %s for file %s: skipping sheet" % (colname,sheet,varlist))
                 continue
             coldict[colname] = header.index(colname)
-        tablenames = [c.value for c in sheet.col_slice(colx = coldict[table_colname],start_rowx = 1)]
-        varnames   = [c.value for c in sheet.col_slice(colx = coldict[var_colname],start_rowx = 1)]
-        comments   = [c.value for c in sheet.col_slice(colx = coldict[comment_colname],start_rowx = 1)]
-        authors    = [c.value for c in sheet.col_slice(colx = coldict[author_colname],start_rowx = 1)]
+        varnames = [c.value for c in sheet.col_slice(colx = coldict[var_colname],start_rowx = 1)]
+        comments = [c.value for c in sheet.col_slice(colx = coldict[comment_colname],start_rowx = 1)]
+        authors  = [c.value for c in sheet.col_slice(colx = coldict[author_colname],start_rowx = 1)]
         for i in range(len(varnames)):
-            varlist[(tablenames[i],varnames[i])] = (comments[i], authors[i])
+            varlist[varnames[i]] = (comments[i], authors[i])
     return varlist
 
 
@@ -195,13 +193,13 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
             continue
         pars = [p for p in parlist if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
         if(len(pars) == 0):
-            if((target.table,target.variable) in ignoredvarlist):
+            if(target.variable in ignoredvarlist):
             	varword = "ignored"
-                target.ecearth_comment, target.comment_author = ignoredvarlist[(target.table,target.variable)]
+                target.ecearth_comment, target.comment_author = ignoredvarlist[target.variable]
                 ignoredtargets.append(target)
-            elif((target.table,target.variable) in identifiedmissingvarlist):
+            elif(target.variable in identifiedmissingvarlist):
             	varword = "identified missing"
-                target.ecearth_comment, target.comment_author = identifiedmissingvarlist[(target.table,target.variable)]
+                target.ecearth_comment, target.comment_author = identifiedmissingvarlist[target.variable]
                 identifiedmissingtargets.append(target)
             else:
             	varword = "missing"
