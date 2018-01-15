@@ -68,7 +68,7 @@ dependencies:
 - tk=8.5.19=2
 - udunits2=2.2.25=1
 - urllib3=1.22=py27_0
-- wheel=0.30.0=py_1
+- wheel=0.30.0=py27h2bc6bb2_1
 - xz=5.2.3=0
 - zlib=1.2.11=0
 - intel-openmp=2018.0.0=hc7b2577_8
