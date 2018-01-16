@@ -97,4 +97,51 @@ def execute(tasks):
 # Checks tasks that are compatible with the variables listed in grib_vars and
 # returns those that are compatible.
 def validate_tasks(tasks):
-    return tasks
+    validtasks = []
+    for task in tasks:
+        if(not isinstance(task.source,ifs_source)):
+            continue
+        codes = task.source.get_root_codes()
+        levtype,levels = get_levels(task)
+        #TODO: Check all combinations are in grib_vars keys
+        validtasks.append(task)
+    return validtasks
+
+
+def get_level(task):
+    global log
+    if(task.source.spatial_dims == 2): return (1,[0])
+    zdims = getattr(task.target,"z_dims",[])
+    if(len(zdims) == 0): return (1,[0])
+    if(len(zdims) > 1):
+        log.error("Multiple level dimensions in table %s are not supported by this grib-splitting software",(task.target.table))
+        task.set_failed()
+        return
+    axisname = zdims[0]
+    if(axisname == "alevel"):
+        cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+    if(axisname == "alevhalf"):
+        log.error("Vertical half-levels in table %s are not supported by this post-processing software",(task.target.table))
+        task.set_failed()
+        return
+    axisinfos = cmor_target.get_axis_info(task.target.table)
+    axisinfo = axisinfos.get(axisname,None)
+    if(not axisinfo):
+        log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
+        task.set_failed()
+        return
+    levels = axisinfo.get("requested",[])
+    if(len(levels) == 0):
+        val = axisinfo.get("value",None)
+        if(val): levels = [val]
+    leveltypes = [cdoapi.cdo_command.hybrid_level_code,cdoapi.cdo_command.pressure_level_code,cdoapi.cdo_command.height_level_code]
+    if(getattr(task,"path",None)):
+        leveltypes = cdo.get_z_axes(task.path,task.source.get_root_codes()[0].var_id)
+    oname = axisinfo.get("standard_name",None)
+    if(oname == "air_pressure"):
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.pressure,cdoapi.cdo_command.pressure_level_code)
+    elif(oname in ["height","altitude"]):
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.height,cdoapi.cdo_command.height_level_code)
+    elif(axisname not in ["alevel","alevhalf"]):
+        log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
+        task.set_failed()
