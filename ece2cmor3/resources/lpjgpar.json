@@ -1,21 +1,21 @@
 [
     {
-        "source": "cSoil",
+        "source": "SoilC",
         "filepath": "cpool.out.gz",
         "target": "cSoil"
     },
     {
-        "source": "cVeg",
+        "source": "VegC",
         "filepath": "cpool.out.gz",
         "target": "cVeg"
     },
     {
-        "source": "cLitter",
+        "source": "LitterC",
         "filepath": "cpool.out.gz",
         "target": "cLitter"
     },
     {
-        "source": "cSoilLut",
+        "source": "Total",
         "filepath": [ 
           "LUMIP/LUMIP_cSoil_URBAN.out.gz",
           "LUMIP/LUMIP_cSoil_PEATLAND.out.gz",
@@ -28,7 +28,7 @@
         "target": "cSoilLut"
     },
     {
-        "source": "cVegLut",
+        "source": "Total",
         "filepath": [ 
           "LUMIP_cVeg_URBAN.out.gz",
           "LUMIP_cVeg_PEATLAND.out.gz",

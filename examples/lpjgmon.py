@@ -49,7 +49,7 @@ def main(args):
     taskloader.load_targets(variables)
 
     # Execute the cmorization:
-    ece2cmorlib.perform_lpjg_tasks(opt.dir,opt.ncdir,opt.exp,startdate,interval)
+    ece2cmorlib.perform_lpjg_tasks(opt.dir,opt.ncdir,opt.exp,startdate,interval, datetime.datetime(1850,1,1,0,0,0))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
