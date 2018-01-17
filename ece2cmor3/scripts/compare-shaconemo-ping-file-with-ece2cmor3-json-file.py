@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Call this script by:
 #  python compare-shaconemo-ping-file-with-ece2cmor3-json-file.py
 
