@@ -101,11 +101,6 @@
         "target": "wmo"
     },
     {
-        "source": "hfsithermds",
-        "grid": "SBC",
-        "target": "hfsithermds2d"
-    },
-    {
         "source": "scmastot",
         "grid": "scalar",
         "target": "masso"
