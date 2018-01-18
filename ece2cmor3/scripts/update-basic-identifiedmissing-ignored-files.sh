@@ -33,6 +33,7 @@ if [ "$#" -eq -2 ]; then
 # Step 5: Overwrite taskloader.py by the old version of taskloader.py without the table check, reload the package, and run checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader-without-table-check.py ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader.py
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
+   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    ./checkvars.py -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3
    xdg-open cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx
 
@@ -44,15 +45,17 @@ if [ "$#" -eq -2 ]; then
    git checkout ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader.py
 
 
-# Test that this replace gives still the same results (in that case step 7 has to be postponed until the test is done):
-   cp cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx bup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx
-   cp cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx           bup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx
+# Test that this replace gives still the same results:
+   mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.*;
+   cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.* ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/;
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
+   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    ./checkvars.py -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3
 # The diff is not identical but the excel-diff gives no cel differences:
-   excel-diff bup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx
-   excel-diff bup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx
-
+   diff       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.txt  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.txt
+   diff       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.txt            ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.txt
+#  excel-diff ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.identifiedmissing.xlsx
+#  excel-diff ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx           ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/tmp-backup-cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.ignored.xlsx
 
 # Note exel-diff is installed by following:
 #   https://github.com/na-ka-na/ExcelCompare/blob/master/README.md
