@@ -26,8 +26,9 @@ if [ "$#" -eq -2 ]; then
 # and copy them manually into the variable column in the file:
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 
-# Step 4: Overwrite the list-of-identified-missing-cmpi6-requested-variables.xlsx temporary by this pre-list-of-identified-missing-cmpi6-requested-variables.xlsx:
+# Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files by their corresponding pre-* ones:
   cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+  cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables.xlsx            ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Step 5: Overwrite taskloader.py by the old version of taskloader.py without the table check, reload the package, and run checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader-without-table-check.py ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader.py
