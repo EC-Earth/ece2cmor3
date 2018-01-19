@@ -41,24 +41,26 @@ def write_varlist_excel(targets,opath):
     worksheet = workbook.add_worksheet()
 
     worksheet.set_column('A:A', 10)  # Adjust the column width of column A
-    worksheet.set_column('B:B', 35)  # Adjust the column width of column B
-    worksheet.set_column('C:C', 15)  # Adjust the column width of column C
-    worksheet.set_column('D:D', 80)  # Adjust the column width of column D
-    worksheet.set_column('E:E',  4)  # Adjust the column width of column E
-    worksheet.set_column('F:F', 80)  # Adjust the column width of column F
-    worksheet.set_column('G:G', 15)  # Adjust the column width of column G
-    worksheet.set_column('H:H',300)  # Adjust the column width of column H
+    worksheet.set_column('B:B', 15)  # Adjust the column width of column B
+    worksheet.set_column('C:C',  4)  # Adjust the column width of column C
+    worksheet.set_column('D:D', 35)  # Adjust the column width of column D
+    worksheet.set_column('E:E', 80)  # Adjust the column width of column E
+    worksheet.set_column('F:F',  4)  # Adjust the column width of column F
+    worksheet.set_column('G:G', 80)  # Adjust the column width of column G
+    worksheet.set_column('H:H', 15)  # Adjust the column width of column H
+    worksheet.set_column('I:I',300)  # Adjust the column width of column I
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
     worksheet.write(0, 0, 'Table', bold)
-    worksheet.write(0, 1, 'Dimension format of variable', bold)
-    worksheet.write(0, 2, 'variable', bold)
-    worksheet.write(0, 3, 'variable long name', bold)
-    worksheet.write(0, 4, 'link', bold)
-    worksheet.write(0, 5, 'comment', bold)
-    worksheet.write(0, 6, 'comment author', bold)
-    worksheet.write(0, 7, 'extensive variable description', bold)
+    worksheet.write(0, 1, 'variable', bold)
+    worksheet.write(0, 2, 'prio', bold)
+    worksheet.write(0, 3, 'Dimension format of variable', bold)
+    worksheet.write(0, 4, 'variable long name', bold)
+    worksheet.write(0, 5, 'link', bold)
+    worksheet.write(0, 6, 'comment', bold)
+    worksheet.write(0, 7, 'comment author', bold)
+    worksheet.write(0, 8, 'extensive variable description', bold)
     
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -66,13 +68,14 @@ def write_varlist_excel(targets,opath):
         row_counter += 1
         for tgtvar in vlist:
             worksheet.write(row_counter, 0, tgtvar.table)
-            worksheet.write(row_counter, 1, getattr(tgtvar,"dimensions","unknown"))
-            worksheet.write(row_counter, 2, tgtvar.variable)
-            worksheet.write(row_counter, 3, getattr(tgtvar,"long_name","unknown"))
-            worksheet.write(row_counter, 4, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"vid","unknown") + '.html","web")')
-            worksheet.write(row_counter, 5, getattr(tgtvar,"ecearth_comment",""))
-            worksheet.write(row_counter, 6, getattr(tgtvar,"comment_author",""))
-            worksheet.write(row_counter, 7, getattr(tgtvar,"comment","unknown"))
+            worksheet.write(row_counter, 1, tgtvar.variable)
+            worksheet.write(row_counter, 2, tgtvar.priority)
+            worksheet.write(row_counter, 3, getattr(tgtvar,"dimensions","unknown"))
+            worksheet.write(row_counter, 4, getattr(tgtvar,"long_name","unknown"))
+            worksheet.write(row_counter, 5, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"vid","unknown") + '.html","web")')
+            worksheet.write(row_counter, 6, getattr(tgtvar,"ecearth_comment",""))
+            worksheet.write(row_counter, 7, getattr(tgtvar,"comment_author",""))
+            worksheet.write(row_counter, 8, getattr(tgtvar,"comment","unknown"))
             row_counter += 1
     workbook.close()
 
