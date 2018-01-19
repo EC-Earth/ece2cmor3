@@ -155,7 +155,8 @@ def get_lowercase(dictionary,key,default):
 def create_targets(path,prefix):
     global coord_file
     if(os.path.isfile(path)):
-        return create_targets_for_file(path,prefix)
+        if(os.path.basename(path) not in [prefix + "_CV.json",prefix + "_CV_test.json"]):
+            return create_targets_for_file(path,prefix)
     elif(os.path.isdir(path)):
         coordfilepath = os.path.join(path,prefix + "_" + coord_file + ".json")
         if(os.path.exists(coordfilepath)):
@@ -164,7 +165,8 @@ def create_targets(path,prefix):
         paths = [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
         result = []
         for p in paths:
-            result = result + create_targets_for_file(p,prefix)
+            if(os.path.basename(p) not in [prefix + "_CV.json",prefix + "_CV_test.json"]):
+                result = result + create_targets_for_file(p,prefix)
         return result
     else:
         return []
