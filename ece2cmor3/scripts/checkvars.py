@@ -92,7 +92,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
+    ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm
@@ -117,7 +117,7 @@ def main():
             write_varlist_excel(missingtargets          ,ofile + ".missing.xlsx")
 
     # Finishing up
-    ece2cmorlib.finalize()
+    ece2cmorlib.finalize_without_cmor()
 
 if __name__ == "__main__":
     main()

@@ -35,6 +35,16 @@ REPLACE_NC3 = cmor.CMOR_REPLACE_3
 PRESERVE = cmor.CMOR_PRESERVE
 PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 
+# Initialization function without using the cmor library, must be called before starting
+def initialize_without_cmor(metadata = conf_path_default,mode = cmor_mode_default,tabledir = table_dir_default,tableprefix = prefix_default):
+    global exp_name,prefix,table_dir,targets,conf_path,cmor_mode
+    conf_path = metadata
+    cmor_mode = mode
+    table_dir = tabledir
+    prefix = tableprefix
+    validate_setup_settings()
+    targets = cmor_target.create_targets(table_dir,prefix)
+
 # Initialization function, must be called before starting
 def initialize(metadata = conf_path_default,mode = cmor_mode_default,tabledir = table_dir_default,tableprefix = prefix_default):
     global exp_name,prefix,table_dir,targets,conf_path,cmor_mode
@@ -69,6 +79,13 @@ def validate_setup_settings():
         log.error("Invalid CMOR netcdf file action %s given" % str(cmor_mode))
         raise Exception("Invalid CMOR netcdf file action")
     return 0
+
+# Closes cmor
+def finalize_without_cmor():
+    global tasks,targets,masks
+    targets = []
+    tasks = []
+    masks = {}
 
 # Closes cmor
 def finalize():
