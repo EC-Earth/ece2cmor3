@@ -78,28 +78,28 @@ def get_rounded_time(freq,time,offset = 0):
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start,end,delta):
     global log
-    if(end<start):
+    if(end < start):
         log.warning("Start date %s later than end date %s" % (str(start),str(end)))
         return []
-    if(start+delta==start):
+    if(start + delta == start):
         log.warning("Cannot partition time interval into zero-length intervals")
         return []
-    result=list()
-    istart=start
-    while((istart+delta)<end):
-        iend=istart+delta
+    result = list()
+    istart = start
+    while((istart+delta) < end):
+        iend = istart + delta
         result.append((istart,iend))
-        istart=iend
+        istart = iend
     result.append((istart,end))
     return result
 
 
 # Finds all ifs output in the given directory. If expname is given, matches according output files.
 def find_ifs_output(path,expname=None):
-    subexpr=".*"
+    subexpr = ".*"
     if(expname):
-        subexpr=expname
-    expr=re.compile("^(ICMGG|ICMSH)"+subexpr+"\+[0-9]{6}$")
+        subexpr = expname
+    expr = re.compile("^(ICMGG|ICMSH)" + subexpr + "\+[0-9]{6}$")
     result = []
     for root,dirs,files in os.walk(path):
         result.extend([os.path.join(root,f) for f in files if re.match(expr,f)])
@@ -109,52 +109,52 @@ def find_ifs_output(path,expname=None):
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
     global log
-    fname=os.path.basename(filepath)
-    regex=re.search("\+[0-9]{6}",fname)
+    fname = os.path.basename(filepath)
+    regex = re.search("\+[0-9]{6}",fname)
     if(not regex):
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
-    ss=regex.group()[1:]
+    ss = regex.group()[1:]
     return datetime.datetime.strptime(ss,"%Y%m").date()
 
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
 def find_nemo_output(path,expname=None):
-    subexpr='.*'
+    subexpr = '.*'
     if(expname):
-        subexpr=expname
-    expr=re.compile(subexpr+"_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
+        subexpr = expname
+    expr = re.compile(subexpr + "_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
     return [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
 
 
 # Returns the start and end date corresponding to the given nemo output file.
 def get_nemo_interval(filepath):
     global log
-    fname=os.path.basename(filepath)
-    regex=re.findall("_[0-9]{8}",fname)
-    if(not regex or len(regex)!=2):
+    fname = os.path.basename(filepath)
+    regex = re.findall("_[0-9]{8}",fname)
+    if(not regex or len(regex) != 2):
         log.error("Unable to parse dates from nemo file name %s" % fname)
         return None
-    start=datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
-    end=datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
+    start = datetime.datetime.strptime(regex[0][1:],"%Y%m%d")
+    end = datetime.datetime.strptime(regex[1][1:],"%Y%m%d")
     return (start,end)
 
 
 # Returns the frequency string for a given nemo output file.
 def get_nemo_frequency(filepath,expname):
     global log
-    f=os.path.basename(filepath)
-    expr=re.compile("^"+expname+".*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    f = os.path.basename(filepath)
+    expr = re.compile("^" + expname + ".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if(not re.match(expr,f)):
         log.error("File path %s does not correspond to nemo output of experiment %s" % (filepath,expname))
         return None
-    fstr=f[len(expname)+1:].split("_")[0]
-    expr=re.compile("^(\d+)(h|d|m|y)")
+    fstr = f[len(expname) + 1:].split("_")[0]
+    expr = re.compile("^(\d+)(h|d|m|y)")
     if(not re.match(expr,fstr)):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
-    n=int(fstr[0:len(fstr)-1])
-    if(n==0):
+    n = int(fstr[0:len(fstr) - 1])
+    if(n == 0):
         log.error("Invalid frequency 0 parsed from file path %s" % filepath)
         return None
     return fstr
@@ -163,14 +163,14 @@ def get_nemo_frequency(filepath,expname):
 # Returns the grid for the given file name.
 def get_nemo_grid(filepath,expname):
     global log
-    f=os.path.basename(filepath)
-    expr=re.compile("(?<=^"+expname+"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
-    result=re.search(expr,f)
+    f = os.path.basename(filepath)
+    expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
+    result = re.search(expr,f)
     if(not result):
         log.error("File path %s does not contain a grid string" % filepath)
         return None
-    match=result.group(0)
-    return match[0:len(match)-3]
+    match = result.group(0)
+    return match[0:len(match) - 3]
 
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
