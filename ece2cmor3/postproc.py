@@ -3,6 +3,7 @@ import threading
 import re
 import Queue
 import os
+import grib
 import cdoapi
 import cmor_source
 import cmor_target
@@ -295,21 +296,21 @@ def add_level_operators(cdo,task):
     if(len(levels) == 0):
         val = axisinfo.get("value",None)
         if(val): levels = [val]
-    leveltypes = [cdoapi.cdo_command.hybrid_level_code,cdoapi.cdo_command.pressure_level_code,cdoapi.cdo_command.height_level_code]
+    leveltypes = [grib.hybrid_level_code,grib.pressure_level_code,grib.height_level_code]
     if(getattr(task,"path",None)):
         leveltypes = cdo.get_z_axes(task.path,task.source.get_root_codes()[0].var_id)
     oname = axisinfo.get("standard_name",None)
     if(oname == "air_pressure"):
-        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.pressure,cdoapi.cdo_command.pressure_level_code)
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.pressure,grib.pressure_level_code)
     elif(oname in ["height","altitude"]):
-        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.height,cdoapi.cdo_command.height_level_code)
+        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.height,grib.height_level_code)
     elif(axisname not in ["alevel","alevhalf"]):
         log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
         task.set_failed()
 
 # Helper funcion for setting the vertical axis and levels selection
 def add_zaxis_operators(cdo,task,lev_types,req_levs,axis_type,axis_code):
-    if(axis_code not in lev_types and cdoapi.cdo_command.hybrid_level_code in lev_types):
+    if(axis_code not in lev_types and grib.hybrid_level_code in lev_types):
         log.warning("Could not find %s levels for %s, will interpolate from model levels" % (axis_type,task.target.variable))
         cdo.add_operator(cdoapi.cdo_command.select_code_operator,*[134])
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,*[cdoapi.cdo_command.modellevel,cdoapi.cdo_command.surflevel])
