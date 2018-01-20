@@ -42,11 +42,6 @@ class cdo_command:
     modellevel              = "hybrid"
     surflevel               = "surface"
 
-    # Vertical axes codes
-    hybrid_level_code       = 109
-    pressure_level_code     = 100
-    height_level_code       = 210
-
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator,mean_time_operators[month],min_time_operators[month],max_time_operators[month],\
                          mean_time_operators[day],min_time_operators[day],max_time_operators[day],add_expression_operator,\

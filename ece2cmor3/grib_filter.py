@@ -1,4 +1,5 @@
 import logging
+import grib
 import gribapi
 import cmor_utils
 
@@ -92,6 +93,7 @@ def get_prev_files(gpfile):
 # Splits the grib file for the given set of tasks
 def execute(tasks):
     validtasks = validate_tasks(tasks)
+    # TODO: do actual filtering
     return True
 
 # Checks tasks that are compatible with the variables listed in grib_vars and
@@ -103,45 +105,52 @@ def validate_tasks(tasks):
             continue
         codes = task.source.get_root_codes()
         levtype,levels = get_levels(task)
-        #TODO: Check all combinations are in grib_vars keys
-        validtasks.append(task)
+        if(levtype < 0): continue
+        for c in codes:
+            for l in levels:
+                key = (c.var_id,c.tab_id,levtype,l)
+                if(key not in grib_vars):
+                    log.error("Field missing in the first day of file: code %d.%d, level type %d, level %d" % key)
+                    task.set_failed()
+                    break
+                # TODO; Check frequencies
+        if(task.status != cmor_task.status_failed):
+            validtasks.append(task)
     return validtasks
 
 
-def get_level(task):
+def get_levels(task):
     global log
-    if(task.source.spatial_dims == 2): return (1,[0])
+    if(task.source.spatial_dims == 2): return (grib.surface_level_code,[0])
     zdims = getattr(task.target,"z_dims",[])
-    if(len(zdims) == 0): return (1,[0])
+    if(len(zdims) == 0): return (grib.surface_level_code,[0])
     if(len(zdims) > 1):
         log.error("Multiple level dimensions in table %s are not supported by this grib-splitting software",(task.target.table))
         task.set_failed()
-        return
+        return (-1,[])
     axisname = zdims[0]
     if(axisname == "alevel"):
-        cdo.add_operator(cdoapi.cdo_command.select_z_operator,cdoapi.cdo_command.modellevel)
+        return (grib.hybrid_level_code,[-1])
     if(axisname == "alevhalf"):
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",(task.target.table))
         task.set_failed()
-        return
+        return (-1,[])
     axisinfos = cmor_target.get_axis_info(task.target.table)
     axisinfo = axisinfos.get(axisname,None)
     if(not axisinfo):
         log.error("Could not retrieve information for axis %s in table %s" % (axisname,task.target.table))
         task.set_failed()
-        return
+        return (-1,[])
     levels = axisinfo.get("requested",[])
     if(len(levels) == 0):
         val = axisinfo.get("value",None)
         if(val): levels = [val]
-    leveltypes = [cdoapi.cdo_command.hybrid_level_code,cdoapi.cdo_command.pressure_level_code,cdoapi.cdo_command.height_level_code]
-    if(getattr(task,"path",None)):
-        leveltypes = cdo.get_z_axes(task.path,task.source.get_root_codes()[0].var_id)
     oname = axisinfo.get("standard_name",None)
     if(oname == "air_pressure"):
-        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.pressure,cdoapi.cdo_command.pressure_level_code)
+        return (grib.pressure_level_code,levels)
     elif(oname in ["height","altitude"]):
-        add_zaxis_operators(cdo,task,leveltypes,levels,cdoapi.cdo_command.height,cdoapi.cdo_command.height_level_code)
+        return (grib.height_level_code,levels)
     elif(axisname not in ["alevel","alevhalf"]):
         log.error("Could not convert vertical axis type %s to CDO axis selection operator" % oname)
         task.set_failed()
+        return (-1,[])
