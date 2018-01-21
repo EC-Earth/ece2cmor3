@@ -72,6 +72,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
     output_interval_ = interval
     output_frequency_ = outputfreq
     ref_date_ = refdate
+
     datafiles = select_files(path,exp_name_,start,length,output_interval_)
     inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
     gpfiles  = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
@@ -95,6 +96,7 @@ def initialize(path,expname,tableroot,start,length,refdate,interval = dateutil.r
             os.makedirs(temp_dir_)
             tempdir_created_ = True
     max_size_ = maxsizegb
+    grib_filter.initialize(ifs_gridpoint_file_,ifs_spectral_file_,temp_dir_)
     return True
 
 
@@ -104,6 +106,7 @@ def execute(tasks,cleanup = True):
     supportedtasks = filter_tasks(tasks)
     log.info("Executing %d IFS tasks..." % len(supportedtasks))
     taskstodo = [t for t in supportedtasks if t.status == cmor_task.status_initialized]
+    grib_filter.execute(taskstodo)
     masktasks = get_mask_tasks(supportedtasks)
     processedtasks = []
     try:
@@ -262,6 +265,8 @@ def get_sp_tasks(tasks):
 def postprocess(tasks):
     global log,output_frequency_,temp_dir_,max_size_,ifs_grid_descr_,surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
+###########################################################################################
+    # TODO: Remove due to grib filter
     for task in tasks:
         rootcodes = task.source.get_root_codes()
         if(rootcodes == [surface_pressure]):
@@ -276,6 +281,7 @@ def postprocess(tasks):
             else:
                 log.error("Task %s -> %s requires a combination of spectral and gridpoint variables.\
                            This is not supported yet, task will be skipped" % (task.source.get_grib_code().var_id,task.target.variable))
+###########################################################################################
     postproc.output_frequency_ = output_frequency_
     tasks_done = postproc.post_process([t for t in tasks if hasattr(t,"path")],temp_dir_,max_size_,ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))

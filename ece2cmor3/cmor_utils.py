@@ -95,7 +95,7 @@ def make_time_intervals(start,end,delta):
 
 
 # Finds all ifs output in the given directory. If expname is given, matches according output files.
-def find_ifs_output(path,expname=None):
+def find_ifs_output(path,expname = None):
     subexpr = ".*"
     if(expname):
         subexpr = expname
@@ -119,8 +119,8 @@ def get_ifs_date(filepath):
 
 
 # Finds all nemo output in the given directory. If expname is given, matches according output files.
-def find_nemo_output(path,expname=None):
-    subexpr = '.*'
+def find_nemo_output(path,expname = None):
+    subexpr = ".*"
     if(expname):
         subexpr = expname
     expr = re.compile(subexpr + "_.*_[0-9]{8}_[0-9]{8}_.*.nc$")

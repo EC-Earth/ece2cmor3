@@ -12,7 +12,7 @@ import optparse
 import logging
 import gribapi
 
-verbose=1 # verbose error reporting
+verbose = 1 # verbose error reporting
 accum_key = "ACCUMFLD"
 timeshift = 0
 logging.basicConfig(level=logging.DEBUG)
