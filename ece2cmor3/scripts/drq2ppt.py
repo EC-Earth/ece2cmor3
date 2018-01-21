@@ -7,7 +7,7 @@ import argparse
 import json
 import f90nml
 import re
-from ece2cmor3 import ece2cmorlib,taskloader,cmor_source,cmor_utils
+from ece2cmor3 import ece2cmorlib,taskloader,cmor_source,cmor_target,cmor_utils
 
 
 # Logging configuration
@@ -33,17 +33,102 @@ def get_output_freq(task):
 # Determines the ifs output frequency for daily/monthly variables. By default
 # 2D variables are requested on 3-hourly basis and 3D variables on 6-hourly basis.
 def get_sample_freq(task):
-    if(getattr(task.target,"spatial_dims",2) == 3):
+    axis,levs = cmor_target.get_z_axis(task.target)
+    if(axis in cmor_target.model_axes + cmor_target.pressure_axes + cmor_target.height_axes):
         return 6
     else:
         return 3
 
 
 # Writes a set of input IFS files for the requested tasks
+# TODO: add surface pressure for model level
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks,get_output_freq)
+    for freq1 in freqgroups:
+        for freq2 in freqgroups:
+            if(freq2 > freq1 and freq2 % freq1 == 0):
+                freqgroups[freq2] = freqgroups[freq1] + freqgroups[freq2]
     for freq in freqgroups:
-        # TODO: implement writing
+        mfp2df,mfpphy,mfp3dfs,mfp3dfp,mfp3dfv = [],[],[],[],[]
+        alevs,plevs,hlevs = [],[],[]
+        for task in freqgroups[freq]:
+            zaxis,levs = cmor_target.get_z_axis(task.target)
+            root_codes = task.source.get_root_codes()
+            if(not zaxis):
+                for c in root_codes:
+                    if(c in cmor_source.ifs_source.grib_codes_3D):
+                        log.warning("3D grib code %s used in 2D cmor-target %s..."
+                        "assuming this is on model levels" % (str(c),task.target.variable))
+                        mfp3dfs.append(c)
+                    elif(c in cmor_source.ifs_source.grib_codes_2D_dyn):
+                        log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
+                        "%s in table %s" % (str(c),freq,task.target.variable,task.target.table))
+                        mfp2df.append(c)
+                    elif(c in cmor_source.ifs_source.grib_codes_2D_phy):
+                        log.info("Adding grib code %s to MFPPHY %dhr ppt file for variable "
+                        "%s in table %s" % (str(c),freq,task.target.variable,task.target.table))
+                        mfpphy.append(c)
+                    else:
+                        log.error("Unknown IFS grib code %s skipped" % str(c))
+            else:
+                for c in root_codes:
+                    if(c in cmor_source.ifs_source.grib_codes_3D):
+                        if(zaxis in cmor_target.model_axes):
+                            log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
+                            "%s in table %s" % (str(c),freq,task.target.variable,task.target.table))
+                            mfp3dfs.append(c)
+                            alevs.extend(levs)
+                        elif(zaxis in cmor_target.pressure_axes):
+                            log.info("Adding grib code %s to MFP3DFP %dhr ppt file for variable "
+                            "%s in table %s" % (str(c),freq,task.target.variable,task.target.table))
+                            mfp3dfp.append(c)
+                            plevs.extend(levs)
+                        elif(zaxis in cmor_target.height_axes):
+                            log.info("Adding grib code %s to MFP3DFV %dhr ppt file for variable "
+                            "%s in table %s" % (str(c),freq,task.target.variable,task.target.table))
+                            mfp3dfv.append(c)
+                            hlevs.extend(levs)
+                        else:
+                            log.error("Axis type %s unknown, adding grib code %s"
+                            "to model level variables" % (zaxis,str(c)))
+                    elif(c in cmor_source.ifs_source.grib_codes_2D_dyn):
+                        mfp2df.append(c)
+                    elif(c in cmor_source.ifs_source.grib_codes_2D_phy):
+                        mfpphy.append(c)
+                    else:
+                        log.error("Unknown IFS grib code %s skipped" % str(c))
+        if(any(mfp3dfs)):
+            mfp2df.append(cmor_source.grib_code(154)) # Add surface pressure for 3D vars
+        mfp2df  = sorted(list(map(lambda c:c.var_id if c.tab_id == 128 else c.__hash__(),set(mfp2df))))
+        mfpphy  = sorted(list(map(lambda c:c.var_id if c.tab_id == 128 else c.__hash__(),set(mfpphy))))
+        mfp3dfs = sorted(list(map(lambda c:c.var_id if c.tab_id == 128 else c.__hash__(),set(mfp3dfs))))
+        mfp3dfp = sorted(list(map(lambda c:c.var_id if c.tab_id == 128 else c.__hash__(),set(mfp3dfp))))
+        mfp3dfv = sorted(list(map(lambda c:c.var_id if c.tab_id == 128 else c.__hash__(),set(mfp3dfv))))
+        alevs = [-1] if any(alevs) else []
+        plevs = sorted(list(set([float(s) for s in plevs])))[::-1]
+        hlevs = sorted(list(set([float(s) for s in hlevs])))
+        namelist = {"CFPFMT":"MODEL"}
+        if(any(mfp2df)):
+            namelist["NFP2DF"] = len(mfp2df)
+            namelist["MFP2DF"] = mfp2df
+        if(any(mfpphy)):
+            namelist["NFPPHY"] = len(mfpphy)
+            namelist["MFPPHY"] = mfpphy
+        if(any(mfp3dfs)):
+            namelist["NFP3DFS"] = len(mfp3dfs)
+            namelist["MFP3DFS"] = mfp3dfs
+            namelist["NRFP3S"]  = -1
+        if(any(mfp3dfp)):
+            namelist["NFP3DFP"] = len(mfp3dfp)
+            namelist["MFP3DFP"] = mfp3dfp
+            namelist["RFP3P"]   = plevs
+        if(any(mfp3dfs)):
+            namelist["NFP3DFV"] = len(mfp3dfv)
+            namelist["MFP3DFV"] = mfp3dfv
+            namelist["RFP3V"]   = hlevs
+        nml = f90nml.Namelist({"NAMFPC":namelist})
+        nml.uppercase,nml.end_comma = True,True
+        f90nml.write(nml,"pptdddddd%04d" % (100*freq,))
 
 
 # Main program

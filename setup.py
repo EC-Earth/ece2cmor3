@@ -28,6 +28,7 @@ setup(name = "ece2cmor3",
       entry_points = {"console_scripts": [
           "ece2cmor =  ece2cmor3.ece2cmor:main",
           "checkvars =  ece2cmor3.scripts.checkvars:main",
+          "drq2ppt =  ece2cmor3.scripts.drq2ppt:main",
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},

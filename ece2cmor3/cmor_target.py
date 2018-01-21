@@ -32,15 +32,6 @@ valid_max_key = "valid_max"
 cell_measure_axes = ["time","area","volume","latitude","longitude","grid_latitude","grid_longitude","depth"]
 mask_key = "mask"
 
-# Returns the axes defined for the input table.
-def get_axis_info(table_id):
-    global axes,coord_file
-    result = axes.get(coord_file,{})
-    overrides = axes.get(table_id,{})
-    for k,v in overrides.iteritems():
-        result[k] = v
-    return result
-
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
@@ -138,8 +129,8 @@ def create_axes_for_file(filepath,prefix):
     except ValueError as err:
         log.warning("Input table %s has been ignored. Reason: %s" % (filepath,format(err)))
         return result
-    axes_entries = get_lowercase(data,axis_key,{})
-    axes[tabid] = axes_entries
+    axes[tabid] = get_lowercase(data,axis_key,{})
+
 
 
 # Utility function for lower-case dictionary searches
@@ -154,22 +145,20 @@ def get_lowercase(dictionary,key,default):
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
 def create_targets(path,prefix):
     global coord_file
+    result = []
     if(os.path.isfile(path)):
         if(os.path.basename(path) not in [prefix + "_CV.json",prefix + "_CV_test.json"]):
-            return create_targets_for_file(path,prefix)
+            result = result + create_targets_for_file(path,prefix)
     elif(os.path.isdir(path)):
         coordfilepath = os.path.join(path,prefix + "_" + coord_file + ".json")
         if(os.path.exists(coordfilepath)):
             create_axes_for_file(coordfilepath,prefix)
-        expr = re.compile("^"+prefix+"_.*.json$")
+        expr = re.compile("^" + prefix + "_.*.json$")
         paths = [os.path.join(path,f) for f in os.listdir(path) if re.match(expr,f)]
-        result = []
         for p in paths:
             if(os.path.basename(p) not in [prefix + "_CV.json",prefix + "_CV_test.json"]):
                 result = result + create_targets_for_file(p,prefix)
-        return result
-    else:
-        return []
+    return result
 
 
 # Validates a CMOR target, skipping those that do not make any sense
@@ -183,3 +172,48 @@ def validate_target(target):
         log.error("The target variable %s in table %s has invalid bounds...skipping this target" % (target.variable,target.table))
         return False
     return True
+
+
+model_axes = ["alevel","alevhalf","olevel","olevhalf"]
+pressure_axes = ["air_pressure"]
+height_axes = ["height","altitude"] # TODO: distinguish
+
+
+# Sets the z-axis attributes for the given target
+def get_z_axis(target):
+    global log
+    result = []
+    for axisname in getattr(target,"z_dims",[]):
+        if(axisname in model_axes):
+            result.append((axisname,[-1]))
+        else:
+            axisinfo = get_axis_info(target.table).get(axisname,None)
+            if(not axisinfo):
+                log.warning("Could not retrieve information for axis %s in table %s" % (axisname,target.table))
+                continue
+            zvar = axisinfo.get("standard_name",None)
+            if(zvar in pressure_axes + height_axes):
+                levels = axisinfo.get("requested",[])
+                if(not any(levels)):
+                    val = axisinfo.get("value",None)
+                    if(val): levels = [val]
+                if(not any(levels)):
+                    log.warning("Could not retrieve levels for vertical coordinate %s" % axisname)
+                    continue
+                result.append((zvar,levels))
+    if(not any(result)):
+        return None,[]
+    if(len(result) > 1):
+        log.warning("Multiple vertical axes declared for variable %s in table %s:"
+                    "taking first coordinate %s" % target.var_id,target.tab_id,result[0][0])
+    return result[0]
+
+
+# Returns the axes defined for the input table.
+def get_axis_info(table_id):
+    global axes,coord_file
+    result = axes.get(coord_file,{})
+    overrides = axes.get(table_id,{})
+    for k,v in overrides.iteritems():
+        result[k] = v
+    return result

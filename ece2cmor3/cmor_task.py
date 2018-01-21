@@ -1,6 +1,6 @@
+import logging
 import cmor_source
 import cmor_target
-import logging
 
 # Logger instance
 log = logging.getLogger(__name__)
