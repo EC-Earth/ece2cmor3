@@ -41,22 +41,22 @@ if [ "$#" -eq 2 ]; then
  #source activate ece2cmor3
   cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/
-  drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}
+  drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/
   if [ "${multiplemips}" == "yes" ]; then
-   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   else
-   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}/*TOTAL*.xlsx                                               --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-  #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*TOTAL*.xlsx                                               --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   fi
  #source deactivate
  fi
 
  compare_directory='bup8'
- diff cmvmm_m=CMIP-e=CMIP-t=1-p=1.missing.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=1-p=1.missing.txt           >  differences-with-${compare_directory}.txt
- diff cmvmm_m=CMIP-e=CMIP-t=1-p=1.identifiedmissing.txt ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=1-p=1.identifiedmissing.txt >> differences-with-${compare_directory}.txt
- diff cmvmm_m=CMIP-e=CMIP-t=1-p=1.available.txt         ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=1-p=1.available.txt         >> differences-with-${compare_directory}.txt
- diff cmvmm_m=CMIP-e=CMIP-t=1-p=1.ignored.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=1-p=1.ignored.txt           >> differences-with-${compare_directory}.txt
+ diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >  differences-with-${compare_directory}.txt
+ diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${compare_directory}.txt
+ diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${compare_directory}.txt
+ diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${compare_directory}.txt
 
 else
     echo '  '
