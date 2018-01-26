@@ -41,7 +41,6 @@ def get_sample_freq(task):
 
 
 # Writes a set of input IFS files for the requested tasks
-# TODO: add surface pressure for model level
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks,get_output_freq)
     for freq1 in freqgroups:
