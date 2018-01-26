@@ -61,7 +61,7 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 6, 'comment', bold)
     worksheet.write(0, 7, 'comment author', bold)
     worksheet.write(0, 8, 'extensive variable description', bold)
-    
+
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
         worksheet.write(row_counter, 0, '')
@@ -88,6 +88,7 @@ def main():
     parser.add_argument("--tabdir", metavar = "DIR",    type = str, default = ece2cmorlib.table_dir_default, help = "Cmorization table directory")
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
+    parser.add_argument("--without-tables-check", action = "store_true", default = False, help = "Ignore variable tables when performing var checking")
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
@@ -101,6 +102,9 @@ def main():
     procatmos,prococean = not args.oce,not args.atm
     if(not procatmos and not prococean):
         procatmos,prococean = True,True
+
+    # Configure task loader:
+    taskloader.skip_tables = args.without-tables-check
 
     # Load the variables as task targets:
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
