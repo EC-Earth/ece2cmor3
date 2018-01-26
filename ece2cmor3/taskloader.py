@@ -183,7 +183,15 @@ def load_checkvars_excel(basic_ignored_excel_file):
 def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
     global log,ignored_vars_file,json_table_key,models,skip_tables
 
-    modelflags = {"ifs" : load_atm_tasks,"nemo" : load_oce_tasks}
+    modelflags = {"ifs" : load_atm_tasks, "nemo" : load_oce_tasks}
+
+    realmflags = {}
+    for m in models:
+        flag = modelflags.get(m,True)
+        for r in models[m]["realms"]:
+            curval = realmflags.get(r,False)
+            realmflags[r] = flag or curval # True if any model can produce the realm
+
     params = {}
     for model in models:
         paramfile = models.get(model,{}).get("parfile","")
@@ -199,9 +207,11 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
 
     for target in targets:
         realms = getattr(target,cmor_target.realm_key,None).split()
+        if(not any([realmflags.get(r,True) for r in realms])):
+            continue # If all variable's realms are flagged false, skip
         matchpars = {}
         for model in models:
-            if(modelflags.get(model,True)):
+            if(modelflags.get(model,True)): # Only consider models that are 'enabled'
                 matches = [p for p in params.get(model,[]) if matchvarpar(target.variable,p) and target.table == p.get(json_table_key,target.table)]
                 if(any(matches)): matchpars[model] = matches
         if(not any(matchpars)):
@@ -220,13 +230,12 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 varword = "missing"
             log.error("Could not find parameter table entry for %s in table %s...skipping variable. This variable is %s" % (target.variable,target.table,varword))
             continue
-        realms = set(getattr(target,cmor_target.realm_key,None).split())
         modelmatch = None
         for model in matchpars:
             modelmatch = model
             if(len(matchpars) == 1): break
             modelrealms = set(models.get(model,{}).get("realms",[]))
-            shared_realms = realms.intersection(modelrealms)
+            shared_realms = set(realms).intersection(modelrealms)
             if(any(shared_realms)):
                 log.info("Multiple models %s found for variable %s, model %s matched by shared realms %s" % (matchpars.keys(),target.variable,model,shared_realms))
                 break
