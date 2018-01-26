@@ -30,7 +30,7 @@ if [ "$#" -eq -2 ]; then
   cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx             ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
   cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables.xlsx                        ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
 # Alternatively, for the latter one the pre basic ignored can be taken which contains all the dummy ping file variables:
- #cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables-including-ping-dummies.xlsx ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
+  cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables-including-ping-dummies.xlsx ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Step 5: Overwrite taskloader.py by the old version of taskloader.py without the table check, reload the package, and run checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cp ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader-without-table-check.py ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader.py
@@ -45,6 +45,7 @@ if [ "$#" -eq -2 ]; then
 
 # Step 7: Reset taskloader.py to the default version:
    git checkout ${HOME}/cmorize/ece2cmor3/ece2cmor3/taskloader.py
+   cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
 
 
 # Test that this replace gives still the same results:
