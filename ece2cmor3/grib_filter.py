@@ -91,6 +91,7 @@ def inspect_day(gribfile):
     return result
 
 
+# Creates a key (code + table + level type + level) for a grib message iterator
 def get_record_key(gid):
     codevar, codetab = make_grib_tuple(gribapi.grib_get(gid, "paramId", str))
     levtype = gribapi.grib_get(gid, "indicatorOfTypeOfLevel", int)
@@ -135,23 +136,32 @@ def get_prev_files(gpfile):
 
 
 # Splits the grib file for the given set of tasks
+def mkfname(key):
+    return '.'.join([str(key[0]), str(key[1]), str(key[2])])
+
+
+# Construct files for keys and tasks
 def cluster_files(valid_tasks):
-    init_guess = {key: (key[0], key[1], key[2]) for key in varstasks.keys()}
-    task_keys = {}
-    for t in valid_tasks:
-        task_keys[t] = []
-        for k in varstasks:
-            if t in varstasks[k]:
-                task_keys.append(k)
-    # TODO: Merge files if tasks depend on more than 1
-    return init_guess
+    global varstasks,varsfiles
+    task2files = {}
+    for task in valid_tasks:
+        task2files[task] = {}
+        for key, tsklist in varstasks.iteritems():
+            if task in tsklist:
+                task2files[task].add(mkfname(key))
+    for task, fnames in task2files.iteritems():
+        task2files[task] = '_'.join(sorted(list(fnames)))
+    varsfiles = {key: {} for key in varstasks}
+    for key in varsfiles:
+        varsfiles[key].update([task2files[t] for t in varstasks[key]])
+    return task2files
 
 
 # Main execution loop
 def execute(tasks, month):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
-    varsfiles = cluster_files(valid_tasks)
+    task2files = cluster_files(valid_tasks)
     threads = []
     for path, prev_path in [(gridpoint_file, prev_gridpoint_file), (spectral_file, prev_spectral_file)]:
         thread = threading.Thread(target=proc_mon, args=(month, path, prev_path))
@@ -159,6 +169,9 @@ def execute(tasks, month):
         thread.start()
     threads[0].join()
     threads[1].join()
+    for task in task2files:
+        if not task.status == cmor_task.status_failed:
+            setattr(task, "path", task2files[task])
     return valid_tasks
 
 
