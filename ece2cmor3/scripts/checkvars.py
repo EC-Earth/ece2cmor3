@@ -20,7 +20,7 @@ def write_varlist(targets,opath):
     tgtdict = dict([k,[t.variable for t in v]] for k,v in tgtgroups.iteritems())
     with open(opath,'w') as ofile:
         json.dump(tgtdict,ofile,indent = 4,separators = (',', ': '))
-    logging.info("File %s written" % opath)
+   #logging.info("File %s written" % opath)
 
 
 def write_varlist_ascii(targets,opath):
@@ -78,6 +78,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 8, getattr(tgtvar,"comment","unknown"))
             row_counter += 1
     workbook.close()
+    logging.info(" Writing the excel file: %s" % opath)
 
 
 # Main program
@@ -89,7 +90,7 @@ def main():
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
     parser.add_argument("--withouttablescheck", action = "store_true", default = False, help = "Ignore variable tables when performing var checking")
-    parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output")
+    parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
 
@@ -107,7 +108,7 @@ def main():
     taskloader.skip_tables = args.withouttablescheck
 
     # Load the variables as task targets:
-    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean)
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean, silent = args.verbose)
 
     if(args.output):
         ofile,fext = os.path.splitext(args.output)
