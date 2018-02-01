@@ -52,11 +52,14 @@ if [ "$#" -eq 2 ]; then
  #source deactivate
  fi
 
-#compare_directory='bup/bup8'
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >  differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${compare_directory}.txt
+ diff_with_benchmark=false
+ benchmark='benchmark-9'
+ if ${diff_with_benchmark} ; then
+  echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff available.txt file:     ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+ fi
 
 else
     echo '  '
