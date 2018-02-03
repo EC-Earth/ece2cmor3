@@ -33,12 +33,13 @@ def initialize(gpfile, shfile, tmpdir):
     spectral_file = shfile
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "resources", "grib_codes.json"))
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
     prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
     if not prev_spectral_file or not prev_gridpoint_file:
         return False
-    varsfreq.update(inspect_day(gpfile))
-    varsfreq.update(inspect_day(shfile))
+    with open(gpfile) as gpf, open(shfile) as shf:
+        varsfreq.update(inspect_day(gpf))
+        varsfreq.update(inspect_day(shf))
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -54,7 +55,7 @@ def load_accum_codes(path):
 # Utility to make grib tuple of codes from string
 def make_grib_tuple(s):
     codes = s.split('.')
-    return int(codes[0]), int(codes[1])
+    return int(codes[0]), 128 if len(codes) < 2 else int(codes[1])
 
 
 # Inspects the first 24 hours in the input gridpoint and spectral files.
@@ -81,7 +82,7 @@ def inspect_day(gribfile):
     result = {}
     for key, val in records.iteritems():
         hrs = numpy.array(val)
-        frqs = 24. if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs)))
+        frqs = 24. if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
         frq = frqs[0]
         if any(frqs != frq):
             log.error("Variable %d.%d on level %d or type %s is not output on regular "
@@ -105,7 +106,7 @@ def get_record_key(gid):
 def get_prev_files(gpfile):
     log.info("Searching for previous month file of %s" % gpfile)
     date = cmor_utils.get_ifs_date(gpfile)
-    prevdate = date - dateutil.relativedelta(month=1)
+    prevdate = date - dateutil.relativedelta.relativedelta(month=1)
     ifsoutputdir = os.path.abspath(os.path.join(os.path.dirname(gridpoint_file), ".."))
     expname = os.path.basename(gpfile)[5:9]
     inigpfile, inishfile = None, None
