@@ -96,7 +96,9 @@ def inspect_day(gribfile):
 def get_record_key(gid):
     codevar, codetab = make_grib_tuple(gribapi.grib_get(gid, "paramId", str))
     levtype = gribapi.grib_get(gid, "indicatorOfTypeOfLevel", int)
-    level = gribapi.grib_get(gid, "level")
+    level = gribapi.grib_get(gid, "level", int)
+    if levtype == grib.pressure_level_code:
+        level *= 100
     key = (codevar, codetab, levtype, level)
     return key
 
@@ -143,16 +145,16 @@ def mkfname(key):
 
 # Construct files for keys and tasks
 def cluster_files(valid_tasks):
-    global varstasks,varsfiles
+    global varstasks, varsfiles
     task2files = {}
     for task in valid_tasks:
-        task2files[task] = {}
+        task2files[task] = set()
         for key, tsklist in varstasks.iteritems():
             if task in tsklist:
                 task2files[task].add(mkfname(key))
     for task, fnames in task2files.iteritems():
         task2files[task] = '_'.join(sorted(list(fnames)))
-    varsfiles = {key: {} for key in varstasks}
+    varsfiles = {key: set() for key in varstasks}
     for key in varsfiles:
         varsfiles[key].update([task2files[t] for t in varstasks[key]])
     return task2files
@@ -198,12 +200,12 @@ def validate_tasks(tasks):
                 key = (c.var_id, c.tab_id, levtype, l)
                 if key not in varsfreq:
                     log.error("Field missing in the first day of file: "
-                              "code %d.%d, level type %d, level %d" % key)
+                              "code %d.%d, level type %d, level %d" % (key[0], key[1], key[2], key[3]))
                     task.set_failed()
                     break
                 if 0 < target_freq < varsfreq[key]:
                     log.error("Field has too low frequency for target %s: "
-                              "code %d.%d, level type %d, level %d" % task.target.variable, key)
+                              "code %d.%d, level type %d, level %d" % (task.target.variable, key[0], key[1], key[2], key[3]))
                     task.set_failed()
                     break
         if task.status != cmor_task.status_failed:
@@ -233,9 +235,9 @@ def get_levels(task):
     if zaxis in ["alevel", "alevhalf"]:
         return grib.hybrid_level_code, [-1]
     if zaxis == "air_pressure":
-        return grib.pressure_level_code, levels
+        return grib.pressure_level_code, [float(l) for l in levels]
     if zaxis in ["height", "altitude"]:
-        return grib.height_level_code, levels
+        return grib.height_level_code, [float(l) for l in levels]
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
@@ -243,9 +245,10 @@ def get_levels(task):
 
 def write_record(gid):
     key = get_record_key(gid)
-    fname = varsfiles.get(key, None)
-    if fname:
-        gribapi.grib_write(gid, fname)
+    fnames = varsfiles.get(key, [])
+    for fname in fnames:
+        with open(fname, 'a') as ofile:
+            gribapi.grib_write(gid, ofile)
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
