@@ -3,6 +3,9 @@ import grib
 import gribapi
 import cmor_utils
 
+# Log object.
+log = logging.getLogger(__name__)
+
 gridpoint_file = None
 prev_gridpoint_file = None
 spectral_file = None
