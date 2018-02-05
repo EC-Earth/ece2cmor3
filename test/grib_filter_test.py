@@ -14,7 +14,8 @@ tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 class grib_filter_test(unittest.TestCase):
 
-    def test_initialize(self):
+    @staticmethod
+    def test_initialize():
         gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
         sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
         grib_filter.initialize(gg_path, sh_path, tmp_path)
@@ -25,7 +26,8 @@ class grib_filter_test(unittest.TestCase):
         ok_((164, 128, grib.surface_level_code, 0) in grib_filter.varsfreq)
         eq_(grib_filter.varsfreq[(164, 128, grib.surface_level_code, 0)], 3)
 
-    def test_validate_tasks(self):
+    @staticmethod
+    def test_validate_tasks():
         gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
         sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
         grib_filter.initialize(gg_path, sh_path, tmp_path)
@@ -47,7 +49,7 @@ class grib_filter_test(unittest.TestCase):
         levcheck = sorted([k[3] for k in grib_filter.varstasks if k[0] == 131])
         eq_(levs, levcheck)
 
-    @unittest.skip("Hanging indefinitely")
+#    @unittest.skip("Hanging indefinitely")
     def test_execute_tasks(self):
         gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
         sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
