@@ -12,6 +12,7 @@ import cmor_source
 import cmor_target
 import cmor_task
 import postproc
+import grib_filter
 import cdoapi
 import threading
 import math
