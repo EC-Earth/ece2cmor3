@@ -22,9 +22,10 @@ if [ "$#" -eq -2 ]; then
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-  nedit r204/cmor-varlist-based-on-ping-r204-without-dummy-lines.txt
-# and copy them manually into the variable column in the file:
+  nedit r211/cmor-varlist-based-on-ping-r211-without-dummy-lines.txt
+# and copy them manually into the variable column in the file (also update the comment column):
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+# After updating the pre* files it is handiest to commit them first.
 
 # Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files by their corresponding pre-* ones:
   cpf ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx             ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
