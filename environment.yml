@@ -20,7 +20,7 @@ dependencies:
 - curl=7.55.1=0
 - distarray=2.12.2=py27_0
 - ecmwf_grib=1.23.1=0
-- ecmwf_grib_api=1.23.1=0
+- ecmwf-grib-api=1.23.1=0
 - enum34=1.1.6=py27_1
 - esmf=7.0.0=8
 - esmpy=7.0.0=py27_1
