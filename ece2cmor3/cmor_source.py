@@ -3,7 +3,7 @@ import re
 import json
 import datetime
 import logging
-import cmor_utils
+from ece2cmor3 import cmor_utils
 
 # Logger instance.
 log = logging.getLogger(__name__)

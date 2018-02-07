@@ -63,16 +63,16 @@ def grib_tuple_from_int(i):
 
 # Inspects the first 24 hours in the input gridpoint and spectral files.
 def inspect_day(gribfile):
-    inidate, initime = -99, -1.
+    inidate, initime = -99, -1
     records = {}
     while gribfile.read_next(headers_only=True):
         date = gribfile.get_field(grib_file.date_key)
-        time = gribfile.get_field(grib_file.time_key) / 100.
+        time = gribfile.get_field(grib_file.time_key) / 100
         if date == inidate + 1 and time == initime:
             break
         if inidate < 0:
             inidate = date
-        if initime < 0.:
+        if initime < 0:
             initime = time
         key = get_record_key(gribfile)
         if key in records:
@@ -83,7 +83,7 @@ def inspect_day(gribfile):
     result = {}
     for key, val in records.iteritems():
         hrs = numpy.array(val)
-        frqs = 24. if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
+        frqs = 24 if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
         frq = frqs[0]
         if any(frqs != frq):
             log.error("Variable %d.%d on level %d or type %s is not output on regular "
@@ -99,11 +99,18 @@ def get_record_key(gribfile):
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
     if levtype == grib_file.pressure_level_code:
         level *= 100
-    if codevar in [38, 42, 236]:
-        level = 289
+    if levtype == grib_file.depth_level_code:
+        level = 0
+        levtype = grib_file.surface_level_code
     if codevar in [165, 166]:
         level = 10
         levtype = grib_file.height_level_code
+    if codevar in [167, 168, 201, 202]:
+        level = 2
+        levtype = grib_file.height_level_code
+    if codevar in [9, 134]:
+        level = 0
+        levtype = grib_file.surface_level_code
     return codevar, codetab, levtype, level
 
 
@@ -194,7 +201,7 @@ def execute(tasks, month, multi_threaded=False):
         handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
-            setattr(task, cmor_task.output_path_key, task2files[task])
+            setattr(task, cmor_task.output_path_key, os.path.join(temp_dir,task2files[task]))
     for task in task2freqs:
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
@@ -205,6 +212,7 @@ def execute(tasks, month, multi_threaded=False):
 # returns those that are compatible.
 def validate_tasks(tasks):
     global varstasks
+    
     varstasks = {}
     valid_tasks = []
     for task in tasks:
@@ -221,12 +229,16 @@ def validate_tasks(tasks):
                 if task.status == cmor_task.status_failed:
                     break
                 key = (c.var_id, c.tab_id, levtype, l)
-                if key not in varsfreq:
+                match_key = key
+                if levtype == grib_file.hybrid_level_code:
+                    matches = [k for k in varsfreq.keys() if k[:2] == key[:2]]
+                    match_key = key if not any(matches) else matches[0] 
+                if match_key not in varsfreq:
                     log.error("Field missing in the first day of file: "
                               "code %d.%d, level type %d, level %d" % (key[0], key[1], key[2], key[3]))
                     task.set_failed()
                     break
-                if 0 < target_freq < varsfreq[key]:
+                if 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
                               "code %d.%d, level type %d, level %d" % (
                                   task.target.variable, key[0], key[1], key[2], key[3]))
@@ -255,7 +267,7 @@ def open_files(vars2files):
             resource.setrlimit(resource.RLIMIT_NOFILE, (numreq + 1, -1))
         except ValueError:
             return {}
-    return {f: open(f, 'w') for f in files}
+    return {f: open(os.path.join(temp_dir,f), 'w') for f in files}
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
@@ -276,9 +288,9 @@ def get_levels(task):
     if zaxis in ["alevel", "alevhalf"]:
         return grib_file.hybrid_level_code, [-1]
     if zaxis == "air_pressure":
-        return grib_file.pressure_level_code, [float(l) for l in levels]
+        return grib_file.pressure_level_code, [int(float(l)) for l in levels]
     if zaxis in ["height", "altitude"]:
-        return grib_file.height_level_code, [float(l) for l in levels]
+        return grib_file.height_level_code, [int(float(l)) for l in levels] # TODO: What about decimal places?
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
@@ -302,7 +314,7 @@ def write_record(gribfile, shift=0, handles=None):
         freq = varsfreq.get(key, 0)
         shifttime = timestamp + shift * freq * 100
         if shifttime < 0 or shifttime >= 2400:
-            newdate, hours = fix_date_time(timestamp, shifttime / 100)
+            newdate, hours = fix_date_time(gribfile.get_field(grib_file.date_key), shifttime / 100)
             gribfile.set_field(grib_file.date_key, newdate)
             shifttime = 100 * hours
         timestamp = int(shifttime)

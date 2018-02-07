@@ -1,6 +1,5 @@
 import logging
-import cmor_source
-import cmor_target
+from ece2cmor3 import cmor_source, cmor_target
 
 # Logger instance
 log = logging.getLogger(__name__)

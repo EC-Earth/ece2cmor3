@@ -1,12 +1,7 @@
 import cmor
 import os
 import logging
-import cmor_source
-import cmor_target
-import cmor_task
-import nemo2cmor
-import ifs2cmor
-import postproc
+from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, postproc
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -148,7 +143,7 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
     else:
         ifs2cmor.masks = {}
     if(not ifs2cmor.initialize(datadir,expname,tableroot,startdate,interval,refdate if refdate else startdate,
-                               outputfreq = outputfreq,tempdir = tempdir,maxsizegb = maxsizegb)):
+                               tempdir = tempdir,maxsizegb = maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads

@@ -4,10 +4,9 @@ import os
 import sys
 import logging
 import argparse
-import ece2cmorlib
-import taskloader
 import dateutil.parser
 import dateutil.relativedelta
+from ece2cmor3 import ece2cmorlib,taskloader
 
 logging.basicConfig(level=logging.DEBUG)
 
