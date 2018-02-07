@@ -15,6 +15,7 @@ ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
 ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
 identified_missing_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-identified-missing-cmpi6-requested-variables.xlsx")
+omit_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-omitted-variables.xlsx")
 models = {"ifs" : {"realms" : ["atmos","atmosChem","land","landIce"],"parfile" : ifs_par_file},
           "nemo" : {"realms" : ["ocean","ocnBgChem","seaIce"],"parfile" : nemo_par_file}}
 
@@ -201,6 +202,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
         else:
             params[model] = []
 
+    omitvarlist              = load_checkvars_excel(omit_vars_file)
     ignoredvarlist           = load_checkvars_excel(ignored_vars_file)
     identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = [],[],[],[]
@@ -225,6 +227,8 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
                 target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
                 identifiedmissingtargets.append(target)
                 varword = "identified missing"
+            elif(key in omitvarlist):
+                varword = "omit"
             else:
                 missingtargets.append(target)
                 varword = "missing"
