@@ -75,6 +75,16 @@ For instance in case one is developing the checkvars.py script which uses the ec
  cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
 ```
 
+#### Updating the nested CMOR table repository by developers:
+
+```shell
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
+git pull origin master
+git add cmip6-cmor-tables
+git commit cmip6-cmor-tables -m 'Update the CMOR tables'
+git push
+```
+
 #### Installation with pip:
 Alternatively create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
 ```shell
