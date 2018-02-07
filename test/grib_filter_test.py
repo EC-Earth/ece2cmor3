@@ -3,7 +3,7 @@ import unittest
 
 import os
 
-from ece2cmor3 import grib_filter, grib, ece2cmorlib, cmor_source, cmor_task, cmor_target
+from ece2cmor3 import grib_filter, grib_file, ece2cmorlib, cmor_source, cmor_task, cmor_target
 from nose.tools import eq_, ok_
 
 logging.basicConfig(level=logging.DEBUG)
@@ -14,23 +14,28 @@ tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 class grib_filter_test(unittest.TestCase):
 
+    test_mode = True
+
+    gg_file = "ICMGGECE3+199001.csv" if test_mode else "ICMGGECE3+199001"
+    gg_path = os.path.join(test_data_path, gg_file)
+    sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
+    sh_path = os.path.join(test_data_path, sh_file)
+
+    grib_file.test_mode = test_mode
+
     @staticmethod
     def test_initialize():
-        gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
-        sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
-        grib_filter.initialize(gg_path, sh_path, tmp_path)
-        ok_((133, 128, grib.hybrid_level_code, 9) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(133, 128, grib.hybrid_level_code, 9)], 6)
-        ok_((133, 128, grib.pressure_level_code, 85000) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(133, 128, grib.pressure_level_code, 85000)], 6)
-        ok_((164, 128, grib.surface_level_code, 0) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(164, 128, grib.surface_level_code, 0)], 3)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        ok_((133, 128, grib_file.hybrid_level_code, 9) in grib_filter.varsfreq)
+        eq_(grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9)], 6)
+        ok_((133, 128, grib_file.pressure_level_code, 85000) in grib_filter.varsfreq)
+        eq_(grib_filter.varsfreq[(133, 128, grib_file.pressure_level_code, 85000)], 6)
+        ok_((164, 128, grib_file.surface_level_code, 0) in grib_filter.varsfreq)
+        eq_(grib_filter.varsfreq[(164, 128, grib_file.surface_level_code, 0)], 3)
 
     @staticmethod
     def test_validate_tasks():
-        gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
-        sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
-        grib_filter.initialize(gg_path, sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
         tgt1 = ece2cmorlib.get_cmor_target("clwvi", "CFday")
         src1 = cmor_source.ifs_source.read("79.128")
@@ -40,8 +45,8 @@ class grib_filter_test(unittest.TestCase):
         tsk2 = cmor_task.cmor_task(src2, tgt2)
         valid_tasks = grib_filter.validate_tasks([tsk1, tsk2])
         eq_(valid_tasks, [tsk1, tsk2])
-        key1 = (79, 128, grib.surface_level_code, 0.)
-        key2 = (131, 128, grib.pressure_level_code, 92500.)
+        key1 = (79, 128, grib_file.surface_level_code, 0.)
+        key2 = (131, 128, grib_file.pressure_level_code, 92500.)
         eq_(grib_filter.varstasks[key1], [tsk1])
         eq_(grib_filter.varstasks[key2], [tsk2])
         ltype, plevs = cmor_target.get_z_axis(tgt2)
@@ -49,17 +54,82 @@ class grib_filter_test(unittest.TestCase):
         levcheck = sorted([k[3] for k in grib_filter.varstasks if k[0] == 131])
         eq_(levs, levcheck)
 
-#    @unittest.skip("Hanging indefinitely")
-    def test_execute_tasks(self):
-        gg_path = os.path.join(test_data_path, "ICMGGECE3+199001")
-        sh_path = os.path.join(test_data_path, "ICMSHECE3+199001")
-        grib_filter.initialize(gg_path, sh_path, tmp_path)
+    @staticmethod
+    def test_surf_var():
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
-        tgt1 = ece2cmorlib.get_cmor_target("clwvi", "CFday")
-        src1 = cmor_source.ifs_source.read("79.128")
-        tsk1 = cmor_task.cmor_task(src1, tgt1)
-        tgt2 = ece2cmorlib.get_cmor_target("ua", "Amon")
-        src2 = cmor_source.ifs_source.read("131.128")
-        tsk2 = cmor_task.cmor_task(src2, tgt2)
-        grib_filter.execute([tsk1, tsk2], 1)
+        tgt = ece2cmorlib.get_cmor_target("clwvi", "CFday")
+        src = cmor_source.ifs_source.read("79.128")
+        tsk = cmor_task.cmor_task(src, tgt)
+        grib_filter.execute([tsk], 1)
+        filepath = os.path.join(os.path.dirname(__file__), "79.128.1")
+        ok_(os.path.isfile(filepath))
+        ok_(getattr(tsk, "path"), filepath)
+        with open(filepath) as fin:
+            reader = grib_file.create_grib_file(fin)
+            date, time = 0, 0
+            while reader.read_next():
+                param = reader.get_field(grib_file.param_key)
+                eq_(param, 79)
+                newdate = reader.get_field(grib_file.date_key)
+                if date != 0 and newdate != date:
+                    eq_(newdate, date + 1)
+                    date = newdate
+                newtime = reader.get_field(grib_file.time_key)
+                eq_(newtime, (time + 300) % 2400)
+                time = newtime
+        os.remove(filepath)
 
+    @staticmethod
+    def test_expr_var():
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        ece2cmorlib.initialize()
+        tgt = ece2cmorlib.get_cmor_target("sfcWind", "Amon")
+        src = cmor_source.ifs_source.read("var214=sqrt(sqr(var165)+sqr(var166))")
+        tsk = cmor_task.cmor_task(src, tgt)
+        grib_filter.execute([tsk], 1)
+        filepath = os.path.join(os.path.dirname(__file__), "165.128.105_166.128.105")
+        ok_(os.path.isfile(filepath))
+        ok_(getattr(tsk, "path"), filepath)
+        with open(filepath) as fin:
+            reader = grib_file.create_grib_file(fin)
+            date, time = 0, 0
+            while reader.read_next():
+                param = reader.get_field(grib_file.param_key)
+                ok_(param in [165, 166])
+                newdate = reader.get_field(grib_file.date_key)
+                if date != 0 and newdate != date:
+                    eq_(newdate, date + 1)
+                    date = newdate
+                newtime = reader.get_field(grib_file.time_key)
+                if newtime != time:
+                    eq_(newtime, (time + 300) % 2400)
+                    time = newtime
+        os.remove(filepath)
+
+    @staticmethod
+    def test_pressure_var():
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        ece2cmorlib.initialize()
+        tgt = ece2cmorlib.get_cmor_target("ua", "Amon")
+        src = cmor_source.ifs_source.read("131.128")
+        tsk = cmor_task.cmor_task(src, tgt)
+        grib_filter.execute([tsk], 1)
+        filepath = os.path.join(os.path.dirname(__file__), "131.128.100")
+        ok_(os.path.isfile(filepath))
+        ok_(getattr(tsk, "path"), filepath)
+        with open(filepath) as fin:
+            reader = grib_file.create_grib_file(fin)
+            date, time = 0, 0
+            while reader.read_next():
+                param = reader.get_field(grib_file.param_key)
+                eq_(param, 131)
+                newdate = reader.get_field(grib_file.date_key)
+                if date != 0 and newdate != date:
+                    eq_(newdate, date + 1)
+                    date = newdate
+                newtime = reader.get_field(grib_file.time_key)
+                if newtime != time:
+                    eq_(newtime, (time + 600) % 2400)
+                    time = newtime
+        os.remove(filepath)

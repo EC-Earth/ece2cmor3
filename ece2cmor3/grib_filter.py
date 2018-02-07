@@ -8,11 +8,7 @@ import threading
 from dateutil import relativedelta
 import numpy
 
-import grib
-import gribapi
-import cmor_utils
-from ece2cmor3 import cmor_target, cmor_source, cmor_task
-
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
 
 log = logging.getLogger(__name__)
 gridpoint_file = None
@@ -38,8 +34,8 @@ def initialize(gpfile, shfile, tmpdir):
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
     prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
     with open(gpfile) as gpf, open(shfile) as shf:
-        varsfreq.update(inspect_day(gpf))
-        varsfreq.update(inspect_day(shf))
+        varsfreq.update(inspect_day(grib_file.create_grib_file(gpf)))
+        varsfreq.update(inspect_day(grib_file.create_grib_file(shf)))
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -47,38 +43,43 @@ def load_accum_codes(path):
     global accum_key
     data = json.loads(open(path).read())
     if accum_key in data:
-        return map(make_grib_tuple, data[accum_key])
+        return map(grib_tuple_from_string, data[accum_key])
     else:
         return []
 
 
 # Utility to make grib tuple of codes from string
-def make_grib_tuple(s):
+def grib_tuple_from_string(s):
     codes = s.split('.')
     return int(codes[0]), 128 if len(codes) < 2 else int(codes[1])
+
+
+# Utility to make grib tuple of codes from string
+def grib_tuple_from_int(i):
+    if i < 256:
+        return i, 128
+    return i % 10 ** 3, i / 10 ** 3
 
 
 # Inspects the first 24 hours in the input gridpoint and spectral files.
 def inspect_day(gribfile):
     inidate, initime = -99, -1.
     records = {}
-    while True:
-        gid = gribapi.grib_new_from_file(gribfile)
-        if not gid:
-            break
-        date = gribapi.grib_get(gid, "dataDate", int)
-        time = gribapi.grib_get(gid, "dataTime", int) / 100.
+    while gribfile.read_next(headers_only=True):
+        date = gribfile.get_field(grib_file.date_key)
+        time = gribfile.get_field(grib_file.time_key) / 100.
         if date == inidate + 1 and time == initime:
             break
         if inidate < 0:
             inidate = date
         if initime < 0.:
             initime = time
-        key = get_record_key(gid)
+        key = get_record_key(gribfile)
         if key in records:
             records[key].append(time)
         else:
             records[key] = [time]
+        gribfile.release()
     result = {}
     for key, val in records.iteritems():
         hrs = numpy.array(val)
@@ -93,14 +94,17 @@ def inspect_day(gribfile):
 
 
 # Creates a key (code + table + level type + level) for a grib message iterator
-def get_record_key(gid):
-    codevar, codetab = make_grib_tuple(gribapi.grib_get(gid, "param", str))
-    levtype = gribapi.grib_get(gid, "indicatorOfTypeOfLevel", int)
-    level = gribapi.grib_get(gid, "level", int)
-    if levtype == grib.pressure_level_code:
+def get_record_key(gribfile):
+    codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
+    levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
+    if levtype == grib_file.pressure_level_code:
         level *= 100
-    key = (codevar, codetab, levtype, level)
-    return key
+    if codevar in [38, 42, 236]:
+        level = 289
+    if codevar in [165, 166]:
+        level = 10
+        levtype = grib_file.height_level_code
+    return codevar, codetab, levtype, level
 
 
 # Searches the file system for the previous month file, necessary for the 0-hour
@@ -170,7 +174,7 @@ def cluster_files(valid_tasks):
 
 
 # Main execution loop
-def execute(tasks, month, multi_threaded=True):
+def execute(tasks, month, multi_threaded=False):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
     task2files = cluster_files(valid_tasks)
@@ -252,12 +256,12 @@ def open_files(vars2files):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def proc_mon(month, grib_file, prev_grib_file, handles=None):
+def proc_mon(month, cur_grib_file, prev_grib_file, handles=None):
     if prev_grib_file:
         with open(prev_grib_file, 'r') as fin:
-            proc_prev_month(month, fin, handles)
-    with open(grib_file, 'r') as fin:
-        proc_next_month(month, fin, handles)
+            proc_prev_month(month, grib_file.create_grib_file(fin), handles)
+    with open(cur_grib_file, 'r') as fin:
+        proc_next_month(month, grib_file.create_grib_file(fin), handles)
 
 
 # Converts cmor-levels to grib levels code
@@ -265,91 +269,87 @@ def get_levels(task):
     global log
     zaxis, levels = cmor_target.get_z_axis(task.target)
     if zaxis is None:
-        return grib.surface_level_code, [0]
+        return grib_file.surface_level_code, [0]
     if zaxis in ["alevel", "alevhalf"]:
-        return grib.hybrid_level_code, [-1]
+        return grib_file.hybrid_level_code, [-1]
     if zaxis == "air_pressure":
-        return grib.pressure_level_code, [float(l) for l in levels]
+        return grib_file.pressure_level_code, [float(l) for l in levels]
     if zaxis in ["height", "altitude"]:
-        return grib.height_level_code, [float(l) for l in levels]
+        return grib_file.height_level_code, [float(l) for l in levels]
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
 
 
+# Converts 24 hours into extra days
 def fix_date_time(date, time):
     timestamp = datetime.datetime(year=date / 10 ** 4, month=(date % 10 ** 4) / 10 ** 2,
                                   day=date % 10 ** 2) + datetime.timedelta(hours=time)
     return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour
 
 
-def write_record(gid, shift=0, handles=None):
-    key = get_record_key(gid)
+# Writes the grib messages
+def write_record(gribfile, shift=0, handles=None):
+    key = get_record_key(gribfile)
     var_infos = varsfiles.get(key, [])
     if not any(var_infos):
         return
-    timestamp = gribapi.grib_get(gid, "dataTime", int)
+    timestamp = gribfile.get_field(grib_file.time_key)
     if shift:
         freq = varsfreq.get(key, 0)
         shifttime = timestamp + shift * freq * 100
         if shifttime < 0 or shifttime >= 2400:
-            newdate, hours = fix_date_time(gribapi.grib_get(gid, "dataDate", int), shifttime / 100)
-            gribapi.grib_set(gid, "dataDate", newdate)
+            newdate, hours = fix_date_time(timestamp, shifttime / 100)
+            gribfile.set_field(grib_file.date_key, newdate)
             shifttime = 100 * hours
         timestamp = int(shifttime)
-        gribapi.grib_set(gid, "dataTime", timestamp)
-    levtype = gribapi.grib_get(gid, "indicatorOfTypeOfLevel", int)
+        gribfile.set_field(grib_file.time_key, timestamp)
+    levtype = gribfile.get_field(grib_file.levtype_key)
     if levtype == 210:
-        gribapi.grib_set(gid, "indicatorOfTypeOfLevel", 99)
+        gribfile.set_field(grib_file.levtype_key, 99)
     for var_info in var_infos:
-        if timestamp/100 % var_info[1] != 0:
+        if timestamp / 100 % var_info[1] != 0:
             continue
         handle = handles.get(var_info[0], None) if handles else None
         if handle:
-            gribapi.grib_write(gid, handle)
+            gribfile.write(handle)
         else:
             with open(var_info[0], 'a') as ofile:
-                gribapi.grib_write(gid, ofile)
+                gribfile.write(ofile)
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_prev_month(month, fin, handles):
-    while True:
-        gid = gribapi.grib_new_from_file(fin)
-        if not gid:
-            break
-        if get_mon(gid) == month:
-            code = make_grib_tuple(gribapi.grib_get(gid, "param"))
+def proc_prev_month(month, gribfile, handles):
+    while gribfile.read_next():
+        if get_mon(gribfile) == month:
+            code = grib_tuple_from_string(gribfile.get_field(grib_file.param_key))
             if code not in accum_codes:
-                write_record(gid, handles=handles)
-        gribapi.grib_release(gid)
+                write_record(gribfile, handles=handles)
+        gribfile.release()
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_next_month(month, fin, handles):
-    while True:
-        gid = gribapi.grib_new_from_file(fin)
-        if not gid:
-            break
-        mon = get_mon(gid)
-        code = make_grib_tuple(gribapi.grib_get(gid, "param"))
+def proc_next_month(month, gribfile, handles):
+    while gribfile.read_next():
+        mon = get_mon(gribfile)
+        code = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
         cumvar = code in accum_codes
         if mon == month:
-            write_record(gid, shift=-1 if cumvar else 0, handles=handles)
+            write_record(gribfile, shift=-1 if cumvar else 0, handles=handles)
         elif mon == (month + 1) % 12:
             if cumvar:
-                write_record(gid, shift=-1, handles=handles)
-        gribapi.grib_release(gid)
+                write_record(gribfile, shift=-1, handles=handles)
+        gribfile.release()
 
 
-def get_mon(gid):
-    date = int(gribapi.grib_get(gid, "dataDate"))
+def get_mon(gribfile):
+    date = gribfile.get_field(grib_file.date_key)
     return (date % 10 ** 4) / 10 ** 2
 
 
 # Retrieves the record frequency from the day-inspection result
-def get_frequency(gid):
-    codevar, codetab = make_grib_tuple(gribapi.grib_get(gid, "paramId", str))
-    levtype = gribapi.grib_get(gid, "indicatorOfTypeOfLevel", int)
-    level = gribapi.grib_get(gid, "level", int)
-    return varsfreq.get((codevar, codetab, levtype, level), 0)
+# def get_frequency(gribfile):
+#    codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
+#    levtype = gribfile.get_field(grib_file.levtype_key)
+#    level = gribfile.get_field(grib_file.level_key)
+#    return varsfreq.get((codevar, codetab, levtype, level), 0)
