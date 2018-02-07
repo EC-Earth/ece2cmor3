@@ -170,14 +170,14 @@ def cluster_files(valid_tasks):
     varsfiles = {key: set() for key in varstasks}
     for key in varsfiles:
         varsfiles[key].update([(task2files[t], task2freqs[t]) for t in varstasks[key]])
-    return task2files
+    return task2files, task2freqs
 
 
 # Main execution loop
 def execute(tasks, month, multi_threaded=False):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
-    task2files = cluster_files(valid_tasks)
+    task2files, task2freqs = cluster_files(valid_tasks)
     filehandles = open_files(varsfiles)
     if multi_threaded:
         threads = []
@@ -194,7 +194,10 @@ def execute(tasks, month, multi_threaded=False):
         handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
-            setattr(task, "path", task2files[task])
+            setattr(task, cmor_task.output_path_key, task2files[task])
+    for task in task2freqs:
+        if not task.status == cmor_task.status_failed:
+            setattr(task, cmor_task.output_frequency_key, task2freqs[task])
     return valid_tasks
 
 
@@ -345,11 +348,3 @@ def proc_next_month(month, gribfile, handles):
 def get_mon(gribfile):
     date = gribfile.get_field(grib_file.date_key)
     return (date % 10 ** 4) / 10 ** 2
-
-
-# Retrieves the record frequency from the day-inspection result
-# def get_frequency(gribfile):
-#    codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
-#    levtype = gribfile.get_field(grib_file.levtype_key)
-#    level = gribfile.get_field(grib_file.level_key)
-#    return varsfreq.get((codevar, codetab, levtype, level), 0)
