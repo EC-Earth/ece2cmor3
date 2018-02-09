@@ -24,10 +24,9 @@ if [ "$#" -eq 2 ]; then
  fi
  
  # Replace , by dot in label:
- mip_label=$(echo ${mip} | sed 's/,/-/g')      # Note that the checkvars.py script is not able to cope with this replacement if a dot is used instead of the dash in the replacement
+ mip_label=$(echo ${mip} | sed 's/,/./g')
 #echo ' mip =' ${mip} '    experiment =' ${experiment} '    mip_label =' ${mip_label}
 #echo "${mip_label}" | tr '[:upper:]' '[:lower:]'
-#exit
 
 #activateanaconda
  if ! type "drq" > /dev/null; then

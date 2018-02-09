@@ -111,18 +111,20 @@ def main():
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean, silent = args.verbose)
 
     if(args.output):
-        ofile,fext = os.path.splitext(args.output)
-        write_varlist(loadedtargets,ofile + ".available.json")
+        output_dir = os.path.dirname(args.output)
+        if(not os.path.isdir(output_dir)):
+            if(output_dir != ''): os.makedirs(output_dir)
+        write_varlist(loadedtargets,args.output + ".available.json")
         if(args.verbose):
-            write_varlist_ascii(loadedtargets           ,ofile + ".available.txt")
-            write_varlist_ascii(ignoredtargets          ,ofile + ".ignored.txt")
-            write_varlist_ascii(identifiedmissingtargets,ofile + ".identifiedmissing.txt")
-            write_varlist_ascii(missingtargets          ,ofile + ".missing.txt")
+            write_varlist_ascii(loadedtargets           ,args.output + ".available.txt")
+            write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt")
+            write_varlist_ascii(identifiedmissingtargets,args.output + ".identifiedmissing.txt")
+            write_varlist_ascii(missingtargets          ,args.output + ".missing.txt")
 
-            write_varlist_excel(loadedtargets           ,ofile + ".available.xlsx")
-            write_varlist_excel(ignoredtargets          ,ofile + ".ignored.xlsx")
-            write_varlist_excel(identifiedmissingtargets,ofile + ".identifiedmissing.xlsx")
-            write_varlist_excel(missingtargets          ,ofile + ".missing.xlsx")
+            write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx")
+            write_varlist_excel(ignoredtargets          ,args.output + ".ignored.xlsx")
+            write_varlist_excel(identifiedmissingtargets,args.output + ".identifiedmissing.xlsx")
+            write_varlist_excel(missingtargets          ,args.output + ".missing.xlsx")
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()
