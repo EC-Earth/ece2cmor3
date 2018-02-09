@@ -38,6 +38,9 @@ start_date_ = None
 # Output interval. Denotes the output file periods.
 output_interval_ = None
 
+# Output frequency (hrs). Minimal interval between output variables.
+output_frequency_ = 6
+
 # Fast storage temporary path
 temp_dir_ = os.getcwd()
 tempdir_created_ = False
@@ -52,14 +55,16 @@ masks = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
-               tempdir=None, maxsizegb=float("inf")):
+               outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
-        output_interval_, ifs_grid_descr_, temp_dir_, tempdir_created_, max_size_, ref_date_, start_date_
+        output_interval_, ifs_grid_descr_, temp_dir_, tempdir_created_, max_size_, ref_date_, start_date_, \
+        output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
     start_date_ = start
     output_interval_ = interval
+    output_frequency_ = outputfreq
     ref_date_ = refdate
 
     datafiles = select_files(path, exp_name_, start, length)
@@ -71,8 +76,6 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path, str(gpfiles), str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
-    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(ifs_gridpoint_file_) if os.path.exists(
-        ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
     if any(inifiles):
         ifs_init_gridpoint_file_ = inifiles[0]
@@ -86,24 +89,47 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
             os.makedirs(temp_dir_)
             tempdir_created_ = True
     max_size_ = maxsizegb
-    grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
+    if autofilter:
+        grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
     return True
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
-def execute(tasks, cleanup=True):
-    global log, tempdir_created_, start_date_
-    supported_tasks = filter_tasks(tasks)
+def execute(tasks, cleanup=True, autofilter=True):
+    global log, tempdir_created_, start_date_, ifs_grid_descr_
+    supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
-    tasks_todo = [t for t in supported_tasks if t.status == cmor_task.status_initialized]
-    grib_filter.execute(tasks_todo, start_date_.month)
     mask_tasks = get_mask_tasks(supported_tasks)
+    surf_pressure_tasks = get_sp_tasks(supported_tasks)
+    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
+    tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
+    grid_descr_file = None
+    if autofilter:
+        tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
+        grid_point_tasks = [t for t in tasks_todo if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point]
+        if any(grid_point_tasks):
+            grid_descr_file = getattr(grid_point_tasks[0], cmor_task.output_path_key, None)
+    else:
+        for task in tasks_todo:
+            grid = getattr(task.source, "grid_")
+            if grid == cmor_source.ifs_grid.point:
+                setattr(task, cmor_task.output_path_key, ifs_gridpoint_file_)
+            elif grid == cmor_source.ifs_grid.spec:
+                setattr(task, cmor_task.output_path_key, ifs_spectral_file_)
+            else:
+                log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
+                                                                                   task.target.table))
+                task.set_failed()
+            setattr(task, cmor_task.output_frequency_key, output_frequency_)
+        grid_descr_file = ifs_gridpoint_file_
+    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(grid_descr_file) if os.path.exists(grid_descr_file) else {}
     processed_tasks = []
     try:
-        log.info("Post-processing mask variables...")
-        processed_tasks = postprocess([t for t in mask_tasks if t.status == cmor_task.status_initialized])
-        for task in processed_tasks:
-            read_mask(task.target.variable, getattr(task, "path"))
+        log.info("Post-processing tasks...")
+        processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
+        for task in [t for t in processed_tasks if t in mask_tasks]:
+            read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
+        cmorize([t for t in processed_tasks if t in supported_tasks])
     except Exception:
         if cleanup:
             clean_tmp_data(processed_tasks, True)
@@ -112,24 +138,6 @@ def execute(tasks, cleanup=True):
     finally:
         if cleanup:
             clean_tmp_data(processed_tasks, False)
-    surf_pressure_tasks = get_sp_tasks([t for t in supported_tasks if t.status >= 0])
-    try:
-        log.info("Post-processing surface pressures...")
-        proc_sp_tasks = postprocess([t for t in surf_pressure_tasks if t.status == cmor_task.status_initialized])
-        log.info("Cmorizing surface pressures...")
-        cmorize(list(set(proc_sp_tasks) & set(tasks_todo)))
-        while any([t for t in tasks_todo if 0 <= t.status < cmor_task.status_cmorized]):
-            try:
-                log.info("Post-processing regular variables...")
-                processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
-                log.info("Cmorizing regular variables...")
-                cmorize(processed_tasks)
-            finally:
-                if cleanup:
-                    clean_tmp_data(processed_tasks, False)
-    finally:
-        if cleanup:
-            clean_tmp_data(surf_pressure_tasks, True)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -263,9 +271,6 @@ def get_sp_tasks(tasks):
 def postprocess(tasks):
     global log, temp_dir_, max_size_, ifs_grid_descr_, surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
-    for task in tasks:
-        print getattr(task, "path", None)
-        print task.source.grid_
     tasks_done = postproc.post_process(tasks, temp_dir_, max_size_, ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
@@ -391,7 +396,7 @@ def execute_netcdf_task(task):
         var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes, positive="down")
         flip_sign = (getattr(task.target, "positive", None) == "up")
         factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None),
-                                       getattr(task, cmor_task.output_frequency_key, 0))
+                                       getattr(task, cmor_task.output_frequency_key))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
             if d.startswith("time"):

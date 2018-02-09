@@ -27,7 +27,7 @@ def main(args = None):
     parser.add_argument("--exp",    metavar = "EXPID",      type = str,     default = "ECE3",help = "Experiment prefix")
     parser.add_argument("--refd",   metavar = "YYYY-mm-dd", type = str,     default = None,help = "Reference date (for atmosphere data), by default the start date")
     parser.add_argument("--mode",   metavar = "MODE",       type = str,     default = "preserve",help = "CMOR netcdf mode",choices = ["preserve","replace","append"])
-    parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours")
+    parser.add_argument("--freq",   metavar = "N",          type = int,     default = 3,help = "IFS output frequency, in hours (not required if autofilter is used)")
     parser.add_argument("--tabdir", metavar = "DIR",        type = str,     default = ece2cmorlib.table_dir_default,help = "Cmorization table directory")
     parser.add_argument("--tabid",  metavar = "PREFIX",     type = str,     default = ece2cmorlib.prefix_default,help = "Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar = "DIR",        type = str,     default = "/tmp/ece2cmor3", help = "Temporary working directory")
@@ -37,6 +37,7 @@ def main(args = None):
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run ece2cmor3 exclusively for ocean data")
     parser.add_argument("--nomask"   , action = "store_true", default = False, help = "Disable masking of fields")
+    parser.add_argument("--filter"   , action = "store_true", default = False, help = "Automatic filtering of grib files")
 
     args = parser.parse_args()
 
@@ -45,6 +46,7 @@ def main(args = None):
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf,mode = modedict[args.mode],tabledir = args.tabdir,tableprefix = args.tabid)
     ece2cmorlib.enable_masks = not args.nomask
+    ece2cmorlib.auto_filter = args.filter
 
     # Fix conflicting flags
     procatmos,prococean = not args.oce,not args.atm

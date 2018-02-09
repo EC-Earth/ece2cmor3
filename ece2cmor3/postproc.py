@@ -258,17 +258,18 @@ def add_time_operators(cdo, task):
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
             task.set_failed()
     elif freq in ["6hr", "6hrPt"]:
-        if operators == ["point"]:
+        if operators == ["point"] or operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
             task.set_failed()
     elif freq in ["1hr", "1hrPt", "3hr", "3hrPt"]:
-        if operators != ["point"]:
-            log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
-            task.set_failed()
+        if operators == ["point"] or operators == ["mean"]:
+            cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
+#            log.error(
+#                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+#            task.set_failed()
     elif freq == 0:
         if operators == ["point"] or operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.select_step_operator, 1)
