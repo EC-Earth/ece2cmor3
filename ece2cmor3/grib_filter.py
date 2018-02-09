@@ -34,8 +34,8 @@ def initialize(gpfile, shfile, tmpdir):
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
     prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
     with open(gpfile) as gpf, open(shfile) as shf:
-        varsfreq.update(inspect_day(grib_file.create_grib_file(gpf)))
-        varsfreq.update(inspect_day(grib_file.create_grib_file(shf)))
+        varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
+        varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -62,7 +62,7 @@ def grib_tuple_from_int(i):
 
 
 # Inspects the first 24 hours in the input gridpoint and spectral files.
-def inspect_day(gribfile):
+def inspect_day(gribfile, grid):
     inidate, initime = -99, -1
     records = {}
     while gribfile.read_next(headers_only=True):
@@ -74,9 +74,10 @@ def inspect_day(gribfile):
             inidate = date
         if initime < 0:
             initime = time
-        key = get_record_key(gribfile)
+        key = get_record_key(gribfile) + (grid,)
         if key in records:
-            records[key].append(time)
+            if time not in records[key]:
+                records[key].append(time)
         else:
             records[key] = [time]
         gribfile.release()
@@ -164,7 +165,11 @@ def cluster_files(valid_tasks):
         for key, tsklist in varstasks.iteritems():
             if task in tsklist:
                 task2files[task].add(mkfname(key))
-                task2freqs[task].add(varsfreq[key])
+                if key[3] == -1:
+                    task2freqs[task].update([varsfreq[k] for k in varsfreq.keys() if
+                                             (k[0], k[1], k[2]) == (key[0], key[1], key[2])])
+                else:
+                    task2freqs[task].add(varsfreq[key])
     for task, fnames in task2files.iteritems():
         task2files[task] = '_'.join(sorted(list(fnames)))
     for task, freqset in task2freqs.iteritems():
@@ -201,7 +206,7 @@ def execute(tasks, month, multi_threaded=False):
         handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
-            setattr(task, cmor_task.output_path_key, os.path.join(temp_dir,task2files[task]))
+            setattr(task, cmor_task.output_path_key, os.path.join(temp_dir, task2files[task]))
     for task in task2freqs:
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
@@ -212,27 +217,23 @@ def execute(tasks, month, multi_threaded=False):
 # returns those that are compatible.
 def validate_tasks(tasks):
     global varstasks
-    
     varstasks = {}
     valid_tasks = []
     for task in tasks:
         if not isinstance(task.source, cmor_source.ifs_source):
             continue
         codes = task.source.get_root_codes()
-        levtype, levels = get_levels(task)
-        if levtype < 0:
-            task.set_failed()
-            continue
         target_freq = cmor_target.get_freq(task.target)
         for c in codes:
+            levtype, levels = get_levels(task, c)
             for l in levels:
                 if task.status == cmor_task.status_failed:
                     break
-                key = (c.var_id, c.tab_id, levtype, l)
+                key = (c.var_id, c.tab_id, levtype, l, task.source.grid_)
                 match_key = key
                 if levtype == grib_file.hybrid_level_code:
-                    matches = [k for k in varsfreq.keys() if k[:2] == key[:2]]
-                    match_key = key if not any(matches) else matches[0] 
+                    matches = [k for k in varsfreq.keys() if k[:3] == key[:3] and k[4] == key[4]]
+                    match_key = key if not any(matches) else matches[0]
                 if match_key not in varsfreq:
                     log.error("Field missing in the first day of file: "
                               "code %d.%d, level type %d, level %d" % (key[0], key[1], key[2], key[3]))
@@ -246,8 +247,9 @@ def validate_tasks(tasks):
                     break
         if task.status != cmor_task.status_failed:
             for c in codes:
+                levtype, levels = get_levels(task, c)
                 for l in levels:
-                    key = (c.var_id, c.tab_id, levtype, l)
+                    key = (c.var_id, c.tab_id, levtype, l, task.source.grid_)
                     if key in varstasks:
                         varstasks[key].append(task)
                     else:
@@ -267,7 +269,7 @@ def open_files(vars2files):
             resource.setrlimit(resource.RLIMIT_NOFILE, (numreq + 1, -1))
         except ValueError:
             return {}
-    return {f: open(os.path.join(temp_dir,f), 'w') for f in files}
+    return {f: open(os.path.join(temp_dir, f), 'w') for f in files}
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
@@ -280,8 +282,10 @@ def proc_mon(month, cur_grib_file, prev_grib_file, handles=None):
 
 
 # Converts cmor-levels to grib levels code
-def get_levels(task):
+def get_levels(task, code):
     global log
+    if (code.var_id, code.tab_id) == (134, 128):
+        return grib_file.surface_level_code, [0]
     zaxis, levels = cmor_target.get_z_axis(task.target)
     if zaxis is None:
         return grib_file.surface_level_code, [0]
@@ -290,7 +294,7 @@ def get_levels(task):
     if zaxis == "air_pressure":
         return grib_file.pressure_level_code, [int(float(l)) for l in levels]
     if zaxis in ["height", "altitude"]:
-        return grib_file.height_level_code, [int(float(l)) for l in levels] # TODO: What about decimal places?
+        return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
@@ -306,7 +310,13 @@ def fix_date_time(date, time):
 # Writes the grib messages
 def write_record(gribfile, shift=0, handles=None):
     key = get_record_key(gribfile)
-    var_infos = varsfiles.get(key, [])
+    if key[2] == grib_file.hybrid_level_code:
+        matches = [varsfiles[k] for k in varsfiles if k[:3] == key[:3]]
+    else:
+        matches = [varsfiles[k] for k in varsfiles if k[:4] == key[:4]]
+    var_infos = set()
+    for match in matches:
+        var_infos.update(match)
     if not any(var_infos):
         return
     timestamp = gribfile.get_field(grib_file.time_key)

@@ -296,7 +296,7 @@ def add_level_operators(cdo, task):
         return
     axisname = zdims[0]
     if axisname == "alevel":
-        cdo.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.modellevel)
+        cdo.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.model_level)
     if axisname == "alevhalf":
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",
                   task.target.table)
@@ -333,7 +333,7 @@ def add_zaxis_operators(cdo, task, lev_types, req_levs, axis_type, axis_code):
             "Could not find %s levels for %s, will interpolate from model levels" % (axis_type, task.target.variable))
         cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[134])
         cdo.add_operator(cdoapi.cdo_command.select_z_operator,
-                         *[cdoapi.cdo_command.modellevel, cdoapi.cdo_command.surflevel])
+                         *[cdoapi.cdo_command.model_level, cdoapi.cdo_command.surf_level])
         if isinstance(req_levs, list) and any(req_levs):
             cdo.add_operator(cdoapi.cdo_command.ml2pl_operator, *req_levs)
     elif axis_code in lev_types:

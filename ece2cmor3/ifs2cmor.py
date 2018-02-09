@@ -71,7 +71,7 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path, str(gpfiles), str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
-    ifs_grid_descr_ = cdoapi.cdo_command().get_griddes(ifs_gridpoint_file_) if os.path.exists(
+    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(ifs_gridpoint_file_) if os.path.exists(
         ifs_gridpoint_file_) else {}
     ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
     if any(inifiles):
@@ -159,7 +159,9 @@ def get_mask_tasks(tasks):
         target = cmor_target.cmor_target(m, "fx")
         setattr(target, cmor_target.freq_key, 0)
         setattr(target, "time_operator", ["point"])
-        result.append(cmor_task.cmor_task(masks[m]["source"], target))
+        result_task = cmor_task.cmor_task(masks[m]["source"], target)
+        setattr(result_task, cmor_task.output_path_key, ifs_gridpoint_file_)
+        result.append(result_task)
     return result
 
 
@@ -261,6 +263,9 @@ def get_sp_tasks(tasks):
 def postprocess(tasks):
     global log, temp_dir_, max_size_, ifs_grid_descr_, surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
+    for task in tasks:
+        print getattr(task, "path", None)
+        print task.source.grid_
     tasks_done = postproc.post_process(tasks, temp_dir_, max_size_, ifs_grid_descr_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
@@ -284,7 +289,7 @@ def find_sp_variable(task):
         task.source = cmor_source.ifs_source.read("var134=exp(var152)")
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
-    setattr(task, "path", ifs_gridpoint_file_)
+    setattr(task, cmor_task.output_path_key, ifs_gridpoint_file_)
     task.source.grid_ = 0
 
 
@@ -385,7 +390,7 @@ def execute_netcdf_task(task):
             unit = getattr(task.target, "units")
         var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes, positive="down")
         flip_sign = (getattr(task.target, "positive", None) == "up")
-        factor = get_conversion_factor(getattr(task, cmor_task.conversion_key),
+        factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None),
                                        getattr(task, cmor_task.output_frequency_key, 0))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
@@ -660,7 +665,7 @@ def select_files(path, expname, start, length):
 def create_grid_from_grib(filepath):
     global log
     command = cdoapi.cdo_command()
-    grid_descr = command.get_griddes(filepath)
+    grid_descr = command.get_grid_descr(filepath)
     gridtype = grid_descr.get("gridtype", "unknown")
     if gridtype != "gaussian":
         log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s" % (

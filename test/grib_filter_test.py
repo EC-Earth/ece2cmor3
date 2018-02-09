@@ -4,7 +4,7 @@ import unittest
 import os
 
 from ece2cmor3 import grib_filter, grib_file, ece2cmorlib, cmor_source, cmor_task, cmor_target
-from nose.tools import eq_, ok_
+from nose.tools import eq_, ok_, with_setup
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -12,8 +12,13 @@ test_data_path = os.path.join(os.path.dirname(__file__), "test_data", "ifs", "00
 tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 
-class grib_filter_test(unittest.TestCase):
+def setup():
+    grib_file.test_mode = grib_filter_test.test_mode
+    if not os.path.exists(tmp_path):
+        os.makedirs(tmp_path)
 
+
+class grib_filter_test(unittest.TestCase):
     test_mode = True
 
     gg_file = "ICMGGECE3+199001.csv" if test_mode else "ICMGGECE3+199001"
@@ -21,19 +26,16 @@ class grib_filter_test(unittest.TestCase):
     sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
     sh_path = os.path.join(test_data_path, sh_file)
 
-    grib_file.test_mode = test_mode
-
     @staticmethod
+    @with_setup(setup)
     def test_initialize():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
-        ok_((133, 128, grib_file.hybrid_level_code, 9) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9)], 6)
-        ok_((133, 128, grib_file.pressure_level_code, 85000) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(133, 128, grib_file.pressure_level_code, 85000)], 6)
-        ok_((164, 128, grib_file.surface_level_code, 0) in grib_filter.varsfreq)
-        eq_(grib_filter.varsfreq[(164, 128, grib_file.surface_level_code, 0)], 3)
+        eq_(grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9, cmor_source.ifs_grid.point)], 6)
+        eq_(grib_filter.varsfreq[(133, 128, grib_file.pressure_level_code, 85000, cmor_source.ifs_grid.point)], 6)
+        eq_(grib_filter.varsfreq[(164, 128, grib_file.surface_level_code, 0, cmor_source.ifs_grid.point)], 3)
 
     @staticmethod
+    @with_setup(setup)
     def test_validate_tasks():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
@@ -45,8 +47,8 @@ class grib_filter_test(unittest.TestCase):
         tsk2 = cmor_task.cmor_task(src2, tgt2)
         valid_tasks = grib_filter.validate_tasks([tsk1, tsk2])
         eq_(valid_tasks, [tsk1, tsk2])
-        key1 = (79, 128, grib_file.surface_level_code, 0.)
-        key2 = (131, 128, grib_file.pressure_level_code, 92500.)
+        key1 = (79, 128, grib_file.surface_level_code, 0, cmor_source.ifs_grid.point)
+        key2 = (131, 128, grib_file.pressure_level_code, 92500., cmor_source.ifs_grid.spec)
         eq_(grib_filter.varstasks[key1], [tsk1])
         eq_(grib_filter.varstasks[key2], [tsk2])
         ltype, plevs = cmor_target.get_z_axis(tgt2)
@@ -55,6 +57,7 @@ class grib_filter_test(unittest.TestCase):
         eq_(levs, levcheck)
 
     @staticmethod
+    @with_setup(setup)
     def test_surf_var():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
@@ -62,9 +65,9 @@ class grib_filter_test(unittest.TestCase):
         src = cmor_source.ifs_source.read("79.128")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk], 1)
-        filepath = os.path.join(os.path.dirname(__file__), "79.128.1")
+        filepath = os.path.join(tmp_path, "79.128.1")
         ok_(os.path.isfile(filepath))
-        ok_(getattr(tsk, "path"), filepath)
+        ok_(getattr(tsk, cmor_task.output_path_key), filepath)
         with open(filepath) as fin:
             reader = grib_file.create_grib_file(fin)
             date, time = 0, 0
@@ -81,6 +84,7 @@ class grib_filter_test(unittest.TestCase):
         os.remove(filepath)
 
     @staticmethod
+    @with_setup(setup)
     def test_expr_var():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
@@ -88,7 +92,7 @@ class grib_filter_test(unittest.TestCase):
         src = cmor_source.ifs_source.read("var214=sqrt(sqr(var165)+sqr(var166))")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk], 1)
-        filepath = os.path.join(os.path.dirname(__file__), "165.128.105_166.128.105")
+        filepath = os.path.join(tmp_path, "165.128.105_166.128.105")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, "path"), filepath)
         with open(filepath) as fin:
@@ -108,6 +112,7 @@ class grib_filter_test(unittest.TestCase):
         os.remove(filepath)
 
     @staticmethod
+    @with_setup(setup)
     def test_pressure_var():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
@@ -115,7 +120,7 @@ class grib_filter_test(unittest.TestCase):
         src = cmor_source.ifs_source.read("131.128")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk], 1)
-        filepath = os.path.join(os.path.dirname(__file__), "131.128.100")
+        filepath = os.path.join(tmp_path, "131.128.100")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, "path"), filepath)
         with open(filepath) as fin:
