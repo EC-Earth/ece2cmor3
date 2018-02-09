@@ -4,13 +4,13 @@ import datetime
 import os
 import resource
 import threading
-
 from dateutil import relativedelta
 import numpy
-
 from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
 
+# Log object.
 log = logging.getLogger(__name__)
+
 gridpoint_file = None
 prev_gridpoint_file = None
 spectral_file = None

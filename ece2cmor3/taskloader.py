@@ -12,6 +12,7 @@ ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
 ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
 identified_missing_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-identified-missing-cmpi6-requested-variables.xlsx")
+omit_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-omitted-variables.xlsx")
 models = {"ifs" : {"realms" : ["atmos","atmosChem","land","landIce"],"parfile" : ifs_par_file},
           "nemo" : {"realms" : ["ocean","ocnBgChem","seaIce"],"parfile" : nemo_par_file}}
 
@@ -33,7 +34,7 @@ mask_predicates = {"=": lambda x,a: x == a,
 skip_tables = False
 
 # API function: loads the argument list of targets
-def load_targets(varlist,load_atm_tasks = True,load_oce_tasks = True):
+def load_targets(varlist,load_atm_tasks = True,load_oce_tasks = True,silent = False):
     global log
     targetlist = []
     if(isinstance(varlist,basestring)):
@@ -60,7 +61,7 @@ def load_targets(varlist,load_atm_tasks = True,load_oce_tasks = True):
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
     log.info("Found %d cmor target variables in input variable list." % len(targetlist))
-    return create_tasks(targetlist,load_atm_tasks,load_oce_tasks)
+    return create_tasks(targetlist,load_atm_tasks,load_oce_tasks,silent)
 
 
 # Loads a json file containing the cmor targets.
@@ -177,7 +178,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
 
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
-def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
+def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = False):
     global log,ignored_vars_file,json_table_key,models,skip_tables
 
     modelflags = {"ifs" : load_atm_tasks, "nemo" : load_oce_tasks}
@@ -198,6 +199,7 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
         else:
             params[model] = []
 
+    omitvarlist              = load_checkvars_excel(omit_vars_file)
     ignoredvarlist           = load_checkvars_excel(ignored_vars_file)
     identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = [],[],[],[]
@@ -222,10 +224,13 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True):
                 target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
                 identifiedmissingtargets.append(target)
                 varword = "identified missing"
+            elif(key in omitvarlist):
+                varword = "omit"
             else:
                 missingtargets.append(target)
                 varword = "missing"
-            log.error("Could not find parameter table entry for %s in table %s...skipping variable. This variable is %s" % (target.variable,target.table,varword))
+            if(silent == False):
+             log.error("Could not find parameter table entry for %s in table %s...skipping variable. This variable is %s" % (target.variable,target.table,varword))
             continue
         modelmatch = None
         for model in matchpars:

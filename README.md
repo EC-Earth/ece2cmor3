@@ -38,6 +38,7 @@ For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
 ```shell
 mkdir -p ${HOME}/cmorize/; cd ${HOME}/cmorize/
 git clone https://github.com/goord/ece2cmor3.git
+cd ${HOME}/cmorize/ece2cmor3/
 git submodule update --init --recursive
 ```
 
@@ -72,6 +73,16 @@ cd ${HOME}/cmorize/; git submodule update --init --recursive
 For instance in case one is developing the checkvars.py script which uses the ece2cmor3 package, after any change in the ece2cmor code the line below has to be repeated in order to reload the ece2cmor3 package:
 ```shell
  cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
+```
+
+#### Updating the nested CMOR table repository by developers:
+
+```shell
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
+git pull origin master
+git add cmip6-cmor-tables
+git commit cmip6-cmor-tables -m 'Update the CMOR tables'
+git push
 ```
 
 #### Installation with pip:

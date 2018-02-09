@@ -6,10 +6,12 @@ import threading
 
 import cdo
 import cmor
+
 import dateutil.relativedelta
 import netCDF4
 import numpy
 from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
+
 
 # Logger construction
 log = logging.getLogger(__name__)

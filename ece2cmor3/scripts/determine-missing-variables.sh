@@ -24,10 +24,9 @@ if [ "$#" -eq 2 ]; then
  fi
  
  # Replace , by dot in label:
- mip_label=$(echo ${mip} | sed 's/,/-/g')      # Note that the checkvars.py script is not able to cope with this replacement if a dot is used instead of the dash in the replacement
+ mip_label=$(echo ${mip} | sed 's/,/./g')
 #echo ' mip =' ${mip} '    experiment =' ${experiment} '    mip_label =' ${mip_label}
 #echo "${mip_label}" | tr '[:upper:]' '[:lower:]'
-#exit
 
 #activateanaconda
  if ! type "drq" > /dev/null; then
@@ -40,7 +39,7 @@ if [ "$#" -eq 2 ]; then
  else
  #source activate ece2cmor3
   cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
-  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/
+  mkdir -p  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/; cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/
   if [ "${multiplemips}" == "yes" ]; then
@@ -52,11 +51,14 @@ if [ "$#" -eq 2 ]; then
  #source deactivate
  fi
 
-#compare_directory='bup/bup8'
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >  differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${compare_directory}.txt
-#diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           ${compare_directory}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${compare_directory}.txt
+ diff_with_benchmark=false
+ benchmark='benchmark-10'
+ if ${diff_with_benchmark} ; then
+  echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff available.txt file:     ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+  echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+ fi
 
 else
     echo '  '
