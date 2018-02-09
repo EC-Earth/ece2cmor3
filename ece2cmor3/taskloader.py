@@ -2,10 +2,7 @@ import os
 import re
 import logging
 import json
-import ece2cmorlib
-import cmor_source
-import cmor_target
-import cmor_task
+from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 
 log = logging.getLogger(__name__)
 
