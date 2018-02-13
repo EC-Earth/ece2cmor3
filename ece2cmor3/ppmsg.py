@@ -95,3 +95,6 @@ class grib_message(message):
 
     def get_level_type(self):
         return self.grbmsg[grib_file.levtype_key]
+
+    def get_values(self):
+        return self.grbmsg["values"]

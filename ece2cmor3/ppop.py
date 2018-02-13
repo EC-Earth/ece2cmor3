@@ -19,7 +19,7 @@ class post_proc_operator(object):
     def collect(self, msg):
         for key in self.coherency_keys:
             if key in self.property_cache:
-                if msg.get_field(key) != self.property_cache[key]:
+                if not msg.get_field(key) == self.property_cache[key]:
                     log.error("Message property %s changed within coherent cache" % key)
                     return False
             else:

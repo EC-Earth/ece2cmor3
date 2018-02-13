@@ -93,6 +93,9 @@ class ifs_source(cmor_source):
             self.grid_ = ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
             self.spatial_dims = 3 if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn) else 2
 
+    def __eq__(self,other):
+        return self.code_ == other.code_
+
     # Returns the grid.
     def grid(self):
         return ifs_grid[self.grid_] if self.grid_ >= 0 else None

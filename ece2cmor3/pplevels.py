@@ -3,10 +3,10 @@ from ece2cmor3 import ppmsg, ppop
 
 log = logging.getLogger(__name__)
 
-class level_integrator(ppop.post_proc_operator):
+class level_aggregator(ppop.post_proc_operator):
 
     def __init__(self, levels, level_type):
-        super(level_integrator_node, self).__init__()
+        super(level_aggregator, self).__init__()
         self.levels = levels
         self.level_type = level_type
         self.values = [None] * len(levels)
