@@ -1,151 +1,13 @@
 import logging
-# Log object.
 from datetime import timedelta
-
-import numpy
 from dateutil.relativedelta import relativedelta
+import numpy
+from ece2cmor3 import ppmsg, ppop
 
 log = logging.getLogger(__name__)
 
+class time_integrator_node(ppop.post_proc_operator):
 
-class message(object):
-    keys = ["variable", "datetime", "leveltype", "levels"]
-
-    def __init__(self):
-        pass
-
-    def get_variable(self):
-        pass
-
-    def get_timestamp(self):
-        pass
-
-    def get_levels(self):
-        pass
-
-    def get_level_type(self):
-        pass
-
-    def get_values(self):
-        pass
-
-    def get_field(self, key):
-        if key == message.keys[0]:
-            return self.get_variable()
-        if key == message.keys[1]:
-            return self.get_timestamp()
-        if key == message.keys[2]:
-            return self.get_level_type()
-        if key == message.keys[3]:
-            return self.get_levels()
-        log.error("Key %s not a valid key for message properties" % key)
-        return None
-
-
-class mem_message(message):
-
-    def __init__(self, source, timestamp, levels, level_type, values):
-        super(mem_message, self).__init__()
-        self.timestamp = timestamp
-        self.levels = levels
-        self.level_type = level_type
-        self.source = source
-        self.values = values
-
-    def get_variable(self):
-        return self.source
-
-    def get_timestamp(self):
-        return self.timestamp
-
-    def get_levels(self):
-        return self.levels
-
-    def get_level_type(self):
-        return self.level_type
-
-    def get_values(self):
-        return self.values
-
-
-class post_proc_node(object):
-
-    def __init__(self):
-
-        self.values = None
-        self.source = None
-        self.targets = []
-        self.full_cache = False
-        self.coherency_keys = []
-        self.property_cache = {}
-
-    def collect(self, msg):
-        for key in self.coherency_keys:
-            if key in self.property_cache:
-                if msg.get_field(key) != self.property_cache[key]:
-                    log.error("Message property %s changed within coherent cache" % key)
-                    return False
-            else:
-                self.property_cache[key] = msg.get_field(key)
-        return self.fill_cache(msg)
-
-    def create_message(self):
-        return mem_message(source=self.property_cache["variable"],
-                           timestamp=self.property_cache["datetime"],
-                           level_type=self.property_cache["leveltype"],
-                           levels=self.property_cache["levels"],
-                           values=self.values)
-
-    def fill_cache(self, msg):
-        log.error("Collection method not implemented in abstract base class %s" % type(self))
-
-    def clear_cache(self):
-        log.warning("Clear cache method not implemented in abstract base class %s" % type(self))
-
-    def push(self):
-        if self.full_cache:
-            for target in self.targets:
-                target.collect(self.create_message())
-                target.push()
-            self.property_cache = {}
-            self.clear_cache()
-
-
-class level_integrator_node(post_proc_node):
-
-    def __init__(self, levels, level_type):
-        super(level_integrator_node, self).__init__()
-        self.levels = levels
-        self.level_type = level_type
-        self.values = [None] * len(levels)
-        self.coherency_keys = ["variable", "datetime"]
-
-    def fill_cache(self, msg):
-        leveltype = msg.get_level_type()
-        if leveltype != self.level_type:
-            return False
-        i = 0
-        for level in msg.get_levels():
-            if level not in self.levels:
-                continue
-            index = self.levels.index(level)
-            if self.values[index]:
-                log.warning(
-                    "Overwriting level %d for variable %s" % (level, self.property_cache.get("variable", "unknown")))
-            if len(msg.get_levels()) > 1:  # Shouldn't normally happen...
-                self.values[index] = msg.get_values()[i, :]
-            else:
-                self.values[index] = msg.get_values()
-        self.full_cache = all(self.values)
-        return True
-
-    def clear_cache(self):
-        del self.values
-        self.values = [None] * len(self.levels)
-        self.full_cache = False
-
-
-class time_integrator_node(post_proc_node):
     linear_mean_operator = 1
     block_left_operator = 2
     block_right_operator = 3
@@ -160,7 +22,7 @@ class time_integrator_node(post_proc_node):
         self.previous_values = None
         self.previous_timestamp = None
         self.start_date = None
-        self.coherency_keys = ["variable", "leveltype", "levels"]
+        self.coherency_keys = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.level_key]
 
     @staticmethod
     def next_step(start, stop, resolution):
@@ -240,8 +102,14 @@ class time_integrator_node(post_proc_node):
             self.values = None
 
     def create_message(self):
-        msg = super(time_integrator_node, self).create_message()
-        setattr(msg, "timebnd_left", self.start_date - self.interval)
-        setattr(msg, "timebnd_right", self.start_date)
-        setattr(msg, "time_center", self.start_date - self.interval/2)
+        start = self.start_date - self.interval
+        end = self.start_date
+        middle = start + timedelta(seconds=int((end - start)/total_seconds()/2))
+        msg = ppmsg.memory_message(source=self.property_cache["variable"],
+                                   timestamp=middle,
+                                   level_type=self.property_cache["leveltype"],
+                                   levels=self.property_cache["levels"],
+                                   values=self.values)
+        setattr(msg, "timebnd_left", start)
+        setattr(msg, "timebnd_right", end)
         return msg
