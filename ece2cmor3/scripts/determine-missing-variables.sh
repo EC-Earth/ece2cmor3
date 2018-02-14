@@ -3,18 +3,20 @@
 #
 # This scripts needs no arguments
 #
-# ${1} the first  argument is the MIP name
-# ${2} the first  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
+# ${1} the first   argument is the MIP name
+# ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
+# ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory)
+# ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority)
 #
 # Run example:
-#  ./determine-missing-variables.sh CMIP CMIP
+#  ./determine-missing-variables.sh CMIP CMIP 1 1
 #
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 4 ]; then
  mip=$1
  experiment=$2
- tier=1
- priority=1
+ tier=$3
+ priority=$4
 
  # Check whether more than one MIP is specified in the data request
  multiplemips='no'
@@ -52,7 +54,7 @@ if [ "$#" -eq 2 ]; then
  fi
 
  diff_with_benchmark=false
- benchmark='benchmark-10'
+ benchmark='benchmark-01'
  if ${diff_with_benchmark} ; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
   echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
@@ -63,20 +65,20 @@ if [ "$#" -eq 2 ]; then
 else
     echo '  '
     echo '  Illegal number of arguments, e.g.:'
-    echo '  ' $0 CMIP CMIP
+    echo '  ' $0 CMIP CMIP 1 1
     echo '  or:'
-    echo '  ' $0 CMIP,AerChemMIP CMIP
+    echo '  ' $0 CMIP,AerChemMIP CMIP 1 1
     echo '  '
 fi
 
-# Request for all EC-EARTH3-AOGCM MIPs of the CMIP experiments (default tier=1 and priority=1):
-# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP
+# Request for all EC-EARTH3-AOGCM MIPs of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
 
-# Request for all EC-EARTH3-AOGCM MIPs + DAMIP of the CMIP experiments (default tier=1 and priority=1):
-# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP
+# Request for all EC-EARTH3-AOGCM MIPs + DAMIP of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1
 
-# Request for all EC-EARTH3 MIPs of the CMIP experiments (default tier=1 and priority=1):
-# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP
+# Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
 
-# Request for all EC-EARTH3 MIPs + DAMIP of the CMIP experiments (default tier=1 and priority=1):
-# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP
+# Request for all EC-EARTH3 MIPs + DAMIP of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1
