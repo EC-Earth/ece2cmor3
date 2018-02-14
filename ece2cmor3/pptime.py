@@ -6,7 +6,7 @@ from ece2cmor3 import ppmsg, ppop
 
 log = logging.getLogger(__name__)
 
-class time_integrator_node(ppop.post_proc_operator):
+class time_aggregator(ppop.post_proc_operator):
 
     linear_mean_operator = 1
     block_left_operator = 2
@@ -18,11 +18,11 @@ class time_integrator_node(ppop.post_proc_operator):
         super(time_integrator_node, self).__init__()
         self.operator = operator
         self.interval = interval
-        self.values = None
         self.previous_values = None
         self.previous_timestamp = None
         self.start_date = None
-        self.coherency_keys = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.level_key]
+        self.full_cache = False
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.level_key]
 
     @staticmethod
     def next_step(start, stop, resolution):
@@ -97,11 +97,13 @@ class time_integrator_node(ppop.post_proc_operator):
                     raise Exception("Unknown averaging operator")
 
     def clear_cache(self):
-        if self.values is not None:
-            del self.values
-            self.values = None
+        self.values = None
+        self.full_cache = False
 
-    def create_message(self):
+    def cache_is_full(self):
+        return self.full_cache
+
+    def create_msg(self):
         start = self.start_date - self.interval
         end = self.start_date
         middle = start + timedelta(seconds=int((end - start)/total_seconds()/2))
