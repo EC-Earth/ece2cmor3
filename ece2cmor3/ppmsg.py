@@ -6,8 +6,8 @@ from ece2cmor3 import cmor_source, grib_file
 
 log = logging.getLogger(__name__)
 
-class message(object):
 
+class message(object):
     variable_key = "variable"
     datetime_key = "datetime"
     leveltype_key = "leveltype"
@@ -74,21 +74,19 @@ class memory_message(message):
 
 class grib_message(message):
 
-    def __init__(self,grbmsg_):
+    def __init__(self, grbmsg_):
         super(grib_message, self).__init__()
         self.grbmsg = grbmsg_
 
     def get_variable(self):
         param = self.grbmsg[grib_file.param_key]
-        code,table = param if param < 1000 else param % 1000, 128 if param < 1000 else param / 1000
-        return cmor_source.ifs_source(cmor_source.grib_code(code,table))
+        code, table = param if param < 1000 else param % 1000, 128 if param < 1000 else param / 1000
+        return cmor_source.ifs_source(cmor_source.grib_code(code, table))
 
     def get_timestamp(self):
-        date,time = self.grbmsg[grib_file.date_key],self.grbmsg[grib_file.time_key]
-        yyyy = date/10**4
-        day = (date % 10**4)/10**2
-        return datetime(year=date/10000, month=(date % 10000)/100, day=(date % 100),
-                        hour=time/100, minute=(time % 100))
+        date, time = self.grbmsg[grib_file.date_key], self.grbmsg[grib_file.time_key]
+        return datetime(year=date / 10000, month=(date % 10000) / 100, day=(date % 100),
+                        hour=time / 100, minute=(time % 100))
 
     def get_levels(self):
         return [self.grbmsg[grib_file.level_key]]

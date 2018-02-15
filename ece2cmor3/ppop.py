@@ -5,6 +5,7 @@ from ece2cmor3 import ppmsg
 
 log = logging.getLogger(__name__)
 
+
 class post_proc_operator(object):
 
     def __init__(self):
