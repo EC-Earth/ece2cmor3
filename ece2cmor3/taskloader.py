@@ -10,9 +10,13 @@ IFS_source_tag = 1
 Nemo_source_tag = 2
 ifs_par_file = os.path.join(os.path.dirname(__file__),"resources","ifspar.json")
 nemo_par_file = os.path.join(os.path.dirname(__file__),"resources","nemopar.json")
+omit_vars_file_01 = os.path.join(os.path.dirname(__file__),"resources/lists-of-omitted-variables","list-of-omitted-variables-01.xlsx")
+omit_vars_file_02 = os.path.join(os.path.dirname(__file__),"resources/lists-of-omitted-variables","list-of-omitted-variables-02.xlsx")
+omit_vars_file_03 = os.path.join(os.path.dirname(__file__),"resources/lists-of-omitted-variables","list-of-omitted-variables-03.xlsx")
+omit_vars_file_04 = os.path.join(os.path.dirname(__file__),"resources/lists-of-omitted-variables","list-of-omitted-variables-04.xlsx")
+omit_vars_file_05 = os.path.join(os.path.dirname(__file__),"resources/lists-of-omitted-variables","list-of-omitted-variables-05.xlsx")
 ignored_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-ignored-cmpi6-requested-variables.xlsx")
 identified_missing_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-identified-missing-cmpi6-requested-variables.xlsx")
-omit_vars_file = os.path.join(os.path.dirname(__file__),"resources","list-of-omitted-variables.xlsx")
 models = {"ifs" : {"realms" : ["atmos","atmosChem","land","landIce"],"parfile" : ifs_par_file},
           "nemo" : {"realms" : ["ocean","ocnBgChem","seaIce"],"parfile" : nemo_par_file}}
 
@@ -199,7 +203,11 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
         else:
             params[model] = []
 
-    omitvarlist              = load_checkvars_excel(omit_vars_file)
+    omitvarlist_01           = load_checkvars_excel(omit_vars_file_01)
+    omitvarlist_02           = load_checkvars_excel(omit_vars_file_02)
+    omitvarlist_03           = load_checkvars_excel(omit_vars_file_03)
+    omitvarlist_04           = load_checkvars_excel(omit_vars_file_04)
+    omitvarlist_05           = load_checkvars_excel(omit_vars_file_05)
     ignoredvarlist           = load_checkvars_excel(ignored_vars_file)
     identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = [],[],[],[]
@@ -224,8 +232,11 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
                 target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
                 identifiedmissingtargets.append(target)
                 varword = "identified missing"
-            elif(key in omitvarlist):
-                varword = "omit"
+            elif(key in omitvarlist_01): varword = "omit 01"
+            elif(key in omitvarlist_02): varword = "omit 02"
+            elif(key in omitvarlist_03): varword = "omit 03"
+            elif(key in omitvarlist_04): varword = "omit 04"
+            elif(key in omitvarlist_05): varword = "omit 05"
             else:
                 missingtargets.append(target)
                 varword = "missing"
