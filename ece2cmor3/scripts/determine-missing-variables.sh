@@ -54,7 +54,7 @@ if [ "$#" -eq 4 ]; then
  #source deactivate
  fi
 
- diff_with_benchmark=true
+ diff_with_benchmark=false
  benchmark='benchmark-01'
  if ${diff_with_benchmark} ; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
