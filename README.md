@@ -5,7 +5,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 ## Required python packages:
 
 * netCDF4
-* cmor3
+* cmor3 (see cmor [dependencies](https://anaconda.org/PCMDI/cmor/files?channel=main))
 * cdo (version 1.7.0 or higher; only for atmosphere post-processing)
 * nose (only for testing)
 * testfixtures (only for testing)
