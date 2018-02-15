@@ -44,16 +44,17 @@ if [ "$#" -eq 4 ]; then
   mkdir -p  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/; cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/
+  # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   if [ "${multiplemips}" == "yes" ]; then
    ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   else
-   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*TOTAL*.xlsx                                               --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   fi
  #source deactivate
  fi
 
- diff_with_benchmark=false
+ diff_with_benchmark=true
  benchmark='benchmark-01'
  if ${diff_with_benchmark} ; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
@@ -71,14 +72,27 @@ else
     echo '  '
 fi
 
-# Request for all EC-EARTH3-AOGCM MIPs of the CMIP experiments for tier=1 and priority=1:
+# Request for all EC-EARTH3-AOGCM MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
 # ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
-
-# Request for all EC-EARTH3-AOGCM MIPs + DAMIP of the CMIP experiments for tier=1 and priority=1:
 # ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1
 
-# Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
-
-# Request for all EC-EARTH3 MIPs + DAMIP of the CMIP experiments for tier=1 and priority=1:
+# Request for all EC-EARTH3 MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB       CMIP 1 1
 # ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1
+
+# ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1
+# ./determine-missing-variables.sh C4MIP       C4MIP        1 1
+# ./determine-missing-variables.sh DCPP        DCPP         1 1
+# ./determine-missing-variables.sh HighResMIP  HighResMIP   1 1
+# ./determine-missing-variables.sh ISMIP6      ISMIP6       1 1
+# ./determine-missing-variables.sh LS3MIP      LS3MIP       1 1
+# ./determine-missing-variables.sh LUMIP       LUMIP        1 1
+# ./determine-missing-variables.sh PMIP        PMIP         1 1
+# ./determine-missing-variables.sh RFMIP       RFMIP        1 1
+# ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1
+# ./determine-missing-variables.sh VolMIP      VolMIP       1 1
+# ./determine-missing-variables.sh CORDEX      CORDEX       1 1
+# ./determine-missing-variables.sh DynVar      DynVar       1 1
+# ./determine-missing-variables.sh SIMIP       SIMIP        1 1
+# ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1
+# ./determine-missing-variables.sh DAMIP       DAMIP        1 1
