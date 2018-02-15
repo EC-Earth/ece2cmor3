@@ -77,7 +77,7 @@ dependencies:
 - libgfortran=3.0.0=1
 - mkl=2017.0.3=0
 - numpy=1.13.1=py27_0
-- cmor=3.3.0=py27hd3cfe68_0
+- cmor=3.3.1.npy1.13=py27_0
 - pip:
   - cdat-info==0.0.0
   - f90nml==0.20
