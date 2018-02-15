@@ -45,12 +45,12 @@ git submodule update --init --recursive
 
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/
-conda env create -f environment.yml
+conda env create -f environment.yml       # for linux
+conda env create -f env-osx-64.yml        # for mac os
 source activate ece2cmor3
 python setup.py install
 source deactivate
 ```
-If you are using mac os, use the env-osx-64.yml instead of the environment.yml to install the dependencies.
 
 ##### Running ece2cmor3 inside the conda environment:
 
@@ -80,8 +80,8 @@ For instance in case one is developing the checkvars.py script which uses the ec
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
 git pull origin master
-git add cmip6-cmor-tables
-git commit cmip6-cmor-tables -m 'Update the CMOR tables'
+cd ../; git add cmip6-cmor-tables
+git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'
 git push
 ```
 
