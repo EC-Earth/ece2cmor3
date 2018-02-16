@@ -7,6 +7,22 @@ from ece2cmor3 import ppmsg, ppop
 log = logging.getLogger(__name__)
 
 
+class time_filter(ppop.post_proc_operator):
+
+    def __init__(self, period):
+        super(time_filter, self).__init__()
+        self.period = period
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.levellist_key]
+
+    def fill_cache(self, msg):
+        if msg.get_timestamp().hour % self.period == 0:
+            self.values = msg.get_values()
+            return True
+        else:
+            self.values = None
+            return False
+
+
 class time_aggregator(ppop.post_proc_operator):
     linear_mean_operator = 1
     block_left_operator = 2
