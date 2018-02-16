@@ -1,41 +1,63 @@
+import logging
 import numpy
 import cmor
 from ece2cmor3 import ppop, cmor_target
 
+# Logger construction
+log = logging.getLogger(__name__)
+
+# Dictionary of grids, keys are horizontal sizes of incoming variables
 grid_ids = {}
+
+# Dictionary of time axes, keys are target variable frequencies
 time_axis_ids = {}
+
+# Dictionary of vertical axes, keys are target vertical dimension names
 z_axis_ids = {}
+
+# Dictionary of variable id's, keys are pairs of cmor variable name and table
 var_ids = {}
 
+ref_date = None
+time_unit = "hour"
 
-def create_time_axis(freq):
-    return -1
+
+def create_time_axis(task, msg):
+    target_dims = getattr(task.target, cmor_target.dims_key)
+    time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
+    if any(time_dims):
+        refdate = msg.get_timestamp() if ref_date is None else ref_date
+        return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(refdate))
+    else:
+        return 0
 
 
-def create_z_axis(z_axis):
-    return -1
+def create_z_axis(z_axis, levels):
+    return 0
 
 
 def create_cmor_variable(task, msg):
     global grid_ids, time_axis_ids, z_axis_ids, var_ids
     shape = msg.get_values().shape
-    if shape in grid_ids:
+    hor_size = (shape[:-2], shape[:-1])
+    if hor_size in grid_ids:
         grid_id = grid_ids[shape]
     else:
-        grid_id = create_gauss_grid(shape[:-2], shape[:-1])
+        grid_id = create_gauss_grid(hor_size[0], hor_size[1])
         grid_ids[shape] = grid_id
     freq = getattr(task.target, cmor_target.freq_key, None)
     time_axis_id = 0
     if freq in time_axis_ids:
         time_axis_id = time_axis_ids[freq]
     elif freq is not None:
-        time_axis_id = create_time_axis(freq)
-        time_axis_ids[freq] = time_axis_id
-    z_axis = cmor_target.get_z_axis(task.target)
+        time_axis_id = create_time_axis(task, msg)
+        if time_axis_id != 0:
+            time_axis_ids[freq] = time_axis_id
+    z_axis, levels = cmor_target.get_z_axis(task.target)
     if z_axis in z_axis_ids:
         z_axis_id = z_axis_ids[z_axis]
-    else:
-        z_axis_id = create_z_axis(z_axis)
+    elif z_axis:
+        z_axis_id = create_z_axis(z_axis, levels)
         z_axis_ids[z_axis] = z_axis_ids
     axes = [time_axis_id, grid_id, z_axis_id]
     axes.remove(0)
