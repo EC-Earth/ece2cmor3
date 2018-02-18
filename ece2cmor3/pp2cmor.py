@@ -1,7 +1,7 @@
 import logging
 import numpy
 import cmor
-from ece2cmor3 import ppop, cmor_target
+from ece2cmor3 import ppop, cmor_target, pplevels
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -22,20 +22,7 @@ ref_date = None
 time_unit = "hour"
 
 
-def create_time_axis(task, msg):
-    target_dims = getattr(task.target, cmor_target.dims_key)
-    time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
-    if any(time_dims):
-        refdate = msg.get_timestamp() if ref_date is None else ref_date
-        return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(refdate))
-    else:
-        return 0
-
-
-def create_z_axis(z_axis, levels):
-    return 0
-
-
+# Creates a variable for the given task, and creates grid, time and z axes if necessary
 def create_cmor_variable(task, msg):
     global grid_ids, time_axis_ids, z_axis_ids, var_ids
     shape = msg.get_values().shape
@@ -54,6 +41,7 @@ def create_cmor_variable(task, msg):
         if time_axis_id != 0:
             time_axis_ids[freq] = time_axis_id
     z_axis, levels = cmor_target.get_z_axis(task.target)
+    z_axis_id = 0
     if z_axis in z_axis_ids:
         z_axis_id = z_axis_ids[z_axis]
     elif z_axis:
@@ -61,8 +49,8 @@ def create_cmor_variable(task, msg):
         z_axis_ids[z_axis] = z_axis_ids
     axes = [time_axis_id, grid_id, z_axis_id]
     axes.remove(0)
-    unit = msg.get_units()
-    return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes, positive="down")
+    return cmor.variable(table_entry=str(task.target.variable), units=getattr(task.target, "units", None),
+                         axis_ids=axes, positive="down")
 
 
 # Creates the regular gaussian grid from its arguments.
@@ -91,6 +79,72 @@ def create_gauss_grid(nx, ny):
                      latitude_vertices=vert_lats, longitude_vertices=vert_lons)
 
 
+# Creates a time axis in the cmor library for this task
+def create_time_axis(task, msg):
+    target_dims = getattr(task.target, cmor_target.dims_key)
+    time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
+    if any(time_dims):
+        refdate = msg.get_timestamp() if ref_date is None else ref_date
+        return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(refdate))
+    else:
+        return 0
+
+
+# Creates a vertical coordinate axis in the cmor library
+def create_z_axis(z_axis, levels, table):
+    if z_axis == "alevel":
+        return create_hybrid_level_axis("alternate_hybrid_sigma")
+    if z_axis == "sdepth":
+        return create_soil_depth_axis(z_axis)
+    if z_axis in cmor_target.get_axis_info(table):
+        axis = cmor_target.get_axis_info(table)[z_axis]
+        unit = axis.get("units", None)
+        if axis.get("must_have_bounds", "no") == "yes":
+            bounds_list = axis.get("requested_bounds", [])
+            if not bounds_list:
+                bounds_list = [float(x) for x in axis.get("bounds_values", []).split()]
+            if len(bounds_list) == 2 * len(levels):
+                bnds = numpy.array(bounds_list)
+                bounds_array = numpy.stack([bnds[0::2], bnds[1::2]], axis=1)
+                return cmor.axis(table_entry=z_axis, coord_vals=levels, units=unit, cell_bounds=bounds_array)
+            else:
+                log.error("Failed to retrieve bounds for vertical axis %s" % str(z_axis))
+        return cmor.axis(table_entry=z_axis, coord_vals=levels, units=unit)
+    return 0
+
+
+# Creates the hybrid model vertical axis in cmor.
+def create_hybrid_level_axis(name):
+    pref = 101325
+    a = pplevels.a_coefs
+    abnds = 0.5 * (a[1:] + a[:-1])
+    b = pplevels.b_coefs
+    bbnds = 0.5 * (b[1:] + b[:-1])
+    hcm = a / pref + b
+    hcbnds = 0.5 * (hcm[1:] + hcm[:-1])
+    axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=hcbnds, units="1")
+    cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],
+                 zfactor_bounds=abnds)
+    cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units="1", axis_ids=[axisid], zfactor_values=b[:],
+                 zfactor_bounds=bbnds)
+    # TODO: Find a way to incorporate the z-factor
+    #    storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
+    #                             axis_ids=[grid_ids[], getattr(task, "time_axis")], units="Pa")
+    return axisid
+
+
+# Creates a soil depth axis, assuming IFS soil scheme
+def create_soil_depth_axis(name):
+    global log
+    # TODO: Read from grib...
+    ifs_levels_mm = numpy.array([0, 7, 28, 100, 289])
+    ifs_levels = 1e-2 * ifs_levels_mm
+    values = (ifs_levels[:-1] + ifs_levels[1:]) / 2
+    bounds = numpy.stack([ifs_levels[:-1], ifs_levels[1:]], axis=1)
+    return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
+
+
+# Leaf operator: transfers data to the cmor library
 class msg_to_cmor(ppop.post_proc_operator):
 
     def __init__(self, task):

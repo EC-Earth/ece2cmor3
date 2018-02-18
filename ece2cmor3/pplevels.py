@@ -1,12 +1,29 @@
 import logging
+
 import numpy
-from ece2cmor3 import ppmsg, ppop
+
+from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
+num_levels = 0
+pv_array = None
+a_coefs, b_coefs = None, None
+
+
+def get_pv_array(msg):
+    global num_levels, pv_array, a_coefs, b_coefs
+    if pv_array is not None:
+        return False
+    pv = msg.get_pv_array()
+    num_levels = len(pv) / 2
+    a_coefs = pv[0:num_levels]
+    b_coefs = pv[num_levels + 1:]
+
+
 class level_aggregator(ppop.post_proc_operator):
 
-    def __init__(self, levels, level_type):
+    def __init__(self, level_type, levels):
         super(level_aggregator, self).__init__()
         self.levels = levels
         self.level_type = level_type
@@ -14,6 +31,8 @@ class level_aggregator(ppop.post_proc_operator):
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.datetime_key]
 
     def fill_cache(self, msg):
+        if self.level_type == grib_file.hybrid_level_code and not self.levels:
+            self.levels = range(1, num_levels)
         leveltype = msg.get_level_type()
         if leveltype != self.level_type:
             return False
@@ -40,6 +59,7 @@ class level_aggregator(ppop.post_proc_operator):
                                     leveltype=self.level_type,
                                     levels=self.levels,
                                     values=numpy.stack(self.values))
+
     def cache_is_full(self):
         return all(v is not None for v in self.values)
 

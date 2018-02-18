@@ -15,7 +15,7 @@ class pp_remap_sh(ppop.post_proc_operator):
         values = msg.get_values()
         if msg.is_spectral():
             if pp_remap_sh.sh_mapper is None:
-                lmax = msg.get_resolution()
+                lmax = 2 * msg.get_resolution() - 1
                 shtns.SHT_NO_CS_PHASE = True
                 pp_remap_sh.sh_mapper = shtns.sht(lmax, lmax, 1, shtns.sht_orthonormal + shtns.SHT_NO_CS_PHASE)
             self.values = numpy.flipud(

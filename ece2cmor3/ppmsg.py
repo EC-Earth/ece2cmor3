@@ -33,6 +33,12 @@ class message(object):
     def get_values(self):
         pass
 
+    def get_resolution(self):
+        pass
+
+    def is_spectral(self):
+        pass
+
     def get_field(self, key):
         if key == self.variable_key:
             return self.get_variable()
@@ -55,6 +61,8 @@ class memory_message(message):
         self.levels = levels
         self.level_type = leveltype
         self.values = values
+        self.resolution = 0
+        self.unit = "1"
 
     def get_variable(self):
         return self.source
@@ -70,6 +78,12 @@ class memory_message(message):
 
     def get_values(self):
         return self.values
+
+    def get_resolution(self):
+        return self.resolution
+
+    def is_spectral(self):
+        return self.source in cmor_source.ifs_source.grib_codes_sh
 
 
 class grib_message(message):
@@ -96,3 +110,9 @@ class grib_message(message):
 
     def get_values(self):
         return self.grbmsg["values"]
+
+    def get_resolution(self):
+        return int(self.grbmsg["N"])
+
+    def is_spectral(self):
+        return int(self.grbmsg["sphericalHarmonics"]) == 1

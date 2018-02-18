@@ -535,7 +535,7 @@ def create_depth_axes(tasks):
 
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task):
-    pref = 80000  # TODO: Move reference pressure level to model config
+    pref = 101325
     path = getattr(task, "path")
     ds = None
     try:
