@@ -1,7 +1,7 @@
 import logging
 import numpy
 import cmor
-from ece2cmor3 import ppop, cmor_target, pplevels
+from ece2cmor3 import ppop, cmor_target, pplevels, ppmsg
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ time_unit = "hour"
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
-def create_cmor_variable(task, msg):
+def create_cmor_variable(task, msg, store_var=None):
     global grid_ids, time_axis_ids, z_axis_ids, var_ids
     shape = msg.get_values().shape
     hor_size = (shape[:-2], shape[:-1])
@@ -49,8 +49,14 @@ def create_cmor_variable(task, msg):
         z_axis_ids[z_axis] = z_axis_ids
     axes = [time_axis_id, grid_id, z_axis_id]
     axes.remove(0)
-    return cmor.variable(table_entry=str(task.target.variable), units=getattr(task.target, "units", None),
-                         axis_ids=axes, positive="down")
+    var_id = cmor.variable(table_entry=str(task.target.variable), units=getattr(task.target, "units", None),
+                           axis_ids=axes, positive="down")
+    if store_var:
+        store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=store_var,
+                                    axis_ids=[time_axis_id, grid_id], units="Pa")
+        return var_id, store_var_id
+    else:
+        return var_id
 
 
 # Creates the regular gaussian grid from its arguments.
@@ -127,9 +133,6 @@ def create_hybrid_level_axis(name):
                  zfactor_bounds=abnds)
     cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units="1", axis_ids=[axisid], zfactor_values=b[:],
                  zfactor_bounds=bbnds)
-    # TODO: Find a way to incorporate the z-factor
-    #    storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
-    #                             axis_ids=[grid_ids[], getattr(task, "time_axis")], units="Pa")
     return axisid
 
 
@@ -147,17 +150,47 @@ def create_soil_depth_axis(name):
 # Leaf operator: transfers data to the cmor library
 class msg_to_cmor(ppop.post_proc_operator):
 
-    def __init__(self, task):
+    def __init__(self, task, conversion_factor=1.):
         super(msg_to_cmor, self).__init__()
         self.task = task
+        self.variable = task.source
         self.var_id = None
+        self.store_variable = None
+        self.store_var_id = None
+        self.store_values = None
+        self.conversion_factor = conversion_factor
+        self.time_bounds = [None, None]
+
+    def set_store_var(self, store_variable, ps_operator):
+        ps_operator.targets.append(self)
+        self.store_variable = store_variable
 
     def fill_cache(self, msg):
         if self.var_id is None:
-            self.var_id = create_cmor_variable(self.task, msg)
+            if self.store_variable:
+                self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, "ps")
+            else:
+                self.var_id = create_cmor_variable(self.task, msg)
+        if msg.get_variable() == self.store_variable:
+            self.store_values = msg.get_values()
+        if msg.get_variable() == self.task.source:
+            self.values = msg.get_values() * self.conversion_factor
+            self.time_bounds = [getattr(msg, "timebnd_left", msg.get_timestamp()),
+                                getattr(msg, "timebnd_right", msg.get_timestamp())]
+
+    def cache_is_full(self):
+        if self.store_variable:
+            return self.values is not None and self.store_values is not None
         else:
-            timestamp = msg.get_timestamp()
-            time_bnd_left = getattr(msg, "timebnd_left", timestamp)
-            time_bnd_right = getattr(msg, "timebnd_right", timestamp)
-            cmor.write(msg.get_values(), ntimes_passed=1, time_bnds=[time_bnd_left, time_bnd_right],
-                       time_vals=[timestamp])
+            return self.values is not None
+
+    def clear_cache(self):
+        self.values = None
+        self.store_values = None
+
+    def create_msg(self):
+        timestamp = self.property_cache[ppmsg.message.datetime_key]
+        cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=self.time_bounds,
+                   time_vals=[timestamp])
+        if self.store_variable:
+            cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[timestamp])

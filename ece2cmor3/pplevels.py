@@ -18,7 +18,7 @@ def get_pv_array(msg):
     pv = msg.get_pv_array()
     num_levels = len(pv) / 2
     a_coefs = pv[0:num_levels]
-    b_coefs = pv[num_levels + 1:]
+    b_coefs = pv[num_levels:]
 
 
 class level_aggregator(ppop.post_proc_operator):
