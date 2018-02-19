@@ -1,7 +1,7 @@
 import logging
 import numpy
 import cmor
-from ece2cmor3 import ppop, cmor_target, pplevels, ppmsg
+from ece2cmor3 import ppop, cmor_target, pplevels, ppmsg, cmor_task
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -150,7 +150,7 @@ def create_soil_depth_axis(name):
 # Leaf operator: transfers data to the cmor library
 class msg_to_cmor(ppop.post_proc_operator):
 
-    def __init__(self, task, conversion_factor=1.):
+    def __init__(self, task):
         super(msg_to_cmor, self).__init__()
         self.task = task
         self.variable = task.source
@@ -158,7 +158,6 @@ class msg_to_cmor(ppop.post_proc_operator):
         self.store_variable = None
         self.store_var_id = None
         self.store_values = None
-        self.conversion_factor = conversion_factor
         self.time_bounds = [None, None]
 
     def set_store_var(self, store_variable, ps_operator):
@@ -174,7 +173,9 @@ class msg_to_cmor(ppop.post_proc_operator):
         if msg.get_variable() == self.store_variable:
             self.store_values = msg.get_values()
         if msg.get_variable() == self.task.source:
-            self.values = msg.get_values() * self.conversion_factor
+            conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
+                                                      getattr(self.task, cmor_task.output_frequency_key))
+            self.values = msg.get_values() * conversion_factor
             self.time_bounds = [getattr(msg, "timebnd_left", msg.get_timestamp()),
                                 getattr(msg, "timebnd_right", msg.get_timestamp())]
 
@@ -194,3 +195,28 @@ class msg_to_cmor(ppop.post_proc_operator):
                    time_vals=[timestamp])
         if self.store_variable:
             cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[timestamp])
+
+
+# Returns the conversion factor from the input string
+def get_conversion_factor(conversion, output_frequency):
+    global log
+    if not conversion:
+        return 1.0
+    if conversion == "cum2inst":
+        return 1.0 / (3600 * output_frequency)
+    if conversion == "inst2cum":
+        return 3600 * output_frequency
+    if conversion == "pot2alt":
+        return 1.0 / 9.81
+    if conversion == "alt2pot":
+        return 9.81
+    if conversion == "vol2flux":
+        return 1000.0 / (3600 * output_frequency)
+    if conversion == "vol2massl":
+        return 1000.0
+    if conversion == "frac2percent":
+        return 100.0
+    if conversion == "percent2frac":
+        return 0.01
+    log.error("Unknown explicit unit conversion: %s" % conversion)
+    return 1.0
