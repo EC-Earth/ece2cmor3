@@ -27,12 +27,13 @@ class level_aggregator(ppop.post_proc_operator):
         super(level_aggregator, self).__init__()
         self.levels = levels
         self.level_type = level_type
-        self.values = [None] * len(levels)
+        self.values = None if levels is None else [None] * len(levels)
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.datetime_key]
 
     def fill_cache(self, msg):
-        if self.level_type == grib_file.hybrid_level_code and not self.levels:
+        if self.level_type == grib_file.hybrid_level_code and self.levels is None:
             self.levels = range(1, num_levels)
+            self.values = [None] * num_levels
         leveltype = msg.get_level_type()
         if leveltype != self.level_type:
             return False
@@ -51,7 +52,7 @@ class level_aggregator(ppop.post_proc_operator):
         return True
 
     def clear_cache(self):
-        self.values = [None] * len(self.levels)
+        self.values = None if self.levels is None else [None] * len(self.levels)
 
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],

@@ -12,15 +12,27 @@ class time_filter(ppop.post_proc_operator):
     def __init__(self, period):
         super(time_filter, self).__init__()
         self.period = period
+        self.timestamp = None
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.levellist_key]
 
     def fill_cache(self, msg):
-        if msg.get_timestamp().hour % self.period == 0:
+        t = msg.get_timestamp()
+        self.timestamp = t
+        tnext = t + self.period
+        dthrs = (tnext - t).total_seconds() / 3600
+        if t.hour % int(round(dthrs)) == 0:
             self.values = msg.get_values()
             return True
         else:
             self.values = None
             return False
+
+    def create_msg(self):
+        return ppmsg.memory_message(source=self.property_cache["variable"],
+                                    timestamp=self.timestamp,
+                                    leveltype=self.property_cache["leveltype"],
+                                    levels=self.property_cache["levels"],
+                                    values=self.values)
 
 
 class time_aggregator(ppop.post_proc_operator):

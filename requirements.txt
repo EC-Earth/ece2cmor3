@@ -1,3 +1,4 @@
+pygrib
 cdo==1.7.0
 # Compile cmor source and run python setup.py install
 # CMOR==3.3.0

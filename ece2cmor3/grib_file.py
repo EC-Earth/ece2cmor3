@@ -1,7 +1,5 @@
-import os
 import csv
-
-import gribapi
+import os
 
 # Vertical axes codes
 surface_level_code = 1
@@ -26,7 +24,7 @@ def create_grib_file(file_object_):
     if test_mode:
         return csv_grib_mock(file_object_)
     else:
-        return ecmwf_grib_api(file_object_)
+        return pygrib_api(file_object_)
 
 
 # Interface for grib file object
@@ -35,7 +33,10 @@ class grib_file(object):
     def __init__(self, file_object_):
         self.file_object = file_object_
 
-    def read_next(self, headers_only=False):
+    def read_next(self):
+        pass
+
+    def read_previous(self):
         pass
 
     def write(self, file_object_):
@@ -54,32 +55,36 @@ class grib_file(object):
         pass
 
 
-# ECMWF grib api implementation of grib file interface
-class ecmwf_grib_api(grib_file):
+# pygrib api implementation of grib file interface
+class pygrib_api(grib_file):
 
     def __init__(self, file_object_):
-        super(ecmwf_grib_api, self).__init__(file_object_)
-        self.record = 0
+        super(pygrib_api, self).__init__(file_object_)
+        self.message = None
         os.environ["GRIB_API_PYTHON_NO_TYPE_CHECKS"] = "1"
 
-    def read_next(self, headers_only=False):
-        self.record = gribapi.grib_new_from_file(self.file_object, headers_only=headers_only)
-        return self.record is not None
+    def read_next(self):
+        self.message = self.file_object.readline()
+        return self.message is not None
+
+    def read_previous(self):
+        self.message = self.file_object.seek(-1, 1)
+        return self.message is not None
 
     def write(self, file_object_):
-        gribapi.grib_write(self.record, file_object_)
+        file_object_.write(self.message.tostring())
 
     def set_field(self, name, value):
-        gribapi.grib_set(self.record, name, value)
+        self.message[name] = value
 
     def get_field(self, name):
-        return gribapi.grib_get_long(self.record, name)
+        return self.message[name]
 
     def release(self):
-        gribapi.grib_release(self.record)
+        pass
 
     def eof(self):
-        return self.record is None
+        return self.message is None
 
 
 # CSV header-only implementation of grib file interface for testing purposes
@@ -91,8 +96,12 @@ class csv_grib_mock(grib_file):
         self.row = []
         self.reader = csv.reader(file_object_, delimiter=',')
 
-    def read_next(self, headers_only=False):
+    def read_next(self):
         self.row = next(self.reader, None)
+        return self.row is not None
+
+    def read_previous(self):
+        self.row = self.reader.seek(-1, 1)
         return self.row is not None
 
     def write(self, file_object_):

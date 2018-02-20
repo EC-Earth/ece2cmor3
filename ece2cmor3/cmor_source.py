@@ -36,7 +36,9 @@ class grib_code:
         self.tab_id = tab_id_
 
     def __eq__(self, other):
-        return self.var_id == other.var_id and self.tab_id == other.tab_id
+        if isinstance(other, grib_code):
+            return self.var_id == other.var_id and self.tab_id == other.tab_id
+        return False
 
     def __str__(self):
         return str(self.var_id) + '.' + str(self.tab_id)
@@ -99,7 +101,9 @@ class ifs_source(cmor_source):
             self.spatial_dims = 3 if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn) else 2
 
     def __eq__(self, other):
-        return self.code_ == other.code_
+        if isinstance(other, ifs_source):
+            return self.code_ == other.code_
+        return False
 
     # Returns the grid.
     def grid(self):

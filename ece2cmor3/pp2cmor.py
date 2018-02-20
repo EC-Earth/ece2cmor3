@@ -15,28 +15,37 @@ time_axis_ids = {}
 # Dictionary of vertical axes, keys are target vertical dimension names
 z_axis_ids = {}
 
-# Dictionary of variable id's, keys are pairs of cmor variable name and table
+# Dictionary of variable ids, keys are pairs of cmor variable name and table
 var_ids = {}
+
+# Dictionary of table ids
+tab_ids = {}
 
 ref_date = None
 time_unit = "hour"
+
+table_root = None
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
 def create_cmor_variable(task, msg, store_var=None):
     global grid_ids, time_axis_ids, z_axis_ids, var_ids
     shape = msg.get_values().shape
-    hor_size = (shape[:-2], shape[:-1])
+    hor_size = (shape[-2], shape[-1])
     if hor_size in grid_ids:
         grid_id = grid_ids[shape]
     else:
+        load_table("grids")
         grid_id = create_gauss_grid(hor_size[0], hor_size[1])
         grid_ids[shape] = grid_id
+    load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
     time_axis_id = 0
     if freq in time_axis_ids:
         time_axis_id = time_axis_ids[freq]
     elif freq is not None:
+        if not any(time_axis_ids):
+            cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
         time_axis_id = create_time_axis(task, msg)
         if time_axis_id != 0:
             time_axis_ids[freq] = time_axis_id
@@ -45,11 +54,10 @@ def create_cmor_variable(task, msg, store_var=None):
     if z_axis in z_axis_ids:
         z_axis_id = z_axis_ids[z_axis]
     elif z_axis:
-        z_axis_id = create_z_axis(z_axis, levels)
+        z_axis_id = create_z_axis(z_axis, levels, task.target.table)
         z_axis_ids[z_axis] = z_axis_ids
-    axes = [time_axis_id, grid_id, z_axis_id]
-    axes.remove(0)
-    var_id = cmor.variable(table_entry=str(task.target.variable), units=getattr(task.target, "units", None),
+    axes = [a for a in [time_axis_id, grid_id, z_axis_id] if a != 0]
+    var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
                            axis_ids=axes, positive="down")
     if store_var:
         store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=store_var,
@@ -59,10 +67,20 @@ def create_cmor_variable(task, msg, store_var=None):
         return var_id
 
 
+def load_table(table):
+    global tab_ids
+    tab_id = tab_ids.get(table, 0)
+    if tab_id == 0:
+        tab_id = cmor.load_table(table_root + "_" + table + ".json")
+        tab_ids[table] = tab_id
+    cmor.set_table(tab_id)
+    return tab_id
+
+
 # Creates the regular gaussian grid from its arguments.
 def create_gauss_grid(nx, ny):
-    i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-    j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+    i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.arange(1, nx + 1))
+    j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.arange(1, ny + 1))
     x0, y0 = -180., -90.
     dx, dy = 360. / nx, 180. / ny
     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
@@ -70,7 +88,7 @@ def create_gauss_grid(nx, ny):
     lon_arr = numpy.tile(x_vals, (ny, 1))
     lat_arr = numpy.tile(y_vals, (nx, 1)).transpose()
     lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
-    lat_mids = numpy.empty([y0 + i * dy for i in range(ny + 1)])
+    lat_mids = numpy.array([y0 + i * dy for i in range(ny + 1)])
     vert_lats = numpy.empty([ny, nx, 4])
     vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
     vert_lats[:, :, 1] = vert_lats[:, :, 0]
@@ -87,13 +105,21 @@ def create_gauss_grid(nx, ny):
 
 # Creates a time axis in the cmor library for this task
 def create_time_axis(task, msg):
+    global ref_date
     target_dims = getattr(task.target, cmor_target.dims_key)
     time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
     if any(time_dims):
-        refdate = msg.get_timestamp() if ref_date is None else ref_date
-        return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(refdate))
+        if ref_date is None:
+            ref_date = msg.get_timestamp()
+        # TODO: use UTC formatting for refdate
+        return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(ref_date))
     else:
         return 0
+
+
+def convert_time(timestamp):
+    # TODO: use seconds/minutes dependent upon unit
+    return (timestamp - ref_date).total_seconds()/3600
 
 
 # Creates a vertical coordinate axis in the cmor library
@@ -176,8 +202,8 @@ class msg_to_cmor(ppop.post_proc_operator):
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
                                                       getattr(self.task, cmor_task.output_frequency_key))
             self.values = msg.get_values() * conversion_factor
-            self.time_bounds = [getattr(msg, "timebnd_left", msg.get_timestamp()),
-                                getattr(msg, "timebnd_right", msg.get_timestamp())]
+            self.time_bounds = [getattr(msg, "timebnd_left", convert_time(msg.get_timestamp())),
+                                getattr(msg, "timebnd_right", convert_time(msg.get_timestamp()))]
 
     def cache_is_full(self):
         if self.store_variable:
@@ -191,10 +217,12 @@ class msg_to_cmor(ppop.post_proc_operator):
 
     def create_msg(self):
         timestamp = self.property_cache[ppmsg.message.datetime_key]
+        load_table(self.task.target.table)
         cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=self.time_bounds,
-                   time_vals=[timestamp])
+                   time_vals=[convert_time(timestamp)])
         if self.store_variable:
-            cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[timestamp])
+            cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
+        return None
 
 
 # Returns the conversion factor from the input string

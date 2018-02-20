@@ -18,8 +18,16 @@ class pp_remap_sh(ppop.post_proc_operator):
                 lmax = 2 * msg.get_resolution() - 1
                 shtns.SHT_NO_CS_PHASE = True
                 pp_remap_sh.sh_mapper = shtns.sht(lmax, lmax, 1, shtns.sht_orthonormal + shtns.SHT_NO_CS_PHASE)
-            self.values = numpy.flipud(
-                pp_remap_sh.sh_mapper.synth(numpy.vectorize(complex)(values[0::2], values[1::2])))
+            if len(values.shape) == 1:
+                self.values = numpy.flipud(
+                    pp_remap_sh.sh_mapper.synth(numpy.vectorize(complex)(values[0::2], values[1::2])))
+            elif len(values.shape) == 2:
+                self.values = numpy.flip(
+                    pp_remap_sh.sh_mapper.synth(numpy.vectorize(complex)(values[:, 0::2], values[:, 1::2])), axis=1)
         else:
-            shift = values.shape[1]/2
-            self.values = numpy.roll(numpy.flipud(values), shift, axis=1)
+            if len(values.shape) == 2:
+                shift = values.shape[1]/2
+                self.values = numpy.roll(numpy.flip(values, axis=0), shift, axis=1)
+            if len(values.shape) == 3:
+                shift = values.shape[2]/2
+                self.values = numpy.roll(numpy.flip(values, axis=1), shift, axis=2)

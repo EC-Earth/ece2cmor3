@@ -83,7 +83,7 @@ class memory_message(message):
         return self.resolution
 
     def is_spectral(self):
-        return self.source in cmor_source.ifs_source.grib_codes_sh
+        return self.source.get_grib_code() in cmor_source.ifs_source.grib_codes_sh
 
 
 class grib_message(message):
@@ -93,26 +93,26 @@ class grib_message(message):
         self.grbmsg = grbmsg_
 
     def get_variable(self):
-        param = self.grbmsg[grib_file.param_key]
+        param = self.grbmsg.get_field(grib_file.param_key)
         code, table = param if param < 1000 else param % 1000, 128 if param < 1000 else param / 1000
         return cmor_source.ifs_source(cmor_source.grib_code(code, table))
 
     def get_timestamp(self):
-        date, time = self.grbmsg[grib_file.date_key], self.grbmsg[grib_file.time_key]
+        date, time = self.grbmsg.get_field(grib_file.date_key), self.grbmsg.get_field(grib_file.time_key)
         return datetime(year=date / 10000, month=(date % 10000) / 100, day=(date % 100),
                         hour=time / 100, minute=(time % 100))
 
     def get_levels(self):
-        return [self.grbmsg[grib_file.level_key]]
+        return [self.grbmsg.get_field(grib_file.level_key)]
 
     def get_level_type(self):
-        return self.grbmsg[grib_file.levtype_key]
+        return self.grbmsg.get_field(grib_file.levtype_key)
 
     def get_values(self):
-        return self.grbmsg["values"]
+        return self.grbmsg.get_field("values")
 
     def get_resolution(self):
-        return int(self.grbmsg["N"])
+        return int(self.grbmsg.get_field("N"))
 
     def is_spectral(self):
-        return int(self.grbmsg["sphericalHarmonics"]) == 1
+        return int(self.grbmsg.get_field("sphericalHarmonics")) == 1

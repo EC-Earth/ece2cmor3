@@ -19,10 +19,14 @@ class post_proc_operator(object):
         self.property_cache = {}
 
     def receive_msg(self, msg):
+        print "My type is ", type(self)
         if self.cache_is_full():
+            print "Emptying cache..."
             self.clear_cache()
         if self.cache_is_empty():
+            print "Clearing prop cache..."
             self.property_cache = {}
+        print "Updating props..."
         for key in self.cached_properties:
             if key in self.property_cache:
                 if not msg.get_field(key) == self.property_cache[key]:
@@ -30,10 +34,14 @@ class post_proc_operator(object):
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
+        print "Filling cache..."
         self.fill_cache(msg)
+        print "Is cache full?", self.cache_is_full()
         if self.cache_is_full():
+            print "Creating msg..."
             msg = self.create_msg()
             for target in self.targets:
+                print "Sending msg..."
                 target.receive_msg(msg)
 
     def create_msg(self):
