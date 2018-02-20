@@ -55,7 +55,7 @@ if [ "$#" -eq 4 ]; then
  fi
 
  diff_with_benchmark=false
- benchmark='benchmark-01'
+ benchmark='benchmark-02'
  if ${diff_with_benchmark} ; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
   echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
@@ -71,6 +71,11 @@ else
     echo '  ' $0 CMIP,AerChemMIP CMIP 1 1
     echo '  '
 fi
+
+# Filling eventually some or all of the omit lists below:
+#  cp cmvmm_m=CMIP-e=CMIP-t=1-p=1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
+#  cp identification/NEMO-identification/to-be-checked-if-PISCES-can-provide--not-in-LPJ-GUESS-version-2.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-02.xlsx
+#  cp cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
 
 # Request for all EC-EARTH3-AOGCM MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
 # ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
@@ -96,3 +101,5 @@ fi
 # ./determine-missing-variables.sh SIMIP       SIMIP        1 1
 # ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1
 # ./determine-missing-variables.sh DAMIP       DAMIP        1 1
+
+# ll *.missing.xlsx|grep -v 5.4K
