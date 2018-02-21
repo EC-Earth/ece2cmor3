@@ -18,6 +18,7 @@ temp_dir = None
 varsfreq = {}
 varstasks = {}
 task_operators = {}
+extra_operators = {}
 
 
 # Initializes the module, looks up previous month files and inspects the first
@@ -182,6 +183,8 @@ def cmorize_msg(grb):
     for match in matches:
         tasks.update(match)
     msg = ppmsg.grib_message(grb)
+    if key in extra_operators:
+        extra_operators[key].receive_msg(msg)
     for task in tasks:
         operator = task_operators.get(task, None)
         if operator is not None:

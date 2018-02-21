@@ -59,7 +59,6 @@ class level_aggregator(ppop.post_proc_operator):
         self.values = None if self.levels is None else [None] * len(self.levels)
 
     def create_msg(self):
-        print self.values
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
                                     time_bounds=self.property_cache[ppmsg.message.timebounds_key],
@@ -68,7 +67,7 @@ class level_aggregator(ppop.post_proc_operator):
                                     values=numpy.stack(self.values))
 
     def cache_is_full(self):
-        return self.values is not None and all(v is not None for v in self.values)
+        return super(level_aggregator,self).cache_is_full() and all(v is not None for v in self.values)
 
     def cache_is_empty(self):
         return self.values is None or all(v is None for v in self.values)

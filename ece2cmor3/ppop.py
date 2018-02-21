@@ -12,6 +12,12 @@ class post_proc_operator(object):
 
         self.values = None
         self.targets = []
+        self.mask_values = None
+        self.mask_targets = []
+        self.has_mask = False
+        self.store_var_values = None
+        self.store_var_targets = []
+        self.has_store_var = False
         self.cached_properties = [ppmsg.message.variable_key,
                                   ppmsg.message.datetime_key,
                                   ppmsg.message.timebounds_key,
@@ -20,33 +26,49 @@ class post_proc_operator(object):
         self.property_cache = {}
 
     def receive_msg(self, msg):
-        print "My type is ", type(self)
+        #        print "My type is ", type(self)
         if self.cache_is_full():
-            print "Emptying cache..."
+            #            print "Emptying cache..."
             self.clear_cache()
         if self.cache_is_empty():
-            print "Clearing prop cache..."
+            #            print "Clearing prop cache..."
             self.property_cache = {}
-        print "Updating props..."
+        #        print "Updating props..."
         for key in self.cached_properties:
             if key in self.property_cache:
                 if not msg.get_field(key) == self.property_cache[key]:
-                    print self.values
                     log.error("Message property %s changed during cache filling from %s to %s" %
                               (key, self.property_cache[key], msg.get_field(key)))
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
-        print "Filling cache..."
+        #        print "Filling cache..."
         self.fill_cache(msg)
-        print "Is cache full?", self.cache_is_full()
+        #        print "Is cache full?", self.cache_is_full()
         if self.cache_is_full():
-            print "Creating msg..."
-            msg = self.create_msg()
-            for target in self.targets:
-                print "Sending msg..."
-                target.receive_msg(msg)
+            self.send_msg()
         return True
+
+    def send_msg(self):
+        #        print "Creating msg..."
+        msg = self.create_msg()
+        for target in self.mask_targets:
+            target.receive_mask(msg)
+        for target in self.store_var_targets:
+            target.receive_store_var(msg)
+        for target in self.targets:
+            #            print "Sending msg..."
+            target.receive_msg(msg)
+
+    def receive_mask(self, msg):
+        self.mask_values = msg.get_values()
+        if self.cache_is_full():
+            self.send_msg()
+
+    def receive_store_var(self, msg):
+        self.store_var_values = msg.get_values()
+        if self.cache_is_full():
+            self.send_msg()
 
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
@@ -64,7 +86,16 @@ class post_proc_operator(object):
         self.values = None
 
     def cache_is_full(self):
-        return self.values is not None
+        has_values = self.values is not None
+        has_mask_values = True if not self.has_mask else self.mask_values is not None
+        has_store_values = True if not self.has_store_var else self.store_var_values is not None
+        return has_values and has_mask_values and has_store_values
 
     def cache_is_empty(self):
         return self.values is None
+
+    def get_all_operators(self):
+        result = [self]
+        for operator in self.targets + self.mask_targets + self.store_var_targets:
+            result.extend(operator.get_all_operators())
+        return result

@@ -32,3 +32,4 @@ class pp_remap_sh(ppop.post_proc_operator):
                 self.values = numpy.flip(values, axis=0)
             if len(values.shape) == 3:
                 self.values = numpy.flip(values, axis=1)
+

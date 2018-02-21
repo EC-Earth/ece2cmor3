@@ -3,7 +3,7 @@ import os
 
 import dateutil.relativedelta
 
-from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils, ppopfac
+from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils, ppopfac, grib_file
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -92,10 +92,19 @@ def execute(tasks):
     global log, tempdir_created_, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     ppopfac.table_root = table_root_
+    store_var_operators = []
     for task in supported_tasks:
         operator = ppopfac.create_pp_operators(task)
         if operator is not None:
             grib_filter.task_operators[task] = operator
+            store_var_operators.extend([o for o in operator.get_all_operators() if o.has_store_var])
+    if any(store_var_operators):
+        store_var_operator = ppopfac.create_ps_operator()
+        for operator in store_var_operators:
+            store_var_operator.store_var_targets.append(operator)
+        ps_key = (128, 134, grib_file.surface_level_code, 0)
+        grib_filter.extra_operators[ps_key] = store_var_operator
+
     # TODO: assign store_var variables
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     grib_filter.execute(supported_tasks, start_date_.month)

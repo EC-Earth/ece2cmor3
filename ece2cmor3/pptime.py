@@ -134,7 +134,7 @@ class time_aggregator(ppop.post_proc_operator):
         self.full_cache = False
 
     def cache_is_full(self):
-        return self.full_cache
+        return self.full_cache and super(time_aggregator, self).cache_is_full()
 
     def create_msg(self):
         start = self.start_date - self.interval

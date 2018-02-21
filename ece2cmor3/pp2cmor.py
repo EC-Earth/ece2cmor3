@@ -188,43 +188,27 @@ def create_soil_depth_axis(name):
 # Leaf operator: transfers data to the cmor library
 class msg_to_cmor(ppop.post_proc_operator):
 
-    def __init__(self, task):
+    def __init__(self, task, store_variable=None):
         super(msg_to_cmor, self).__init__()
         self.task = task
         self.variable = task.source
-        self.var_id = None
-        self.store_variable = None
-        self.store_var_id = None
-        self.store_values = None
-
-    def set_store_var(self, store_variable, ps_operator):
-        ps_operator.targets.append(self)
         self.store_variable = store_variable
+        self.var_id = None
+        self.store_var_id = None
+        self.has_store_var = store_variable is not None
 
     def fill_cache(self, msg):
         if self.var_id is None:
-            if self.store_variable:
-                self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, "ps")
-            else:
-                self.var_id = create_cmor_variable(self.task, msg)
-        if msg.get_variable() == self.store_variable:
-            self.store_values = msg.get_values()
+            self.var_id = create_cmor_variable(self.task, msg, self.store_variable)
         if msg.get_variable() == self.task.source:
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
                                                       getattr(self.task, cmor_task.output_frequency_key))
             self.values = msg.get_values() * conversion_factor
 
-    def cache_is_full(self):
-        if self.store_variable:
-            return self.values is not None and self.store_values is not None
-        else:
-            return self.values is not None
-
     def clear_cache(self):
         self.values = None
-        self.store_values = None
 
-    def create_msg(self):
+    def send_msg(self):
         timestamp = self.property_cache[ppmsg.message.datetime_key]
         time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
         load_table(self.task.target.table)
@@ -233,9 +217,8 @@ class msg_to_cmor(ppop.post_proc_operator):
                        time_vals=[convert_time(timestamp)])
         else:
             cmor.write(self.var_id, self.values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
-        if self.store_variable:
-            cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
-        return None
+        if self.has_store_var:
+            cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
 
 
 # Returns the conversion factor from the input string

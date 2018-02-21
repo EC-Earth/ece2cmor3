@@ -18,10 +18,13 @@ def create_pp_operators(task):
         log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
         return None
 
+    leveltype,levs = cmor_target.get_z_axis(task.target)
+    store_var = "ps" if leveltype == "alevel" else None
+
     space_operator = ppsh.pp_remap_sh()
     time_operator = create_time_operator(task)
     zaxis_operator = create_level_operator(task)
-    cmor_operator = pp2cmor.msg_to_cmor(task)
+    cmor_operator = pp2cmor.msg_to_cmor(task, store_var)
 
     if time_operator is None:
         return None
@@ -36,6 +39,10 @@ def create_pp_operators(task):
     for i in range(0, len(operator_chain) - 1):
         operator_chain[i].targets.append(operator_chain[i + 1])
     return operator_chain[0]
+
+
+def create_ps_operator():
+    return ppsh.pp_remap_sh()
 
 
 # Creates a time selection/aggregation operator for a specific task
