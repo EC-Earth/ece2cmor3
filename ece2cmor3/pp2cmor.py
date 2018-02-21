@@ -9,10 +9,10 @@ log = logging.getLogger(__name__)
 # Dictionary of grids, keys are horizontal sizes of incoming variables
 grid_ids = {}
 
-# Dictionary of time axes, keys are target variable frequencies
+# Dictionary of time axes, keys are target variable frequencies and table
 time_axis_ids = {}
 
-# Dictionary of vertical axes, keys are target vertical dimension names
+# Dictionary of vertical axes, keys are target vertical dimension name and table
 z_axis_ids = {}
 
 # Dictionary of variable ids, keys are pairs of cmor variable name and table
@@ -31,31 +31,31 @@ table_root = None
 def create_cmor_variable(task, msg, store_var=None):
     global grid_ids, time_axis_ids, z_axis_ids, var_ids
     shape = msg.get_values().shape
-    hor_size = (shape[-2], shape[-1])
-    if hor_size in grid_ids:
-        grid_id = grid_ids[shape]
+    key = (shape[-2], shape[-1])
+    if key in grid_ids:
+        grid_id = grid_ids[key]
     else:
         load_table("grids")
-        grid_id = create_gauss_grid(hor_size[1], hor_size[0])
-        grid_ids[shape] = grid_id
+        grid_id = create_gauss_grid(key[1], key[0])
+        grid_ids[key] = grid_id
     load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
-    time_axis_id = 0
-    if freq in time_axis_ids:
-        time_axis_id = time_axis_ids[freq]
+    time_axis_id, key = 0, (task.target.table, freq)
+    if key in time_axis_ids:
+        time_axis_id = time_axis_ids[key]
     elif freq is not None:
         if not any(time_axis_ids):
             cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
         time_axis_id = create_time_axis(task, msg)
         if time_axis_id != 0:
-            time_axis_ids[freq] = time_axis_id
+            time_axis_ids[key] = time_axis_id
     z_axis, levels = cmor_target.get_z_axis(task.target)
-    z_axis_id = 0
-    if z_axis in z_axis_ids:
-        z_axis_id = z_axis_ids[z_axis]
+    z_axis_id, key = 0, (task.target.table, z_axis)
+    if key in z_axis_ids:
+        z_axis_id = z_axis_ids[key]
     elif z_axis:
         z_axis_id = create_z_axis(z_axis, levels, task.target.table)
-        z_axis_ids[z_axis] = z_axis_id
+        z_axis_ids[key] = z_axis_id
     axes = [a for a in [time_axis_id, grid_id, z_axis_id] if a != 0]
     orientation = getattr(task.target, "positive", "")
     if len(orientation) != 0:
@@ -150,20 +150,27 @@ def create_z_axis(z_axis, levels, table):
     return 0
 
 
+def create_bounds(a):
+    n = len(a)
+    bnds = numpy.empty([n, 2])
+    bnds[0, 0] = max(0., 0.5 * (a[0] - a[1]))
+    bnds[1:n, 0] = 0.5 * (a[:-1] + a[1:])
+    bnds[0:n - 1, 1] = bnds[1:n, 0]
+    bnds[n - 1, 1] = 1.5 * a[-1] + 0.5 * a[-2]
+    return bnds
+
+
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(name):
     pref = 101325
     a = pplevels.a_coefs
-    abnds = 0.5 * (a[1:] + a[:-1])
     b = pplevels.b_coefs
-    bbnds = 0.5 * (b[1:] + b[:-1])
     hcm = a / pref + b
-    hcbnds = 0.5 * (hcm[1:] + hcm[:-1])
-    axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=hcbnds, units="1")
+    axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm), units="1")
     cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],
-                 zfactor_bounds=abnds)
+                 zfactor_bounds=create_bounds(a))
     cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units="1", axis_ids=[axisid], zfactor_values=b[:],
-                 zfactor_bounds=bbnds)
+                 zfactor_bounds=create_bounds(b))
     return axisid
 
 

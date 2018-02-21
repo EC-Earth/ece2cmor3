@@ -6,19 +6,23 @@ from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
-num_levels = 0
+num_levels = 10
 pv_array = None
 a_coefs, b_coefs = None, None
 
 
-def get_pv_array(msg):
+def get_pv_array(gribfile):
     global num_levels, pv_array, a_coefs, b_coefs
     if pv_array is not None:
-        return False
-    pv = msg.get_pv_array()
-    num_levels = len(pv) / 2
+        return
+    pv = gribfile.try_get_field("pv")
+    if pv is None:
+        return
+    L = len(pv) / 2
+    if num_levels == 0:
+        num_levels = L
     a_coefs = pv[0:num_levels]
-    b_coefs = pv[num_levels:]
+    b_coefs = pv[L:L + num_levels]
 
 
 class level_aggregator(ppop.post_proc_operator):
@@ -32,7 +36,7 @@ class level_aggregator(ppop.post_proc_operator):
 
     def fill_cache(self, msg):
         if self.level_type == grib_file.hybrid_level_code and self.levels is None:
-            self.levels = range(1, num_levels)
+            self.levels = range(1, num_levels + 1)
             self.values = [None] * num_levels
         leveltype = msg.get_level_type()
         if leveltype != self.level_type:
@@ -55,6 +59,7 @@ class level_aggregator(ppop.post_proc_operator):
         self.values = None if self.levels is None else [None] * len(self.levels)
 
     def create_msg(self):
+        print self.values
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
                                     time_bounds=self.property_cache[ppmsg.message.timebounds_key],
@@ -63,7 +68,7 @@ class level_aggregator(ppop.post_proc_operator):
                                     values=numpy.stack(self.values))
 
     def cache_is_full(self):
-        return all(v is not None for v in self.values)
+        return self.values is not None and all(v is not None for v in self.values)
 
     def cache_is_empty(self):
-        return all(v is None for v in self.values)
+        return self.values is None or all(v is None for v in self.values)

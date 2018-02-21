@@ -10,6 +10,7 @@ table_root = None
 
 # Creates the DAG of post-processing operators for a specific task
 # TODO: add expression operators
+# TODO: right block time interpolation for fluxes?
 def create_pp_operators(task):
     pp2cmor.table_root = table_root
 

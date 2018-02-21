@@ -5,7 +5,7 @@ import numpy
 import pygrib
 from dateutil import relativedelta
 
-from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -145,23 +145,27 @@ def execute(tasks, month):
 def cmorize_files(month, icmgg, icmsh):
     time = -1
     while icmgg.read_next():
+        pplevels.get_pv_array(icmgg)
         gptime = icmgg.get_field(grib_file.time_key)
         if time < 0:
             time = gptime
         if gptime != time:
             # Loop spectral fields until they catch up
-#            while icmsh.read_next():
-#                shtime = icmsh.get_field(grib_file.time_key)
-#                if shtime == gptime:
-#                    icmsh.read_previous()
-#                    break
-#                if get_mon(icmsh) == month:
-#                    cmorize_msg(icmsh)
-#                icmsh.release()
+            #            while icmsh.read_next():
+            #                shtime = icmsh.get_field(grib_file.time_key)
+            #                if shtime == gptime:
+            #                    icmsh.read_previous()
+            #                    break
+            #                if get_mon(icmsh) == month:
+            #                    cmorize_msg(icmsh)
+            #                icmsh.release()
             time = gptime
         if get_mon(icmgg) == month:
-            cmorize_msg(icmgg)
+            if not cmorize_msg(icmgg):
+                break
         icmgg.release()
+
+
 #    while icmsh.read_next():
 #        if get_mon(icmsh) == month:
 #            cmorize_msg(icmsh)
@@ -183,7 +187,9 @@ def cmorize_msg(grb):
         if operator is not None:
             log.info("Processing grib message at %s for %s in table %s" %
                      (str(msg.get_timestamp()), task.target.variable, task.target.table))
-            operator.receive_msg(msg)
+            if not operator.receive_msg(msg):
+                return False
+    return True
 
 
 # Checks tasks that are compatible with the variables listed in grib_vars and

@@ -7,6 +7,14 @@ hybrid_level_code = 109
 pressure_level_code = 100
 height_level_code = 105
 depth_level_code = 111
+pv_level_code = 108
+
+surface_level_string = "sfc"
+hybrid_level_string = "ml"
+pressure_level_string = "pl"
+height_level_string = "105"
+depth_level_string = "111"
+pv_level_string = "pv"
 
 # Key names
 date_key = "dataDate"
@@ -14,7 +22,6 @@ time_key = "dataTime"
 param_key = "paramId"
 levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
-
 
 test_mode = False
 
@@ -57,6 +64,12 @@ class grib_file(object):
 
 # pygrib api implementation of grib file interface
 class pygrib_api(grib_file):
+    level_mapping = {surface_level_string: surface_level_code,
+                     hybrid_level_string: hybrid_level_code,
+                     pressure_level_string: pressure_level_code,
+                     height_level_string: height_level_code,
+                     depth_level_string: depth_level_code,
+                     pv_level_string: pv_level_code}
 
     def __init__(self, file_object_):
         super(pygrib_api, self).__init__(file_object_)
@@ -78,7 +91,15 @@ class pygrib_api(grib_file):
         self.message[name] = value
 
     def get_field(self, name):
+        if name == levtype_key:
+            level_type_string = str(self.message[name])
+            return pygrib_api.level_mapping.get(level_type_string, self.message[name])
         return self.message[name]
+
+    def try_get_field(self, name):
+        if name in self.message.keys():
+            return self.get_field(name)
+        return None
 
     def release(self):
         pass

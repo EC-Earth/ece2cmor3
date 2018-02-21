@@ -31,7 +31,9 @@ class post_proc_operator(object):
         for key in self.cached_properties:
             if key in self.property_cache:
                 if not msg.get_field(key) == self.property_cache[key]:
-                    log.error("Message property %s changed within filling cache" % key)
+                    print self.values
+                    log.error("Message property %s changed during cache filling from %s to %s" %
+                              (key, self.property_cache[key], msg.get_field(key)))
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
@@ -44,6 +46,7 @@ class post_proc_operator(object):
             for target in self.targets:
                 print "Sending msg..."
                 target.receive_msg(msg)
+        return True
 
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
