@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 class message(object):
     variable_key = "variable"
     datetime_key = "datetime"
+    timebounds_key = "timebounds"
     leveltype_key = "leveltype"
     levellist_key = "levels"
 
@@ -22,6 +23,9 @@ class message(object):
         pass
 
     def get_timestamp(self):
+        pass
+
+    def get_time_bounds(self):
         pass
 
     def get_levels(self):
@@ -44,6 +48,8 @@ class message(object):
             return self.get_variable()
         if key == self.datetime_key:
             return self.get_timestamp()
+        if key == self.timebounds_key:
+            return self.get_time_bounds()
         if key == self.leveltype_key:
             return self.get_level_type()
         if key == self.levellist_key:
@@ -54,10 +60,11 @@ class message(object):
 
 class memory_message(message):
 
-    def __init__(self, source, timestamp, levels, leveltype, values):
+    def __init__(self, source, timestamp, time_bounds, levels, leveltype, values):
         super(memory_message, self).__init__()
         self.source = source
         self.timestamp = timestamp
+        self.time_bounds = time_bounds
         self.levels = levels
         self.level_type = leveltype
         self.values = values
@@ -69,6 +76,9 @@ class memory_message(message):
 
     def get_timestamp(self):
         return self.timestamp
+
+    def get_time_bounds(self):
+        return self.time_bounds
 
     def get_levels(self):
         return self.levels
@@ -101,6 +111,9 @@ class grib_message(message):
         date, time = self.grbmsg.get_field(grib_file.date_key), self.grbmsg.get_field(grib_file.time_key)
         return datetime(year=date / 10000, month=(date % 10000) / 100, day=(date % 100),
                         hour=time / 100, minute=(time % 100))
+
+    def get_time_bounds(self):
+        return []
 
     def get_levels(self):
         return [self.grbmsg.get_field(grib_file.level_key)]

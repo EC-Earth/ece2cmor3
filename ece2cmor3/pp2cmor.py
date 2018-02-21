@@ -36,7 +36,7 @@ def create_cmor_variable(task, msg, store_var=None):
         grid_id = grid_ids[shape]
     else:
         load_table("grids")
-        grid_id = create_gauss_grid(hor_size[0], hor_size[1])
+        grid_id = create_gauss_grid(hor_size[1], hor_size[0])
         grid_ids[shape] = grid_id
     load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
@@ -55,10 +55,15 @@ def create_cmor_variable(task, msg, store_var=None):
         z_axis_id = z_axis_ids[z_axis]
     elif z_axis:
         z_axis_id = create_z_axis(z_axis, levels, task.target.table)
-        z_axis_ids[z_axis] = z_axis_ids
+        z_axis_ids[z_axis] = z_axis_id
     axes = [a for a in [time_axis_id, grid_id, z_axis_id] if a != 0]
-    var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
-                           axis_ids=axes, positive="down")
+    orientation = getattr(task.target, "positive", "")
+    if len(orientation) != 0:
+        var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
+                               axis_ids=axes, positive="down")
+    else:
+        var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
+                               axis_ids=axes)
     if store_var:
         store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=store_var,
                                     axis_ids=[time_axis_id, grid_id], units="Pa")
@@ -81,7 +86,7 @@ def load_table(table):
 def create_gauss_grid(nx, ny):
     i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.arange(1, nx + 1))
     j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.arange(1, ny + 1))
-    x0, y0 = -180., -90.
+    x0, y0 = 0., -90.
     dx, dy = 360. / nx, 180. / ny
     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
     y_vals = numpy.array([y0 + (i + 0.5) * dy for i in range(ny)])
@@ -119,7 +124,7 @@ def create_time_axis(task, msg):
 
 def convert_time(timestamp):
     # TODO: use seconds/minutes dependent upon unit
-    return (timestamp - ref_date).total_seconds()/3600
+    return (timestamp - ref_date).total_seconds() / 3600
 
 
 # Creates a vertical coordinate axis in the cmor library
@@ -184,7 +189,6 @@ class msg_to_cmor(ppop.post_proc_operator):
         self.store_variable = None
         self.store_var_id = None
         self.store_values = None
-        self.time_bounds = [None, None]
 
     def set_store_var(self, store_variable, ps_operator):
         ps_operator.targets.append(self)
@@ -202,8 +206,6 @@ class msg_to_cmor(ppop.post_proc_operator):
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
                                                       getattr(self.task, cmor_task.output_frequency_key))
             self.values = msg.get_values() * conversion_factor
-            self.time_bounds = [getattr(msg, "timebnd_left", convert_time(msg.get_timestamp())),
-                                getattr(msg, "timebnd_right", convert_time(msg.get_timestamp()))]
 
     def cache_is_full(self):
         if self.store_variable:
@@ -217,9 +219,13 @@ class msg_to_cmor(ppop.post_proc_operator):
 
     def create_msg(self):
         timestamp = self.property_cache[ppmsg.message.datetime_key]
+        time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
         load_table(self.task.target.table)
-        cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=self.time_bounds,
-                   time_vals=[convert_time(timestamp)])
+        if any(time_bounds):
+            cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=time_bounds,
+                       time_vals=[convert_time(timestamp)])
+        else:
+            cmor.write(self.var_id, self.values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
         if self.store_variable:
             cmor.write(self.store_var_id, self.store_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
         return None

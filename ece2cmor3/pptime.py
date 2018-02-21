@@ -13,13 +13,14 @@ class time_filter(ppop.post_proc_operator):
         super(time_filter, self).__init__()
         self.period = period
         self.timestamp = None
+        self.tnext, self.tprev = None, None
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.levellist_key]
 
     def fill_cache(self, msg):
         t = msg.get_timestamp()
         self.timestamp = t
-        tnext = t + self.period
-        dthrs = (tnext - t).total_seconds() / 3600
+        self.tnext = t + self.period
+        dthrs = (self.tnext - t).total_seconds() / 3600
         if t.hour % int(round(dthrs)) == 0:
             self.values = msg.get_values()
             return True
@@ -30,6 +31,7 @@ class time_filter(ppop.post_proc_operator):
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache["variable"],
                                     timestamp=self.timestamp,
+                                    time_bounds=[],
                                     leveltype=self.property_cache["leveltype"],
                                     levels=self.property_cache["levels"],
                                     values=self.values)
@@ -140,9 +142,8 @@ class time_aggregator(ppop.post_proc_operator):
         middle = start + timedelta(seconds=int((end - start).total_seconds() / 2))
         msg = ppmsg.memory_message(source=self.property_cache["variable"],
                                    timestamp=middle,
+                                   time_bounds=[start,end],
                                    leveltype=self.property_cache["leveltype"],
                                    levels=self.property_cache["levels"],
                                    values=self.values)
-        setattr(msg, "timebnd_left", start)
-        setattr(msg, "timebnd_right", end)
         return msg

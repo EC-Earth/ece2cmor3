@@ -14,6 +14,7 @@ class post_proc_operator(object):
         self.targets = []
         self.cached_properties = [ppmsg.message.variable_key,
                                   ppmsg.message.datetime_key,
+                                  ppmsg.message.timebounds_key,
                                   ppmsg.message.leveltype_key,
                                   ppmsg.message.levellist_key]
         self.property_cache = {}
@@ -47,6 +48,7 @@ class post_proc_operator(object):
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
+                                    time_bounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                     levels=self.property_cache[ppmsg.message.levellist_key],
                                     values=self.values)
