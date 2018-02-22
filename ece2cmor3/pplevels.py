@@ -50,6 +50,7 @@ class level_aggregator(ppop.post_proc_operator):
             elif self.level_type == grib_file.height_level_code:
                 level_value = float(level)
             if level_value not in self.levels:
+                print "level", level_value,"was not found in levels", self.levels
                 continue
             index = self.levels.index(level_value)
             if self.values[index] is not None:

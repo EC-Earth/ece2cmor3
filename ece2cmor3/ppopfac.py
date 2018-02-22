@@ -18,7 +18,7 @@ def create_pp_operators(task):
         log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
         return None
 
-    leveltype,levs = cmor_target.get_z_axis(task.target)
+    axisname, leveltype, levs = cmor_target.get_z_axis(task.target)
     store_var = "ps" if leveltype == "alevel" else None
 
     space_operator = ppsh.pp_remap_sh()
@@ -79,7 +79,7 @@ def create_level_operator(task):
     # TODO Correct this for composed variables
     if task.source.get_grib_code() not in cmor_source.ifs_source.grib_codes_3D:
         return None
-    leveltype, levels = cmor_target.get_z_axis(task.target)
+    axisname, leveltype, levels = cmor_target.get_z_axis(task.target)
     if leveltype == "alevel":
         return pplevels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
     if leveltype == "alevhalf":
@@ -88,7 +88,7 @@ def create_level_operator(task):
         task.set_failed()
         return None
     if leveltype in ["height", "altitude"]:
-        return pplevels.level_aggregator(level_type=grib_file.height_level_code, levels=levels)
+        return pplevels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
     if leveltype in ["air_pressure"]:
-        return pplevels.level_aggregator(level_type=grib_file.pressure_level_code, levels=levels)
+        return pplevels.level_aggregator(level_type=grib_file.pressure_level_code, levels=[float(l) for l in levels])
     return None

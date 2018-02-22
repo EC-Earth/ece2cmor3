@@ -49,12 +49,12 @@ def create_cmor_variable(task, msg, store_var=None):
         time_axis_id = create_time_axis(task, msg)
         if time_axis_id != 0:
             time_axis_ids[key] = time_axis_id
-    z_axis, levels = cmor_target.get_z_axis(task.target)
+    z_axis, axis_variable, levels = cmor_target.get_z_axis(task.target)
     z_axis_id, key = 0, (task.target.table, z_axis)
     if key in z_axis_ids:
         z_axis_id = z_axis_ids[key]
     elif z_axis:
-        z_axis_id = create_z_axis(z_axis, levels, task.target.table)
+        z_axis_id = create_z_axis(z_axis, [float(l) for l in levels], task.target.table)
         z_axis_ids[key] = z_axis_id
     axes = [a for a in [time_axis_id, z_axis_id, grid_id] if a != 0]
     orientation = getattr(task.target, "positive", "")
@@ -145,8 +145,9 @@ def create_z_axis(z_axis, levels, table):
                 bounds_array = numpy.stack([bnds[0::2], bnds[1::2]], axis=1)
                 return cmor.axis(table_entry=z_axis, coord_vals=levels, units=unit, cell_bounds=bounds_array)
             else:
-                log.error("Failed to retrieve bounds for vertical axis %s" % str(z_axis))
+                log.error("Failed to retrieve bounds for vertical axis %s" % z_axis)
         return cmor.axis(table_entry=z_axis, coord_vals=levels, units=unit)
+    log.error("Failed to retrieve information for vertical axis %s in table %s" % (z_axis, table))
     return 0
 
 
@@ -198,7 +199,6 @@ class msg_to_cmor(ppop.post_proc_operator):
         self.has_store_var = store_variable is not None
 
     def fill_cache(self, msg):
-        print "Filling cache for %s in %s..." % (self.task.target.variable, self.task.target.table)
         if self.var_id is None:
             self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, self.store_variable)
         if msg.get_variable() == self.task.source:
@@ -207,7 +207,6 @@ class msg_to_cmor(ppop.post_proc_operator):
             self.values = msg.get_values() * conversion_factor
 
     def send_msg(self):
-        print "varid for %s in %s is %s" % (self.task.target.variable, self.task.target.table,str(self.var_id))
         timestamp = self.property_cache[ppmsg.message.datetime_key]
         time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
         load_table(self.task.target.table)

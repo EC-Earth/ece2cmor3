@@ -186,7 +186,6 @@ def cmorize_msg(grb):
         tasks.update(match)
     msg = ppmsg.grib_message(grb)
     if key in extra_operators:
-        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HIEPHOI >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
         extra_operators[key].receive_msg(msg)
     for task in tasks:
         operator = task_operators.get(task, None)
@@ -274,17 +273,17 @@ def get_levels(task, code):
     global log
     if (code.var_id, code.tab_id) == (134, 128):
         return grib_file.surface_level_code, [0]
-    zaxis, levels = cmor_target.get_z_axis(task.target)
-    if zaxis is None:
+    axis_name, axis_variable, levels = cmor_target.get_z_axis(task.target)
+    if axis_variable is None:
         return grib_file.surface_level_code, [0]
-    if zaxis in ["alevel", "alevhalf"]:
+    if axis_variable in ["alevel", "alevhalf"]:
         return grib_file.hybrid_level_code, [-1]
-    if zaxis == "air_pressure":
+    if axis_variable == "air_pressure":
         return grib_file.pressure_level_code, [int(float(l)) for l in levels]
-    if zaxis in ["height", "altitude"]:
+    if axis_variable in ["height", "altitude"]:
         return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
-              "code for %s" % (zaxis, task.target.variable))
+              "code for %s" % (axis_variable, task.target.variable))
     return -1, []
 
 
