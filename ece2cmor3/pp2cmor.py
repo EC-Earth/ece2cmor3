@@ -56,7 +56,7 @@ def create_cmor_variable(task, msg, store_var=None):
     elif z_axis:
         z_axis_id = create_z_axis(z_axis, levels, task.target.table)
         z_axis_ids[key] = z_axis_id
-    axes = [a for a in [time_axis_id, grid_id, z_axis_id] if a != 0]
+    axes = [a for a in [time_axis_id, z_axis_id, grid_id] if a != 0]
     orientation = getattr(task.target, "positive", "")
     if len(orientation) != 0:
         var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
@@ -69,7 +69,7 @@ def create_cmor_variable(task, msg, store_var=None):
                                     axis_ids=[time_axis_id, grid_id], units="Pa")
         return var_id, store_var_id
     else:
-        return var_id
+        return var_id, None
 
 
 def load_table(table):
@@ -198,27 +198,31 @@ class msg_to_cmor(ppop.post_proc_operator):
         self.has_store_var = store_variable is not None
 
     def fill_cache(self, msg):
+        print "Filling cache for %s in %s..." % (self.task.target.variable, self.task.target.table)
         if self.var_id is None:
-            self.var_id = create_cmor_variable(self.task, msg, self.store_variable)
+            self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, self.store_variable)
         if msg.get_variable() == self.task.source:
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
                                                       getattr(self.task, cmor_task.output_frequency_key))
             self.values = msg.get_values() * conversion_factor
 
-    def clear_cache(self):
-        self.values = None
-
     def send_msg(self):
+        print "varid for %s in %s is %s" % (self.task.target.variable, self.task.target.table,str(self.var_id))
         timestamp = self.property_cache[ppmsg.message.datetime_key]
         time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
         load_table(self.task.target.table)
+        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table, timestamp))
         if any(time_bounds):
             cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=time_bounds,
                        time_vals=[convert_time(timestamp)])
+            if self.has_store_var:
+                print self.store_var_values
+                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1,
+                           time_bnds=time_bounds, time_vals=[convert_time(timestamp)])
         else:
             cmor.write(self.var_id, self.values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
-        if self.has_store_var:
-            cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
+            if self.has_store_var:
+                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
 
 
 # Returns the conversion factor from the input string

@@ -14,7 +14,8 @@ class time_filter(ppop.post_proc_operator):
         self.period = period
         self.timestamp = None
         self.tnext, self.tprev = None, None
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.levellist_key]
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
+                                  ppmsg.message.levellist_key, ppmsg.message.resolution_key]
 
     def fill_cache(self, msg):
         t = msg.get_timestamp()
@@ -29,11 +30,12 @@ class time_filter(ppop.post_proc_operator):
             return False
 
     def create_msg(self):
-        return ppmsg.memory_message(source=self.property_cache["variable"],
+        return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.timestamp,
                                     time_bounds=[],
-                                    leveltype=self.property_cache["leveltype"],
-                                    levels=self.property_cache["levels"],
+                                    leveltype=self.property_cache[ppmsg.message.leveltype_key],
+                                    levels=self.property_cache[ppmsg.message.levellist_key],
+                                    resolution=self.property_cache[ppmsg.message.resolution_key],
                                     values=self.values)
 
 
@@ -53,7 +55,8 @@ class time_aggregator(ppop.post_proc_operator):
         self.remainder = None
         self.start_date = None
         self.full_cache = False
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key, ppmsg.message.levellist_key]
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
+                                  ppmsg.message.levellist_key, ppmsg.message.resolution_key]
 
     @staticmethod
     def next_step(start, stop, resolution):
@@ -140,10 +143,11 @@ class time_aggregator(ppop.post_proc_operator):
         start = self.start_date - self.interval
         end = self.start_date
         middle = start + timedelta(seconds=int((end - start).total_seconds() / 2))
-        msg = ppmsg.memory_message(source=self.property_cache["variable"],
+        msg = ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                    timestamp=middle,
-                                   time_bounds=[start,end],
-                                   leveltype=self.property_cache["leveltype"],
-                                   levels=self.property_cache["levels"],
+                                   time_bounds=[start, end],
+                                   leveltype=self.property_cache[ppmsg.message.leveltype_key],
+                                   levels=self.property_cache[ppmsg.message.levellist_key],
+                                   resolution=self.property_cache[ppmsg.message.resolution_key],
                                    values=self.values)
         return msg

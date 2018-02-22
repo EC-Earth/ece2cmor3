@@ -13,8 +13,9 @@ class message(object):
     timebounds_key = "timebounds"
     leveltype_key = "leveltype"
     levellist_key = "levels"
+    resolution_key = "resolution"
 
-    keys = [variable_key, datetime_key, leveltype_key, levellist_key]
+    keys = [variable_key, datetime_key, timebounds_key, leveltype_key, levellist_key, resolution_key]
 
     def __init__(self):
         pass
@@ -54,13 +55,15 @@ class message(object):
             return self.get_level_type()
         if key == self.levellist_key:
             return self.get_levels()
+        if key == self.resolution_key:
+            return self.get_resolution()
         log.error("Key %s not a valid key for message properties" % key)
         return None
 
 
 class memory_message(message):
 
-    def __init__(self, source, timestamp, time_bounds, levels, leveltype, values):
+    def __init__(self, source, timestamp, time_bounds, levels, leveltype, resolution, values):
         super(memory_message, self).__init__()
         self.source = source
         self.timestamp = timestamp
@@ -68,7 +71,7 @@ class memory_message(message):
         self.levels = levels
         self.level_type = leveltype
         self.values = values
-        self.resolution = 0
+        self.resolution = resolution
         self.unit = "1"
 
     def get_variable(self):
@@ -125,6 +128,8 @@ class grib_message(message):
         return self.grbmsg.get_field("values")
 
     def get_resolution(self):
+        if self.is_spectral():
+            return (int(self.grbmsg.get_field("J")) + 1)/2
         return int(self.grbmsg.get_field("N"))
 
     def is_spectral(self):

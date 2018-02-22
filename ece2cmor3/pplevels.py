@@ -6,7 +6,7 @@ from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
-num_levels = 10
+num_levels = 0
 pv_array = None
 a_coefs, b_coefs = None, None
 
@@ -32,7 +32,8 @@ class level_aggregator(ppop.post_proc_operator):
         self.levels = levels
         self.level_type = level_type
         self.values = None if levels is None else [None] * len(levels)
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.datetime_key, ppmsg.message.timebounds_key]
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.datetime_key, ppmsg.message.timebounds_key,
+                                  ppmsg.message.resolution_key]
 
     def fill_cache(self, msg):
         if self.level_type == grib_file.hybrid_level_code and self.levels is None:
@@ -43,10 +44,15 @@ class level_aggregator(ppop.post_proc_operator):
             return False
         i = 0
         for level in msg.get_levels():
-            if level not in self.levels:
+            level_value = level
+            if self.level_type == grib_file.pressure_level_code:
+                level_value = float(100 * level)
+            elif self.level_type == grib_file.height_level_code:
+                level_value = float(level)
+            if level_value not in self.levels:
                 continue
-            index = self.levels.index(level)
-            if self.values[index]:
+            index = self.levels.index(level_value)
+            if self.values[index] is not None:
                 log.warning(
                     "Overwriting level %d for variable %s" % (level, self.property_cache.get("variable", "unknown")))
             if len(msg.get_levels()) > 1:  # Shouldn't normally happen...
@@ -64,10 +70,11 @@ class level_aggregator(ppop.post_proc_operator):
                                     time_bounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.level_type,
                                     levels=self.levels,
+                                    resolution=self.property_cache[ppmsg.message.resolution_key],
                                     values=numpy.stack(self.values))
 
     def cache_is_full(self):
-        return super(level_aggregator,self).cache_is_full() and all(v is not None for v in self.values)
+        return super(level_aggregator, self).cache_is_full() and all(v is not None for v in self.values)
 
     def cache_is_empty(self):
         return self.values is None or all(v is None for v in self.values)

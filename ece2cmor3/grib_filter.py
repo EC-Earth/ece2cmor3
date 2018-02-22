@@ -144,33 +144,35 @@ def execute(tasks, month):
 
 # Cmorized gridpoint and spectral file in lock-step mode
 def cmorize_files(month, icmgg, icmsh):
-    time = -1
-    while icmgg.read_next():
-        pplevels.get_pv_array(icmgg)
-        gptime = icmgg.get_field(grib_file.time_key)
-        if time < 0:
-            time = gptime
-        if gptime != time:
-            # Loop spectral fields until they catch up
-            #            while icmsh.read_next():
-            #                shtime = icmsh.get_field(grib_file.time_key)
-            #                if shtime == gptime:
-            #                    icmsh.read_previous()
-            #                    break
-            #                if get_mon(icmsh) == month:
-            #                    cmorize_msg(icmsh)
-            #                icmsh.release()
-            time = gptime
-        if get_mon(icmgg) == month:
-            if not cmorize_msg(icmgg):
-                break
-        icmgg.release()
+    front_grib, back_grib = icmsh, icmgg
+    front_grib.read_next()
+    back_grib.read_next()
+    stop_time = front_grib.get_field(grib_file.time_key)
+    while True:
+        stop_time_front = read_grib_passed_time(front_grib, stop_time, month)
+        stop_time_back = read_grib_passed_time(back_grib, stop_time_front, month)
+        if stop_time_back == -1:
+            break
+        stop_time = stop_time_back
 
 
-#    while icmsh.read_next():
-#        if get_mon(icmsh) == month:
-#            cmorize_msg(icmsh)
-#        icmsh.release()
+def read_grib_passed_time(grib, stop_time, month):
+    time = grib.get_field(grib_file.time_key)
+    reached_stop = time == stop_time
+    if not grib.eof() and get_mon(grib) == month:
+        pplevels.get_pv_array(grib)
+        cmorize_msg(grib)
+    while grib.read_next():
+        time = grib.get_field(grib_file.time_key)
+        if reached_stop and time != stop_time:
+            grib.release()
+            return time
+        if get_mon(grib) == month:
+            pplevels.get_pv_array(grib)
+            cmorize_msg(grib)
+        reached_stop = time == stop_time
+        grib.release()
+    return -1
 
 
 def cmorize_msg(grb):
@@ -184,12 +186,13 @@ def cmorize_msg(grb):
         tasks.update(match)
     msg = ppmsg.grib_message(grb)
     if key in extra_operators:
+        print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HIEPHOI >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
         extra_operators[key].receive_msg(msg)
     for task in tasks:
         operator = task_operators.get(task, None)
         if operator is not None:
-            log.info("Processing grib message at %s for %s in table %s" %
-                     (str(msg.get_timestamp()), task.target.variable, task.target.table))
+            #            log.info("Processing grib message at %s for %s in table %s" %
+            #                     (str(msg.get_timestamp()), task.target.variable, task.target.table))
             if not operator.receive_msg(msg):
                 return False
     return True

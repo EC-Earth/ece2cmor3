@@ -102,7 +102,7 @@ def execute(tasks):
         store_var_operator = ppopfac.create_ps_operator()
         for operator in store_var_operators:
             store_var_operator.store_var_targets.append(operator)
-        ps_key = (128, 134, grib_file.surface_level_code, 0)
+        ps_key = (134, 128, grib_file.surface_level_code, 0)
         grib_filter.extra_operators[ps_key] = store_var_operator
 
     # TODO: assign store_var variables
