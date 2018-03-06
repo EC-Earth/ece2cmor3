@@ -22,7 +22,7 @@ if [ "$#" -eq -2 ]; then
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-  nedit r216/cmor-varlist-based-on-ping-r216-without-dummy-lines.txt
+  nedit r224/cmor-varlist-based-on-ping-r224-without-dummy-lines.txt
 # and copy them manually into the variable column in the file (also update the comment column):
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
@@ -41,6 +41,8 @@ if [ "$#" -eq -2 ]; then
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars.py to the basic identifiedmissing and the basic ignored:
    cpf cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
    cpf cmvmm-all-mips-t=3-p=3.ignored.xlsx           ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
+
+
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
