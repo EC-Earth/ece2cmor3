@@ -347,7 +347,7 @@ def write_record(gribfile, shift=0, handles=None):
 def proc_prev_month(month, gribfile, handles):
     while gribfile.read_next():
         if get_mon(gribfile) == month:
-            code = grib_tuple_from_string(gribfile.get_field(grib_file.param_key))
+            code = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
             if code not in accum_codes:
                 write_record(gribfile, handles=handles)
         gribfile.release()
