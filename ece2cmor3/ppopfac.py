@@ -11,6 +11,7 @@ table_root = None
 # Creates the DAG of post-processing operators for a specific task
 # TODO: add expression operators
 # TODO: right block time interpolation for fluxes?
+# TODO: share common grid remapping operators
 def create_pp_operators(task):
     pp2cmor.table_root = table_root
 
@@ -31,9 +32,11 @@ def create_pp_operators(task):
     if getattr(time_operator, "operator", None) not in [pptime.time_aggregator.min_operator,
                                                         pptime.time_aggregator.max_operator]:
         operator_chain = [time_operator, space_operator]
+    elif isinstance(time_operator, pptime.time_filter):
+        operator_chain = [time_operator, space_operator]
     else:
         operator_chain = [space_operator, time_operator]
-    if zaxis_operator:
+    if zaxis_operator is not None:
         operator_chain = [zaxis_operator] + operator_chain
     operator_chain.append(cmor_operator)
     for i in range(0, len(operator_chain) - 1):

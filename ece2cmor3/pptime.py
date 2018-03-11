@@ -70,6 +70,16 @@ class time_aggregator(ppop.post_proc_operator):
             return start.year != stop.year
         return False
 
+    @staticmethod
+    def mod_date(starttime, resolution):
+        if resolution in [timedelta(days=1), relativedelta(days=1)]:
+            return starttime.replace(hour=0, second=0, microsecond=0)
+        if resolution == relativedelta(months=1):
+            return starttime.replace(day=1, hour=0, second=0, microsecond=0)
+        if resolution == relativedelta(years=1):
+            return starttime.replace(month=1, day=1, hour=0, second=0, microsecond=0)
+        return starttime.replace(second=0, microsecond=0)
+
     def fill_cache(self, msg):
         # First time:
         if self.start_date is None:
@@ -79,7 +89,7 @@ class time_aggregator(ppop.post_proc_operator):
                 self.values = numpy.zeros(msg.get_values().shape, msg.get_values().dtype)
                 self.previous_values = numpy.copy(msg.get_values())
 
-            self.start_date = msg.get_timestamp()
+            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
             self.previous_timestamp = msg.get_timestamp()
         else:
             timestamp = msg.get_timestamp()

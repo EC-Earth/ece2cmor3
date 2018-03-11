@@ -105,6 +105,9 @@ class ifs_source(cmor_source):
             return self.code_ == other.code_
         return False
 
+    def __str__(self):
+        return self.code_.__str__()
+
     # Returns the grid.
     def grid(self):
         return ifs_grid[self.grid_] if self.grid_ >= 0 else None

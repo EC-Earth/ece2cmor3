@@ -177,21 +177,19 @@ def read_grib_passed_time(grib, stop_time, month):
 
 def cmorize_msg(grb):
     key = get_record_key(grb)
-    if key[2] == grib_file.hybrid_level_code:
-        matches = [varstasks[k] for k in varstasks if k[:3] == key[:3]]
-    else:
-        matches = [varstasks[k] for k in varstasks if k[:4] == key[:4]]
+    time = grb.get_field(grib_file.time_key) / 100
     tasks = set()
-    for match in matches:
-        tasks.update(match)
+    index = 3 if key[2] == grib_file.hybrid_level_code else 4
+    for k in varstasks:
+        if k[:index] == key[:index]:
+            matches = [t for t in varstasks[k] if time % getattr(t, cmor_task.output_frequency_key, 1) == 0]
+            tasks.update(matches)
     msg = ppmsg.grib_message(grb)
     if key in extra_operators:
         extra_operators[key].receive_msg(msg)
     for task in tasks:
         operator = task_operators.get(task, None)
         if operator is not None:
-            #            log.info("Processing grib message at %s for %s in table %s" %
-            #                     (str(msg.get_timestamp()), task.target.variable, task.target.table))
             if not operator.receive_msg(msg):
                 return False
     return True
@@ -260,7 +258,8 @@ def determine_frequencies(valid_tasks):
         freqset = task2freqs[task]
         maxfreq = max(freqset)
         if any([f for f in freqset if maxfreq % f != 0]):
-            log.error("Task depends on input fields with incompatible time steps")
+            log.error("Task %s in table %s depends on input fields with incompatible time steps" %
+                      (task.target.variable, task.target.table))
             task.status = cmor_task.status_failed
         else:
             setattr(task, cmor_task.output_frequency_key, maxfreq)

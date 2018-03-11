@@ -37,6 +37,7 @@ def create_cmor_variable(task, msg, store_var=None):
     else:
         load_table("grids")
         grid_id = create_gauss_grid(key[1], key[0])
+        print "setting new grid of size", key[1], key[0]
         grid_ids[key] = grid_id
     load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
@@ -151,13 +152,13 @@ def create_z_axis(z_axis, levels, table):
     return 0
 
 
-def create_bounds(a):
+def create_bounds(a, minbnd=-float("inf"), maxbnd=float("inf")):
     n = len(a)
     bnds = numpy.empty([n, 2])
-    bnds[0, 0] = max(0., 0.5 * (a[0] - a[1]))
+    bnds[0, 0] = max(minbnd, 0.5 * (a[0] - a[1]))
     bnds[1:n, 0] = 0.5 * (a[:-1] + a[1:])
     bnds[0:n - 1, 1] = bnds[1:n, 0]
-    bnds[n - 1, 1] = 1.5 * a[-1] + 0.5 * a[-2]
+    bnds[n - 1, 1] = min(maxbnd, 1.5 * a[-1] + 0.5 * a[-2])
     return bnds
 
 
@@ -167,11 +168,11 @@ def create_hybrid_level_axis(name):
     a = pplevels.a_coefs
     b = pplevels.b_coefs
     hcm = a / pref + b
-    axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm), units="1")
+    axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm, 0., 1.), units="1")
     cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],
-                 zfactor_bounds=create_bounds(a))
+                 zfactor_bounds=create_bounds(a, 0.))
     cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units="1", axis_ids=[axisid], zfactor_values=b[:],
-                 zfactor_bounds=create_bounds(b))
+                 zfactor_bounds=create_bounds(b, 0., 1.))
     return axisid
 
 
@@ -210,18 +211,25 @@ class msg_to_cmor(ppop.post_proc_operator):
         timestamp = self.property_cache[ppmsg.message.datetime_key]
         time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
         load_table(self.task.target.table)
-        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table, timestamp))
+        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table,
+                                                                 timestamp))
+        ofreq = str(getattr(self.task,cmor_task.output_frequency_key)) + "hrPt"
+        cmor.set_cur_dataset_attribute("frequency", ofreq)
         if any(time_bounds):
-            cmor.write(self.var_id, self.values, ntimes_passed=1, time_bnds=time_bounds,
-                       time_vals=[convert_time(timestamp)])
+            cmor.write(self.var_id, self.values, ntimes_passed=1, time_vals=[convert_time(timestamp)],
+                       time_bnds=time_bounds)
+            self.values = None
             if self.has_store_var:
-                print self.store_var_values
-                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1,
-                           time_bnds=time_bounds, time_vals=[convert_time(timestamp)])
+                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, store_with=self.var_id,
+                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                self.store_var_values = None
         else:
             cmor.write(self.var_id, self.values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
+            self.values = None
             if self.has_store_var:
-                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, time_vals=[convert_time(timestamp)])
+                cmor.write(self.store_var_id, self.store_var_values, store_with=self.var_id,
+                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                self.store_var_values = None
 
 
 # Returns the conversion factor from the input string

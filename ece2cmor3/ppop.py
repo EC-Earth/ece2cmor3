@@ -27,6 +27,8 @@ class post_proc_operator(object):
         self.property_cache = {}
 
     def receive_msg(self, msg):
+        if not self.accept_msg(msg):
+            return False
         if self.cache_is_full():
             self.clear_cache()
         if self.cache_is_empty():
@@ -36,6 +38,7 @@ class post_proc_operator(object):
                 if not msg.get_field(key) == self.property_cache[key]:
                     log.error("Operator of type %s: message property %s changed during cache filling from %s to %s" %
                               (str(type(self)), key, self.property_cache[key], msg.get_field(key)))
+                    self.print_state()
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
@@ -43,6 +46,9 @@ class post_proc_operator(object):
         if self.cache_is_full():
             self.send_msg()
         return True
+
+    def print_state(self):
+        print self.property_cache
 
     def send_msg(self):
         msg = self.create_msg()
@@ -52,6 +58,9 @@ class post_proc_operator(object):
             target.receive_store_var(msg)
         for target in self.targets:
             target.receive_msg(msg)
+
+    def accept_msg(self, msg):
+        return True
 
     def receive_mask(self, msg):
         self.mask_values = msg.get_values()
