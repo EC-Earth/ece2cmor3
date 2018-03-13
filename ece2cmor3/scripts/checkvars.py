@@ -26,11 +26,11 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-    ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format('table', 'dimensions', 'variable', 'long_name', 'comment_author', 'comment', '\n'))
+    ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
+            ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
     ofile.close()
 
 
