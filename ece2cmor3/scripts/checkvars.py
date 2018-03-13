@@ -48,7 +48,8 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('F:F',  4)  # Adjust the column width of column F
     worksheet.set_column('G:G', 80)  # Adjust the column width of column G
     worksheet.set_column('H:H', 15)  # Adjust the column width of column H
-    worksheet.set_column('I:I',300)  # Adjust the column width of column I
+    worksheet.set_column('I:I',200)  # Adjust the column width of column I
+    worksheet.set_column('J:J', 80)  # Adjust the column width of column J
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -61,6 +62,7 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 6, 'comment', bold)
     worksheet.write(0, 7, 'comment author', bold)
     worksheet.write(0, 8, 'extensive variable description', bold)
+    worksheet.write(0, 9, 'list of MIPs which request this variable', bold)
 
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -76,6 +78,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 6, getattr(tgtvar,"ecearth_comment",""))
             worksheet.write(row_counter, 7, getattr(tgtvar,"comment_author",""))
             worksheet.write(row_counter, 8, getattr(tgtvar,"comment","unknown"))
+            worksheet.write(row_counter, 9, tgtvar.mip_list)
             row_counter += 1
     workbook.close()
     logging.info(" Writing the excel file: %s" % opath)

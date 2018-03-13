@@ -109,6 +109,7 @@ def load_targets_excel(varlist):
     cmor_colname = "CMOR Name"
     vid_colname = "vid"
     priority_colname = "Priority"
+    mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
         if(sheetname.lower() in ["notes","fx","Ofx"]): continue
@@ -120,16 +121,18 @@ def load_targets_excel(varlist):
         index          = row.index(cmor_colname)
         vid_index      = row.index(vid_colname)
         priority_index = row.index(priority_colname)
+        mip_list_index = row.index(mip_list_colname)
         varnames = [c.value for c in sheet.col_slice(colx =          index,start_rowx = 1)]
         vids     = [c.value for c in sheet.col_slice(colx =      vid_index,start_rowx = 1)]
         priority = [c.value for c in sheet.col_slice(colx = priority_index,start_rowx = 1)]
+        mip_list = [c.value for c in sheet.col_slice(colx = mip_list_index,start_rowx = 1)]
         for i in range(len(varnames)):
-            add_target(str(varnames[i]),sheetname,targets,vids[i],priority[i])
+            add_target(str(varnames[i]),sheetname,targets,vids[i],priority[i],mip_list[i])
     return targets
 
 
 # Small utility loading targets from the list
-def add_target(variable,table,targetlist,vid = None,priority = None):
+def add_target(variable,table,targetlist,vid = None,priority = None,mip_list = None):
     global log
     target = ece2cmorlib.get_cmor_target(variable,table)
     if(target):
@@ -137,6 +140,8 @@ def add_target(variable,table,targetlist,vid = None,priority = None):
           target.vid = vid
         if(priority):
           target.priority = priority
+        if(mip_list):
+          target.mip_list = mip_list
         targetlist.append(target)
         return True
     else:
