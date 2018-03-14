@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script by:
-#  python compare-shaconemo-ping-file-with-ece2cmor3-json-file.py
+#  ./compare-shaconemo-ping-file-with-ece2cmor3-json-file.py
 
 # This script reads the shaconemo xml ping file (the file which relates NEMO code variable
 # names with CMOR names, code names which are labeled by 'dummy_' are not identified yet by
