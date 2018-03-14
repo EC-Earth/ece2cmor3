@@ -1,4 +1,4 @@
-name: ece2cmor3-fix-mpich-dependency
+name: ece2cmor3
 channels:
 - pcmdi
 - conda-forge
