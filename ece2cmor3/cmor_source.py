@@ -46,6 +46,12 @@ class grib_code:
     def __hash__(self):
         return self.var_id + self.tab_id * 1000
 
+    def to_var_string(self):
+        if self.tab_id == 128:
+            return "var" + str(self.var_id)
+        else:
+            return "var" + str(self.tab_id) + str(self.var_id)
+
     @classmethod
     def read(cls, istr):
         s = istr[3:] if istr.startswith("var") else istr
@@ -134,7 +140,7 @@ class ifs_source(cmor_source):
         if re.match('^[0-9]{1,3}.[0-9]{3}$', s) or re.match("^[0-9]{1,3}$", s) or re.match("^[0-9]{1,3}$", s):
             gc = grib_code.read(s)
             instance = cls(gc)
-        elif re.match("^var[0-9]{1,3}$", s):
+        elif re.match("^var[0-9]{1,3}$", s):  # TODO: support grib codes in other tables?
             gc = grib_code.read(s[3:])
             instance = cls(gc)
         else:

@@ -6,8 +6,8 @@ from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
-num_levels = 0
-#num_levels = 10
+#num_levels = 0
+num_levels = 10
 pv_array = None
 a_coefs, b_coefs = None, None
 

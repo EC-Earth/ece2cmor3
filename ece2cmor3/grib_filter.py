@@ -190,6 +190,7 @@ def cmorize_msg(grb):
     for task in tasks:
         operator = task_operators.get(task, None)
         if operator is not None:
+#            print "processing task",task.target.variable,"in",task.target.table
             if not operator.receive_msg(msg):
                 return False
     return True

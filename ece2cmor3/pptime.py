@@ -17,6 +17,9 @@ class time_filter(ppop.post_proc_operator):
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
                                   ppmsg.message.levellist_key, ppmsg.message.resolution_key]
 
+    def is_linear(self):
+        return True
+
     def fill_cache(self, msg):
         t = msg.get_timestamp()
         self.timestamp = t
@@ -58,6 +61,10 @@ class time_aggregator(ppop.post_proc_operator):
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
                                   ppmsg.message.levellist_key, ppmsg.message.resolution_key]
 
+    def is_linear(self):
+        return self.operator in [time_aggregator.linear_mean_operator, time_aggregator.block_left_operator,
+                                 time_aggregator.block_right_operator]
+
     @staticmethod
     def next_step(start, stop, resolution):
         if resolution in [timedelta(hours=1), relativedelta(hours=1)]:
@@ -89,13 +96,15 @@ class time_aggregator(ppop.post_proc_operator):
                 self.values = numpy.zeros(msg.get_values().shape, msg.get_values().dtype)
                 self.previous_values = numpy.copy(msg.get_values())
 
-            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
+#            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
+            self.start_date = msg.get_timestamp()
             self.previous_timestamp = msg.get_timestamp()
         else:
             timestamp = msg.get_timestamp()
-            if self.next_step(self.start_date, timestamp, self.interval):
+            rounded_timestamp = self.mod_date(timestamp, self.interval)
+            if rounded_timestamp != self.mod_date(self.start_date, self.interval):
                 self.full_cache = True
-                new_start_date = self.start_date + self.interval
+                new_start_date = rounded_timestamp
                 delta_left = (new_start_date - self.previous_timestamp).total_seconds()
                 delta_right = (timestamp - new_start_date).total_seconds()
                 norm_left = (new_start_date - self.start_date).total_seconds()

@@ -1,6 +1,6 @@
 import logging
 from dateutil.relativedelta import relativedelta
-from ece2cmor3 import ppsh, pptime, pplevels, pp2cmor, cmor_target, grib_file, cmor_source
+from ece2cmor3 import ppsh, pptime, pplevels, pp2cmor, ppexpr, cmor_target, grib_file, cmor_source
 
 # Log object
 log = logging.getLogger(__name__)
@@ -12,33 +12,37 @@ table_root = None
 # TODO: add expression operators
 # TODO: right block time interpolation for fluxes?
 # TODO: share common grid remapping operators
+
 def create_pp_operators(task):
     pp2cmor.table_root = table_root
-
+    expr = None
     if task.source.get_root_codes() != [task.source.get_grib_code()]:
-        log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
-        return None
+        expr = getattr(task.source, cmor_source.expression_key, None)
+    #        log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
+    #        return None
 
     axisname, leveltype, levs = cmor_target.get_z_axis(task.target)
     store_var = "ps" if leveltype == "alevel" else None
 
+    expr_operator = create_expr_operator(expr)
     space_operator = ppsh.pp_remap_sh()
     time_operator = create_time_operator(task)
     zaxis_operator = create_level_operator(task)
     cmor_operator = pp2cmor.msg_to_cmor(task, store_var)
 
     if time_operator is None:
+        log.warning("Dismissing task without time operator: %s in %s" % (task.target.variable, task.target.table))
         return None
-    if getattr(time_operator, "operator", None) not in [pptime.time_aggregator.min_operator,
-                                                        pptime.time_aggregator.max_operator]:
-        operator_chain = [time_operator, space_operator]
-    elif isinstance(time_operator, pptime.time_filter):
-        operator_chain = [time_operator, space_operator]
-    else:
-        operator_chain = [space_operator, time_operator]
-    if zaxis_operator is not None:
-        operator_chain = [zaxis_operator] + operator_chain
-    operator_chain.append(cmor_operator)
+
+    operators = [zaxis_operator, space_operator, expr_operator, time_operator, cmor_operator]
+    operator_chain = [o for o in operators if o is not None]
+    if time_operator.is_linear():
+        for i in range(len(operator_chain) - 1):
+            if operator_chain[i] is space_operator and operator_chain[i + 1] is time_operator:
+                operator_chain[i] = time_operator
+                operator_chain[i + 1] = space_operator
+                break
+
     for i in range(0, len(operator_chain) - 1):
         operator_chain[i].targets.append(operator_chain[i + 1])
     return operator_chain[0]
@@ -46,6 +50,10 @@ def create_pp_operators(task):
 
 def create_ps_operator():
     return ppsh.pp_remap_sh()
+
+
+def create_expr_operator(expr):
+    return None if expr is None else ppexpr.variable_expression(expr)
 
 
 # Creates a time selection/aggregation operator for a specific task
