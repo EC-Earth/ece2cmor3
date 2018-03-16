@@ -9,10 +9,11 @@ log = logging.getLogger(__name__)
 
 class time_filter(ppop.post_proc_operator):
 
-    def __init__(self, period):
+    def __init__(self, period, time_bounds=False):
         super(time_filter, self).__init__()
         self.period = period
         self.timestamp = None
+        self.has_bnds = time_bounds
         self.tnext, self.tprev = None, None
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
                                   ppmsg.message.levellist_key, ppmsg.message.resolution_key]
@@ -35,7 +36,7 @@ class time_filter(ppop.post_proc_operator):
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.timestamp,
-                                    time_bounds=[],
+                                    time_bounds=[self.timestamp - self.period, self.timestamp],
                                     leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                     levels=self.property_cache[ppmsg.message.levellist_key],
                                     resolution=self.property_cache[ppmsg.message.resolution_key],
