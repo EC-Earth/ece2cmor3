@@ -6,8 +6,7 @@ from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
-num_levels = 0
-#num_levels = 10
+num_levels = 10
 pv_array = None
 a_coefs, b_coefs = None, None
 
@@ -33,9 +32,8 @@ class level_aggregator(ppop.post_proc_operator):
         self.levels = levels
         self.level_type = level_type
         self.values = None if levels is None else [None] * len(levels)
-        self.time_stamp = None
-        self.time_bounds = []
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.resolution_key]
+        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.resolution_key, ppmsg.message.datetime_key,
+                                  ppmsg.message.timebounds_key]
 
     def accept_msg(self, msg):
         return msg.get_level_type() == self.level_type
@@ -61,8 +59,6 @@ class level_aggregator(ppop.post_proc_operator):
                 log.warning(
                     "Overwriting level %d for variable %s" % (level, self.property_cache.get("variable", "unknown")))
             # TODO: warning if new time stamp?
-            self.time_stamp = msg.get_timestamp()
-            self.time_bounds = msg.get_time_bounds()
             if len(msg.get_levels()) > 1:  # Shouldn't normally happen...
                 self.values[index] = msg.get_values()[i, :]
             else:
@@ -80,8 +76,8 @@ class level_aggregator(ppop.post_proc_operator):
 
     def create_msg(self):
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
-                                    timestamp=self.time_stamp,
-                                    time_bounds=self.time_bounds,
+                                    timestamp=self.property_cache[ppmsg.message.datetime_key],
+                                    time_bounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.level_type,
                                     levels=self.levels,
                                     resolution=self.property_cache[ppmsg.message.resolution_key],

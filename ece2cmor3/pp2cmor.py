@@ -37,7 +37,6 @@ def create_cmor_variable(task, msg, store_var=None):
     else:
         load_table("grids")
         grid_id = create_gauss_grid(key[1], key[0])
-        print "setting new grid of size", key[1], key[0]
         grid_ids[key] = grid_id
     load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
