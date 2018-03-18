@@ -19,7 +19,6 @@ class pp_remap_sh(ppop.post_proc_operator):
                 shtns.SHT_NO_CS_PHASE = True
                 pp_remap_sh.sh_mapper = shtns.sht(lmax, lmax, 1, shtns.sht_orthonormal + shtns.SHT_NO_CS_PHASE)
                 pp_remap_sh.sh_mapper.set_grid()
-            # TODO: roll...
             if len(values.shape) == 1:
                 carray = numpy.vectorize(complex)(values[0::2], values[1::2])
                 self.values = numpy.roll(numpy.flipud(pp_remap_sh.sh_mapper.synth(carray)), shift=lmax + 1, axis=1)

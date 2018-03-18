@@ -1,12 +1,13 @@
 import logging
-
+import tempfile
+import os
 import numpy
 
 from ece2cmor3 import ppmsg, ppop, grib_file
 
 log = logging.getLogger(__name__)
 
-num_levels = 10
+num_levels = 0
 pv_array = None
 a_coefs, b_coefs = None, None
 
@@ -27,10 +28,11 @@ def get_pv_array(gribfile):
 
 class level_aggregator(ppop.post_proc_operator):
 
-    def __init__(self, level_type, levels):
+    def __init__(self, level_type, levels, mem_cache=True):
         super(level_aggregator, self).__init__()
         self.levels = levels
         self.level_type = level_type
+        self.mem_cache = mem_cache
         self.values = None if levels is None else [None] * len(levels)
         self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.resolution_key, ppmsg.message.datetime_key,
                                   ppmsg.message.timebounds_key]
@@ -58,11 +60,17 @@ class level_aggregator(ppop.post_proc_operator):
             if self.values[index] is not None:
                 log.warning(
                     "Overwriting level %d for variable %s" % (level, self.property_cache.get("variable", "unknown")))
-            # TODO: warning if new time stamp?
-            if len(msg.get_levels()) > 1:  # Shouldn't normally happen...
-                self.values[index] = msg.get_values()[i, :]
+            if self.mem_cache:
+                if len(msg.get_levels()) > 1:  # Shouldn't normally happen...
+                    self.values[index] = msg.get_values()[i, :]
+                else:
+                    self.values[index] = msg.get_values()
             else:
-                self.values[index] = msg.get_values()
+                f = tempfile.NamedTemporaryFile(delete=False)
+                numpy.save(f, msg.get_values())
+                self.values[index] = f.name
+                f.close()
+
         return True
 
     def print_state(self):
@@ -75,13 +83,21 @@ class level_aggregator(ppop.post_proc_operator):
         self.values = None if self.levels is None else [None] * len(self.levels)
 
     def create_msg(self):
+        if not self.mem_cache:
+            files = [open(f, 'r') for f in self.values]
+            vals = numpy.stack([numpy.load(f) for f in files])
+            for f in files:
+                f.close()
+                os.remove(f.name)
+        else:
+            vals = numpy.stack(self.values)
         return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
                                     time_bounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.level_type,
                                     levels=self.levels,
                                     resolution=self.property_cache[ppmsg.message.resolution_key],
-                                    values=numpy.stack(self.values))
+                                    values=vals)
 
     def cache_is_full(self):
         return self.values is not None and all(v is not None for v in self.values)

@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import numpy
+import tempfile
 from ece2cmor3 import ppmsg, ppop
 
 log = logging.getLogger(__name__)
@@ -50,10 +51,11 @@ class time_aggregator(ppop.post_proc_operator):
     min_operator = 4
     max_operator = 5
 
-    def __init__(self, operator, interval):
+    def __init__(self, operator, interval, filecache=True):
         super(time_aggregator, self).__init__()
         self.operator = operator
         self.interval = interval
+        self.file_cache = filecache
         self.previous_values = None
         self.previous_timestamp = None
         self.remainder = None
@@ -67,16 +69,10 @@ class time_aggregator(ppop.post_proc_operator):
                                  time_aggregator.block_right_operator]
 
     @staticmethod
-    def next_step(start, stop, resolution):
-        if resolution in [timedelta(hours=1), relativedelta(hours=1)]:
-            return start.hour != stop.hour
-        if resolution in [timedelta(days=1), relativedelta(days=1)]:
-            return start.day != stop.day
-        if resolution == relativedelta(months=1):
-            return start.month != stop.month
-        if resolution == relativedelta(years=1):
-            return start.year != stop.year
-        return False
+    def save_values(array):
+        cache_file = tempfile.TemporaryFile()
+        numpy.save(cache_file, array)
+        return cache_file
 
     @staticmethod
     def mod_date(starttime, resolution):
@@ -88,16 +84,49 @@ class time_aggregator(ppop.post_proc_operator):
             return starttime.replace(month=1, day=1, hour=0, second=0, microsecond=0)
         return starttime.replace(second=0, microsecond=0)
 
+    def set_values(self, values):
+        self.values = self.save_values(values) if self.file_cache else values
+
+    def get_values(self):
+        if self.values is None:
+            return None
+        if self.file_cache:
+            self.values.seek(0)
+            return numpy.load(self.values)
+        return self.values
+
+    def set_previous_values(self, values):
+        self.previous_values = self.save_values(values) if self.file_cache else values
+
+    def get_previous_values(self):
+        if self.previous_values is None:
+            return None
+        if self.file_cache:
+            self.previous_values.seek(0)
+            return numpy.load(self.previous_values)
+        return self.previous_values
+
+    def set_remainder(self, values):
+        self.remainder = self.save_values(values) if self.file_cache else values
+
+    def get_remainder(self):
+        if self.remainder is None:
+            return None
+        if self.file_cache:
+            self.remainder.seek(0)
+            return numpy.load(self.remainder)
+        return self.remainder
+
     def fill_cache(self, msg):
         # First time:
         if self.start_date is None:
             if self.operator in [self.min_operator, self.max_operator]:
-                self.values = numpy.copy(msg.get_values())
+                self.set_values(numpy.copy(msg.get_values()))
             else:
-                self.values = numpy.zeros(msg.get_values().shape, msg.get_values().dtype)
-                self.previous_values = numpy.copy(msg.get_values())
+                self.set_values(numpy.zeros(msg.get_values().shape, msg.get_values().dtype))
+                self.set_previous_values(msg.get_values())
 
-#            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
+            # self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
             self.start_date = msg.get_timestamp()
             self.previous_timestamp = msg.get_timestamp()
         else:
@@ -110,46 +139,51 @@ class time_aggregator(ppop.post_proc_operator):
                 delta_right = (timestamp - new_start_date).total_seconds()
                 norm_left = (new_start_date - self.start_date).total_seconds()
                 norm_right = ((new_start_date + self.interval) - new_start_date).total_seconds()
+                values = self.get_values()
                 if self.operator == self.block_left_operator:
-                    self.values += self.previous_values * (delta_left / norm_left)
-                    self.remainder = msg.get_values() * (delta_right / norm_right)
+                    values += self.get_previous_values() * (delta_left / norm_left)
+                    self.set_remainder(msg.get_values() * (delta_right / norm_right))
                 elif self.operator == self.block_right_operator:
-                    self.values += msg.get_values() * (delta_left / norm_left)
-                    self.remainder = msg.get_values() * (delta_right / norm_right)
+                    values += msg.get_values() * (delta_left / norm_left)
+                    self.set_remainder(msg.get_values() * (delta_right / norm_right))
                 elif self.operator == self.linear_mean_operator:
                     delta_tot = delta_left + delta_right
                     a1 = 0.5 * delta_left * (delta_right / delta_tot + 1) / norm_left
                     a2 = 0.5 * delta_left * delta_left / (delta_tot * norm_left)
                     b1 = 0.5 * delta_right * delta_right / (delta_tot * norm_right)
                     b2 = 0.5 * delta_right * (delta_left / delta_tot + 1) / norm_right
-                    self.values += (a1 * self.previous_values + a2 * msg.get_values())
-                    self.remainder = (b1 * self.previous_values + b2 * msg.get_values())
-                self.previous_values = numpy.copy(msg.get_values())
+                    previous_values = self.get_previous_values()
+                    values += (a1 * previous_values + a2 * msg.get_values())
+                    self.set_remainder(b1 * previous_values + b2 * msg.get_values())
+                self.set_values(values)
+                self.set_previous_values(msg.get_values())
                 self.start_date = new_start_date
             else:
+                values = self.get_values()
                 if self.remainder is not None:
-                    self.values = self.remainder
+                    values = self.get_remainder()
                     self.remainder = None
                 future_start_date = self.start_date + self.interval
                 delta_t = (timestamp - self.previous_timestamp).total_seconds() / \
                           (future_start_date - self.start_date).total_seconds()
                 if self.operator == self.block_left_operator:
-                    self.values += self.previous_values * delta_t
-                    self.previous_values = numpy.copy(msg.get_values())
+                    values += self.get_previous_values() * delta_t
+                    self.set_previous_values(msg.get_values())
                 elif self.operator == self.block_right_operator:
-                    self.values += msg.get_values() * delta_t
-                    self.previous_values = numpy.copy(msg.get_values())
+                    values += msg.get_values() * delta_t
+                    self.set_previous_values(msg.get_values())
                 elif self.operator == self.linear_mean_operator:
-                    self.values += 0.5 * delta_t * (self.previous_values + msg.get_values())
-                    self.previous_values = numpy.copy(msg.get_values())
+                    values += 0.5 * delta_t * (self.get_previous_values() + msg.get_values())
+                    self.set_previous_values(msg.get_values())
                 elif self.operator == self.min_operator:
-                    rhs = self.previous_values if self.values is None else self.values
-                    self.values = numpy.minimum(rhs, msg.get_values())
+                    rhs = self.get_previous_values() if self.values is None else values
+                    values = numpy.minimum(rhs, msg.get_values())
                 elif self.operator == self.max_operator:
-                    rhs = self.previous_values if self.values is None else self.values
-                    self.values = numpy.maximum(rhs, msg.get_values())
+                    rhs = self.get_previous_values() if self.values is None else values
+                    values = numpy.maximum(rhs, msg.get_values())
                 else:
                     raise Exception("Unknown averaging operator")
+                self.set_values(values)
             self.previous_timestamp = timestamp
 
     def clear_cache(self):
@@ -169,5 +203,5 @@ class time_aggregator(ppop.post_proc_operator):
                                    leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                    levels=self.property_cache[ppmsg.message.levellist_key],
                                    resolution=self.property_cache[ppmsg.message.resolution_key],
-                                   values=self.values)
+                                   values=self.get_values())
         return msg

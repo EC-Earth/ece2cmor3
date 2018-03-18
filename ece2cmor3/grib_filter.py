@@ -5,7 +5,7 @@ import numpy
 import pygrib
 from dateutil import relativedelta
 
-from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels, ppopfac, ppsh
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -174,8 +174,16 @@ def read_grib_passed_time(grib, stop_time, month):
         grib.release()
     return -1
 
+msgcounter = 0
 
 def cmorize_msg(grb):
+    global msgcounter
+    msgcounter += 1
+#    if msgcounter % 100 == 0:
+#        from guppy import hpy
+#        h = hpy()
+#        print "Printing heap..."
+#        print h.heap()
     key = get_record_key(grb)
     time = grb.get_field(grib_file.time_key) / 100
     tasks = set()
@@ -187,12 +195,17 @@ def cmorize_msg(grb):
     msg = ppmsg.grib_message(grb)
     if key in extra_operators:
         extra_operators[key].receive_msg(msg)
-    for task in tasks:
-        operator = task_operators.get(task, None)
-        if operator is not None:
-#            print "processing task",task.target.variable,"in",task.target.table
-            if not operator.receive_msg(msg):
-                return False
+    if any(tasks):
+        #        print "GRIB keys:", key
+        mapper = ppsh.pp_remap_sh()
+        mapper.receive_msg(msg)
+        mapped_msg = mapper.create_msg()
+        for task in tasks:
+            operator = task_operators.get(task, None)
+            if operator is not None:
+                #                print "processing task", task.target.variable, "in", task.target.table
+                if not operator.receive_msg(mapped_msg):
+                    return False
     return True
 
 

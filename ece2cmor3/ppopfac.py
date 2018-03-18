@@ -18,8 +18,8 @@ def create_pp_operators(task):
     expr = None
     if task.source.get_root_codes() != [task.source.get_grib_code()]:
         expr = getattr(task.source, cmor_source.expression_key, None)
-    #        log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
-    #        return None
+    # log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
+    # return None
 
     axisname, leveltype, levs = cmor_target.get_z_axis(task.target)
     store_var = "ps" if leveltype == "alevel" else None
@@ -34,14 +34,15 @@ def create_pp_operators(task):
         log.warning("Dismissing task without time operator: %s in %s" % (task.target.variable, task.target.table))
         return None
 
-    operators = [zaxis_operator, space_operator, expr_operator, time_operator, cmor_operator]
+#    operators = [zaxis_operator, space_operator, expr_operator, time_operator, cmor_operator]
+    operators = [zaxis_operator, expr_operator, time_operator, cmor_operator]
     operator_chain = [o for o in operators if o is not None]
-    if time_operator.is_linear():
-        for i in range(len(operator_chain) - 1):
-            if operator_chain[i] is space_operator and operator_chain[i + 1] is time_operator:
-                operator_chain[i] = time_operator
-                operator_chain[i + 1] = space_operator
-                break
+#    if time_operator.is_linear():
+#        for i in range(len(operator_chain) - 1):
+#            if operator_chain[i] is space_operator and operator_chain[i + 1] is time_operator:
+#                operator_chain[i] = time_operator
+#                operator_chain[i + 1] = space_operator
+#                break
 
     for i in range(0, len(operator_chain) - 1):
         operator_chain[i].targets.append(operator_chain[i + 1])
