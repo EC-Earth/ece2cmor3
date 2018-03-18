@@ -9,9 +9,6 @@ table_root = None
 
 
 # Creates the DAG of post-processing operators for a specific task
-# TODO: add expression operators
-# TODO: right block time interpolation for fluxes?
-# TODO: share common grid remapping operators
 
 def create_pp_operators(task):
     pp2cmor.table_root = table_root
@@ -25,7 +22,6 @@ def create_pp_operators(task):
     store_var = "ps" if leveltype == "alevel" else None
 
     expr_operator = create_expr_operator(expr)
-    space_operator = ppsh.pp_remap_sh()
     time_operator = create_time_operator(task)
     zaxis_operator = create_level_operator(task)
     cmor_operator = pp2cmor.msg_to_cmor(task, store_var)
@@ -34,15 +30,8 @@ def create_pp_operators(task):
         log.warning("Dismissing task without time operator: %s in %s" % (task.target.variable, task.target.table))
         return None
 
-#    operators = [zaxis_operator, space_operator, expr_operator, time_operator, cmor_operator]
     operators = [zaxis_operator, expr_operator, time_operator, cmor_operator]
     operator_chain = [o for o in operators if o is not None]
-#    if time_operator.is_linear():
-#        for i in range(len(operator_chain) - 1):
-#            if operator_chain[i] is space_operator and operator_chain[i + 1] is time_operator:
-#                operator_chain[i] = time_operator
-#                operator_chain[i + 1] = space_operator
-#                break
 
     for i in range(0, len(operator_chain) - 1):
         operator_chain[i].targets.append(operator_chain[i + 1])
@@ -76,8 +65,13 @@ def create_time_operator(task):
                 period = relativedelta(hours=int(freq[:-2]))
             if freq.endswith("hrPt"):
                 period = relativedelta(hours=int(freq[:-4]))
-        if operators == ["point"] and freq.endswith("hrPt"):
-            return pptime.time_filter(period, time_bounds=False)
+        if operators == ["point"]:
+            if freq.endswith("hrPt"):
+                return pptime.time_filter(period, time_bounds=False)
+            elif freq.endswith("hr"):
+                log.warning("Time operator point for variable %s in table %s without hrPt-frequency... "
+                            "still using point sampling" % (task.target.variable, task.target.table))
+                return pptime.time_filter(period, time_bounds=False)
         if operators == ["mean"] and freq.endswith("hr"):
             if all([c in cmor_source.ifs_source.grib_codes_accum for c in task.source.get_root_codes()]):
                 return pptime.time_filter(period, time_bounds=True)

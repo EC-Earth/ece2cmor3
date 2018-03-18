@@ -104,8 +104,6 @@ def execute(tasks):
             store_var_operator.store_var_targets.append(operator)
         ps_key = (134, 128, grib_file.surface_level_code, 0)
         grib_filter.extra_operators[ps_key] = store_var_operator
-
-    # TODO: assign store_var variables
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     grib_filter.execute(supported_tasks, start_date_.month)
 

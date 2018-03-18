@@ -159,9 +159,10 @@ def cmorize_files(month, icmgg, icmsh):
 def read_grib_passed_time(grib, stop_time, month):
     time = grib.get_field(grib_file.time_key)
     reached_stop = time == stop_time
+    keys = []
     if not grib.eof() and get_mon(grib) == month:
         pplevels.get_pv_array(grib)
-        cmorize_msg(grib)
+        cmorize_msg(grib, keys)
     while grib.read_next():
         time = grib.get_field(grib_file.time_key)
         if reached_stop and time != stop_time:
@@ -169,23 +170,20 @@ def read_grib_passed_time(grib, stop_time, month):
             return time
         if get_mon(grib) == month:
             pplevels.get_pv_array(grib)
-            cmorize_msg(grib)
+            cmorize_msg(grib, keys)
         reached_stop = time == stop_time
         grib.release()
     return -1
 
-msgcounter = 0
 
-def cmorize_msg(grb):
-    global msgcounter
-    msgcounter += 1
-#    if msgcounter % 100 == 0:
-#        from guppy import hpy
-#        h = hpy()
-#        print "Printing heap..."
-#        print h.heap()
+def cmorize_msg(grb, keys):
     key = get_record_key(grb)
     time = grb.get_field(grib_file.time_key) / 100
+    tkey = key + (time,)
+    # Ignore duplicates
+    if tkey in keys:
+        return
+    keys.append(tkey)
     tasks = set()
     index = 3 if key[2] == grib_file.hybrid_level_code else 4
     for k in varstasks:

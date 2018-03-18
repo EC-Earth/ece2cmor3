@@ -1,8 +1,8 @@
 import logging
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import numpy
 import tempfile
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from ece2cmor3 import ppmsg, ppop
 
 log = logging.getLogger(__name__)
