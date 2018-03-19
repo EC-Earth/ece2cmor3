@@ -200,11 +200,11 @@ def get_z_axis(target):
     result = []
     for axisname in getattr(target, "z_dims", []):
         if axisname in model_axes:
-            result.append((axisname, [-1]))
+            result.append((str(axisname), str(axisname), [-1]))
         else:
             axisinfo = get_axis_info(target.table).get(axisname, None)
             if not axisinfo:
-                log.warning("Could not retrieve information for axis %s in table %s" % (axisname, target.table))
+                log.warning("Could not retrieve information for axis %s in table %s" % (str(axisname), target.table))
                 continue
             zvar = axisinfo.get("standard_name", None)
             if zvar in pressure_axes + height_axes:
@@ -214,11 +214,11 @@ def get_z_axis(target):
                     if val:
                         levels = [val]
                 if not any(levels):
-                    log.warning("Could not retrieve levels for vertical coordinate %s" % axisname)
+                    log.warning("Could not retrieve levels for vertical coordinate %s" % str(axisname))
                     continue
-                result.append((zvar, levels))
+                result.append((str(axisname), str(zvar), levels))
     if not any(result):
-        return None, []
+        return None, None, []
     if len(result) > 1:
         log.warning("Multiple vertical axes declared for variable %s in table %s:"
                     "taking first coordinate %s" % target.var_id, target.tab_id, result[0][0])

@@ -39,7 +39,7 @@ def main(args):
     jsonloader.load_targets(variables)
 
     # Execute the cmorization:
-    ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir="./tmp",cleanup=False)
+    ece2cmorlib.perform_ifs_tasks(opt.dir, opt.exp, startdate, interval, outputfreq = 3, tempdir="./tmp")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
