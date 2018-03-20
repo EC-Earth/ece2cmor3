@@ -3,7 +3,7 @@ import os
 
 import dateutil.relativedelta
 
-from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils, ppopfac, grib_file
+from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils, ppopfac, grib_file, ppsh
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -87,23 +87,36 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     return True
 
 
-# Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
+# Execute the postprocessing+cmorization tasks.
 def execute(tasks):
     global log, tempdir_created_, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
-    ppopfac.table_root = table_root_
-    store_var_operators = []
+    ppopfac.table_root, ppopfac.masks = table_root_, masks
+    store_var_operators, mask_operators = {}, {}
     for task in supported_tasks:
         operator = ppopfac.create_pp_operators(task)
         if operator is not None:
             grib_filter.task_operators[task] = operator
-            store_var_operators.extend([o for o in operator.get_all_operators() if o.has_store_var])
-    if any(store_var_operators):
-        store_var_operator = ppopfac.create_ps_operator()
-        for operator in store_var_operators:
+            for child_operator in operator.get_all_operators():
+                skey, mkey = child_operator.store_var_key, child_operator.mask_key
+                if skey in store_var_operators:
+                    store_var_operators[skey].append(child_operator)
+                elif skey is not None:
+                    store_var_operators[skey] = [child_operator]
+                if mkey in mask_operators:
+                    mask_operators[mkey].append(child_operator)
+                elif mkey is not None:
+                    mask_operators[mkey] = [child_operator]
+    for key in store_var_operators:
+        store_var_operator = ppsh.pp_remap_sh()
+        for operator in store_var_operators[key]:
             store_var_operator.store_var_targets.append(operator)
-        ps_key = (134, 128, grib_file.surface_level_code, 0)
-        grib_filter.extra_operators[ps_key] = store_var_operator
+        grib_filter.extra_operators[key] = store_var_operator
+    for key in mask_operators:
+        mask_operator = ppsh.pp_remap_sh()
+        for operator in mask_operators[key]:
+            mask_operator.mask_targets.append(operator)
+        grib_filter.extra_operators[key] = mask_operator
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     grib_filter.execute(supported_tasks, start_date_.month)
 

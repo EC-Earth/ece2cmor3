@@ -23,14 +23,6 @@ json_grid_key = "grid"
 json_mask_key = "mask"
 json_masked_key = "masked"
 
-mask_predicates = {"=": lambda x,a: x == a,
-                   "==":lambda x,a: x == a,
-                   "!=":lambda x,a: x != a,
-                   "<": lambda x,a: x < a,
-                   "<=":lambda x,a: x <= a,
-                   ">": lambda x,a: x > a,
-                   ">=":lambda x,a: x >= a}
-
 skip_tables = False
 
 # API function: loads the argument list of targets
@@ -258,29 +250,8 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
             if(not expr):
                 log.error("No expression given for mask %s, ignoring mask definition" % name)
             else:
-                srcstr,func,val = parse_maskexpr(expr)
-                if(srcstr):
-                    src = create_cmor_source({json_source_key: srcstr},"ifs")
-                    ece2cmorlib.add_mask(name,src,func,val)
+                ece2cmorlib.add_mask(name,expr)
     return loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets
-
-
-# Parses the input mask expression
-def parse_maskexpr(exprstring):
-    global mask_predicates
-    ops = list(mask_predicates.keys())
-    ops.sort(key=len)
-    for op in ops[::-1]:
-        tokens = exprstring.split(op)
-        if(len(tokens) == 2):
-            src = tokens[0].strip()
-            if(src.startswith("var")): src = src[3:]
-            if(len(src.split("."))==1): src += ".128"
-            func = mask_predicates[op]
-            val = float(tokens[1].strip())
-            return src,func,val
-    log.error("Expression %s could not be parsed to a valid mask expression")
-    return None,None,None
 
 
 # Checks whether the variable matches the parameter table block

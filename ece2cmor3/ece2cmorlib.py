@@ -47,7 +47,7 @@ def initialize_without_cmor(metadata=conf_path_default, mode=cmor_mode_default, 
 # Initialization function, must be called before starting
 def initialize(metadata=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
                tableprefix=prefix_default):
-    global exp_name, prefix, table_dir, targets, conf_path, cmor_mode
+    global prefix, table_dir, targets, conf_path, cmor_mode
     conf_path = metadata
     cmor_mode = mode
     table_dir = tabledir
@@ -130,9 +130,9 @@ def add_task(tsk):
 
 
 # Adds a mask
-def add_mask(name, src, func, val):
+def add_mask(name, expr):
     global masks
-    masks[name] = {"source": src, "operator": func, "rhs": val}
+    masks[name] = expr
 
 
 # Performs an IFS cmorization processing:
@@ -149,10 +149,7 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
     ifs_tasks = [t for t in tasks if isinstance(t.source, cmor_source.ifs_source)]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
-    if enable_masks:
-        ifs2cmor.masks = {k: masks[k] for k in masks if isinstance(masks[k]["source"], cmor_source.ifs_source)}
-    else:
-        ifs2cmor.masks = {}
+    ifs2cmor.masks = masks if enable_masks else {}
     ofreq = -1 if auto_filter else outputfreq
     if (not ifs2cmor.initialize(datadir, expname, tableroot, startdate, interval, refdate if refdate else startdate,
                                 outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb)):

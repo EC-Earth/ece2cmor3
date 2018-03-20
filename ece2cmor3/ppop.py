@@ -14,10 +14,10 @@ class post_proc_operator(object):
         self.targets = []
         self.mask_values = None
         self.mask_targets = []
-        self.has_mask = False
+        self.mask_key = None
         self.store_var_values = None
         self.store_var_targets = []
-        self.has_store_var = False
+        self.store_var_key = None
         self.cached_properties = [ppmsg.message.variable_key,
                                   ppmsg.message.datetime_key,
                                   ppmsg.message.timebounds_key,
@@ -90,8 +90,8 @@ class post_proc_operator(object):
 
     def cache_is_full(self):
         has_values = self.values is not None
-        has_mask_values = True if not self.has_mask else self.mask_values is not None
-        has_store_values = True if not self.has_store_var else self.store_var_values is not None
+        has_mask_values = True if self.mask_key is None else self.mask_values is not None
+        has_store_values = True if self.store_var_key is None else self.store_var_values is not None
         return has_values and has_mask_values and has_store_values
 
     def cache_is_empty(self):

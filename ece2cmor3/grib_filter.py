@@ -1,11 +1,11 @@
 import logging
 import os
+import pygrib
 
 import numpy
-import pygrib
 from dateutil import relativedelta
 
-from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels, ppopfac, ppsh
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels, ppsh
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -194,14 +194,14 @@ def cmorize_msg(grb, keys):
     if key in extra_operators:
         extra_operators[key].receive_msg(msg)
     if any(tasks):
-        #        print "GRIB keys:", key
+        # print "GRIB keys:", key
         mapper = ppsh.pp_remap_sh()
         mapper.receive_msg(msg)
         mapped_msg = mapper.create_msg()
         for task in tasks:
             operator = task_operators.get(task, None)
             if operator is not None:
-                #                print "processing task", task.target.variable, "in", task.target.table
+                # print "processing task", task.target.variable, "in", task.target.table
                 if not operator.receive_msg(mapped_msg):
                     return False
     return True

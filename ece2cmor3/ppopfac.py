@@ -1,10 +1,16 @@
 import logging
+import re
+
 from dateutil.relativedelta import relativedelta
 from ece2cmor3 import ppsh, pptime, pplevels, pp2cmor, ppexpr, cmor_target, grib_file, cmor_source
 
 # Log object
 log = logging.getLogger(__name__)
 
+# Masks, assigned by ifs2cmor
+masks = {}
+
+# CMOR table root assigned by ifs2cmor
 table_root = None
 
 
@@ -15,16 +21,11 @@ def create_pp_operators(task):
     expr = None
     if task.source.get_root_codes() != [task.source.get_grib_code()]:
         expr = getattr(task.source, cmor_source.expression_key, None)
-    # log.warning("Dismissing task with expression operator: %s in %s" % (task.target.variable, task.target.table))
-    # return None
-
-    axisname, leveltype, levs = cmor_target.get_z_axis(task.target)
-    store_var = "ps" if leveltype == "alevel" else None
 
     expr_operator = create_expr_operator(expr)
     time_operator = create_time_operator(task)
     zaxis_operator = create_level_operator(task)
-    cmor_operator = pp2cmor.msg_to_cmor(task, store_var)
+    cmor_operator = create_cmor_operator(task)
 
     if time_operator is None:
         log.warning("Dismissing task without time operator: %s in %s" % (task.target.variable, task.target.table))
@@ -38,8 +39,32 @@ def create_pp_operators(task):
     return operator_chain[0]
 
 
-def create_ps_operator():
-    return ppsh.pp_remap_sh()
+def create_cmor_operator(task):
+    axisname, leveltype, levs = cmor_target.get_z_axis(task.target)
+    store_var_key = (134, 128, grib_file.surface_level_code, 0) if leveltype in ["alevel", "alevhalf"] else None
+    mask_key, mask_expr = None, None
+    if not hasattr(task, cmor_target.mask_key):
+        for area_operator in getattr(task.target, "area_operator", []):
+            words = area_operator.split()
+            if len(words) == 3 and words[1] == "where":
+                setattr(task.target, cmor_target.mask_key, words[2])
+    mask = getattr(task.target, cmor_target.mask_key, None)
+    if mask:
+        if mask not in masks:
+            log.warning("Mask %s is not supported as an IFS mask, skipping masking" % mask)
+            delattr(task.target, cmor_target.mask_key)
+        else:
+            mask_expr = masks[mask]
+            varstrs = re.findall("var[0-9]{1,3}", mask_expr)
+            if len(varstrs) != 1:
+                log.error("Cannot parse mask expression %s to single variable expression" % mask_expr)
+            else:
+                mask_code = cmor_source.grib_code.read(varstrs[0])
+                mask_key = (mask_code.var_id, mask_code.tab_id, grib_file.surface_level_code, 0)
+    cmor_operator = pp2cmor.msg_to_cmor(task, store_var_key, mask_key)
+    if mask_key is not None:
+        cmor_operator.mask_expression = mask_expr
+    return cmor_operator
 
 
 def create_expr_operator(expr):
