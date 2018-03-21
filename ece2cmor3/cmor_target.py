@@ -84,7 +84,7 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - {"basin"})
+                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - {"basin", "typesi"})
                 target.dims = len(spacedims)
                 zdims = list(set(spacedims) - {"latitude", "longitude"})
                 if any(zdims):

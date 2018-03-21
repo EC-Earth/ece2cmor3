@@ -31,6 +31,9 @@ depth_axes_ = {}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_ = {}
 
+# Dictionary of sea-ice output types, 1 by default...
+type_axes_ = {}
+
 
 # Initializes the processing loop.
 def initialize(path,expname,tableroot,start,length):
@@ -125,9 +128,13 @@ def execute_netcdf_task(task,dataset,tableid):
         grid_index = cmor_source.nemo_grid.index(task.source.grid())
         if(not grid_index in cmor_source.nemo_depth_axes):
             log.error("Depth axis for grid %s has not been created; skipping variable." % task.source.grid())
+            return
         zaxid = depth_axes_[tableid][grid_index]
         axes.append(zaxid)
     axes.append(time_axes_[tableid])
+    for type in type_axes_:
+        if type in getattr(task.target, cmor_target.dims_key):
+            axes.append(type_axes_[type])
     varid = create_cmor_variable(task,dataset,axes)
     ncvar = dataset.variables[task.source.var()]
     missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
@@ -227,6 +234,10 @@ def create_time_axis(freq,files):
     else:
     	return cmor.axis(table_entry = "time", units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
 
+
+def create_type_axes():
+    global type_axes_
+    type_axes_["typesi"] = cmor.axis(table_entry="typesi", coord_vals=[1])
 
 # Selects files with data with the given frequency
 def select_freq_files(freq):
