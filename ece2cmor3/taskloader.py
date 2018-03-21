@@ -266,9 +266,9 @@ def create_tasks(targets,load_atm_tasks = True,load_oce_tasks = True,silent = Fa
         task = create_cmor_task(parmatch,target,modelmatch)
         ece2cmorlib.add_task(task)
         if(parmatch.get(cmor_source.expression_key,None) == None):
-         target.ecearth_comment = 'code name = ' + parmatch.get(json_source_key,None)
+         target.ecearth_comment = task.source.model_component() + ' code name = ' + parmatch.get(json_source_key,None)
         else:
-         target.ecearth_comment = 'code name = ' + parmatch.get(json_source_key,None) + ', expression = ' + parmatch.get(cmor_source.expression_key,None)
+         target.ecearth_comment = task.source.model_component() + ' code name = ' + parmatch.get(json_source_key,None) + ', expression = ' + parmatch.get(cmor_source.expression_key,None)
         target.comment_author = 'automatic'
         loadedtargets.append(target)
     log.info("Created %d ece2cmor tasks from input variable list." % len(loadedtargets))
