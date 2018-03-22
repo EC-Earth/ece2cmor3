@@ -100,9 +100,9 @@ def get_record_key(gribfile):
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
     if levtype == grib_file.pressure_level_code:
         level *= 100
-    if levtype == grib_file.depth_level_code:
+    if levtype == 112:
         level = 0
-        levtype = grib_file.surface_level_code
+        levtype = grib_file.depth_level_code
     if codevar in [165, 166]:
         level = 10
         levtype = grib_file.height_level_code
@@ -224,6 +224,7 @@ def validate_tasks(tasks):
             continue
         codes = task.source.get_root_codes()
         target_freq = cmor_target.get_freq(task.target)
+        grid_key = task.source.grid_
         for c in codes:
             levtype, levels = get_levels(task, c)
             for l in levels:
@@ -234,22 +235,29 @@ def validate_tasks(tasks):
                 if levtype == grib_file.hybrid_level_code:
                     matches = [k for k in varsfreq.keys() if k[:3] == key[:3] and k[4] == key[4]]
                     match_key = key if not any(matches) else matches[0]
+                if c.var_id == 134 and len(codes) == 1:
+                    matches = [k for k in varsfreq.keys() if k[:3] == key[:3]]
+                    match_key = key if not any(matches) else matches[0]
+                    if any(matches):
+                        grid_key = match_key[4]
                 if match_key not in varsfreq:
                     log.error("Field missing in the first day of file: "
-                              "code %d.%d, level type %d, level %d" % (key[0], key[1], key[2], key[3]))
+                              "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
+                              (key[0], key[1], key[2], key[3], task.target.variable, task.target.table))
                     task.set_failed()
                     break
                 if 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
-                              "code %d.%d, level type %d, level %d" % (
-                                  task.target.variable, key[0], key[1], key[2], key[3]))
+                              "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
+                              (task.target.variable, key[0], key[1], key[2], key[3], task.target.variable,
+                               task.target.table))
                     task.set_failed()
                     break
         if task.status != cmor_task.status_failed:
             for c in codes:
                 levtype, levels = get_levels(task, c)
                 for l in levels:
-                    key = (c.var_id, c.tab_id, levtype, l, task.source.grid_)
+                    key = (c.var_id, c.tab_id, levtype, l, grid_key)
                     if key in varstasks:
                         varstasks[key].append(task)
                     else:
@@ -286,9 +294,15 @@ def get_levels(task, code):
     global log
     if (code.var_id, code.tab_id) == (134, 128):
         return grib_file.surface_level_code, [0]
+    if 34 < code.var_id < 43 and code.tab_id == 128:
+        return grib_file.depth_level_code, [0]
+    if code.var_id in [139, 170, 183, 236] and code.tab_id == 128:
+        return grib_file.depth_level_code, [0]
     zaxis, levels = cmor_target.get_z_axis(task.target)
     if zaxis is None:
         return grib_file.surface_level_code, [0]
+    if zaxis in ["sdepth"]:
+        return grib_file.depth_level_code, [0]
     if zaxis in ["alevel", "alevhalf"]:
         return grib_file.hybrid_level_code, [-1]
     if zaxis == "air_pressure":
