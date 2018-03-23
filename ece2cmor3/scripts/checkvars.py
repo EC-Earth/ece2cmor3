@@ -120,8 +120,8 @@ def main():
         write_varlist(loadedtargets,args.output + ".available.json")
         if(args.verbose):
             write_varlist_ascii(loadedtargets           ,args.output + ".available.txt")
-#            write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt")
-#            write_varlist_ascii(identifiedmissingtargets,args.output + ".identifiedmissing.txt")
+            write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt")
+            write_varlist_ascii(identifiedmissingtargets,args.output + ".identifiedmissing.txt")
             write_varlist_ascii(missingtargets          ,args.output + ".missing.txt")
 
             write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx")
