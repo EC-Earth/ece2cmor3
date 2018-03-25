@@ -8,8 +8,9 @@ log = logging.getLogger(__name__)
 
 
 class message(object):
+
     variable_key = "variable"
-    datetime_key = "datetime"
+    datetime_key = "timestamp"
     timebounds_key = "timebounds"
     leveltype_key = "leveltype"
     levellist_key = "levels"
@@ -63,19 +64,18 @@ class message(object):
 
 class memory_message(message):
 
-    def __init__(self, source, timestamp, time_bounds, levels, leveltype, resolution, values):
+    def __init__(self, **kwargs):
         super(memory_message, self).__init__()
-        self.source = source
-        self.timestamp = timestamp
-        self.time_bounds = time_bounds
-        self.levels = levels
-        self.level_type = leveltype
-        self.values = values
-        self.resolution = resolution
-        self.unit = "1"
+        self.variable = kwargs[message.variable_key]
+        self.timestamp = kwargs[message.datetime_key]
+        self.time_bounds = kwargs[message.timebounds_key]
+        self.levels = kwargs[message.levellist_key]
+        self.level_type = kwargs[message.leveltype_key]
+        self.resolution = kwargs[message.resolution_key]
+        self.values = kwargs["values"]
 
     def get_variable(self):
-        return self.source
+        return self.variable
 
     def get_timestamp(self):
         return self.timestamp
@@ -96,7 +96,7 @@ class memory_message(message):
         return self.resolution
 
     def is_spectral(self):
-        return self.source.get_grib_code() in cmor_source.ifs_source.grib_codes_sh
+        return self.variable.get_grib_code() in cmor_source.ifs_source.grib_codes_sh
 
 
 class grib_message(message):

@@ -27,12 +27,16 @@ def make_msgs(code, start_date, length, interval, level_index, level_type, ampli
     result = []
     time = start_date
     while time <= start_date + length:
-        date = time.year * 10000 + time.month * 100 + time.day
-        timestamp = time.hour * 100 + time.minute
         value = func(start_date, time, start_value, amplitude)
-        grbmsg = {grib_file.param_key: code, grib_file.date_key: date, grib_file.time_key: timestamp,
-                  grib_file.levtype_key: level_type, grib_file.level_key: level_index, "values": value}
-        result.append(ppmsg.grib_message(grbmsg))
+        bnds = (time - length/2,time + length/2)
+        data = {ppmsg.message.variable_key: code,
+                ppmsg.message.datetime_key: time,
+                ppmsg.message.timebounds_key: bnds,
+                ppmsg.message.leveltype_key: level_type,
+                ppmsg.message.levellist_key: [level_index],
+                ppmsg.message.resolution_key: 512,
+                "values": value}
+        result.append(ppmsg.memory_message(**data))
         time = time + interval
     return result
 

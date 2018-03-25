@@ -35,9 +35,9 @@ class time_filter(ppop.post_proc_operator):
             return False
 
     def create_msg(self):
-        return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
+        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.timestamp,
-                                    time_bounds=[self.timestamp - self.period, self.timestamp],
+                                    timebounds=[self.timestamp - self.period, self.timestamp],
                                     leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                     levels=self.property_cache[ppmsg.message.levellist_key],
                                     resolution=self.property_cache[ppmsg.message.resolution_key],
@@ -197,9 +197,9 @@ class time_aggregator(ppop.post_proc_operator):
         start = self.start_date - self.interval
         end = self.start_date
         middle = start + timedelta(seconds=int((end - start).total_seconds() / 2))
-        msg = ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
+        msg = ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
                                    timestamp=middle,
-                                   time_bounds=[start, end],
+                                   timebounds=[start, end],
                                    leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                    levels=self.property_cache[ppmsg.message.levellist_key],
                                    resolution=self.property_cache[ppmsg.message.resolution_key],

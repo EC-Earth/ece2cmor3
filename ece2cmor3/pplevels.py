@@ -91,9 +91,9 @@ class level_aggregator(ppop.post_proc_operator):
                 os.remove(f.name)
         else:
             vals = numpy.stack(self.values)
-        return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
+        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
-                                    time_bounds=self.property_cache[ppmsg.message.timebounds_key],
+                                    timebounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.level_type,
                                     levels=self.levels,
                                     resolution=self.property_cache[ppmsg.message.resolution_key],

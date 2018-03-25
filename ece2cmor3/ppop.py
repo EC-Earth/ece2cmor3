@@ -73,9 +73,9 @@ class post_proc_operator(object):
             self.send_msg()
 
     def create_msg(self):
-        return ppmsg.memory_message(source=self.property_cache[ppmsg.message.variable_key],
+        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
                                     timestamp=self.property_cache[ppmsg.message.datetime_key],
-                                    time_bounds=self.property_cache[ppmsg.message.timebounds_key],
+                                    timebounds=self.property_cache[ppmsg.message.timebounds_key],
                                     leveltype=self.property_cache[ppmsg.message.leveltype_key],
                                     levels=self.property_cache[ppmsg.message.levellist_key],
                                     resolution=self.property_cache[ppmsg.message.resolution_key],
