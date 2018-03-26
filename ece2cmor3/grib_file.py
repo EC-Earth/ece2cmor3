@@ -2,6 +2,11 @@ import csv
 import os
 
 # Vertical axes codes
+import pygrib
+import random
+
+import numpy
+
 surface_level_code = 1
 hybrid_level_code = 109
 pressure_level_code = 100
@@ -22,8 +27,20 @@ time_key = "dataTime"
 param_key = "paramId"
 levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
+spherical_harmonics_key = "sphericalHarmonics"
+truncation_key = "J"
+resolution_key = "N"
+values_key = "values"
 
 test_mode = False
+
+
+# Factory method for file stream
+def open_file(filepath):
+    if test_mode:
+        return open(filepath)
+    else:
+        return pygrib.open(filepath)
 
 
 # Factory method
@@ -53,6 +70,9 @@ class grib_file(object):
         pass
 
     def get_field(self, name):
+        pass
+
+    def try_get_field(self, name):
         pass
 
     def release(self):
@@ -116,6 +136,7 @@ class csv_grib_mock(grib_file):
         super(csv_grib_mock, self).__init__(file_object_)
         self.row = []
         self.reader = csv.reader(file_object_, delimiter=',')
+        self.read_next()
 
     def read_next(self):
         self.row = next(self.reader, None)
@@ -133,7 +154,24 @@ class csv_grib_mock(grib_file):
         self.row[csv_grib_mock.columns.index(name)] = value
 
     def get_field(self, name):
+        if name in [resolution_key, truncation_key]:
+            return 1
+        if name == spherical_harmonics_key:
+            return 0
+        if name == values_key:
+            return numpy.array([random.random()])
         return int(self.row[csv_grib_mock.columns.index(name)])
+
+    def try_get_field(self, name):
+        if name in [resolution_key, truncation_key]:
+            return 1
+        if name == spherical_harmonics_key:
+            return 0
+        if name == values_key:
+            return numpy.array([random.random()])
+        if name in self.columns:
+            return self.get_field(name)
+        return None
 
     def release(self):
         self.row = []

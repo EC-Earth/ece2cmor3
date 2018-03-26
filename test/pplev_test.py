@@ -28,7 +28,7 @@ class levels_aggregator_test(unittest.TestCase):
     def test_nonmatching_levtype():
         operator = pplevels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
-        msg = make_msg(130, time, 85000, 100, 273.5)
+        msg = make_msg(130, time, 850., 100, 273.5)
         operator.receive_msg(msg)
         msg = make_msg(130, time, 88, 99, 273.6)
         ok_(not operator.receive_msg(msg))
@@ -37,9 +37,9 @@ class levels_aggregator_test(unittest.TestCase):
     def test_nonmatching_levels():
         operator = pplevels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
-        msg = make_msg(130, time, 85000, 100, 273.5)
+        msg = make_msg(130, time, 850., 100, 273.5)
         operator.receive_msg(msg)
-        msg = make_msg(130, time, 51000, 100, 273.6)
+        msg = make_msg(130, time, 510., 100, 273.6)
         operator.receive_msg(msg)
         eq_(operator.values, [None, 273.5, None, None, None])
 
@@ -49,9 +49,10 @@ class levels_aggregator_test(unittest.TestCase):
         operator = pplevels.level_aggregator(level_type=100, levels=plevs)
         time = datetime(1990, 1, 1, 3, 0, 0)
         for i in [3, 0, 4, 2, 1]:
-            msg = make_msg(130, time, plevs[i], 100, numpy.array([273.5 - i, 273.5 + i]))
+            msg = make_msg(130, time, plevs[i]/100., 100, numpy.array([273.5 - i, 273.5 + i]))
             ok_(not operator.cache_is_full())
             operator.receive_msg(msg)
+        operator.print_state()
         ok_(operator.cache_is_full())
         msg = operator.create_msg()
         v = msg.get_values()

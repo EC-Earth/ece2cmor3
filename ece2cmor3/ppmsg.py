@@ -125,12 +125,12 @@ class grib_message(message):
         return self.grbmsg.get_field(grib_file.levtype_key)
 
     def get_values(self):
-        return self.grbmsg.get_field("values")
+        return self.grbmsg.get_field(grib_file.values_key)
 
     def get_resolution(self):
         if self.is_spectral():
-            return (int(self.grbmsg.get_field("J")) + 1)/2
-        return int(self.grbmsg.get_field("N"))
+            return (int(self.grbmsg.get_field(grib_file.truncation_key)) + 1)/2
+        return int(self.grbmsg.get_field(grib_file.resolution_key))
 
     def is_spectral(self):
-        return int(self.grbmsg.get_field("sphericalHarmonics")) == 1
+        return int(self.grbmsg.get_field(grib_file.spherical_harmonics_key)) == 1

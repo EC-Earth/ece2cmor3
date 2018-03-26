@@ -1,6 +1,5 @@
 import logging
 import os
-import pygrib
 
 import numpy
 from dateutil import relativedelta
@@ -29,7 +28,7 @@ def initialize(gpfile, shfile, tmpdir):
     spectral_file = shfile
     temp_dir = tmpdir
     prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
-    with pygrib.open(gpfile) as gpf, pygrib.open(shfile) as shf:
+    with grib_file.open_file(gpfile) as gpf, grib_file.open_file(shfile) as shf:
         varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
         varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
 
@@ -136,7 +135,7 @@ def execute(tasks, month):
     for icmggpath, icmshpath in [(prev_gridpoint_file, prev_spectral_file), (gridpoint_file, spectral_file)]:
         if icmggpath is None or icmshpath is None:
             continue
-        with pygrib.open(icmggpath) as ggf, pygrib.open(icmshpath) as shf:
+        with grib_file.open_file(icmggpath) as ggf, grib_file.open_file(icmshpath) as shf:
             icmgg, icmsh = grib_file.create_grib_file(ggf), grib_file.create_grib_file(shf)
             cmorize_files(month, icmgg, icmsh)
     return valid_tasks
