@@ -6,7 +6,8 @@ import gribapi
 # Vertical axes codes
 surface_level_code = 1
 hybrid_level_code = 109
-pressure_level_code = 100
+pressure_level_hPa_code = 100
+pressure_level_Pa_code = 210
 height_level_code = 105
 depth_level_code = 111
 

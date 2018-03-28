@@ -314,12 +314,13 @@ def add_level_operators(cdo, task):
         val = axisinfo.get("value", None)
         if val:
             levels = [val]
-    level_types = [grib_file.hybrid_level_code, grib_file.pressure_level_code, grib_file.height_level_code]
+    level_types = [grib_file.hybrid_level_code, grib_file.pressure_level_hPa_code, grib_file.height_level_code]
     if getattr(task, "path", None):
         level_types = cdo.get_z_axes(task.path, task.source.get_root_codes()[0].var_id)
     name = axisinfo.get("standard_name", None)
     if name == "air_pressure":
-        add_zaxis_operators(cdo, task, level_types, levels, cdoapi.cdo_command.pressure, grib_file.pressure_level_code)
+        add_zaxis_operators(cdo, task, level_types, levels, cdoapi.cdo_command.pressure,
+                            grib_file.pressure_level_hPa_code)
     elif name in ["height", "altitude"]:
         add_zaxis_operators(cdo, task, level_types, levels, cdoapi.cdo_command.height, grib_file.height_level_code)
     elif axisname not in ["alevel", "alevhalf"]:
