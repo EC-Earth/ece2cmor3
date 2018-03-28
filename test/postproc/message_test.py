@@ -25,12 +25,12 @@ class pp_message_test(unittest.TestCase):
         resolution = 256
         msg = message.memory_message(variable=source, timestamp=timestamp, timebounds=timebounds, levels=levlist,
                                      leveltype=levtype, resolution=resolution, values=None)
-        eq_(msg.get_field(message.message_base.variable_key).get_root_codes(), [code])
-        eq_(msg.get_field(message.message_base.datetime_key), timestamp)
-        eq_(msg.get_field(message.message_base.timebounds_key), timebounds)
-        eq_(msg.get_field(message.message_base.leveltype_key), levtype)
-        eq_(msg.get_field(message.message_base.levellist_key), levlist)
-        eq_(msg.get_field(message.message_base.resolution_key), resolution)
+        eq_(msg.get_field(message.variable_key).get_root_codes(), [code])
+        eq_(msg.get_field(message.datetime_key), timestamp)
+        eq_(msg.get_field(message.timebounds_key), timebounds)
+        eq_(msg.get_field(message.leveltype_key), levtype)
+        eq_(msg.get_field(message.levellist_key), levlist)
+        eq_(msg.get_field(message.resolution_key), resolution)
 
     @staticmethod
     def test_get_undefined_field():
@@ -53,8 +53,8 @@ class pp_message_test(unittest.TestCase):
         grbfile = grib_file.open_file(gg_path)
         grbmsg = grib_file.create_grib_file(grbfile)
         msg = message.grib_message(grbmsg)
-        eq_(msg.get_field(message.message_base.variable_key).get_root_codes()[0].var_id, 8)
-        eq_(msg.get_field(message.message_base.variable_key).get_root_codes()[0].tab_id, 128)
-        eq_(msg.get_field(message.message_base.datetime_key), datetime(1990, 1, 1, 3, 0, 0))
-        eq_(msg.get_field(message.message_base.leveltype_key), 1)
-        eq_(msg.get_field(message.message_base.levellist_key), [0])
+        eq_(msg.get_field(message.variable_key).get_root_codes()[0].var_id, 8)
+        eq_(msg.get_field(message.variable_key).get_root_codes()[0].tab_id, 128)
+        eq_(msg.get_field(message.datetime_key), datetime(1990, 1, 1, 3, 0, 0))
+        eq_(msg.get_field(message.leveltype_key), 1)
+        eq_(msg.get_field(message.levellist_key), [0])

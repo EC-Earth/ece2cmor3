@@ -29,12 +29,12 @@ def make_msgs(code, start_date, length, interval, level_index, level_type, ampli
     while time <= start_date + length:
         value = func(start_date, time, start_value, amplitude)
         bnds = (time - length/2,time + length/2)
-        data = {message.message_base.variable_key: code,
-                message.message_base.datetime_key: time,
-                message.message_base.timebounds_key: bnds,
-                message.message_base.leveltype_key: level_type,
-                message.message_base.levellist_key: [level_index],
-                message.message_base.resolution_key: 512,
+        data = {message.variable_key: code,
+                message.datetime_key: time,
+                message.timebounds_key: bnds,
+                message.leveltype_key: level_type,
+                message.levellist_key: [level_index],
+                message.resolution_key: 512,
                 "values": value}
         result.append(message.memory_message(**data))
         time = time + interval

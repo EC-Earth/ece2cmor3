@@ -16,8 +16,8 @@ class time_filter(operator.operator_base):
         self.timestamp = None
         self.has_bnds = time_bounds
         self.tnext, self.tprev = None, None
-        self.cached_properties = [message.message_base.variable_key, message.message_base.leveltype_key,
-                                  message.message_base.levellist_key, message.message_base.resolution_key]
+        self.cached_properties = [message.variable_key, message.leveltype_key,
+                                  message.levellist_key, message.resolution_key]
 
     @staticmethod
     def is_linear():
@@ -36,12 +36,12 @@ class time_filter(operator.operator_base):
             return False
 
     def create_msg(self):
-        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+        return message.memory_message(variable=self.property_cache[message.variable_key],
                                       timestamp=self.timestamp,
                                       timebounds=[self.timestamp - self.period, self.timestamp],
-                                      leveltype=self.property_cache[message.message_base.leveltype_key],
-                                      levels=self.property_cache[message.message_base.levellist_key],
-                                      resolution=self.property_cache[message.message_base.resolution_key],
+                                      leveltype=self.property_cache[message.leveltype_key],
+                                      levels=self.property_cache[message.levellist_key],
+                                      resolution=self.property_cache[message.resolution_key],
                                       values=self.values)
 
 
@@ -62,8 +62,8 @@ class time_aggregator(operator.operator_base):
         self.remainder = None
         self.start_date = None
         self.full_cache = False
-        self.cached_properties = [message.message_base.variable_key, message.message_base.leveltype_key,
-                                  message.message_base.levellist_key, message.message_base.resolution_key]
+        self.cached_properties = [message.variable_key, message.leveltype_key,
+                                  message.levellist_key, message.resolution_key]
 
     def is_linear(self):
         return self.operator in [time_aggregator.linear_mean_operator, time_aggregator.block_left_operator,
@@ -198,11 +198,11 @@ class time_aggregator(operator.operator_base):
         start = self.start_date - self.interval
         end = self.start_date
         middle = start + timedelta(seconds=int((end - start).total_seconds() / 2))
-        msg = message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+        msg = message.memory_message(variable=self.property_cache[message.variable_key],
                                      timestamp=middle,
                                      timebounds=[start, end],
-                                     leveltype=self.property_cache[message.message_base.leveltype_key],
-                                     levels=self.property_cache[message.message_base.levellist_key],
-                                     resolution=self.property_cache[message.message_base.resolution_key],
+                                     leveltype=self.property_cache[message.leveltype_key],
+                                     levels=self.property_cache[message.levellist_key],
+                                     resolution=self.property_cache[message.resolution_key],
                                      values=self.get_values())
         return msg

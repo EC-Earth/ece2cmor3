@@ -62,8 +62,8 @@ class cmor_operator(operator.operator_base):
             self.values = msg.get_values() * conversion_factor
 
     def send_msg(self):
-        timestamp = self.property_cache[message.message_base.datetime_key]
-        time_bounds = [convert_time(t) for t in self.property_cache[message.message_base.timebounds_key]]
+        timestamp = self.property_cache[message.datetime_key]
+        time_bounds = [convert_time(t) for t in self.property_cache[message.timebounds_key]]
         load_table(self.task.target.table)
         log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table,
                                                                  timestamp))

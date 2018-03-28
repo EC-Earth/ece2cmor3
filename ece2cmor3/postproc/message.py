@@ -6,16 +6,15 @@ from ece2cmor3 import cmor_source, grib_file
 
 log = logging.getLogger(__name__)
 
+variable_key = "variable"
+datetime_key = "timestamp"
+timebounds_key = "timebounds"
+leveltype_key = "leveltype"
+levellist_key = "levels"
+resolution_key = "resolution"
+
 
 class message_base(object):
-
-    variable_key = "variable"
-    datetime_key = "timestamp"
-    timebounds_key = "timebounds"
-    leveltype_key = "leveltype"
-    levellist_key = "levels"
-    resolution_key = "resolution"
-
     keys = [variable_key, datetime_key, timebounds_key, leveltype_key, levellist_key, resolution_key]
 
     def __init__(self):
@@ -46,17 +45,17 @@ class message_base(object):
         pass
 
     def get_field(self, key):
-        if key == self.variable_key:
+        if key == variable_key:
             return self.get_variable()
-        if key == self.datetime_key:
+        if key == datetime_key:
             return self.get_timestamp()
-        if key == self.timebounds_key:
+        if key == timebounds_key:
             return self.get_time_bounds()
-        if key == self.leveltype_key:
+        if key == leveltype_key:
             return self.get_level_type()
-        if key == self.levellist_key:
+        if key == levellist_key:
             return self.get_levels()
-        if key == self.resolution_key:
+        if key == resolution_key:
             return self.get_resolution()
         log.error("Key %s not a valid key for message properties" % key)
         return None
@@ -66,12 +65,12 @@ class memory_message(message_base):
 
     def __init__(self, **kwargs):
         super(memory_message, self).__init__()
-        self.variable = kwargs[message_base.variable_key]
-        self.timestamp = kwargs[message_base.datetime_key]
-        self.time_bounds = kwargs[message_base.timebounds_key]
-        self.levels = kwargs[message_base.levellist_key]
-        self.level_type = kwargs[message_base.leveltype_key]
-        self.resolution = kwargs[message_base.resolution_key]
+        self.variable = kwargs[variable_key]
+        self.timestamp = kwargs[datetime_key]
+        self.time_bounds = kwargs[timebounds_key]
+        self.levels = kwargs[levellist_key]
+        self.level_type = kwargs[leveltype_key]
+        self.resolution = kwargs[resolution_key]
         self.values = kwargs["values"]
 
     def get_variable(self):
@@ -129,7 +128,7 @@ class grib_message(message_base):
 
     def get_resolution(self):
         if self.is_spectral():
-            return (int(self.grbmsg.get_field(grib_file.truncation_key)) + 1)/2
+            return (int(self.grbmsg.get_field(grib_file.truncation_key)) + 1) / 2
         return int(self.grbmsg.get_field(grib_file.resolution_key))
 
     def is_spectral(self):

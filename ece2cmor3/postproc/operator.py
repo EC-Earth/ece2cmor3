@@ -18,12 +18,12 @@ class operator_base(object):
         self.store_var_values = None
         self.store_var_targets = []
         self.store_var_key = None
-        self.cached_properties = [message.message_base.variable_key,
-                                  message.message_base.datetime_key,
-                                  message.message_base.timebounds_key,
-                                  message.message_base.leveltype_key,
-                                  message.message_base.levellist_key,
-                                  message.message_base.resolution_key]
+        self.cached_properties = [message.variable_key,
+                                  message.datetime_key,
+                                  message.timebounds_key,
+                                  message.leveltype_key,
+                                  message.levellist_key,
+                                  message.resolution_key]
         self.property_cache = {}
 
     def receive_msg(self, msg):
@@ -73,12 +73,12 @@ class operator_base(object):
             self.send_msg()
 
     def create_msg(self):
-        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
-                                      timestamp=self.property_cache[message.message_base.datetime_key],
-                                      timebounds=self.property_cache[message.message_base.timebounds_key],
-                                      leveltype=self.property_cache[message.message_base.leveltype_key],
-                                      levels=self.property_cache[message.message_base.levellist_key],
-                                      resolution=self.property_cache[message.message_base.resolution_key],
+        return message.memory_message(variable=self.property_cache[message.variable_key],
+                                      timestamp=self.property_cache[message.datetime_key],
+                                      timebounds=self.property_cache[message.timebounds_key],
+                                      leveltype=self.property_cache[message.leveltype_key],
+                                      levels=self.property_cache[message.levellist_key],
+                                      resolution=self.property_cache[message.resolution_key],
                                       values=self.values)
 
     def fill_cache(self, msg):

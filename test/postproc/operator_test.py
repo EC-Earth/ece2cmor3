@@ -44,12 +44,12 @@ class pp_mult_operator(operator.operator_base):
 
 # Test utility function creating messages
 def make_msg(code, time, level_index, values):
-    data = {message.message_base.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
-            message.message_base.datetime_key: time,
-            message.message_base.timebounds_key: (time, time),
-            message.message_base.leveltype_key: grib_file.hybrid_level_code,
-            message.message_base.levellist_key: [level_index],
-            message.message_base.resolution_key: 512,
+    data = {message.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
+            message.datetime_key: time,
+            message.timebounds_key: (time, time),
+            message.leveltype_key: grib_file.hybrid_level_code,
+            message.levellist_key: [level_index],
+            message.resolution_key: 512,
             "values": values}
     return message.memory_message(**data)
 
@@ -66,14 +66,13 @@ class post_proc_operator_test(unittest.TestCase):
     @staticmethod
     def test_receive_msg():
         operator = pp_sum_operator()
-        operator.cached_properties = [message.message_base.variable_key, message.message_base.leveltype_key,
-                                      message.message_base.levellist_key]
+        operator.cached_properties = [message.variable_key, message.leveltype_key, message.levellist_key]
         time = datetime(1990, 1, 1, 6, 0, 0)
         operator.receive_msg(make_msg(130, time, 90, values=285.87))
         eq_(operator.property_cache,
-            {message.message_base.variable_key: cmor_source.ifs_source(cmor_source.grib_code(130, 128)),
-             message.message_base.leveltype_key: grib_file.hybrid_level_code,
-             message.message_base.levellist_key: [90]})
+            {message.variable_key: cmor_source.ifs_source(cmor_source.grib_code(130, 128)),
+             message.leveltype_key: grib_file.hybrid_level_code,
+             message.levellist_key: [90]})
         operator.receive_msg(make_msg(130, time, 90, values=214.13))
         eq_(operator.values, 500.)
         operator.receive_msg(make_msg(131, time, 90, values=-6.5))
@@ -82,12 +81,12 @@ class post_proc_operator_test(unittest.TestCase):
     @staticmethod
     def test_create_msg():
         operator = pp_sum_operator()
-        operator.cached_properties = [message.message_base.variable_key,
-                                      message.message_base.leveltype_key,
-                                      message.message_base.levellist_key,
-                                      message.message_base.datetime_key,
-                                      message.message_base.timebounds_key,
-                                      message.message_base.resolution_key]
+        operator.cached_properties = [message.variable_key,
+                                      message.leveltype_key,
+                                      message.levellist_key,
+                                      message.datetime_key,
+                                      message.timebounds_key,
+                                      message.resolution_key]
         time = datetime(1990, 1, 1, 6, 0, 0)
         operator.receive_msg(make_msg(130, time, 90, values=285.87))
         operator.receive_msg(make_msg(130, time, 90, values=214.13))

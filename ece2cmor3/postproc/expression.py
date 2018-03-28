@@ -18,7 +18,7 @@ class expression_operator(operator.operator_base):
         self.source = cmor_source.ifs_source.read(expr)
         self.numpy_expr = fix_expr(expr)
         self.local_dict = {v.to_var_string(): None for v in self.source.get_root_codes()}
-        self.cached_properties = [message.message_base.datetime_key, message.message_base.resolution_key]
+        self.cached_properties = [message.datetime_key, message.resolution_key]
 
     def fill_cache(self, msg):
         vstr = msg.get_variable().code_.to_var_string()

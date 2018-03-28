@@ -35,8 +35,8 @@ class level_aggregator(operator.operator_base):
         self.level_type = level_type
         self.mem_cache = mem_cache
         self.values = None if levels is None else [None] * len(levels)
-        self.cached_properties = [message.message_base.variable_key, message.message_base.resolution_key, message.message_base.datetime_key,
-                                  message.message_base.timebounds_key]
+        self.cached_properties = [message.variable_key, message.resolution_key, message.datetime_key,
+                                  message.timebounds_key]
 
     def accept_msg(self, msg):
         return msg.get_level_type() == self.level_type
@@ -92,12 +92,12 @@ class level_aggregator(operator.operator_base):
                 os.remove(f.name)
         else:
             vals = numpy.stack(self.values)
-        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
-                                      timestamp=self.property_cache[message.message_base.datetime_key],
-                                      timebounds=self.property_cache[message.message_base.timebounds_key],
+        return message.memory_message(variable=self.property_cache[message.variable_key],
+                                      timestamp=self.property_cache[message.datetime_key],
+                                      timebounds=self.property_cache[message.timebounds_key],
                                       leveltype=self.level_type,
                                       levels=self.levels,
-                                      resolution=self.property_cache[message.message_base.resolution_key],
+                                      resolution=self.property_cache[message.resolution_key],
                                       values=vals)
 
     def cache_is_full(self):

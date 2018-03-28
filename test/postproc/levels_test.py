@@ -13,12 +13,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Test utility function creating messages
 def make_msg(code, time, level_index, level_type, values):
-    data = {message.message_base.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
-            message.message_base.datetime_key: time,
-            message.message_base.timebounds_key: (time, time),
-            message.message_base.leveltype_key: level_type,
-            message.message_base.levellist_key: [level_index],
-            message.message_base.resolution_key: 512,
+    data = {message.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
+            message.datetime_key: time,
+            message.timebounds_key: (time, time),
+            message.leveltype_key: level_type,
+            message.levellist_key: [level_index],
+            message.resolution_key: 512,
             "values": values}
     return message.memory_message(**data)
 
