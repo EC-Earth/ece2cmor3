@@ -145,7 +145,7 @@ def add_target(variable,table,targetlist,vid = None,priority = None,mip_list = N
         targetlist.append(target)
         return True
     else:
-        log.error("The %s variable does not appear in the CMOR table file CMIP6_%s.json" % (variable,table))
+        log.error("The %s variable does not appear in the CMOR table file %s" % (variable,table))
 	return False
 
 
