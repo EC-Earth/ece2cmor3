@@ -180,6 +180,7 @@ def cluster_files(valid_tasks):
             task.status = cmor_task.status_failed
             task2files.pop(task, None)
         task2freqs[task] = maxfreq
+        task2files[task] = '.'.join([task2files[task], str(maxfreq)])
     varsfiles = {key: set() for key in varstasks}
     for key in varsfiles:
         varsfiles[key].update([(task2files[t], task2freqs[t]) for t in varstasks[key]])
