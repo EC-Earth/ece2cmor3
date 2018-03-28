@@ -81,6 +81,7 @@ class cdo_command:
     # Applies the current set of operators to the input file.
     def apply(self,ifile,ofile = None,threads = 4,grib_first = False):
         global log
+        threads = 1 #hack to get it to work with out OpenMP within cdo on my mac
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         optionstr = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
         if(grib_first):
@@ -116,6 +117,7 @@ class cdo_command:
 
     # Applies the current set of operators and returns the netcdf variables in memory:
     def applycdf(self,ifile,threads = 4):
+        threads = 1
         keys = cdo_command.optimize_order(sorted(self.operators.keys(),key = lambda k: cdo_command.operator_ordering.index(k)))
         optionstr = "" if threads < 2 else ("-P " + str(threads))
         func = getattr(self.app,keys[0],None)
@@ -124,7 +126,7 @@ class cdo_command:
             appargs = ",".join([str(a) for a in self.operators.get(keys[0],[])])
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys[1:]] + [ifile])
         else:
-            func = getattr(app,"copy")
+            func = getattr(self.app,"copy")
             inputstr = " ".join([cdo_command.make_option(k,self.operators[k]) for k in keys] + [ifile])
         try:
             if(appargs):

@@ -3,8 +3,8 @@
 import os
 import sys
 import logging
-from ece2cmor3 import ece2cmorlib
-from ece2cmor3 import jsonloader
+from ece2cmor import ece2cmorlib #weird had to change to ece2cmor, or it won't work within eclipse
+from ece2cmor import taskloader
 import optparse
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -17,12 +17,13 @@ from dateutil.relativedelta import relativedelta
 logging.basicConfig(level=logging.DEBUG)
 
 variables = {"Amon" : ["tas","uas","vas"]}
-startdate = datetime.date(1990,1,1)
+startdate = datetime.date(1870,1,1)
 interval = relativedelta(months=1)
 #srcdir = os.path.dirname(os.path.abspath(ece2cmorlib.__file__))
 #datadir = os.path.join(srcdir,"test","test_data","ifsdata","3hr")
 mydir = os.path.dirname(os.path.abspath(__file__))
-datadir = os.path.join(mydir,"..","test","test_data","ifsdata","3hr")
+#datadir = os.path.join(mydir,"..","test","test_data","ifsdata","3hr")
+datadir = os.path.join("/Users/anthoni-p/EC-Earth/supermuc/runs/r1902-merge-new-components_impi/LNTS/run_i108_n0_micro_phase2_10years/output/ifs/001")
 
 def main(args):
 
@@ -36,7 +37,7 @@ def main(args):
     ece2cmorlib.initialize(opt.conf)
 
     # Load the variables as task targets:
-    jsonloader.load_targets(variables)
+    taskloader.load_targets(variables)
 
     # Execute the cmorization:
     ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir="./tmp",cleanup=False)

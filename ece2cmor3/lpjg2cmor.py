@@ -118,7 +118,35 @@ ifs_T255_yvals = numpy.array([ 89.46282  , 88.76695  , 88.06697  , 87.36607  , 8
        - 85.96337  , -86.6648   , -87.36607  , -88.06697  , -88.76695  ,
        - 89.46282  ])
 
-
+#extracted from ifs2cmor.py
+def create_gauss_grid(nx,x0,yvals):
+    ny = len(yvals)
+    i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
+    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
+    dx = 360./nx
+    xvals = numpy.array([x0 + (i + 0.5)*dx for i in range(nx)])
+    lonarr = numpy.tile(xvals,(ny,1))
+    latarr = numpy.tile(yvals[::-1],(nx,1)).transpose()
+    lonmids = numpy.array([x0 + i*dx for i in range(nx + 1)])
+    latmids = numpy.empty([ny + 1])
+    latmids[0] = 90.
+    latmids[1:ny] = 0.5*(yvals[0:ny - 1] + yvals[1:ny])
+    latmids[ny] = -90.
+    vertlats = numpy.empty([ny,nx,4])
+    vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1)).transpose()
+    vertlats[:,:,1] = vertlats[:,:,0]
+    vertlats[:,:,2] = numpy.tile(latmids[1:ny+1],(nx,1)).transpose()
+    vertlats[:,:,3] = vertlats[:,:,2]
+    vertlons = numpy.empty([ny,nx,4])
+    vertlons[:,:,0] = numpy.tile(lonmids[0:nx],(ny,1))
+    vertlons[:,:,3] = vertlons[:,:,0]
+    vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1))
+    vertlons[:,:,2] = vertlons[:,:,1]
+    #lons lats added for lpjg
+    lons = (lonmids[1:] + lonmids[:-1]) / 2
+    lats = (latmids[1:] + latmids[:-1]) / 2
+    return cmor.grid(axis_ids = [j_index_id,i_index_id],latitude = latarr,longitude = lonarr,
+                     latitude_vertices = vertlats,longitude_vertices = vertlons), lons, lats
 #===============================================================================
 # def fname(wdir, files):
 #     parts = sorted(files, key=lambda x: x.name)
@@ -237,9 +265,12 @@ def execute(tasks):
             colname = task.source.colname
             outname = task.target.out_name
             outdims = task.target.dimensions
+            #FIXME: hardwired T255 grid, moved up here, since create_lpjg_netcdf needs lonmids, latmids for the re-mapping
+            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
             #TODO: generate the netCDF file for the requested variable(s)
-            ncfile = create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims)
+            ncfile = create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims,lonmids,latmids)
             if ncfile:
+                print(ncfile)
                 files.append(ncfile)
         
                 targetvars = [t.target.variable for t in tskgroup]
@@ -253,10 +284,9 @@ def execute(tasks):
                     continue
                 log.info("Creating axes for table %s..." % tab)
                 axes = []
-                #FIXME: hardwired T255 grid
                 #cmor.set_cur_dataset_attribute("calendar","proleptic_gregorian")
                 #cmor.load_table(table_root_ + "_grids.json")
-                ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
+                
                 tgtdims = getattr(task.target,cmor_target.dims_key).split()
                 if("latitude" in tgtdims and "longitude" in tgtdims):
                     if(ifs_T255_grid_id != 0):
@@ -322,44 +352,46 @@ def execute(tasks):
         #=======================================================================
 
 
+#===============================================================================
 # Performs a single task.
-def execute_netcdf_task(task,dataset,tableid):
-    #TDOD: change the whole thing to work for lpjg!!!!
-    #since the lpjg netcdf files should be similar to the ifs cdo created ones
-    #this task should not need much adaption, just the lpjg netCDF have to have the same metadata
-    
-    global log,grid_ids_,landuse_,time_axes_
-    
-    #===========================================================================
-    # filepath = getattr(task, "path", None)
-    # if(not filepath):
-    #     log.error("Could not find file containing data for variable %s in table" % (task.target.variable, task.target.table))
-    #     return
-    # storevar = getattr(task, "store_with", None)
-    #===========================================================================
-    
-#    sppath = getattr(task, "sp_path", None)
-#    if(storevar and not sppath):
-#        log.error("Could not find file containing surface pressure for model level variable...skipping variable %s in table %s" % (task.target.variable, task.target.table))
-#        return
-
-    axes = []
-    grid_id = getattr(task, "grid_id", 0)
-    if(grid_id != 0):
-        axes.append(grid_id)
-    
-    #TODO: some stuff needed for landUse dimension????        
-#    if(hasattr(task, "z_axis_id")):
-#        axes.append(getattr(task, "z_axis_id"))
-    time_id = getattr(task, "time_axis", 0)
-    if(time_id != 0):
-        axes.append(time_id)
-        
-    varid = create_cmor_variable(task,dataset,axes)
-    ncvar = dataset.variables[task.source.var()]
-    factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
-    cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
-    cmor.close(varid)
+# def execute_netcdf_task(task,dataset,tableid):
+#     #TDOD: change the whole thing to work for lpjg!!!!
+#     #since the lpjg netcdf files should be similar to the ifs cdo created ones
+#     #this task should not need much adaption, just the lpjg netCDF have to have the same metadata
+#     
+#     global log,grid_ids_,landuse_,time_axes_
+#     
+#     #===========================================================================
+#     # filepath = getattr(task, "path", None)
+#     # if(not filepath):
+#     #     log.error("Could not find file containing data for variable %s in table" % (task.target.variable, task.target.table))
+#     #     return
+#     # storevar = getattr(task, "store_with", None)
+#     #===========================================================================
+#     
+# #    sppath = getattr(task, "sp_path", None)
+# #    if(storevar and not sppath):
+# #        log.error("Could not find file containing surface pressure for model level variable...skipping variable %s in table %s" % (task.target.variable, task.target.table))
+# #        return
+# 
+#     axes = []
+#     grid_id = getattr(task, "grid_id", 0)
+#     if(grid_id != 0):
+#         axes.append(grid_id)
+#     
+#     #TODO: some stuff needed for landUse dimension????        
+# #    if(hasattr(task, "z_axis_id")):
+# #        axes.append(getattr(task, "z_axis_id"))
+#     time_id = getattr(task, "time_axis", 0)
+#     if(time_id != 0):
+#         axes.append(time_id)
+#         
+#     varid = create_cmor_variable(task,dataset,axes)
+#     ncvar = dataset.variables[task.source.var()]
+#     factor = get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
+#     cmor_utils.netcdf2cmor(varid,ncvar,0,factor,missval = getattr(task.target,cmor_target.missval_key,1.e+20))
+#     cmor.close(varid)
+#===============================================================================
 
 import math
 def distance(row_a, row_b, weights):
@@ -371,7 +403,7 @@ def get_nearest_neighbour(data, criteria, weights):
         return distance(row, criteria, weights)
     return min(data, key=sort_func)
 
-def create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims):
+def create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims,lonmids,latmids):
     global lpjg_path_,ncpath_,ref_date_
     #should lpjg_path be inside the runleg or parent dir?
     lpjgfile = os.path.join(lpjg_path_,lpjgfiles if outdims.find(u"landUse")<0 else lpjgfiles[0])
@@ -397,55 +429,64 @@ def create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims):
     else:
         print("yearly" if freq == u"yr" else "monthly" +" output")
         if freq == u"yr": #yearly
-            print("TODO: read data and create yearly netcdf")
+            print("read data and create yearly netcdf")
             meta = { "missing" : netCDF4.default_fillvals['f4'] } #from out2nc
-            
-            ds = netCDF4.Dataset(ncfile, 'w') #, format=meta.get('format', 'NETCDF4_CLASSIC'))
-            #ds.history = '\n'.join(['{} column {} last modified: {}'.format(lpjgfile,colname),
-            #                        'converted to netcdf {}'.format(datetime.date.today())])
-            #ds.setncatts({i: meta[i] for i in meta.get('freeform', [])})
-            
-            #FIXME: NEED TO MAP TO NORMAL GAUSSIAN SOMEHOW!!!!!
-            #  lon = 512; lat = 256;       
-            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
+                        
             df1=df.loc[df['Year'] == min(df['Year'])]
-            dflons = df1["Lon"] #numpy.array(df.index.levels[0].values) + 360.0 ) % 360.0
+            dflons = (df1["Lon"] + 360.0) % 360.0 #numpy.array(df.index.levels[0].values) + 360.0 ) % 360.0
             dflats = df1["Lat"] #numpy.array(df.index.levels[1].values)
-            ilon =[]
+            ilon = []
             for lon in dflons:
-                idx = (numpy.abs(lonmids-lon)).argmin()
+                idx = numpy.abs(lonmids-lon).argmin()
                 ilon.append(idx)
-                
-            ilat =[]
+            
+            ilat = []
             for lat in dflats:
-                idx = (numpy.abs(latmids-lat)).argmin()
+                idx = numpy.abs(latmids-lat).argmin()
                 ilat.append(idx)
-            
-            tmp=numpy.ndarray((len(lonmids),len(latmids),len(set(df["Year"]))))
-            
-            deg = 128 # hardwired N128 is grid_T255            
-            df_normalised, dimensions = coords(df, ds, meta, deg, lonmids, latmids)
-            #df_normalised is messed up, has only shape (10,) ???
-            
+                
+            years=df["Year"].unique()
+            tmp=numpy.empty((len(latmids),len(lonmids),len(years)))
+            tmp.fill(netCDF4.default_fillvals['f4'])
+        #    tmp.fill(1)
+            #timevals = []
+            for iyr in range(0,len(years)):
+                df1=df.loc[df['Year'] == years[iyr]]
+            #    timevals.append(datetime.datetime(int(years[iyr]),1,1,0,0,0))
+                vals=df1[colname].values
+                for i in range(0,len(vals)):
+                    ix=ilon[i]
+                    iy=ilat[i]
+                    val=vals[i]
+                    if (iy < tmp.shape[0] and ix < tmp.shape[1]):
+                        tmp[iy,ix,iyr] = val
+                        #print(str(years[iyr]) + " " + str(iyr) + " " + str(ix) + " " + str(iy) + " = " + str(val))
+                    else:
+                        print("NOPE " + str(years[iyr]) + " " + str(iyr) + " " + str(ix) + " " + str(iy) + " = " + str(val))
+                        
+            ds = netCDF4.Dataset(ncfile, 'w') #, format=meta.get('format', 'NETCDF4_CLASSIC'))
             time = ds.createDimension('time', None)
-            timev = ds.createVariable('time', 'f4', ('time',))
-            timev.calendar = cmor.get_cur_dataset_attribute("calendar")
-            #timevals = numpy.arange(df.shape[1])-refyear
-            if freq == "yr":
-                timev.units = 'days since {}-01-01'.format(ref_date_.year) #Note: years since 1850-01-01 fails in num2date
-            else:
-                timev.units = 'days since {}-01-01'.format(ref_date_.year)            
+            timev = ds.createVariable('time', 'f4', ('time',),  )
+            timev.calendar = "proleptic_gregorian" #cmor.get_cur_dataset_attribute("calendar")
+            timev.units = 'days since {}-01-01'.format(ref_date_.year)
             timev[:] = netCDF4.date2num(timevals,timev.units,timev.calendar)            
-            timebndsv = ds.createVariable('time_bnds', 'f4', ('time',))
-            
 
-            dimensions = ('time',)+dimensions #was 'time',*dimensions python3????
-            print("createVariable" + colname)
-            variable = ds.createVariable(colname, 'f4', dimensions, zlib=True,
-                                         shuffle=False, complevel=5, fill_value=meta['missing']) #netCDF4.default_fillvals['f4'])
-            variable.missing_value = meta['missing']
-            print("df_normalised.values.T")
-            variable[:] = df_normalised.values.T
+            #CHECK: the time bnds
+            bnds = ds.createDimension('bnds', 2)
+            timebndsv = ds.createVariable('time_bnds', 'f4', ('time','bnds'))
+            timebndsv[:] = netCDF4.date2num(timebnds,timev.units,timev.calendar).T
+            timev.bounds = "time_bnds"
+            
+            dlon = ds.createDimension('lon',len(lonmids))
+            dlat = ds.createDimension('lat',len(latmids))
+            latv = ds.createVariable('lat', 'f4', ('lat',))
+            lonv = ds.createVariable('lon', 'f4', ('lon',))
+            latv[:] = latmids
+            lonv[:] = lonmids
+            
+            datav = ds.createVariable(outname,'f4',('time','lon','lat'), fill_value=netCDF4.default_fillvals['f4'])
+            datav[:] = tmp.T
+            
             ds.sync()
             ds.close()
             
@@ -465,12 +506,12 @@ def find_lpjg_output(path,expname=None,filemode="(out.gz|out)"):
     for root,dirs,files in os.walk(path):
         result.extend([os.path.join(root,f) for f in files if re.match(expr,f)])
     return result
- 
+
 def get_lpjg_time_info(df,freq):
     timevals = None
     startend = (None,None)        
     if freq == "yr":
-        timevals = df["Year"] #df.index.levels[2].values
+        timevals = pandas.unique(df["Year"].values) #df.index.levels[2].values
         timedates = []
         timestart = []
         timeend = []
@@ -483,7 +524,7 @@ def get_lpjg_time_info(df,freq):
         maxYear=int(max(timevals))
         startend=(datetime.datetime(minYear,1,1,0,0,0),datetime.datetime(maxYear,12,31,23,59,59))
     elif freq == "mon":   
-        timevals = df["Year"] ##we only have full years df.index.levels[2].values
+        timevals = pandas.unique(df["Year"].values) ##we only have full years df.index.levels[2].values
         timedates = []
         timestart = []
         timeend = []
@@ -502,6 +543,43 @@ def get_lpjg_time_info(df,freq):
         startend = (None,None)        
     
     return startend, timedates, timebnds
+# 
+# def get_lpjg_time_info(df,freq):
+#     timevals = None
+#     startend = (None,None)        
+#     if freq == "yr":
+#         timevals = df["Year"] #df.index.levels[2].values
+#         timedates = []
+#         timestart = []
+#         timeend = []
+#         for yr in timevals: # we take the 1-jan as reference, shodul we take the middle of the year?
+#             timedates.append(datetime.datetime(int(yr),1,1,0,0,0)) #ref middle of year?
+#             timestart.append(datetime.datetime(int(yr),1,1,0,0,0))
+#             timeend.append(datetime.datetime(int(yr),12,31,23,59,59))
+#         timebnds = [timestart,timeend]
+#         minYear=int(min(timevals))
+#         maxYear=int(max(timevals))
+#         startend=(datetime.datetime(minYear,1,1,0,0,0),datetime.datetime(maxYear,12,31,23,59,59))
+#     elif freq == "mon":   
+#         timevals = df["Year"] ##we only have full years df.index.levels[2].values
+#         timedates = []
+#         timestart = []
+#         timeend = []
+#         for yr in timevals:
+#             for mon in range(1,12):
+#                 timedates.append(datetime.datetime(int(yr),mon,1,0,0,0)) #middle of month?
+#                 timestart.append(datetime.datetime(int(yr),mon,1,0,0,0))
+#                 timeend.append(datetime.datetime(int(yr),mon+1,1,23,59,59)-datetime.timedelta(days=1))
+#         timebnds = [timestart,timeend]
+#         minYear=int(min(timevals))
+#         maxYear=int(max(timevals))
+#         startend=(datetime.datetime(minYear,1,1,0,0,0),datetime.datetime(maxYear,12,31,23,59,59))
+#     else: #daily ???
+#         timevals = None
+#         timebnds = None
+#         startend = (None,None)        
+#     
+#     return startend, timedates, timebnds
     
 
 def _get(fname, colname, freq):
@@ -541,12 +619,11 @@ def get_conversion_factor(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task,dataset,axes):
-    colname = task.source.colname
-    ncvar = dataset.variables[colname]
+    ncvar = dataset.variables[task.target.out_name]
     unit = getattr(ncvar,"units",None)
     if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
         unit = getattr(task.target,"units")
-    return cmor.variable(table_entry = str(task.target.out_name),units = str(unit),axis_ids = axes,original_name = str(colname))
+    return cmor.variable(table_entry = str(task.target.out_name),units = str(unit),axis_ids = axes,original_name = str(task.source.colname))
 
 # Creates all landUse for the given table from the given files
 # used nemo2cmor create_depth_axes as template
@@ -623,8 +700,8 @@ def create_time_axis(freq,ds):
     datevar = []
     datevar.append(netCDF4.num2date(vals,units = units,calendar = calendar))
     
-    bnds = getattr(timvar,"time_bnds", None)
-    if bnds:
+    bnds = getattr(timvar,"bounds", None)
+    if bnds: #FIXME: weird genrated ncfile does not seem to have time_bnds
         bndvar = ds.variables[bnds]
     else:
         #lets fake the time bnds
@@ -633,7 +710,7 @@ def create_time_axis(freq,ds):
         bndvar[:, 0] = vals[:]
         bndvar[0:n - 1, 1] = vals[1:n]
         bndvar[n - 1, 1] = max(vals)+1
-    ax_id = cmor.axis(table_entry = "time",units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
+    ax_id = cmor.axis(table_entry = "time1",units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
     return ax_id
 
 def create_grid_axis(task,gridname,ds):
@@ -701,33 +778,6 @@ def get_lpjg_grid(filepath,expname):
     #hardwired at present.  
     #Is filepath the lpjg netCDF file? then check within the file?  
     return cmor_source.lpjg_grid["grid_T255"]  # or "grid_T159"
-
-#extracted from ifs2cmor.py
-def create_gauss_grid(nx,x0,yvals):
-    ny = len(yvals)
-    i_index_id = cmor.axis(table_entry = "i_index",units = "1",coord_vals = numpy.array(range(1,nx + 1)))
-    j_index_id = cmor.axis(table_entry = "j_index",units = "1",coord_vals = numpy.array(range(1,ny + 1)))
-    dx = 360./nx
-    xvals = numpy.array([x0 + (i + 0.5)*dx for i in range(nx)])
-    lonarr = numpy.tile(xvals,(ny,1))
-    latarr = numpy.tile(yvals[::-1],(nx,1)).transpose()
-    lonmids = numpy.array([x0 + i*dx for i in range(nx + 1)])
-    latmids = numpy.empty([ny + 1])
-    latmids[0] = 90.
-    latmids[1:ny] = 0.5*(yvals[0:ny - 1] + yvals[1:ny])
-    latmids[ny] = -90.
-    vertlats = numpy.empty([ny,nx,4])
-    vertlats[:,:,0] = numpy.tile(latmids[0:ny],(nx,1)).transpose()
-    vertlats[:,:,1] = vertlats[:,:,0]
-    vertlats[:,:,2] = numpy.tile(latmids[1:ny+1],(nx,1)).transpose()
-    vertlats[:,:,3] = vertlats[:,:,2]
-    vertlons = numpy.empty([ny,nx,4])
-    vertlons[:,:,0] = numpy.tile(lonmids[0:nx],(ny,1))
-    vertlons[:,:,3] = vertlons[:,:,0]
-    vertlons[:,:,1] = numpy.tile(lonmids[1:nx+1],(ny,1))
-    vertlons[:,:,2] = vertlons[:,:,1]
-    return cmor.grid(axis_ids = [j_index_id,i_index_id],latitude = latarr,longitude = lonarr,
-                     latitude_vertices = vertlats,longitude_vertices = vertlons), lonmids, latmids
 
 # Reads all the lpjg grid data from the input files.
 def create_grids():
