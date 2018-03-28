@@ -7,7 +7,7 @@ from ece2cmor3 import cmor_source, grib_file
 log = logging.getLogger(__name__)
 
 
-class message(object):
+class message_base(object):
 
     variable_key = "variable"
     datetime_key = "timestamp"
@@ -62,16 +62,16 @@ class message(object):
         return None
 
 
-class memory_message(message):
+class memory_message(message_base):
 
     def __init__(self, **kwargs):
         super(memory_message, self).__init__()
-        self.variable = kwargs[message.variable_key]
-        self.timestamp = kwargs[message.datetime_key]
-        self.time_bounds = kwargs[message.timebounds_key]
-        self.levels = kwargs[message.levellist_key]
-        self.level_type = kwargs[message.leveltype_key]
-        self.resolution = kwargs[message.resolution_key]
+        self.variable = kwargs[message_base.variable_key]
+        self.timestamp = kwargs[message_base.datetime_key]
+        self.time_bounds = kwargs[message_base.timebounds_key]
+        self.levels = kwargs[message_base.levellist_key]
+        self.level_type = kwargs[message_base.leveltype_key]
+        self.resolution = kwargs[message_base.resolution_key]
         self.values = kwargs["values"]
 
     def get_variable(self):
@@ -99,7 +99,7 @@ class memory_message(message):
         return self.variable.get_grib_code() in cmor_source.ifs_source.grib_codes_sh
 
 
-class grib_message(message):
+class grib_message(message_base):
 
     def __init__(self, grbmsg_):
         super(grib_message, self).__init__()

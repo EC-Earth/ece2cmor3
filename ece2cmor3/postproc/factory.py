@@ -2,7 +2,8 @@ import logging
 import re
 
 from dateutil.relativedelta import relativedelta
-from ece2cmor3 import ppsh, pptime, pplevels, pp2cmor, ppexpr, cmor_target, grib_file, cmor_source
+from ece2cmor3 import cmor_target, grib_file, cmor_source
+from ece2cmor3.postproc import times, expression, cmorize, levels
 
 # Log object
 log = logging.getLogger(__name__)
@@ -16,8 +17,8 @@ table_root = None
 
 # Creates the DAG of post-processing operators for a specific task
 
-def create_pp_operators(task):
-    pp2cmor.table_root = table_root
+def create_operators(task):
+    cmorize.table_root = table_root
     expr = None
     if task.source.get_root_codes() != [task.source.get_grib_code()]:
         expr = getattr(task.source, cmor_source.expression_key, None)
@@ -61,14 +62,14 @@ def create_cmor_operator(task):
             else:
                 mask_code = cmor_source.grib_code.read(varstrs[0])
                 mask_key = (mask_code.var_id, mask_code.tab_id, grib_file.surface_level_code, 0)
-    cmor_operator = pp2cmor.msg_to_cmor(task, store_var_key, mask_key)
+    cmor_operator = cmorize.cmor_operator(task, store_var_key, mask_key)
     if mask_key is not None:
         cmor_operator.mask_expression = mask_expr
     return cmor_operator
 
 
 def create_expr_operator(expr):
-    return None if expr is None else ppexpr.variable_expression(expr)
+    return None if expr is None else expression.expression_operator(expr)
 
 
 # Creates a time selection/aggregation operator for a specific task
@@ -76,9 +77,9 @@ def create_time_operator(task):
     freq = getattr(task.target, cmor_target.freq_key, None)
     operators = getattr(task.target, "time_operator", ["point"])
     periods = {"mon": relativedelta(months=1), "day": relativedelta(days=1)}
-    operator_dict = {"mean": pptime.time_aggregator.linear_mean_operator,
-                     "minimum": pptime.time_aggregator.min_operator,
-                     "maximum": pptime.time_aggregator.max_operator}
+    operator_dict = {"mean": times.time_aggregator.linear_mean_operator,
+                     "minimum": times.time_aggregator.min_operator,
+                     "maximum": times.time_aggregator.max_operator}
     if len(operators) == 2 and operators[1] == "mean over years" and operators[0].endswith("within years"):
         clim_operator = operators[0][:-13]
         operators = [clim_operator]
@@ -92,20 +93,20 @@ def create_time_operator(task):
                 period = relativedelta(hours=int(freq[:-4]))
         if operators == ["point"]:
             if freq.endswith("hrPt"):
-                return pptime.time_filter(period, time_bounds=False)
+                return times.time_filter(period, time_bounds=False)
             elif freq.endswith("hr"):
                 log.warning("Time operator point for variable %s in table %s without hrPt-frequency... "
                             "still using point sampling" % (task.target.variable, task.target.table))
-                return pptime.time_filter(period, time_bounds=False)
+                return times.time_filter(period, time_bounds=False)
         if operators == ["mean"] and freq.endswith("hr"):
             if all([c in cmor_source.ifs_source.grib_codes_accum for c in task.source.get_root_codes()]):
-                return pptime.time_filter(period, time_bounds=True)
+                return times.time_filter(period, time_bounds=True)
             else:
                 log.warning("Requesting average over %d hours for instantaneous field %s is not supported, switching "
                             "to time sampling" % (period.hours, str(task.source.get_grib_code())))
-            return pptime.time_filter(period, time_bounds=True)
+            return times.time_filter(period, time_bounds=True)
         if period is not None and operator is not None:
-            return pptime.time_aggregator(operator, period)
+            return times.time_aggregator(operator, period)
     log.error("Unsupported combination of frequency %s with time operators %s encountered for %s in table %s" %
               (freq, str(operators), task.target.variable, task.target.table))
     task.set_failed()
@@ -119,14 +120,14 @@ def create_level_operator(task):
         return None
     axisname, leveltype, levels = cmor_target.get_z_axis(task.target)
     if leveltype == "alevel":
-        return pplevels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
+        return levels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
     if leveltype == "alevhalf":
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",
                   task.target.table)
         task.set_failed()
         return None
     if leveltype in ["height", "altitude"]:
-        return pplevels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
+        return levels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
     if leveltype in ["air_pressure"]:
-        return pplevels.level_aggregator(level_type=grib_file.pressure_level_code, levels=[float(l) for l in levels])
+        return levels.level_aggregator(level_type=grib_file.pressure_level_code, levels=[float(l) for l in levels])
     return None

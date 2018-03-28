@@ -3,7 +3,8 @@ import logging
 import numexpr
 import numpy
 import cmor
-from ece2cmor3 import ppop, cmor_target, pplevels, ppmsg, cmor_task, cmor_source
+from ece2cmor3 import cmor_target, cmor_task, cmor_source
+from ece2cmor3.postproc import message, operator, levels
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -27,6 +28,62 @@ ref_date = None
 time_unit = "hour"
 
 table_root = None
+
+
+# Leaf operator: transfers data to the cmor library
+class cmor_operator(operator.operator_base):
+    missval = 1.e+20
+
+    def __init__(self, task, store_var_key=None, mask_key=None):
+        super(cmor_operator, self).__init__()
+        self.task = task
+        self.variable = task.source
+        self.store_var_key = store_var_key
+        self.mask_key = mask_key
+        self.mask_expression = None
+        self.var_id = None
+        self.store_var_id = None
+
+    def apply_mask(self, array):
+        if self.mask_key is None or self.mask_expression is None:
+            return array
+        src = cmor_source.grib_code(self.mask_key[0], self.mask_key[1])
+        local_dict = {src.to_var_string(): self.mask_values}
+        mask_array = numexpr.evaluate(self.mask_expression, local_dict=local_dict)
+        numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask_array), array.shape), self.missval)
+        return array
+
+    def fill_cache(self, msg):
+        if self.var_id is None:
+            self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, self.store_var_key)
+        if msg.get_variable() == self.task.source:
+            conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
+                                                      getattr(self.task, cmor_task.output_frequency_key))
+            self.values = msg.get_values() * conversion_factor
+
+    def send_msg(self):
+        timestamp = self.property_cache[message.message_base.datetime_key]
+        time_bounds = [convert_time(t) for t in self.property_cache[message.message_base.timebounds_key]]
+        load_table(self.task.target.table)
+        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table,
+                                                                 timestamp))
+        ofreq = str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt"
+        cmor.set_cur_dataset_attribute("frequency", ofreq)
+        if any(time_bounds):
+            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)],
+                       time_bnds=time_bounds)
+            self.values = None
+            if self.store_var_key is not None:
+                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, store_with=self.var_id,
+                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                self.store_var_values = None
+        else:
+            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)])
+            self.values = None
+            if self.store_var_key is not None:
+                cmor.write(self.store_var_id, self.store_var_values, store_with=self.var_id,
+                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                self.store_var_values = None
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
@@ -173,8 +230,8 @@ def create_bounds(a, minbnd=-float("inf"), maxbnd=float("inf")):
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(name):
     pref = 101325
-    a = pplevels.a_coefs
-    b = pplevels.b_coefs
+    a = levels.a_coefs
+    b = levels.b_coefs
     hcm = a / pref + b
     axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm, 0., 1.), units="1")
     cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],
@@ -193,63 +250,6 @@ def create_soil_depth_axis(name):
     values = (ifs_levels[:-1] + ifs_levels[1:]) / 2
     bounds = numpy.stack([ifs_levels[:-1], ifs_levels[1:]], axis=1)
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-
-
-# Leaf operator: transfers data to the cmor library
-class msg_to_cmor(ppop.post_proc_operator):
-
-    missval = 1.e+20
-
-    def __init__(self, task, store_var_key=None, mask_key=None):
-        super(msg_to_cmor, self).__init__()
-        self.task = task
-        self.variable = task.source
-        self.store_var_key = store_var_key
-        self.mask_key = mask_key
-        self.mask_expression = None
-        self.var_id = None
-        self.store_var_id = None
-
-    def apply_mask(self, array):
-        if self.mask_key is None or self.mask_expression is None:
-            return array
-        src = cmor_source.grib_code(self.mask_key[0], self.mask_key[1])
-        local_dict = {src.to_var_string(): self.mask_values}
-        mask_array = numexpr.evaluate(self.mask_expression, local_dict=local_dict)
-        numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask_array), array.shape), self.missval)
-        return array
-
-    def fill_cache(self, msg):
-        if self.var_id is None:
-            self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, self.store_var_key)
-        if msg.get_variable() == self.task.source:
-            conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
-                                                      getattr(self.task, cmor_task.output_frequency_key))
-            self.values = msg.get_values() * conversion_factor
-
-    def send_msg(self):
-        timestamp = self.property_cache[ppmsg.message.datetime_key]
-        time_bounds = [convert_time(t) for t in self.property_cache[ppmsg.message.timebounds_key]]
-        load_table(self.task.target.table)
-        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table,
-                                                                 timestamp))
-        ofreq = str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt"
-        cmor.set_cur_dataset_attribute("frequency", ofreq)
-        if any(time_bounds):
-            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)],
-                       time_bnds=time_bounds)
-            self.values = None
-            if self.store_var_key is not None:
-                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, store_with=self.var_id,
-                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
-                self.store_var_values = None
-        else:
-            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)])
-            self.values = None
-            if self.store_var_key is not None:
-                cmor.write(self.store_var_id, self.store_var_values, store_with=self.var_id,
-                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
-                self.store_var_values = None
 
 
 # Returns the conversion factor from the input string

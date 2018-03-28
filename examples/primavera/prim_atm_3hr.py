@@ -54,9 +54,9 @@ def main(args):
 
     # Execute the cmorization:
     if(opt.dir == datdir):
-        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp,taskthreads=1)
+        ece2cmorlib.perform_ifs_tasks(opt.dir, opt.exp, startdate, interval, tempdir = opt.temp)
     else:
-        ece2cmorlib.perform_ifs_tasks(opt.dir,opt.exp,startdate,interval,outputfreq = 3,tempdir = opt.temp)
+        ece2cmorlib.perform_ifs_tasks(opt.dir, opt.exp, startdate, interval, tempdir = opt.temp)
 
 
 if __name__ == "__main__":

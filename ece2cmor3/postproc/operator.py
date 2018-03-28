@@ -1,12 +1,12 @@
 import logging
-from ece2cmor3 import ppmsg
+from ece2cmor3.postproc import message
 
 # Post-processing operator abstract base class
 
 log = logging.getLogger(__name__)
 
 
-class post_proc_operator(object):
+class operator_base(object):
 
     def __init__(self):
 
@@ -18,12 +18,12 @@ class post_proc_operator(object):
         self.store_var_values = None
         self.store_var_targets = []
         self.store_var_key = None
-        self.cached_properties = [ppmsg.message.variable_key,
-                                  ppmsg.message.datetime_key,
-                                  ppmsg.message.timebounds_key,
-                                  ppmsg.message.leveltype_key,
-                                  ppmsg.message.levellist_key,
-                                  ppmsg.message.resolution_key]
+        self.cached_properties = [message.message_base.variable_key,
+                                  message.message_base.datetime_key,
+                                  message.message_base.timebounds_key,
+                                  message.message_base.leveltype_key,
+                                  message.message_base.levellist_key,
+                                  message.message_base.resolution_key]
         self.property_cache = {}
 
     def receive_msg(self, msg):
@@ -73,13 +73,13 @@ class post_proc_operator(object):
             self.send_msg()
 
     def create_msg(self):
-        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
-                                    timestamp=self.property_cache[ppmsg.message.datetime_key],
-                                    timebounds=self.property_cache[ppmsg.message.timebounds_key],
-                                    leveltype=self.property_cache[ppmsg.message.leveltype_key],
-                                    levels=self.property_cache[ppmsg.message.levellist_key],
-                                    resolution=self.property_cache[ppmsg.message.resolution_key],
-                                    values=self.values)
+        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+                                      timestamp=self.property_cache[message.message_base.datetime_key],
+                                      timebounds=self.property_cache[message.message_base.timebounds_key],
+                                      leveltype=self.property_cache[message.message_base.leveltype_key],
+                                      levels=self.property_cache[message.message_base.levellist_key],
+                                      resolution=self.property_cache[message.message_base.resolution_key],
+                                      values=self.values)
 
     def fill_cache(self, msg):
         self.values = msg.get_values()

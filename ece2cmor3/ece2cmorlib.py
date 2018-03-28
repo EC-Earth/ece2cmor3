@@ -136,13 +136,7 @@ def add_mask(name, expr):
 
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
-                      postprocmode=postproc.recreate,
-                      tempdir=None,
-                      taskthreads=4,
-                      cdothreads=4,
-                      outputfreq=3,
-                      maxsizegb=float("inf")):
+def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None, tempdir=None):
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
@@ -150,13 +144,9 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
     ifs2cmor.masks = masks if enable_masks else {}
-    ofreq = -1 if auto_filter else outputfreq
     if (not ifs2cmor.initialize(datadir, expname, tableroot, startdate, interval, refdate if refdate else startdate,
-                                outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb)):
+                                tempdir=tempdir)):
         return
-    postproc.postproc_mode = postprocmode
-    postproc.cdo_threads = cdothreads
-    postproc.task_threads = taskthreads
     ifs2cmor.execute(ifs_tasks)
 
 

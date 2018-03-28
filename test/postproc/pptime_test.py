@@ -4,8 +4,8 @@ import unittest
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import numpy
-from nose.tools import ok_, eq_
-from ece2cmor3 import ppmsg, pptime, grib_file
+from nose.tools import ok_
+from ece2cmor3.postproc import times, message
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -29,14 +29,14 @@ def make_msgs(code, start_date, length, interval, level_index, level_type, ampli
     while time <= start_date + length:
         value = func(start_date, time, start_value, amplitude)
         bnds = (time - length/2,time + length/2)
-        data = {ppmsg.message.variable_key: code,
-                ppmsg.message.datetime_key: time,
-                ppmsg.message.timebounds_key: bnds,
-                ppmsg.message.leveltype_key: level_type,
-                ppmsg.message.levellist_key: [level_index],
-                ppmsg.message.resolution_key: 512,
+        data = {message.message_base.variable_key: code,
+                message.message_base.datetime_key: time,
+                message.message_base.timebounds_key: bnds,
+                message.message_base.leveltype_key: level_type,
+                message.message_base.levellist_key: [level_index],
+                message.message_base.resolution_key: 512,
                 "values": value}
-        result.append(ppmsg.memory_message(**data))
+        result.append(message.memory_message(**data))
         time = time + interval
     return result
 
@@ -45,7 +45,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_left_daymean():
-        operator = pptime.time_aggregator(pptime.time_aggregator.block_left_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -64,7 +64,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_left_daymean2():
-        operator = pptime.time_aggregator(pptime.time_aggregator.block_left_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), sine)
         for msg in msgs:
@@ -83,7 +83,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_right_daymean():
-        operator = pptime.time_aggregator(pptime.time_aggregator.block_right_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -102,7 +102,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_right_daymean2():
-        operator = pptime.time_aggregator(pptime.time_aggregator.block_right_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), sine)
         for msg in msgs:
@@ -121,7 +121,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_linear_daymean():
-        operator = pptime.time_aggregator(pptime.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -142,7 +142,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_linear_daymean2():
-        operator = pptime.time_aggregator(pptime.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_down)
         for msg in msgs:
@@ -163,7 +163,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_daymin():
-        operator = pptime.time_aggregator(pptime.time_aggregator.min_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.min_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([2.0, 3.0]), linear_down)
         for msg in msgs:
@@ -182,7 +182,7 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_daymax():
-        operator = pptime.time_aggregator(pptime.time_aggregator.max_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.max_operator, interval=relativedelta(days=1))
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([20.0, 30.0]), linear_down)
         for msg in msgs:

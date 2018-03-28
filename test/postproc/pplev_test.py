@@ -5,28 +5,29 @@ import numpy
 from datetime import datetime
 from nose.tools import ok_, eq_
 
-from ece2cmor3 import ppmsg, pplevels, cmor_source
+from ece2cmor3 import cmor_source
+from ece2cmor3.postproc import message, levels
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 # Test utility function creating messages
 def make_msg(code, time, level_index, level_type, values):
-    data = {ppmsg.message.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
-            ppmsg.message.datetime_key: time,
-            ppmsg.message.timebounds_key: (time, time),
-            ppmsg.message.leveltype_key: level_type,
-            ppmsg.message.levellist_key: [level_index],
-            ppmsg.message.resolution_key: 512,
+    data = {message.message_base.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
+            message.message_base.datetime_key: time,
+            message.message_base.timebounds_key: (time, time),
+            message.message_base.leveltype_key: level_type,
+            message.message_base.levellist_key: [level_index],
+            message.message_base.resolution_key: 512,
             "values": values}
-    return ppmsg.memory_message(**data)
+    return message.memory_message(**data)
 
 
 class levels_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_nonmatching_levtype():
-        operator = pplevels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
+        operator = levels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
         msg = make_msg(130, time, 850., 100, 273.5)
         operator.receive_msg(msg)
@@ -35,7 +36,7 @@ class levels_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_nonmatching_levels():
-        operator = pplevels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
+        operator = levels.level_aggregator(level_type=100, levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
         msg = make_msg(130, time, 850., 100, 273.5)
         operator.receive_msg(msg)
@@ -46,7 +47,7 @@ class levels_aggregator_test(unittest.TestCase):
     @staticmethod
     def test_matching_levels():
         plevs = [100000, 85000, 50000, 10000, 5000]
-        operator = pplevels.level_aggregator(level_type=100, levels=plevs)
+        operator = levels.level_aggregator(level_type=100, levels=plevs)
         time = datetime(1990, 1, 1, 3, 0, 0)
         for i in [3, 0, 4, 2, 1]:
             msg = make_msg(130, time, plevs[i]/100., 100, numpy.array([273.5 - i, 273.5 + i]))

@@ -3,7 +3,8 @@ import os
 
 import dateutil.relativedelta
 
-from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils, ppopfac, grib_file, ppsh
+from ece2cmor3 import grib_filter, cmor_source, cmor_target, cmor_task, cmor_utils
+from ece2cmor3.postproc import grids, factory
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -82,7 +83,6 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
         if not os.path.exists(temp_dir_):
             os.makedirs(temp_dir_)
             tempdir_created_ = True
-    max_size_ = maxsizegb
     grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
     return True
 
@@ -91,10 +91,10 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 def execute(tasks):
     global log, tempdir_created_, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
-    ppopfac.table_root, ppopfac.masks = table_root_, masks
+    factory.table_root, factory.masks = table_root_, masks
     store_var_operators, mask_operators = {}, {}
     for task in supported_tasks:
-        operator = ppopfac.create_pp_operators(task)
+        operator = factory.create_operators(task)
         if operator is not None:
             grib_filter.task_operators[task] = operator
             for child_operator in operator.get_all_operators():
@@ -108,12 +108,12 @@ def execute(tasks):
                 elif mkey is not None:
                     mask_operators[mkey] = [child_operator]
     for key in store_var_operators:
-        store_var_operator = ppsh.pp_remap_sh()
+        store_var_operator = grids.grid_remap_operator()
         for operator in store_var_operators[key]:
             store_var_operator.store_var_targets.append(operator)
         grib_filter.extra_operators[key] = store_var_operator
     for key in mask_operators:
-        mask_operator = ppsh.pp_remap_sh()
+        mask_operator = grids.grid_remap_operator()
         for operator in mask_operators[key]:
             mask_operator.mask_targets.append(operator)
         grib_filter.extra_operators[key] = mask_operator

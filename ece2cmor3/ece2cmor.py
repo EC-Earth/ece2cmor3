@@ -61,12 +61,8 @@ def main(args = None):
     if(procatmos):
         refdate = dateutil.parser.parse(args.refd) if args.refd else None
         # Execute the atmosphere cmorization:
-        ece2cmorlib.perform_ifs_tasks(args.datadir,args.exp,startdate,length,refdate = refdate,
-                                                                             outputfreq = args.freq,
-                                                                             tempdir = args.tmpdir,
-                                                                             taskthreads = args.npp,
-                                                                             cdothreads = args.ncdo,
-                                                                             maxsizegb = args.tmpsize)
+        ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp, startdate, length, refdate = refdate,
+                                      tempdir = args.tmpdir)
     if(prococean):
         ece2cmorlib.perform_nemo_tasks(args.datadir,args.exp,startdate,length)
 

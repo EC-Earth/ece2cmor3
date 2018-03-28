@@ -4,7 +4,8 @@ import os
 import numpy
 from dateutil import relativedelta
 
-from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, ppmsg, pplevels, ppsh
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
+from ece2cmor3.postproc import grids, message, levels
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -160,7 +161,7 @@ def read_grib_passed_time(grib, stop_time, month):
     reached_stop = time == stop_time
     keys = []
     if not grib.eof() and get_mon(grib) == month:
-        pplevels.get_pv_array(grib)
+        levels.get_pv_array(grib)
         cmorize_msg(grib, keys)
     while grib.read_next():
         time = grib.get_field(grib_file.time_key)
@@ -168,7 +169,7 @@ def read_grib_passed_time(grib, stop_time, month):
             grib.release()
             return time
         if get_mon(grib) == month:
-            pplevels.get_pv_array(grib)
+            levels.get_pv_array(grib)
             cmorize_msg(grib, keys)
         reached_stop = time == stop_time
         grib.release()
@@ -189,12 +190,12 @@ def cmorize_msg(grb, keys):
         if k[:index] == key[:index]:
             matches = [t for t in varstasks[k] if time % getattr(t, cmor_task.output_frequency_key, 1) == 0]
             tasks.update(matches)
-    msg = ppmsg.grib_message(grb)
+    msg = message.grib_message(grb)
     if key in extra_operators:
         extra_operators[key].receive_msg(msg)
     if any(tasks):
         # print "GRIB keys:", key
-        mapper = ppsh.pp_remap_sh()
+        mapper = grids.grid_remap_operator()
         mapper.receive_msg(msg)
         mapped_msg = mapper.create_msg()
         for task in tasks:

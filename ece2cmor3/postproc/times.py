@@ -3,12 +3,12 @@ import numpy
 import tempfile
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-from ece2cmor3 import ppmsg, ppop
+from ece2cmor3.postproc import message, operator
 
 log = logging.getLogger(__name__)
 
 
-class time_filter(ppop.post_proc_operator):
+class time_filter(operator.operator_base):
 
     def __init__(self, period, time_bounds=False):
         super(time_filter, self).__init__()
@@ -16,10 +16,11 @@ class time_filter(ppop.post_proc_operator):
         self.timestamp = None
         self.has_bnds = time_bounds
         self.tnext, self.tprev = None, None
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
-                                  ppmsg.message.levellist_key, ppmsg.message.resolution_key]
+        self.cached_properties = [message.message_base.variable_key, message.message_base.leveltype_key,
+                                  message.message_base.levellist_key, message.message_base.resolution_key]
 
-    def is_linear(self):
+    @staticmethod
+    def is_linear():
         return True
 
     def fill_cache(self, msg):
@@ -35,16 +36,16 @@ class time_filter(ppop.post_proc_operator):
             return False
 
     def create_msg(self):
-        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
-                                    timestamp=self.timestamp,
-                                    timebounds=[self.timestamp - self.period, self.timestamp],
-                                    leveltype=self.property_cache[ppmsg.message.leveltype_key],
-                                    levels=self.property_cache[ppmsg.message.levellist_key],
-                                    resolution=self.property_cache[ppmsg.message.resolution_key],
-                                    values=self.values)
+        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+                                      timestamp=self.timestamp,
+                                      timebounds=[self.timestamp - self.period, self.timestamp],
+                                      leveltype=self.property_cache[message.message_base.leveltype_key],
+                                      levels=self.property_cache[message.message_base.levellist_key],
+                                      resolution=self.property_cache[message.message_base.resolution_key],
+                                      values=self.values)
 
 
-class time_aggregator(ppop.post_proc_operator):
+class time_aggregator(operator.operator_base):
     linear_mean_operator = 1
     block_left_operator = 2
     block_right_operator = 3
@@ -61,8 +62,8 @@ class time_aggregator(ppop.post_proc_operator):
         self.remainder = None
         self.start_date = None
         self.full_cache = False
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.leveltype_key,
-                                  ppmsg.message.levellist_key, ppmsg.message.resolution_key]
+        self.cached_properties = [message.message_base.variable_key, message.message_base.leveltype_key,
+                                  message.message_base.levellist_key, message.message_base.resolution_key]
 
     def is_linear(self):
         return self.operator in [time_aggregator.linear_mean_operator, time_aggregator.block_left_operator,
@@ -197,11 +198,11 @@ class time_aggregator(ppop.post_proc_operator):
         start = self.start_date - self.interval
         end = self.start_date
         middle = start + timedelta(seconds=int((end - start).total_seconds() / 2))
-        msg = ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
-                                   timestamp=middle,
-                                   timebounds=[start, end],
-                                   leveltype=self.property_cache[ppmsg.message.leveltype_key],
-                                   levels=self.property_cache[ppmsg.message.levellist_key],
-                                   resolution=self.property_cache[ppmsg.message.resolution_key],
-                                   values=self.get_values())
+        msg = message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+                                     timestamp=middle,
+                                     timebounds=[start, end],
+                                     leveltype=self.property_cache[message.message_base.leveltype_key],
+                                     levels=self.property_cache[message.message_base.levellist_key],
+                                     resolution=self.property_cache[message.message_base.resolution_key],
+                                     values=self.get_values())
         return msg

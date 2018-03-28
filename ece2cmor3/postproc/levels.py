@@ -3,7 +3,8 @@ import tempfile
 import os
 import numpy
 
-from ece2cmor3 import ppmsg, ppop, grib_file
+from ece2cmor3 import grib_file
+from ece2cmor3.postproc import message, operator
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def get_pv_array(gribfile):
     b_coefs = pv[L:L + num_levels]
 
 
-class level_aggregator(ppop.post_proc_operator):
+class level_aggregator(operator.operator_base):
 
     def __init__(self, level_type, levels, mem_cache=True):
         super(level_aggregator, self).__init__()
@@ -34,8 +35,8 @@ class level_aggregator(ppop.post_proc_operator):
         self.level_type = level_type
         self.mem_cache = mem_cache
         self.values = None if levels is None else [None] * len(levels)
-        self.cached_properties = [ppmsg.message.variable_key, ppmsg.message.resolution_key, ppmsg.message.datetime_key,
-                                  ppmsg.message.timebounds_key]
+        self.cached_properties = [message.message_base.variable_key, message.message_base.resolution_key, message.message_base.datetime_key,
+                                  message.message_base.timebounds_key]
 
     def accept_msg(self, msg):
         return msg.get_level_type() == self.level_type
@@ -91,13 +92,13 @@ class level_aggregator(ppop.post_proc_operator):
                 os.remove(f.name)
         else:
             vals = numpy.stack(self.values)
-        return ppmsg.memory_message(variable=self.property_cache[ppmsg.message.variable_key],
-                                    timestamp=self.property_cache[ppmsg.message.datetime_key],
-                                    timebounds=self.property_cache[ppmsg.message.timebounds_key],
-                                    leveltype=self.level_type,
-                                    levels=self.levels,
-                                    resolution=self.property_cache[ppmsg.message.resolution_key],
-                                    values=vals)
+        return message.memory_message(variable=self.property_cache[message.message_base.variable_key],
+                                      timestamp=self.property_cache[message.message_base.datetime_key],
+                                      timebounds=self.property_cache[message.message_base.timebounds_key],
+                                      leveltype=self.level_type,
+                                      levels=self.levels,
+                                      resolution=self.property_cache[message.message_base.resolution_key],
+                                      values=vals)
 
     def cache_is_full(self):
         return self.values is not None and all(v is not None for v in self.values)
