@@ -104,13 +104,16 @@ def get_record_key(gribfile):
     if levtype == 112:
         level = 0
         levtype = grib_file.depth_level_code
-    if codevar in [165, 166]:
+    if codevar in [49, 165, 166]:
         level = 10
         levtype = grib_file.height_level_code
     if codevar in [167, 168, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
     if codevar in [9, 134]:
+        level = 0
+        levtype = grib_file.surface_level_code
+    if levtype == grib_file.pv_level_code: # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
     return codevar, codetab, levtype, level
