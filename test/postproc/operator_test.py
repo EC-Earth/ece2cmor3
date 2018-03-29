@@ -42,6 +42,19 @@ class multiply_operator(operator.operator_base):
         return True
 
 
+# Test utility class multiplying single value with mask
+class masked_multiply_operator(operator.operator_base):
+    def __init__(self, factor=0.5):
+        super(masked_multiply_operator, self).__init__()
+        self.mask_key = (172, 128, grib_file.hybrid_level_code, 22)
+        self.factor = factor
+
+    def fill_cache(self, msg):
+        mask_factor = -1 if self.mask_values < 0.5 else 1
+        self.values = mask_factor * self.factor * msg.get_values()
+        return True
+
+
 # Test utility function creating messages
 def make_msg(code, time, level_index, values):
     data = {message.variable_key: cmor_source.ifs_source(code=cmor_source.grib_code(code, 128)),
@@ -141,3 +154,22 @@ class post_proc_operator_test(unittest.TestCase):
         ok_(not op.cache_is_full())
         op.receive_store_var(make_msg(134, time, 91, values=tot_value))
         ok_(op.cache_is_full())
+
+    @staticmethod
+    def test_receive_mask():
+        op1, op2, op3 = masked_multiply_operator(factor=2.0), sum_operator(interval=8), masked_multiply_operator(factor=0.3)
+        op2.targets.append(op3)
+        op1.targets.append(op2)
+        result = 0
+        time = datetime(1990, 1, 1, 6, 0, 0)
+        op1.receive_mask(make_msg(170, time, 22, values=0.6))
+        for i in range(8):
+            val = 273.5 + i
+            result += 2.0 * val
+            op1.receive_msg(make_msg(130, time, 90, values=val))
+        ok_(op1.cache_is_full())
+        ok_(not op3.cache_is_full())
+        op3.receive_mask(make_msg(170, time, 22, values=0.4))
+        ok_(op3.cache_is_full())
+        final_msg = op3.create_msg()
+        eq_(final_msg.get_values(), - 0.3 * result)

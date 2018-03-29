@@ -49,7 +49,7 @@ class pp_message_test(unittest.TestCase):
     @staticmethod
     def test_grib_message():
         grib_file.test_mode = True
-        gg_path = os.path.join(os.path.dirname(__file__), "test_data", "ifs", "001", "ICMGGECE3+199001.csv")
+        gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "001", "ICMGGECE3+199001.csv")
         grbfile = grib_file.open_file(gg_path)
         grbmsg = grib_file.create_grib_file(grbfile)
         msg = message.grib_message(grbmsg)
