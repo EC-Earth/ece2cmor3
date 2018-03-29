@@ -120,7 +120,7 @@ class grib_filter_test(unittest.TestCase):
         src = cmor_source.ifs_source.read("131.128")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk], 1)
-        filepath = os.path.join(tmp_path, "131.128.100.6")
+        filepath = os.path.join(tmp_path, "131.128.210.6")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, "path"), filepath)
         with open(filepath) as fin:
