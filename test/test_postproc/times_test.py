@@ -18,6 +18,10 @@ def linear_down(t0, t, x0, x):
     return x0 - x * (t - t0).total_seconds() / (3600 * 24)
 
 
+def linear_flat(t0, t, x0, x):
+    return x0
+
+
 def sine(t0, t, x0, x):
     return x0 + x * numpy.math.sin(2 * numpy.math.pi * (t - t0).total_seconds() / (3600 * 24))
 
@@ -28,7 +32,7 @@ def make_msgs(code, start_date, length, interval, level_index, level_type, ampli
     time = start_date
     while time <= start_date + length:
         value = func(start_date, time, start_value, amplitude)
-        bnds = (time - length/2,time + length/2)
+        bnds = (time - length / 2, time + length / 2)
         data = {message.variable_key: code,
                 message.datetime_key: time,
                 message.timebounds_key: bnds,
@@ -44,8 +48,35 @@ def make_msgs(code, start_date, length, interval, level_index, level_type, ampli
 class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
+    def test_6hr_filter():
+        operator = times.time_filter(period=relativedelta(hours=6))
+        starttime = datetime(1990, 1, 1)
+        msgs = make_msgs(165, starttime, relativedelta(days=1), relativedelta(hours=2), 0, 1, 2.5,
+                         numpy.array([1.0, -1.0]), linear_up)
+        for msg in msgs:
+            operator.receive_msg(msg)
+            if operator.cache_is_full():
+                ok_((msg.get_timestamp() - starttime).seconds / 3600 % 6 == 0)
+            else:
+                ok_((msg.get_timestamp() - starttime).seconds / 3600 % 6 != 0)
+
+    @staticmethod
+    def test_6hr_shifted_filter():
+        operator = times.time_filter(period=relativedelta(hours=6))
+        starttime = datetime(1990, 1, 1, hour=3)
+        msgs = make_msgs(165, starttime, relativedelta(days=1), relativedelta(hours=2), 0, 1, 2.5,
+                         numpy.array([1.0, -1.0]), linear_up)
+        for msg in msgs:
+            operator.receive_msg(msg)
+            if operator.cache_is_full():
+                ok_((msg.get_timestamp() - starttime).seconds / 3600 % 6 == 3)
+            else:
+                ok_((msg.get_timestamp() - starttime).seconds / 3600 % 6 != 3)
+
+    @staticmethod
     def test_block_left_daymean():
-        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -64,7 +95,8 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_left_daymean2():
-        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_left_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), sine)
         for msg in msgs:
@@ -83,7 +115,8 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_right_daymean():
-        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -102,7 +135,8 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_block_right_daymean2():
-        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.block_right_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), sine)
         for msg in msgs:
@@ -121,7 +155,8 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_linear_daymean():
-        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_up)
         for msg in msgs:
@@ -142,7 +177,30 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_linear_daymean2():
-        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1),
+                                         filecache=False)
+        msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
+                         numpy.array([1.0, -1.0]), linear_down)
+        for msg in msgs:
+            operator.receive_msg(msg)
+        ok_(operator.cache_is_full())
+        average = sum([m.get_values() for m in msgs]) / (len(msgs) - 1) \
+                  - 0.5 * (msgs[0].get_values() + msgs[-1].get_values()) / (len(msgs) - 1)
+        ok_(all(numpy.abs(operator.create_msg().get_values() - average) < 1e-8))
+        operator.clear_cache()
+        msgs2 = make_msgs(165, datetime(1990, 1, 2, 3), relativedelta(hours=21), relativedelta(hours=3), 0, 1, 3.5,
+                          numpy.array([5.0, 3.0]), sine)
+        for msg in msgs2:
+            operator.receive_msg(msg)
+        ok_(operator.cache_is_full())
+        average = sum([m.get_values() for m in [msgs[-1]] + msgs2[:]]) / (len(msgs2)) \
+                  - 0.5 * (msgs[-1].get_values() + msgs2[-1].get_values()) / len(msgs2)
+        ok_(all(numpy.abs(operator.create_msg().get_values() - average) < 1e-8))
+
+    @staticmethod
+    def test_daymean_file_cache():
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1),
+                                         filecache=True)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([1.0, -1.0]), linear_down)
         for msg in msgs:
@@ -163,14 +221,15 @@ class time_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_daymin():
-        operator = times.time_aggregator(times.time_aggregator.min_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.min_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([2.0, 3.0]), linear_down)
         for msg in msgs:
             operator.receive_msg(msg)
         ok_(operator.cache_is_full())
         minvals = msgs[-2].get_values()
-        ok_(all(operator.create_msg().get_values() == minvals))
+        ok_(numpy.array_equal(operator.create_msg().get_values(), minvals))
         operator.clear_cache()
         msgs2 = make_msgs(165, datetime(1990, 1, 2, 3), relativedelta(hours=21), relativedelta(hours=3), 0, 1, 3.5,
                           numpy.array([0.0, 1.0]), linear_up)
@@ -178,18 +237,19 @@ class time_aggregator_test(unittest.TestCase):
             operator.receive_msg(msg)
         ok_(operator.cache_is_full())
         minvals = msgs[-1].get_values()
-        ok_(all(operator.create_msg().get_values() == minvals))
+        ok_(numpy.array_equal(operator.create_msg().get_values(), minvals))
 
     @staticmethod
     def test_daymax():
-        operator = times.time_aggregator(times.time_aggregator.max_operator, interval=relativedelta(days=1))
+        operator = times.time_aggregator(times.time_aggregator.max_operator, interval=relativedelta(days=1),
+                                         filecache=False)
         msgs = make_msgs(165, datetime(1990, 1, 1), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
                          numpy.array([20.0, 30.0]), linear_down)
         for msg in msgs:
             operator.receive_msg(msg)
         ok_(operator.cache_is_full())
         maxvals = msgs[0].get_values()
-        ok_(all(operator.create_msg().get_values() == maxvals))
+        ok_(numpy.array_equal(operator.create_msg().get_values(), maxvals))
         operator.clear_cache()
         msgs2 = make_msgs(165, datetime(1990, 1, 2, 3), relativedelta(hours=21), relativedelta(hours=3), 0, 1, 3.5,
                           numpy.array([20.0, 30.0]), linear_up)
@@ -197,4 +257,30 @@ class time_aggregator_test(unittest.TestCase):
             operator.receive_msg(msg)
         ok_(operator.cache_is_full())
         maxvals = msgs2[-2].get_values()
-        ok_(all(operator.create_msg().get_values() == maxvals))
+        ok_(numpy.array_equal(operator.create_msg().get_values(), maxvals))
+
+    @staticmethod
+    def test_daymean_shifted():
+        operator = times.time_aggregator(times.time_aggregator.linear_mean_operator, interval=relativedelta(days=1),
+                                         filecache=False)
+        msgs = make_msgs(165, datetime(1990, 1, 1, 3), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
+                         numpy.array([1.0, -1.0]), linear_up)
+        msgs = msgs[:-1]
+        for msg in msgs:
+            operator.receive_msg(msg)
+        ok_(operator.cache_is_full())
+        average = numpy.mean(numpy.stack([m.get_values() for m in msgs]), axis=0)
+        ok_(all(numpy.abs(operator.create_msg().get_values() - average) < 1e-8))
+
+    @staticmethod
+    def test_daymin_shifted():
+        operator = times.time_aggregator(times.time_aggregator.min_operator, interval=relativedelta(days=1),
+                                         filecache=False)
+        msgs = make_msgs(165, datetime(1990, 1, 1, 3), relativedelta(days=1), relativedelta(hours=3), 0, 1, 2.5,
+                         numpy.array([1.0, -1.0]), linear_up)
+        msgs = msgs[:-1]
+        for msg in msgs:
+            operator.receive_msg(msg)
+        ok_(operator.cache_is_full())
+        average = numpy.min(numpy.stack([m.get_values() for m in msgs]), axis=0)
+        ok_(numpy.array_equal(operator.create_msg().get_values(), average))

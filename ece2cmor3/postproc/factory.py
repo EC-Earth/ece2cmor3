@@ -93,18 +93,18 @@ def create_time_operator(task):
                 period = relativedelta(hours=int(freq[:-4]))
         if operators == ["point"]:
             if freq.endswith("hrPt"):
-                return times.time_filter(period, time_bounds=False)
+                return times.time_filter(period)
             elif freq.endswith("hr"):
                 log.warning("Time operator point for variable %s in table %s without hrPt-frequency... "
                             "still using point sampling" % (task.target.variable, task.target.table))
-                return times.time_filter(period, time_bounds=False)
+                return times.time_filter(period)
         if operators == ["mean"] and freq.endswith("hr"):
             if all([c in cmor_source.ifs_source.grib_codes_accum for c in task.source.get_root_codes()]):
-                return times.time_filter(period, time_bounds=True)
+                return times.time_filter(period)
             else:
                 log.warning("Requesting average over %d hours for instantaneous field %s is not supported, switching "
                             "to time sampling" % (period.hours, str(task.source.get_grib_code())))
-            return times.time_filter(period, time_bounds=True)
+            return times.time_filter(period)
         if period is not None and operator is not None:
             return times.time_aggregator(operator, period)
     log.error("Unsupported combination of frequency %s with time operators %s encountered for %s in table %s" %

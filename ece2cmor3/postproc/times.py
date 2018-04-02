@@ -10,11 +10,10 @@ log = logging.getLogger(__name__)
 
 class time_filter(operator.operator_base):
 
-    def __init__(self, period, time_bounds=False):
+    def __init__(self, period):
         super(time_filter, self).__init__()
         self.period = period
         self.timestamp = None
-        self.has_bnds = time_bounds
         self.tnext, self.tprev = None, None
         self.cached_properties = [message.variable_key, message.leveltype_key,
                                   message.levellist_key, message.resolution_key]
@@ -30,8 +29,10 @@ class time_filter(operator.operator_base):
         dthrs = (self.tnext - t).total_seconds() / 3600
         if t.hour % int(round(dthrs)) == 0:
             self.values = msg.get_values()
+            print "assigning values..."
             return True
         else:
+            print "deleting values..."
             self.values = None
             return False
 
@@ -52,9 +53,9 @@ class time_aggregator(operator.operator_base):
     min_operator = 4
     max_operator = 5
 
-    def __init__(self, operator, interval, filecache=True):
+    def __init__(self, operator_type, interval, filecache=True):
         super(time_aggregator, self).__init__()
-        self.operator = operator
+        self.operator = operator_type
         self.interval = interval
         self.file_cache = filecache
         self.previous_values = None
@@ -124,10 +125,15 @@ class time_aggregator(operator.operator_base):
             if self.operator in [self.min_operator, self.max_operator]:
                 self.set_values(numpy.copy(msg.get_values()))
             else:
+                timestamp = msg.get_timestamp()
+                rounded_timestamp = self.mod_date(timestamp, self.interval)
+                dt = (timestamp - rounded_timestamp).total_seconds()
+                norm = ((rounded_timestamp + self.interval) - rounded_timestamp).total_seconds()
+                #                self.set_values((dt / norm) * msg.get_values())
                 self.set_values(numpy.zeros(msg.get_values().shape, msg.get_values().dtype))
                 self.set_previous_values(msg.get_values())
 
-            # self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
+            #            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
             self.start_date = msg.get_timestamp()
             self.previous_timestamp = msg.get_timestamp()
         else:
@@ -164,7 +170,7 @@ class time_aggregator(operator.operator_base):
                 if self.remainder is not None:
                     values = self.get_remainder()
                     self.remainder = None
-                future_start_date = self.start_date + self.interval
+                future_start_date = self.mod_date(self.previous_timestamp, self.interval) + self.interval
                 delta_t = (timestamp - self.previous_timestamp).total_seconds() / \
                           (future_start_date - self.start_date).total_seconds()
                 if self.operator == self.block_left_operator:
@@ -175,6 +181,7 @@ class time_aggregator(operator.operator_base):
                     self.set_previous_values(msg.get_values())
                 elif self.operator == self.linear_mean_operator:
                     values += 0.5 * delta_t * (self.get_previous_values() + msg.get_values())
+                    print "dt = ", delta_t, "values:", values
                     self.set_previous_values(msg.get_values())
                 elif self.operator == self.min_operator:
                     rhs = self.get_previous_values() if self.values is None else values
