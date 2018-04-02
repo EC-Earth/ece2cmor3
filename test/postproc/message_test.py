@@ -73,3 +73,25 @@ class pp_message_test(unittest.TestCase):
         eq_(msg.get_field(message.datetime_key), datetime(1990, 1, 1, 3, 0, 0))
         eq_(msg.get_field(message.leveltype_key), 1)
         eq_(msg.get_field(message.levellist_key), [0])
+
+    @staticmethod
+    def test_grib_resolution():
+        grib_file.test_mode = False
+        gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMGGpl01+199001")
+        grbfile = grib_file.open_file(gg_path)
+        grbmsg = grib_file.create_grib_file(grbfile)
+        grbmsg.read_next()
+        msg = message.grib_message(grbmsg)
+        ok_(not msg.is_spectral())
+        eq_(msg.get_resolution(), 128)
+
+    @staticmethod
+    def test_grib_truncation():
+        grib_file.test_mode = False
+        gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
+        grbfile = grib_file.open_file(gg_path)
+        grbmsg = grib_file.create_grib_file(grbfile)
+        grbmsg.read_next()
+        msg = message.grib_message(grbmsg)
+        ok_(msg.is_spectral())
+        eq_(msg.get_resolution(), 128)
