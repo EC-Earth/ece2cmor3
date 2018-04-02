@@ -136,7 +136,6 @@ class csv_grib_mock(grib_file):
         super(csv_grib_mock, self).__init__(file_object_)
         self.row = []
         self.reader = csv.reader(file_object_, delimiter=',')
-        self.read_next()
 
     def read_next(self):
         self.row = next(self.reader, None)

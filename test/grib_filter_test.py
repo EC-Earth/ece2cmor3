@@ -21,9 +21,9 @@ def setup():
 class grib_filter_test(unittest.TestCase):
     test_mode = True
 
-    gg_file = "ICMGGECE3+199001.csv" if test_mode else "ICMGGECE3+199001"
+    gg_file = "ICMGGECE3+199001.csv" if test_mode else "ICMGGpl01+199001"
     gg_path = os.path.join(test_data_path, gg_file)
-    sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
+    sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHpl01+199001"
     sh_path = os.path.join(test_data_path, sh_file)
 
     @staticmethod
