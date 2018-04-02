@@ -47,10 +47,10 @@ class ifs2cmor_tests(unittest.TestCase):
 
     @staticmethod
     def test_postproc_specmean():
-        testdata = os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001"
-        if test_utils.is_lfs_ref(testdata):
-            logging.info("Skipping test_postproc_specmean, download test data from lfs first")
-            return
+        # testdata = os.path.dirname(__file__) + "/test_data/ifsdata/6hr/ICMSHECE3+199001"
+        # if test_utils.is_lfs_ref(testdata):
+        #     logging.info("Skipping test_postproc_specmean, download test data from lfs first")
+        #     return
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
         source = cmor_source.ifs_source.create(130, 128)

@@ -8,7 +8,7 @@ from nose.tools import eq_, ok_, with_setup
 
 logging.basicConfig(level=logging.DEBUG)
 
-test_data_path = os.path.join(os.path.dirname(__file__), "test_data", "ifs", "001")
+test_data_path = os.path.join(os.path.dirname(__file__), "test_data", "ifs")
 tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 
