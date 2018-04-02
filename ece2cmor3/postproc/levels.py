@@ -39,6 +39,9 @@ class level_aggregator(operator.operator_base):
                                   message.timebounds_key]
 
     def accept_msg(self, msg):
+        plevs = [grib_file.pressure_level_hPa_code, grib_file.pressure_level_Pa_code]
+        if self.level_type in plevs:
+            return msg.get_level_type() in plevs
         return msg.get_level_type() == self.level_type
 
     def fill_cache(self, msg):
@@ -46,13 +49,17 @@ class level_aggregator(operator.operator_base):
             self.levels = range(1, num_levels + 1)
             self.values = [None] * num_levels
         leveltype = msg.get_level_type()
+        plevs = [grib_file.pressure_level_hPa_code, grib_file.pressure_level_Pa_code]
         if leveltype != self.level_type:
-            return False
+            if self.level_type not in plevs or leveltype not in plevs:
+                return False
         i = 0
         for level in msg.get_levels():
             level_value = level
-            if self.level_type == grib_file.pressure_level_code:
-                level_value = float(100 * level)
+            if self.level_type == grib_file.pressure_level_Pa_code and leveltype == grib_file.pressure_level_hPa_code:
+                level_value = 100 * float(level)
+            elif self.level_type == grib_file.pressure_level_hPa_code and leveltype == grib_file.pressure_level_Pa_code:
+                level_value = 0.01 * float(level)
             elif self.level_type == grib_file.height_level_code:
                 level_value = float(level)
             if level_value not in self.levels:
@@ -71,7 +78,6 @@ class level_aggregator(operator.operator_base):
                 numpy.save(f, msg.get_values())
                 self.values[index] = f.name
                 f.close()
-
         return True
 
     def print_state(self):

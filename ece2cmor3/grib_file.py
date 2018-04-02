@@ -9,7 +9,8 @@ import numpy
 
 surface_level_code = 1
 hybrid_level_code = 109
-pressure_level_code = 100
+pressure_level_hPa_code = 100
+pressure_level_Pa_code = 210
 height_level_code = 105
 depth_level_code = 111
 pv_level_code = 108
@@ -86,7 +87,8 @@ class grib_file(object):
 class pygrib_api(grib_file):
     level_mapping = {surface_level_string: surface_level_code,
                      hybrid_level_string: hybrid_level_code,
-                     pressure_level_string: pressure_level_code,
+                     "isobaricInhPa": pressure_level_hPa_code,
+                     "isobaricInPa": pressure_level_Pa_code,
                      height_level_string: height_level_code,
                      depth_level_string: depth_level_code,
                      pv_level_string: pv_level_code}
@@ -112,8 +114,10 @@ class pygrib_api(grib_file):
 
     def get_field(self, name):
         if name == levtype_key:
-            level_type_string = str(self.message[name])
-            return pygrib_api.level_mapping.get(level_type_string, self.message[name])
+            level_type_string = str(self.message[levtype_key])
+            if level_type_string == pressure_level_string:
+                return pygrib_api.level_mapping.get(self.message["typeOfLevel"], -1)
+            return pygrib_api.level_mapping.get(level_type_string, -1)
         return self.message[name]
 
     def try_get_field(self, name):

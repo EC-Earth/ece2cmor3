@@ -71,7 +71,7 @@ def inspect_day(gribfile, grid):
 def get_record_key(gribfile):
     codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
-    if levtype == grib_file.pressure_level_code:
+    if levtype == grib_file.pressure_level_hPa_code:
         level *= 100
     if levtype == grib_file.depth_level_code:
         level = 0
@@ -290,7 +290,7 @@ def get_levels(task, code):
     if axis_variable in ["alevel", "alevhalf"]:
         return grib_file.hybrid_level_code, [-1]
     if axis_variable == "air_pressure":
-        return grib_file.pressure_level_code, [int(float(l)) for l in levels]
+        return grib_file.pressure_level_hPa_code, [int(float(l)) for l in levels]
     if axis_variable in ["height", "altitude"]:
         return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "

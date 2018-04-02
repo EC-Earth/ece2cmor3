@@ -129,5 +129,5 @@ def create_level_operator(task):
     if leveltype in ["height", "altitude"]:
         return levels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
     if leveltype in ["air_pressure"]:
-        return levels.level_aggregator(level_type=grib_file.pressure_level_code, levels=[float(l) for l in levels])
+        return levels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=[float(l) for l in levels])
     return None
