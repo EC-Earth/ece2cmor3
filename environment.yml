@@ -1,4 +1,4 @@
-name: ece2cmor3
+name: ece2cmor3-cmor-release-3.3.2
 channels:
 - pcmdi
 - conda-forge
@@ -80,7 +80,7 @@ dependencies:
 - mkl=2018.0.1=h19d6760_4
 - numpy=1.13.3=py27hbcc08e0_0
 - util-linux=2.21=0
-- cmor=3.3.1.npy1.13=py27h16be09d_0
+- cmor=3.3.2.npy1.13=py27hb8bc26d_0
 - pip:
   - cdat-info==0.0.0
   - f90nml==0.20
