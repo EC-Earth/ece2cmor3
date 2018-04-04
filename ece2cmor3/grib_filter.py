@@ -5,7 +5,7 @@ import numpy
 from dateutil import relativedelta
 
 from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
-from ece2cmor3.postproc import grids, message, levels
+from ece2cmor3.postproc import grids, message, zlevels
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -161,7 +161,7 @@ def read_grib_passed_time(grib, stop_time, month):
     reached_stop = time == stop_time
     keys = []
     if not grib.eof() and get_mon(grib) == month:
-        levels.get_pv_array(grib)
+        zlevels.get_pv_array(grib)
         cmorize_msg(grib, keys)
     while grib.read_next():
         time = grib.get_field(grib_file.time_key)
@@ -169,7 +169,7 @@ def read_grib_passed_time(grib, stop_time, month):
             grib.release()
             return time
         if get_mon(grib) == month:
-            levels.get_pv_array(grib)
+            zlevels.get_pv_array(grib)
             cmorize_msg(grib, keys)
         reached_stop = time == stop_time
         grib.release()

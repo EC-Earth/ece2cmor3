@@ -3,7 +3,7 @@ import re
 
 from dateutil.relativedelta import relativedelta
 from ece2cmor3 import cmor_target, grib_file, cmor_source
-from ece2cmor3.postproc import times, expression, cmorize, levels
+from ece2cmor3.postproc import times, expression, cmorize, zlevels
 
 # Log object
 log = logging.getLogger(__name__)
@@ -120,14 +120,14 @@ def create_level_operator(task):
         return None
     axisname, leveltype, levels = cmor_target.get_z_axis(task.target)
     if leveltype == "alevel":
-        return levels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
+        return zlevels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
     if leveltype == "alevhalf":
         log.error("Vertical half-levels in table %s are not supported by this post-processing software",
                   task.target.table)
         task.set_failed()
         return None
     if leveltype in ["height", "altitude"]:
-        return levels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
+        return zlevels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
     if leveltype in ["air_pressure"]:
-        return levels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=[float(l) for l in levels])
+        return zlevels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=[float(l) for l in levels])
     return None

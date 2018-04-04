@@ -4,7 +4,7 @@ import numexpr
 import numpy
 import cmor
 from ece2cmor3 import cmor_target, cmor_task, cmor_source
-from ece2cmor3.postproc import message, operator, levels
+from ece2cmor3.postproc import message, operator, zlevels
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -230,8 +230,8 @@ def create_bounds(a, minbnd=-float("inf"), maxbnd=float("inf")):
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(name):
     pref = 101325
-    a = levels.a_coefs
-    b = levels.b_coefs
+    a = zlevels.a_coefs
+    b = zlevels.b_coefs
     hcm = a / pref + b
     axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm, 0., 1.), units="1")
     cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],

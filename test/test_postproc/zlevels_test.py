@@ -7,7 +7,7 @@ from datetime import datetime
 from nose.tools import ok_, eq_
 
 from ece2cmor3 import cmor_source, grib_file
-from ece2cmor3.postproc import message, levels
+from ece2cmor3.postproc import message, zlevels
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -28,8 +28,8 @@ class levels_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_nonmatching_levtype():
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
-                                           levels=[100000, 85000, 50000, 10000, 5000])
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
+                                            levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
         msg = make_msg(130, time, 850., grib_file.pressure_level_hPa_code, 273.5)
         operator.receive_msg(msg)
@@ -38,8 +38,8 @@ class levels_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_nonmatching_levels():
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
-                                           levels=[100000, 85000, 50000, 10000, 5000])
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
+                                            levels=[100000, 85000, 50000, 10000, 5000])
         time = datetime(1990, 1, 1, 3, 0, 0)
         msg = make_msg(130, time, 850., grib_file.pressure_level_hPa_code, 273.5)
         operator.receive_msg(msg)
@@ -50,8 +50,8 @@ class levels_aggregator_test(unittest.TestCase):
     @staticmethod
     def test_matching_levels():
         plevs = [100000, 85000, 50000, 10000, 5000]
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
-                                           levels=plevs)
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code,
+                                            levels=plevs)
         time = datetime(1990, 1, 1, 3, 0, 0)
         for i in [3, 0, 4, 2, 1]:
             msg = make_msg(130, time, plevs[i] / 100., grib_file.pressure_level_hPa_code,
@@ -66,7 +66,7 @@ class levels_aggregator_test(unittest.TestCase):
 
     @staticmethod
     def test_model_levels():
-        operator = levels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
+        operator = zlevels.level_aggregator(level_type=grib_file.hybrid_level_code, levels=None)
         grib_file.test_mode = False
         gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
         grbfile = grib_file.open_file(gg_path)
@@ -74,7 +74,7 @@ class levels_aggregator_test(unittest.TestCase):
         test_values = None
         while grbmsg.read_next():
             msg = message.grib_message(grbmsg)
-            levels.get_pv_array(grbmsg)
+            zlevels.get_pv_array(grbmsg)
             if msg.get_variable().get_grib_code().var_id == 132 and \
                     msg.get_level_type() == grib_file.hybrid_level_code:
                 if msg.get_levels() == [13]:
@@ -88,7 +88,7 @@ class levels_aggregator_test(unittest.TestCase):
     @staticmethod
     def test_pressure_levels_hPa():
         plevs = [100000, 85000, 50000, 10000, 500]
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_Pa_code, levels=plevs)
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code, levels=plevs)
         grib_file.test_mode = False
         gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
         grbfile = grib_file.open_file(gg_path)
@@ -96,7 +96,7 @@ class levels_aggregator_test(unittest.TestCase):
         test_values = None
         while grbmsg.read_next():
             msg = message.grib_message(grbmsg)
-            levels.get_pv_array(grbmsg)
+            zlevels.get_pv_array(grbmsg)
             if msg.get_variable().get_grib_code().var_id == 132 and \
                     msg.get_level_type() == grib_file.pressure_level_hPa_code:
                 if msg.get_levels() == [100]:
@@ -113,7 +113,7 @@ class levels_aggregator_test(unittest.TestCase):
     @staticmethod
     def test_pressure_levels_Pa():
         plevs = [100000, 85000, 50000, 10000, 500, 40]
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_Pa_code, levels=plevs)
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code, levels=plevs)
         grib_file.test_mode = False
         gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
         grbfile = grib_file.open_file(gg_path)
@@ -121,7 +121,7 @@ class levels_aggregator_test(unittest.TestCase):
         test_values = None
         while grbmsg.read_next():
             msg = message.grib_message(grbmsg)
-            levels.get_pv_array(grbmsg)
+            zlevels.get_pv_array(grbmsg)
             if msg.get_variable().get_grib_code().var_id == 131 and \
                     msg.get_level_type() in [grib_file.pressure_level_Pa_code, grib_file.pressure_level_hPa_code]:
                 if msg.get_levels() == [40]:
@@ -139,7 +139,7 @@ class levels_aggregator_test(unittest.TestCase):
     @staticmethod
     def test_pressure_level_units():
         plevs = [1000., 850., 500., 100., 5., 0.4]
-        operator = levels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=plevs)
+        operator = zlevels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=plevs)
         grib_file.test_mode = False
         gg_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
         grbfile = grib_file.open_file(gg_path)
@@ -147,7 +147,7 @@ class levels_aggregator_test(unittest.TestCase):
         test_values = None
         while grbmsg.read_next():
             msg = message.grib_message(grbmsg)
-            levels.get_pv_array(grbmsg)
+            zlevels.get_pv_array(grbmsg)
             if msg.get_variable().get_grib_code().var_id == 131 and \
                     msg.get_level_type() in [grib_file.pressure_level_Pa_code, grib_file.pressure_level_hPa_code]:
                 if msg.get_levels() == [40]:

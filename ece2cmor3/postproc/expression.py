@@ -1,4 +1,5 @@
 import logging
+import numpy
 import re
 import numexpr
 from ece2cmor3 import cmor_source, grib_file
@@ -9,7 +10,10 @@ log = logging.getLogger(__name__)
 
 def fix_expr(expr):
     pattern = re.compile('sqr\( ( [^})]* ) \)', re.VERBOSE)
-    return pattern.sub(r'(\1)**2', expr.split('=', 1)[-1].strip())
+    result = pattern.sub(r'(\1)**2', expr.split('=', 1)[-1].strip())
+    if result.startswith("merge"):
+        return [s.strip() for s in result[6:-1].split(',')]
+    return result
 
 
 class expression_operator(operator.operator_base):
@@ -38,12 +42,17 @@ class expression_operator(operator.operator_base):
             self.local_dict[k] = None
 
     def create_msg(self):
-        self.values = numexpr.evaluate(self.numpy_expr, local_dict=self.local_dict)
+        levels = [0]
+        if isinstance(self.numpy_expr, list):
+            self.values = numpy.stack([numexpr.evaluate(e, local_dict=self.local_dict) for e in self.numpy_expr])
+            levels = range(1, len(self.numpy_expr) + 1)
+        else:
+            self.values = numexpr.evaluate(self.numpy_expr, local_dict=self.local_dict)
         # TODO: what about 3D derived variables?
         return message.memory_message(variable=self.source,
                                       timestamp=self.property_cache[message.datetime_key],
                                       timebounds=self.property_cache[message.timebounds_key],
                                       leveltype=grib_file.surface_level_code,
-                                      levels=[0],
+                                      levels=levels,
                                       resolution=self.property_cache[message.resolution_key],
                                       values=self.values)
