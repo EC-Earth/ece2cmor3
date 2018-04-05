@@ -10,7 +10,8 @@ dependencies:
 - ca-certificates=2017.11.5=0
 - cdat_info=2.12=py27_1
 - cdms2=2.12=np113py27_0
-- cdo=1.8.2=0
+#- cdo=1.8.2=0                      #8 cdo-1.9.3-0 depends on eccodes   , fftw, jasper, libgcc, libnetcdf 4.4.*, libxml2 2.9.*, proj4 4.9.3, udunits2, util-linux
+- cdo=1.9.3=0                       #8 cdo-1.8.2-0 depends on ecmwf_grib, fftw, jasper, libgcc, libnetcdf 4.4.*, libxml2 2.9.*, proj4 4.9.3, udunits2, util-linux
 - cdtime=2.12=np113py27_2
 - certifi=2017.11.5=py27_0
 - cffi=1.11.2=py27_0
