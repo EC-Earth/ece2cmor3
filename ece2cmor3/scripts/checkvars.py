@@ -26,11 +26,11 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-    ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format('table', 'dimensions', 'variable', 'long_name', 'comment_author', 'comment', '\n'))
+    ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:40} {:20} {:95} {:20} {} {}'.format(tgtvar.table, getattr(tgtvar,"dimensions","unknown"), tgtvar.variable, getattr(tgtvar,"long_name","unknown"), getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
+            ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
     ofile.close()
 
 
@@ -48,7 +48,8 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('F:F',  4)  # Adjust the column width of column F
     worksheet.set_column('G:G', 80)  # Adjust the column width of column G
     worksheet.set_column('H:H', 15)  # Adjust the column width of column H
-    worksheet.set_column('I:I',300)  # Adjust the column width of column I
+    worksheet.set_column('I:I',200)  # Adjust the column width of column I
+    worksheet.set_column('J:J', 80)  # Adjust the column width of column J
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -61,6 +62,7 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 6, 'comment', bold)
     worksheet.write(0, 7, 'comment author', bold)
     worksheet.write(0, 8, 'extensive variable description', bold)
+    worksheet.write(0, 9, 'list of MIPs which request this variable', bold)
 
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -76,6 +78,7 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 6, getattr(tgtvar,"ecearth_comment",""))
             worksheet.write(row_counter, 7, getattr(tgtvar,"comment_author",""))
             worksheet.write(row_counter, 8, getattr(tgtvar,"comment","unknown"))
+            worksheet.write(row_counter, 9, tgtvar.mip_list)
             row_counter += 1
     workbook.close()
     logging.info(" Writing the excel file: %s" % opath)
@@ -116,15 +119,16 @@ def main():
             if(output_dir != ''): os.makedirs(output_dir)
         write_varlist(loadedtargets,args.output + ".available.json")
         if(args.verbose):
+            write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx")
+            write_varlist_excel(ignoredtargets          ,args.output + ".ignored.xlsx")
+            write_varlist_excel(identifiedmissingtargets,args.output + ".identifiedmissing.xlsx")
+            write_varlist_excel(missingtargets          ,args.output + ".missing.xlsx")
+
             write_varlist_ascii(loadedtargets           ,args.output + ".available.txt")
             write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt")
             write_varlist_ascii(identifiedmissingtargets,args.output + ".identifiedmissing.txt")
             write_varlist_ascii(missingtargets          ,args.output + ".missing.txt")
 
-            write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx")
-            write_varlist_excel(ignoredtargets          ,args.output + ".ignored.xlsx")
-            write_varlist_excel(identifiedmissingtargets,args.output + ".identifiedmissing.xlsx")
-            write_varlist_excel(missingtargets          ,args.output + ".missing.xlsx")
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()

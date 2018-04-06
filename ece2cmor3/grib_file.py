@@ -13,7 +13,7 @@ pressure_level_hPa_code = 100
 pressure_level_Pa_code = 210
 height_level_code = 105
 depth_level_code = 111
-pv_level_code = 108
+pv_level_code = 117
 
 surface_level_string = "sfc"
 hybrid_level_string = "ml"

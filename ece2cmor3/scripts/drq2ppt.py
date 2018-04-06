@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Call this script e.g. by:
+#  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_amip_1_1.xlsx
+
 import sys
 import os
 import logging

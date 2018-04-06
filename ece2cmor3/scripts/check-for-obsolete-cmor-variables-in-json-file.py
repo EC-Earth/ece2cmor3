@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script by:
-#  python check-for-obsolete-cmor-variables-in-json-file.py
+#  ./check-for-obsolete-cmor-variables-in-json-file.py
 
 import sys
 import os
