@@ -20,9 +20,9 @@ dependencies:
 - cryptography=2.0.3=py27_0
 - curl=7.55.1=0
 - distarray=2.12.2=py27_0
-#- ecmwf_grib=1.23.1=0              #9 Seems this one can be omitted
-#- ecmwf-grib-api=1.23.1=0          #9 This package does not match with the hdf5 1.10 version obviously
-- ecmwf-grib-api=1.23.1=0           #9 no dependency listed ...
+#- ecmwf_grib=1.23.1=0
+#- ecmwf-grib-api=1.23.1=0          #9 no dependencies listed ...
+- python-eccodes=2.7.0=py27_0       #9 depends on eccodes 2.7.0, hdf5 1.10.1, jasper, libnetcdf 4.4.*, libpng >=1.6.32,<1.6.35, numpy >=1.8, python 2.7*
 - enum34=1.1.6=py27_1
 #- esmf=7.0.0=8                     #5 UnsatisfiableError: The following specifications were found to be in conflict: esmf 7.0.0 8  and  libcf 1.0.1 py27_1
 - esmf=7.1.0r=0                     #5 depends on hdf5 1.10.1, libgcc, mpich, netcdf-fortran 4.4.*
