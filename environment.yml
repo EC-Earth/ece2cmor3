@@ -20,8 +20,9 @@ dependencies:
 - cryptography=2.0.3=py27_0
 - curl=7.55.1=0
 - distarray=2.12.2=py27_0
-- ecmwf_grib=1.23.1=0
-- ecmwf-grib-api=1.23.1=0
+#- ecmwf_grib=1.23.1=0              #9 Seems this one can be omitted
+#- ecmwf-grib-api=1.23.1=0          #9 This package does not match with the hdf5 1.10 version obviously
+- ecmwf-grib-api=1.23.1=0           #9 no dependency listed ...
 - enum34=1.1.6=py27_1
 #- esmf=7.0.0=8                     #5 UnsatisfiableError: The following specifications were found to be in conflict: esmf 7.0.0 8  and  libcf 1.0.1 py27_1
 - esmf=7.1.0r=0                     #5 depends on hdf5 1.10.1, libgcc, mpich, netcdf-fortran 4.4.*
@@ -92,6 +93,7 @@ dependencies:
 - libstdcxx-ng=7.2.0=h7a57d05_2
 - mkl=2018.0.1=h19d6760_4
 - numpy=1.13.3=py27hbcc08e0_0
+#- numpy=1.14.2=py27hdbf6ddf_1       #10 libgcc-ng >=7.2.0, libgfortran-ng >=7,<8.0a0, mkl >=2018.0.2, mkl_fft, mkl_random, python >=2.7,<2.8.0a0
 - util-linux=2.21=0
 - cmor=3.3.2.npy1.13=py27hb8bc26d_0  #0 depends on cdms2, hdf5 >=1.10, libnetcdf >=4.4, numpy 1.13.*, ossuuid >=1.6, python >=2.7,<2.8.0a0, udunits2
 - pip:
