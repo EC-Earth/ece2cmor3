@@ -126,14 +126,8 @@ class time_aggregator(operator.operator_base):
                 self.set_values(numpy.copy(msg.get_values()))
             else:
                 timestamp = msg.get_timestamp()
-                rounded_timestamp = self.mod_date(timestamp, self.interval)
-                dt = (timestamp - rounded_timestamp).total_seconds()
-                norm = ((rounded_timestamp + self.interval) - rounded_timestamp).total_seconds()
-                #                self.set_values((dt / norm) * msg.get_values())
-                self.set_values(numpy.zeros(msg.get_values().shape, msg.get_values().dtype))
+                self.set_values(numpy.zeros(msg.get_values().shape, dtype=numpy.float64))
                 self.set_previous_values(msg.get_values())
-
-            #            self.start_date = self.mod_date(msg.get_timestamp(), self.interval)
             self.start_date = msg.get_timestamp()
             self.previous_timestamp = msg.get_timestamp()
         else:
@@ -181,7 +175,6 @@ class time_aggregator(operator.operator_base):
                     self.set_previous_values(msg.get_values())
                 elif self.operator == self.linear_mean_operator:
                     values += 0.5 * delta_t * (self.get_previous_values() + msg.get_values())
-                    print "dt = ", delta_t, "values:", values
                     self.set_previous_values(msg.get_values())
                 elif self.operator == self.min_operator:
                     rhs = self.get_previous_values() if self.values is None else values
