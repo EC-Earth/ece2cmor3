@@ -1,10 +1,10 @@
 import logging
+import os
 import unittest
 
-import os
+from nose.tools import eq_, with_setup
 
 from ece2cmor3 import grib_filter, grib_file, ece2cmorlib, cmor_source, cmor_task, cmor_target
-from nose.tools import eq_, ok_, with_setup
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -31,7 +31,7 @@ class grib_filter_test(unittest.TestCase):
     def test_initialize():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         eq_(grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9, cmor_source.ifs_grid.point)], 6)
-        eq_(grib_filter.varsfreq[(133, 128, grib_file.pressure_level_hPa_code, 85000, cmor_source.ifs_grid.point)], 6)
+        eq_(grib_filter.varsfreq[(133, 128, grib_file.pressure_level_Pa_code, 85000, cmor_source.ifs_grid.point)], 6)
         eq_(grib_filter.varsfreq[(164, 128, grib_file.surface_level_code, 0, cmor_source.ifs_grid.point)], 3)
 
     @staticmethod
@@ -48,7 +48,7 @@ class grib_filter_test(unittest.TestCase):
         valid_tasks = grib_filter.validate_tasks([tsk1, tsk2])
         eq_(valid_tasks, [tsk1, tsk2])
         key1 = (79, 128, grib_file.surface_level_code, 0, cmor_source.ifs_grid.point)
-        key2 = (131, 128, grib_file.pressure_level_hPa_code, 92500., cmor_source.ifs_grid.spec)
+        key2 = (131, 128, grib_file.pressure_level_Pa_code, 92500., cmor_source.ifs_grid.spec)
         eq_(grib_filter.varstasks[key1], [tsk1])
         eq_(grib_filter.varstasks[key2], [tsk2])
         aname, ltype, plevs = cmor_target.get_z_axis(tgt2)

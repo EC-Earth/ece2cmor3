@@ -25,7 +25,7 @@ class cmor_source(object):
     def grid(self):
         pass
 
-    def realm(self):
+    def model_component(self):
         pass
 
 
@@ -118,6 +118,10 @@ class ifs_source(cmor_source):
     def grid(self):
         return ifs_grid[self.grid_] if self.grid_ >= 0 else None
 
+    # Returns the model component.
+    def model_component(self):
+        return "ifs"
+
     # Returns the grid id.
     def grid_id(self):
         return self.grid_
@@ -201,6 +205,10 @@ class nemo_source(cmor_source):
 
     def grid(self):
         return nemo_grid[self.grid_]
+
+    # Returns the model component.
+    def model_component(self):
+        return "nemo"
 
     def var(self):
         return self.var_id

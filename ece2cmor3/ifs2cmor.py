@@ -50,7 +50,7 @@ masks = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
-               outputfreq=6, tempdir=None, maxsizegb=float("inf")):
+               outputfreq=6, tempdir=None):
     global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
         output_interval_, ifs_grid_descr_, temp_dir_, tempdir_created_, max_size_, ref_date_, start_date_, \
         output_frequency_
