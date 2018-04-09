@@ -211,7 +211,7 @@ def add_grid_operators(cdo, task, grid_descr):
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
         gridtype = grid_descr.get("gridtype", "gaussian reduced")
-        if gridtype == "gaussian reduced":
+        if gridtype in ["gaussian reduced", "gaussian_reduced"]:
             cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
 
 

@@ -124,6 +124,7 @@ def execute(tasks, cleanup=True, autofilter=True):
                 task.set_failed()
             setattr(task, cmor_task.output_frequency_key, output_frequency_)
         grid_descr_file = ifs_gridpoint_file_
+    log.info("Fetching grid description from %s ..." % grid_descr_file)
     ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(grid_descr_file) if os.path.exists(grid_descr_file) else {}
     processed_tasks = []
     try:
@@ -492,7 +493,7 @@ def create_depth_axes(tasks):
             setattr(task, "z_axis_id", axisid)
             setattr(task, "store_with", psid)
             continue
-        elif zdim in ["sdepth"]:
+        elif zdim == "sdepth":
             axisid = create_soil_depth_axis(zdim, getattr(task, "path"))
             depth_axes[zdim] = axisid
             setattr(task, "z_axis_id", axisid)
@@ -571,6 +572,11 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name, filepath):
     global log
+    # New version of cdo fails to pass soil depths correctly:
+    bndcm = numpy.array([0, 7, 28, 100, 289])
+    values = 0.5*(bndcm[:4] + bndcm[1:])
+    bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
+    return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
     dataset = None
     try:
         dataset = netCDF4.Dataset(filepath, 'r')

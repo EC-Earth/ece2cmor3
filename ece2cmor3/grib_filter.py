@@ -101,7 +101,7 @@ def get_record_key(gribfile):
     if levtype == grib_file.pressure_level_hPa_code:
         level *= 100
         levtype = grib_file.pressure_level_Pa_code
-    if levtype == 112:
+    if levtype == 112 or levtype == grib_file.depth_level_code:
         level = 0
         levtype = grib_file.depth_level_code
     if codevar in [49, 165, 166]:

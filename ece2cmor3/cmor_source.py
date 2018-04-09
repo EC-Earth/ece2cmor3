@@ -132,7 +132,11 @@ class ifs_source(cmor_source):
                 raise Exception("Unable to read grib codes from expression",s)
             else:
                 newcode = grib_code(int(varstrs[0][3:]),128)
-                incodes = list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])))
+                gclist = map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])
+                incodes = []
+                for c in gclist:
+                    if c not in incodes:
+                        incodes.append(c)
                 cls = ifs_source(None)
                 if(s.replace(" ","") != "var134=exp(var152)"):
                     if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
