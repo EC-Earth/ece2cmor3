@@ -102,7 +102,7 @@ def execute(tasks, cleanup=True, autofilter=True):
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
-    surf_pressure_tasks = get_sp_tasks(supported_tasks)
+    surf_pressure_tasks = get_sp_tasks(supported_tasks, autofilter)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
     grid_descr_file = None
@@ -245,7 +245,7 @@ def filter_tasks(tasks):
 
 
 # Creates extra tasks for surface pressure
-def get_sp_tasks(tasks):
+def get_sp_tasks(tasks, autofilter):
     global ifs_spectral_file_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = []
@@ -263,7 +263,7 @@ def get_sp_tasks(tasks):
             surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", freq))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq)
             setattr(surf_pressure_task.target, "time_operator", ["point"])
-            find_sp_variable(surf_pressure_task)
+            find_sp_variable(surf_pressure_task, autofilter)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
             setattr(task3d, "sp_task", surf_pressure_task)
@@ -280,8 +280,18 @@ def postprocess(tasks):
 
 
 # Finds the surface pressure data source: gives priority to SH file.
-def find_sp_variable(task):
+def find_sp_variable(task, autofilter):
     global ifs_gridpoint_file_, ifs_spectral_file_, surface_pressure, ln_surface_pressure
+    if autofilter:
+        if grib_filter.spvar is None:
+            log.error("Could not find surface pressure in model output...")
+            return
+        log.info("Found surface pressure in file %s" % grib_filter.spvar[2])
+        setattr(task, "path", grib_filter.spvar[2])
+        if grib_filter.spvar[0] == 152:
+            task.source = cmor_source.ifs_source.read("var134=exp(var152)")
+        task.source.grid_ = 1 if grib_filter.spvar[2] == ifs_spectral_file_ else 0
+        return
     log.info("Looking for surface pressure variable in input files...")
     command = cdo.Cdo()
     code_string = command.showcode(input=ifs_spectral_file_)
@@ -660,9 +670,6 @@ def get_sp_var(ncpath):
     except Exception as e:
         log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
-    finally:
-        if ds is not None:
-            ds.close()
 
 
 # Retrieves all IFS output files in the input directory.

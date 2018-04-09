@@ -21,10 +21,23 @@ accum_codes = []
 varsfreq = {}
 varstasks = {}
 varsfiles = {}
+spvar = None
 
 
 # Initializes the module, looks up previous month files and inspects the first
 # day in the input files to set up an administration of the fields.
+def update_sp_key(fname):
+    global spvar
+    for key in varsfreq:
+        freq = varsfreq[key]
+        if key[0] == 154:
+            if spvar is None or spvar[1] >= freq:
+                spvar = (154, freq, fname)
+        if key[0] == 134:
+            if spvar is None or spvar[1] > freq:
+                spvar = (134, freq, fname)
+
+
 def initialize(gpfile, shfile, tmpdir):
     global gridpoint_file, prev_gridpoint_file, spectral_file, prev_spectral_file, temp_dir, varsfreq, accum_codes
     gridpoint_file = gpfile
@@ -35,7 +48,9 @@ def initialize(gpfile, shfile, tmpdir):
     prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
     with open(gpfile) as gpf, open(shfile) as shf:
         varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
+        update_sp_key(gpfile)
         varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
+        update_sp_key(shfile)
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -110,10 +125,13 @@ def get_record_key(gribfile):
     if codevar in [167, 168, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
-    if codevar in [9, 134]:
+    if codevar in [9]:
         level = 0
         levtype = grib_file.surface_level_code
-    if levtype == grib_file.pv_level_code: # Mapping pv-levels to surface: we don't support more than one pv-level
+    if codevar == 134 and levtype == grib_file.hybrid_level_code:
+        level = 0
+        levtype = grib_file.surface_level_code
+    if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
     return codevar, codetab, levtype, level
