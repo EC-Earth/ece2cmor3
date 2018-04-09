@@ -41,6 +41,13 @@
         "masked": "land"
     },
     {
+        "source": "49.128",
+        "target": [
+            "wsgmax",
+            "wsgmax10m"
+        ]
+    },
+    {
         "source": "54.128",
         "target": "pfull"
     },
