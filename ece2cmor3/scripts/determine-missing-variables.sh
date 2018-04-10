@@ -55,7 +55,7 @@ if [ "$#" -eq 4 ]; then
  fi
 
  diff_with_benchmark=false
- benchmark='benchmark-08'
+ benchmark='benchmark-10'
  if ${diff_with_benchmark} ; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
   echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
@@ -102,4 +102,4 @@ fi
 # ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1
 # ./determine-missing-variables.sh DAMIP       DAMIP        1 1
 
-# ll *.missing.xlsx|grep -v 5.4K
+# ll *.missing.xlsx|grep -v 5.5K
