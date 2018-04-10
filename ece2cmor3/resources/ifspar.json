@@ -36,7 +36,10 @@
     },
     {
         "source": "45.128",
-        "target": "snm",
+        "target": [
+            "snm",
+            "snmIs"
+        ],
         "convert": "vol2flux",
         "masked": "land"
     },
@@ -74,7 +77,8 @@
         "convert": "cum2inst",
         "target": [
           "rsus",
-          "rsuscs"
+          "rsuscs",
+          "rsusIs"
         ],
         "expr": "var95=var176-var169"
     },
@@ -83,7 +87,8 @@
         "convert": "cum2inst",
         "target": [
           "rlus",
-          "rluscs"
+          "rluscs",
+          "rlusIs"
         ],
         "expr": "var96=var177-var175"
     },
@@ -216,6 +221,11 @@
         "masked": "land"
     },
     {
+        "source": "122.128",
+        "target": "prraIs",
+        "expr": "var122=var142+var143-var144"
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
@@ -302,7 +312,10 @@
     },
     {
         "source": "139.128",
-        "target": "ts"
+        "target": [
+            "ts",
+            "tsIs"
+        ]
     },
     {
         "source": "139.128",
@@ -327,17 +340,26 @@
     {
         "source": "144.128",
         "convert": "vol2flux",
-        "target": "prsn"
+        "target": [
+            "prsn",
+            "prsnIs"
+        ]
     },
     {
         "source": "146.128",
         "convert": "cum2inst",
-        "target": "hfss"
+        "target": [
+            "hfss",
+            "hfssIs"
+        ]
     },
     {
         "source": "147.128",
         "convert": "cum2inst",
-        "target": "hfls"
+        "target": [
+            "hfls",
+            "hflsIs"
+        ]
     },
     {
         "source": "151.128",
@@ -362,7 +384,10 @@
     },
     {
         "source": "167.128",
-        "target": "tas"
+        "target": [
+            "tas",
+            "tasIs"
+        ]
     },
     {
         "source": "168.128",
@@ -371,12 +396,18 @@
     {
         "source": "169.128",
         "convert": "cum2inst",
-        "target": "rsds"
+        "target": [
+            "rsds",
+            "rsdsIs"
+        ]
     },
     {
         "source": "175.128",
         "convert": "cum2inst",
-        "target": "rlds"
+        "target": [
+            "rlds",
+            "rldsIs"
+        ]
     },
     {
         "source": "179.128",
@@ -396,7 +427,10 @@
     {
         "source": "182.128",
         "convert": "vol2flux",
-        "target": "evspsbl"
+        "target": [
+            "evspsbl",
+            "sblIs"
+        ]
     },
     {
         "source": "201.128",
@@ -409,7 +443,10 @@
     {
         "source": "205.128",
         "convert": "vol2flux",
-        "target": "mrro",
+        "target": [
+            "mrro",
+            "mrroIs"
+        ]
         "masked": "land"
     },
     {
@@ -447,7 +484,8 @@
         "source": "238.128",
         "target": [
           "tsn",
-          "tsns"
+          "tsns",
+          "tsnIs"
         ]
     },
     {
