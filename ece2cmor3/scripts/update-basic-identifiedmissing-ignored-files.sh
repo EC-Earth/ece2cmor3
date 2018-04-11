@@ -42,6 +42,9 @@ if [ "$#" -eq -2 ]; then
    cpf cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
    cpf cmvmm-all-mips-t=3-p=3.ignored.xlsx           ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
 
+# Note that in order to create the basic lists from the pre basic fields, the variables in the pre basic lists are matched against the data request by drq in 
+# step 1 here, which includes all EC-Earth MIPs for the Core MIP experiments, however this does not include the endorsed MIP experiments (e.g drq -m LS3MIP -e LS3MIP ).
+# Therefore the identified missing and ignored vraiables coming from the endorsed MIP experiments have to be added manually to the basic lists.
 
 
 # Test that this replace gives still the same results:
