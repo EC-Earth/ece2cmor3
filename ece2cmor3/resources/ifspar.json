@@ -63,6 +63,18 @@
         "target": "clivi"
     },
     {
+        "source": "95.128",
+        "target": "tntr"
+    },
+    {
+        "source": "105.128",
+        "target": "tntc"
+    },
+    {
+        "source": "106.128",
+        "target": "tnhusc"
+    },
+    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
@@ -526,6 +538,16 @@
         "source": "122.129",
         "target": "prraIs",
         "expr": "var122=var142+var143-var144"
+    },
+    {
+        "source": "122.129",
+        "target": "prraIs",
+        "expr": "var122=var142+var143-var144"
+    },
+    {
+        "source": "123.129",
+        "target": "wa",
+        "expr": "var123=-287*var130*(1+0.61*var133)*var135/(9.81*var54)"
     },
     {
         "mask": "land",
