@@ -150,7 +150,7 @@ def perform_ifs_tasks(datadir,expname,startdate,interval,refdate = None,
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     postproc.task_threads = taskthreads
-    ifs2cmor.execute(ifs_tasks,cleanup = cleanup)
+    ifs2cmor.execute(ifs_tasks,cleanup = cleanup,autofilter=auto_filter)
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir,expname,startdate,interval):
