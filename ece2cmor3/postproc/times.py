@@ -29,10 +29,8 @@ class time_filter(operator.operator_base):
         dthrs = (self.tnext - t).total_seconds() / 3600
         if t.hour % int(round(dthrs)) == 0:
             self.values = msg.get_values()
-            print "assigning values..."
             return True
         else:
-            print "deleting values..."
             self.values = None
             return False
 
@@ -125,7 +123,6 @@ class time_aggregator(operator.operator_base):
             if self.operator in [self.min_operator, self.max_operator]:
                 self.set_values(numpy.copy(msg.get_values()))
             else:
-                timestamp = msg.get_timestamp()
                 self.set_values(numpy.zeros(msg.get_values().shape, dtype=numpy.float64))
                 self.set_previous_values(msg.get_values())
             self.start_date = msg.get_timestamp()

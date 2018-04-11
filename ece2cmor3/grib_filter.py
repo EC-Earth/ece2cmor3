@@ -198,14 +198,14 @@ def cmorize_msg(grb, keys):
     if key in extra_operators:
         extra_operators[key].receive_msg(msg)
     if any(tasks):
-        # print "GRIB keys:", key
+        #        print "GRIB keys:", key
         mapper = grids.grid_remap_operator()
         mapper.receive_msg(msg)
         mapped_msg = mapper.create_msg()
         for task in tasks:
             operator = task_operators.get(task, None)
             if operator is not None:
-                # print "processing task", task.target.variable, "in", task.target.table
+                #                print "processing task", task.target.variable, "in", task.target.table
                 if not operator.receive_msg(mapped_msg):
                     return False
     return True

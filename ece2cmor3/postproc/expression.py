@@ -24,7 +24,7 @@ class expression_operator(operator.operator_base):
         self.numpy_expr = fix_expr(expr)
         self.local_dict = {v.to_var_string(): None for v in self.source.get_root_codes()}
         self.cached_properties = [message.datetime_key, message.timebounds_key,
-                                  message.resolution_key]
+                                  message.resolution_key, message.leveltype_key, message.levellist_key]
 
     def fill_cache(self, msg):
         vstr = msg.get_variable().code_.to_var_string()
@@ -42,17 +42,16 @@ class expression_operator(operator.operator_base):
             self.local_dict[k] = None
 
     def create_msg(self):
-        levels = [0]
         if isinstance(self.numpy_expr, list):
             self.values = numpy.stack([numexpr.evaluate(e, local_dict=self.local_dict) for e in self.numpy_expr])
             levels = range(1, len(self.numpy_expr) + 1)
         else:
             self.values = numexpr.evaluate(self.numpy_expr, local_dict=self.local_dict)
-        # TODO: what about 3D derived variables?
+            levels = self.property_cache[message.levellist_key]
         return message.memory_message(variable=self.source,
                                       timestamp=self.property_cache[message.datetime_key],
                                       timebounds=self.property_cache[message.timebounds_key],
-                                      leveltype=grib_file.surface_level_code,
+                                      leveltype=self.property_cache[message.leveltype_key],
                                       levels=levels,
                                       resolution=self.property_cache[message.resolution_key],
                                       values=self.values)

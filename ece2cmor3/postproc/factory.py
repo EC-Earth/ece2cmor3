@@ -115,8 +115,7 @@ def create_time_operator(task):
 
 # Creates a vertical level aggregation operator for a specific task
 def create_level_operator(task):
-    # TODO Correct this for composed variables
-    if task.source.get_grib_code() not in cmor_source.ifs_source.grib_codes_3D:
+    if not any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_3D]):
         return None
     axisname, leveltype, levels = cmor_target.get_z_axis(task.target)
     if leveltype == "alevel":
@@ -129,5 +128,5 @@ def create_level_operator(task):
     if leveltype in ["height", "altitude"]:
         return zlevels.level_aggregator(level_type=grib_file.height_level_code, levels=[float(l) for l in levels])
     if leveltype in ["air_pressure"]:
-        return zlevels.level_aggregator(level_type=grib_file.pressure_level_hPa_code, levels=[float(l) for l in levels])
+        return zlevels.level_aggregator(level_type=grib_file.pressure_level_Pa_code, levels=[float(l) for l in levels])
     return None
