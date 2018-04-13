@@ -70,8 +70,7 @@ def main(args=None):
         procatmos, prococean = True, True
 
     # Load the variables as task targets:
-    taskloader.ifs_par_file = args.ifspar
-    taskloader.nemo_par_file = args.nemopar
+    taskloader.load_parameter_tables(ifs=args.ifspar, nemo=args.nemopar)
     taskloader.load_targets(args.vars, load_atm_tasks=procatmos, load_oce_tasks=prococean)
 
     startdate = dateutil.parser.parse(args.date)
