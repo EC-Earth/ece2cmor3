@@ -5,7 +5,7 @@ import numpy
 from dateutil import relativedelta
 
 from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
-from ece2cmor3.postproc import grids, message, zlevels
+from ece2cmor3.postproc import grids, message, zlevels, operator
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -143,6 +143,7 @@ def execute(tasks, month):
         with grib_file.open_file(icmggpath) as ggf, grib_file.open_file(icmshpath) as shf:
             icmgg, icmsh = grib_file.create_grib_file(ggf), grib_file.create_grib_file(shf)
             cmorize_files(month, icmgg, icmsh)
+    operator.write_stats("ifs2cmor.stats")
     return valid_tasks
 
 

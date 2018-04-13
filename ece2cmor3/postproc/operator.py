@@ -1,4 +1,5 @@
 import logging
+import time
 from ece2cmor3.postproc import message
 
 # Post-processing operator abstract base class
@@ -7,6 +8,8 @@ log = logging.getLogger(__name__)
 
 
 class operator_base(object):
+
+    stats = {}
 
     def __init__(self):
 
@@ -25,6 +28,7 @@ class operator_base(object):
                                   message.levellist_key,
                                   message.resolution_key]
         self.property_cache = {}
+        operator_base.stats[self.__class__.__name__] = {"n_recv" : 0, "t_recv": 0., "n_snd" : 0, "t_snd" : 0.}
 
     def receive_msg(self, msg):
         if not self.accept_msg(msg):
@@ -42,7 +46,10 @@ class operator_base(object):
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
+        start = time.clock()
         self.fill_cache(msg)
+        stop = time.clock()
+        self.update_stats("recv", stop - start)
         if self.cache_is_full():
             self.send_msg()
         return True
@@ -51,7 +58,10 @@ class operator_base(object):
         print self.property_cache
 
     def send_msg(self):
+        start = time.clock()
         msg = self.create_msg()
+        stop = time.clock()
+        self.update_stats("snd", stop - start)
         for target in self.mask_targets:
             target.receive_mask(msg)
         for target in self.store_var_targets:
@@ -102,3 +112,17 @@ class operator_base(object):
         for operator in self.targets + self.mask_targets + self.store_var_targets:
             result.extend(operator.get_all_operators())
         return result
+
+    def update_stats(self, param, dt):
+        vals = operator_base.stats[self.__class__.__name__]
+        vals["n_" + param] += 1
+        vals["t_" + param] += dt
+
+
+def write_stats(fname):
+    cols = ["n_recv", "t_recv", "n_snd", "t_snd"]
+    with open(fname, 'wb') as ofile:
+        ofile.write("operator" + "\t\t" + '\t'.join(cols) + '\n')
+        for record in operator_base.stats:
+            statistics = operator_base.stats[record]
+            ofile.write(record + "\t\t" + '\t'.join([str(statistics[c]) for c in cols]) + '\n')
