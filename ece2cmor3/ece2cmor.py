@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import logging
 import argparse
+import logging
+import os
+
 import dateutil.parser
 import dateutil.relativedelta
+
 from ece2cmor3 import ece2cmorlib, taskloader
 
 logging.basicConfig(level=logging.DEBUG)
@@ -50,9 +51,11 @@ def main(args=None):
                         help="Run ece2cmor3 exclusively for ocean data")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
     parser.add_argument("--filter", action="store_true", default=False, help="Automatic filtering of grib files")
-    parser.add_argument("--ifspar", metavar="FILE.json", type=str, default=taskloader.ifs_par_file,
+    parser.add_argument("--ifspar", metavar="FILE.json", type=str,
+                        default=taskloader.models["ifs"][taskloader.parfile_key],
                         help="IFS parameter file (optional)")
-    parser.add_argument("--nemopar", metavar="FILE.json", type=str, default=taskloader.nemo_par_file,
+    parser.add_argument("--nemopar", metavar="FILE.json", type=str,
+                        default=taskloader.models["nemo"][taskloader.parfile_key],
                         help="Nemo parameter file (optional")
 
     args = parser.parse_args()
@@ -70,8 +73,7 @@ def main(args=None):
         procatmos, prococean = True, True
 
     # Load the variables as task targets:
-    taskloader.ifs_par_file = args.ifspar
-    taskloader.nemo_par_file = args.nemopar
+    taskloader.load_parameter_tables(ifs=args.ifspar, nemo=args.nemopar)
     taskloader.load_targets(args.vars, load_atm_tasks=procatmos, load_oce_tasks=prococean)
 
     startdate = dateutil.parser.parse(args.date)

@@ -167,8 +167,10 @@ def get_prev_files(gpfile):
         return inigpfile, inishfile
     if len(prevgpfiles) > 1:
         log.warning("Multiple previous month gridpoint files found: %s. Taking first match" % ",".join(prevgpfiles))
-    if len(prevshfiles) > 1:
+    elif len(prevshfiles) > 1:
         log.warning("Multiple previous month spectral files found: %s. Taking first match" % ",".join(prevshfiles))
+    else:
+        log.info("Found previous month gridpoint file %s and spectral file %s" % (prevgpfiles[0], prevshfiles[0]))
     return prevgpfiles[0], prevshfiles[0]
 
 
