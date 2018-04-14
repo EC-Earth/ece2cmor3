@@ -194,7 +194,7 @@ def cmorize_msg(grb, keys):
     index = 3 if key[2] == grib_file.hybrid_level_code else 4
     for k in varstasks:
         if k[:index] == key[:index]:
-            matches = [t for t in varstasks[k] if t % getattr(t, cmor_task.output_frequency_key, 1) == 0]
+            matches = [tsk for tsk in varstasks[k] if tsk % getattr(tsk, cmor_task.output_frequency_key, 1) == 0]
             tasks.update(matches)
     msg = message.grib_message(grb)
     if key in extra_operators:
