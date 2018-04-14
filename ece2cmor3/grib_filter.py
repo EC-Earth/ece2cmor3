@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import numpy
 from dateutil import relativedelta
@@ -40,19 +41,19 @@ def inspect_day(gribfile, grid):
     records = {}
     while gribfile.read_next():
         date = gribfile.get_field(grib_file.date_key)
-        time = gribfile.get_field(grib_file.time_key) / 100
-        if date == inidate + 1 and time == initime:
+        timestamp = gribfile.get_field(grib_file.time_key) / 100
+        if date == inidate + 1 and timestamp == initime:
             break
         if inidate < 0:
             inidate = date
         if initime < 0:
-            initime = time
+            initime = timestamp
         key = get_record_key(gribfile) + (grid,)
         if key in records:
-            if time not in records[key]:
-                records[key].append(time)
+            if timestamp not in records[key]:
+                records[key].append(timestamp)
         else:
-            records[key] = [time]
+            records[key] = [timestamp]
         gribfile.release()
     result = {}
     for key, val in records.iteritems():
@@ -162,29 +163,29 @@ def cmorize_files(month, icmgg, icmsh):
 
 
 def read_grib_passed_time(grib, stop_time, month):
-    time = grib.get_field(grib_file.time_key)
-    reached_stop = time == stop_time
+    timestamp = grib.get_field(grib_file.time_key)
+    reached_stop = timestamp == stop_time
     keys = []
     if not grib.eof() and get_mon(grib) == month:
         zlevels.get_pv_array(grib)
         cmorize_msg(grib, keys)
     while grib.read_next():
-        time = grib.get_field(grib_file.time_key)
-        if reached_stop and time != stop_time:
+        timestamp = grib.get_field(grib_file.time_key)
+        if reached_stop and timestamp != stop_time:
             grib.release()
-            return time
+            return timestamp
         if get_mon(grib) == month:
             zlevels.get_pv_array(grib)
             cmorize_msg(grib, keys)
-        reached_stop = time == stop_time
+        reached_stop = timestamp == stop_time
         grib.release()
     return -1
 
 
 def cmorize_msg(grb, keys):
     key = get_record_key(grb)
-    time = grb.get_field(grib_file.time_key) / 100
-    tkey = key + (time,)
+    t = grb.get_field(grib_file.time_key) / 100
+    tkey = key + (t,)
     # Ignore duplicates
     if tkey in keys:
         return
@@ -193,7 +194,7 @@ def cmorize_msg(grb, keys):
     index = 3 if key[2] == grib_file.hybrid_level_code else 4
     for k in varstasks:
         if k[:index] == key[:index]:
-            matches = [t for t in varstasks[k] if time % getattr(t, cmor_task.output_frequency_key, 1) == 0]
+            matches = [t for t in varstasks[k] if t % getattr(t, cmor_task.output_frequency_key, 1) == 0]
             tasks.update(matches)
     msg = message.grib_message(grb)
     if key in extra_operators:
