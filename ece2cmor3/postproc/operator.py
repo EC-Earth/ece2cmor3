@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 
 
 class operator_base(object):
-
     stats = {}
 
     def __init__(self):
@@ -28,7 +27,8 @@ class operator_base(object):
                                   message.levellist_key,
                                   message.resolution_key]
         self.property_cache = {}
-        operator_base.stats[self.__class__.__name__] = {"n_recv" : 0, "t_recv": 0., "n_snd" : 0, "t_snd" : 0.}
+        if self.__class__.__name__ not in operator_base.stats:
+            operator_base.stats[self.__class__.__name__] = {"n_recv": 0, "t_recv": 0., "n_snd": 0, "t_snd": 0.}
 
     def receive_msg(self, msg):
         if not self.accept_msg(msg):
@@ -114,9 +114,8 @@ class operator_base(object):
         return result
 
     def update_stats(self, param, dt):
-        vals = operator_base.stats[self.__class__.__name__]
-        vals["n_" + param] += 1
-        vals["t_" + param] += dt
+        operator_base.stats[self.__class__.__name__]["n_" + param] += 1
+        operator_base.stats[self.__class__.__name__]["t_" + param] += dt
 
 
 def write_stats(fname):
