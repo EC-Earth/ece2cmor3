@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 # Class for interfacing with the CDO python wrapper.
 class cdo_command:
     # CDO operator strings
+    timselmean_operator = "timselmean"
     select_code_operator = "selcode"
     select_var_operator = "selvar"
     set_code_operator = "setcode"
@@ -46,6 +47,7 @@ class cdo_command:
     operator_ordering = [set_code_operator, mean_time_operators[month], min_time_operators[month],
                          max_time_operators[month],
                          mean_time_operators[day], min_time_operators[day], max_time_operators[day],
+                         timselmean_operator,
                          add_expression_operator,
                          expression_operator, spectral_operator, gridtype_operator, ml2pl_operator, ml2hl_operator,
                          select_lev_operator, select_z_operator, select_hour_operator, select_day_operator,
