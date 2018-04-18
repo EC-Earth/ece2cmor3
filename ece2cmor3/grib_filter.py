@@ -360,7 +360,8 @@ def write_record(gribfile, shift=0, handles=None):
         return
     timestamp = gribfile.get_field(grib_file.time_key)
     if shift:
-        freq = varsfreq.get(key, 0)
+        matches = [k for k in varsfreq.keys() if k[:-1] == key]
+        freq = varsfreq[matches[0]] if any(matches) else 0
         shifttime = timestamp + shift * freq * 100
         if shifttime < 0 or shifttime >= 2400:
             newdate, hours = fix_date_time(gribfile.get_field(grib_file.date_key), shifttime / 100)
