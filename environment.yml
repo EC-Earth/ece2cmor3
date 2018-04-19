@@ -28,7 +28,7 @@ dependencies:
 - future=0.16.0=py27_0
 - g2clib=1.6.0=3
 - hdf4=4.2.13=0
-- hdf5=1.10.1=h9caa474_1            #7 hdf5-1.10.1-h9caa474_1 depends on libgcc-ng 7.2.0.*, libgfortran-ng 7.2.0.*, libstdcxx-ng 7.2.0.*, zlib >=1.2.11,<1.3.0a0
+- hdf5=1.10.1=h9caa474_1            #7 depends on libgcc-ng 7.2.0.*, libgfortran-ng 7.2.0.*, libstdcxx-ng 7.2.0.*, zlib >=1.2.11,<1.3.0a0
 - icu=58.2=0
 - idna=2.6=py27_1
 - ipaddress=1.0.18=py27_0
@@ -47,7 +47,7 @@ dependencies:
 - libtiff=4.0.9=0
 - libxml2=2.9.5=2
 - ncurses=5.9=10
-- netcdf-fortran=4.4.4=6            #2 netcdf-fortran-4.4.4-6 depends on hdf5 1.10.1, libgcc, libnetcdf 4.4.*
+- netcdf-fortran=4.4.4=6            #2 depends on hdf5 1.10.1, libgcc, libnetcdf 4.4.*
 - netcdf4=1.3.1=py27hca9ce0b_2      #3 depends on hdf5 >=1.10.1,<1.10.2.0a0, libgcc-ng 7.2.0.*, libnetcdf >=4.4.1.1,<4.4.2.0a0, numpy >=1.9.3,<2.0a0, python >=2.7,<2.8.0a0, setuptools
 - nose=1.3.7=py27_1
 - openssl=1.0.2m=0
