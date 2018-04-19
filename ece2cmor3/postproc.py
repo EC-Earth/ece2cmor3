@@ -265,9 +265,19 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
         elif operators == ["mean"]:
             if not any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                log.warning("Computing inaccurate mean value over %d time steps for variable "
-                            "%s in table %s" % (6 / output_frequency_, task.target.variable, task.target.table))
-                cdo.add_operator(cdoapi.cdo_command.timselmean_operator, 6 / output_frequency_)
+                freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
+                steps = 6 / freq
+                if steps == 0:
+                    log.error("Requested average at 6-hourly frequency cannot be computed for variable %s in table %s "
+                              "because its output frequency is only %d" % (task.target.variable, task.target.table, freq))
+                    task.set_failed()
+                else:
+                    log.warning("Computing inaccurate mean value over %d time steps for variable "
+                                "%s in table %s" % (6 / freq, task.target.variable, task.target.table))
+                    if steps == 1:
+                        cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
+                    else:
+                        cdo.add_operator(cdoapi.cdo_command.timselmean_operator, steps)
             else:
                 cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
         else:
@@ -282,9 +292,19 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
         elif operators == ["mean"]:
             if not any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                log.warning("Computing inaccurate mean value over %d time steps for variable "
-                            "%s in table %s" % (3 / output_frequency_, task.target.variable, task.target.table))
-                cdo.add_operator(cdoapi.cdo_command.timselmean_operator, 3 / output_frequency_)
+                freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
+                steps = 3 / freq
+                if steps == 0:
+                    log.error("Requested average at 3-hourly frequency cannot be computed for variable %s in table %s "
+                              "because its output frequency is only %d" % (task.target.variable, task.target.table, freq))
+                    task.set_failed()
+                else:
+                    log.warning("Computing inaccurate mean value over %d time steps for variable "
+                                "%s in table %s" % (3 / freq, task.target.variable, task.target.table))
+                    if steps == 1:
+                        cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
+                    else:
+                        cdo.add_operator(cdoapi.cdo_command.timselmean_operator, steps)
             else:
                 cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
     elif freq == 0:
