@@ -5,6 +5,7 @@ from ece2cmor3 import cmor_source, cmor_target
 log = logging.getLogger(__name__)
 
 conversion_key = "convert"
+filter_output_key = "filter_path"
 output_path_key = "path"
 output_frequency_key = "output_freq"
 

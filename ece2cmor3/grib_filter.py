@@ -195,7 +195,10 @@ def cluster_files(valid_tasks):
                 else:
                     task2freqs[task].add(varsfreq[key])
     for task, fnames in task2files.iteritems():
-        task2files[task] = '_'.join(sorted(list(fnames)))
+        codes = {(int(f.split('.')[0]), int(f.split('.')[1])): f for f in sorted(list(fnames))}
+        cum_file = '_'.join([codes[k] for k in codes if k in accum_codes])
+        inst_file = '_'.join([codes[k] for k in codes if k not in accum_codes])
+        task2files[task] = filter(None, [cum_file, inst_file])
     for task, freqset in task2freqs.iteritems():
         maxfreq = max(freqset)
         if any([f for f in freqset if maxfreq % f != 0]):
@@ -203,10 +206,14 @@ def cluster_files(valid_tasks):
             task.status = cmor_task.status_failed
             task2files.pop(task, None)
         task2freqs[task] = maxfreq
-        task2files[task] = '.'.join([task2files[task], str(maxfreq)])
+        task2files[task] = ['.'.join([p, str(maxfreq)]) for p in task2files[task]]
     varsfiles = {key: set() for key in varstasks}
     for key in varsfiles:
-        varsfiles[key].update([(task2files[t], task2freqs[t]) for t in varstasks[key]])
+        for t in varstasks[key]:
+            f = task2files[t][0]
+            if len(task2files[t]) == 2 and (key[0], key[1]) not in accum_codes:
+                f = task2files[t][1]
+            varsfiles[key].add((f, task2freqs[t]))
     return task2files, task2freqs
 
 
@@ -231,7 +238,7 @@ def execute(tasks, month, multi_threaded=False):
         handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
-            setattr(task, cmor_task.output_path_key, os.path.join(temp_dir, task2files[task]))
+            setattr(task, cmor_task.filter_output_key, [os.path.join(temp_dir, p) for p in task2files[task]])
     for task in task2freqs:
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
