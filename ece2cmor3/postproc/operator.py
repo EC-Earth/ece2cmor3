@@ -46,9 +46,9 @@ class operator_base(object):
                     return False
             else:
                 self.property_cache[key] = msg.get_field(key)
-        start = time.clock()
+        start = time.time()
         self.fill_cache(msg)
-        stop = time.clock()
+        stop = time.time()
         self.update_stats("recv", stop - start)
         if self.cache_is_full():
             self.send_msg()
@@ -58,9 +58,9 @@ class operator_base(object):
         print self.property_cache
 
     def send_msg(self):
-        start = time.clock()
+        start = time.time()
         msg = self.create_msg()
-        stop = time.clock()
+        stop = time.time()
         self.update_stats("snd", stop - start)
         for target in self.mask_targets:
             target.receive_mask(msg)

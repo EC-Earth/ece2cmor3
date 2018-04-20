@@ -203,9 +203,9 @@ def cmorize_msg(grb, keys):
         #        print "GRIB keys:", key
         mapper = grids.grid_remap_operator()
         mapper.receive_msg(msg)
-        start = time.clock()
+        start = time.time()
         mapped_msg = mapper.create_msg()
-        stop = time.clock()
+        stop = time.time()
         mapper.update_stats("snd", stop - start)
         for task in tasks:
             o = task_operators.get(task, None)
