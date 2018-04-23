@@ -175,7 +175,12 @@ def apply_command(command, task_list, base_path=None):
     if base_path is None and mode in [skip, append]:
         log.warning(
             "Executing post-processing in skip/append mode without directory given: this will skip the entire task.")
-    input_file = getattr(task_list[0], cmor_task.output_path_key, None)
+    input_files = getattr(task_list[0], cmor_task.filter_output_key, None)
+    input_file = input_files[0]
+    if len(input_files) > 1:
+        directory = os.path.dirname(input_file)
+        input_file = os.path.join(directory, '_'.join([os.path.basename(f) for f in input_files]))
+        command.merge(input_files, input_file)
     output_file = task_list[0].target.variable + "_" + task_list[0].target.table + ".nc"
     ofile = os.path.join(base_path, output_file) if base_path else None
     for task in task_list:
@@ -199,7 +204,7 @@ def apply_command(command, task_list, base_path=None):
                 result = ofile
     for task in task_list:
         if task.status >= 0:
-            setattr(task, "path", result)
+            setattr(task, cmor_task.output_path_key, result)
             task.next_state()
     return result
 
@@ -352,8 +357,9 @@ def add_level_operators(cdo, task):
         if val:
             levels = [val]
     level_types = [grib_file.hybrid_level_code, grib_file.pressure_level_hPa_code, grib_file.height_level_code]
-    if getattr(task, "path", None):
-        level_types = cdo.get_z_axes(task.path, task.source.get_root_codes()[0].var_id)
+    input_files = getattr(task, cmor_task.filter_output_key, [])
+    if any(input_files):
+        level_types = cdo.get_z_axes(input_files[0], task.source.get_root_codes()[0].var_id)
     name = axisinfo.get("standard_name", None)
     if name == "air_pressure":
         add_zaxis_operators(cdo, task, level_types, levels, cdoapi.cdo_command.pressure,
@@ -378,8 +384,9 @@ def add_zaxis_operators(cdo, task, lev_types, req_levs, axis_type, axis_code):
     elif axis_code in lev_types:
         if isinstance(req_levs, list) and any(req_levs):
             levels = [float(s) for s in req_levs]
-            if getattr(task, "path", None):
-                levels = cdo.get_levels(task.path, task.source.get_root_codes()[0].var_id, axis_type)
+            input_files = getattr(task, cmor_task.filter_output_key, [])
+            if any(input_files):
+                levels = cdo.get_levels(input_files[0], task.source.get_root_codes()[0].var_id, axis_type)
             if set([float(s) for s in req_levs]) <= set(levels):
                 cdo.add_operator(cdoapi.cdo_command.select_z_operator, axis_type)
                 cdo.add_operator(cdoapi.cdo_command.select_lev_operator, *req_levs)

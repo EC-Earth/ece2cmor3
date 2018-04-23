@@ -108,16 +108,19 @@ def execute(tasks, cleanup=True, autofilter=True):
     grid_descr_file = None
     if autofilter:
         tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
-        grid_point_tasks = [t for t in tasks_todo if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point]
-        if any(grid_point_tasks):
-            grid_descr_file = getattr(grid_point_tasks[0], cmor_task.output_path_key, None)
+        for t in tasks_todo:
+            if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point:
+                filepaths = getattr(t, cmor_task.filter_output_key, [])
+                if any(filepaths):
+                    grid_descr_file = filepaths[0]
+                    break
     else:
         for task in tasks_todo:
             grid = getattr(task.source, "grid_")
             if grid == cmor_source.ifs_grid.point:
-                setattr(task, cmor_task.output_path_key, ifs_gridpoint_file_)
+                setattr(task, cmor_task.filter_output_key, [ifs_gridpoint_file_])
             elif grid == cmor_source.ifs_grid.spec:
-                setattr(task, cmor_task.output_path_key, ifs_spectral_file_)
+                setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
@@ -287,27 +290,27 @@ def find_sp_variable(task, autofilter):
             log.error("Could not find surface pressure in model output...")
             return
         log.info("Found surface pressure in file %s" % grib_filter.spvar[2])
-        setattr(task, "path", grib_filter.spvar[2])
+        setattr(task, cmor_task.filter_output_key, [grib_filter.spvar[2]])
         if grib_filter.spvar[0] == 152:
             task.source = cmor_source.ifs_source.read("var134=exp(var152)")
         task.source.grid_ = 1 if grib_filter.spvar[2] == ifs_spectral_file_ else 0
         return
     log.info("Looking for surface pressure variable in input files...")
-    command = cdo.Cdo()
-    code_string = command.showcode(input=ifs_spectral_file_)
+    command = cdoapi.cdo_command()
+    code_string = command.show_code(ifs_spectral_file_)
     codes = [cmor_source.grib_code(int(c)) for c in code_string[0].split()]
     if surface_pressure in codes:
         log.info("Found surface pressure in spectral file")
-        setattr(task, "path", ifs_spectral_file_)
+        setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
         task.source.grid_ = 1
         return
     if ln_surface_pressure in codes:
         log.info("Found lnsp in spectral file")
-        setattr(task, "path", ifs_spectral_file_)
+        setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
         task.source = cmor_source.ifs_source.read("var134=exp(var152)")
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
-    setattr(task, cmor_task.output_path_key, ifs_gridpoint_file_)
+    setattr(task, cmor_task.filter_output_key, [ifs_gridpoint_file_])
     task.source.grid_ = 0
 
 
@@ -473,8 +476,8 @@ def create_time_axes(tasks):
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 log.info("Creating time axis using variable %s..." % task.target.variable)
-                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, "path"), name=time_dim,
-                                       has_bounds=(time_operator != ["point"]))
+                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                                       name=time_dim, has_bounds=(time_operator != ["point"]))
                 time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
             break
@@ -508,7 +511,7 @@ def create_depth_axes(tasks):
             setattr(task, "store_with", psid)
             continue
         elif zdim == "sdepth":
-            axisid = create_soil_depth_axis(zdim, getattr(task, "path"))
+            axisid = create_soil_depth_axis(zdim, getattr(task, cmor_task.output_path_key))
             depth_axes[zdim] = axisid
             setattr(task, "z_axis_id", axisid)
         elif zdim in cmor_target.get_axis_info(task.target.table):
@@ -551,7 +554,7 @@ def create_depth_axes(tasks):
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task):
     pref = 80000  # TODO: Move reference pressure level to model config
-    path = getattr(task, "path")
+    path = getattr(task, cmor_task.output_path_key)
     ds = None
     try:
         ds = netCDF4.Dataset(path)

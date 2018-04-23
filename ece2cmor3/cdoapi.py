@@ -31,6 +31,7 @@ class cdo_command:
     shift_time_operator = "shifttime"
     ml2pl_operator = "ml2plx"
     ml2hl_operator = "ml2hl"
+    merge_operator = "merge"
 
     # CDO operator argument strings
     regular_grid_type = "regular"
@@ -78,6 +79,14 @@ class cdo_command:
         keys = cdo_command.optimize_order(
             sorted(self.operators.keys(), key=lambda op: cdo_command.operator_ordering.index(op)))
         return " ".join([cdo_command.make_option(k, self.operators[k]) for k in keys])
+
+    def merge(self, ifiles, ofile):
+        if isinstance(ifiles, str):
+            return self.app.merge(input=ifiles, output=ofile)
+        return self.app.merge(input=' '.join(ifiles), output=ofile)
+
+    def show_code(self, ifile):
+        return self.app.showcode(input=ifile)
 
     # Applies the current set of operators to the input file.
     def apply(self, ifile, ofile=None, threads=4, grib_first=False):
