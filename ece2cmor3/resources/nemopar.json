@@ -121,7 +121,7 @@
         "target": "wo"
     },
     {
-        "source": "rsdo",
+        "source": "qsr3d_e3t_SBC",
         "grid": "grid_T",
         "target": "rsdo"
     },
