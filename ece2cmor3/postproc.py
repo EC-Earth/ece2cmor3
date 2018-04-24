@@ -175,7 +175,13 @@ def apply_command(command, task_list, base_path=None):
     if base_path is None and mode in [skip, append]:
         log.warning(
             "Executing post-processing in skip/append mode without directory given: this will skip the entire task.")
-    input_files = getattr(task_list[0], cmor_task.filter_output_key, None)
+    input_files = getattr(task_list[0], cmor_task.filter_output_key, [])
+    if isinstance(input_files, str):
+        input_files = [input_files]
+    if not any(input_files):
+        log.error("Cannot execute cdo command %s for given task because it has no model "
+                  "output attribute" % command.create_command())
+        return None
     input_file = input_files[0]
     if len(input_files) > 1:
         directory = os.path.dirname(input_file)
