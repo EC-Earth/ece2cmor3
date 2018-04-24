@@ -545,6 +545,21 @@
         "expr": "var123=-287*var130*(1+0.61*var133)*var135/(9.81*var54)"
     },
     {
+        "source": "124.129",
+        "target": "tnhus",
+        "expr": "var124=var94+var99+var106+var110"
+    },
+    {
+        "source": "125.129",
+        "target": "tnhusmp",
+        "expr": "var125=var99+var106+var110"
+    },
+    {
+        "source": "126.129",
+        "target": "prra",
+        "expr": "var126=var142+var143-var144"
+    },
+    {
         "mask": "land",
         "expr": "var172>0.5"
     },
