@@ -540,11 +540,6 @@
         "expr": "var122=var142+var143-var144"
     },
     {
-        "source": "122.129",
-        "target": "prraIs",
-        "expr": "var122=var142+var143-var144"
-    },
-    {
         "source": "123.129",
         "target": "wa",
         "expr": "var123=-287*var130*(1+0.61*var133)*var135/(9.81*var54)"
