@@ -49,10 +49,11 @@ def post_process(tasks, path, max_size_gb=float("inf"), grid_descr=None):
             comm_buf[comm_string] = command
         else:
             command = comm_buf[comm_string]
-        if command in comm_dict:
-            comm_dict[command].append(task)
-        else:
-            comm_dict[command] = [task]
+        if task.status != cmor_task.status_failed:
+            if command in comm_dict:
+                comm_dict[command].append(task)
+            else:
+                comm_dict[command] = [task]
     invalid_commands = []
     for comm, task_list in comm_dict.iteritems():
         if not validate_task_list(task_list):
@@ -158,6 +159,11 @@ def cdo_worker(q, base_path, maxsize):
     global finished_tasks_
     while True:
         args = q.get()
+        for task in finished_tasks_:
+            if getattr(task, cmor_task.output_path_key, None) is None:
+                log.error("Task %s in table %s has not produced any output... "
+                          "setting it to failed status." % (task.target.variable, task.target.table))
+                task.set_failed()
         files = list(set(map(lambda t: getattr(t, cmor_task.output_path_key, ""), finished_tasks_)))
         if sum(map(lambda fname: os.path.getsize(fname), [f for f in files if os.path.exists(f)])) < maxsize:
             tasks = args[1]
