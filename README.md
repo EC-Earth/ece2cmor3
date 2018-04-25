@@ -65,7 +65,7 @@ source deactivate
 
 The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. Once in a while one of the ece2cmor3 developers will update the nested repository of the CMOR tables. This will be visisble from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. In that case one has to repeat the following:
 ```shell
-cd ${HOME}/cmorize/; git submodule update --init --recursive
+cd ${HOME}/cmorize/ece2cmor3/; git submodule update --init --recursive
 ```
 
 #### Note for developers: 
