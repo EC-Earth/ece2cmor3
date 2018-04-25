@@ -158,7 +158,7 @@ def cdo_worker(q, base_path, maxsize):
     global finished_tasks_
     while True:
         args = q.get()
-        files = list(set(map(lambda t: getattr(t, "path", None), finished_tasks_)))
+        files = list(set(map(lambda t: getattr(t, cmor_task.output_path_key, ""), finished_tasks_)))
         if sum(map(lambda fname: os.path.getsize(fname), [f for f in files if os.path.exists(f)])) < maxsize:
             tasks = args[1]
             apply_command(command=args[0], task_list=tasks, base_path=base_path)
