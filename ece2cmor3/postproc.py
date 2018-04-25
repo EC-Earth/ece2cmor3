@@ -274,66 +274,55 @@ def add_time_operators(cdo, task):
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
             task.set_failed()
-    elif freq in ["6hr", "6hrPt"]:
-        if operators == ["point"]:
-            if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                log.warning("Sampling values of accumulated model output for variable %s in "
-                            "table %s" % (task.target.variable, task.target.table))
-            cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
-        elif operators == ["mean"]:
-            if not any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
-                steps = 6 / freq
-                if steps == 0:
-                    log.error("Requested average at 6-hourly frequency cannot be computed for variable %s in table %s "
-                              "because its output frequency is only %d" % (task.target.variable, task.target.table, freq))
-                    task.set_failed()
-                else:
-                    log.warning("Computing inaccurate mean value over %d time steps for variable "
-                                "%s in table %s" % (6 / freq, task.target.variable, task.target.table))
-                    if steps == 1:
-                        cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
-                    else:
-                        cdo.add_operator(cdoapi.cdo_command.timselmean_operator, steps)
-            else:
-                cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 6, 12, 18)
-        else:
-            log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
-            task.set_failed()
-    elif freq in ["3hr", "3hrPt"]:
-        if operators == ["point"]:
-            if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                log.warning("Sampling values of accumulated model output for variable %s in "
-                            "table %s" % (task.target.variable, task.target.table))
-            cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
-        elif operators == ["mean"]:
-            if not any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
-                freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
-                steps = 3 / freq
-                if steps == 0:
-                    log.error("Requested average at 3-hourly frequency cannot be computed for variable %s in table %s "
-                              "because its output frequency is only %d" % (task.target.variable, task.target.table, freq))
-                    task.set_failed()
-                else:
-                    log.warning("Computing inaccurate mean value over %d time steps for variable "
-                                "%s in table %s" % (3 / freq, task.target.variable, task.target.table))
-                    if steps == 1:
-                        cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
-                    else:
-                        cdo.add_operator(cdoapi.cdo_command.timselmean_operator, steps)
-            else:
-                cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 0, 3, 6, 9, 12, 15, 18, 21)
-    elif freq == 0:
-        if operators == ["point"] or operators == ["mean"]:
-            cdo.add_operator(cdoapi.cdo_command.select_step_operator, 1)
-        else:
-            log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
-            task.set_failed()
+    elif freq in ["6hr", "6hrPt"] and len(operators) == 1:
+        add_high_freq_operator(cdo, 6, operators[0], task)
+    elif freq in ["3hr", "3hrPt"] and len(operators) == 1:
+        add_high_freq_operator(cdo, 3, operators[0], task)
+    elif freq == 0 and operators == ["point"] or operators == ["mean"]:
+        cdo.add_operator(cdoapi.cdo_command.select_step_operator, 1)
     else:
-        log.error("Unsupported frequency %s encountered" % freq)
+        log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
         task.set_failed()
+
+
+def add_high_freq_operator(cdo_command, target_freq, operator, task):
+    timestamps = [i*target_freq for i in range(24/target_freq)]
+    aggregators = {"mean":(cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
+                   "minimum":(cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
+                   "maximum":(cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
+    if operator == "point":
+        if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
+            log.warning("Sampling values of accumulated model output for variable %s in "
+                        "table %s" % (task.target.variable, task.target.table))
+        if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_min]):
+            log.warning("Sampling values of minimum model output for variable %s in "
+                        "table %s" % (task.target.variable, task.target.table))
+        if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_max]):
+            log.warning("Sampling values of maximum model output for variable %s in "
+                        "table %s" % (task.target.variable, task.target.table))
+        cdo_command.add_operator(cdoapi.cdo_command.select_hour_operator, *timestamps)
+    elif operator in aggregators:
+        if not all([c for c in task.source.get_root_codes() if c in aggregators[operator][0]]):
+            source_freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
+            steps = target_freq / source_freq
+            if steps == 0:
+                log.error("Requested %s at %d-hourly frequency cannot be computed for variable %s in table %s "
+                          "because its output frequency is only %d" % (operator, target_freq, task.target.variable,
+                                                                       task.target.table, source_freq))
+                task.set_failed()
+            else:
+                log.warning("Computing inaccurate mean value over %d time steps for variable "
+                            "%s in table %s" % (target_freq / source_freq, task.target.variable, task.target.table))
+                if steps == 1:
+                    cdo_command.add_operator(cdoapi.cdo_command.select_hour_operator, *timestamps)
+                else:
+                    cdo_command.add_operator(aggregators[operator][1], steps)
+        else:
+            cdo_command.add_operator(cdoapi.cdo_command.select_hour_operator, *timestamps)
+    else:
+        log.error("The operator %s is not supported by this post-processing software" % operator)
+        task.set_failed()
+    return cdo_command
 
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option

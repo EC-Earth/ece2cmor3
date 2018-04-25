@@ -12,6 +12,8 @@ log = logging.getLogger(__name__)
 class cdo_command:
     # CDO operator strings
     timselmean_operator = "timselmean"
+    timselmin_operator = "timselmin"
+    timselmax_operator = "timselmax"
     select_code_operator = "selcode"
     select_var_operator = "selvar"
     set_code_operator = "setcode"
