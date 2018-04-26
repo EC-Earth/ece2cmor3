@@ -19,7 +19,9 @@ temp_dir = None
 varsfreq = {}
 varstasks = {}
 task_operators = {}
-extra_operators = {}
+cmor_operators = {}
+store_vars = {}
+mask_vars = {}
 
 
 # Initializes the module, looks up previous month files and inspects the first
@@ -196,23 +198,24 @@ def cmorize_msg(grb, keys):
         if k[:index] == key[:index]:
             matches = [tsk for tsk in varstasks[k] if t % getattr(tsk, cmor_task.output_frequency_key, 1) == 0]
             tasks.update(matches)
-    msg = message.grib_message(grb)
-    if key in extra_operators:
-        extra_operators[key].receive_msg(msg)
-    if any(tasks):
-        #        print "GRIB keys:", key
+    store_var_operators = store_vars.get(key, [])
+    mask_var_operators = mask_vars.get(key, [])
+    if any(tasks) or any(store_var_operators + mask_var_operators):
+        msg = message.grib_message(grb)
         mapper = grids.grid_remap_operator()
         mapper.receive_msg(msg)
         start = time.time()
         mapped_msg = mapper.create_msg()
         stop = time.time()
         mapper.update_stats("snd", stop - start)
+        for o in store_var_operators:
+            o.receive_store_var(mapped_msg)
+        for o in mask_var_operators:
+            o.receive_mask_var(mapped_msg)
         for task in tasks:
             o = task_operators.get(task, None)
             if o is not None:
-                #                print "processing task", task.target.variable, "in", task.target.table
-                if not o.receive_msg(mapped_msg):
-                    return False
+                o.receive_msg(mapped_msg)
     return True
 
 

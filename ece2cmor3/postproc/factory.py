@@ -30,14 +30,14 @@ def create_operators(task):
 
     if time_operator is None:
         log.warning("Dismissing task without time operator: %s in %s" % (task.target.variable, task.target.table))
-        return None
+        return None, None
 
     operators = [zaxis_operator, expr_operator, time_operator, cmor_operator]
     operator_chain = [o for o in operators if o is not None]
 
     for i in range(0, len(operator_chain) - 1):
         operator_chain[i].targets.append(operator_chain[i + 1])
-    return operator_chain[0]
+    return operator_chain[0], cmor_operator
 
 
 def create_cmor_operator(task):

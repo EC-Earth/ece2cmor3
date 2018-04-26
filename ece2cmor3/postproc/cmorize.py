@@ -34,15 +34,24 @@ table_root = None
 class cmor_operator(operator.operator_base):
     missval = 1.e+20
 
-    def __init__(self, task, store_var_key=None, mask_key=None):
+    def __init__(self, task, chunk_size=10, store_var_key=None, mask_key=None):
         super(cmor_operator, self).__init__()
         self.task = task
+        self.chunk_size = chunk_size
         self.variable = task.source
         self.store_var_key = store_var_key
+        self.store_var_values = []
         self.mask_key = mask_key
         self.mask_expression = None
+        self.mask_values = []
         self.var_id = None
         self.store_var_id = None
+        self.cached_properties = [message.variable_key,
+                                  message.leveltype_key,
+                                  message.levellist_key,
+                                  message.resolution_key]
+        self.timestamps = []
+        self.timebounds = []
 
     def apply_mask(self, array):
         if self.mask_key is None or self.mask_expression is None:
@@ -59,30 +68,64 @@ class cmor_operator(operator.operator_base):
         if msg.get_variable() == self.task.source:
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
                                                       getattr(self.task, cmor_task.output_frequency_key))
-            self.values = msg.get_values() * conversion_factor
+            self.values.append(msg.get_values() * conversion_factor)
+            self.timestamps.append(convert_time(msg.get_timestamp()))
+            self.timebounds.append([convert_time(t) for t in msg.get_time_bounds()])
+
+    def receive_extra_var(self, msg, values):
+        if self.cache_is_full():
+            self.clear_cache()
+        if len(self.timestamps) < len(values):
+            log.error("This should never happen")
+        elif len(self.timestamps) == len(values):
+            values.append(msg.get_values())
+        else:
+            prev_time, prev_bounds = self.timestamps[-1], self.timebounds[-1]
+            if msg.get_timestamp() == prev_time:
+                values.append(msg.get_values())
+            elif prev_bounds[0] <= msg.get_timestamp() <= prev_bounds[1]:
+                values.append(msg.get_values())
+            else:
+                log.warning("Skipping store/mask variable outside time bounds")
+        if self.cache_is_full():
+            self.send_msg()
+
+    def receive_store_var(self, msg):
+        self.receive_extra_var(msg, self.store_var_values)
+
+    def receive_mask_var(self, msg):
+        self.receive_extra_var(msg, self.mask_values)
+
+    def cache_is_full(self):
+        vals_complete = sum([num_slices(a) for a in self.values]) >= self.chunk_size
+        store_complete = self.store_var_key is None or len(self.store_var_values) >= len(self.values)
+        mask_complete = self.mask_key is None or len(self.mask_values) >= len(self.values)
+        return super(cmor_operator, self).cache_is_full() and vals_complete and store_complete and mask_complete
+
+    def cache_is_empty(self):
+        return super(cmor_operator, self).cache_is_empty() or self.values == []
+
+    def clear_cache(self):
+        self.values, self.timestamps, self.timebounds = [], [], []
 
     def send_msg(self):
-        timestamp = self.property_cache[message.datetime_key]
-        time_bounds = [convert_time(t) for t in self.property_cache[message.timebounds_key]]
         load_table(self.task.target.table)
-        log.info("Writing variable %s in table %s at time %s" % (self.task.target.variable, self.task.target.table,
-                                                                 timestamp))
-        ofreq = str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt"
-        cmor.set_cur_dataset_attribute("frequency", ofreq)
-        if any(time_bounds):
-            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)],
-                       time_bnds=time_bounds)
-            self.values = None
+        log.info("Writing variable %s in table %s at times %s" % (self.task.target.variable, self.task.target.table,
+                                                                  str(self.timestamps)))
+        cmor.set_cur_dataset_attribute("frequency", str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt")
+        if any(self.timebounds[0]):
+            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
+                       time_vals=self.timestamps, time_bnds=self.timebounds)
             if self.store_var_key is not None:
-                cmor.write(self.store_var_id, self.store_var_values, ntimes_passed=1, store_with=self.var_id,
-                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
+                           store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
                 self.store_var_values = None
         else:
-            cmor.write(self.var_id, self.apply_mask(self.values), ntimes_passed=1, time_vals=[convert_time(timestamp)])
-            self.values = None
+            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
+                       time_vals=self.timestamps)
             if self.store_var_key is not None:
-                cmor.write(self.store_var_id, self.store_var_values, store_with=self.var_id,
-                           time_vals=[convert_time(timestamp)], time_bnds=time_bounds)
+                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), store_with=self.var_id,
+                           time_vals=self.timestamps, time_bnds=self.timebounds)
                 self.store_var_values = None
 
 
@@ -275,3 +318,7 @@ def get_conversion_factor(conversion, output_frequency):
         return 0.01
     log.error("Unknown explicit unit conversion: %s" % conversion)
     return 1.0
+
+
+def num_slices(arr):
+    return arr.shape[2] if len(arr.shape) > 2 else 1

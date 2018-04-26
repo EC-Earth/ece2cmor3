@@ -92,31 +92,21 @@ def execute(tasks):
     global log, tempdir_created_, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     factory.table_root, factory.masks = table_root_, masks
-    store_var_operators, mask_operators = {}, {}
     for task in supported_tasks:
-        operator = factory.create_operators(task)
-        if operator is not None:
-            grib_filter.task_operators[task] = operator
-            for child_operator in operator.get_all_operators():
-                skey, mkey = child_operator.store_var_key, child_operator.mask_key
-                if skey in store_var_operators:
-                    store_var_operators[skey].append(child_operator)
-                elif skey is not None:
-                    store_var_operators[skey] = [child_operator]
-                if mkey in mask_operators:
-                    mask_operators[mkey].append(child_operator)
-                elif mkey is not None:
-                    mask_operators[mkey] = [child_operator]
-    for key in store_var_operators:
-        store_var_operator = grids.grid_remap_operator()
-        for operator in store_var_operators[key]:
-            store_var_operator.store_var_targets.append(operator)
-        grib_filter.extra_operators[key] = store_var_operator
-    for key in mask_operators:
-        mask_operator = grids.grid_remap_operator()
-        for operator in mask_operators[key]:
-            mask_operator.mask_targets.append(operator)
-        grib_filter.extra_operators[key] = mask_operator
+        first_operator, last_operator = factory.create_operators(task)
+        if first_operator is not None and last_operator is not None:
+            grib_filter.task_operators[task] = first_operator
+            grib_filter.cmor_operators[task] = last_operator
+            key = getattr(last_operator, "store_var_key", None)
+            if key in grib_filter.store_vars:
+                grib_filter.store_vars[key].append(last_operator)
+            elif key is not None:
+                grib_filter.store_vars = [last_operator]
+            key = getattr(last_operator, "mask_var_key", None)
+            if key in grib_filter.mask_vars:
+                grib_filter.mask_vars[key].append(last_operator)
+            elif key is not None:
+                grib_filter.mask_vars = [last_operator]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     grib_filter.execute(supported_tasks, start_date_.month)
 
