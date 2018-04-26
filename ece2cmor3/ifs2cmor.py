@@ -101,12 +101,12 @@ def execute(tasks):
             if key in grib_filter.store_vars:
                 grib_filter.store_vars[key].append(last_operator)
             elif key is not None:
-                grib_filter.store_vars = [last_operator]
+                grib_filter.store_vars[key] = [last_operator]
             key = getattr(last_operator, "mask_var_key", None)
             if key in grib_filter.mask_vars:
                 grib_filter.mask_vars[key].append(last_operator)
             elif key is not None:
-                grib_filter.mask_vars = [last_operator]
+                grib_filter.mask_vars[key] = [last_operator]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     grib_filter.execute(supported_tasks, start_date_.month)
 
