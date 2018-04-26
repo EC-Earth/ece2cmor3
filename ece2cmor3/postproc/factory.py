@@ -62,7 +62,7 @@ def create_cmor_operator(task):
             else:
                 mask_code = cmor_source.grib_code.read(varstrs[0])
                 mask_key = (mask_code.var_id, mask_code.tab_id, grib_file.surface_level_code, 0)
-    cmor_operator = cmorize.cmor_operator(task, store_var_key, mask_key)
+    cmor_operator = cmorize.cmor_operator(task, 10, store_var_key, mask_key)
     if mask_key is not None:
         cmor_operator.mask_expression = mask_expr
     return cmor_operator

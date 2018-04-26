@@ -46,6 +46,7 @@ class cmor_operator(operator.operator_base):
         self.mask_values = []
         self.var_id = None
         self.store_var_id = None
+        self.values = []
         self.cached_properties = [message.variable_key,
                                   message.leveltype_key,
                                   message.levellist_key,
@@ -75,11 +76,9 @@ class cmor_operator(operator.operator_base):
     def receive_extra_var(self, msg, values):
         if self.cache_is_full():
             self.clear_cache()
-        if len(self.timestamps) < len(values):
-            log.error("This should never happen")
-        elif len(self.timestamps) == len(values):
+        if len(self.timestamps) == len(values):
             values.append(msg.get_values())
-        else:
+        elif len(self.timestamps) > 0:
             prev_time, prev_bounds = self.timestamps[-1], self.timebounds[-1]
             if msg.get_timestamp() == prev_time:
                 values.append(msg.get_values())
@@ -87,6 +86,10 @@ class cmor_operator(operator.operator_base):
                 values.append(msg.get_values())
             else:
                 log.warning("Skipping store/mask variable outside time bounds")
+        elif len(values) > 0:
+            values[-1] = msg.get_values()
+        else:
+            values.append(msg.get_values())
         if self.cache_is_full():
             self.send_msg()
 
@@ -97,9 +100,10 @@ class cmor_operator(operator.operator_base):
         self.receive_extra_var(msg, self.mask_values)
 
     def cache_is_full(self):
-        vals_complete = sum([num_slices(a) for a in self.values]) >= self.chunk_size
-        store_complete = self.store_var_key is None or len(self.store_var_values) >= len(self.values)
-        mask_complete = self.mask_key is None or len(self.mask_values) >= len(self.values)
+        vals_complete = self.values is not None and sum([num_slices(a) for a in self.values]) >= self.chunk_size
+        npassed = 0 if self.values is None else len(self.values)
+        store_complete = self.store_var_key is None or len(self.store_var_values) >= npassed
+        mask_complete = self.mask_key is None or len(self.mask_values) >= npassed
         return super(cmor_operator, self).cache_is_full() and vals_complete and store_complete and mask_complete
 
     def cache_is_empty(self):
@@ -119,14 +123,12 @@ class cmor_operator(operator.operator_base):
             if self.store_var_key is not None:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
                            store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
-                self.store_var_values = None
         else:
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps)
             if self.store_var_key is not None:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), store_with=self.var_id,
                            time_vals=self.timestamps, time_bnds=self.timebounds)
-                self.store_var_values = None
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
