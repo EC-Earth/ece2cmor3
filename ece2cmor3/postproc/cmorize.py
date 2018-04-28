@@ -119,13 +119,13 @@ class cmor_operator(operator.operator_base):
                        time_vals=self.timestamps, time_bnds=self.timebounds)
             if self.store_var_key is not None:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
-                           store_with=self.var_id)
+                           store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
         else:
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps)
             if self.store_var_key is not None:
-                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), store_with=self.var_id,
-                           ntimes_passed=len(self.timestamps))
+                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
+                           store_with=self.var_id, time_vals=self.timestamps)
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
@@ -171,7 +171,7 @@ def create_cmor_variable(task, msg, store_var_key=None):
         print "Created variables",var_id,store_var_id
         return var_id, store_var_id
     else:
-        return var_id, -1
+        return var_id, 0
 
 
 def get_store_variable(code):
