@@ -18,9 +18,6 @@ time_axis_ids = {}
 # Dictionary of vertical axes, keys are target vertical dimension name and table
 z_axis_ids = {}
 
-# Dictionary of variable ids, keys are pairs of cmor variable name and table
-var_ids = {}
-
 # Dictionary of table ids
 tab_ids = {}
 
@@ -45,7 +42,7 @@ class cmor_operator(operator.operator_base):
         self.mask_expression = None
         self.mask_values = []
         self.var_id = None
-        self.store_var_id = None
+        self.store_var_id = -1
         self.values = []
         self.cached_properties = [message.variable_key,
                                   message.leveltype_key,
@@ -58,7 +55,7 @@ class cmor_operator(operator.operator_base):
         if self.mask_key is None or self.mask_expression is None:
             return array
         src = cmor_source.grib_code(self.mask_key[0], self.mask_key[1])
-        local_dict = {src.to_var_string(): self.mask_values}
+        local_dict = {src.to_var_string(): numpy.stack(self.mask_values)}
         mask_array = numexpr.evaluate(self.mask_expression, local_dict=local_dict)
         numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask_array), array.shape), self.missval)
         return array
@@ -110,7 +107,7 @@ class cmor_operator(operator.operator_base):
         return super(cmor_operator, self).cache_is_empty() or self.values == []
 
     def clear_cache(self):
-        self.values, self.timestamps, self.timebounds = [], [], []
+        self.values, self.timestamps, self.timebounds, self.store_var_values, self.mask_values = [], [], [], [], []
 
     def send_msg(self):
         load_table(self.task.target.table)
@@ -122,18 +119,18 @@ class cmor_operator(operator.operator_base):
                        time_vals=self.timestamps, time_bnds=self.timebounds)
             if self.store_var_key is not None:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
-                           store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
+                           store_with=self.var_id)
         else:
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps)
             if self.store_var_key is not None:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), store_with=self.var_id,
-                           time_vals=self.timestamps, time_bnds=self.timebounds)
+                           ntimes_passed=len(self.timestamps))
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
 def create_cmor_variable(task, msg, store_var_key=None):
-    global grid_ids, time_axis_ids, z_axis_ids, var_ids
+    global grid_ids, time_axis_ids, z_axis_ids
     shape = msg.get_values().shape
     key = (shape[-2], shape[-1])
     if key in grid_ids:
@@ -171,9 +168,10 @@ def create_cmor_variable(task, msg, store_var_key=None):
     if store_var_key:
         store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
                                     axis_ids=[time_axis_id, grid_id], units="Pa")
+        print "Created variables",var_id,store_var_id
         return var_id, store_var_id
     else:
-        return var_id, None
+        return var_id, -1
 
 
 def get_store_variable(code):
@@ -323,4 +321,4 @@ def get_conversion_factor(conversion, output_frequency):
 
 
 def num_slices(arr):
-    return arr.shape[2] if len(arr.shape) > 2 else 1
+    return arr.shape[0] if len(arr.shape) > 2 else 1
