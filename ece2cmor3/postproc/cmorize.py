@@ -21,6 +21,9 @@ z_axis_ids = {}
 # Dictionary of table ids
 tab_ids = {}
 
+# Dictionary of store var ids
+store_var_ids = {}
+
 ref_date = None
 time_unit = "hour"
 
@@ -130,7 +133,7 @@ class cmor_operator(operator.operator_base):
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
 def create_cmor_variable(task, msg, store_var_key=None):
-    global grid_ids, time_axis_ids, z_axis_ids
+    global grid_ids, time_axis_ids, z_axis_ids, store_var_ids
     shape = msg.get_values().shape
     key = (shape[-2], shape[-1])
     if key in grid_ids:
@@ -165,10 +168,14 @@ def create_cmor_variable(task, msg, store_var_key=None):
     else:
         var_id = cmor.variable(table_entry=str(task.target.variable), units=str(getattr(task.target, "units", "")),
                                axis_ids=axes)
+    cmor.set_deflate(var_id, shuffle=False, deflate=True, deflate_level=2)
     if store_var_key:
-        store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
-                                    axis_ids=[time_axis_id, grid_id], units="Pa")
-        print "Created variables",var_id,store_var_id
+        if (task.target.table, store_var_key) not in store_var_ids:
+            store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
+                                        axis_ids=[time_axis_id, grid_id], units="Pa")
+            store_var_ids[(task.target.table, store_var_key)] = store_var_id
+        else:
+            store_var_id = store_var_ids[(task.target.table, store_var_key)]
         return var_id, store_var_id
     else:
         return var_id, 0
