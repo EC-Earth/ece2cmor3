@@ -24,6 +24,9 @@ tab_ids = {}
 # Dictionary of store var ids
 store_var_ids = {}
 
+# Dictionary of store var time stamps
+store_var_time_stamps = {}
+
 ref_date = None
 time_unit = "hour"
 
@@ -45,7 +48,7 @@ class cmor_operator(operator.operator_base):
         self.mask_expression = None
         self.mask_values = []
         self.var_id = None
-        self.store_var_id = -1
+        self.store_var_id = 0
         self.values = []
         self.cached_properties = [message.variable_key,
                                   message.leveltype_key,
@@ -120,20 +123,22 @@ class cmor_operator(operator.operator_base):
         if any(self.timebounds[0]):
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps, time_bnds=self.timebounds)
-            if self.store_var_key is not None:
+            if self.store_var_id != 0 and self.timestamps[0] > store_var_time_stamps[self.store_var_id][-1]:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
                            store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
+                store_var_time_stamps[self.store_var_id].extend(self.timestamps)
         else:
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps)
-            if self.store_var_key is not None:
+            if self.store_var_key != 0 and self.timestamps[0] > store_var_time_stamps[self.store_var_id][-1]:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
                            store_with=self.var_id, time_vals=self.timestamps)
+                store_var_time_stamps[self.store_var_id].extend(self.timestamps)
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
 def create_cmor_variable(task, msg, store_var_key=None):
-    global grid_ids, time_axis_ids, z_axis_ids, store_var_ids
+    global grid_ids, time_axis_ids, z_axis_ids, store_var_ids, store_var_time_stamps
     shape = msg.get_values().shape
     key = (shape[-2], shape[-1])
     if key in grid_ids:
@@ -174,6 +179,7 @@ def create_cmor_variable(task, msg, store_var_key=None):
             store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
                                         axis_ids=[time_axis_id, grid_id], units="Pa")
             store_var_ids[(task.target.table, store_var_key)] = store_var_id
+            store_var_time_stamps[store_var_id] = []
         else:
             store_var_id = store_var_ids[(task.target.table, store_var_key)]
         return var_id, store_var_id
