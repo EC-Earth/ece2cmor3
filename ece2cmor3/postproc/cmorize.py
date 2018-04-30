@@ -120,17 +120,18 @@ class cmor_operator(operator.operator_base):
         log.info("Writing variable %s in table %s at times %s" % (self.task.target.variable, self.task.target.table,
                                                                   str(self.timestamps)))
         cmor.set_cur_dataset_attribute("frequency", str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt")
+        store_var_times = store_var_time_stamps.get(self.store_var_id, [])
         if any(self.timebounds[0]):
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps, time_bnds=self.timebounds)
-            if self.store_var_id != 0 and self.timestamps[0] > store_var_time_stamps[self.store_var_id][-1]:
+            if self.store_var_id != 0 and self.timestamps[0] not in store_var_times:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
                            store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
                 store_var_time_stamps[self.store_var_id].extend(self.timestamps)
         else:
             cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
                        time_vals=self.timestamps)
-            if self.store_var_key != 0 and self.timestamps[0] > store_var_time_stamps[self.store_var_id][-1]:
+            if self.store_var_id != 0 and self.timestamps[0] not in store_var_times:
                 cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
                            store_with=self.var_id, time_vals=self.timestamps)
                 store_var_time_stamps[self.store_var_id].extend(self.timestamps)
