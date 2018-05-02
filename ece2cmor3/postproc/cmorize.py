@@ -83,9 +83,10 @@ class cmor_operator(operator.operator_base):
             values.append(msg.get_values())
         elif len(self.timestamps) > 0:
             prev_time, prev_bounds = self.timestamps[-1], self.timebounds[-1]
-            if msg.get_timestamp() == prev_time:
+            t = convert_time(msg.get_timestamp())
+            if t == prev_time:
                 values.append(msg.get_values())
-            elif prev_bounds[0] <= msg.get_timestamp() <= prev_bounds[1]:
+            elif prev_bounds[0] <= t <= prev_bounds[1]:
                 values.append(msg.get_values())
             else:
                 log.warning("Skipping store/mask variable outside time bounds")

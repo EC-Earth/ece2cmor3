@@ -59,6 +59,7 @@ class pp_message_test(unittest.TestCase):
         eq_(msg.get_field(message.datetime_key), datetime(1990, 1, 1, 3, 0, 0))
         eq_(msg.get_field(message.leveltype_key), 1)
         eq_(msg.get_field(message.levellist_key), [0])
+        grbfile.close()
 
     @staticmethod
     def test_grib_message():
@@ -73,6 +74,7 @@ class pp_message_test(unittest.TestCase):
         eq_(msg.get_field(message.datetime_key), datetime(1990, 1, 1, 3, 0, 0))
         eq_(msg.get_field(message.leveltype_key), 1)
         eq_(msg.get_field(message.levellist_key), [0])
+        grbfile.close()
 
     @staticmethod
     def test_grib_resolution():
@@ -84,6 +86,7 @@ class pp_message_test(unittest.TestCase):
         msg = message.grib_message(grbmsg)
         ok_(not msg.is_spectral())
         eq_(msg.get_resolution(), 128)
+        grbfile.close()
 
     @staticmethod
     def test_grib_truncation():
@@ -95,3 +98,4 @@ class pp_message_test(unittest.TestCase):
         msg = message.grib_message(grbmsg)
         ok_(msg.is_spectral())
         eq_(msg.get_resolution(), 128)
+        grbfile.close()
