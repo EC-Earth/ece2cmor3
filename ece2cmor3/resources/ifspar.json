@@ -1,9 +1,5 @@
 [
     {
-        "source": "3.128",
-        "target": "thetapv2"
-    },
-    {
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros",
@@ -46,7 +42,6 @@
     {
         "source": "49.128",
         "target": [
-            "wsgmax",
             "wsgmax10m"
         ]
     },
@@ -102,12 +97,8 @@
         "source": "131.128",
         "target": [
             "ua",
-            "ua4",
-            "ua7c",
             "ua7h",
             "ua27",
-            "ua200",
-            "ua850",
             "ua100m"
         ]
     },
@@ -115,12 +106,8 @@
         "source": "132.128",
         "target": [
             "va",
-            "va4",
-            "va7c",
             "va7h",
             "va27",
-            "va200",
-            "va850",
             "va100m"
         ]
     },
@@ -129,7 +116,6 @@
         "target": [
             "hus",
             "hus4",
-            "hus7c",
             "hus7h",
             "hus27",
             "hus850"
@@ -155,7 +141,6 @@
     {
         "source": "138.128",
         "target": [
-            "rv",
             "rv850",
             "vortmean"
         ]
@@ -325,8 +310,7 @@
         "source": "212.128",
         "convert": "cum2inst",
         "target": [
-          "rsdt",
-          "rsdtcs"
+          "rsdt"
         ]
     },
     {
@@ -354,10 +338,6 @@
           "tsns",
           "tsnIs"
         ]
-    },
-    {
-        "source": "243.128",
-        "target": "al"
     },
     {
         "source": "246.128",
@@ -401,7 +381,6 @@
         "convert": "cum2inst",
         "target": [
           "rlus",
-          "rluscs",
           "rlusIs"
         ],
         "expr": "var96=var177-var175"
