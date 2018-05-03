@@ -512,7 +512,7 @@
     },
     {
         "source": "118.129",
-        "target": "mrlsl",
+        "target": "mrsol",
         "expr": "var118=merge(70*var39,210*var40,720*var41,1890*var42)",
         "masked": "land"
     },
@@ -526,13 +526,6 @@
         "target": "hfdsn",
         "expr": "var120=(var141>0)*(var146+var147+var176+var177)",
         "convert": "cum2inst"
-    },
-    {
-        "source": "121.129",
-        "target": "mrlsl",
-        "table": "6hrPlevPt",
-        "expr": "var118=70*var39",
-        "masked": "land"
     },
     {
         "source": "122.129",
