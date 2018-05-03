@@ -23,11 +23,13 @@ class expression_operator(operator.operator_base):
         super(expression_operator, self).__init__()
         self.source = cmor_source.ifs_source.read(expr)
         self.numpy_expr = fix_expr(expr)
+        if isinstance(self.numpy_expr, list) and len(self.numpy_expr) == 1:
+            self.numpy_expr = self.numpy_expr[0]
         self.local_dict = {v.to_var_string(): None for v in self.source.get_root_codes()}
         self.cached_properties = [message.datetime_key, message.timebounds_key,
                                   message.resolution_key]
         self.level_type = leveltype
-        if isinstance(self.numpy_expr, str):
+        if not isinstance(self.numpy_expr, list):
             self.cached_properties.append(message.leveltype_key)
             self.cached_properties.append(message.levellist_key)
 
