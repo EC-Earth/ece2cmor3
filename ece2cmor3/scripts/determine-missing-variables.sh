@@ -54,13 +54,34 @@ if [ "$#" -eq 4 ]; then
  #source deactivate
  fi
 
- diff_with_benchmark=false
- benchmark='benchmark-10'
- if ${diff_with_benchmark} ; then
-  echo 'Diff missing.txt file:       ' >  differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
-  echo 'Diff identified missing file:' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
-  echo 'Diff available.txt file:     ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
-  echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           benchmark/${benchmark}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${benchmark}.txt; echo ' ' >> differences-with-${benchmark}.txt;
+
+ diff_with_benchmark=true
+ benchmark_step_1='benchmark-12-step-1'
+ benchmark_step_1_and_2='benchmark-12-step-1+2'
+
+ if [ ${diff_with_benchmark} ]; then
+  if [ ${mip} == 'CMIP' ] && [ ${experiment} == 'CMIP' ]; then
+   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
+   echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
+   echo 'Diff available.txt file:     ' >> differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.available.txt         >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
+   echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.ignored.txt           >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
+  fi
+
+  if [ ${mip} == 'CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP' ] && [ ${experiment} == 'CMIP' ]; then
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.txt  cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.txt          cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.xlsx
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.xlsx cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.xlsx
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.xlsx         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx
+   mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.xlsx
+
+   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1_and_2}.txt;  diff cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1_and_2}.txt;  diff cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff available.txt file:     ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+  fi
  fi
 
 else
