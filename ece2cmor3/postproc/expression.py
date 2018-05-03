@@ -3,7 +3,7 @@ import numexpr
 import numpy
 import re
 
-from ece2cmor3 import cmor_source
+from ece2cmor3 import cmor_source, grib_file
 from ece2cmor3.postproc import message, operator
 
 log = logging.getLogger(__name__)
@@ -19,14 +19,14 @@ def fix_expr(expr):
 
 class expression_operator(operator.operator_base):
 
-    def __init__(self, expr):
+    def __init__(self, expr, leveltype=grib_file.surface_level_code):
         super(expression_operator, self).__init__()
         self.source = cmor_source.ifs_source.read(expr)
         self.numpy_expr = fix_expr(expr)
         self.local_dict = {v.to_var_string(): None for v in self.source.get_root_codes()}
         self.cached_properties = [message.datetime_key, message.timebounds_key,
                                   message.resolution_key]
-        self.level_type = None
+        self.level_type = leveltype
         if isinstance(self.numpy_expr, str):
             self.cached_properties.append(message.leveltype_key)
             self.cached_properties.append(message.levellist_key)
@@ -48,13 +48,13 @@ class expression_operator(operator.operator_base):
             self.local_dict[k] = None
 
     def create_msg(self):
-        if isinstance(self.numpy_expr, list):
-            self.values = numpy.stack([numexpr.evaluate(e, local_dict=self.local_dict) for e in self.numpy_expr])
-            levels = range(1, len(self.numpy_expr) + 1)
-        else:
+        levtype = self.property_cache.get(message.leveltype_key, self.level_type)
+        if message.levellist_key in self.cached_properties:
             self.values = numexpr.evaluate(self.numpy_expr, local_dict=self.local_dict)
             levels = self.property_cache[message.levellist_key]
-        levtype = self.property_cache.get(message.leveltype_key, self.level_type)
+        else:
+            self.values = numpy.stack([numexpr.evaluate(e, local_dict=self.local_dict) for e in self.numpy_expr])
+            levels = range(1, len(self.numpy_expr) + 1)
         return message.memory_message(variable=self.source,
                                       timestamp=self.property_cache[message.datetime_key],
                                       timebounds=self.property_cache[message.timebounds_key],
