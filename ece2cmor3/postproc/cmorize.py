@@ -84,9 +84,18 @@ class cmor_operator(operator.operator_base):
         if self.cache_is_full():
             self.clear_cache()
         t = convert_time(msg.get_timestamp())
-        if (not any(timestamps)) or t > timestamps[-1]:
+        if not any(self.timestamps):
             values.append(msg.get_values())
             timestamps.append(t)
+        else:
+            if len(timestamps) < len(self.timestamps):
+                extravals = [None] * (len(self.timestamps) - len(timestamps))
+                values += extravals
+                timestamps += extravals
+            i = numpy.argmin(numpy.array(self.timestamps) - t)
+            if timestamps[i] is None or abs(self.timestamps[i] - timestamps[i]) > abs(self.timestamps[i] - t):
+                timestamps[i] = t
+                values[i] = msg.get_values()
         if self.cache_is_full():
             self.send_msg()
 
@@ -107,49 +116,37 @@ class cmor_operator(operator.operator_base):
                 break
         if cum < self.chunk_size:
             return False
-        tstart = self.timebounds[0][0] if any(self.timebounds[0]) else self.timestamps[0]
-        tend = self.timebounds[npassed - 1][1] if any(self.timebounds[npassed - 1]) else self.timestamps[npassed - 1]
         if self.store_var_key is not None:
-            print "OK, t1,t2 = ",tstart, tend, "stv", self.store_var_timestamps
-            if any(self.store_var_timestamps):
-                store_complete = self.store_var_timestamps[0] >= tstart and self.store_var_timestamps[-1] <= tend
-            else:
-                store_complete = False
-        else:
-            store_complete = True
-        if not store_complete:
-            return False
+            if len(self.store_var_timestamps) < npassed:
+                return False
+            for i in range(npassed):
+                ts, bnds = self.store_var_timestamps[i], self.timebounds[i]
+                if ts is None:
+                    return False
+                if any(bnds) and (ts < bnds[0] or ts > bnds[1]):
+                    return False
         if self.mask_key is not None:
-            if any(self.mask_timestamps):
-                mask_complete = self.mask_timestamps[0] <= tstart and self.mask_timestamps[-1] >= tend
-            else:
-                mask_complete = False
-        else:
-            mask_complete = True
-        return mask_complete
+            if len(self.mask_timestamps) < npassed:
+                return False
+            for i in range(npassed):
+                ts, bnds = self.mask_timestamps[i], self.timebounds[i]
+                if ts is None:
+                    return False
+                if any(bnds) and (ts < bnds[0] or ts > bnds[1]):
+                    return False
+        return True
 
     def cache_is_empty(self):
         return super(cmor_operator, self).cache_is_empty() or self.values == []
 
     def clear_cache(self):
-        last_store_var, last_mask = 0, 0
-        tend = self.timebounds[-1][1] if any(self.timebounds[-1]) else self.timestamps[-1]
+        ntimes_passed = len(self.timestamps)
         if self.store_var_key is not None:
-            while self.store_var_timestamps[last_store_var] <= tend:
-                last_store_var += 1
-                if last_store_var == len(self.store_var_timestamps):
-                    break
-            self.store_var_values = self.store_var_values[last_store_var:]
-            self.store_var_timestamps = self.store_var_timestamps[last_store_var:]
-        else:
-            self.store_var_values, self.store_var_timestamps = [], []
+            self.store_var_values = self.store_var_values[ntimes_passed:]
+            self.store_var_timestamps = self.store_var_timestamps[ntimes_passed:]
         if self.mask_key is not None:
-            while self.mask_timestamps[last_mask] <= tend:
-                last_mask += 1
-                if last_mask == len(self.mask_timestamps):
-                    break
-            self.mask_values = self.mask_values[last_mask:]
-            self.mask_timestamps = self.mask_timestamps[last_mask:]
+            self.mask_values = self.mask_values[ntimes_passed:]
+            self.mask_timestamps = self.mask_timestamps[ntimes_passed:]
         self.values, self.timestamps, self.timebounds = [], [], []
 
     def send_msg(self):
