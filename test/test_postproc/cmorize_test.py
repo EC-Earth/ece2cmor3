@@ -1,7 +1,7 @@
-import os
 from datetime import datetime, timedelta
 
 import numpy
+import os
 import unittest
 from nose.tools import ok_, with_setup
 

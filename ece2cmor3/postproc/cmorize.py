@@ -24,12 +24,13 @@ tab_ids = {}
 # Dictionary of store var ids
 store_var_ids = {}
 
-# Dictionary of store var time stamps
-store_var_time_stamps = {}
-
+# Reference date for output
 ref_date = None
+
+# Time unit for output
 time_unit = "hour"
 
+# Table root for cmor
 table_root = None
 
 
@@ -44,9 +45,11 @@ class cmor_operator(operator.operator_base):
         self.variable = task.source
         self.store_var_key = store_var_key
         self.store_var_values = []
+        self.store_var_timestamps = []
         self.mask_key = mask_key
         self.mask_expression = None
         self.mask_values = []
+        self.mask_timestamps = []
         self.var_id = None
         self.store_var_id = 0
         self.values = []
@@ -61,7 +64,8 @@ class cmor_operator(operator.operator_base):
         if self.mask_key is None or self.mask_expression is None:
             return array
         src = cmor_source.grib_code(self.mask_key[0], self.mask_key[1])
-        local_dict = {src.to_var_string(): numpy.stack(self.mask_values)}
+        ntimes_passed = array.shape[0]
+        local_dict = {src.to_var_string(): numpy.stack(self.mask_values[:ntimes_passed])}
         mask_array = numexpr.evaluate(self.mask_expression, local_dict=local_dict)
         numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask_array), array.shape), self.missval)
         return array
@@ -76,66 +80,97 @@ class cmor_operator(operator.operator_base):
             self.timestamps.append(convert_time(msg.get_timestamp()))
             self.timebounds.append([convert_time(t) for t in msg.get_time_bounds()])
 
-    def receive_extra_var(self, msg, values):
+    def receive_extra_var(self, msg, values, timestamps):
         if self.cache_is_full():
             self.clear_cache()
-        if len(self.timestamps) == len(values):
+        t = convert_time(msg.get_timestamp())
+        if (not any(timestamps)) or t > timestamps[-1]:
             values.append(msg.get_values())
-        elif len(self.timestamps) > 0:
-            prev_time, prev_bounds = self.timestamps[-1], self.timebounds[-1]
-            t = convert_time(msg.get_timestamp())
-            if t == prev_time:
-                values.append(msg.get_values())
-            elif prev_bounds[0] <= t <= prev_bounds[1]:
-                values.append(msg.get_values())
-            else:
-                log.warning("Skipping store/mask variable outside time bounds")
-        elif len(values) > 0:
-            values[-1] = msg.get_values()
-        else:
-            values.append(msg.get_values())
+            timestamps.append(t)
         if self.cache_is_full():
             self.send_msg()
 
     def receive_store_var(self, msg):
-        self.receive_extra_var(msg, self.store_var_values)
+        self.receive_extra_var(msg, self.store_var_values, self.store_var_timestamps)
 
     def receive_mask_var(self, msg):
-        self.receive_extra_var(msg, self.mask_values)
+        self.receive_extra_var(msg, self.mask_values, self.mask_timestamps)
 
     def cache_is_full(self):
-        vals_complete = self.values is not None and sum([num_slices(a) for a in self.values]) >= self.chunk_size
-        npassed = 0 if self.values is None else len(self.values)
-        store_complete = self.store_var_key is None or len(self.store_var_values) >= npassed
-        mask_complete = self.mask_key is None or len(self.mask_values) >= npassed
-        return super(cmor_operator, self).cache_is_full() and vals_complete and store_complete and mask_complete
+        if self.values is None:
+            return False
+        cum, npassed = 0, 0
+        for v in self.values:
+            cum += num_slices(v)
+            npassed += 1
+            if cum >= self.chunk_size:
+                break
+        if cum < self.chunk_size:
+            return False
+        tstart = self.timebounds[0][0] if any(self.timebounds[0]) else self.timestamps[0]
+        tend = self.timebounds[npassed - 1][1] if any(self.timebounds[npassed - 1]) else self.timestamps[npassed - 1]
+        if self.store_var_key is not None:
+            print "OK, t1,t2 = ",tstart, tend, "stv", self.store_var_timestamps
+            if any(self.store_var_timestamps):
+                store_complete = self.store_var_timestamps[0] >= tstart and self.store_var_timestamps[-1] <= tend
+            else:
+                store_complete = False
+        else:
+            store_complete = True
+        if not store_complete:
+            return False
+        if self.mask_key is not None:
+            if any(self.mask_timestamps):
+                mask_complete = self.mask_timestamps[0] <= tstart and self.mask_timestamps[-1] >= tend
+            else:
+                mask_complete = False
+        else:
+            mask_complete = True
+        return mask_complete
 
     def cache_is_empty(self):
         return super(cmor_operator, self).cache_is_empty() or self.values == []
 
     def clear_cache(self):
-        self.values, self.timestamps, self.timebounds, self.store_var_values, self.mask_values = [], [], [], [], []
+        last_store_var, last_mask = 0, 0
+        tend = self.timebounds[-1][1] if any(self.timebounds[-1]) else self.timestamps[-1]
+        if self.store_var_key is not None:
+            while self.store_var_timestamps[last_store_var] <= tend:
+                last_store_var += 1
+                if last_store_var == len(self.store_var_timestamps):
+                    break
+            self.store_var_values = self.store_var_values[last_store_var:]
+            self.store_var_timestamps = self.store_var_timestamps[last_store_var:]
+        else:
+            self.store_var_values, self.store_var_timestamps = [], []
+        if self.mask_key is not None:
+            while self.mask_timestamps[last_mask] <= tend:
+                last_mask += 1
+                if last_mask == len(self.mask_timestamps):
+                    break
+            self.mask_values = self.mask_values[last_mask:]
+            self.mask_timestamps = self.mask_timestamps[last_mask:]
+        self.values, self.timestamps, self.timebounds = [], [], []
 
     def send_msg(self):
         load_table(self.task.target.table)
         log.info("Writing variable %s in table %s at times %s" % (self.task.target.variable, self.task.target.table,
                                                                   str(self.timestamps)))
         cmor.set_cur_dataset_attribute("frequency", str(getattr(self.task, cmor_task.output_frequency_key)) + "hrPt")
-        store_var_times = store_var_time_stamps.get(self.store_var_id, [])
+        ntimes_passed = len(self.timestamps)
         if any(self.timebounds[0]):
-            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
+            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=ntimes_passed,
                        time_vals=self.timestamps, time_bnds=self.timebounds)
-            if self.store_var_id != 0 and self.timestamps[0] not in store_var_times:
-                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
-                           store_with=self.var_id, time_vals=self.timestamps, time_bnds=self.timebounds)
-                store_var_time_stamps[self.store_var_id].extend(self.timestamps)
+            if self.store_var_id != 0:
+                cmor.write(self.store_var_id, numpy.stack(self.store_var_values[:ntimes_passed]),
+                           ntimes_passed=ntimes_passed, store_with=self.var_id, time_vals=self.timestamps,
+                           time_bnds=self.timebounds)
         else:
-            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=len(self.timestamps),
+            cmor.write(self.var_id, self.apply_mask(numpy.stack(self.values)), ntimes_passed=ntimes_passed,
                        time_vals=self.timestamps)
-            if self.store_var_id != 0 and self.timestamps[0] not in store_var_times:
-                cmor.write(self.store_var_id, numpy.stack(self.store_var_values), ntimes_passed=len(self.timestamps),
-                           store_with=self.var_id, time_vals=self.timestamps)
-                store_var_time_stamps[self.store_var_id].extend(self.timestamps)
+            if self.store_var_id != 0:
+                cmor.write(self.store_var_id, numpy.stack(self.store_var_values[:ntimes_passed]),
+                           ntimes_passed=ntimes_passed, store_with=self.var_id, time_vals=self.timestamps)
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
@@ -181,7 +216,6 @@ def create_cmor_variable(task, msg, store_var_key=None):
             store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
                                         axis_ids=[time_axis_id, grid_id], units="Pa")
             store_var_ids[(task.target.table, store_var_key)] = store_var_id
-            store_var_time_stamps[store_var_id] = []
         else:
             store_var_id = store_var_ids[(task.target.table, store_var_key)]
         return var_id, store_var_id
