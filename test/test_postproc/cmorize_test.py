@@ -32,6 +32,7 @@ def make_msg(code, time, level_type, mean, dt=timedelta(hours=3)):
 def setup():
     ece2cmorlib.initialize()
     cmorize.table_root = os.path.join(ece2cmorlib.table_dir, ece2cmorlib.prefix)
+    cmorize.ref_date = datetime(1990, 1, 1)
     sh_path = os.path.join(os.path.dirname(__file__), "..", "test_data", "ifs", "ICMSHpl01+199001")
     grib_file.test_mode = False
     with grib_file.open_file(sh_path) as grbfile:
@@ -100,3 +101,29 @@ class cmorize_test(unittest.TestCase):
         ok_(not vop.cache_is_full())
         vop.receive_msg(make_msg(vtask.source.get_grib_code().var_id, time, grib_file.hybrid_level_code, mean=-1.1))
         ok_(vop.cache_is_full())
+
+    @staticmethod
+    @with_setup(setup)
+    def test_receive_store_var_multi():
+        taskloader.load_targets({"CFday": ["ua", "va"]})
+        utask = [t for t in ece2cmorlib.tasks if (t.target.variable, t.target.table) == ("ua", "CFday")][0]
+        vtask = [t for t in ece2cmorlib.tasks if (t.target.variable, t.target.table) == ("va", "CFday")][0]
+        setattr(utask, "output_freq", 6)
+        setattr(vtask, "output_freq", 6)
+        uop = cmorize.cmor_operator(utask, chunk_size=1, store_var_key=cmorize_test.store_var_key)
+        vop = cmorize.cmor_operator(vtask, chunk_size=1, store_var_key=cmorize_test.store_var_key)
+        time = datetime(1990, 1, 1, 0, 0, 0)
+        while time < datetime(1990, 1, 3, 0, 0, 0):
+            time = time + timedelta(hours=3)
+            psmsg = make_msg(134, time, grib_file.surface_level_code, mean=100000.)
+            uop.receive_store_var(psmsg)
+            vop.receive_store_var(psmsg)
+            if time.hour % 24 == 12:
+                umsg = make_msg(utask.source.get_grib_code().var_id, time, grib_file.hybrid_level_code,
+                                mean=2.9, dt=timedelta(hours=12))
+                uop.receive_msg(umsg)
+                vmsg = make_msg(vtask.source.get_grib_code().var_id, time, grib_file.hybrid_level_code,
+                                mean=2.9, dt=timedelta(hours=12))
+                vop.receive_msg(vmsg)
+        ok_(not vop.cache_is_full())
+#        cmor.close()

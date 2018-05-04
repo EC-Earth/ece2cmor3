@@ -21,9 +21,6 @@ z_axis_ids = {}
 # Dictionary of table ids
 tab_ids = {}
 
-# Dictionary of store var ids
-store_var_ids = {}
-
 # Reference date for output
 ref_date = None
 
@@ -50,7 +47,7 @@ class cmor_operator(operator.operator_base):
         self.mask_expression = None
         self.mask_values = []
         self.mask_timestamps = []
-        self.var_id = None
+        self.var_id = 0
         self.store_var_id = 0
         self.values = []
         self.cached_properties = [message.variable_key,
@@ -58,7 +55,14 @@ class cmor_operator(operator.operator_base):
                                   message.levellist_key,
                                   message.resolution_key]
         self.timestamps = []
+        self.var_id, self.store_var_id = create_cmor_variable(self.task, None, self.store_var_key)
         self.timebounds = []
+
+    def __del__(self):
+        if self.store_var_id != 0:
+            cmor.close(self.store_var_id)
+        if self.var_id != 0:
+            cmor.close(self.var_id)
 
     def apply_mask(self, array):
         if self.mask_key is None or self.mask_expression is None:
@@ -71,7 +75,7 @@ class cmor_operator(operator.operator_base):
         return array
 
     def fill_cache(self, msg):
-        if self.var_id is None:
+        if self.var_id == 0:
             self.var_id, self.store_var_id = create_cmor_variable(self.task, msg, self.store_var_key)
         if msg.get_variable() == self.task.source:
             conversion_factor = get_conversion_factor(getattr(self.task, cmor_task.conversion_key, None),
@@ -171,9 +175,9 @@ class cmor_operator(operator.operator_base):
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
-def create_cmor_variable(task, msg, store_var_key=None):
-    global grid_ids, time_axis_ids, z_axis_ids, store_var_ids, store_var_time_stamps
-    shape = msg.get_values().shape
+def create_cmor_variable(task, msg=None, store_var_key=None):
+    global grid_ids, z_axis_ids
+    shape = msg.get_values().shape if msg is not None else (10, 20)
     key = (shape[-2], shape[-1])
     if key in grid_ids:
         grid_id = grid_ids[key]
@@ -183,15 +187,9 @@ def create_cmor_variable(task, msg, store_var_key=None):
         grid_ids[key] = grid_id
     load_table(task.target.table)
     freq = getattr(task.target, cmor_target.freq_key, None)
-    time_axis_id, key = 0, (task.target.table, freq)
-    if key in time_axis_ids:
-        time_axis_id = time_axis_ids[key]
-    elif freq is not None:
-        if not any(time_axis_ids):
-            cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-        time_axis_id = create_time_axis(task, msg)
-        if time_axis_id != 0:
-            time_axis_ids[key] = time_axis_id
+    if freq is not None:
+        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    time_axis_id = create_time_axis(task, msg)
     z_axis, axis_variable, levels = cmor_target.get_z_axis(task.target)
     z_axis_id, key = 0, (task.target.table, z_axis)
     if key in z_axis_ids:
@@ -209,12 +207,8 @@ def create_cmor_variable(task, msg, store_var_key=None):
                                axis_ids=axes)
     cmor.set_deflate(var_id, shuffle=False, deflate=True, deflate_level=2)
     if store_var_key:
-        if (task.target.table, store_var_key) not in store_var_ids:
-            store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
-                                        axis_ids=[time_axis_id, grid_id], units="Pa")
-            store_var_ids[(task.target.table, store_var_key)] = store_var_id
-        else:
-            store_var_id = store_var_ids[(task.target.table, store_var_key)]
+        store_var_id = cmor.zfactor(zaxis_id=z_axis_id, zfactor_name=get_store_variable(store_var_key[0]),
+                                    axis_ids=[time_axis_id, grid_id], units="Pa")
         return var_id, store_var_id
     else:
         return var_id, 0
@@ -264,12 +258,12 @@ def create_gauss_grid(nx, ny):
 
 
 # Creates a time axis in the cmor library for this task
-def create_time_axis(task, msg):
+def create_time_axis(task, msg=None):
     global ref_date
     target_dims = getattr(task.target, cmor_target.dims_key)
     time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
     if any(time_dims):
-        if ref_date is None:
+        if ref_date is None and msg is not None:
             ref_date = msg.get_timestamp()
         # TODO: use UTC formatting for refdate
         return cmor.axis(table_entry=str(time_dims[0]), units=time_unit + "s since " + str(ref_date))
@@ -323,6 +317,7 @@ def create_hybrid_level_axis(name):
     b = zlevels.b_coefs
     hcm = a / pref + b
     axisid = cmor.axis(table_entry=name, coord_vals=hcm, cell_bounds=create_bounds(hcm, 0., 1.), units="1")
+    cmor.zfactor(zaxis_id=axisid, zfactor_name="p0", units="Pa", zfactor_values=pref)
     cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units="Pa", axis_ids=[axisid], zfactor_values=a[:],
                  zfactor_bounds=create_bounds(a, 0.))
     cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units="1", axis_ids=[axisid], zfactor_values=b[:],
