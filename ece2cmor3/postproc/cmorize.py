@@ -55,7 +55,6 @@ class cmor_operator(operator.operator_base):
                                   message.levellist_key,
                                   message.resolution_key]
         self.timestamps = []
-        self.var_id, self.store_var_id = create_cmor_variable(self.task, None, self.store_var_key)
         self.timebounds = []
 
     def __del__(self):
@@ -175,9 +174,9 @@ class cmor_operator(operator.operator_base):
 
 
 # Creates a variable for the given task, and creates grid, time and z axes if necessary
-def create_cmor_variable(task, msg=None, store_var_key=None):
+def create_cmor_variable(task, msg, store_var_key=None):
     global grid_ids, z_axis_ids
-    shape = msg.get_values().shape if msg is not None else (10, 20)
+    shape = msg.get_values().shape
     key = (shape[-2], shape[-1])
     if key in grid_ids:
         grid_id = grid_ids[key]
@@ -258,7 +257,7 @@ def create_gauss_grid(nx, ny):
 
 
 # Creates a time axis in the cmor library for this task
-def create_time_axis(task, msg=None):
+def create_time_axis(task, msg):
     global ref_date
     target_dims = getattr(task.target, cmor_target.dims_key)
     time_dims = [d for d in list(set(target_dims.split())) if d.startswith("time")]
