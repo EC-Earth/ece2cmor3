@@ -7,16 +7,22 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory)
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority)
+# ${5} the fifth   argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --oce for only ocean variables
 #
 # Run example:
 #  ./determine-missing-variables.sh CMIP CMIP 1 1
 #
 
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  mip=$1
  experiment=$2
  tier=$3
  priority=$4
+ if [ "$#" -eq 5 ]; then
+  additional_checkvars_argument=$5
+ else
+  additional_checkvars_argument=''
+ fi
 
  # Check whether more than one MIP is specified in the data request
  multiplemips='no'
@@ -46,9 +52,9 @@ if [ "$#" -eq 4 ]; then
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   if [ "${multiplemips}" == "yes" ]; then
-   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py ${additional_checkvars_argument} -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   else
-   ./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py ${additional_checkvars_argument} -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   fi
  #source deactivate
