@@ -1,17 +1,22 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This scripts needs no arguments
+# This scripts requires four arguments (a fifth argument is OPTIONAL):
 #
-# ${1} the first   argument is the MIP name
+# ${1} the first   argument is the MIP name. The first argument can represent a list of MIPs, seperated by commas.
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
-# ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory)
-# ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority)
+# ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
+# ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
 # ${5} the fifth   argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --oce for only ocean variables
 #
 # Run example:
 #  ./determine-missing-variables.sh CMIP CMIP 1 1
 #
+
+
+# Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
+ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
+
 
 if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  mip=$1
@@ -46,10 +51,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo
  else
  #source activate ece2cmor3
-  cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
-  mkdir -p  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/; cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip6-data-request/;
+  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/
+  cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   if [ "${multiplemips}" == "yes" ]; then
    ./checkvars.py ${additional_checkvars_argument} -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
@@ -61,11 +66,12 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  fi
 
 
- diff_with_benchmark=true
- benchmark_step_1='benchmark-12-step-1'
- benchmark_step_1_and_2='benchmark-12-step-1+2'
+ # Some benchmark diffing, which can be activated by the developer:
+ diff_with_benchmark=false
+ benchmark_step_1='benchmark-13-step-1'
+ benchmark_step_1_and_2='benchmark-13-step-1+2'
 
- if [ ${diff_with_benchmark} ]; then
+ if [ "${diff_with_benchmark}" = true ] ; then
   if [ ${mip} == 'CMIP' ] && [ ${experiment} == 'CMIP' ]; then
    echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
    echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.identifiedmissing.txt >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
@@ -92,9 +98,9 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
 else
     echo '  '
-    echo '  Illegal number of arguments, e.g.:'
+    echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 CMIP CMIP 1 1
-    echo '  or:'
+    echo '  The first argument can represent a list of MIPs, seperated by commas, e.g.:'
     echo '  ' $0 CMIP,AerChemMIP CMIP 1 1
     echo '  '
 fi
