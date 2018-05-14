@@ -19,14 +19,14 @@ if [ "$#" -eq 0 ]; then
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-##  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
+  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
   cd ${HOME}/cmorize/shaconemo/ping-files/
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-##  nedit r248/cmor-varlist-based-on-ping-r248-without-dummy-lines.txt
+##  nedit ${HOME}/cmorize/shaconemo/ping-files/r251/cmor-varlist-based-on-ping-r251-without-dummy-lines.txt
 # and copy them manually into the variable column in the file (also update the comment column):
 ##  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
@@ -96,7 +96,7 @@ if [ "$#" -eq 0 ]; then
 
 # ll *.missing.xlsx|grep -v 5.5K
 # ll *.missing.txt|grep -v 266B
-# m *.missing.txt|grep r248
+# m *.missing.txt|grep r251
 
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
