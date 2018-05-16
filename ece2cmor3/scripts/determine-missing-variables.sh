@@ -17,6 +17,16 @@
 # Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
 ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
 
+# Test whether the ece2cmor_root_directory exists:
+if [ ! -d ${ece2cmor_root_directory} ]; then 
+ echo
+ echo ' The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
+ echo ' Adjust the ece2cmor_root_directory at line 18 of the script: ' $0
+ echo ' Stop'
+ echo
+ exit
+fi
+
 
 if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  mip=$1
@@ -49,6 +59,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo '  2. drq might be not active, as the anaconda environment is not activated'
   echo ' Stop'
   echo
+  exit
  else
  #source activate ece2cmor3
   cd ${ece2cmor_root_directory}; python setup.py install; cd -;

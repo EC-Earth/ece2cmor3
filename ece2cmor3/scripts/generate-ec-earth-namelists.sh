@@ -8,13 +8,24 @@
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
 #
+#
 # Run example:
-#  ./generate-ec-earth-namelists.sh.sh CMIP amip 1 1
+#  ./generate-ec-earth-namelists.sh CMIP amip 1 1
 #
 
 
 # Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
 ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
+
+# Test whether the ece2cmor_root_directory exists:
+if [ ! -d ${ece2cmor_root_directory} ]; then 
+ echo
+ echo ' The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
+ echo ' Adjust the ece2cmor_root_directory at line 18 of the script: ' $0
+ echo ' Stop'
+ exit
+ echo
+fi
 
 if [ "$#" -eq 4 ]; then
  mip=$1
@@ -33,6 +44,7 @@ if [ "$#" -eq 4 ]; then
   echo '  2. drq might be not active, as the anaconda environment is not activated'
   echo ' Stop'
   echo
+  exit
  else
  #source activate ece2cmor3
   cd ${ece2cmor_root_directory}; python setup.py install; cd -;
@@ -51,8 +63,10 @@ if [ "$#" -eq 4 ]; then
  # A block with calling drq2nemo_file_def.py has to be added here.
 
 
- echo ' The generated ppt files are:'
- ls ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+ echo
+ echo 'The generated ppt files are:'
+ ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+ echo
 
 else
     echo '  '
