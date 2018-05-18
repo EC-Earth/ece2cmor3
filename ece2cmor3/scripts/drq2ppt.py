@@ -96,8 +96,10 @@ def write_ppt_files(tasks):
                         mfpphy.append(code)
                     else:
                         log.error("Unknown IFS grib code %s skipped" % str(code))
-        if any(mfp3dfs):
-            mfp2df.append(cmor_source.grib_code(134))  # Add surface pressure for 3D vars
+        if cmor_source.grib_code(129) not in (mfp3dfs):
+         mfp2df.append(cmor_source.grib_code(129))  # Always add the geopotential                 as stronly recommended at the OpenIFS grib code website
+        mfpphy.append( cmor_source.grib_code(134))  # Always add the surface pressure             as stronly recommended at the OpenIFS grib code website
+        mfp2df.append( cmor_source.grib_code(152))  # Always add the logarithmic surface pressure as stronly recommended at the OpenIFS grib code website
         mfp2df = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp2df))))
         mfpphy = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfpphy))))
         mfp3dfs = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfs))))
