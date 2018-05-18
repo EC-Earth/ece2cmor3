@@ -684,7 +684,7 @@ def select_files(path, expname, start, length):
     allfiles = cmor_utils.find_ifs_output(path, expname)
     start_date = cmor_utils.make_datetime(start).date()
     end_date = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if f.endswith("ICMGG" + expname + "+000000") or
+    return [f for f in allfiles if f.endswith(expname + "+000000") or
             (end_date > cmor_utils.get_ifs_date(f) >= start_date)]
 
 
