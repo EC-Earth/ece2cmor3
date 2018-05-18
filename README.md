@@ -36,7 +36,7 @@ For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
 
 ```shell
 mkdir -p ${HOME}/cmorize/; cd ${HOME}/cmorize/
-git clone https://github.com/goord/ece2cmor3.git
+git clone https://github.com/EC-Earth/ece2cmor3.git
 cd ${HOME}/cmorize/ece2cmor3/
 git submodule update --init --recursive
 ```
