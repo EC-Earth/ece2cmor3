@@ -132,7 +132,7 @@ class nemo2cmor_tests(unittest.TestCase):
         lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / (0.5 * (dim + i) + 2) - 90, (dim, dim),
                                   dtype=numpy.float64)
 
-        grid = nemo2cmor.nemogrid(lons, lats)
+        grid = nemo2cmor.nemo_grid(lons, lats)
 
         p1 = (grid.vertex_lons[0, 0, 0], grid.vertex_lats[0, 0, 0])
         p2 = (grid.vertex_lons[0, 0, 1], grid.vertex_lats[0, 0, 1])
