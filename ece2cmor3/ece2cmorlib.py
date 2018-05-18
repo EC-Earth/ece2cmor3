@@ -177,6 +177,19 @@ def perform_nemo_tasks(datadir, expname, startdate, interval):
     nemo2cmor.execute(nemo_tasks)
 
 
+## Performs a NEMO cmorization processing:
+#def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
+#    global log, tasks, table_dir, prefix
+#    validate_setup_settings()
+#    validate_run_settings(datadir, expname)
+#    NEWCOMPONENT_tasks = [t for t in tasks if isinstance(t.source, cmor_source.NEWCOMPONENT_source)]
+#    log.info("Selected %d NEWCOMPONENT tasks from %d input tasks" % (len(NEWCOMPONENT_tasks), len(tasks)))
+#    tableroot = os.path.join(table_dir, prefix)
+#    if not NEWCOMPONENT2cmor.initialize(datadir, expname, tableroot, startdate, interval):
+#        return
+#    NEWCOMPONENT2cmor.execute(NEWCOMPONENT_tasks)
+
+
 # Validation of cmor session configuration
 def validate_run_settings(datadir, expname):
     if not datadir or not isinstance(datadir, str):

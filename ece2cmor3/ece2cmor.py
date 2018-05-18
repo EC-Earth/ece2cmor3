@@ -49,6 +49,8 @@ def main(args=None):
                         help="Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action="store_true", default=False,
                         help="Run ece2cmor3 exclusively for ocean data")
+#   parser.add_argument("-NEWCOMPONENT", "--NEWCOMPONENT", action="store_true", default=False,
+#                      help="Run ece2cmor3 exclusively for ocean data")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
     parser.add_argument("--filter", action="store_true", default=False, help="Automatic filtering of grib files")
     parser.add_argument("--ifspar", metavar="FILE.json", type=str,
@@ -89,6 +91,8 @@ def main(args=None):
                                       maxsizegb=args.tmpsize)
     if prococean:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
+#   if procNEWCOMPONENT:
+#       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
 
     ece2cmorlib.finalize()
 
