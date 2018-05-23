@@ -12,6 +12,7 @@ from nose.tools import eq_
 import test_utils
 from ece2cmor3 import nemo2cmor, cmor_source, cmor_target, cmor_task
 
+log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -104,9 +105,15 @@ class nemo2cmor_tests(unittest.TestCase):
     def tearDown(self):
         cmor_dir = os.path.join(os.getcwd(), "cmor")
         if os.path.exists(cmor_dir):
-            shutil.rmtree(cmor_dir)
+            try:
+                shutil.rmtree(cmor_dir)
+            except Exception as e:
+                log.warning("Attempt to remove cmorized test data failed, reason: %s" % e.message)
         if os.path.exists(self.data_dir):
-            shutil.rmtree(self.data_dir)
+            try:
+                shutil.rmtree(self.data_dir)
+            except Exception as e:
+                log.warning("Attempt to remove generated test data failed, reason: %s" % e.message)
 
     def test_cmor_single_task(self):
         tab_dir = get_table_path()

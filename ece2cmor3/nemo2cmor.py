@@ -81,8 +81,8 @@ def execute(tasks):
         try:
             tab_id = cmor.load_table("_".join([table_root_, tab]) + ".json")
             cmor.set_table(tab_id)
-        except:
-            log.error("CMOR failed to load table %s, skipping variables %s" % (tab, str(targetvars)))
+        except Exception as e:
+            log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s" % (tab, str(targetvars), e.message))
             continue
         log.info("Creating time axes for table %s..." % tab)
         time_axes_[tab_id] = create_time_axis(freq, files)
@@ -128,7 +128,7 @@ def execute_netcdf_task(task, dataset, tableid):
         axes = [grid_ids_[task.source.grid()]]
     if (globvar and dims == 1) or (not globvar and dims == 3):
         grid_index = cmor_source.nemo_grid.index(task.source.grid())
-        if not grid_index in cmor_source.nemo_depth_axes:
+        if grid_index not in cmor_source.nemo_depth_axes:
             log.error("Depth axis for grid %s has not been created; skipping variable." % task.source.grid())
             return
         zaxid = depth_axes_[tableid][grid_index]
@@ -146,7 +146,8 @@ def execute_netcdf_task(task, dataset, tableid):
         ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval))
-    cmor.close(varid)
+    closed_file = cmor.close(varid, file_name=True)
+    log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
 
 
@@ -231,13 +232,13 @@ def create_time_axis(freq, files):
     for ncfile in files:
         try:
             ds = netCDF4.Dataset(ncfile)
-            timvar = ds.variables["time_counter"]
-            vals = timvar[:]
-            bnds = getattr(timvar, "bounds")
-            bndvar = ds.variables[bnds]
-            units = getattr(timvar, "units")
+            vals = numpy.copy(ds.variables["time_counter"][:])
+            bndvar = numpy.copy(ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
+            units = getattr(ds.variables["time_counter"], "units")
             break
         except ValueError:
+            pass
+        finally:
             ds.close()
     if len(vals) == 0 or units is None:
         log.error("No time values or units could be read from NEMO output files %s" % str(files))
