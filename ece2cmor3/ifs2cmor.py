@@ -44,8 +44,7 @@ output_interval_ = None
 output_frequency_ = 6
 
 # Fast storage temporary path
-temp_dir_ = os.getcwd()
-tempdir_created_ = False
+temp_dir_ = None
 max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
@@ -59,8 +58,7 @@ masks = {}
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
                outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
-        output_interval_, ifs_grid_descr_, temp_dir_, tempdir_created_, max_size_, ref_date_, start_date_, \
-        output_frequency_
+        output_interval_, ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -85,11 +83,16 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
             log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
     else:
         ifs_init_gridpoint_file_ = ifs_gridpoint_file_
-    if tempdir:
-        temp_dir_ = os.path.abspath(tempdir)
-        if not os.path.exists(temp_dir_):
-            os.makedirs(temp_dir_)
-            tempdir_created_ = True
+
+    tmpdir_parent = os.getcwd() if tempdir is None else tempdir
+    dirname = start_date_.strftime("ifs-%Y%m")
+    temp_dir_ = os.path.join(tmpdir_parent, dirname)
+    if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
+        log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
+        temp_dir_ = cmor_utils.create_tmp_dir(tmpdir_parent, "ifs2cmor")
+        log.warning("generated new temporary directory %s" % temp_dir_)
+    else:
+        os.makedirs(temp_dir_)
     max_size_ = maxsizegb
     if autofilter:
         grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
@@ -98,7 +101,7 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
 def execute(tasks, cleanup=True, autofilter=True):
-    global log, tempdir_created_, start_date_, ifs_grid_descr_
+    global log, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
@@ -217,13 +220,13 @@ def read_mask(name, filepath):
 
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks, cleanup_dir=True):
-    global temp_dir_, ifs_gridpoint_file_, ifs_spectral_file_, tempdir_created_
+    global temp_dir_, ifs_gridpoint_file_, ifs_spectral_file_
     for task in tasks:
         ncpath = getattr(task, "path", None)
         if ncpath is not None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_, ifs_gridpoint_file_]:
             os.remove(ncpath)
             delattr(task, "path")
-    if cleanup_dir and tempdir_created_ and temp_dir_ and len(os.listdir(temp_dir_)) == 0:
+    if cleanup_dir and len(os.listdir(temp_dir_)) == 0:
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
 

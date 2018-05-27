@@ -138,7 +138,7 @@ def add_mask(name, src, func, val):
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
                       postprocmode=postproc.recreate,
-                      tempdir=None,
+                      tempdir="/tmp/ece2cmor",
                       taskthreads=4,
                       cdothreads=4,
                       cleanup=True,
@@ -177,7 +177,6 @@ def perform_nemo_tasks(datadir, expname, startdate, interval):
     nemo2cmor.execute(nemo_tasks)
 
 
-## Performs a NEMO cmorization processing:
 #def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix
 #    validate_setup_settings()

@@ -1,12 +1,12 @@
-import os
-import sys
-import re
-import math
-import numpy
 import datetime
-import logging
+import math
+import tempfile
 import cmor
 import dateutil.relativedelta
+import logging
+import numpy
+import os
+import re
 
 # Log object
 log = logging.getLogger(__name__)
@@ -252,3 +252,7 @@ def apply_mask(array, mask, missval_in, missval_out):
     elif missval_in != missval_out:
         array[array == missval_in] = missval_out
     return array
+
+
+def create_tmp_dir(parent_dir, component):
+    return tempfile.mkdtemp(prefix=component, dir=parent_dir)
