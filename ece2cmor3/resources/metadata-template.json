@@ -35,8 +35,8 @@
     "source_type":                  "AOGCM",
     "sub_experiment":               "none",
     "sub_experiment_id":            "none",
-    "variant_info":                 "forcing: Nat.Ant.",
     "variant_label":                "r1i1:m1:f1",
+    "#variant_info":                "uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)",
     "tracking_prefix":              "hdl:21.14100",
     "frequency":                    "3hr"
 }
