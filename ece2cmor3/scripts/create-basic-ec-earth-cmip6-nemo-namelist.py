@@ -5,9 +5,30 @@
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py; diff -b basic_cmip6_file_def_nemo-opa.xml bup-basic_cmip6_file_def_nemo-opa.xml;
 
-# This script reads the shaconemo xml ping files (the files which relate NEMO code variable
-# names with CMOR names. NEMO code names which are labeled by 'dummy_' are not identified by
+# First, this script reads the shaconemo xml ping files (the files which relate NEMO code variable
+# names with CMOR names. NEMO code names which are labeled by 'dummy_' have not been identified by
 # the Shaconemo comunity.
+#
+# Second, this script reads the four NEMO xml field_def files (the files which contain the basic info
+# about the fields required by XIOS. These field_def files can either be taken from the shaconemo
+# repository or from the EC-Earth repository. The four field_def files contain nearly 1200 variables
+# with an id (15 id's occur twice) and about 100 variables whithout an id but with a field_ref (most
+# of the latter one have an name attribute, but not all of them).
+#
+# Third, the NEMO only excel xlsx CMIP6 data request file is read. This file has been created
+# elsewhere by checking the non-dummy NEMO shaconemo ping file cmor variable list against the
+# full CMIP6 data request for all CMIP6 MIPs in which EC-Earth participates, i.e. for tier 3
+# and priority 3: about 320 unique cmor-table - cmor-variable-name combinations.
+#
+# Fourth, a few lists are created or or/and modified, some renaming or for instance selecting the
+# output frequency per field from the cmor table label.
+#
+# Five, the basic ec-earth cmip6 nemo XIOS input file (the namelist or the file_def file) is written
+# by combining all the available data. In this file for each variable the enable attribute is set to
+# false, this allows another smaller program in ece2cmor3 to set those variables on true which are
+# asked for in the various data requests of each individual MIP experiment. TO DO: make selections
+# for sets of variables to be outputted in one file based on: output frequency, grid and model
+# component.
 
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file existence with: os.path.isfile
@@ -33,7 +54,7 @@ include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
 ################################################################################
-################################################################################
+###################################    1     ###################################
 ################################################################################
 
 # READING THE PING FILES:
@@ -150,7 +171,7 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 
 
 ################################################################################
-################################################################################
+###################################    2     ###################################
 ################################################################################
 
 # READING THE FIELD_DEF FILES:
@@ -276,7 +297,7 @@ check_which_list_elements_are_identical(total_field_def_nemo_id, total_field_def
 #print field_def_nemo_opa[0].attrib["grid_ref"]                                  # example of getting an attribute value of its child element: the field            element
 
 ################################################################################
-################################################################################
+###################################    3     ###################################
 ################################################################################
 
 # READING THE NEMO DATA REQUEST FILES:
@@ -325,7 +346,7 @@ dr_table, dr_varname, dr_varprio, dr_vardim, dr_ping_component, dr_miplist = loa
 #print dr_miplist[0]
 
 ################################################################################
-################################################################################
+###################################    4     ###################################
 ################################################################################
 
 
@@ -366,14 +387,9 @@ else:
 ################################################################################
 
 
-################################################################################
-
-
-
-
 
 ################################################################################
-################################################################################
+###################################    5     ###################################
 ################################################################################
 
 # WRITING THE NEMO FILE_DEF FILES FOR CMIP6 FOR EC_EARTH:
@@ -425,6 +441,17 @@ for i in range(0, len(dr_varname)):
 output_nemo_opa_xml_file.write('\n\n    </file>\n')
 output_nemo_opa_xml_file.write('\n\n   </file_group>\n')
 output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
+
+
+
+
+################################################################################
+###################################   End    ###################################
+################################################################################
+
+
+
+
 
 # TO DO:
 #  Split file_def file in the 3 context file_def files for opa, lim, pisces
