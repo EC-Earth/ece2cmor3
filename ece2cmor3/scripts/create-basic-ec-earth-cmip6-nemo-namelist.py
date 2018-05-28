@@ -242,6 +242,7 @@ total_field_def_nemo_id              = field_def_nemo_opa_id              + fiel
 total_field_def_nemo_grid_ref        = field_def_nemo_opa_grid_ref        + field_def_nemo_lim_grid_ref        + field_def_nemo_pisces_grid_ref        + field_def_nemo_inerttrc_grid_ref
 total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_inerttrc_name
 total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_inerttrc_field_ref
+# Note that the latter two are not used yet, because these cases did not occur in the set of CMIP6 data requested variables so far.
 
 #for item in range(0,len(total_no_id_field_def_nemo_name)):
 # print ' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item])
@@ -308,8 +309,8 @@ check_which_list_elements_are_identical(total_field_def_nemo_id, total_field_def
 
 # READING THE NEMO DATA REQUEST FILES:
 
-# This function can be used to read any excel file which has been produced by the checkvars.py script, 
-# in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored, 
+# This function can be used to read any excel file which has been produced by the checkvars.py script,
+# in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
 # basic identified missing, available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(excel_file):
     import xlrd
@@ -331,22 +332,25 @@ def load_checkvars_excel(excel_file):
         sheet = book.sheet_by_name(sheetname)
         header = sheet.row_values(0)
         coldict = {}
-        for colname in [table_colname, var_colname, prio_colname, dimension_colname, comment_colname, miplist_colname]:
+        for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, link_colname, comment_colname, description_colname, miplist_colname]:
             if colname not in header:
               print " Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n"
               quit()
             coldict[colname] = header.index(colname)
         nr_of_header_lines = 2
-        tablenames   = [c.value for c in sheet.col_slice(colx=coldict[table_colname    ], start_rowx = nr_of_header_lines)]
-        varnames     = [c.value for c in sheet.col_slice(colx=coldict[var_colname      ], start_rowx = nr_of_header_lines)]
-        varpriority  = [c.value for c in sheet.col_slice(colx=coldict[prio_colname     ], start_rowx = nr_of_header_lines)]
-        vardimension = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname], start_rowx = nr_of_header_lines)]
-        comments     = [c.value for c in sheet.col_slice(colx=coldict[comment_colname  ], start_rowx = nr_of_header_lines)]
-        miplist      = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname  ], start_rowx = nr_of_header_lines)]
-    return tablenames, varnames, varpriority, vardimension, comments, miplist
+        tablenames   = [c.value for c in sheet.col_slice(colx=coldict[table_colname      ], start_rowx = nr_of_header_lines)]
+        varnames     = [c.value for c in sheet.col_slice(colx=coldict[var_colname        ], start_rowx = nr_of_header_lines)]
+        varpriority  = [c.value for c in sheet.col_slice(colx=coldict[prio_colname       ], start_rowx = nr_of_header_lines)]
+        vardimension = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname  ], start_rowx = nr_of_header_lines)]
+        varlongname  = [c.value for c in sheet.col_slice(colx=coldict[longname_colname   ], start_rowx = nr_of_header_lines)]
+        weblink      = [c.value for c in sheet.col_slice(colx=coldict[link_colname       ], start_rowx = nr_of_header_lines)]
+        comments     = [c.value for c in sheet.col_slice(colx=coldict[comment_colname    ], start_rowx = nr_of_header_lines)]
+        description  = [c.value for c in sheet.col_slice(colx=coldict[description_colname], start_rowx = nr_of_header_lines)]
+        miplist      = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname    ], start_rowx = nr_of_header_lines)]
+    return tablenames, varnames, varpriority, vardimension, varlongname, weblink, comments, description, miplist
 
 # Read the excel file with the NEMO data request:
-dr_table, dr_varname, dr_varprio, dr_vardim, dr_ping_component, dr_miplist = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
+dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_ping_component, dr_description, dr_miplist = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
 
 #print dr_miplist[0]
 
@@ -439,9 +443,8 @@ for i in range(0, len(dr_varname)):
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
- #                                                                                                                                                                       40,                         25,                                                               40,       32,                      20,                 15,                                              17,                                50,                        15,                                      22,                        [60],     4,                                      60,          10,   {}))
-# output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22}       {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"',                              ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
-  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                 40,                         25,                                                               40,       32,                      20,                 15,                          60,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,     4,                                      60,          10,   {}))
+  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
@@ -466,12 +469,15 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 #  Distinguish per staggered grid by taking a different file element and set the grid_ref attribute.
 #  Create a nemo only for all NEMO ping variables including ping dummy vars. Are there variables not in ping but present in data request?
 #  DONE: Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element?
-#  Add prio, add miplist, long name, description, link, comment
+#  Add link from dr
 #  Check: Does the most general file contain all tier, prio = 3 and include all ping dummy variables?
 #  Does the added field_def_nemo-inerttrc.xml for pisces need any additional action?
 
 # Add script which reads ping file xml files and write the nemo only pre basic xmls file.
 
+# Add header to file_def containing: source of column data, instruction and idea of file
+
+# Find all occuring attributes in all field_def files
 
 
 #   ofile.write('{:10} {:20} {:5} {:40} {:95} {:98} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
