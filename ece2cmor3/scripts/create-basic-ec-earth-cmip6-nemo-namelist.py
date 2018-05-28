@@ -182,24 +182,36 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 def create_element_lists(file_name, attribute_1, attribute_2):
     tree = xmltree.parse(file_name)
     roottree = tree.getroot()
-    field_elements_attribute_1 = []    # The basic list in this routine containing the id attribute values
-    field_elements_attribute_2 = []    # A corresponding list containing the grid_def attribute values
+    field_elements_attribute_1  = []   # The basic list in this routine containing the id attribute values
+    field_elements_attribute_2  = []   # A list corresponding with the id list containing the grid_def attribute values
     fields_without_id_name      = []   # This seperate list is created for fields which don't have an id (most of them have a name attribute, but some only have a field_ref attribute)
     fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
+    attribute_overview          = []
+
+    unit_elements               = []    # A list corresponding with the id list containing the unit attribute values
     for group in range(0, len(roottree)):
        #print ' Group ', group, 'of', len(roottree) - 1, 'in file:', file_name
         elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
         for child in elements:
+        #print child.attrib.keys()
+         attribute_overview = attribute_overview + child.attrib.keys()  # Merge each step the next list of attribute keys with the overview list
+         
+         # If id attribute exits:
          if attribute_1 in child.attrib:
           field_elements_attribute_1.append(child.attrib[attribute_1])
          #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
+          
+          if "unit" in child.attrib: unit_elements.append(child.attrib["unit"])
+          else:                      unit_elements.append("no unit definition")
+          
           if attribute_2 in child.attrib:
            field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
           #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
           else:
            if attribute_2 in roottree[group].attrib:
             # In case the attribute is not present in th element definition, it is taken from its parent element:
-            field_elements_attribute_2.append('GRID_REF="'+roottree[group].attrib[attribute_2]+'"');
+           #field_elements_attribute_2.append('GRID_REF="'+roottree[group].attrib[attribute_2]+'"');
+            field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"');
            #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
            else:
            #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
@@ -229,26 +241,35 @@ def create_element_lists(file_name, attribute_1, attribute_2):
    #for item in range(0,len(fields_without_id_name)):
    # print ' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item])
    #print ' The length of the list with fields without an id is: ', len(fields_without_id_name)
-    return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref
+    attribute_overview = list(set(attribute_overview))
+   #print '  ', attribute_overview
+    if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print ' ERROR: The id and grid_ref list are not of equal length\n'
+    if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print ' ERROR: The name and field_ref list are not of equal length\n'
+    return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, unit_elements
 
 
-field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
-field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
-field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
-field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
+field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , units_opa      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
+field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , units_lim      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
+field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , units_pisces   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
+field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, units_inerttrc = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
 
 
 total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
 total_field_def_nemo_grid_ref        = field_def_nemo_opa_grid_ref        + field_def_nemo_lim_grid_ref        + field_def_nemo_pisces_grid_ref        + field_def_nemo_inerttrc_grid_ref
+# Note that the total name & field_ref ones are not used yet, because these cases did not occur in the set of CMIP6 data requested variables so far.
 total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_inerttrc_name
 total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_inerttrc_field_ref
-# Note that the latter two are not used yet, because these cases did not occur in the set of CMIP6 data requested variables so far.
+total_attribute_overview_nemo_opa    = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_inerttrc
+# Take care the units are detected for field elements which have an id attribute:
+total_units                          = units_opa + units_lim + units_pisces + units_inerttrc
 
 #for item in range(0,len(total_no_id_field_def_nemo_name)):
 # print ' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item])
-print ' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name)
+print ' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n'
 
-print '\n In total there are', len(total_field_def_nemo_id), 'fields defined in the field_def files, with', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'double occurence.\n'
+print ' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n'
+
+print ' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n'
 
 #print field_def_nemo_opa_id
 
@@ -380,12 +401,12 @@ for table in range(0,len(table_list_of_dr)):
 # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
 dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
 for table in range(0,len(dr_table)):
- if dr_table[table] == "SImon" or dr_table[table] == "Omon" : dr_output_frequency[table] = 'output_freq="mo"'    # mo stands in XIOS for monthly output
- if dr_table[table] == "SIday" or dr_table[table] == "Oday" : dr_output_frequency[table] = 'output_freq="d"'     # d  stands in XIOS for dayly   output
- if                               dr_table[table] == "Oyr"  : dr_output_frequency[table] = 'output_freq="y"'     # y  stands in XIOS for yearly  output
- if                               dr_table[table] == "Oclim": dr_output_frequency[table] = ""                    # Does not match XIOS calendar units
- if                               dr_table[table] == "Ofx"  : dr_output_frequency[table] = ""                    # Does not match XIOS calendar units
- if                               dr_table[table] == "Odec" : dr_output_frequency[table] = ""                    # Does not match XIOS calendar units
+ if dr_table[table] == "SImon" or dr_table[table] == "Omon" : dr_output_frequency[table] = 'output_freq="mo"'  # mo stands in XIOS for monthly output
+ if dr_table[table] == "SIday" or dr_table[table] == "Oday" : dr_output_frequency[table] = 'output_freq="d"'   # d  stands in XIOS for dayly   output
+ if                               dr_table[table] == "Oyr"  : dr_output_frequency[table] = 'output_freq="y"'   # y  stands in XIOS for yearly  output
+ if                               dr_table[table] == "Oclim": dr_output_frequency[table] = 'output_freq="mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
+ if                               dr_table[table] == "Ofx"  : dr_output_frequency[table] = 'output_freq="y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
+ if                               dr_table[table] == "Odec" : dr_output_frequency[table] = 'output_freq="y"'   # Save "y", then in post process average it over the decadal intervals
 ################################################################################
 
 
@@ -407,7 +428,7 @@ else:
 # WRITING THE NEMO FILE_DEF FILES FOR CMIP6 FOR EC_EARTH:
 
 output_nemo_opa_xml_file = open('basic_cmip6_file_def_nemo-opa.xml','w')
-output_nemo_opa_xml_file.write('<?xml version="1.0"?> \n\n  <file_defenition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">  \n')
+output_nemo_opa_xml_file.write('<?xml version="1.0"?> \n\n  <file_defenition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 output_nemo_opa_xml_file.write('\n\n   <file_group>\n')
 output_nemo_opa_xml_file.write('\n\n    <file>\n\n')
 
@@ -437,14 +458,17 @@ for i in range(0, len(dr_varname)):
     index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
     grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
    #print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
+   
+    units = 'unit="'+total_units[index_in_field_def_list]+'"'
   else:
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                 40,                         25,                                                               40,       32,                      20,                 15,                          60,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,     4,                                      60,          10,   {}))
-  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                       40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,     4,                                      60,          10,   {}))
+ #output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:17} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
@@ -453,7 +477,29 @@ output_nemo_opa_xml_file.write('\n\n    </file>\n')
 output_nemo_opa_xml_file.write('\n\n   </file_group>\n')
 output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
+output_nemo_opa_xml_file.close()
 
+
+################################################################################
+###################################    6     ###################################
+################################################################################
+
+# READING THE BASIC FILE_DEF FILE:
+
+tree_basic_file_def             = xmltree.parse("./basic_cmip6_file_def_nemo-opa.xml")
+root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+field_elements_basic_file_def   = root_basic_file_def[0][:]
+#field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+
+#print tree_basic_file_def
+#print root_basic_file_def.attrib                  # Shows the root file_defenition element attributes
+#print root_basic_file_def[0].attrib               # Shows the      file_group      element attributes
+#print field_elements_basic_file_def[0].attrib     # Shows the      file            element attributes
+#print field_elements_basic_file_def[0][0].attrib  # Shows the      field           element attributes
+
+#for child in field_elements_basic_file_def[0]:
+# print '{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text)
 
 ################################################################################
 ###################################   End    ###################################
@@ -464,9 +510,10 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
 
 # TO DO:
-#  Split file_def file in the 3 context file_def files for opa, lim, pisces
-#  Distinguish per output frequency by taking a different file group element and set the output_freq attribute.
-#  Distinguish per staggered grid by taking a different file element and set the grid_ref attribute.
+#  Read the basic_cmip6_file_def_nemo-opa.xml so all data is inside one xml tree, therafter:
+#   Split file_def file in the 3 context file_def files for opa, lim, pisces
+#   Distinguish per output frequency by taking a different file group element and set the output_freq attribute.
+#   Distinguish per staggered grid by taking a different file element and set the grid_ref attribute.
 #  Create a nemo only for all NEMO ping variables including ping dummy vars. Are there variables not in ping but present in data request?
 #  DONE: Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element?
 #  Add link from dr
@@ -477,30 +524,46 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
 # Add header to file_def containing: source of column data, instruction and idea of file
 
-# Find all occuring attributes in all field_def files
+# Check for name attribute occurence in case the id attribute is available in element definition, if occuring: any action?
 
+# The field_def xml .text, containing the arithmetic expression: check ping expression with field_def expression
 
-#   ofile.write('{:10} {:20} {:5} {:40} {:95} {:98} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
-#  #ofile.write('{:10} {:20} {:10} {:40} {:5} {:95} {:98} {}'.format('table', 'variable', 'component', 'dimensions', 'prio', 'long_name', 'list of MIPs which request this variable', '\n'))
-#           ofile.write('{:10} {:20} {:5} {:40} {:95} {:98} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
-#          #ofile.write('{:10} {:20} {:10} {:40} {:5} {:95} {:98} {}'.format(tgtvar.table, tgtvar.variable, getattr(tgtvar,"ecearth_comment",""), getattr(tgtvar,"dimensions","unknown"), tgtvar.priority, getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, '\n'))
- 
+# 'standard_name' in the field_def files can be ignored, right? Yes, omit.
+# 'long_name'     in the field_def files can be ignored because it is taken from the cmor tables, right? Yes, omit.
+# 'unit'          in the field_def files can be ignored because it is taken from the cmor tables, right? Add for consistency check. DONE: quite some variables miss a unit attribute
+# Actually the units of the data request should be added in the excel files, and then the dr_unit should also be included in the xml file.
 
+# The atribute overview of all field_def files:
+#  ['name', 'grid_ref', 'freq_offset', 'axis_ref', 'standard_name', 'read_access', 'long_name', 'detect_missing_value', 'field_ref', 'freq_op', 'operation', 'id', 'unit']
+#  [                    'freq_offset', 'axis_ref',                  'read_access',              'detect_missing_value',              'freq_op', 'operation',     , 'unit']
 
- 
-#def write_xios_xml_namelist(targets,opath):
-#    ofile = open(opath,'w')
-#    ofile.write('<?xml version="1.0"?> \n\n  <file_defenition type=""  name="">  \n\n')
-#    for k,vlist in tgtgroups.iteritems():
-#        ofile.write('{}'.format('\n'))
-#        for tgtvar in vlist:
-#            ofile.write('{:15} {:25} {:50} {:15} {:50} {}'.format('   <field id="" ', 'name="'+tgtvar.variable+'"', '  grid_ref="'+getattr(tgtvar,"dimensions","unknown")+'"', 'table="'+tgtvar.table+'"', ' component="'+getattr(tgtvar,"ecearth_comment","")+'" />', '\n'))
-#           #ofile.write('{:19} {:20} {:13} {:40} {:20} {:50} {:5} {}'.format('<field id="" ', 'name="'+tgtvar.variable+'"', '  grid_ref="', getattr(tgtvar,"dimensions","unknown"), '" component="', getattr(tgtvar,"ecearth_comment",""), '" />', '\n'))
-#           #ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
-#    ofile.write('\n\n  </file_defenition>\n')
-#    ofile.close()
+# The freq_offset attribute is always inside the field element definition in the field_def files (with value: _reset_ or 1mo-2ts ):
+#  grep -iHn freq_offset field_def_nemo-* | grep -v '<field '
+#  grep -iHn freq_offset field_def_nemo-* | sed -e 's/.*freq_offset="//' -e 's/".*//'
 
-#write_xios_xml_namelist(identifiedmissingtargets,args.output + ".nemo-xios-namelist.xml")
+# The detect_missing_value attribute is always inside the field element definition in the field_def files (and only present if set to true):
+#  grep -iHn detect_missing_value field_def_nemo-* | grep -v '<field '
+#  grep -iHn detect_missing_value field_def_nemo-* | grep -v 'detect_missing_value="true"'
+
+# The freq_op attribute is always inside the field element definition in the field_def files (always with the value: 1mo):
+#  grep -iHn freq_op field_def_nemo-* | grep -v '<field '
+#  grep -iHn freq_offset field_def_nemo-* | sed -e 's/.*freq_op="//' -e 's/".*//'
+
+# The operation attribute is inside the field_definition, field_group, or field element definition in the field_def files (with
+# different values: average, maximum, minimum, once, instant):
+#  grep -iHn operation field_def_nemo-*
+#  grep -iHn operation field_def_nemo-* | grep -v '<field_'
+#  grep -iHn operation field_def_nemo-* | grep -v '<field '
+#  grep -iHn operation field_def_nemo-* | sed -e 's/.*operation="//' -e 's/".*//'
+
+# One variables has the read_access attribute in the field element, but so far is not part of CMIP6 data request:
+#  field_def_nemo-opa.xml:351:         <field id="uoce_e3u_vsum_e2u_op"  long_name="ocean current along i-axis * e3u * e2u summed on the vertical"  read_access="true"  freq_op="1mo"    field_ref="e2u"       unit="m3/s"> @uoce_e3u_vsum_e2u </field>
+# grep -iHn read_access field_def_nemo-*
+
+# Two variables have an additional axis_ref attribute in field element definition beside their domain_ref attribute in
+# their parent group definition, but so far are not part of CMIP6 data request:
+#  field_def_nemo-opa.xml:595:        <field id="berg_real_calving"  long_name="icb calving into iceberg class"                  unit="kg/s"     axis_ref="icbcla" />
+#  field_def_nemo-opa.xml:596:        <field id="berg_stored_ice"    long_name="icb accumulated ice mass by class"               unit="kg"       axis_ref="icbcla" />
 
 
 
@@ -537,7 +600,7 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
 
 
-# Below a block with an alternative way of reading the data request, i.e. instead of the xlsx a ascii file is read:
+# Below a block with an alternative way of reading the data request, i.e. instead of the excel xlsx file an ascii file is read:
 
 # # Checking if the file exist:
 # if os.path.isfile(nemo_only_dr_nodummy_file_txt) == False: print(' The  ', nemo_only_dr_nodummy_file_txt, '  does not exist.'); sys.exit(' stop')
