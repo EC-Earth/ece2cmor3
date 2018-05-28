@@ -53,6 +53,8 @@ exclude_dummy_fields = True
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
+
+
 ################################################################################
 ###################################    1     ###################################
 ################################################################################
@@ -170,6 +172,7 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 #print rootOcean[0][1].text
 
 
+
 ################################################################################
 ###################################    2     ###################################
 ################################################################################
@@ -178,13 +181,14 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 
 def create_element_lists(file_name, attribute_1, attribute_2):
     tree = xmltree.parse(file_name)
+    roottree = tree.getroot()
     field_elements_attribute_1 = []    # The basic list in this routine containing the id attribute values
     field_elements_attribute_2 = []    # A corresponding list containing the grid_def attribute values
     fields_without_id_name      = []   # This seperate list is created for fields which don't have an id (most of them have a name attribute, but some only have a field_ref attribute)
     fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
-    for group in range(0, len(tree.getroot())):
-       #print ' Group ', group, 'of', len(tree.getroot()) - 1, 'in file:', file_name
-        elements = tree.getroot()[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+    for group in range(0, len(roottree)):
+       #print ' Group ', group, 'of', len(roottree) - 1, 'in file:', file_name
+        elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
         for child in elements:
          if attribute_1 in child.attrib:
           field_elements_attribute_1.append(child.attrib[attribute_1])
@@ -193,18 +197,18 @@ def create_element_lists(file_name, attribute_1, attribute_2):
            field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
           #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
           else:
-           if attribute_2 in tree.getroot()[group].attrib:
+           if attribute_2 in roottree[group].attrib:
             # In case the attribute is not present in th element definition, it is taken from its parent element:
-            field_elements_attribute_2.append('GRID_REF="'+tree.getroot()[group].attrib[attribute_2]+'"');
+            field_elements_attribute_2.append('GRID_REF="'+roottree[group].attrib[attribute_2]+'"');
            #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
            else:
-           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
+           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
             if 'do include domain ref' == 'do include domain ref':
             #print 'do include domain ref'
-             if "domain_ref" in tree.getroot()[group].attrib:
-              field_elements_attribute_2.append('domain_ref="'+tree.getroot()[group].attrib["domain_ref"]+'"')
+             if "domain_ref" in roottree[group].attrib:
+              field_elements_attribute_2.append('domain_ref="'+roottree[group].attrib["domain_ref"]+'"')
              else:
-              print ' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
+              print ' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
               field_elements_attribute_2.append(None)
             else:
              field_elements_attribute_2.append(None)
@@ -290,18 +294,19 @@ check_which_list_elements_are_identical(total_field_def_nemo_id, total_field_def
 #print [i for i, n in enumerate(x) if n == 's']
 ################################################################################
 
-#print tree_field_def_nemo_opa.getroot().attrib["level"]                         # example of getting an attribute value of the root  element: the field_definition element
-#print tree_field_def_nemo_opa.getroot()[0].attrib["id"]                         # example of getting an attribute value of its child element: the field_group      element
-#print tree_field_def_nemo_opa.getroot()[0].attrib["grid_ref"]                   # example of getting an attribute value of its child element: the field_group      element
-#print field_def_nemo_opa[0].attrib["id"],                                       # example of getting an attribute value of its child element: the field            element
-#print field_def_nemo_opa[0].attrib["grid_ref"]                                  # example of getting an attribute value of its child element: the field            element
+#print tree.getroot().attrib["level"]              # example of getting an attribute value of the root  element: the field_definition element
+#print tree.getroot()[0].attrib["id"]              # example of getting an attribute value of its child element: the field_group      element
+#print tree.getroot()[0].attrib["grid_ref"]        # example of getting an attribute value of its child element: the field_group      element
+#print field_def_nemo_opa[0].attrib["id"],         # example of getting an attribute value of its child element: the field            element
+#print field_def_nemo_opa[0].attrib["grid_ref"]    # example of getting an attribute value of its child element: the field            element
+
+
 
 ################################################################################
 ###################################    3     ###################################
 ################################################################################
 
 # READING THE NEMO DATA REQUEST FILES:
-
 
 # This function can be used to read any excel file which has been produced by the checkvars.py script, 
 # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored, 
@@ -345,10 +350,13 @@ dr_table, dr_varname, dr_varprio, dr_vardim, dr_ping_component, dr_miplist = loa
 
 #print dr_miplist[0]
 
+
+
 ################################################################################
 ###################################    4     ###################################
 ################################################################################
 
+# MANUPULATION, CREATION OF SOME LISTS
 
 ################################################################################
 # Convert the model component labeling in the ping file naming to the model component name in NEMO:
@@ -441,7 +449,6 @@ for i in range(0, len(dr_varname)):
 output_nemo_opa_xml_file.write('\n\n    </file>\n')
 output_nemo_opa_xml_file.write('\n\n   </file_group>\n')
 output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
-
 
 
 
