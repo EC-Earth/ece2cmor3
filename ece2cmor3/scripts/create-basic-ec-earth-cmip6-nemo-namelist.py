@@ -85,10 +85,10 @@ for child in field_elements_OcnBgChem:
   pinglistOcnBgChem_text.append(child.text)
  #pinglistOcnBgChem_expr.append(child.attrib["expr"])         # Not present in each element
 
-total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgChem_id       
+total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgChem_id
 total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + pinglistOcnBgChem_field_ref
-total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgChem_text     
-#total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgChem_expr     
+total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgChem_text
+#total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgChem_expr
 
 if exclude_dummy_fields:
  print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
@@ -113,8 +113,8 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
 
 # Create an XML file, see http://stackabuse.com/reading-and-writing-xml-files-in-python/
-# mydata = xmltree.tostring(rootOcean)  
-# myfile = open("bla.xml", "w")  
+# mydata = xmltree.tostring(rootOcean)
+# myfile = open("bla.xml", "w")
 # myfile.write(mydata)
 
 
@@ -353,7 +353,8 @@ include_root_field_group_attributes = True
 #include_root_field_group_attributes = False
 
 if include_root_field_group_attributes:
- root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
+#root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
+ root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20"'
 else:
  root_field_group_attributes =''
 ################################################################################
@@ -411,8 +412,8 @@ for requested_field in dr_varname:
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
- #                                                                                                                                                                       40,                         25,                                                               40,       32,                      20,                 15,                                              17,                                50,                        15,                                      22,                                  4,                                             60,          10,   {}))
-# output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:4} {:60} {:10} {}'      .format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"',                              ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+ #                                                                                                                                                                       40,                         25,                                                               40,       32,                      20,                 15,                                              17,                                50,                        15,                                      22,                        [60],     4,                                      60,          10,   {}))
+# output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22}       {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"',                              ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
   output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
@@ -464,10 +465,10 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
 # # Create the xml file structure with xmltree:
 # file_definition_element = xmltree.Element('file_definition')                   # Defines the root element
-# file_element            = xmltree.SubElement(file_definition_element, 'file')  
-# field_element_1         = xmltree.SubElement(file_element, 'field')  
-# field_element_2         = xmltree.SubElement(file_element, 'field')  
-# field_element_3         = xmltree.SubElement(file_element, 'field')  
+# file_element            = xmltree.SubElement(file_definition_element, 'file')
+# field_element_1         = xmltree.SubElement(file_element, 'field')
+# field_element_2         = xmltree.SubElement(file_element, 'field')
+# field_element_3         = xmltree.SubElement(file_element, 'field')
 # field_element_1.set('name','field 1')
 # field_element_2.set('name','field 2')
 # field_element_3.set('name','field 3')
@@ -476,20 +477,20 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 # field_element_3.set('id','id field 3')
 
 # # Write the xml file with xmltree:
-# general_nemo_file_def_file = open("general_xios_file_def.xml", "w")  
-# general_nemo_file_def_file.write(xmltree.tostring(file_definition_element))  
+# general_nemo_file_def_file = open("general_xios_file_def.xml", "w")
+# general_nemo_file_def_file.write(xmltree.tostring(file_definition_element))
 
-##tree = xmltree.parse('general_xios_file_def.xml')  
+##tree = xmltree.parse('general_xios_file_def.xml')
 ##tree.write('newgeneral_xios_file_def.xml')
 
 ## create the file structure
-#data = ET.Element('data')  
-#items = ET.SubElement(data, 'items')  
-#item1 = ET.SubElement(items, 'item')  
-#item2 = ET.SubElement(items, 'item')  
-#item1.set('name','item1')  
-#item2.set('name','item2')  
-#item1.text = 'item1abc'  
+#data = ET.Element('data')
+#items = ET.SubElement(data, 'items')
+#item1 = ET.SubElement(items, 'item')
+#item2 = ET.SubElement(items, 'item')
+#item1.set('name','item1')
+#item2.set('name','item2')
+#item1.text = 'item1abc'
 #item2.text = 'item2abc'
 
 
