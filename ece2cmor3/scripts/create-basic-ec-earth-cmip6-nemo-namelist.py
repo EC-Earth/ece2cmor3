@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+# Thomas Reerink
 
 # Call this script by:
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py
+#  ./create-basic-ec-earth-cmip6-nemo-namelist.py; diff -b basic_cmip6_file_def_nemo-opa.xml bup-basic_cmip6_file_def_nemo-opa.xml;
 
 # This script reads the shaconemo xml ping files (the files which relate NEMO code variable
 # names with CMOR names. NEMO code names which are labeled by 'dummy_' are not identified by
@@ -146,8 +148,10 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 
 def create_element_lists(file_name, attribute_1, attribute_2):
     tree = xmltree.parse(file_name)
-    field_elements_attribute_1 = []
-    field_elements_attribute_2 = []
+    field_elements_attribute_1 = []    # The basic list in this routine containing the id attribute values
+    field_elements_attribute_2 = []    # A corresponding list containing the grid_def attribute values
+    fields_without_id_name      = []   # This seperate list is created for fields which don't have an id (most of them have a name attribute, but some only have a field_ref attribute)
+    fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
     for group in range(0, len(tree.getroot())):
        #print ' Group ', group, 'of', len(tree.getroot()) - 1, 'in file:', file_name
         elements = tree.getroot()[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -164,7 +168,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             field_elements_attribute_2.append('GRID_REF="'+tree.getroot()[group].attrib[attribute_2]+'"');
            #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
            else:
-            print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
+           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
             if 'do include domain ref' == 'do include domain ref':
             #print 'do include domain ref'
              if "domain_ref" in tree.getroot()[group].attrib:
@@ -175,18 +179,39 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             else:
              field_elements_attribute_2.append(None)
          else:
-          print ' WARNING: No ', attribute_1, ' attribute for this element. This element has the attributes: ', child.attrib
-    return field_elements_attribute_1, field_elements_attribute_2
+          # If the element has no id it should have a field_ref attribute, so checking for that:
+          if "field_ref" in child.attrib:
+           if "name" in child.attrib:
+            fields_without_id_name.append(child.attrib["name"])
+            fields_without_id_field_ref.append(child.attrib["field_ref"])
+           #print ' This variable {:15} has no id but it has a field_ref = {}'.format(child.attrib["name"], child.attrib["field_ref"])
+           else:
+            fields_without_id_name.append(child.attrib["field_ref"])      # ASSUMPTION about XIOS logic: in case no id and no name attribute are defined inside an element, it is assumed that the value of the field_ref attribute is taken as the value of the name attribute
+            fields_without_id_field_ref.append(child.attrib["field_ref"])
+           #print ' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib)
+          else:
+           print ' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib
+
+   #for item in range(0,len(fields_without_id_name)):
+   # print ' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item])
+   #print ' The length of the list with fields without an id is: ', len(fields_without_id_name)
+    return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref
 
 
-field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
-field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
-field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
-field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
+field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
+field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
+field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
+field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
 
 
-total_field_def_nemo_id       = field_def_nemo_opa_id       + field_def_nemo_lim_id       + field_def_nemo_pisces_id       + field_def_nemo_inerttrc_id
-total_field_def_nemo_grid_ref = field_def_nemo_opa_grid_ref + field_def_nemo_lim_grid_ref + field_def_nemo_pisces_grid_ref + field_def_nemo_inerttrc_grid_ref
+total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
+total_field_def_nemo_grid_ref        = field_def_nemo_opa_grid_ref        + field_def_nemo_lim_grid_ref        + field_def_nemo_pisces_grid_ref        + field_def_nemo_inerttrc_grid_ref
+total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_inerttrc_name
+total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_inerttrc_field_ref
+
+#for item in range(0,len(total_no_id_field_def_nemo_name)):
+# print ' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item])
+print ' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name)
 
 print '\n In total there are', len(total_field_def_nemo_id), 'fields defined in the field_def files, with', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'double occurence.\n'
 
@@ -325,7 +350,7 @@ for table in range(0,len(dr_table)):
 ################################################################################
 # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
 include_root_field_group_attributes = True
-include_root_field_group_attributes = False
+#include_root_field_group_attributes = False
 
 if include_root_field_group_attributes:
  root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
@@ -379,7 +404,7 @@ for requested_field in dr_varname:
    #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
     index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
     grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
-    print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
+   #print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
   else:
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
