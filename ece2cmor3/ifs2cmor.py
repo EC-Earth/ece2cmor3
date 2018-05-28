@@ -1,6 +1,7 @@
 import Queue
 import datetime
 import logging
+import tempfile
 import os
 import threading
 
@@ -85,11 +86,11 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
         ifs_init_gridpoint_file_ = ifs_gridpoint_file_
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    dirname = start_date_.strftime("ifs-%Y%m")
+    dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
         log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
-        temp_dir_ = cmor_utils.create_tmp_dir(tmpdir_parent, "ifs2cmor")
+        temp_dir_ = tempfile.mkdtemp(prefix=dirname, dir=tmpdir_parent)
         log.warning("generated new temporary directory %s" % temp_dir_)
     else:
         os.makedirs(temp_dir_)
