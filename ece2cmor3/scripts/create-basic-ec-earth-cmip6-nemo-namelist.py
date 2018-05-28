@@ -156,12 +156,12 @@ def create_element_lists(file_name, attribute_1, attribute_2):
           field_elements_attribute_1.append(child.attrib[attribute_1])
          #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
           if attribute_2 in child.attrib:
-           field_elements_attribute_2.append(child.attrib[attribute_2])
+           field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
           #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
           else:
            if attribute_2 in tree.getroot()[group].attrib:
             # In case the attribute is not present in th element definition, it is taken from its parent element:
-            field_elements_attribute_2.append(tree.getroot()[group].attrib[attribute_2]);
+            field_elements_attribute_2.append('GRID_REF="'+tree.getroot()[group].attrib[attribute_2]+'"');
            #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
            else:
             print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
@@ -345,15 +345,6 @@ else:
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
-# Creating a list with the grid_ref attribute and its value as abstracted from the field_def files, otherwise omit attribute definiton:
-if include_grid_ref_from_field_def_files:
- dr_grid_ref = dr_varname[:]  # Take care here: a slice copy is needed.
- for var in range(0,len(dr_varname)):
-  dr_grid_ref[var] = 'grid_ref="'+'??'+'"'
-else:
- dr_grid_ref[var] =''
-
-
 ################################################################################
 ################################################################################
 ################################################################################
@@ -377,19 +368,27 @@ for requested_field in dr_varname:
   index_in_ping_list = total_pinglist_id.index(field_example)
   ##print field_example, dr_varname[i], total_pinglist_id[index_in_ping_list]
 
-  if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
-   nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
-   print 'missing:   ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+  # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files, otherwise omit attribute definiton:
+  if include_grid_ref_from_field_def_files:
+   # Adding the grid_def attribute with value (or alternatively the domain_ref attribute with value):
+   if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
+    nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
+    print 'missing:   ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+   else:
+    nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
+   #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+    index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
+    grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
+    print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
   else:
-   nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
-  #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
-   
+  #grid_ref = 'grid_ref="??"'
+   grid_ref = ''
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
- #                                                                                                                                                                       40,                         25,                                                                      40,             20,                      20,                 15,                                              17,                                50,                        15,                                      22,                                  4,                                             60,          10,   {}))
-# output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:20} {:20} {:15} {:17} {:50} {:15} {:22} {:4} {:60} {:10} {}'      .format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', dr_grid_ref[i],  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"',                              ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
-  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:20} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', dr_grid_ref[i],  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+ #                                                                                                                                                                       40,                         25,                                                               40,       32,                      20,                 15,                                              17,                                50,                        15,                                      22,                                  4,                                             60,          10,   {}))
+# output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:4} {:60} {:10} {}'      .format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"',                              ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
  i = i + 1
@@ -404,7 +403,7 @@ output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 #  Distinguish per output frequency by taking a different file group element and set the output_freq attribute.
 #  Distinguish per staggered grid by taking a different file element and set the grid_ref attribute.
 #  Create a nemo only for all NEMO ping variables including ping dummy vars. Are there variables not in ping but present in data request?
-#  Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element?
+#  DONE: Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element?
 #  Add prio, add miplist, long name, description, link, comment
 #  Check: Does the most general file contain all tier, prio = 3 and include all ping dummy variables?
 #  Does the added field_def_nemo-inerttrc.xml for pisces need any additional action?
