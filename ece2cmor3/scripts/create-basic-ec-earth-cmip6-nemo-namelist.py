@@ -386,13 +386,14 @@ i = 0
 number_of_field_element = 0
 nr_of_missing_fields_in_field_def = 0
 nr_of_available_fields_in_field_def = 0
-for requested_field in dr_varname:
-#print requested_field, dr_varname[i], dr_varname.index(requested_field), i, dr_table[i], dr_varname[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]
- field_example = dr_varname[i]  # Specify a cmor field name
- if not field_example == "":
+
+# Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
+for i in range(0, len(dr_varname)):
+#print dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varname[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]
+ if not dr_varname[i] == "":
   number_of_field_element = number_of_field_element + 1
-  index_in_ping_list = total_pinglist_id.index(field_example)
-  ##print field_example, dr_varname[i], total_pinglist_id[index_in_ping_list]
+  index_in_ping_list = total_pinglist_id.index(dr_varname[i])
+  ##print dr_varname[i], dr_varname[i], total_pinglist_id[index_in_ping_list]
 
   # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files, otherwise omit attribute definiton:
   if include_grid_ref_from_field_def_files:
@@ -417,7 +418,6 @@ for requested_field in dr_varname:
   output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
- i = i + 1
 
 
 output_nemo_opa_xml_file.write('\n\n    </file>\n')
