@@ -20,14 +20,23 @@ nemo_only_dr_nodummy_file_xlsx = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/s
 nemo_only_dr_nodummy_file_txt  = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/bup-nemo-only-list-cmpi6-requested-variables.txt"
 
 
+message_occurence_identical_id = True
+message_occurence_identical_id = False
+
+include_root_field_group_attributes = True
+#include_root_field_group_attributes = False
+
+exclude_dummy_fields = True
+#exclude_dummy_fields = False
+
+include_grid_ref_from_field_def_files = True
+#include_grid_ref_from_field_def_files = False
+
 ################################################################################
 ################################################################################
 ################################################################################
 
 # READING THE PING FILES:
-
-exclude_dummy_fields = True
-#exclude_dummy_fields = False
 
 treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean.xml")
 treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce.xml")
@@ -246,7 +255,7 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
      #print indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]]
      if not check_all_list_elements_are_identical(id_list)      : print ' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list
      if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
-  ###if len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+     if message_occurence_identical_id and len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
 
 #  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:20} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', '  grid_ref="'+grid_ref+'"',  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 
@@ -349,9 +358,6 @@ for table in range(0,len(dr_table)):
 
 ################################################################################
 # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
-include_root_field_group_attributes = True
-#include_root_field_group_attributes = False
-
 if include_root_field_group_attributes:
 #root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
  root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20"'
@@ -365,11 +371,6 @@ else:
 
 
 
-
-################################################################################
-
-include_grid_ref_from_field_def_files = True
-#include_grid_ref_from_field_def_files = False
 
 ################################################################################
 ################################################################################
@@ -393,7 +394,8 @@ for i in range(0, len(dr_varname)):
  if not dr_varname[i] == "":
   number_of_field_element = number_of_field_element + 1
   index_in_ping_list = total_pinglist_id.index(dr_varname[i])
-  ##print dr_varname[i], dr_varname[i], total_pinglist_id[index_in_ping_list]
+ #print ' {:20} {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list])
+ #if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print ' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list]
 
   # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files, otherwise omit attribute definiton:
   if include_grid_ref_from_field_def_files:
