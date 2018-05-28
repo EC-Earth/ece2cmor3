@@ -146,24 +146,37 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 
 def create_element_lists(file_name, attribute_1, attribute_2):
     tree = xmltree.parse(file_name)
+    field_elements_attribute_1 = []
+    field_elements_attribute_2 = []
     for group in range(0, len(tree.getroot())):
-       elements = tree.getroot()[0][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-       field_elements_attribute_1 = []
-       field_elements_attribute_2 = []
-       for child in elements:
-        if attribute_1 in child.attrib:
-         field_elements_attribute_1.append(child.attrib[attribute_1])
-        #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
-        else:
-         print ' WARNING: No ', attribute_1, ' attribute for this element. This element has the attributes: ', child.attrib
-        if attribute_2 in child.attrib:
-         field_elements_attribute_2.append(child.attrib[attribute_2])
-        #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
-        else:
-         # In case the attribute is not present in th element definition, it is taken from its parent element:
-         field_elements_attribute_2.append(tree.getroot()[0].attrib[attribute_2]);
-        #print ' WARNING: No ', attribute_2, ' attribute for this element. This element has the attributes: ', child.attrib
-       return field_elements_attribute_1, field_elements_attribute_2
+       #print ' Group ', group, 'of', len(tree.getroot()) - 1, 'in file:', file_name
+        elements = tree.getroot()[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+        for child in elements:
+         if attribute_1 in child.attrib:
+          field_elements_attribute_1.append(child.attrib[attribute_1])
+         #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
+          if attribute_2 in child.attrib:
+           field_elements_attribute_2.append(child.attrib[attribute_2])
+          #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
+          else:
+           if attribute_2 in tree.getroot()[group].attrib:
+            # In case the attribute is not present in th element definition, it is taken from its parent element:
+            field_elements_attribute_2.append(tree.getroot()[group].attrib[attribute_2]);
+           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
+           else:
+            print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
+            if 'do include domain ref' == 'do include domain ref':
+            #print 'do include domain ref'
+             if "domain_ref" in tree.getroot()[group].attrib:
+              field_elements_attribute_2.append('domain_ref="'+tree.getroot()[group].attrib["domain_ref"]+'"')
+             else:
+              print ' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', tree.getroot()[group].attrib
+              field_elements_attribute_2.append(None)
+            else:
+             field_elements_attribute_2.append(None)
+         else:
+          print ' WARNING: No ', attribute_1, ' attribute for this element. This element has the attributes: ', child.attrib
+    return field_elements_attribute_1, field_elements_attribute_2
 
 
 field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
@@ -175,13 +188,9 @@ field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref = create_element_li
 total_field_def_nemo_id       = field_def_nemo_opa_id       + field_def_nemo_lim_id       + field_def_nemo_pisces_id       + field_def_nemo_inerttrc_id
 total_field_def_nemo_grid_ref = field_def_nemo_opa_grid_ref + field_def_nemo_lim_grid_ref + field_def_nemo_pisces_grid_ref + field_def_nemo_inerttrc_grid_ref
 
-print ' In total there are', len(total_field_def_nemo_id), 'fields defined in the field_def files, with', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'double occurence.\n'
+print '\n In total there are', len(total_field_def_nemo_id), 'fields defined in the field_def files, with', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'double occurence.\n'
 
 #print field_def_nemo_opa_id
-
-if "soce_e3t" in total_field_def_nemo_id: print 'yes'
-if "soce_e3t" in field_def_nemo_opa_id: print 'yes'
-
 
 #print list(set(total_field_def_nemo_id))
 #print list(set(total_field_def_nemo_grid_ref))
@@ -211,8 +220,8 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
       grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_child]])
      #print indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]]
      if not check_all_list_elements_are_identical(id_list)      : print ' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list
-     if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: Same id has different grid definition at positions:', indices_identical_ids, '\n         ', id_list, grid_ref_list
-     if len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+     if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+  ###if len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
 
 #  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:20} {:20} {:15} {:17} {:50} {:15} {:22} {:60} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', '  grid_ref="'+grid_ref+'"',  dr_output_frequency[i], '  enable="False"', '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', root_field_group_attributes, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 
@@ -367,12 +376,14 @@ for requested_field in dr_varname:
   number_of_field_element = number_of_field_element + 1
   index_in_ping_list = total_pinglist_id.index(field_example)
   ##print field_example, dr_varname[i], total_pinglist_id[index_in_ping_list]
+
   if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
    nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
-  #print 'missing:   ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+   print 'missing:   ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
   else:
    nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
   #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+   
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
