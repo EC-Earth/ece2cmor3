@@ -567,13 +567,34 @@ grid_ref_overview    = list(set(grid_ref_collection))
 #print   ' There are', len(grid_ref_overview),    ' grids to loop over:\n ',              grid_ref_overview,    '\n'
 
 
+
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
-# print ' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"])
-#print field.tag, field.attrib, field.text, '\n'
 
-#print field.attrib.keys()
+field_counter = 0
+file_counter  = 0
 
+# Loop over the model components: ['lim', 'opa', 'pisces']
+for component_value in component_overview:
+
+ # Loop over the output frequencies: ['y', 'mo', 'd']
+ for output_freq_value in output_freq_overview:
+
+  # Loop over the grid references: ['grid_T_3D', 'grid_V_2D', 'grid_V_3D', 'grid_T_2D', 'grid_U_2D', 'grid_transect', 'grid_W_3D', 'grid_W_2D', 'grid_U_3D', 'grid_T_SFC', 'grid_1point', 'grid_ptr_T_3basin_2D', 'grid_T_3D_ncatice', 'grid_ptr_W_3basin_3D', 'grid_transect_lim']
+  for grid_ref_value in grid_ref_overview:
+   number_of_fields_per_file = 0
+
+   # Internal loop of finding the selection based on the three selection criteria: model component, output_frequency and grid reference:
+   for field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
+    number_of_fields_per_file = number_of_fields_per_file + 1
+    field_counter = field_counter + 1
+   #print ' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"])
+   if number_of_fields_per_file != 0: 
+    file_counter = file_counter + 1
+   #print ' Number of fields per file is', number_of_fields_per_file
+   #print field.tag, field.attrib.keys(), field.attrib, field.text, '\n'
+
+print '\n number of fields:', field_counter, ' distributed over:', file_counter, 'files\n'
 
 #print tree_basic_file_def
 #print root_basic_file_def.tag                     # Shows the root file_defenition element tag
