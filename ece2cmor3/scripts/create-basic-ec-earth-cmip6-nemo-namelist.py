@@ -483,7 +483,7 @@ else:
 # WRITING THE NEMO FILE_DEF FILES FOR CMIP6 FOR EC_EARTH:
 
 output_nemo_opa_xml_file = open('basic_cmip6_file_def_nemo-opa.xml','w')
-output_nemo_opa_xml_file.write('<?xml version="1.0"?> \n\n  <file_defenition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
+output_nemo_opa_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 output_nemo_opa_xml_file.write('\n\n   <file_group>\n')
 output_nemo_opa_xml_file.write('\n\n    <file>\n\n')
 
@@ -568,8 +568,21 @@ grid_ref_overview    = list(set(grid_ref_collection))
 
 
 
+################################################################################
+###################################    7     ###################################
+################################################################################
+
+# WRITING THE DEPENDENT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
+
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
+
+output_nemo_opa_xml_file = open('dependent_cmip6_file_def_nemo-opa.xml','w')
+output_nemo_opa_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
+output_nemo_opa_xml_file.write('\n\n   <file_group>\n')
+#output_nemo_opa_xml_file.write('\n\n    <file>\n\n')
+
+
 
 field_counter = 0
 file_counter  = 0
@@ -589,12 +602,35 @@ for component_value in component_overview:
     number_of_fields_per_file = number_of_fields_per_file + 1
     field_counter = field_counter + 1
    #print ' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"])
-   if number_of_fields_per_file != 0: 
+   if number_of_fields_per_file != 0:
     file_counter = file_counter + 1
-   #print ' Number of fields per file is', number_of_fields_per_file
+   #print ' Number of fields per file is {:3} for the combination: {:7} {:4} {}'.format(number_of_fields_per_file, component_value, output_freq_value, grid_ref_value)
+
+    # Writing the file elements for the file_def file:
+    output_nemo_opa_xml_file.write('\n\n    <file id="file{}" label="{}-{}-{}">\n\n'.format(file_counter, component_value, output_freq_value, grid_ref_value))
+    # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
+    for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
+    #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
+     if written_field.text == "   None                                                          " : written_field.text = ''
+     output_nemo_opa_xml_file.write(  '     <field id={:40} name={:25} field_ref={:40} grid_ref={:32} output_freq={:20} enable="False" > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["output_freq"]+'"', written_field.text))
+    output_nemo_opa_xml_file.write(  '\n    </file>\n')
+
+  #else: print ' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value)
+    
    #print field.tag, field.attrib.keys(), field.attrib, field.text, '\n'
 
-print '\n number of fields:', field_counter, ' distributed over:', file_counter, 'files\n'
+##                                    40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,                                                          80,     4,                                      60,          10,   {}))
+## <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+## <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+
+
+#output_nemo_opa_xml_file.write('\n\n    </file>\n')
+output_nemo_opa_xml_file.write('\n\n   </file_group>\n')
+output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
+
+output_nemo_opa_xml_file.close()
+
+print '\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n'
 
 #print tree_basic_file_def
 #print root_basic_file_def.tag                     # Shows the root file_defenition element tag

@@ -1,6 +1,6 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 
-  <file_defenition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
+  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
 
 
    <file_group>
