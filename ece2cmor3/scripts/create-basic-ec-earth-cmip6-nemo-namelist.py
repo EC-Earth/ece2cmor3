@@ -3,7 +3,7 @@
 
 # Call this script by:
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py
-#  ./create-basic-ec-earth-cmip6-nemo-namelist.py; diff -b basic_cmip6_file_def_nemo-opa.xml bup-basic_cmip6_file_def_nemo-opa.xml;
+#  ./create-basic-ec-earth-cmip6-nemo-namelist.py; diff -b basic-flat-cmip6-file_def_nemo.xml bup-basic-flat-cmip6-file_def_nemo.xml; diff -b basic-cmip6-file_def_nemo.xml bup-basic-cmip6-file_def_nemo.xml
 
 # First, this script reads the shaconemo xml ping files (the files which relate NEMO code variable
 # names with CMOR names. NEMO code names which are labeled by 'dummy_' have not been identified by
@@ -23,12 +23,17 @@
 # Fourth, a few lists are created or or/and modified, some renaming or for instance selecting the
 # output frequency per field from the cmor table label.
 #
-# Five, the basic ec-earth cmip6 nemo XIOS input file (the namelist or the file_def file) is written
-# by combining all the available data. In this file for each variable the enable attribute is set to
-# false, this allows another smaller program in ece2cmor3 to set those variables on true which are
-# asked for in the various data requests of each individual MIP experiment. TO DO: make selections
-# for sets of variables to be outputted in one file based on: output frequency, grid and model
-# component.
+# Five, the exentensive basic flat ec-earth cmip6 nemo XIOS input file template (the namelist or the
+# file_def file) is written by combining all the available data. In this file for each variable the
+# enable attribute is set to false, this allows another smaller program in ece2cmor3 to set those
+# variables on true which are asked for in the various data requests of each individual MIP
+# experiment.
+#
+# Six, the basic flat file_def file is read again, now all gathered info is part of this single xml
+# tree which allows a more convenient way of selecting.
+#
+# Seven, a basic file_def is created by selecting on model component, output frequency and grid. For
+# each sub selection a file element is defined.
 
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file existence with: os.path.isfile
@@ -482,7 +487,8 @@ else:
 
 # WRITING THE NEMO FILE_DEF FILES FOR CMIP6 FOR EC_EARTH:
 
-output_nemo_opa_xml_file = open('basic_cmip6_file_def_nemo-opa.xml','w')
+# Below 'flat' means all fields are defined within one file element definition.
+output_nemo_opa_xml_file = open('basic-flat-cmip6-file_def_nemo.xml','w')
 output_nemo_opa_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 output_nemo_opa_xml_file.write('\n\n   <file_group>\n')
 output_nemo_opa_xml_file.write('\n\n    <file>\n\n')
@@ -541,9 +547,9 @@ output_nemo_opa_xml_file.close()
 ###################################    6     ###################################
 ################################################################################
 
-# READING THE BASIC FILE_DEF FILE:
+# READING THE BASIC FLAT FILE_DEF FILE:
 
-tree_basic_file_def             = xmltree.parse("./basic_cmip6_file_def_nemo-opa.xml")
+tree_basic_file_def             = xmltree.parse("./basic-flat-cmip6-file_def_nemo.xml")
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -577,11 +583,9 @@ grid_ref_overview    = list(set(grid_ref_collection))
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
 
-output_nemo_opa_xml_file = open('dependent_cmip6_file_def_nemo-opa.xml','w')
+output_nemo_opa_xml_file = open('basic-cmip6-file_def_nemo.xml','w')
 output_nemo_opa_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 output_nemo_opa_xml_file.write('\n\n   <file_group>\n')
-#output_nemo_opa_xml_file.write('\n\n    <file>\n\n')
-
 
 
 field_counter = 0
@@ -624,7 +628,6 @@ for component_value in component_overview:
 ## <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 
 
-#output_nemo_opa_xml_file.write('\n\n    </file>\n')
 output_nemo_opa_xml_file.write('\n\n   </file_group>\n')
 output_nemo_opa_xml_file.write('\n\n  </file_defenition>\n')
 
