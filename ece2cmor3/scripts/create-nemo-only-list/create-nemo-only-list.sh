@@ -26,7 +26,7 @@ if [ "$#" -eq 0 ]; then
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-##  nedit ${HOME}/cmorize/shaconemo/ping-files/r251/cmor-varlist-based-on-ping-r251-without-dummy-lines.txt
+##  nedit ${HOME}/cmorize/shaconemo/ping-files/r255/cmor-varlist-based-on-ping-r255-without-dummy-lines.txt
 # and copy them manually into the variable column in the file (also update the comment column):
 ##  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
@@ -47,6 +47,8 @@ if [ "$#" -eq 0 ]; then
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars.py to the basic identifiedmissing and the basic ignored:
    /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.xlsx
    /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.xlsx           create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.xlsx
+   /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
+   /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
 
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
@@ -96,7 +98,7 @@ if [ "$#" -eq 0 ]; then
 
 # ll *.missing.xlsx|grep -v 5.5K
 # ll *.missing.txt|grep -v 266B
-# m *.missing.txt|grep r251
+# m *.missing.txt|grep r255
 
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
