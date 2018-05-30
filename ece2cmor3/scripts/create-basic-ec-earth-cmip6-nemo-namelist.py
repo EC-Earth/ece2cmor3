@@ -188,22 +188,49 @@ def create_element_lists(file_name, attribute_1, attribute_2):
     fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
     attribute_overview          = []
 
-    unit_elements               = []    # A list corresponding with the id list containing the unit attribute values
+    unit_elements               = []    # A list corresponding with the id list containing the unit        attribute values
+    freq_offset_elements        = []    # A list corresponding with the id list containing the freq_offset attribute values
+   #print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
+   #for field in roottree.findall('.//field[@id]'): print field.attrib[attribute_1]
     for group in range(0, len(roottree)):
-       #print ' Group ', group, 'of', len(roottree) - 1, 'in file:', file_name
+##  for group in range(0, len(roottree.findall('.//field[@id]'))):
+       #print ' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name
         elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+##      elements = roottree.findall('.//field[@id]')                              # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+       #if roottree[group].tag != "field_group": print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib["id"]
+        if roottree[group].tag != "field_group":
+         if "grid_ref" in roottree[group].attrib:
+          print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2]
+         else:
+         #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1]
+          if "field_ref" in roottree[group].attrib:
+          #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has no grid_ref attribute but it has an field_ref attribute:', roottree[group].attrib["field_ref"]
+           detected_field_ref = roottree[group].attrib["field_ref"]
+           for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
+            detected_grid_ref = field.attrib["grid_ref"]
+           #print ' grid_ref attribute value for', detected_field_ref, 'is', detected_grid_ref
+            print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', detected_grid_ref
+          else:
+           print ' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib
+
+
+        # If field_group element level exists:
         for child in elements:
-        #print child.attrib.keys()
+         if child.tag != "field": print ' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys()
          attribute_overview = attribute_overview + child.attrib.keys()  # Merge each step the next list of attribute keys with the overview list
-         
+
          # If id attribute exits:
          if attribute_1 in child.attrib:
           field_elements_attribute_1.append(child.attrib[attribute_1])
          #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
-          
-          if "unit" in child.attrib: unit_elements.append(child.attrib["unit"])
-          else:                      unit_elements.append("no unit definition")
-          
+
+          if "unit"        in child.attrib: unit_elements.append(child.attrib["unit"])
+          else:                             unit_elements.append("no unit definition")
+
+          if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]); #print child.attrib["freq_offset"], child.attrib["id"], file_name
+          else:                             freq_offset_elements.append("no freq_offset definition")
+
           if attribute_2 in child.attrib:
            field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
           #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
@@ -288,11 +315,11 @@ def check_all_list_elements_are_identical(iterator):
         return True
     return all(first == rest for rest in iterator)
 
-get_indexes = lambda x, xs: [i for (y, i) in zip(xs, range(len(xs))) if x == y]
+get_indices = lambda x, xs: [i for (y, i) in zip(xs, range(len(xs))) if x == y]
 
 def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribute_2):
     for child in list_of_attribute_1:
-     indices_identical_ids = get_indexes(child, list_of_attribute_1)
+     indices_identical_ids = get_indices(child, list_of_attribute_1)
     #print len(indices_identical_ids), indices_identical_ids
      id_list       = []
      grid_ref_list = []
@@ -540,6 +567,10 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 # The freq_offset attribute is always inside the field element definition in the field_def files (with value: _reset_ or 1mo-2ts ):
 #  grep -iHn freq_offset field_def_nemo-* | grep -v '<field '
 #  grep -iHn freq_offset field_def_nemo-* | sed -e 's/.*freq_offset="//' -e 's/".*//'
+
+# The <!-- Transects --> block in field_def_nemo-opa.xml has field element definitions which are defined without a file_group element,
+# that means they have one element layer less.
+
 
 # The detect_missing_value attribute is always inside the field element definition in the field_def files (and only present if set to true):
 #  grep -iHn detect_missing_value field_def_nemo-* | grep -v '<field '
