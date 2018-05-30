@@ -548,12 +548,42 @@ root_basic_file_def             = tree_basic_file_def.getroot()                 
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
+###print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
+###for field in roottree.findall('.//field[@id]'): print field.attrib[attribute_1]
+###for field in root_basic_file_def.findall('.//field[@id="'+detected_field_ref+'"]'):
+
+component_collection   = []
+output_freq_collection = []
+grid_ref_collection    = []
+for field in root_basic_file_def.findall('.//field[@component]'):   component_collection.append(field.attrib["component"])
+for field in root_basic_file_def.findall('.//field[@output_freq]'): output_freq_collection.append(field.attrib["output_freq"])
+for field in root_basic_file_def.findall('.//field[@grid_ref]'):    grid_ref_collection.append(field.attrib["grid_ref"])
+component_overview   = list(set(component_collection))
+output_freq_overview = list(set(output_freq_collection))
+grid_ref_overview    = list(set(grid_ref_collection))
+
+#print '\n There are', len(component_overview),   ' model components to loop over:\n ',   component_overview,   '\n'
+#print   ' There are', len(output_freq_overview), ' output frequencies to loop over:\n ', output_freq_overview, '\n'
+#print   ' There are', len(grid_ref_overview),    ' grids to loop over:\n ',              grid_ref_overview,    '\n'
+
+
+#for field in root_basic_file_def.findall('.//field[@component="opa"]'):
+#for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
+# print ' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"])
+#print field.tag, field.attrib, field.text, '\n'
+
+#print field.attrib.keys()
+
 
 #print tree_basic_file_def
+#print root_basic_file_def.tag                     # Shows the root file_defenition element tag
 #print root_basic_file_def.attrib                  # Shows the root file_defenition element attributes
+#print root_basic_file_def[0].tag                  # Shows the      file_group      element tag
 #print root_basic_file_def[0].attrib               # Shows the      file_group      element attributes
-#print field_elements_basic_file_def[0].attrib     # Shows the      file            element attributes
-#print field_elements_basic_file_def[0][0].attrib  # Shows the      field           element attributes
+#print field_elements_basic_file_def[0].tag        # Shows the      file            element tag        of the first file  element
+#print field_elements_basic_file_def[0].attrib     # Shows the      file            element attributes of the first file  element
+#print field_elements_basic_file_def[0][0].tag     # Shows the      field           element tag        of the first field element
+#print field_elements_basic_file_def[0][0].attrib  # Shows the      field           element attributes of the first field element
 
 #for child in field_elements_basic_file_def[0]:
 # print '{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text)
@@ -575,13 +605,13 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 #  Check: Does the most general file contain all tier, prio = 3 and include all ping dummy variables?
 #  Check for name attribute occurence in case the id attribute is available in element definition, if occuring: any action?
 #  Add header to file_def containing: source of column data, instruction and idea of file
-#  Check whether the xml field_def text, which contains the arithmetic expression, is consistent with the expression given in the ping files.
 #  Actually the units of the data request should be added in the excel files, and then the dr_unit should also be included in the xml file.
 
 #  Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element? DONE
 #  Add script which reads ping file xml files and write the nemo only pre basic xmls file. DONE (within this script)
 #  Does the added field_def_nemo-inerttrc.xml for pisces need any additional action? DONE (not realy, just include it)
 #  Add link from dr TRIED (rejected, too much effort due to string conversion.)
+#  Check whether the xml field_def text, which contains the arithmetic expression, is consistent with the expression given in the ping files. DONE, i.e. this data is added in fdf_expression attribute
 # 'standard_name' in the field_def files can be ignored, right? Yes, omit.
 # 'long_name'     in the field_def files can be ignored because it is taken from the cmor tables, right? Yes, omit.
 # 'unit'          in the field_def files can be ignored because it is taken from the cmor tables, right? Add for consistency check. DONE: quite some variables miss a unit attribute
@@ -598,6 +628,7 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 # One occurence of the attribute in the set of Transects fields:
 #  grep -iHn freq_offset field_def_nemo-* | grep -v '<field '
 #  grep -iHn freq_offset field_def_nemo-* | sed -e 's/.*freq_offset="//' -e 's/".*//'
+# This data has been added to the basic xml in the freq_offset attribute.
 
 # The freq_op attribute is always inside the field element definition in the field_def files (always with the value: 1mo):
 #  grep -iHn freq_op field_def_nemo-* | grep -v '<field '
