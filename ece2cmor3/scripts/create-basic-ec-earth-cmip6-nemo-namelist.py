@@ -192,28 +192,43 @@ def create_element_lists(file_name, attribute_1, attribute_2):
     freq_offset_elements        = []    # A list corresponding with the id list containing the freq_offset attribute values
    #print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
    #for field in roottree.findall('.//field[@id]'): print field.attrib[attribute_1]
+  ##eelements = roottree.findall('.//field[@id]')                                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+  ##for i in range(0, len(eelements)):
     for group in range(0, len(roottree)):
-##  for group in range(0, len(roottree.findall('.//field[@id]'))):
        #print ' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name
         elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-##      elements = roottree.findall('.//field[@id]')                              # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
-       #if roottree[group].tag != "field_group": print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib["id"]
+        # If the field element is defined outside the field_group element, i.e. one level higher in the tree:
         if roottree[group].tag != "field_group":
          if "grid_ref" in roottree[group].attrib:
-          print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2]
+         #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2]
+          field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
+          field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
+          if "unit"        in roottree[group].attrib: unit_elements.append(roottree[group].attrib["unit"])
+          else:                                       unit_elements.append("no unit definition")
+          if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
+          else:                                       freq_offset_elements.append("no freq_offset definition")
+
          else:
-         #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1]
           if "field_ref" in roottree[group].attrib:
           #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has no grid_ref attribute but it has an field_ref attribute:', roottree[group].attrib["field_ref"]
            detected_field_ref = roottree[group].attrib["field_ref"]
            for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
             detected_grid_ref = field.attrib["grid_ref"]
-           #print ' grid_ref attribute value for', detected_field_ref, 'is', detected_grid_ref
-            print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', detected_grid_ref
+            if "unit"        in field.attrib: detected_unit = field.attrib["unit"]
+            else:                             detected_unit = "no unit definition"
+            if "freq_offset" in field.attrib: detected_freq_offset = field.attrib["freq_offset"]
+            else:                             detected_freq_offset = "no freq offset definition"
+           #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has via the field_ref:', detected_field_ref, 'the grid_ref:', detected_grid_ref, 'with unit:', detected_unit
+            field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
+            field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
+            if "unit"        in roottree[group].attrib: unit_elements.append(roottree[group].attrib["unit"])
+            else:                                       unit_elements.append(detected_unit)
+            if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
+            else:                                       freq_offset_elements.append(detected_freq_offset)
+            
           else:
            print ' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib
-
 
         # If field_group element level exists:
         for child in elements:
