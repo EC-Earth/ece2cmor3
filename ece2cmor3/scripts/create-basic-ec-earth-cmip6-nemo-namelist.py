@@ -188,6 +188,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
     fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
     attribute_overview          = []
 
+    text_elements               = []    # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
     unit_elements               = []    # A list corresponding with the id list containing the unit        attribute values
     freq_offset_elements        = []    # A list corresponding with the id list containing the freq_offset attribute values
    #print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
@@ -204,6 +205,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
          #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2]
           field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
           field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
+          text_elements             .append(roottree[group].text)
           if "unit"        in roottree[group].attrib: unit_elements.append(roottree[group].attrib["unit"])
           else:                                       unit_elements.append("no unit definition")
           if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
@@ -222,6 +224,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
            #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has via the field_ref:', detected_field_ref, 'the grid_ref:', detected_grid_ref, 'with unit:', detected_unit
             field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
             field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
+            text_elements             .append(roottree[group].text)
             if "unit"        in roottree[group].attrib: unit_elements.append(roottree[group].attrib["unit"])
             else:                                       unit_elements.append(detected_unit)
             if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
@@ -240,6 +243,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
           field_elements_attribute_1.append(child.attrib[attribute_1])
          #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
 
+          text_elements.append(child.text)
           if "unit"        in child.attrib: unit_elements.append(child.attrib["unit"])
           else:                             unit_elements.append("no unit definition")
           if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]); #print child.attrib["freq_offset"], child.attrib["id"], file_name
@@ -286,13 +290,13 @@ def create_element_lists(file_name, attribute_1, attribute_2):
    #print '  ', attribute_overview
     if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print ' ERROR: The id and grid_ref list are not of equal length\n'
     if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print ' ERROR: The name and field_ref list are not of equal length\n'
-    return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, unit_elements, freq_offset_elements
+    return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
 
-field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , units_opa     , freq_offsets_opa      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
-field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , units_lim     , freq_offsets_lim      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
-field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
-field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
+field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
+field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
+field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
+field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
 
 
 total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
@@ -302,6 +306,7 @@ total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_i
 total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_inerttrc_field_ref
 total_attribute_overview_nemo_opa    = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_inerttrc
 # Take care the units are detected for field elements which have an id attribute:
+total_texts                          = texts_opa        + texts_lim        + texts_pisces        + texts_inerttrc
 total_units                          = units_opa        + units_lim        + units_pisces        + units_inerttrc
 total_freq_offsets                   = freq_offsets_opa + freq_offsets_lim + freq_offsets_pisces + freq_offsets_inerttrc
 
@@ -312,6 +317,11 @@ print ' The length of the list with fields without an id is: ', len(total_no_id_
 print ' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n'
 
 print ' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n'
+
+for text in total_texts:
+ if text == None: total_texts[total_texts.index(text)] = "None"
+#else:            print '{:6} {}'.format(total_texts.index(text), text)
+ 
 
 #print field_def_nemo_opa_id
 
@@ -501,17 +511,18 @@ for i in range(0, len(dr_varname)):
     grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
    #print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
 
-    units        = 'unit="'       +total_units       [index_in_field_def_list]+'"'
-    freq_offsets = 'freq_offset="'+total_freq_offsets[index_in_field_def_list]+'"'
+    texts        = 'fdf_expression="'+total_texts       [index_in_field_def_list]+'"'  # fdf expression: field_def file expression
+    units        = 'unit="'          +total_units       [index_in_field_def_list]+'"'
+    freq_offsets = 'freq_offset="'   +total_freq_offsets[index_in_field_def_list]+'"'
   else:
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                             40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,     4,                                      60,          10,   {}))
- #output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
-  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                                   40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,     4,                                      60,          10,   {}))
+ #output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
