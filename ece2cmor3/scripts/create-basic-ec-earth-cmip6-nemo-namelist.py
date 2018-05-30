@@ -89,7 +89,8 @@ for child in field_elements_Ocean:
   pinglistOcean_id.append(child.attrib["id"][6:])
   pinglistOcean_field_ref.append(child.attrib["field_ref"])
   pinglistOcean_text.append(child.text)
- #pinglistOcean_expr.append(child.attrib["expr"])             # Not present in each element
+  if "expr" in child.attrib: pinglistOcean_expr.append(child.attrib["expr"])
+  else:                      pinglistOcean_expr.append("None")
 
 pinglistSeaIce_id        = []
 pinglistSeaIce_field_ref = []
@@ -102,7 +103,8 @@ for child in field_elements_SeaIce:
   pinglistSeaIce_id.append(child.attrib["id"][6:])
   pinglistSeaIce_field_ref.append(child.attrib["field_ref"])
   pinglistSeaIce_text.append(child.text)
- #pinglistSeaIce_expr.append(child.attrib["expr"])            # Not present in each element
+  if "expr" in child.attrib: pinglistSeaIce_expr.append(child.attrib["expr"])
+  else:                      pinglistSeaIce_expr.append("None")
 
 pinglistOcnBgChem_id        = []
 pinglistOcnBgChem_field_ref = []
@@ -115,12 +117,13 @@ for child in field_elements_OcnBgChem:
   pinglistOcnBgChem_id.append(child.attrib["id"][6:])
   pinglistOcnBgChem_field_ref.append(child.attrib["field_ref"])
   pinglistOcnBgChem_text.append(child.text)
- #pinglistOcnBgChem_expr.append(child.attrib["expr"])         # Not present in each element
+  if "expr" in child.attrib: pinglistOcnBgChem_expr.append(child.attrib["expr"])
+  else:                      pinglistOcnBgChem_expr.append("None")
 
 total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgChem_id
 total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + pinglistOcnBgChem_field_ref
 total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgChem_text
-#total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgChem_expr
+total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgChem_expr
 
 if exclude_dummy_fields:
  print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
@@ -520,9 +523,9 @@ for i in range(0, len(dr_varname)):
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                                   40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,     4,                                      60,          10,   {}))
- #output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
-  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                                         40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,                                                          80,     4,                                      60,          10,   {}))
+ #output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  output_nemo_opa_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
