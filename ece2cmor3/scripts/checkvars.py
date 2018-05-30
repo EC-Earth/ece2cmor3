@@ -26,11 +26,11 @@ def write_varlist(targets,opath):
 def write_varlist_ascii(targets,opath):
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     ofile = open(opath,'w')
-    ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
+    ofile.write('{:10} {:20} {:5} {:40} {:95} {:20} {:60} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'unit', 'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
     for k,vlist in tgtgroups.iteritems():
         ofile.write('{}'.format('\n'))
         for tgtvar in vlist:
-            ofile.write('{:10} {:20} {:5} {:40} {:95} {:60} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
+            ofile.write('{:10} {:20} {:5} {:40} {:95} {:20} {:60} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority, getattr(tgtvar,"dimensions","unknown"), getattr(tgtvar,"long_name","unknown"), tgtvar.units, tgtvar.mip_list, getattr(tgtvar,"comment_author",""), getattr(tgtvar,"ecearth_comment",""), '\n'))
     ofile.close()
 
 
@@ -45,11 +45,12 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('C:C',  4)  # Adjust the column width of column C
     worksheet.set_column('D:D', 35)  # Adjust the column width of column D
     worksheet.set_column('E:E', 80)  # Adjust the column width of column E
-    worksheet.set_column('F:F',  4)  # Adjust the column width of column F
-    worksheet.set_column('G:G', 80)  # Adjust the column width of column G
-    worksheet.set_column('H:H', 15)  # Adjust the column width of column H
-    worksheet.set_column('I:I',200)  # Adjust the column width of column I
-    worksheet.set_column('J:J', 80)  # Adjust the column width of column J
+    worksheet.set_column('F:F', 15)  # Adjust the column width of column E
+    worksheet.set_column('G:G',  4)  # Adjust the column width of column F
+    worksheet.set_column('H:H', 80)  # Adjust the column width of column G
+    worksheet.set_column('I:I', 15)  # Adjust the column width of column H
+    worksheet.set_column('J:J',200)  # Adjust the column width of column I
+    worksheet.set_column('K:K', 80)  # Adjust the column width of column J
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -58,11 +59,12 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 2, 'prio', bold)
     worksheet.write(0, 3, 'Dimension format of variable', bold)
     worksheet.write(0, 4, 'variable long name', bold)
-    worksheet.write(0, 5, 'link', bold)
-    worksheet.write(0, 6, 'comment', bold)
-    worksheet.write(0, 7, 'comment author', bold)
-    worksheet.write(0, 8, 'extensive variable description', bold)
-    worksheet.write(0, 9, 'list of MIPs which request this variable', bold)
+    worksheet.write(0, 5, 'unit', bold)
+    worksheet.write(0, 6, 'link', bold)
+    worksheet.write(0, 7, 'comment', bold)
+    worksheet.write(0, 8, 'comment author', bold)
+    worksheet.write(0, 9, 'extensive variable description', bold)
+    worksheet.write(0,10, 'list of MIPs which request this variable', bold)
 
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -74,11 +76,12 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 2, tgtvar.priority)
             worksheet.write(row_counter, 3, getattr(tgtvar,"dimensions","unknown"))
             worksheet.write(row_counter, 4, getattr(tgtvar,"long_name","unknown"))
-            worksheet.write(row_counter, 5, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"vid","unknown") + '.html","web")')
-            worksheet.write(row_counter, 6, getattr(tgtvar,"ecearth_comment",""))
-            worksheet.write(row_counter, 7, getattr(tgtvar,"comment_author",""))
-            worksheet.write(row_counter, 8, getattr(tgtvar,"comment","unknown"))
-            worksheet.write(row_counter, 9, tgtvar.mip_list)
+            worksheet.write(row_counter, 5, tgtvar.units)
+            worksheet.write(row_counter, 6, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar,"vid","unknown") + '.html","web")')
+            worksheet.write(row_counter, 7, getattr(tgtvar,"ecearth_comment",""))
+            worksheet.write(row_counter, 8, getattr(tgtvar,"comment_author",""))
+            worksheet.write(row_counter, 9, getattr(tgtvar,"comment","unknown"))
+            worksheet.write(row_counter,10, tgtvar.mip_list)
             row_counter += 1
     workbook.close()
     logging.info(" Writing the excel file: %s" % opath)
