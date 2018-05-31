@@ -34,6 +34,9 @@
 #
 # Seven, a basic file_def is created by selecting on model component, output frequency and grid. For
 # each sub selection a file element is defined.
+#
+# Eight, just read the basic file_def in order to check in case of modifications to the script whether
+# the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file existence with: os.path.isfile
@@ -486,7 +489,7 @@ else:
 # WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
 
 # Below 'flat' means all fields are defined within one file element definition.
-flat_nemo_file_def_xml_file = open('basic-flat-cmip6-file_def_nemo.xml','w')
+flat_nemo_file_def_xml_file = open('./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml','w')
 flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 flat_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 flat_nemo_file_def_xml_file.write('\n\n    <file>\n\n')
@@ -547,7 +550,7 @@ flat_nemo_file_def_xml_file.close()
 
 # READING THE BASIC FLAT FILE_DEF FILE:
 
-tree_basic_file_def             = xmltree.parse("./basic-flat-cmip6-file_def_nemo.xml")
+tree_basic_file_def             = xmltree.parse("./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml")
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -581,7 +584,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
 
-basic_nemo_file_def_xml_file = open('basic-cmip6-file_def_nemo.xml','w')
+basic_nemo_file_def_xml_file = open('./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml','w')
 basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 basic_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 
@@ -639,6 +642,20 @@ print '\n There are', field_counter, 'fields distributed over', file_counter, 'f
 
 #for child in field_elements_basic_file_def[0]:
 # print '{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text)
+
+
+################################################################################
+###################################    8     ###################################
+################################################################################
+
+# TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
+
+tree_basic_file_def             = xmltree.parse("./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml")
+root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+field_elements_basic_file_def   = root_basic_file_def[0][:]
+
+#for file in root_basic_file_def.findall('.//file[@id]'):
+# print file.attrib["id"]
 
 ################################################################################
 ###################################   End    ###################################
