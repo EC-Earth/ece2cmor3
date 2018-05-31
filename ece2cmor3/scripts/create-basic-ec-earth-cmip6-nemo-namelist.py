@@ -3,7 +3,6 @@
 
 # Call this script by:
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py
-#  ./create-basic-ec-earth-cmip6-nemo-namelist.py; diff -b basic-flat-cmip6-file_def_nemo.xml bup-basic-flat-cmip6-file_def_nemo.xml; diff -b basic-cmip6-file_def_nemo.xml bup-basic-cmip6-file_def_nemo.xml
 
 # First, this script reads the shaconemo xml ping files (the files which relate NEMO code variable
 # names with CMOR names. NEMO code names which are labeled by 'dummy_' have not been identified by
@@ -39,15 +38,21 @@
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
-import os.path                                                # for checking file existence with: os.path.isfile
+import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
+import sys                                                    # for aborting: sys.exit
 import numpy as np                                            # for the use of e.g. np.multiply
 from os.path import expanduser
 
+# Note that the ping files are not yet available within ec-earth3 trunk, so you need the Shaconemo repository
+# or the Shaconemo vendor branch of the ec-earth3 repository: ^/ecearth3/vendor/nemo/shaconemo/ORCA1_LIM3_PISCES/EXP00/
 ping_file_directory            = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
 field_def_file_directory       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
 nemo_only_dr_nodummy_file_xlsx = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.xlsx"
-nemo_only_dr_nodummy_file_txt  = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/bup-nemo-only-list-cmpi6-requested-variables.txt"
+nemo_only_dr_nodummy_file_txt  = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt"
+basic_flat_file_def_file_name  = "./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
+basic_file_def_file_name       = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
 
+#field_def_file_directory       = expanduser("~")+"/ec-earth-3.2.3/trunk/runtime/classic/ctrl/"
 
 message_occurence_identical_id = True
 message_occurence_identical_id = False
@@ -69,8 +74,13 @@ include_grid_ref_from_field_def_files = True
 
 # READING THE PING FILES:
 
-treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean.xml")
-treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce.xml")
+# Checking whether the ping files exist:
+if os.path.isfile(ping_file_directory + "ping_ocean.xml"    ) == False: print ' The file ', ping_file_directory + "ping_ocean.xml"    , '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_directory + "ping_seaIce.xml"   ) == False: print ' The file ', ping_file_directory + "ping_seaIce.xml"   , '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_directory + "ping_ocnBgChem.xml") == False: print ' The file ', ping_file_directory + "ping_ocnBgChem.xml", '  does not exist.'; sys.exit(' stop')
+
+treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean.xml"    )
+treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce.xml"   )
 treeOcnBgChem = xmltree.parse(ping_file_directory + "ping_ocnBgChem.xml")
 
 rootOcean     = treeOcean.getroot()            # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -191,6 +201,8 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 # READING THE FIELD_DEF FILES:
 
 def create_element_lists(file_name, attribute_1, attribute_2):
+    if os.path.isfile(file_name) == False: print ' The file ', file_name, '  does not exist.'; sys.exit(' stop')
+
     tree = xmltree.parse(file_name)
     roottree = tree.getroot()
     field_elements_attribute_1  = []   # The basic list in this routine containing the id attribute values
@@ -304,10 +316,10 @@ def create_element_lists(file_name, attribute_1, attribute_2):
     return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
 
-field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(ping_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
-field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(ping_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
-field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(ping_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
-field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(ping_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
+field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
+field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
+field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(field_def_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
+field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(field_def_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
 
 
 total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
@@ -431,6 +443,9 @@ def load_checkvars_excel(excel_file):
         miplist      = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname    ], start_rowx = nr_of_header_lines)]
     return tablenames, varnames, varpriority, vardimension, varlongname, weblink, comments, description, miplist
 
+
+if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: print ' The file ', nemo_only_dr_nodummy_file_xlsx, '  does not exist.'; sys.exit(' stop')
+
 # Read the excel file with the NEMO data request:
 dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_ping_component, dr_description, dr_miplist = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
 
@@ -489,7 +504,7 @@ else:
 # WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
 
 # Below 'flat' means all fields are defined within one file element definition.
-flat_nemo_file_def_xml_file = open('./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml','w')
+flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
 flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 flat_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 flat_nemo_file_def_xml_file.write('\n\n    <file>\n\n')
@@ -550,7 +565,9 @@ flat_nemo_file_def_xml_file.close()
 
 # READING THE BASIC FLAT FILE_DEF FILE:
 
-tree_basic_file_def             = xmltree.parse("./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml")
+if os.path.isfile(basic_flat_file_def_file_name) == False: print ' The file ', basic_flat_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+
+tree_basic_file_def             = xmltree.parse(basic_flat_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
@@ -584,7 +601,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
 
-basic_nemo_file_def_xml_file = open('./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml','w')
+basic_nemo_file_def_xml_file = open(basic_file_def_file_name,'w')
 basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 basic_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 
@@ -650,7 +667,9 @@ print '\n There are', field_counter, 'fields distributed over', file_counter, 'f
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
 
-tree_basic_file_def             = xmltree.parse("./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml")
+if os.path.isfile(basic_file_def_file_name) == False: print ' The file ', basic_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+
+tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 
