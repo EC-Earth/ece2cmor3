@@ -273,9 +273,7 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
                 missingtargets.append(target)
                 varword = "missing"
             if not silent:
-                log.error(
-                    "Could not find parameter table entry for %s in table %s...skipping variable. "
-                    "This variable is %s" % (target.variable, target.table, varword))
+                log.error("Could not find parameter table entry for {:17} in table {:6} ...skipping variable. This variable is {}".format(target.variable, target.table, varword))
             continue
         modelmatch = None
         for model in matchpars:
