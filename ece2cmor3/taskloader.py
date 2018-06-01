@@ -294,6 +294,8 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
                 target.variable, target.table, models[modelmatch]["parfile"]))
         parmatch = table_pars[0] if any(table_pars) else pars[0]
         task = create_cmor_task(parmatch, target, modelmatch)
+        if task is None:
+         continue
         ece2cmorlib.add_task(task)
         if parmatch.get(cmor_source.expression_key, None) is None:
             target.ecearth_comment = task.source.model_component() + ' code name = ' + parmatch.get(json_source_key,
@@ -357,6 +359,7 @@ def create_cmor_task(pardict, target, tag):
     if source is None:
         log.error("Failed to construct a source for target variable %s in table %s...skipping task"
                   % (target.variable, target.table))
+        return None
     task = cmor_task.cmor_task(source, target)
     mask = pardict.get(json_masked_key, None)
     if mask:
