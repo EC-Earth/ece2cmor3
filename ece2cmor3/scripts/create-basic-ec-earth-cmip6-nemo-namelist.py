@@ -512,7 +512,7 @@ else:
 
 # Below 'flat' means all fields are defined within one file element definition.
 flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
-flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
+flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 flat_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 flat_nemo_file_def_xml_file.write('\n\n    <file>\n\n')
 
@@ -561,7 +561,7 @@ for i in range(0, len(dr_varname)):
 
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
-flat_nemo_file_def_xml_file.write('\n\n  </file_defenition>\n')
+flat_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
 
 flat_nemo_file_def_xml_file.close()
 
@@ -609,7 +609,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
 
 basic_nemo_file_def_xml_file = open(basic_file_def_file_name,'w')
-basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_defenition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
+basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
 basic_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
 
 
@@ -648,15 +648,15 @@ for component_value in component_overview:
 
 
 basic_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
-basic_nemo_file_def_xml_file.write('\n\n  </file_defenition>\n')
+basic_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
 
 basic_nemo_file_def_xml_file.close()
 
 print '\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n'
 
 #print tree_basic_file_def
-#print root_basic_file_def.tag                     # Shows the root file_defenition element tag
-#print root_basic_file_def.attrib                  # Shows the root file_defenition element attributes
+#print root_basic_file_def.tag                     # Shows the root file_definition element tag
+#print root_basic_file_def.attrib                  # Shows the root file_definition element attributes
 #print root_basic_file_def[0].tag                  # Shows the      file_group      element tag
 #print root_basic_file_def[0].attrib               # Shows the      file_group      element attributes
 #print field_elements_basic_file_def[0].tag        # Shows the      file            element tag        of the first file  element
