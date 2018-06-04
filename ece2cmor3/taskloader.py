@@ -381,8 +381,8 @@ def create_cmor_source(pardict, tag):
         return cmor_source.ifs_source.read(expr if expr is not None else src)
     elif tag == "nemo":
         grid = pardict.get(json_grid_key, None)
-        if not (grid in cmor_source.nemo_grid):
-            log.error("Could not find a grid value in the nemo parameter table for %s" % src)
-            return None
-        return cmor_source.nemo_source(src, cmor_source.nemo_grid.index(grid))
+        grid_index = -1
+        if grid in cmor_source.nemo_grid:
+          grid_index = cmor_source.nemo_grid.index(grid)
+        return cmor_source.nemo_source(src, grid_index)
     return None
