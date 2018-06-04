@@ -334,14 +334,14 @@ declare -a arr_new=(
 
 function add_item {
  echo '    {'                     >> ${output_file}
- echo '        "source": "'$1'"', >> ${output_file}
+ echo '        "source": "'$1'",' >> ${output_file}
  echo '        "target": "'$1'"'  >> ${output_file}
  echo '    },'                    >> ${output_file}
 }
 
 function add_last_item {
  echo '    {'                     >> ${output_file}
- echo '        "source": "'$1'"', >> ${output_file}
+ echo '        "source": "'$1'",' >> ${output_file}
  echo '        "target": "'$1'"'  >> ${output_file}
  echo '    }'                     >> ${output_file}
 }
