@@ -34,7 +34,9 @@
 # Seven, a basic file_def is created by selecting on model component, output frequency and grid. For
 # each sub selection a file element is defined.
 #
-# Eight, just read the basic file_def in order to check in case of modifications to the script whether
+# Eight, produce a nemopar.sjon file with all the non-dummy ping file variables.
+#
+# Nine, just read the basic file_def in order to check in case of modifications to the script whether
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
@@ -70,6 +72,8 @@ exclude_dummy_fields = True
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
+produce_nemopar_json = True
+produce_nemopar_json = False
 
 
 ################################################################################
@@ -668,8 +672,37 @@ print '\n There are', field_counter, 'fields distributed over', file_counter, 'f
 # print '{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text)
 
 
+
 ################################################################################
 ###################################    8     ###################################
+################################################################################
+
+# PRODUCE A nemopar.sjon FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
+
+if produce_nemopar_json:
+ nemopar = open('new-nemopar.json','w')
+ nemopar.write('[\n')
+ i = 0
+ catched = []
+ for field in root_basic_file_def.findall('.//field[@id]'):
+  # Prevent double occurences:
+  if field.attrib["name"] not in catched:
+   i = i + 1
+   if i > 1: nemopar.write('    },\n')
+   nemopar.write('    {\n')
+   nemopar.write('        "source": "'+field.attrib["name"]+'",\n')
+   nemopar.write('        "grid": "'+field.attrib["grid_ref"]+'",\n')
+   nemopar.write('        "target": "'+field.attrib["name"]+'"\n')
+   catched.append(field.attrib["name"])
+ nemopar.write('    }\n')
+ nemopar.write(']\n')
+ nemopar.close()
+ print ' The produced new-nemopar.json file contains', i, 'variables.'
+
+
+
+################################################################################
+###################################    9     ###################################
 ################################################################################
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
