@@ -47,7 +47,7 @@ if [ "$#" -eq 4 ]; then
   exit
  else
  #source activate ece2cmor3
-  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+#  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
@@ -60,12 +60,21 @@ if [ "$#" -eq 4 ]; then
  mv -f pptdddddd0300 pptdddddd0600 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
  
 
- # A block with calling drq2nemo_file_def.py has to be added here.
+ # Creating the file_def files for XIOS NEMO input:.
+ ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
+ echo
+ echo 'The produced data request excel file:'
+ echo cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
 
  echo
  echo 'The generated ppt files are:'
  ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+
+ echo
+ echo 'The generated file_def file is:'
+ ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
  echo
 
 else
