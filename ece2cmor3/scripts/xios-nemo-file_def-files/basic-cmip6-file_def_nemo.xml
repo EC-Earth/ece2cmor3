@@ -3,7 +3,7 @@
   <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
 
 
-   <file_group>
+   <file_group id="file_group_1">
 
 
     <file id="file1" name_suffix="_lim_1d_grid_V_2D" output_freq="1d">

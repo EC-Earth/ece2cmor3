@@ -517,7 +517,7 @@ else:
 # Below 'flat' means all fields are defined within one file element definition.
 flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
 flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
-flat_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
+flat_nemo_file_def_xml_file.write('\n\n   <file_group id="file_group_1">\n')
 flat_nemo_file_def_xml_file.write('\n\n    <file>\n\n')
 
 i = 0
@@ -614,7 +614,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 
 basic_nemo_file_def_xml_file = open(basic_file_def_file_name,'w')
 basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
-basic_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
+basic_nemo_file_def_xml_file.write('\n\n   <file_group id="file_group_1">\n')
 
 
 field_counter = 0
