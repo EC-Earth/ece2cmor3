@@ -62,7 +62,7 @@ def main():
     for field in root_basic_file_def.findall('.//field[@id]'):
      for task in ece2cmorlib.tasks:
       if field.attrib["name"] == task.target.variable and field.attrib["table"] == task.target.table:
-       field.attrib["enable"] = "True"
+       field.attrib["enabled"] = "True"
        count = count + 1
       #print field.attrib["name"], field.attrib["table"]
      # After the table attribute has been used to match with the data request, the table attribute is removed here because it is not a valid XIOS attribute:
