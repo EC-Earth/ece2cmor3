@@ -65,6 +65,8 @@ def main():
        field.attrib["enable"] = "True"
        count = count + 1
       #print field.attrib["name"], field.attrib["table"]
+     # After the table attribute has been used to match with the data request, the table attribute is removed here because it is not a valid XIOS attribute:
+     field.attrib.pop('table', None)
 
     # Write the NEMO XIOS file_def input files:
     tree_basic_file_def.write(file_def_file_name)
