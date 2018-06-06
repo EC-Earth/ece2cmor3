@@ -6,14 +6,40 @@
    <file_group>
 
 
-    <file id="file1" name_suffix="_lim_mo_grid_V_2D" output_freq="mo">
+    <file id="file1" name_suffix="_lim_1d_grid_V_2D" output_freq="1d">
+
+     <field id="id_siv"                              name="siv"                     table="SIday"         field_ref="vice_mv"                                grid_ref="grid_V_2D"                      enabled="False" >                                                                        </field>
+
+    </file>
+
+
+    <file id="file2" name_suffix="_lim_1d_grid_T_2D" output_freq="1d">
+
+     <field id="id_sitimefrac"                       name="sitimefrac"              table="SIday"         field_ref="icepres"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_siconc"                           name="siconc"                  table="SIday"         field_ref="iceconc_pct"                            grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_sithick"                          name="sithick"                 table="SIday"         field_ref="icethic"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_sisnthick"                        name="sisnthick"               table="SIday"         field_ref="snothic"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_sitemptop"                        name="sitemptop"               table="SIday"         field_ref="icestK"                                 grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_sispeed"                          name="sispeed"                 table="SIday"         field_ref="icevel_mv"                              grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+
+    </file>
+
+
+    <file id="file3" name_suffix="_lim_1d_grid_U_2D" output_freq="1d">
+
+     <field id="id_siu"                              name="siu"                     table="SIday"         field_ref="uice_mv"                                grid_ref="grid_U_2D"                      enabled="False" >                                                                        </field>
+
+    </file>
+
+
+    <file id="file4" name_suffix="_lim_1mo_grid_V_2D" output_freq="1mo">
 
      <field id="id_siv"                              name="siv"                     table="SImon"         field_ref="vice_mv"                                grid_ref="grid_V_2D"                      enabled="False" >                                                                        </field>
 
     </file>
 
 
-    <file id="file2" name_suffix="_lim_mo_grid_T_2D" output_freq="mo">
+    <file id="file5" name_suffix="_lim_1mo_grid_T_2D" output_freq="1mo">
 
      <field id="id_sitimefrac"                       name="sitimefrac"              table="SImon"         field_ref="icepres"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
      <field id="id_siconc"                           name="siconc"                  table="SImon"         field_ref="iceconc_pct"                            grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
@@ -79,14 +105,14 @@
     </file>
 
 
-    <file id="file3" name_suffix="_lim_mo_grid_U_2D" output_freq="mo">
+    <file id="file6" name_suffix="_lim_1mo_grid_U_2D" output_freq="1mo">
 
      <field id="id_siu"                              name="siu"                     table="SImon"         field_ref="uice_mv"                                grid_ref="grid_U_2D"                      enabled="False" >                                                                        </field>
 
     </file>
 
 
-    <file id="file4" name_suffix="_lim_mo_grid_T_3D_ncatice" output_freq="mo">
+    <file id="file7" name_suffix="_lim_1mo_grid_T_3D_ncatice" output_freq="1mo">
 
      <field id="id_siitdconc"                        name="siitdconc"               table="SImon"         field_ref="iceconc_cat_pct_mv"                     grid_ref="grid_T_3D_ncatice"              enabled="False" >                                                                        </field>
      <field id="id_siitdthick"                       name="siitdthick"              table="SImon"         field_ref="icethic_cat_mv"                         grid_ref="grid_T_3D_ncatice"              enabled="False" >                                                                        </field>
@@ -95,7 +121,7 @@
     </file>
 
 
-    <file id="file5" name_suffix="_lim_mo_grid_transect_lim" output_freq="mo">
+    <file id="file8" name_suffix="_lim_1mo_grid_transect_lim" output_freq="1mo">
 
      <field id="id_simassacrossline"                 name="simassacrossline"        table="SImon"         field_ref="transport_simasse_transect"             grid_ref="grid_transect_lim"              enabled="False" >                                                                        </field>
      <field id="id_siareaacrossline"                 name="siareaacrossline"        table="SImon"         field_ref="transport_siarea_transect"              grid_ref="grid_transect_lim"              enabled="False" >                                                                        </field>
@@ -104,33 +130,7 @@
     </file>
 
 
-    <file id="file6" name_suffix="_lim_d_grid_V_2D" output_freq="d">
-
-     <field id="id_siv"                              name="siv"                     table="SIday"         field_ref="vice_mv"                                grid_ref="grid_V_2D"                      enabled="False" >                                                                        </field>
-
-    </file>
-
-
-    <file id="file7" name_suffix="_lim_d_grid_T_2D" output_freq="d">
-
-     <field id="id_sitimefrac"                       name="sitimefrac"              table="SIday"         field_ref="icepres"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_siconc"                           name="siconc"                  table="SIday"         field_ref="iceconc_pct"                            grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_sithick"                          name="sithick"                 table="SIday"         field_ref="icethic"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_sisnthick"                        name="sisnthick"               table="SIday"         field_ref="snothic"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_sitemptop"                        name="sitemptop"               table="SIday"         field_ref="icestK"                                 grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_sispeed"                          name="sispeed"                 table="SIday"         field_ref="icevel_mv"                              grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-
-    </file>
-
-
-    <file id="file8" name_suffix="_lim_d_grid_U_2D" output_freq="d">
-
-     <field id="id_siu"                              name="siu"                     table="SIday"         field_ref="uice_mv"                                grid_ref="grid_U_2D"                      enabled="False" >                                                                        </field>
-
-    </file>
-
-
-    <file id="file9" name_suffix="_opa_y_grid_T_3D" output_freq="y">
+    <file id="file9" name_suffix="_opa_1y_grid_T_3D" output_freq="1y">
 
      <field id="id_sf6"                              name="sf6"                     table="Oyr"           field_ref="SF6_E3T"                                grid_ref="grid_T_3D"                      enabled="False" >     SF6_E3T / e3t                                                      </field>
      <field id="id_cfc11"                            name="cfc11"                   table="Oyr"           field_ref="CFC11_E3T"                              grid_ref="grid_T_3D"                      enabled="False" >     CFC11_E3T / e3t                                                    </field>
@@ -157,21 +157,21 @@
     </file>
 
 
-    <file id="file10" name_suffix="_opa_y_grid_V_2D" output_freq="y">
+    <file id="file10" name_suffix="_opa_1y_grid_V_2D" output_freq="1y">
 
      <field id="id_tauvo"                            name="tauvo"                   table="Odec"          field_ref="vtau"                                   grid_ref="grid_V_2D"                      enabled="False" >                                                                        </field>
 
     </file>
 
 
-    <file id="file11" name_suffix="_opa_y_grid_V_3D" output_freq="y">
+    <file id="file11" name_suffix="_opa_1y_grid_V_3D" output_freq="1y">
 
      <field id="id_vo"                               name="vo"                      table="Odec"          field_ref="voce_e3v"                               grid_ref="grid_V_3D"                      enabled="False" >     voce_e3v / e3v                                                     </field>
 
     </file>
 
 
-    <file id="file12" name_suffix="_opa_y_grid_T_2D" output_freq="y">
+    <file id="file12" name_suffix="_opa_1y_grid_T_2D" output_freq="1y">
 
      <field id="id_somint"                           name="somint"                  table="Oyr"           field_ref="somint"                                 grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu                                                   </field>
      <field id="id_tnpeo"                            name="tnpeo"                   table="Oyr"           field_ref="tnpeo"                                  grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
@@ -187,14 +187,14 @@
     </file>
 
 
-    <file id="file13" name_suffix="_opa_y_grid_U_2D" output_freq="y">
+    <file id="file13" name_suffix="_opa_1y_grid_U_2D" output_freq="1y">
 
      <field id="id_tauuo"                            name="tauuo"                   table="Odec"          field_ref="utau"                                   grid_ref="grid_U_2D"                      enabled="False" >                                                                        </field>
 
     </file>
 
 
-    <file id="file14" name_suffix="_opa_y_grid_W_3D" output_freq="y">
+    <file id="file14" name_suffix="_opa_1y_grid_W_3D" output_freq="1y">
 
      <field id="id_difvho"                           name="difvho"                  table="Oyr"           field_ref="avt_e3w"                                grid_ref="grid_W_3D"                      enabled="False" >     avt_e3w / e3w                                                      </field>
      <field id="id_difvso"                           name="difvso"                  table="Oyr"           field_ref="avs_e3w"                                grid_ref="grid_W_3D"                      enabled="False" >     avs_e3w / e3w                                                      </field>
@@ -203,14 +203,14 @@
     </file>
 
 
-    <file id="file15" name_suffix="_opa_y_grid_U_3D" output_freq="y">
+    <file id="file15" name_suffix="_opa_1y_grid_U_3D" output_freq="1y">
 
      <field id="id_uo"                               name="uo"                      table="Odec"          field_ref="uoce_e3u"                               grid_ref="grid_U_3D"                      enabled="False" >     uoce_e3u / e3u                                                     </field>
 
     </file>
 
 
-    <file id="file16" name_suffix="_opa_y_grid_1point" output_freq="y">
+    <file id="file16" name_suffix="_opa_1y_grid_1point" output_freq="1y">
 
      <field id="id_masso"                            name="masso"                   table="Odec"          field_ref="scmastot"                               grid_ref="grid_1point"                    enabled="False" >                                                                        </field>
      <field id="id_volo"                             name="volo"                    table="Odec"          field_ref="scvoltot"                               grid_ref="grid_1point"                    enabled="False" >                                                                        </field>
@@ -223,14 +223,25 @@
     </file>
 
 
-    <file id="file17" name_suffix="_opa_y_grid_ptr_T_3basin_2D" output_freq="y">
+    <file id="file17" name_suffix="_opa_1y_grid_ptr_T_3basin_2D" output_freq="1y">
 
      <field id="id_hfbasin"                          name="hfbasin"                 table="Odec"          field_ref="sopht_vt_3bsn"                          grid_ref="grid_ptr_T_3basin_2D"           enabled="False" >     this * 1e15                                                        </field>
 
     </file>
 
 
-    <file id="file18" name_suffix="_opa_mo_grid_T_3D" output_freq="mo">
+    <file id="file18" name_suffix="_opa_1d_grid_T_2D" output_freq="1d">
+
+     <field id="id_tossq"                            name="tossq"                   table="Oday"          field_ref="sst_pot2"                               grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_tos"                              name="tos"                     table="Oday"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+     <field id="id_sossq"                            name="sossq"                   table="Oday"          field_ref="sss2"                                   grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu * $convSpsu                                       </field>
+     <field id="id_sos"                              name="sos"                     table="Oday"          field_ref="sss"                                    grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu                                                   </field>
+     <field id="id_omldamax"                         name="omldamax"                table="Oday"          field_ref="mldkz5"                                 grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
+
+    </file>
+
+
+    <file id="file19" name_suffix="_opa_1mo_grid_T_3D" output_freq="1mo">
 
      <field id="id_sf6"                              name="sf6"                     table="Omon"          field_ref="SF6_E3T"                                grid_ref="grid_T_3D"                      enabled="False" >     SF6_E3T / e3t                                                      </field>
      <field id="id_cfc11"                            name="cfc11"                   table="Omon"          field_ref="CFC11_E3T"                              grid_ref="grid_T_3D"                      enabled="False" >     CFC11_E3T / e3t                                                    </field>
@@ -247,7 +258,7 @@
     </file>
 
 
-    <file id="file19" name_suffix="_opa_mo_grid_V_2D" output_freq="mo">
+    <file id="file20" name_suffix="_opa_1mo_grid_V_2D" output_freq="1mo">
 
      <field id="id_hfy"                              name="hfy"                     table="Omon"          field_ref="vadv_heattr"                            grid_ref="grid_V_2D"                      enabled="False" >     this + vdiff_heattr                                                </field>
      <field id="id_tauvo"                            name="tauvo"                   table="Omon"          field_ref="vtau"                                   grid_ref="grid_V_2D"                      enabled="False" >                                                                        </field>
@@ -255,7 +266,7 @@
     </file>
 
 
-    <file id="file20" name_suffix="_opa_mo_grid_V_3D" output_freq="mo">
+    <file id="file21" name_suffix="_opa_1mo_grid_V_3D" output_freq="1mo">
 
      <field id="id_vo"                               name="vo"                      table="Omon"          field_ref="voce_e3v"                               grid_ref="grid_V_3D"                      enabled="False" >     voce_e3v / e3v                                                     </field>
      <field id="id_vmo"                              name="vmo"                     table="Omon"          field_ref="vocetr_eff"                             grid_ref="grid_V_3D"                      enabled="False" >     this * $rau0                                                       </field>
@@ -263,7 +274,7 @@
     </file>
 
 
-    <file id="file21" name_suffix="_opa_mo_grid_T_2D" output_freq="mo">
+    <file id="file22" name_suffix="_opa_1mo_grid_T_2D" output_freq="1mo">
 
      <field id="id_sfdsi"                            name="sfdsi"                   table="SImon"         field_ref="saltflx"                                grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu                                                   </field>
      <field id="id_pbo"                              name="pbo"                     table="Omon"          field_ref="botpres"                                grid_ref="grid_T_2D"                      enabled="False" >     this * 1e4                                                         </field>
@@ -304,7 +315,7 @@
     </file>
 
 
-    <file id="file22" name_suffix="_opa_mo_grid_U_2D" output_freq="mo">
+    <file id="file23" name_suffix="_opa_1mo_grid_U_2D" output_freq="1mo">
 
      <field id="id_msftbarot"                        name="msftbarot"               table="Omon"          field_ref="uoce_e3u_vsum_e2u_cumul"                grid_ref="grid_U_2D"                      enabled="False" >     this * $rau0                                                       </field>
      <field id="id_hfx"                              name="hfx"                     table="Omon"          field_ref="uadv_heattr"                            grid_ref="grid_U_2D"                      enabled="False" >     this + udiff_heattr                                                </field>
@@ -313,14 +324,14 @@
     </file>
 
 
-    <file id="file23" name_suffix="_opa_mo_grid_transect" output_freq="mo">
+    <file id="file24" name_suffix="_opa_1mo_grid_transect" output_freq="1mo">
 
      <field id="id_mfo"                              name="mfo"                     table="Omon"          field_ref="transport_masse_transect"               grid_ref="grid_transect"                  enabled="False" >                                                                        </field>
 
     </file>
 
 
-    <file id="file24" name_suffix="_opa_mo_grid_W_3D" output_freq="mo">
+    <file id="file25" name_suffix="_opa_1mo_grid_W_3D" output_freq="1mo">
 
      <field id="id_wo"                               name="wo"                      table="Omon"          field_ref="woce"                                   grid_ref="grid_W_3D"                      enabled="False" >     woce_e3w / e3w                                                     </field>
      <field id="id_wmo"                              name="wmo"                     table="Omon"          field_ref="wocetr_eff"                             grid_ref="grid_W_3D"                      enabled="False" >     this * $rau0                                                       </field>
@@ -333,7 +344,7 @@
     </file>
 
 
-    <file id="file25" name_suffix="_opa_mo_grid_W_2D" output_freq="mo">
+    <file id="file26" name_suffix="_opa_1mo_grid_W_2D" output_freq="1mo">
 
      <field id="id_diftrblo2d"                       name="diftrblo2d"              table="Oclim"         field_ref="aht2d_eiv"                              grid_ref="grid_W_2D"                      enabled="False" >                                                                        </field>
      <field id="id_diftrelo2d"                       name="diftrelo2d"              table="Oclim"         field_ref="aht2d_eiv"                              grid_ref="grid_W_2D"                      enabled="False" >                                                                        </field>
@@ -342,7 +353,7 @@
     </file>
 
 
-    <file id="file26" name_suffix="_opa_mo_grid_U_3D" output_freq="mo">
+    <file id="file27" name_suffix="_opa_1mo_grid_U_3D" output_freq="1mo">
 
      <field id="id_uo"                               name="uo"                      table="Omon"          field_ref="uoce_e3u"                               grid_ref="grid_U_3D"                      enabled="False" >     uoce_e3u / e3u                                                     </field>
      <field id="id_umo"                              name="umo"                     table="Omon"          field_ref="uocetr_eff"                             grid_ref="grid_U_3D"                      enabled="False" >     this * $rau0                                                       </field>
@@ -350,7 +361,7 @@
     </file>
 
 
-    <file id="file27" name_suffix="_opa_mo_grid_1point" output_freq="mo">
+    <file id="file28" name_suffix="_opa_1mo_grid_1point" output_freq="1mo">
 
      <field id="id_masso"                            name="masso"                   table="Omon"          field_ref="scmastot"                               grid_ref="grid_1point"                    enabled="False" >                                                                        </field>
      <field id="id_volo"                             name="volo"                    table="Omon"          field_ref="scvoltot"                               grid_ref="grid_1point"                    enabled="False" >                                                                        </field>
@@ -364,7 +375,7 @@
     </file>
 
 
-    <file id="file28" name_suffix="_opa_mo_grid_ptr_T_3basin_2D" output_freq="mo">
+    <file id="file29" name_suffix="_opa_1mo_grid_ptr_T_3basin_2D" output_freq="1mo">
 
      <field id="id_hfbasin"                          name="hfbasin"                 table="Omon"          field_ref="sopht_vt_3bsn"                          grid_ref="grid_ptr_T_3basin_2D"           enabled="False" >     this * 1e15                                                        </field>
      <field id="id_hfbasinpmadv"                     name="hfbasinpmadv"            table="Omon"          field_ref="sophteiv_3bsn"                          grid_ref="grid_ptr_T_3basin_2D"           enabled="False" >     this * 1e15                                                        </field>
@@ -376,25 +387,14 @@
     </file>
 
 
-    <file id="file29" name_suffix="_opa_mo_grid_ptr_W_3basin_3D" output_freq="mo">
+    <file id="file30" name_suffix="_opa_1mo_grid_ptr_W_3basin_3D" output_freq="1mo">
 
      <field id="id_msftyz"                           name="msftyz"                  table="Omon"          field_ref="zomsf_3bsn"                             grid_ref="grid_ptr_W_3basin_3D"           enabled="False" >     this * 1e6 * $rau0                                                 </field>
 
     </file>
 
 
-    <file id="file30" name_suffix="_opa_d_grid_T_2D" output_freq="d">
-
-     <field id="id_tossq"                            name="tossq"                   table="Oday"          field_ref="sst_pot2"                               grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_tos"                              name="tos"                     table="Oday"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-     <field id="id_sossq"                            name="sossq"                   table="Oday"          field_ref="sss2"                                   grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu * $convSpsu                                       </field>
-     <field id="id_sos"                              name="sos"                     table="Oday"          field_ref="sss"                                    grid_ref="grid_T_2D"                      enabled="False" >     this * $convSpsu                                                   </field>
-     <field id="id_omldamax"                         name="omldamax"                table="Oday"          field_ref="mldkz5"                                 grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
-
-    </file>
-
-
-    <file id="file31" name_suffix="_pisces_y_grid_T_3D" output_freq="y">
+    <file id="file31" name_suffix="_pisces_1y_grid_T_3D" output_freq="1y">
 
      <field id="id_phyc"                             name="phyc"                    table="Oyr"           field_ref="PHY_E3T"                                grid_ref="grid_T_3D"                      enabled="False" >     PHY_E3T / e3t * 1e-3 + PHY2_E3T / e3t * 1e-3                       </field>
      <field id="id_o2"                               name="o2"                      table="Oyr"           field_ref="O2_E3T"                                 grid_ref="grid_T_3D"                      enabled="False" >     O2_E3T / e3t * 1e-3                                                </field>
@@ -426,14 +426,22 @@
     </file>
 
 
-    <file id="file32" name_suffix="_pisces_y_grid_T_2D" output_freq="y">
+    <file id="file32" name_suffix="_pisces_1y_grid_T_2D" output_freq="1y">
 
      <field id="id_fgco2"                            name="fgco2"                   table="Oyr"           field_ref="Cflx"                                   grid_ref="grid_T_2D"                      enabled="False" >     this * 12 * 1e-3                                                   </field>
 
     </file>
 
 
-    <file id="file33" name_suffix="_pisces_mo_grid_T_3D" output_freq="mo">
+    <file id="file33" name_suffix="_pisces_1d_grid_T_SFC" output_freq="1d">
+
+     <field id="id_chlos"                            name="chlos"                   table="Oday"          field_ref="NCHLSFC_E3T"                            grid_ref="grid_T_SFC"                     enabled="False" >     NCHLSFC_E3T / E3TSFC * 1e-3 + DCHLSFC_E3T / E3TSFC * 1e-3          </field>
+     <field id="id_phycos"                           name="phycos"                  table="Oday"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     enabled="False" >     PHYSFC_E3T / E3TSFC * 1e-3 + PHY2SFC_E3T / E3TSFC * 1e-3           </field>
+
+    </file>
+
+
+    <file id="file34" name_suffix="_pisces_1mo_grid_T_3D" output_freq="1mo">
 
      <field id="id_graz"                             name="graz"                    table="Omon"          field_ref="GRAZ1"                                  grid_ref="grid_T_3D"                      enabled="False" >     this + GRAZ2                                                       </field>
      <field id="id_expc"                             name="expc"                    table="Omon"          field_ref="EXPC"                                   grid_ref="grid_T_3D"                      enabled="False" >                                                                        </field>
@@ -469,7 +477,7 @@
     </file>
 
 
-    <file id="file34" name_suffix="_pisces_mo_grid_T_2D" output_freq="mo">
+    <file id="file35" name_suffix="_pisces_1mo_grid_T_2D" output_freq="1mo">
 
      <field id="id_intpp"                            name="intpp"                   table="Omon"          field_ref="INTPP"                                  grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
      <field id="id_intppnitrate"                     name="intppnitrate"            table="Omon"          field_ref="INTPNEW"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
@@ -504,7 +512,7 @@
     </file>
 
 
-    <file id="file35" name_suffix="_pisces_mo_grid_T_SFC" output_freq="mo">
+    <file id="file36" name_suffix="_pisces_1mo_grid_T_SFC" output_freq="1mo">
 
      <field id="id_phycos"                           name="phycos"                  table="Omon"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     enabled="False" >     PHYSFC_E3T / E3TSFC * 1e-3 + PHY2SFC_E3T / E3TSFC * 1e-3           </field>
      <field id="id_o2os"                             name="o2os"                    table="Omon"          field_ref="O2SFC_E3T"                              grid_ref="grid_T_SFC"                     enabled="False" >      O2SFC_E3T / E3TSFC * 1e-3                                         </field>
@@ -524,14 +532,6 @@
      <field id="id_limirrmisc"                       name="limirrmisc"              table="Omon"          field_ref="LNlightSFC"                             grid_ref="grid_T_SFC"                     enabled="False" >                                                                        </field>
      <field id="id_limfediat"                        name="limfediat"               table="Omon"          field_ref="LDFeSFC"                                grid_ref="grid_T_SFC"                     enabled="False" >                                                                        </field>
      <field id="id_limfemisc"                        name="limfemisc"               table="Omon"          field_ref="LNFeSFC"                                grid_ref="grid_T_SFC"                     enabled="False" >                                                                        </field>
-
-    </file>
-
-
-    <file id="file36" name_suffix="_pisces_d_grid_T_SFC" output_freq="d">
-
-     <field id="id_chlos"                            name="chlos"                   table="Oday"          field_ref="NCHLSFC_E3T"                            grid_ref="grid_T_SFC"                     enabled="False" >     NCHLSFC_E3T / E3TSFC * 1e-3 + DCHLSFC_E3T / E3TSFC * 1e-3          </field>
-     <field id="id_phycos"                           name="phycos"                  table="Oday"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     enabled="False" >     PHYSFC_E3T / E3TSFC * 1e-3 + PHY2SFC_E3T / E3TSFC * 1e-3           </field>
 
     </file>
 
