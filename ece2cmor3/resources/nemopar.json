@@ -1,193 +1,1070 @@
 [
     {
-        "source": "vomematr",
-        "grid": "grid_V",
-        "target": "vmo"
+        "source": "agessc",
+        "target": "agessc"
     },
     {
-        "source": "thkcello",
-        "grid": "grid_T",
-        "target": "thkcello"
+        "source": "areacello",
+        "target": "areacello"
     },
     {
-        "source": "vozomatr",
-        "grid": "grid_U",
-        "target": "umo"
+        "source": "basin",
+        "target": "basin"
     },
     {
-        "source": "scvoltot",
-        "grid": "scalar",
-        "target": "volo"
+        "source": "bigthetao",
+        "target": "bigthetao"
     },
     {
-        "source": "qt",
-        "grid": "SBC",
-        "target": "hfds"
+        "source": "bigthetaoga",
+        "target": "bigthetaoga"
     },
     {
-        "source": "vo",
-        "grid": "grid_V",
-        "target": "vo"
+        "source": "cfc11",
+        "target": "cfc11"
     },
     {
-        "source": "ficeberg",
-        "grid": "grid_T",
+        "source": "cfc12",
+        "target": "cfc12"
+    },
+    {
+        "source": "deptho",
+        "target": "deptho"
+    },
+    {
+        "source": "diftrblo2d",
+        "target": "diftrblo2d"
+    },
+    {
+        "source": "diftrelo2d",
+        "target": "diftrelo2d"
+    },
+    {
+        "source": "diftrxylo2d",
+        "target": "diftrxylo2d"
+    },
+    {
+        "source": "difvho",
+        "target": "difvho"
+    },
+    {
+        "source": "difvmo",
+        "target": "difvmo"
+    },
+    {
+        "source": "difvmto",
+        "target": "difvmto"
+    },
+    {
+        "source": "difvso",
+        "target": "difvso"
+    },
+    {
+        "source": "difvtrto",
+        "target": "difvtrto"
+    },
+    {
+        "source": "dispkevfo",
+        "target": "dispkevfo"
+    },
+    {
+        "source": "dispkexyfo2d",
+        "target": "dispkexyfo2d"
+    },
+    {
+        "source": "evs",
+        "target": "evs"
+    },
+    {
+        "source": "fgcfc11",
+        "target": "fgcfc11"
+    },
+    {
+        "source": "fgcfc12",
+        "target": "fgcfc12"
+    },
+    {
+        "source": "fgsf6",
+        "target": "fgsf6"
+    },
+    {
+        "source": "ficeberg2d",
         "target": "ficeberg2d"
     },
     {
-        "source": "sos",
-        "grid": "grid_T",
-        "target": "sos"
-    },
-    {
-        "source": "tossq",
-        "convert": "tossqfix",
-        "grid": "grid_T",
-        "target": "tossq"
-    },
-    {
-        "source": "sivelv",
-        "grid": "icemod",
-        "target": "siv"
-    },
-    {
-        "source": "zossq",
-        "grid": "grid_T",
-        "target": "zossq"
-    },
-    {
-        "source": "sithic",
-        "grid": "icemod",
-        "target": "sithick"
-    },
-    {
-        "source": "tos",
-        "grid": "grid_T",
-        "target": "tos"
-    },
-    {
-        "source": "scsaltot",
-        "grid": "scalar",
-        "target": "soga"
-    },
-    {
-        "source": "sivelu",
-        "grid": "icemod",
-        "target": "siu"
-    },
-    {
-        "source": "thetao",
-        "grid": "grid_T",
-        "target": "thetao"
-    },
-    {
-        "source": "siconc",
-        "grid": "icemod",
-        "target": "siconc"
+        "source": "flandice",
+        "target": "flandice"
     },
     {
         "source": "friver",
-        "grid": "grid_T",
         "target": "friver"
     },
     {
-        "source": "zos",
-        "grid": "grid_T",
-        "target": "zos"
+        "source": "fsitherm",
+        "target": "fsitherm"
     },
     {
-        "source": "vovematr",
-        "grid": "grid_W",
-        "target": "wmo"
+        "source": "hcont300",
+        "target": "hcont300"
     },
     {
-        "source": "scmastot",
-        "grid": "scalar",
+        "source": "hfbasin",
+        "target": "hfbasin"
+    },
+    {
+        "source": "hfbasinpmadv",
+        "target": "hfbasinpmadv"
+    },
+    {
+        "source": "hfds",
+        "target": "hfds"
+    },
+    {
+        "source": "hfevapds",
+        "target": "hfevapds"
+    },
+    {
+        "source": "hfgeou",
+        "target": "hfgeou"
+    },
+    {
+        "source": "hfibthermds2d",
+        "target": "hfibthermds2d"
+    },
+    {
+        "source": "hfrainds",
+        "target": "hfrainds"
+    },
+    {
+        "source": "hfrunoffds2d",
+        "target": "hfrunoffds2d"
+    },
+    {
+        "source": "hfsnthermds2d",
+        "target": "hfsnthermds2d"
+    },
+    {
+        "source": "hfx",
+        "target": "hfx"
+    },
+    {
+        "source": "hfy",
+        "target": "hfy"
+    },
+    {
+        "source": "htovgyre",
+        "target": "htovgyre"
+    },
+    {
+        "source": "htovovrt",
+        "target": "htovovrt"
+    },
+    {
+        "source": "masscello",
+        "target": "masscello"
+    },
+    {
+        "source": "masso",
         "target": "masso"
     },
     {
-        "source": "snthic",
-        "grid": "icemod",
-        "target": "sisnthick"
-    },
-    {
-        "source": "sfdsi",
-        "grid": "SBC",
-        "target": "sfdsi"
-    },
-    {
-        "source": "wo",
-        "grid": "grid_W",
-        "target": "wo"
-    },
-    {
-        "source": "qsr3d_e3t_SBC",
-        "grid": "grid_T",
-        "target": "rsdo"
-    },
-    {
-        "source": "sctemtot",
-        "grid": "scalar",
-        "target": "thetaoga"
-    },
-    {
-        "source": "vsfsit",
-        "grid": "SBC",
-        "target": "vsfsit"
-    },
-    {
-        "source": "tauvo",
-        "grid": "grid_V",
-        "target": "tauvo"
-    },
-    {
-        "source": "wfo",
-        "grid": "grid_T",
-        "target": "wfo"
-    },
-    {
-        "source": "zfull",
-        "grid": "grid_T",
-        "target": "zfullo"
+        "source": "mfo",
+        "target": "mfo"
     },
     {
         "source": "mlotst",
-        "grid": "grid_T",
         "target": "mlotst"
     },
     {
-        "source": "uo",
-        "grid": "grid_U",
-        "target": "uo"
+        "source": "mlotstmax",
+        "target": "mlotstmax"
     },
     {
-        "source": "tauuo",
-        "grid": "grid_U",
-        "target": "tauuo"
+        "source": "mlotstmin",
+        "target": "mlotstmin"
     },
     {
-        "source": "so",
-        "grid": "grid_T",
-        "target": "so"
+        "source": "mlotstsq",
+        "target": "mlotstsq"
     },
     {
-        "source": "rsntds",
-        "grid": "SBC",
-        "target": "rsntds"
+        "source": "msftbarot",
+        "target": "msftbarot"
+    },
+    {
+        "source": "msftyz",
+        "target": "msftyz"
+    },
+    {
+        "source": "obvfsq",
+        "target": "obvfsq"
+    },
+    {
+        "source": "ocontempdiff",
+        "target": "ocontempdiff"
+    },
+    {
+        "source": "ocontemppadvect",
+        "target": "ocontemppadvect"
+    },
+    {
+        "source": "ocontemppmdiff",
+        "target": "ocontemppmdiff"
+    },
+    {
+        "source": "ocontemprmadvect",
+        "target": "ocontemprmadvect"
+    },
+    {
+        "source": "ocontemptend",
+        "target": "ocontemptend"
+    },
+    {
+        "source": "omldamax",
+        "target": "omldamax"
+    },
+    {
+        "source": "osaltdiff",
+        "target": "osaltdiff"
+    },
+    {
+        "source": "osaltpadvect",
+        "target": "osaltpadvect"
+    },
+    {
+        "source": "osaltpmdiff",
+        "target": "osaltpmdiff"
+    },
+    {
+        "source": "osaltrmadvect",
+        "target": "osaltrmadvect"
+    },
+    {
+        "source": "osalttend",
+        "target": "osalttend"
     },
     {
         "source": "pbo",
-        "grid": "grid_T",
         "target": "pbo"
     },
     {
-        "source": "zhalf",
-        "grid": "grid_T",
-        "target": "zhalfo"
+        "source": "rsdo",
+        "target": "rsdo"
     },
     {
-        "source": "precip",
-        "grid": "grid_T",
-        "target": "sipr"
+        "source": "rsntds",
+        "target": "rsntds"
+    },
+    {
+        "source": "sf6",
+        "target": "sf6"
+    },
+    {
+        "source": "sfdsi",
+        "target": "sfdsi"
+    },
+    {
+        "source": "sftof",
+        "target": "sftof"
+    },
+    {
+        "source": "sltbasin",
+        "target": "sltbasin"
+    },
+    {
+        "source": "sltnortha",
+        "target": "sltnortha"
+    },
+    {
+        "source": "sltovgyre",
+        "target": "sltovgyre"
+    },
+    {
+        "source": "sltovovrt",
+        "target": "sltovovrt"
+    },
+    {
+        "source": "so",
+        "target": "so"
+    },
+    {
+        "source": "sob",
+        "target": "sob"
+    },
+    {
+        "source": "soga",
+        "target": "soga"
+    },
+    {
+        "source": "somint",
+        "target": "somint"
+    },
+    {
+        "source": "sos",
+        "target": "sos"
+    },
+    {
+        "source": "sosga",
+        "target": "sosga"
+    },
+    {
+        "source": "sossq",
+        "target": "sossq"
+    },
+    {
+        "source": "t20d",
+        "target": "t20d"
+    },
+    {
+        "source": "tauuo",
+        "target": "tauuo"
+    },
+    {
+        "source": "tauvo",
+        "target": "tauvo"
+    },
+    {
+        "source": "thetao",
+        "target": "thetao"
+    },
+    {
+        "source": "thetaoga",
+        "target": "thetaoga"
+    },
+    {
+        "source": "thetaot",
+        "target": "thetaot"
+    },
+    {
+        "source": "thetaot2000",
+        "target": "thetaot2000"
+    },
+    {
+        "source": "thetaot300",
+        "target": "thetaot300"
+    },
+    {
+        "source": "thetaot700",
+        "target": "thetaot700"
+    },
+    {
+        "source": "thkcello",
+        "target": "thkcello"
+    },
+    {
+        "source": "tnkebto2d",
+        "target": "tnkebto2d"
+    },
+    {
+        "source": "tnpeo",
+        "target": "tnpeo"
+    },
+    {
+        "source": "tob",
+        "target": "tob"
+    },
+    {
+        "source": "tomint",
+        "target": "tomint"
+    },
+    {
+        "source": "tos",
+        "target": "tos"
+    },
+    {
+        "source": "tosga",
+        "target": "tosga"
+    },
+    {
+        "source": "tossq",
+        "target": "tossq"
+    },
+    {
+        "source": "umo",
+        "target": "umo"
+    },
+    {
+        "source": "uo",
+        "target": "uo"
+    },
+    {
+        "source": "vmo",
+        "target": "vmo"
+    },
+    {
+        "source": "vo",
+        "target": "vo"
+    },
+    {
+        "source": "volo",
+        "target": "volo"
+    },
+    {
+        "source": "wfonocorr",
+        "target": "wfonocorr"
+    },
+    {
+        "source": "wmo",
+        "target": "wmo"
+    },
+    {
+        "source": "wo",
+        "target": "wo"
+    },
+    {
+        "source": "zos",
+        "target": "zos"
+    },
+    {
+        "source": "zossq",
+        "target": "zossq"
+    },
+    {
+        "source": "zostoga",
+        "target": "zostoga"
+    },
+    {
+        "source": "bfe",
+        "target": "bfe"
+    },
+    {
+        "source": "bfeos",
+        "target": "bfeos"
+    },
+    {
+        "source": "bsi",
+        "target": "bsi"
+    },
+    {
+        "source": "bsios",
+        "target": "bsios"
+    },
+    {
+        "source": "calc",
+        "target": "calc"
+    },
+    {
+        "source": "chl",
+        "target": "chl"
+    },
+    {
+        "source": "chldiat",
+        "target": "chldiat"
+    },
+    {
+        "source": "chldiatos",
+        "target": "chldiatos"
+    },
+    {
+        "source": "chlmisc",
+        "target": "chlmisc"
+    },
+    {
+        "source": "chlmiscos",
+        "target": "chlmiscos"
+    },
+    {
+        "source": "chlos",
+        "target": "chlos"
+    },
+    {
+        "source": "co3",
+        "target": "co3"
+    },
+    {
+        "source": "co3satcalc",
+        "target": "co3satcalc"
+    },
+    {
+        "source": "dcalc",
+        "target": "dcalc"
+    },
+    {
+        "source": "detoc",
+        "target": "detoc"
+    },
+    {
+        "source": "dfe",
+        "target": "dfe"
+    },
+    {
+        "source": "dfeos",
+        "target": "dfeos"
+    },
+    {
+        "source": "dissic",
+        "target": "dissic"
+    },
+    {
+        "source": "dissicos",
+        "target": "dissicos"
+    },
+    {
+        "source": "dissoc",
+        "target": "dissoc"
+    },
+    {
+        "source": "dpco2",
+        "target": "dpco2"
+    },
+    {
+        "source": "dpo2",
+        "target": "dpo2"
+    },
+    {
+        "source": "epc100",
+        "target": "epc100"
+    },
+    {
+        "source": "epcalc100",
+        "target": "epcalc100"
+    },
+    {
+        "source": "epfe100",
+        "target": "epfe100"
+    },
+    {
+        "source": "epsi100",
+        "target": "epsi100"
+    },
+    {
+        "source": "expc",
+        "target": "expc"
+    },
+    {
+        "source": "expcalc",
+        "target": "expcalc"
+    },
+    {
+        "source": "expfe",
+        "target": "expfe"
+    },
+    {
+        "source": "expsi",
+        "target": "expsi"
+    },
+    {
+        "source": "fbddtalk",
+        "target": "fbddtalk"
+    },
+    {
+        "source": "fbddtdic",
+        "target": "fbddtdic"
+    },
+    {
+        "source": "fbddtdife",
+        "target": "fbddtdife"
+    },
+    {
+        "source": "fbddtdin",
+        "target": "fbddtdin"
+    },
+    {
+        "source": "fbddtdip",
+        "target": "fbddtdip"
+    },
+    {
+        "source": "fbddtdisi",
+        "target": "fbddtdisi"
+    },
+    {
+        "source": "fgco2",
+        "target": "fgco2"
+    },
+    {
+        "source": "fgo2",
+        "target": "fgo2"
+    },
+    {
+        "source": "fric",
+        "target": "fric"
+    },
+    {
+        "source": "froc",
+        "target": "froc"
+    },
+    {
+        "source": "fsfe",
+        "target": "fsfe"
+    },
+    {
+        "source": "fsn",
+        "target": "fsn"
+    },
+    {
+        "source": "graz",
+        "target": "graz"
+    },
+    {
+        "source": "intdic",
+        "target": "intdic"
+    },
+    {
+        "source": "intpbfe",
+        "target": "intpbfe"
+    },
+    {
+        "source": "intpbsi",
+        "target": "intpbsi"
+    },
+    {
+        "source": "intpn2",
+        "target": "intpn2"
+    },
+    {
+        "source": "intpp",
+        "target": "intpp"
+    },
+    {
+        "source": "intppdiat",
+        "target": "intppdiat"
+    },
+    {
+        "source": "intppmisc",
+        "target": "intppmisc"
+    },
+    {
+        "source": "intppnitrate",
+        "target": "intppnitrate"
+    },
+    {
+        "source": "limfediat",
+        "target": "limfediat"
+    },
+    {
+        "source": "limfemisc",
+        "target": "limfemisc"
+    },
+    {
+        "source": "limirrdiat",
+        "target": "limirrdiat"
+    },
+    {
+        "source": "limirrmisc",
+        "target": "limirrmisc"
+    },
+    {
+        "source": "limndiat",
+        "target": "limndiat"
+    },
+    {
+        "source": "limnmisc",
+        "target": "limnmisc"
+    },
+    {
+        "source": "nh4",
+        "target": "nh4"
+    },
+    {
+        "source": "no3",
+        "target": "no3"
+    },
+    {
+        "source": "no3os",
+        "target": "no3os"
+    },
+    {
+        "source": "o2",
+        "target": "o2"
+    },
+    {
+        "source": "o2min",
+        "target": "o2min"
+    },
+    {
+        "source": "o2os",
+        "target": "o2os"
+    },
+    {
+        "source": "pbfe",
+        "target": "pbfe"
+    },
+    {
+        "source": "pbsi",
+        "target": "pbsi"
+    },
+    {
+        "source": "pcalc",
+        "target": "pcalc"
+    },
+    {
+        "source": "pdi",
+        "target": "pdi"
+    },
+    {
+        "source": "ph",
+        "target": "ph"
+    },
+    {
+        "source": "phyc",
+        "target": "phyc"
+    },
+    {
+        "source": "phycos",
+        "target": "phycos"
+    },
+    {
+        "source": "phydiat",
+        "target": "phydiat"
+    },
+    {
+        "source": "phyfe",
+        "target": "phyfe"
+    },
+    {
+        "source": "phyfeos",
+        "target": "phyfeos"
+    },
+    {
+        "source": "phymisc",
+        "target": "phymisc"
+    },
+    {
+        "source": "physi",
+        "target": "physi"
+    },
+    {
+        "source": "physios",
+        "target": "physios"
+    },
+    {
+        "source": "pnitrate",
+        "target": "pnitrate"
+    },
+    {
+        "source": "po4",
+        "target": "po4"
+    },
+    {
+        "source": "poc",
+        "target": "poc"
+    },
+    {
+        "source": "pocos",
+        "target": "pocos"
+    },
+    {
+        "source": "pp",
+        "target": "pp"
+    },
+    {
+        "source": "ppdiat",
+        "target": "ppdiat"
+    },
+    {
+        "source": "ppmisc",
+        "target": "ppmisc"
+    },
+    {
+        "source": "remoc",
+        "target": "remoc"
+    },
+    {
+        "source": "si",
+        "target": "si"
+    },
+    {
+        "source": "sios",
+        "target": "sios"
+    },
+    {
+        "source": "spco2",
+        "target": "spco2"
+    },
+    {
+        "source": "talk",
+        "target": "talk"
+    },
+    {
+        "source": "zmeso",
+        "target": "zmeso"
+    },
+    {
+        "source": "zmicro",
+        "target": "zmicro"
+    },
+    {
+        "source": "zo2min",
+        "target": "zo2min"
+    },
+    {
+        "source": "zooc",
+        "target": "zooc"
+    },
+    {
+        "source": "siage",
+        "target": "siage"
+    },
+    {
+        "source": "siareaacrossline",
+        "target": "siareaacrossline"
+    },
+    {
+        "source": "siarean",
+        "target": "siarean"
+    },
+    {
+        "source": "siareas",
+        "target": "siareas"
+    },
+    {
+        "source": "sicompstren",
+        "target": "sicompstren"
+    },
+    {
+        "source": "siconc",
+        "target": "siconc"
+    },
+    {
+        "source": "sidconcdyn",
+        "target": "sidconcdyn"
+    },
+    {
+        "source": "sidconcth",
+        "target": "sidconcth"
+    },
+    {
+        "source": "sidivvel",
+        "target": "sidivvel"
+    },
+    {
+        "source": "sidmassdyn",
+        "target": "sidmassdyn"
+    },
+    {
+        "source": "sidmassevapsubl",
+        "target": "sidmassevapsubl"
+    },
+    {
+        "source": "sidmassgrowthbot",
+        "target": "sidmassgrowthbot"
+    },
+    {
+        "source": "sidmassgrowthwat",
+        "target": "sidmassgrowthwat"
+    },
+    {
+        "source": "sidmassmeltbot",
+        "target": "sidmassmeltbot"
+    },
+    {
+        "source": "sidmassmelttop",
+        "target": "sidmassmelttop"
+    },
+    {
+        "source": "sidmasssi",
+        "target": "sidmasssi"
+    },
+    {
+        "source": "sidmassth",
+        "target": "sidmassth"
+    },
+    {
+        "source": "sidmasstranx",
+        "target": "sidmasstranx"
+    },
+    {
+        "source": "sidmasstrany",
+        "target": "sidmasstrany"
+    },
+    {
+        "source": "siextentn",
+        "target": "siextentn"
+    },
+    {
+        "source": "siextents",
+        "target": "siextents"
+    },
+    {
+        "source": "sifb",
+        "target": "sifb"
+    },
+    {
+        "source": "siflcondbot",
+        "target": "siflcondbot"
+    },
+    {
+        "source": "siflcondtop",
+        "target": "siflcondtop"
+    },
+    {
+        "source": "siflfwbot",
+        "target": "siflfwbot"
+    },
+    {
+        "source": "siflfwdrain",
+        "target": "siflfwdrain"
+    },
+    {
+        "source": "siflsaltbot",
+        "target": "siflsaltbot"
+    },
+    {
+        "source": "siflsensupbot",
+        "target": "siflsensupbot"
+    },
+    {
+        "source": "siforcecoriolx",
+        "target": "siforcecoriolx"
+    },
+    {
+        "source": "siforcecorioly",
+        "target": "siforcecorioly"
+    },
+    {
+        "source": "siforceintstrx",
+        "target": "siforceintstrx"
+    },
+    {
+        "source": "siforceintstry",
+        "target": "siforceintstry"
+    },
+    {
+        "source": "siforcetiltx",
+        "target": "siforcetiltx"
+    },
+    {
+        "source": "siforcetilty",
+        "target": "siforcetilty"
+    },
+    {
+        "source": "sihc",
+        "target": "sihc"
+    },
+    {
+        "source": "siitdconc",
+        "target": "siitdconc"
+    },
+    {
+        "source": "siitdsnthick",
+        "target": "siitdsnthick"
+    },
+    {
+        "source": "siitdthick",
+        "target": "siitdthick"
+    },
+    {
+        "source": "simass",
+        "target": "simass"
+    },
+    {
+        "source": "simassacrossline",
+        "target": "simassacrossline"
+    },
+    {
+        "source": "sisali",
+        "target": "sisali"
+    },
+    {
+        "source": "sisaltmass",
+        "target": "sisaltmass"
+    },
+    {
+        "source": "sishevel",
+        "target": "sishevel"
+    },
+    {
+        "source": "sisnhc",
+        "target": "sisnhc"
+    },
+    {
+        "source": "sisnmass",
+        "target": "sisnmass"
+    },
+    {
+        "source": "sisnthick",
+        "target": "sisnthick"
+    },
+    {
+        "source": "sispeed",
+        "target": "sispeed"
+    },
+    {
+        "source": "sistremax",
+        "target": "sistremax"
+    },
+    {
+        "source": "sistresave",
+        "target": "sistresave"
+    },
+    {
+        "source": "sistrxdtop",
+        "target": "sistrxdtop"
+    },
+    {
+        "source": "sistrxubot",
+        "target": "sistrxubot"
+    },
+    {
+        "source": "sistrydtop",
+        "target": "sistrydtop"
+    },
+    {
+        "source": "sistryubot",
+        "target": "sistryubot"
+    },
+    {
+        "source": "sitempbot",
+        "target": "sitempbot"
+    },
+    {
+        "source": "sitempsnic",
+        "target": "sitempsnic"
+    },
+    {
+        "source": "sitemptop",
+        "target": "sitemptop"
+    },
+    {
+        "source": "sithick",
+        "target": "sithick"
+    },
+    {
+        "source": "sitimefrac",
+        "target": "sitimefrac"
+    },
+    {
+        "source": "siu",
+        "target": "siu"
+    },
+    {
+        "source": "siv",
+        "target": "siv"
+    },
+    {
+        "source": "sivol",
+        "target": "sivol"
+    },
+    {
+        "source": "sivoln",
+        "target": "sivoln"
+    },
+    {
+        "source": "sivols",
+        "target": "sivols"
+    },
+    {
+        "source": "sndmassdyn",
+        "target": "sndmassdyn"
+    },
+    {
+        "source": "sndmassmelt",
+        "target": "sndmassmelt"
+    },
+    {
+        "source": "sndmasssi",
+        "target": "sndmasssi"
+    },
+    {
+        "source": "sndmasssnf",
+        "target": "sndmasssnf"
+    },
+    {
+        "source": "sndmasssubl",
+        "target": "sndmasssubl"
+    },
+    {
+        "source": "snmassacrossline",
+        "target": "snmassacrossline"
     }
 ]
