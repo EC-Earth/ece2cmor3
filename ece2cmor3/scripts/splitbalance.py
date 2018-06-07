@@ -59,7 +59,7 @@ def write_varlist(tasklist,ofile):
         json.dump(d,output,indent = 4,separators = (',', ': '))
 
 def splitvars(varlist,ngroups,modlevs,tabid):
-    ece2cmorlib.initialize(tableprefix = tabid)
+    ece2cmorlib.initialize_without_cmor(tableprefix = tabid)
     taskloader.load_targets(varlist)
     fname = os.path.splitext(os.path.basename(varlist))[0]
     taskgroups = balance_tasks(ece2cmorlib.tasks,ngroups,modlevs)

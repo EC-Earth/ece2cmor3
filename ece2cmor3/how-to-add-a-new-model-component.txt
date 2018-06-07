@@ -1,0 +1,8 @@
+Some starting guide lines about how to add a new model component to ece2cmor3. Like
+for instance adding a TM5 component or LPJ-GUESS component.
+
+It starts with adding a few lines in the file (see the commented template lines with "NEWCOMPONENT"):
+ ece2cmor3/ece2cmor.py
+And by adding a function which will take care of all the tasks (see the commented template lines with 
+"NEWCOMPONENT") in the file:
+ ece2cmor3/ece2cmorlib.py

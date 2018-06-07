@@ -3,7 +3,7 @@ import re
 import json
 import datetime
 import logging
-import cmor_utils
+from ece2cmor3 import cmor_utils
 
 # Logger instance.
 log = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class cmor_source(object):
     def grid(self):
         pass
 
-    def realm(self):
+    def model_component(self):
         pass
 
 # ECMWF grib code object
@@ -75,7 +75,9 @@ class ifs_source(cmor_source):
     grib_codes_2D_phy = read_grib_codes_group(grib_codes_file,"MFPPHY")
     grib_codes_extra = read_grib_codes_group(grib_codes_file,"NVEXTRAGB")
     grib_codes_sh = read_grib_codes_group(grib_codes_file,"ICMSH")
-    grib_codes_accum = read_grib_codes_group(grib_codes_file,"ACCUMFLD") # Includes min/max over previous intervals
+    grib_codes_accum = read_grib_codes_group(grib_codes_file,"ACCUMFLD")
+    grib_codes_min = read_grib_codes_group(grib_codes_file,"MINFLD")
+    grib_codes_max = read_grib_codes_group(grib_codes_file,"MAXFLD")
     grib_codes = grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
 
     # Constructor.
@@ -96,6 +98,10 @@ class ifs_source(cmor_source):
     # Returns the grid.
     def grid(self):
         return ifs_grid[self.grid_] if self.grid_ >= 0 else None
+
+    # Returns the model component.
+    def model_component(self):
+        return "ifs"
 
     # Returns the grid id.
     def grid_id(self):
@@ -128,7 +134,11 @@ class ifs_source(cmor_source):
                 raise Exception("Unable to read grib codes from expression",s)
             else:
                 newcode = grib_code(int(varstrs[0][3:]),128)
-                incodes = list(set(map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])))
+                gclist = map(lambda x:grib_code(int(x[3:]),128),varstrs[1:])
+                incodes = []
+                for c in gclist:
+                    if c not in incodes:
+                        incodes.append(c)
                 cls = ifs_source(None)
                 if(s.replace(" ","") != "var134=exp(var152)"):
                     if(newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra)):
@@ -173,6 +183,10 @@ class nemo_source(cmor_source):
 
     def grid(self):
         return nemo_grid[self.grid_]
+
+    # Returns the model component.
+    def model_component(self):
+        return "nemo"
 
     def var(self):
         return self.var_id

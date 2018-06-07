@@ -13,7 +13,7 @@
         "huss",
         "mrsos",
         "tslsi",
-        "tso",
+        "tos",
         "prc",
         "prsn",
         "mrro",
@@ -138,6 +138,7 @@
         "wap4"
     ],
     "Eday": [
+        "mrsol",
         "tauu",
         "tauv",
         "snw",
@@ -153,6 +154,7 @@
         "ps"
     ],
     "Emon": [
+        "mrsol",
         "ta27",
         "ua27",
         "va27",
@@ -211,7 +213,6 @@
         "mrros",
         "mrro",
         "evspsblsoi",
-        "mrlsl",
         "tsl"
     ],
     "LImon": [
@@ -227,7 +228,6 @@
     "6hrPlevPt": [
         "hus27",
         "huss",
-        "mrlsl",
         "mrsos",
         "psl",
         "sfcWind",

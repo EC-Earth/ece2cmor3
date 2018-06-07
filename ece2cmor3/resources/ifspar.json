@@ -1,9 +1,5 @@
 [
     {
-        "source": "3.128",
-        "target": "thetapv2"
-    },
-    {
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros",
@@ -17,11 +13,11 @@
     },
     {
         "source": "31.128",
-        "target": "ci"
+        "target": "siconca"
     },
     {
         "source": "34.128",
-        "target": "tso"
+        "target": "tos"
     },
     {
         "source": "43.128",
@@ -36,193 +32,54 @@
     },
     {
         "source": "45.128",
-        "target": "snm",
+        "target": [
+            "snm",
+            "snmIs"
+        ],
         "convert": "vol2flux",
         "masked": "land"
+    },
+    {
+        "source": "49.128",
+        "target": [
+            "wsgmax10m"
+        ]
     },
     {
         "source": "54.128",
         "target": "pfull"
     },
     {
+        "source": "78.128",
+        "target": "lwp"
+    },
+    {
         "source": "79.128",
         "target": "clivi"
     },
     {
-        "source": "80.128",
-        "target": [
-            "hurs",
-            "hursmin",
-            "hursmax"
-        ],
-        "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
-    },
-    {
-        "source": "81.128",
-        "target": "huss",
-        "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))"
-    },
-    {
         "source": "95.128",
-        "convert": "cum2inst",
-        "target": [
-          "rsus",
-          "rsuscs"
-        ],
-        "expr": "var95=var169-var176"
-    },
-    {
-        "source": "96.128",
-        "convert": "cum2inst",
-        "target": [
-          "rlus",
-          "rluscs"
-        ],
-        "expr": "var96=var175-var177"
-    },
-    {
-        "source": "97.128",
-        "convert": "cum2inst",
-        "target": "rsut",
-        "expr": "var97=var212-var178"
-    },
-    {
-        "source": "99.128",
-        "target": "mrsos",
-        "expr": "var99=70*var39+30*var40",
-        "masked": "land"
-    },
-    {
-        "source": "100.128",
-        "target": "ut",
-        "expr": "var100=var131*var130"
-    },
-    {
-        "source": "101.128",
-        "target": "vt",
-        "expr": "var101=var132*var130"
-    },
-    {
-        "source": "102.128",
-        "convert": "cum2inst",
-        "target": "rsdscs",
-        "expr": "var102=var210-var176+var169"
-    },
-    {
-        "source": "103.128",
-        "convert": "cum2inst",
-        "target": "rsutcs",
-        "expr": "var103=var212-var208"
-    },
-    {
-        "source": "104.128",
-        "convert": "cum2inst",
-        "target": "rldscs",
-        "expr": "var104=var211-var177+var175"
+        "target": "tntr"
     },
     {
         "source": "105.128",
-        "convert": "cum2inst",
-        "target": "rlut",
-        "expr": "var105=-var179"
+        "target": "tntc"
     },
     {
         "source": "106.128",
-        "convert": "cum2inst",
-        "target": "rlutcs",
-        "expr": "var106=-var209"
-    },
-    {
-        "source": "107.128",
-        "target": "u2",
-        "expr": "var107=var131*var131"
-    },
-    {
-        "source": "108.128",
-        "target": "v2",
-        "expr": "var108=var132*var132"
-    },
-    {
-        "source": "109.128",
-        "target": "uv",
-        "expr": "var109=var131*var132"
-    },
-    {
-        "source": "110.128",
-        "target": "t2",
-        "expr": "var110=var130*var130"
-    },
-    {
-        "source": "111.128",
-        "target": "uwap",
-        "expr": "var111=var131*var135"
-    },
-    {
-        "source": "112.128",
-        "target": "vwap",
-        "expr": "var112=var132*var135"
-    },
-    {
-        "source": "113.128",
-        "target": "twap",
-        "expr": "var113=var130*var135"
-    },
-    {
-        "source": "114.128",
-        "target": "evspsblsoi",
-        "expr": "var114=var182-var44",
-        "convert": "vol2flux",
-        "masked": "land"
-    },
-    {
-        "source": "115.128",
-        "target": "snd",
-        "expr": "var115=1000*var141/var33"
-    },
-    {
-        "source": "116.128",
-        "target": "clwvi",
-        "expr": "var116=var78+var79"
-    },
-    {
-        "source": "117.128",
-        "target": "tsl",
-        "expr": "var117=merge(var139,var170,var183,var236)",
-        "masked": "land"
-    },
-    {
-        "source": "118.128",
-        "target": "mrlsl",
-        "expr": "var118=merge(70*var39,210*var40,720*var41,1890*var42)",
-        "masked": "land"
-    },
-    {
-        "source": "119.128",
-        "target": "snc",
-        "expr": "var119=100*(var141>0)"
-    },
-    {
-        "source": "120.128",
-        "target": "hfdsn",
-        "expr": "var120=(var141>0)*(var146+var147)",
-        "convert": "cum2inst"
-    },
-    {
-        "source": "121.128",
-        "target": "mrlsl",
-        "table": "6hrPlevPt",
-        "expr": "var118=70*var39",
-        "masked": "land"
+        "target": "tnhusc"
     },
     {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
-          "zg",
-          "zg7h",
-          "zg27",
-          "zg1000",
-          "orog"
+            "zg",
+            "zg7h",
+            "zg27",
+            "zg500",
+            "zg1000",
+            "orog",
+            "orogIs"
         ]
     },
     {
@@ -240,12 +97,8 @@
         "source": "131.128",
         "target": [
             "ua",
-            "ua4",
-            "ua7c",
             "ua7h",
             "ua27",
-            "ua200",
-            "ua850",
             "ua100m"
         ]
     },
@@ -253,12 +106,8 @@
         "source": "132.128",
         "target": [
             "va",
-            "va4",
-            "va7c",
             "va7h",
             "va27",
-            "va200",
-            "va850",
             "va100m"
         ]
     },
@@ -267,7 +116,6 @@
         "target": [
             "hus",
             "hus4",
-            "hus7c",
             "hus7h",
             "hus27",
             "hus850"
@@ -293,14 +141,16 @@
     {
         "source": "138.128",
         "target": [
-            "rv",
             "rv850",
             "vortmean"
         ]
     },
     {
         "source": "139.128",
-        "target": "ts"
+        "target": [
+            "ts",
+            "tsIs"
+        ]
     },
     {
         "source": "139.128",
@@ -325,17 +175,26 @@
     {
         "source": "144.128",
         "convert": "vol2flux",
-        "target": "prsn"
+        "target": [
+            "prsn",
+            "prsnIs"
+        ]
     },
     {
         "source": "146.128",
         "convert": "cum2inst",
-        "target": "hfss"
+        "target": [
+            "hfss",
+            "hfssIs"
+        ]
     },
     {
         "source": "147.128",
         "convert": "cum2inst",
-        "target": "hfls"
+        "target": [
+            "hfls",
+            "hflsIs"
+        ]
     },
     {
         "source": "151.128",
@@ -344,6 +203,10 @@
     {
         "source": "157.128",
         "target": "hur"
+    },
+    {
+        "source": "159.128",
+        "target": "zmla"
     },
     {
         "source": "164.128",
@@ -360,7 +223,10 @@
     },
     {
         "source": "167.128",
-        "target": "tas"
+        "target": [
+            "tas",
+            "tasIs"
+        ]
     },
     {
         "source": "168.128",
@@ -369,12 +235,31 @@
     {
         "source": "169.128",
         "convert": "cum2inst",
-        "target": "rsds"
+        "target": [
+            "rsds",
+            "rsdsIs"
+        ]
     },
     {
         "source": "175.128",
         "convert": "cum2inst",
-        "target": "rlds"
+        "target": [
+            "rlds",
+            "rldsIs"
+        ]
+    },
+    {
+        "source": "176.128",
+        "target": "rss"
+    },
+    {
+        "source": "177.128",
+        "target": "rls"
+    },
+    {
+        "source": "179.128",
+        "convert": "cum2inst",
+        "target": "rlut"
     },
     {
         "source": "180.128",
@@ -389,7 +274,15 @@
     {
         "source": "182.128",
         "convert": "vol2flux",
-        "target": "evspsbl"
+        "target": [
+            "evspsbl",
+            "sblIs"
+        ]
+    },
+    {
+        "source": "185.128",
+        "convert": "frac2percent",
+        "target": "cltc"
     },
     {
         "source": "201.128",
@@ -402,15 +295,22 @@
     {
         "source": "205.128",
         "convert": "vol2flux",
-        "target": "mrro",
+        "target": [
+            "mrro",
+            "mrroIs"
+        ],
         "masked": "land"
+    },
+    {
+        "source": "209.128",
+        "convert": "cum2inst",
+        "target": "rlutcs"
     },
     {
         "source": "212.128",
         "convert": "cum2inst",
         "target": [
-          "rsdt",
-          "rsdtcs"
+          "rsdt"
         ]
     },
     {
@@ -435,12 +335,9 @@
         "source": "238.128",
         "target": [
           "tsn",
-          "tsns"
+          "tsns",
+          "tsnIs"
         ]
-    },
-    {
-        "source": "243.128",
-        "target": "al"
     },
     {
         "source": "246.128",
@@ -456,11 +353,190 @@
         "convert": "frac2percent"
     },
     {
+        "source": "80.129",
+        "target": [
+            "hurs",
+            "hursmin",
+            "hursmax"
+        ],
+        "expr": "var80=100.*exp(17.62*((var168-273.15)/(var168-30.03)-(var167-273.15)/(var167-30.03)))"
+    },
+    {
+        "source": "81.129",
+        "target": "huss",
+        "expr": "var81=1./(1.+1.608*(var134*exp(-17.62*(var168-273.15)/(var168-30.03))/611.-1.))"
+    },
+    {
+        "source": "95.129",
+        "convert": "cum2inst",
+        "target": [
+          "rsus",
+          "rsuscs",
+          "rsusIs"
+        ],
+        "expr": "var95=var176-var169"
+    },
+    {
+        "source": "96.129",
+        "convert": "cum2inst",
+        "target": [
+          "rlus",
+          "rlusIs"
+        ],
+        "expr": "var96=var177-var175"
+    },
+    {
+        "source": "97.129",
+        "convert": "cum2inst",
+        "target": "rsut",
+        "expr": "var97=var178-var212"
+    },
+    {
+        "source": "98.129",
+        "convert": "cum2inst",
+        "target": "rtmt",
+        "expr": "var98=var178+var179"
+    },
+    {
+        "source": "99.129",
+        "target": "mrsos",
+        "expr": "var99=70*var39+30*var40",
+        "masked": "land"
+    },
+    {
+        "source": "100.129",
+        "target": "ut",
+        "expr": "var100=var131*var130"
+    },
+    {
+        "source": "101.129",
+        "target": "vt",
+        "expr": "var101=var132*var130"
+    },
+    {
+        "source": "102.129",
+        "convert": "cum2inst",
+        "target": "rsdscs",
+        "expr": "var102=var210-var176+var169"
+    },
+    {
+        "source": "103.129",
+        "convert": "cum2inst",
+        "target": "rsutcs",
+        "expr": "var103=var208-var212"
+    },
+    {
+        "source": "104.129",
+        "convert": "cum2inst",
+        "target": "rldscs",
+        "expr": "var104=var211-var177+var175"
+    },
+    {
+        "source": "107.129",
+        "target": "u2",
+        "expr": "var107=var131*var131"
+    },
+    {
+        "source": "108.129",
+        "target": "v2",
+        "expr": "var108=var132*var132"
+    },
+    {
+        "source": "109.129",
+        "target": "uv",
+        "expr": "var109=var131*var132"
+    },
+    {
+        "source": "110.129",
+        "target": "t2",
+        "expr": "var110=var130*var130"
+    },
+    {
+        "source": "111.129",
+        "target": "uwap",
+        "expr": "var111=var131*var135"
+    },
+    {
+        "source": "112.129",
+        "target": "vwap",
+        "expr": "var112=var132*var135"
+    },
+    {
+        "source": "113.129",
+        "target": "twap",
+        "expr": "var113=var130*var135"
+    },
+    {
+        "source": "114.129",
+        "target": "evspsblsoi",
+        "expr": "var114=var182-var44",
+        "convert": "vol2flux",
+        "masked": "land"
+    },
+    {
+        "source": "115.129",
+        "target": "snd",
+        "expr": "var115=1000*var141/var33"
+    },
+    {
+        "source": "116.129",
+        "target": "clwvi",
+        "expr": "var116=var78+var79"
+    },
+    {
+        "source": "117.129",
+        "target": "tsl",
+        "expr": "var117=merge(var139,var170,var183,var236)",
+        "masked": "land"
+    },
+    {
+        "source": "118.129",
+        "target": "mrsol",
+        "expr": "var118=merge(70*var39,210*var40,720*var41,1890*var42)",
+        "masked": "land"
+    },
+    {
+        "source": "119.129",
+        "target": "snc",
+        "expr": "var119=100*(var141>0)"
+    },
+    {
+        "source": "120.129",
+        "target": "hfdsn",
+        "expr": "var120=(var141>0)*(var146+var147+var176+var177)",
+        "convert": "cum2inst"
+    },
+    {
+        "source": "122.129",
+        "target": "prraIs",
+        "expr": "var122=var142+var143-var144"
+    },
+    {
+        "source": "123.129",
+        "target": "wa",
+        "expr": "var123=-287*var130*(1+0.61*var133)*var135/(9.81*var54)"
+    },
+    {
+        "source": "124.129",
+        "target": "tnhus",
+        "expr": "var124=var94+var99+var106+var110"
+    },
+    {
+        "source": "125.129",
+        "target": "tnhusmp",
+        "expr": "var125=var99+var106+var110"
+    },
+    {
+        "source": "126.129",
+        "target": "prra",
+        "expr": "var126=var142+var143-var144"
+    },
+    {
         "mask": "land",
         "expr": "var172>0.5"
     },
     {
         "mask": "sea",
-        "expr": "var172<0.5"
+        "expr": "var172<=0.5"
     }
 ]

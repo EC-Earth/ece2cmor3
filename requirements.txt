@@ -1,6 +1,6 @@
-cdo==1.3.3
+cdo==1.7.0
 # Compile cmor source and run python setup.py install
-# CMOR==3.2.8
+# CMOR==3.3.2
 f90nml==0.20
 netCDF4==1.2.7
 nose==1.3.7
