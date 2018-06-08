@@ -49,6 +49,8 @@ def main(args=None):
                         help="Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action="store_true", default=False,
                         help="Run ece2cmor3 exclusively for ocean data")
+    parser.add_argument("-v", "--veg", action="store_true", default=False,
+                      help="Run ece2cmor3 exclusively for LPJ-Guess data")
 #   parser.add_argument("-NEWCOMPONENT", "--NEWCOMPONENT", action="store_true", default=False,
 #                      help="Run ece2cmor3 exclusively for ocean data")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
@@ -59,6 +61,9 @@ def main(args=None):
     parser.add_argument("--nemopar", metavar="FILE.json", type=str,
                         default=taskloader.models["nemo"][taskloader.parfile_key],
                         help="Nemo parameter file (optional")
+    parser.add_argument("--lpjgpar", metavar="FILE.json", type=str,
+                        default=taskloader.models["lpjg"][taskloader.parfile_key],
+                        help="LPJ-Guess parameter file (optional")
 
     args = parser.parse_args()
 
@@ -70,13 +75,20 @@ def main(args=None):
     ece2cmorlib.auto_filter = args.filter
 
     # Fix conflicting flags
-    procatmos, prococean = not args.oce, not args.atm
-    if not procatmos and not prococean:
-        procatmos, prococean = True, True
+    # The following fix is hopefully clear and more easily adapted than the original as more component data is added
+    if sum([args.oce, args.atm, args.veg]) != 1:
+        procatmos, prococean, proclpjg = True, True, True
+    else:
+        procatmos = args.atm
+        prococean = args.oce
+        proclpjg = args.veg
+#    procatmos, prococean = not args.oce, not args.atm
+#    if not procatmos and not prococean:
+#        procatmos, prococean = True, True
 
     # Load the variables as task targets:
-    taskloader.load_parameter_tables(ifs=args.ifspar, nemo=args.nemopar)
-    taskloader.load_targets(args.vars, load_atm_tasks=procatmos, load_oce_tasks=prococean)
+    taskloader.load_parameter_tables(ifs=args.ifspar, nemo=args.nemopar, lpjg=args.lpjgpar)
+    taskloader.load_targets(args.vars, load_atm_tasks=procatmos, load_oce_tasks=prococean, load_lpjg_tasks=proclpjg)
 
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months=1)
@@ -91,12 +103,11 @@ def main(args=None):
                                       maxsizegb=args.tmpsize)
     if prococean:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
+    if proclpjg:
+        ece2cmorlib.perform_lpjg_tasks(args.datadir, args.exp, startdate, length)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
-
-    #if(proclpjg):
-    #    ece2cmorlib.perform_lpjg_tasks(args.datadir,args.exp,startdate,length)
-    
+   
     ece2cmorlib.finalize()
 
 
