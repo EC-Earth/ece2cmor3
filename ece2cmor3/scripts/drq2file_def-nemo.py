@@ -12,11 +12,15 @@ import sys                                                    # for aborting: sy
 from os.path import expanduser
 import argparse
 import logging
+import re                                                     # for regular expressions
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils
 
-basic_file_def_file_name = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
-file_def_file_name       = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
+basic_file_def_file_name  = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+file_def_file_name        = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
+file_def_opa_file_name    = "./xios-nemo-file_def-files/file_def_nemo-opa.xml"
+file_def_lim_file_name    = "./xios-nemo-file_def-files/file_def_nemo-lim.xml"
+file_def_pisces_file_name = "./xios-nemo-file_def-files/file_def_nemo-pisces.xml"
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
@@ -56,7 +60,7 @@ def main():
 
     tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
     root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-    field_elements_basic_file_def   = root_basic_file_def[0][:]
+   #field_elements_basic_file_def   = root_basic_file_def[0][:]
 
     count = 0
     for field in root_basic_file_def.findall('.//field[@id]'):
@@ -72,6 +76,56 @@ def main():
     tree_basic_file_def.write(file_def_file_name)
 
     print ' The number of variables which is enabled in', file_def_file_name, ' is', count
+
+
+    # SPLIT THE FILE_DEF FILE IN THREE FILE_DEF FILES FOR OPA, LIM AND PISCES:
+
+    # FILE_DEF FILE FOR OPA:
+    tree_opa = xmltree.parse(file_def_file_name)
+    root_opa = tree_opa.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_opa.findall('./file_group/file'):
+     # Get the model component info from this attribute by  using a regular expression:
+     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     if model_component == 'lim' or model_component == 'pisces':
+     #print ' Remove file for opa file_def:', file_element.attrib["id"], model_component
+      # Remove this file element from its parent element the file_group element:
+      root_opa[0].remove(file_element)
+
+    root_opa[0].attrib["id"] = "id_file_group_opa"
+    tree_opa.write(file_def_opa_file_name)
+
+
+    # FILE_DEF FILE FOR LIM:
+    tree_lim = xmltree.parse(file_def_file_name)
+    root_lim = tree_lim.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_lim.findall('./file_group/file'):
+     # Get the model component info from this attribute by  using a regular expression:
+     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     if model_component == 'opa' or model_component == 'pisces':
+     #print ' Remove file for lim file_def:', file_element.attrib["id"], model_component
+      # Remove this file element from its parent element the file_group element:
+      root_lim[0].remove(file_element)
+
+    root_lim[0].attrib["id"] = "id_file_group_lim"
+    tree_lim.write(file_def_lim_file_name)
+
+
+    # FILE_DEF FILE FOR PISCES:
+    tree_pisces = xmltree.parse(file_def_file_name)
+    root_pisces = tree_pisces.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_pisces.findall('./file_group/file'):
+     # Get the model component info from this attribute by  using a regular expression:
+     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     if model_component == 'opa' or model_component == 'lim':
+     #print ' Remove file for pisces file_def:', file_element.attrib["id"], model_component
+      # Remove this file element from its parent element the file_group element:
+      root_pisces[0].remove(file_element)
+
+    root_pisces[0].attrib["id"] = "id_file_group_pisces"
+    tree_pisces.write(file_def_pisces_file_name)
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()
