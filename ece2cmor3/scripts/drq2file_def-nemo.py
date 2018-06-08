@@ -19,7 +19,7 @@ from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_ut
 basic_file_def_file_name  = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
 file_def_file_name        = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
 file_def_opa_file_name    = "./xios-nemo-file_def-files/file_def_nemo-opa.xml"
-file_def_lim_file_name    = "./xios-nemo-file_def-files/file_def_nemo-lim.xml"
+file_def_lim_file_name    = "./xios-nemo-file_def-files/file_def_nemo-lim3.xml"
 file_def_pisces_file_name = "./xios-nemo-file_def-files/file_def_nemo-pisces.xml"
 
 # Logging configuration
