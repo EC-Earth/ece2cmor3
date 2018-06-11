@@ -6,3 +6,5 @@ It starts with adding a few lines in the file (see the commented template lines 
 And by adding a function which will take care of all the tasks (see the commented template lines with 
 "NEWCOMPONENT") in the file:
  ece2cmor3/ece2cmorlib.py
+
+Further there have to be made model component specific chages to the taskloader.py.
