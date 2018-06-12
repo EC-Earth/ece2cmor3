@@ -2,22 +2,17 @@ import json
 import logging
 import os
 
+from ece2cmor3 import components
 from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 
 log = logging.getLogger(__name__)
 
-parfile_key = "parfile"
 json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
 json_grid_key = "grid"
 json_mask_key = "mask"
 json_masked_key = "masked"
-
-models = {"ifs": {"realms": ["atmos", "atmosChem", "land", "landIce"],
-                  parfile_key: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json")},
-          "nemo": {"realms": ["ocean", "ocnBgChem", "seaIce"],
-                   parfile_key: os.path.join(os.path.dirname(__file__), "resources", "nemopar.json")}}
 
 omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
                                  "list-of-omitted-variables-01.xlsx")
@@ -45,16 +40,8 @@ mask_predicates = {"=": lambda x, a: x == a,
 skip_tables = False
 
 
-# Replaces default parameter tables
-def load_parameter_tables(**kwargs):
-    global models
-    for key in kwargs:
-        if key in models:
-            models[key][parfile_key] = kwargs[key]
-
-
 # API function: loads the argument list of targets
-def load_targets(varlist, load_atm_tasks=True, load_oce_tasks=True, silent=False):
+def load_targets(varlist, active_components={}, silent=False):
     global log
     targetlist = []
     if isinstance(varlist, basestring):
@@ -81,7 +68,7 @@ def load_targets(varlist, load_atm_tasks=True, load_oce_tasks=True, silent=False
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
     log.info("Found %d cmor target variables in input variable list." % len(targetlist))
-    return create_tasks(targetlist, load_atm_tasks, load_oce_tasks, silent)
+    return create_tasks(targetlist, active_components, silent)
 
 
 # Loads a json file containing the cmor targets.
@@ -209,25 +196,20 @@ def load_checkvars_excel(basic_ignored_excel_file):
 
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
-def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False):
-    global log, ignored_vars_file, json_table_key, models, skip_tables
-    modelflags = {"ifs": load_atm_tasks, "nemo": load_oce_tasks}
-
-    realmflags = {}
-    for m in models:
-        flag = modelflags.get(m, True)
-        for r in models[m]["realms"]:
-            curval = realmflags.get(r, False)
-            realmflags[r] = flag or curval  # True if any model can produce the realm
-
-    params = {}
-    for model in models:
-        paramfile = models.get(model, {}).get(parfile_key, "")
-        if os.path.isfile(paramfile):
-            with open(paramfile) as f:
-                params[model] = json.loads(f.read())
+def create_tasks(targets, active_components={}, silent=False):
+    global log, ignored_vars_file, json_table_key, skip_tables
+    active_realms, model_vars = {}, {}
+    for m in components.models:
+        is_active = active_components.get(m, True)
+        for r in components.models[m][components.realms]:
+            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the rea
+        tabfile = components.models[m].get(components.table_file, "")
+        if os.path.isfile(tabfile):
+            with open(tabfile) as f:
+                model_vars[m] = json.loads(f.read())
         else:
-            params[model] = []
+            log.warning("Could not read variable table file %s for component %s" % (tabfile, m))
+            model_vars[m] = []
 
     omitvarlist_01 = load_checkvars_excel(omit_vars_file_01)
     omitvarlist_02 = load_checkvars_excel(omit_vars_file_02)
@@ -240,12 +222,12 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
 
     for target in targets:
         realms = getattr(target, cmor_target.realm_key, None).split()
-        if not any([realmflags.get(r, True) for r in realms]):
+        if not any([active_realms.get(r, True) for r in realms]):
             continue  # If all variable's realms are flagged false, skip
         matchpars = {}
-        for model in models:
-            if modelflags.get(model, True):  # Only consider models that are 'enabled'
-                matches = [p for p in params.get(model, []) if
+        for model in components.models:
+            if active_components.get(model, True):  # Only consider models that are 'enabled'
+                matches = [p for p in model_vars.get(model, []) if
                            matchvarpar(target.variable, p) and target.table == p.get(json_table_key, target.table)]
                 if any(matches):
                     matchpars[model] = matches
@@ -273,14 +255,16 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
                 missingtargets.append(target)
                 varword = "missing"
             if not silent:
-                log.error("Could not find parameter table entry for {:17} in table {:6} ...skipping variable. This variable is {}".format(target.variable, target.table, varword))
+                log.error(
+                    "Could not find parameter table entry for {:17} in table {:6} ...skipping variable. This variable is {}".format(
+                        target.variable, target.table, varword))
             continue
         modelmatch = None
         for model in matchpars:
             modelmatch = model
             if len(matchpars) == 1:
                 break
-            modelrealms = set(models.get(model, {}).get("realms", []))
+            modelrealms = set(components.models.get(model, {}).get(components.realms, []))
             shared_realms = set(realms).intersection(modelrealms)
             if any(shared_realms):
                 log.info("Multiple models %s found for variable %s, model %s matched by shared realms %s" % (
@@ -291,11 +275,11 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
         notable_pars = [p for p in pars if json_table_key not in p]
         if len(table_pars) > 1 or len(notable_pars) > 1:
             log.warning("Multiple entries found for variable %s, table %s in file %s...choosing first." % (
-                target.variable, target.table, models[modelmatch]["parfile"]))
+                target.variable, target.table, components.models[modelmatch]["parfile"]))
         parmatch = table_pars[0] if any(table_pars) else pars[0]
         task = create_cmor_task(parmatch, target, modelmatch)
         if task is None:
-         continue
+            continue
         ece2cmorlib.add_task(task)
         if parmatch.get(cmor_source.expression_key, None) is None:
             target.ecearth_comment = task.source.model_component() + ' code name = ' + parmatch.get(json_source_key,
@@ -307,7 +291,7 @@ def create_tasks(targets, load_atm_tasks=True, load_oce_tasks=True, silent=False
         target.comment_author = 'automatic'
         loadedtargets.append(target)
     log.info("Created %d ece2cmor tasks from input variable list." % len(loadedtargets))
-    for par in params["ifs"]:
+    for par in model_vars["ifs"]:
         if json_mask_key in par:
             name = par[json_mask_key]
             expr = par.get(cmor_source.expression_key, None)
@@ -383,6 +367,6 @@ def create_cmor_source(pardict, tag):
         grid = pardict.get(json_grid_key, None)
         grid_index = -1
         if grid in cmor_source.nemo_grid:
-          grid_index = cmor_source.nemo_grid.index(grid)
+            grid_index = cmor_source.nemo_grid.index(grid)
         return cmor_source.nemo_source(src, grid_index)
     return None
