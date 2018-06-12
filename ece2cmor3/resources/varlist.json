@@ -279,5 +279,10 @@
         "zg",
         "snw",
         "mrro"
+    ],
+    "cpool": [
+    	"cSoil",
+	"cVeg",
+	"cLitter"	
     ]
 }

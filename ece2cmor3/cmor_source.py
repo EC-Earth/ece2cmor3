@@ -214,6 +214,10 @@ class lpjg_source(cmor_source):
     def grid(self):
         return lpjg_grid[self.grid_]
 
+    # Returns the model component.
+    def model_component(self):
+        return "lpjg"
+
     def colname(self):
         return self.colname
 

@@ -255,6 +255,7 @@ def execute(tasks):
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
+    return #the following parts are not yet fully implemented
     for k,v in taskdict.iteritems():
         tab = k
         tskgroup = v
@@ -266,9 +267,9 @@ def execute(tasks):
             outname = task.target.out_name
             outdims = task.target.dimensions
             #FIXME: hardwired T255 grid, moved up here, since create_lpjg_netcdf needs lonmids, latmids for the re-mapping
-            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
+#            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
             #TODO: generate the netCDF file for the requested variable(s)
-            ncfile = create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims,lonmids,latmids)
+#            ncfile = create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims,lonmids,latmids)
             if ncfile:
                 print(ncfile)
                 files.append(ncfile)

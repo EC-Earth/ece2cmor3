@@ -99,6 +99,7 @@ def main():
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
+    parser.add_argument("-l", "--lpj", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess variables")
 
     args = parser.parse_args()
 
@@ -106,15 +107,19 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
     # Fix conflicting flags
-    procatmos,prococean = not args.oce,not args.atm
-    if(not procatmos and not prococean):
-        procatmos,prococean = True,True
+    if sum([args.oce, args.atm, args.lpj]) != 1:
+        procatmos, prococean, proclpjg = True, True, True
+    else:
+        procatmos = args.atm
+        prococean = args.oce
+        proclpjg = args.lpj
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
 
     # Load the variables as task targets:
-    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,load_oce_tasks = prococean, silent = args.verbose)
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,
+                                                                                                   load_oce_tasks = prococean, load_lpjg_tasks=proclpjg, silent = args.verbose)
 
     if(args.output):
         output_dir = os.path.dirname(args.output)

@@ -49,7 +49,7 @@ def main(args=None):
                         help="Run ece2cmor3 exclusively for atmosphere data")
     parser.add_argument("-o", "--oce", action="store_true", default=False,
                         help="Run ece2cmor3 exclusively for ocean data")
-    parser.add_argument("-v", "--veg", action="store_true", default=False,
+    parser.add_argument("-l", "--lpj", action="store_true", default=False,
                       help="Run ece2cmor3 exclusively for LPJ-Guess data")
 #   parser.add_argument("-NEWCOMPONENT", "--NEWCOMPONENT", action="store_true", default=False,
 #                      help="Run ece2cmor3 exclusively for ocean data")
@@ -76,12 +76,12 @@ def main(args=None):
 
     # Fix conflicting flags
     # The following fix is hopefully clear and more easily adapted than the original as more component data is added
-    if sum([args.oce, args.atm, args.veg]) != 1:
+    if sum([args.oce, args.atm, args.lpj]) != 1:
         procatmos, prococean, proclpjg = True, True, True
     else:
         procatmos = args.atm
         prococean = args.oce
-        proclpjg = args.veg
+        proclpjg = args.lpj
 #    procatmos, prococean = not args.oce, not args.atm
 #    if not procatmos and not prococean:
 #        procatmos, prococean = True, True
@@ -104,7 +104,8 @@ def main(args=None):
     if prococean:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
     if proclpjg:
-        ece2cmorlib.perform_lpjg_tasks(args.datadir, args.exp, startdate, length)
+        refdate = dateutil.parser.parse(args.refd) if args.refd else None
+        ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, startdate, length, refdate)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
    

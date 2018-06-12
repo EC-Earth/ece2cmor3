@@ -1,17 +1,17 @@
 [
     {
         "source": "SoilC",
-        "filepath": "cpool.out.gz",
+        "filepath": "cpool.out",
         "target": "cSoil"
     },
     {
         "source": "VegC",
-        "filepath": "cpool.out.gz",
+        "filepath": "cpool.out",
         "target": "cVeg"
     },
     {
         "source": "LitterC",
-        "filepath": "cpool.out.gz",
+        "filepath": "cpool.out",
         "target": "cLitter"
     },
     {

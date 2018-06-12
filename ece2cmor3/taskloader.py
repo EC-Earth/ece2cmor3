@@ -18,8 +18,8 @@ json_filepath_key = "filepath"
 models = {"ifs": {"realms": ["atmos", "atmosChem", "land", "landIce"],
                   parfile_key: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json")},
           "nemo": {"realms": ["ocean", "ocnBgChem", "seaIce"],
-                   parfile_key: os.path.join(os.path.dirname(__file__), "resources", "nemopar.json")}
-          "lpjg": {"realms": ["land"],
+                   parfile_key: os.path.join(os.path.dirname(__file__), "resources", "nemopar.json")},
+          "lpjg": {"realms": ["veget"],
                    parfile_key: os.path.join(os.path.dirname(__file__), "resources", "lpjgpar.json")}}
 
 omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
