@@ -47,7 +47,7 @@ if [ "$#" -eq 4 ]; then
   exit
  else
  #source activate ece2cmor3
-#  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
