@@ -62,10 +62,13 @@ if [ "$#" -eq 4 ]; then
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml  ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml    ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml   ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
  echo
  echo 'The produced data request excel file:'
@@ -81,6 +84,9 @@ if [ "$#" -eq 4 ]; then
  ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
  ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
  ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
+ ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa-compact.xml
+ ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3-compact.xml
+ ls -1 ec-earth-namelists/ec-earth-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces-compact.xml
  echo
 
 else

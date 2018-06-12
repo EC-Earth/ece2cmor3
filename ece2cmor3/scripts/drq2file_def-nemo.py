@@ -16,11 +16,14 @@ import re                                                     # for regular expr
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils
 
-basic_file_def_file_name  = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
-file_def_file_name        = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
-file_def_opa_file_name    = "./xios-nemo-file_def-files/file_def_nemo-opa.xml"
-file_def_lim_file_name    = "./xios-nemo-file_def-files/file_def_nemo-lim3.xml"
-file_def_pisces_file_name = "./xios-nemo-file_def-files/file_def_nemo-pisces.xml"
+basic_file_def_file_name          = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+file_def_file_name                = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
+file_def_opa_file_name            = "./xios-nemo-file_def-files/file_def_nemo-opa.xml"
+file_def_lim_file_name            = "./xios-nemo-file_def-files/file_def_nemo-lim3.xml"
+file_def_pisces_file_name         = "./xios-nemo-file_def-files/file_def_nemo-pisces.xml"
+file_def_opa_file_name_compact    = "./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml"
+file_def_lim_file_name_compact    = "./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml"
+file_def_pisces_file_name_compact = "./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml"
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
@@ -129,6 +132,38 @@ def main():
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()
+
+
+    # PRODUCE FILE_DEF FILES FOR OPA, LIM AND PISCES WITH ONLY ENABLED VARIABLES:
+
+    # FILE_DEF FILE FOR OPA WITH ONLY ENABLED VARIABLES:
+    tree_opa_enabled_only = xmltree.parse(file_def_opa_file_name)
+    root_opa_enabled_only = tree_opa_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_opa_enabled_only.findall('./file_group/file'):
+      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+    tree_opa_enabled_only.write(file_def_opa_file_name_compact)
+
+
+    # FILE_DEF FILE FOR LIM WITH ONLY ENABLED VARIABLES:
+    tree_lim_enabled_only = xmltree.parse(file_def_lim_file_name)
+    root_lim_enabled_only = tree_lim_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_lim_enabled_only.findall('./file_group/file'):
+      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+    tree_lim_enabled_only.write(file_def_lim_file_name_compact)
+
+
+    # FILE_DEF FILE FOR PISCES WITH ONLY ENABLED VARIABLES:
+    tree_pisces_enabled_only = xmltree.parse(file_def_pisces_file_name)
+    root_pisces_enabled_only = tree_pisces_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+    for file_element in root_pisces_enabled_only.findall('./file_group/file'):
+      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+    tree_pisces_enabled_only.write(file_def_pisces_file_name_compact)
+
+
+
 
 
 if __name__ == "__main__":
