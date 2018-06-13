@@ -147,11 +147,11 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
-    ifs_tasks = [t for t in tasks if isinstance(t.source, cmor_source.ifs_source)]
+    ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
     if enable_masks:
-        ifs2cmor.masks = {k: masks[k] for k in masks if isinstance(masks[k]["source"], cmor_source.ifs_source)}
+        ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
     ofreq = -1 if auto_filter else outputfreq
@@ -169,7 +169,7 @@ def perform_nemo_tasks(datadir, expname, startdate, interval):
     global log, tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
-    nemo_tasks = [t for t in tasks if isinstance(t.source, cmor_source.nemo_source)]
+    nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
     if not nemo2cmor.initialize(datadir, expname, tableroot, startdate, interval):

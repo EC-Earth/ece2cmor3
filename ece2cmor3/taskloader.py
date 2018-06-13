@@ -4,13 +4,13 @@ import os
 
 from ece2cmor3 import components
 from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
+from ece2cmor3.cmor_source import create_cmor_source
 
 log = logging.getLogger(__name__)
 
 json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
-json_grid_key = "grid"
 json_mask_key = "mask"
 json_masked_key = "masked"
 
@@ -337,9 +337,9 @@ def matchvarpar(variable, parblock):
 
 
 # Creates a single task from the target and parameter table entry
-def create_cmor_task(pardict, target, tag):
-    global log, json_source_key, json_grid_key
-    source = create_cmor_source(pardict, tag)
+def create_cmor_task(pardict, target, component):
+    global log, json_source_key
+    source = create_cmor_source(pardict, component)
     if source is None:
         log.error("Failed to construct a source for target variable %s in table %s...skipping task"
                   % (target.variable, target.table))
@@ -348,25 +348,7 @@ def create_cmor_task(pardict, target, tag):
     mask = pardict.get(json_masked_key, None)
     if mask:
         setattr(task.target, cmor_target.mask_key, mask)
-    conv = pardict.get(cmor_task.conversion_key, None)
-    if conv:
-        setattr(task, cmor_task.conversion_key, conv)
+    for par in pardict:
+        if par not in [json_source_key, json_target_key, json_mask_key, json_masked_key, json_table_key, "expr"]:
+            setattr(task, par, pardict[par])
     return task
-
-
-# Creates an ece2cmor task source from the input dictionary
-def create_cmor_source(pardict, tag):
-    src = pardict.get(json_source_key, None)
-    expr = pardict.get(cmor_source.expression_key, None)
-    if not src and not expr:
-        log.error("Could not find a source or expression entry for parameter table block %s" % (str(pardict.__dict__)))
-        return None
-    if tag == "ifs":
-        return cmor_source.ifs_source.read(expr if expr is not None else src)
-    elif tag == "nemo":
-        grid = pardict.get(json_grid_key, None)
-        grid_index = -1
-        if grid in cmor_source.nemo_grid:
-            grid_index = cmor_source.nemo_grid.index(grid)
-        return cmor_source.nemo_source(src, grid_index)
-    return None

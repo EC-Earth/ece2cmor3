@@ -122,7 +122,7 @@ class nemo2cmor_tests(unittest.TestCase):
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              datetime.timedelta(days=365))
-        src = cmor_source.nemo_source("tos", cmor_source.nemo_grid.grid_T)
+        src = cmor_source.netcdf_source("tos", "nemo")
         tgt = cmor_target.cmor_target("tos", "Omon")
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude time")
@@ -167,7 +167,7 @@ class nemo2cmor_tests(unittest.TestCase):
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              datetime.timedelta(days=365))
-        src = cmor_source.nemo_source("to", cmor_source.nemo_grid.grid_T, 3)
+        src = cmor_source.netcdf_source("to", "nemo")
         tgt = cmor_target.cmor_target("thetao", "Omon")
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude olevel time")
