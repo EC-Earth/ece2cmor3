@@ -86,7 +86,7 @@ def execute(tasks):
                 log.info("Creating delth axes for table %s..." % table)
             create_depth_axes(dataset, task_list, table)
             for task in task_list:
-                execute_netcdf_task(dataset, task, table)
+                execute_netcdf_task(dataset, task)
         dataset.close()
 
 
@@ -115,18 +115,18 @@ def lookup_variables(tasks):
 
 
 # Performs a single task.
-def execute_netcdf_task(dataset, task, tableid):
+def execute_netcdf_task(dataset, task):
     global log, grid_ids_, depth_axes_, time_axes_
     task.status = cmor_task.status_cmorizing
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
-    t_axes = getattr(task, "time_axes", [])
+    t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
     axes = grid_axes + z_axes + t_axes
     for type_axis in type_axes_:
         if type_axis in getattr(task.target, cmor_target.dims_key):
             axes.append(type_axes_[type_axis])
     varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[task.source.var()]
+    ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
     if not any(grid_axes):  # Fix for global averages
         vals = numpy.copy(ncvar[:, :, :])
@@ -156,7 +156,7 @@ def get_conversion_factor(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task, dataset, axes):
-    srcvar = task.source.var()
+    srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
@@ -188,8 +188,10 @@ def create_depth_axes(ds, tasks, table):
                 units = getattr(depth_coordinates, "units")
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
-                z_axis_ids.append(cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
-                                            cell_bounds=b))
+                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
+                                      cell_bounds=b)
+                z_axis_ids.append(z_axis_id)
+                table_depth_axes[z_axis] = z_axis_id
         setattr(task, "z_axes", z_axis_ids)
 
 
@@ -215,7 +217,7 @@ def create_time_axes(ds, tasks, table):
                                     coord_vals=ds.variables["time_counter"][:],
                                     cell_bounds=ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
                 table_time_axes[time_dim] = tid
-            setattr(task, "time_axes", tid)
+            setattr(task, "time_axis", tid)
     return table_time_axes
 
 
