@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 
 import argparse
+import dateutil.parser
+import dateutil.relativedelta
 import logging
 import os
 
-import dateutil.parser
-import dateutil.relativedelta
-
-import ece2cmor3.components
 from ece2cmor3 import ece2cmorlib, taskloader, components
 
 logging.basicConfig(level=logging.DEBUG)
@@ -86,7 +84,7 @@ def main(args=None):
         tabfile_attribute = model_tabfile_attributes[model]
         attribute_value = getattr(args, tabfile_attribute, None)
         if attribute_value is not None:
-            components[model][components.table_file] = attribute_value
+            components.models[model][components.table_file] = attribute_value
 
     taskloader.load_targets(args.vars, model_active_flags)
 

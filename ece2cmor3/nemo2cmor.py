@@ -83,7 +83,7 @@ def execute(tasks):
                 log.info("Creating time axes for table %s..." % table)
             create_time_axes(dataset, task_list, table)
             if table not in depth_axes_:
-                log.info("Creating delth axes for table %s..." % table)
+                log.info("Creating depth axes for table %s..." % table)
             create_depth_axes(dataset, task_list, table)
             for task in task_list:
                 execute_netcdf_task(dataset, task)
@@ -101,8 +101,8 @@ def lookup_variables(tasks):
                 results.append(ncfile)
             ds.close()
         if len(results) == 0:
-            log.error("Variable %s needed for %s in table %s was not found in NEMO output files %s... skipping task" %
-                      (task.source.variable(), task.target.variable, task.target.table, ','.join(file_candidates)))
+            log.error("Variable %s needed for %s in table %s was not found in NEMO output files... skipping task" %
+                      (task.source.variable(), task.target.variable, task.target.table))
             task.set_failed()
             continue
         if len(results) > 1:
@@ -133,6 +133,9 @@ def execute_netcdf_task(dataset, task):
         vals[vals == missval] = numpy.nan
         ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
+    log.info("CMORizing variable %s in table %s form %s in "
+             "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
+                             getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval))
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
@@ -209,11 +212,12 @@ def create_time_axes(ds, tasks, table):
                 tid = table_time_axes[time_dim]
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
+                print "Time dimension name:", time_dim
                 if time_operator == ["point"]:
-                    tid = cmor.axis(table_entry=time_dim, units=getattr(ds.variables["time_counter"], "units"),
+                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
                                     coord_vals=ds.variables["time_counter"][:])
                 else:
-                    tid = cmor.axis(table_entry=time_dim, units=getattr(ds.variables["time_counter"], "units"),
+                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
                                     coord_vals=ds.variables["time_counter"][:],
                                     cell_bounds=ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
                 table_time_axes[time_dim] = tid
