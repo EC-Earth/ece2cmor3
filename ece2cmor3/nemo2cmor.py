@@ -212,7 +212,6 @@ def create_time_axes(ds, tasks, table):
                 tid = table_time_axes[time_dim]
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
-                print "Time dimension name:", time_dim
                 if time_operator == ["point"]:
                     tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
                                     coord_vals=ds.variables["time_counter"][:])
