@@ -42,7 +42,7 @@ class nemo2cmor_tests(unittest.TestCase):
         os.mkdir(self.data_dir)
         dimx, dimy, dimz = 65, 75, 10
         opf = test_utils.nemo_output_factory()
-        opf.make_grid(dimx, dimy, cmor_source.nemo_grid.grid_U, dimz)
+        opf.make_grid(dimx, dimy, "grid_U", dimz)
         opf.set_timeframe(datetime.date(1990, 1, 1), datetime.date(1991, 1, 1), "1d")
         uto = {"name": "uto",
                "dims": 2,
@@ -58,7 +58,7 @@ class nemo2cmor_tests(unittest.TestCase):
                "units": "kg m-2 s-1"}
         opf.write_variables(self.data_dir, "exp", [uto, uso])
 
-        opf.make_grid(dimx, dimy, cmor_source.nemo_grid.grid_V, dimz)
+        opf.make_grid(dimx, dimy, "grid_V", dimz)
         opf.set_timeframe(datetime.date(1990, 1, 1), datetime.date(1991, 1, 1), "1d")
         vto = {"name": "vto",
                "dims": 2,
@@ -74,7 +74,7 @@ class nemo2cmor_tests(unittest.TestCase):
                "units": "kg m-2 s-1"}
         opf.write_variables(self.data_dir, "exp", [vto, vso])
 
-        opf.make_grid(dimx, dimy, cmor_source.nemo_grid.grid_T, dimz)
+        opf.make_grid(dimx, dimy, "grid_T", dimz)
         opf.set_timeframe(datetime.date(1990, 1, 1), datetime.date(1991, 1, 1), "1m")
         tos = {"name": "tos",
                "dims": 2,
@@ -96,7 +96,7 @@ class nemo2cmor_tests(unittest.TestCase):
                "units": "kg m-3"}
         opf.write_variables(self.data_dir, "exp", [tos, to, sos])
 
-        opf.make_grid(dimx, dimy, cmor_source.nemo_grid.icemod)
+        opf.make_grid(dimx, dimy, "icemod")
         opf.set_timeframe(datetime.date(1990, 1, 1), datetime.date(1991, 1, 1), "6h")
         sit = {"name": "sit", "dims": 2, "function": circwave, "standard_name": "sea_ice_temperature",
                "long_name": "Sea ice temperature", "units": "degC"}
@@ -122,10 +122,11 @@ class nemo2cmor_tests(unittest.TestCase):
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              datetime.timedelta(days=365))
-        src = cmor_source.nemo_source("tos", cmor_source.nemo_grid.grid_T)
+        src = cmor_source.netcdf_source("tos", "nemo")
         tgt = cmor_target.cmor_target("tos", "Omon")
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude time")
+        setattr(tgt, "time_operator", ["mean"])
         tgt.dims = 2
         tsk = cmor_task.cmor_task(src, tgt)
         nemo2cmor.execute([tsk])
@@ -139,7 +140,7 @@ class nemo2cmor_tests(unittest.TestCase):
         lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / (0.5 * (dim + i) + 2) - 90, (dim, dim),
                                   dtype=numpy.float64)
 
-        grid = nemo2cmor.nemo_grid(lons, lats)
+        grid = nemo2cmor.nemo_grid("lat-lon", lons, lats)
 
         p1 = (grid.vertex_lons[0, 0, 0], grid.vertex_lats[0, 0, 0])
         p2 = (grid.vertex_lons[0, 0, 1], grid.vertex_lats[0, 0, 1])
@@ -167,10 +168,11 @@ class nemo2cmor_tests(unittest.TestCase):
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              datetime.timedelta(days=365))
-        src = cmor_source.nemo_source("to", cmor_source.nemo_grid.grid_T, 3)
+        src = cmor_source.netcdf_source("to", "nemo")
         tgt = cmor_target.cmor_target("thetao", "Omon")
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude olevel time")
+        setattr(tgt, "time_operator", ["mean"])
         tgt.dims = 3
         tsk = cmor_task.cmor_task(src, tgt)
         nemo2cmor.execute([tsk])

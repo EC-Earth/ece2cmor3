@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 import argparse
+import dateutil.parser
+import dateutil.relativedelta
 import logging
 import os
 
-import dateutil.parser
-import dateutil.relativedelta
-
-from ece2cmor3 import ece2cmorlib, taskloader
+from ece2cmor3 import ece2cmorlib, taskloader, components
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -45,20 +44,24 @@ def main(args=None):
                         help="Size of tempdir (in GB) that triggers flushing")
     parser.add_argument("--ncdo", metavar="N", type=int, default=4,
                         help="Number of available threads per CDO postprocessing task")
-    parser.add_argument("-a", "--atm", action="store_true", default=False,
-                        help="Run ece2cmor3 exclusively for atmosphere data")
-    parser.add_argument("-o", "--oce", action="store_true", default=False,
-                        help="Run ece2cmor3 exclusively for ocean data")
-#   parser.add_argument("-NEWCOMPONENT", "--NEWCOMPONENT", action="store_true", default=False,
-#                      help="Run ece2cmor3 exclusively for ocean data")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
     parser.add_argument("--filter", action="store_true", default=False, help="Automatic filtering of grib files")
-    parser.add_argument("--ifspar", metavar="FILE.json", type=str,
-                        default=taskloader.models["ifs"][taskloader.parfile_key],
-                        help="IFS parameter file (optional)")
-    parser.add_argument("--nemopar", metavar="FILE.json", type=str,
-                        default=taskloader.models["nemo"][taskloader.parfile_key],
-                        help="Nemo parameter file (optional")
+    model_attributes, model_tabfile_attributes = {}, {}
+    for c in components.models:
+        flag1, flag2 = components.get_script_options(c)
+        if flag2 is None:
+            parser.add_argument("--" + flag1, action="store_true", default=False,
+                                help="Run ece2cmor3 exclusively for %s data" % c)
+        else:
+            parser.add_argument("--" + flag1, '-' + flag2, action="store_true", default=False,
+                                help="Run ece2cmor3 exclusively for %s data" % c)
+        model_attributes[c] = flag1
+        tabfile = components.models[c].get(components.table_file, "")
+        if tabfile:
+            option = os.path.basename(tabfile)
+            model_tabfile_attributes[c] = option
+            parser.add_argument("--" + option, metavar="FILE.json", type=str, default=tabfile,
+                                help="%s variable table (optional)" % c)
 
     args = parser.parse_args()
 
@@ -69,18 +72,25 @@ def main(args=None):
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = args.filter
 
-    # Fix conflicting flags
-    procatmos, prococean = not args.oce, not args.atm
-    if not procatmos and not prococean:
-        procatmos, prococean = True, True
+    # Fix exclusive run flags: if none are used, we cmorize for all components
+    model_active_flags = dict.fromkeys(components.models, False)
+    for model in model_attributes:
+        model_active_flags[model] = getattr(args, model_attributes[model], False)
+    if not any(model_active_flags.values()):
+        model_active_flags = dict.fromkeys(model_active_flags, True)
 
     # Load the variables as task targets:
-    taskloader.load_parameter_tables(ifs=args.ifspar, nemo=args.nemopar)
-    taskloader.load_targets(args.vars, load_atm_tasks=procatmos, load_oce_tasks=prococean)
+    for model in model_tabfile_attributes:
+        tabfile_attribute = model_tabfile_attributes[model]
+        attribute_value = getattr(args, tabfile_attribute, None)
+        if attribute_value is not None:
+            components.models[model][components.table_file] = attribute_value
+
+    taskloader.load_targets(args.vars, model_active_flags)
 
     startdate = dateutil.parser.parse(args.date)
     length = dateutil.relativedelta.relativedelta(months=1)
-    if procatmos:
+    if model_active_flags["ifs"]:
         refdate = dateutil.parser.parse(args.refd) if args.refd else None
         # Execute the atmosphere cmorization:
         ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp, startdate, length, refdate=refdate,
@@ -89,7 +99,7 @@ def main(args=None):
                                       taskthreads=args.npp,
                                       cdothreads=args.ncdo,
                                       maxsizegb=args.tmpsize)
-    if prococean:
+    if model_active_flags["nemo"]:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
