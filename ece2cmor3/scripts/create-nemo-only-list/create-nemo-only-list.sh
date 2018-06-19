@@ -48,8 +48,8 @@ if [ "$#" -eq 0 ]; then
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars.py to the basic identifiedmissing and the basic ignored:
    /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.xlsx
    /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.xlsx           create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.xlsx
-   /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
-   /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
+  #/bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
+  #/bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
 
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
