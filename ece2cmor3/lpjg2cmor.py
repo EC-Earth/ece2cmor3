@@ -45,6 +45,7 @@ ncpath_created_ = False
 
 gridfile_ = "ece2cmor3/resources/ingrid_T255_unstructured.txt"
 
+_months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 #various things extracted from Michael.Mischurow out2nc tool: ec_earth.py
 grids = {
@@ -259,9 +260,9 @@ def execute(tasks):
         tskgroup = v
         files = []
         for task in tskgroup:
-            freq = task.target.frequency
+            freq = task.target.frequency.encode()
             lpjgfiles = task.source.srcpath
-            colname = task.source.colname
+            colname = task.source.colname.encode()
             outname = task.target.out_name
             outdims = task.target.dimensions
             #FIXME: hardwired T255 grid, moved up here, since create_lpjg_netcdf needs lonmids, latmids for the re-mapping
@@ -403,68 +404,98 @@ def get_nearest_neighbour(data, criteria, weights):
         return distance(row, criteria, weights)
     return min(data, key=sort_func)
 
-#this function build upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
+#this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
 def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
     global lpjg_path_, ncpath_, ref_date_, gridfile_
 
     #should lpjg_path be inside the runleg or parent dir?
-    lpjgfile = os.path.join(lpjg_path_, lpjgfiles if outdims.find(u"landUse") < 0 else lpjgfiles[0])
+    lpjgfile = os.path.join(lpjg_path_, lpjgfiles)
 
-    if freq == u'yr':
-        idx_col = [0, 1, 2]
+    #assigns a flag to handle two different possible monthly LPJ-Guess formats
+    months_as_cols = False
+    if freq == "mon":
+        with open(lpjgfile) as f:
+            header = next(f).lower().split()
+            months_as_cols = header[-12:] == _months
+
+    if freq == "mon" and not months_as_cols:
+        idx_col = [0, 1, 2, 3]
+    elif freq == "day":
+        idx_col = [0, 1]
     else:
-        idx_col = [] #to be implemented, currently handle only annual data
+        idx_col = [0, 1, 2]
 
     df = pd.read_csv(lpjgfile, delim_whitespace=True, index_col=idx_col, dtype=np.float64, compression='infer')
 #    df.rename(columns=lambda x: x.lower(), inplace=True)
     
-    df = df.pop(colname.encode()) #assume that the variable name actually exists in the lpjgfile (this is checked at some point earlier right?)
-    
-    df = df.unstack()
-    
-    startdate = str(int(df.columns[0])) + "01"
-    enddate = str(int(df.columns[-1])) + "12"
+    if freq == "day":
+        #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
+        df['timecolumn'] = df['year'] + 0.001*df['day']
+        df.set_index('timecolumn',append=True, inplace=True)
+        df.drop(columns=['year', 'day'],inplace=True)
+
+        if df.shape[1] != 1:
+            raise ValueError('Multiple columns in the daily file are not supported')
+        df = df.unstack()
+    elif freq == "yr":
+        df = df.pop(colname) #assume that the variable name actually exists in the lpjgfile (this is checked at some point earlier right?)
+        df = df.unstack()
+    elif freq == "mon":
+        if months_as_cols:
+            df.rename(columns=lambda x: x.lower(), inplace=True)
+            df = df.unstack()
+            sortrule = lambda x: (x[1], _months.index(x[0]))
+            df = df.reindex(sorted(df.columns, key=sortrule),
+                            axis=1, copy=False)
+        else:
+            df = df.pop(colname)
+            df = df.unstack().unstack()
+            sortrule = lambda x: (x[1], x[0])
+            df = df.reindex(sorted(df.columns, key=sortrule),
+                            axis=1, copy=False)
+
+    if freq == "yr":
+        startdate = str(int(df.columns[0])) + "01"
+        enddate = str(int(df.columns[-1])) + "12"
+    else:
+        startdate = str(int(df.columns[0][1])) + "01"
+        enddate = str(int(df.columns[-1][1])) + "12"
     ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + startdate + "_" + enddate + ".nc") #Note that this naming policy refers to the start date in the data, not ref date 
     print("create_lpjg_netcdf " + colname + " into " + ncfile)
 
     #temporary netcdf file name (will be removed after remapping is done)
     temp_ncfile = os.path.join(ncpath_, 'LPJGtemp.nc')
     root = netCDF4.Dataset(temp_ncfile, 'w', format='NETCDF4_CLASSIC') #what is the desired format here? 
+                   
+    meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
+                                  #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this for now
+    df_normalised, dimensions = coords(df, root, meta)
 
-    if (outdims.find(u"landUse")>=0):
-        print("TODO: aggregate the landcovers to the LUMIP landUse")
-        if freq == u"yr": #yearly
-            print("and create yearly netcdf")
-        else: #monthly
-            print("and create monthly netcdf")                    
+    time = root.createDimension('time', None)
+    timev = root.createVariable('time', 'f4', ('time',))
+    timev[:] = np.arange(df.shape[1])
+    if freq == "mon":
+        fyear, tres = int(df.columns[0][1]), 'month'
+    elif freq == "day":
+        fyear, tres = int(df.columns[0][1]), 'day'
     else:
-        meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
-                                      #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this for now
-        df_normalised, dimensions = coords(df, root, meta)
-
-        time = root.createDimension('time', None)
-        timev = root.createVariable('time', 'f4', ('time',))
-        timev[:] = np.arange(df.shape[1])
-        if freq == u'yr': #yearly data
-            fyear, tres = int(df.columns[0]), 'year'
-        else: #to be implemented properly
-            fyear, tres = int(df.columns[0]), 'time_unit'
-        #TODO: add the option (if required) for the start year to be a reference year other than the first year in the data file 
-        timev.units = '{}s since {}-01-01'.format(tres, fyear)
-        timev.calendar = "proleptic_gregorian"
-        dimensions = 'time', dimensions[0], dimensions[1]
+        fyear, tres = int(df.columns[0]), 'year'
+    #TODO: add the option (if required) for the start year to be a reference year other than the first year in the data file 
+    timev.units = '{}s since {}-01-01'.format(tres, fyear)
+    timev.calendar = "proleptic_gregorian"
+    dimensions = 'time', dimensions[0], dimensions[1]
         
-        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-		shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised.values.T
+    variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                   shuffle=False, complevel=5, fill_value=meta['missing'])
+    variable[:] = df_normalised.values.T
 
-        root.sync()
-	root.close()
+    root.sync()
+    root.close()
 
-        #do the remapping
-        cdo = Cdo()
-        cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
-        os.remove(temp_ncfile)
+    #do the remapping
+    cdo = Cdo()
+    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
+    os.remove(temp_ncfile)
 
     return ncfile
 

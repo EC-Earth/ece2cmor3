@@ -283,6 +283,7 @@
     "cpool": [
     	"cSoil",
 	"cVeg",
-	"cLitter"	
+	"cLitter",
+	"mrsoLutNatural"	
     ]
 }

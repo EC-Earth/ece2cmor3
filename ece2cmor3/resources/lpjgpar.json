@@ -1,18 +1,23 @@
 [
     {
-        "source": "SoilC",
-        "filepath": "cpool.out",
+        "source": "cSoil",
+        "filepath": "cSoil.out",
         "target": "cSoil"
     },
     {
-        "source": "VegC",
-        "filepath": "cpool.out",
+        "source": "cVeg",
+        "filepath": "cVeg.out",
         "target": "cVeg"
     },
     {
-        "source": "LitterC",
-        "filepath": "cpool.out",
+        "source": "cLitter",
+        "filepath": "cLitter.out",
         "target": "cLitter"
+    },
+    {
+	"source": "NATURAL",
+	"filepath": "mrsoLut.out",
+	"target": "mrsoLutNatural"
     },
     {
         "source": "Total",
