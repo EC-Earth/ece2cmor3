@@ -261,8 +261,8 @@ def execute(tasks):
         files = []
         for task in tskgroup:
             freq = task.target.frequency.encode()
-            lpjgfiles = task.source.srcpath
-            colname = task.source.colname.encode()
+            lpjgfiles = task.source.srcpath()
+            colname = task.source.variable().encode()
             outname = task.target.out_name
             outdims = task.target.dimensions
             #FIXME: hardwired T255 grid, moved up here, since create_lpjg_netcdf needs lonmids, latmids for the re-mapping

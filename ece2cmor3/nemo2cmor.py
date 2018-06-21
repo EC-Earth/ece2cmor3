@@ -2,8 +2,8 @@ import cmor
 import logging
 import netCDF4
 import numpy
+import os
 
-import cmor_source
 import cmor_target
 import cmor_task
 import cmor_utils
@@ -46,9 +46,6 @@ def initialize(path, expname, tableroot, start, length):
             break
     if cal:
         cmor.set_cur_dataset_attribute("calendar", cal)
-    cmor.load_table(tableroot + "_grids.json")
-    log.info("Creating NEMO grids in CMOR...")
-    create_grids()
     return True
 
 
@@ -63,88 +60,82 @@ def finalize():
 
 # Executes the processing loop.
 def execute(tasks):
-    global log, time_axes_, depth_axes_, table_root_, nemo_files_
+    global log, time_axes_, depth_axes_, table_root_
+    log.info("Looking up variables in files...")
+    tasks = lookup_variables(tasks)
+    log.info("Creating NEMO grids in CMOR...")
+    create_grids(tasks)
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
-    taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
-    for k, v in taskdict.iteritems():
-        tab = k
-        tskgroup = v
-        freq = tskgroup[0].target.frequency
-        files = select_freq_files(freq)
-        targetvars = [t.target.variable for t in tskgroup]
-        if len(files) == 0:
-            log.error("No NEMO output files found for frequency %s in file list %s, skipping variables %s" % (
-                freq, str(nemo_files_), str(targetvars)))
-            continue
-        log.info("Loading CMOR table %s to process %d variables..." % (tab, len(targetvars)))
-        try:
-            tab_id = cmor.load_table("_".join([table_root_, tab]) + ".json")
-            cmor.set_table(tab_id)
-        except Exception as e:
-            log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s" % (tab, str(targetvars), e.message))
-            continue
-        log.info("Creating time axes for table %s..." % tab)
-        time_axes_[tab_id] = create_time_axis(freq, files)
-        log.info("Creating depth axes for table %s..." % tab)
-        if tab_id not in depth_axes_:
-            depth_axes_[tab_id] = create_depth_axes(files)
-        taskmask = dict([t, False] for t in tskgroup)
-        # Loop over files:
-        ds = None
-        for ncf in files:
+    task_groups = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
+    for filename, task_group in task_groups.iteritems():
+        dataset = netCDF4.Dataset(filename, 'r')
+        task_sub_groups = cmor_utils.group(task_group, lambda tsk: tsk.target.table)
+        for table, task_list in task_sub_groups.iteritems():
             try:
-                ds = netCDF4.Dataset(ncf, 'r')
-                for task in tskgroup:
-                    if task.source.var() in ds.variables:
-                        if taskmask[task]:
-                            log.warning(
-                                "Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
-                        else:
-                            log.info("Cmorizing source variable %s to target variable %s..." % (
-                                task.source.var_id, task.target.variable))
-                            execute_netcdf_task(task, ds, tab_id)
-                            taskmask[task] = True
-            finally:
-                if ds is not None:
-                    ds.close()
-        for task, executed in taskmask.iteritems():
-            if not executed:
-                log.error("The source variable %s could not be found in the input NEMO data" % task.source.var_id)
+                tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
+                cmor.set_table(tab_id)
+            except Exception as e:
+                log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
+                          % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
+                continue
+            if table not in time_axes_:
+                log.info("Creating time axes for table %s..." % table)
+            create_time_axes(dataset, task_list, table)
+            if table not in depth_axes_:
+                log.info("Creating depth axes for table %s..." % table)
+            create_depth_axes(dataset, task_list, table)
+            for task in task_list:
+                execute_netcdf_task(dataset, task)
+        dataset.close()
+
+
+def lookup_variables(tasks):
+    valid_tasks = []
+    for task in tasks:
+        file_candidates = select_freq_files(task.target.frequency)
+        results = []
+        for ncfile in file_candidates:
+            ds = netCDF4.Dataset(ncfile)
+            if task.source.variable() in ds.variables:
+                results.append(ncfile)
+            ds.close()
+        if len(results) == 0:
+            log.error("Variable %s needed for %s in table %s was not found in NEMO output files... skipping task" %
+                      (task.source.variable(), task.target.variable, task.target.table))
+            task.set_failed()
+            continue
+        if len(results) > 1:
+            log.warning("Variable %s needed for %s in table %s was found in multiple NEMO output files %s... choosing "
+                        "the first match %s " % (task.source.variable(), task.target.table, task.target.variable,
+                                                 task.target.table, ','.join(results)))
+        setattr(task, cmor_task.output_path_key, results[0])
+        valid_tasks.append(task)
+    return valid_tasks
 
 
 # Performs a single task.
-def execute_netcdf_task(task, dataset, tableid):
+def execute_netcdf_task(dataset, task):
     global log, grid_ids_, depth_axes_, time_axes_
     task.status = cmor_task.status_cmorizing
-    dims = task.target.dims
-    globvar = (task.source.grid() == cmor_source.nemo_grid[cmor_source.nemo_grid.scalar])
-    if globvar:
-        axes = []
-    else:
-        if not task.source.grid() in grid_ids_:
-            log.error("Grid axis for %s has not been created; skipping variable." % task.source.grid())
-            return
-        axes = [grid_ids_[task.source.grid()]]
-    if (globvar and dims == 1) or (not globvar and dims == 3):
-        grid_index = cmor_source.nemo_grid.index(task.source.grid())
-        if grid_index not in cmor_source.nemo_depth_axes:
-            log.error("Depth axis for grid %s has not been created; skipping variable." % task.source.grid())
-            return
-        zaxid = depth_axes_[tableid][grid_index]
-        axes.append(zaxid)
-    axes.append(time_axes_[tableid])
+    grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
+    z_axes = getattr(task, "z_axes", [])
+    t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
+    axes = grid_axes + z_axes + t_axes
     for type_axis in type_axes_:
         if type_axis in getattr(task.target, cmor_target.dims_key):
             axes.append(type_axes_[type_axis])
     varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[task.source.var()]
+    ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
-    if globvar:  # Fix for global averages
+    if not any(grid_axes):  # Fix for global averages
         vals = numpy.copy(ncvar[:, :, :])
         vals[vals == missval] = numpy.nan
         ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
+    log.info("CMORizing variable %s in table %s form %s in "
+             "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
+                             getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval))
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
@@ -168,7 +159,7 @@ def get_conversion_factor(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task, dataset, axes):
-    srcvar = task.source.var()
+    srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
@@ -182,71 +173,55 @@ def create_cmor_variable(task, dataset, axes):
 
 
 # Creates all depth axes for the given table from the given files
-def create_depth_axes(files):
-    global log, exp_name_
-    result = {}
-    for f in files:
-        gridstr = cmor_utils.get_nemo_grid(f, exp_name_)
-        if gridstr not in cmor_source.nemo_grid:
-            log.error("Unknown NEMO grid %s encountered. Skipping depth axis creation" % gridstr)
-            continue
-        index = cmor_source.nemo_grid.index(gridstr)
-        if index not in cmor_source.nemo_depth_axes:
-            continue
-        if index in result:
-            continue
-        did = create_depth_axis(f, cmor_source.nemo_depth_axes[index])
-        if did != 0:
-            result[index] = did
-    return result
+def create_depth_axes(ds, tasks, table):
+    global depth_axes_
+    if table not in depth_axes_:
+        depth_axes_[table] = {}
+    table_depth_axes = time_axes_[table]
+    other_nc_axes = ["time_counter", "x", "y", "typesi"]
+    for task in tasks:
+        z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
+        z_axis_ids = []
+        for z_axis in z_axes:
+            if z_axis in table_depth_axes:
+                z_axis_ids.append(table_depth_axes[z_axis])
+            else:
+                depth_coordinates = ds.variables[z_axis]
+                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds")]
+                units = getattr(depth_coordinates, "units")
+                b = depth_bounds[:, :]
+                b[b < 0] = 0
+                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
+                                      cell_bounds=b)
+                z_axis_ids.append(z_axis_id)
+                table_depth_axes[z_axis] = z_axis_id
+        setattr(task, "z_axes", z_axis_ids)
 
 
-# Creates a cmor depth axis
-def create_depth_axis(ncfile, gridchar):
-    global log
-    ds = None
-    try:
-        ds = netCDF4.Dataset(ncfile)
-        varname = "depth" + gridchar
-        if varname not in ds.variables:  # No 3D variables in this file... skip depth axis
-            return 0
-        depthvar = ds.variables[varname]
-        depthbnd = getattr(depthvar, "bounds")
-        units = getattr(depthvar, "units")
-        bndvar = ds.variables[depthbnd]
-        b = bndvar[:, :]
-        b[b < 0] = 0
-        return cmor.axis(table_entry="depth_coord", units=units, coord_vals=depthvar[:], cell_bounds=b)
-    finally:
-        if ds is not None:
-            ds.close()
-
-
-# Creates a tie axis for the corresponding table (which is suppoed to be loaded)
-def create_time_axis(freq, files):
-    global log
-    vals = None
-    units = None
-    ds = None
-    bndvar = None
-    for ncfile in files:
-        try:
-            ds = netCDF4.Dataset(ncfile)
-            vals = numpy.copy(ds.variables["time_counter"][:])
-            bndvar = numpy.copy(ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
-            units = getattr(ds.variables["time_counter"], "units")
-            break
-        except ValueError:
-            pass
-        finally:
-            ds.close()
-    if len(vals) == 0 or units is None:
-        log.error("No time values or units could be read from NEMO output files %s" % str(files))
-        return 0
-    if freq.endswith("hr"):
-        return cmor.axis(table_entry="time1", units=units, coord_vals=vals)
-    else:
-        return cmor.axis(table_entry="time", units=units, coord_vals=vals, cell_bounds=bndvar[:, :])
+# Creates a time axis for the currently loaded table
+def create_time_axes(ds, tasks, table):
+    global time_axes_
+    if table not in time_axes_:
+        time_axes_[table] = {}
+    table_time_axes = time_axes_[table]
+    for task in tasks:
+        tgtdims = getattr(task.target, cmor_target.dims_key)
+        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
+        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+            if time_dim in table_time_axes:
+                tid = table_time_axes[time_dim]
+            else:
+                time_operator = getattr(task.target, "time_operator", ["point"])
+                if time_operator == ["point"]:
+                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
+                                    coord_vals=ds.variables["time_counter"][:])
+                else:
+                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
+                                    coord_vals=ds.variables["time_counter"][:],
+                                    cell_bounds=ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
+                table_time_axes[time_dim] = tid
+            setattr(task, "time_axis", tid)
+    return table_time_axes
 
 
 def create_type_axes():
@@ -300,14 +275,17 @@ def read_calendar(ncfile):
 
 
 # Reads all the NEMO grid data from the input files.
-def create_grids():
-    global grid_ids_, nemo_files_
-    spatial_grids = [grd for grd in cmor_source.nemo_grid if grd != cmor_source.nemo_grid.scalar]
-    for g in spatial_grids:
-        gridfiles = [f for f in nemo_files_ if f.endswith(g + ".nc")]
-        if len(gridfiles) != 0:
-            grid = read_grid(gridfiles[0])
-            grid_ids_[g] = write_grid(grid)
+def create_grids(tasks):
+    global grid_ids_
+    cmor.load_table(table_root_ + "_grids.json")
+    task_groups = cmor_utils.group(tasks, lambda t: getattr(t, cmor_task.output_path_key, None))
+    for filename, task_list in task_groups.iteritems():
+        if filename is not None:
+            grid = read_grid(filename)
+            grid_id = write_grid(grid)
+            grid_ids_[grid.name] = grid_id
+            for task in task_list:
+                setattr(task, "grid_id", grid_id)
 
 
 # Reads a particular NEMO grid from the given input file.
@@ -315,9 +293,10 @@ def read_grid(ncfile):
     ds = None
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
-        lons = ds.variables['nav_lon'][:, :]
-        lats = ds.variables['nav_lat'][:, :]
-        return nemo_grid(lons, lats)
+        name = getattr(ds.variables["nav_lon"], "nav_model", os.path.basename(ncfile))
+        lons = ds.variables["nav_lon"][:, :]
+        lats = ds.variables["nav_lat"][:, :]
+        return nemo_grid(name, lons, lats)
     finally:
         if ds is not None:
             ds.close()
@@ -345,7 +324,8 @@ def write_grid(grid):
 # Class holding a NEMO grid, including bounds arrays
 class nemo_grid(object):
 
-    def __init__(self, lons_, lats_):
+    def __init__(self, name_, lons_, lats_):
+        self.name = name_
         flon = numpy.vectorize(lambda x: x % 360)
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))

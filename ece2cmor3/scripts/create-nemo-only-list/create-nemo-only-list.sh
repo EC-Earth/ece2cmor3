@@ -25,11 +25,12 @@ if [ "$#" -eq 0 ]; then
   cd ${HOME}/cmorize/shaconemo/ping-files/
   ./extract-info-from-ping-files.csh
 
-# Step 3: Manually select the total column of variables in this file:
-##  nedit ${HOME}/cmorize/shaconemo/ping-files/r255/cmor-varlist-based-on-ping-r255-without-dummy-lines.txt
-# and copy them manually into the variable column in the file (also update the comment column):
-##  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
-# After updating the pre* files it is most convenient to commit them first.
+# Step 3: Open the following files:
+##  nedit ${HOME}/cmorize/shaconemo/ping-files/r256/cmor-varlist-based-on-ping-r256-without-dummy-lines*.txt
+##  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+# And copy manually the column with (cmor) variable names in the "variable"-column of the xlsx file, the column with the model component in the "comment"-column
+# of the xlsx file, and the column with comment2 in the "actual comment"-column of the xlsx file.
+# After updating the pre* file it is most convenient to commit it first.
 
 # Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
@@ -98,7 +99,7 @@ if [ "$#" -eq 0 ]; then
 
 # ll *.missing.xlsx|grep -v 5.5K
 # ll *.missing.txt|grep -v 266B
-# m *.missing.txt|grep r255
+# m *.missing.txt|grep r256
 
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json

@@ -9,54 +9,16 @@
 #  ./generate-nemopar.json.sh new-nemopar.json
 #
 
-# Declare an array variable with all the nemo cmor variable names:
-declare -a arr=(
- "vmo"
- "thkcello"
- "umo"
- "volo"
- "hfds"
- "vo"
- "ficeberg2d"
- "sos"
- "tossq"
- "siv"
- "zossq"
- "sithick"
- "tos"
- "soga"
- "siu"
- "thetao"
- "siconc"
- "friver"
- "zos"
- "wmo"
- "masso"
- "sisnthick"
- "sfdsi"
- "wo"
- "rsdo"
- "thetaoga"
- "vsfsit"
- "tauvo"
- "wfo"
- "zfullo"
- "mlotst"
- "uo"
- "tauuo"
- "so"
- "rsntds"
- "pbo"
- "zhalfo"
- "sipr"
-)
-
-# The default example list for this moment is produced by running:
+# The default example list for this moment could be produced by running:
 #  more nemopar.json |grep -e target | sed -e 's/.*://'
+# And pasting the result here in the arr array.
+
+# The current list is in the arr array is produced by running:
+#  more ~/cmorize/shaconemo/ping-files/r255/cmor-varlist-based-on-ping-r255-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp.txt
 # And pasting the result here.
 
-# To use instead the list below change: arr_new => arr  at the line below.
-declare -a arr_new=(
+# Declare an array variable with all the nemo cmor variable names:
+declare -a arr=(
 "agessc"
 "areacello"
 "basin"
@@ -327,11 +289,6 @@ declare -a arr_new=(
 )
 
 
-# The latter list is produced by running:
-#  more ~/cmorize/shaconemo/ping-files/r255/cmor-varlist-based-on-ping-r255-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp.txt
-# And pasting the result here.
-
-
 function add_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
@@ -376,6 +333,6 @@ if [ "$#" -eq 1 ]; then
 else
     echo '  '
     echo '  This scripts requires one argument, e.g.:'
-    echo '  ' $0 new-nemopar.json
+    echo '  ' $0 no-grid-nemopar.json
     echo '  '
 fi

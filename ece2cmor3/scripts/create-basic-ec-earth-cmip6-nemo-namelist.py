@@ -488,12 +488,12 @@ for table in range(0,len(table_list_of_dr)):
 # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
 dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
 for table in range(0,len(dr_table)):
- if dr_table[table] == "SImon" or dr_table[table] == "Omon" : dr_output_frequency[table] = 'output_freq="mo"'  # mo stands in XIOS for monthly output
- if dr_table[table] == "SIday" or dr_table[table] == "Oday" : dr_output_frequency[table] = 'output_freq="d"'   # d  stands in XIOS for dayly   output
- if                               dr_table[table] == "Oyr"  : dr_output_frequency[table] = 'output_freq="y"'   # y  stands in XIOS for yearly  output
- if                               dr_table[table] == "Oclim": dr_output_frequency[table] = 'output_freq="mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
- if                               dr_table[table] == "Ofx"  : dr_output_frequency[table] = 'output_freq="y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
- if                               dr_table[table] == "Odec" : dr_output_frequency[table] = 'output_freq="y"'   # Save "y", then in post process average it over the decadal intervals
+ if dr_table[table] == "SImon" or dr_table[table] == "Omon" : dr_output_frequency[table] = 'output_freq="1mo"'  # mo stands in XIOS for monthly output
+ if dr_table[table] == "SIday" or dr_table[table] == "Oday" : dr_output_frequency[table] = 'output_freq="1d"'   # d  stands in XIOS for dayly   output
+ if                               dr_table[table] == "Oyr"  : dr_output_frequency[table] = 'output_freq="1y"'   # y  stands in XIOS for yearly  output
+ if                               dr_table[table] == "Oclim": dr_output_frequency[table] = 'output_freq="1mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
+ if                               dr_table[table] == "Ofx"  : dr_output_frequency[table] = 'output_freq="1y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
+ if                               dr_table[table] == "Odec" : dr_output_frequency[table] = 'output_freq="1y"'   # Save "y", then in post process average it over the decadal intervals
 ################################################################################
 
 
@@ -517,7 +517,7 @@ else:
 # Below 'flat' means all fields are defined within one file element definition.
 flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
 flat_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
-flat_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
+flat_nemo_file_def_xml_file.write('\n\n   <file_group id="file_group_1">\n')
 flat_nemo_file_def_xml_file.write('\n\n    <file>\n\n')
 
 i = 0
@@ -556,9 +556,9 @@ for i in range(0, len(dr_varname)):
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                                            40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,                                                          80,     4,                                      60,          10,   {}))
- #flat_nemo_file_def_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
-  flat_nemo_file_def_xml_file.write('{:40} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="CMIP6_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enable="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                                         40,                         25,                                                               40,       32,                      20,                 15,                          60,    25,           30,                                              17,                                50,                        15,                                      22,                              14,                            110,                                       125,                                          200,    80,                                                          80,     4,                                      60,          10,   {}))
+ #flat_nemo_file_def_xml_file.write('{:37} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="id_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i][:180]+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  flat_nemo_file_def_xml_file.write('{:37} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:17} {:50} {:15} {:22} {:14} {:110} {:125} {:200} {:80} {:80} {:4} {:60} {:10} {}'.format('     <field id="id_'+dr_varname[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+     '??'              +'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
@@ -610,11 +610,11 @@ grid_ref_overview    = list(set(grid_ref_collection))
 # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
 
 #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
-#for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="mo"][@grid_ref="grid_T_2D"]'):
+#for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="1mo"][@grid_ref="grid_T_2D"]'):
 
 basic_nemo_file_def_xml_file = open(basic_file_def_file_name,'w')
 basic_nemo_file_def_xml_file.write('<?xml version="1.0"?>\n\n  <file_definition type="one_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">\n')
-basic_nemo_file_def_xml_file.write('\n\n   <file_group>\n')
+basic_nemo_file_def_xml_file.write('\n\n   <file_group id="file_group_1">\n')
 
 
 field_counter = 0
@@ -640,12 +640,12 @@ for component_value in component_overview:
    #print ' Number of fields per file is {:3} for the combination: {:7} {:4} {}'.format(number_of_fields_per_file, component_value, output_freq_value, grid_ref_value)
 
     # Writing the file elements for the file_def file:
-    basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" label="{}-{}-{}">\n\n'.format(file_counter, component_value, output_freq_value, grid_ref_value))
+    basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value, output_freq_value, grid_ref_value, output_freq_value))
     # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
     for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
     #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
      if written_field.text == "   None                                                          " : written_field.text = ''
-     basic_nemo_file_def_xml_file.write(  '     <field id={:40} name={:25} field_ref={:40} grid_ref={:32} output_freq={:20} enable="False" > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["output_freq"]+'"', written_field.text))
+     basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} enabled="False" > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', written_field.text))
     basic_nemo_file_def_xml_file.write(  '\n    </file>\n')
 
   #else: print ' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value)
