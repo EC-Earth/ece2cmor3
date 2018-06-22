@@ -78,8 +78,8 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
 
  # Some benchmark diffing, which can be activated by the developer:
- benchmark_step_1='benchmark-14-step-1'
- benchmark_step_1_and_2='benchmark-14-step-1+2'
+ benchmark_step_1='benchmark-15-step-1'
+ benchmark_step_1_and_2='benchmark-15-step-1+2'
 
  if [ -d benchmark/${benchmark_step_1} ] && [ ${mip} == 'CMIP' ] && [ ${experiment} == 'CMIP' ]; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1}.txt;  diff cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           benchmark/${benchmark_step_1}/cmvmm_m=CMIP-e=CMIP-t=${tier}-p=${priority}.missing.txt           >> differences-with-${benchmark_step_1}.txt; echo ' ' >> differences-with-${benchmark_step_1}.txt;
