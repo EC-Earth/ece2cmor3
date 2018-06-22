@@ -151,7 +151,7 @@ def main():
                                         tableprefix=args.tabid)
 
     # Load the variables as task targets:
-    taskloader.load_targets(args.vars, load_atm_tasks=True, load_oce_tasks=False)
+    taskloader.load_targets(args.vars, active_components={"ifs": True, "nemo": False})
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)
