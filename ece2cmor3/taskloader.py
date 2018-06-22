@@ -226,7 +226,8 @@ def create_tasks(targets, active_components=None, silent=False):
             continue  # If all variable's realms are flagged false, skip
         matchpars = {}
         for model in components.models:
-            if active_components.get(model, True):  # Only consider models that are 'enabled'
+            is_active = True if active_components is None else active_components.get(model, True)
+            if is_active:  # Only consider models that are 'enabled'
                 matches = [p for p in model_vars.get(model, []) if
                            matchvarpar(target.variable, p) and target.table == p.get(json_table_key, target.table)]
                 if any(matches):
