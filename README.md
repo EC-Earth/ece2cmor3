@@ -23,8 +23,8 @@ The Anaconda python distribution should be installed. With anaconda all the pack
 
 Download anaconda from: https://www.anaconda.com/download/ (e.g. take the latest anaconda version for python 2.7), and
  ```shell
- chmod u+x Anaconda2-5.0.0.1-Linux-x86_64.sh
- ./Anaconda2-5.0.0.1-Linux-x86_64.sh
+ chmod u+x Anaconda2-5.2.0-Linux-x86_64.sh
+ ./Anaconda2-5.2.0-Linux-x86_64.sh
  source ${HOME}/.bashrc
  ```
 The anaconda installation optionally adds the anaconda python to your $PATH by appending a line to your .bashrc. Commenting this appended line and resourcing the .bashrc gives the default python back.
