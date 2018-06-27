@@ -19,7 +19,7 @@ if [ "$#" -eq 0 ]; then
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
+  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
   cd ${HOME}/cmorize/shaconemo/ping-files/
@@ -41,7 +41,7 @@ if [ "$#" -eq 0 ]; then
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
@@ -74,12 +74,13 @@ if [ "$#" -eq 0 ]; then
 # Step 7: :
 #  From here on one can uncomment one or more of the data requests below.
 
-# Request for all EC-EARTH3-AOGCM MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
+# Step 1: Request for CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP       CMIP          1 1 --oce
 
-# Request for all EC-EARTH3 MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
+# Step 1+2: Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
 
+# Step 3:
 # ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1 --oce
 # ./determine-missing-variables.sh C4MIP       C4MIP        1 1 --oce
 # ./determine-missing-variables.sh DCPP        DCPP         1 1 --oce
@@ -87,6 +88,7 @@ if [ "$#" -eq 0 ]; then
 # ./determine-missing-variables.sh ISMIP6      ISMIP6       1 1 --oce
 # ./determine-missing-variables.sh LS3MIP      LS3MIP       1 1 --oce
 # ./determine-missing-variables.sh LUMIP       LUMIP        1 1 --oce
+# ./determine-missing-variables.sh PAMIP       PAMIP        1 1 --oce
 # ./determine-missing-variables.sh PMIP        PMIP         1 1 --oce
 # ./determine-missing-variables.sh RFMIP       RFMIP        1 1 --oce
 # ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1 --oce
