@@ -170,7 +170,8 @@
         "vwap",
         "ut",
         "vt",
-        "twap"
+        "twap",
+	"cSoil"
     ],
     "CFday": [
         "ps",
@@ -213,7 +214,9 @@
         "mrros",
         "mrro",
         "evspsblsoi",
-        "tsl"
+        "tsl",
+	"cLitter",
+	"cVeg"
     ],
     "LImon": [
         "snc",
@@ -279,11 +282,5 @@
         "zg",
         "snw",
         "mrro"
-    ],
-    "cpool": [
-    	"cSoil",
-	"cVeg",
-	"cLitter",
-	"mrsoLutNatural"	
     ]
 }

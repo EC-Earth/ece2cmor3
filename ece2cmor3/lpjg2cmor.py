@@ -35,7 +35,9 @@ landuse_ = {}
 
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_ = {}
-ref_date_ = datetime.datetime(1850,1,1,0,0,0) #this is the default
+
+# Reference date, will be start date if not given as a command line parameter 
+ref_date_ = None
 cmor_calendar_ = None
 
 lpjg_path_ = None
@@ -255,21 +257,50 @@ def execute(tasks):
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
 
-    for k,v in taskdict.iteritems():
-        tab = k
-        tskgroup = v
+    lon_id = None
+    lat_id = None
+    for table, tasklist in taskdict.iteritems():
+#        tab = k
         files = []
-        for task in tskgroup:
+        try:
+            tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
+            cmor.set_table(tab_id)
+        except Exception as e:
+            log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
+                      % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
+            continue
+
+        for task in tasklist:
             freq = task.target.frequency.encode()
             lpjgfiles = task.source.srcpath()
+            setattr(task, cmor_task.output_path_key, lpjgfiles)
             colname = task.source.variable().encode()
             outname = task.target.out_name
             outdims = task.target.dimensions
             #FIXME: hardwired T255 grid, moved up here, since create_lpjg_netcdf needs lonmids, latmids for the re-mapping
-            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
-            #TODO: generate the netCDF file for the requested variable(s)
-            ncfile = create_lpjg_netcdf(freq,colname,lpjgfiles,outname,outdims)#,lonmids,latmids)
-    return #return here for now, i.e. the end result is a remapped but non-cmorized netcdf-file
+#            ifs_T255_grid_id, lonmids, latmids = create_gauss_grid(512,0,ifs_T255_yvals)
+            #Read data from the .out-file and generate and the netCDF file including remapping
+            ncfile = create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims)
+            
+            dataset = netCDF4.Dataset(ncfile, 'r')
+            #Create the grid, need to do only once as all LPJG variables will be on same grid
+            #(currently just create latitude and longitude axis
+            if lon_id is None and lat_id is None:
+                lon_id, lat_id = create_grid(dataset, task)
+            setattr(task, "longitude_axis", lon_id)
+            setattr(task, "latitude_axis", lat_id)
+
+            #Create cmor time axis for current variable
+            create_time_axis(dataset, task)
+
+            #cmorize the current task (variable)
+            execute_single_task(dataset, task)
+            dataset.close()
+            
+            #remove the regular (non-cmorized) netCDF file
+#            os.remove(ncfile)
+            
+    return 
 #            if ncfile:
 #                print(ncfile)
 #                files.append(ncfile)
@@ -494,10 +525,83 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
 
     #do the remapping
     cdo = Cdo()
-    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
+    #for some reason chaining the other commands to invertlat gives an error, the line below works fine in out2nc.py 
+#    cdo.invertlat(input = "-remapycon,n128 -setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
+    interm_file = os.path.join(ncpath_, 'intermediate.nc')
+    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file)
+    cdo.invertlat(input = interm_file, output=ncfile)
+    os.remove(interm_file)
     os.remove(temp_ncfile)
 
     return ncfile
+
+# Performs a single task.
+def execute_single_task(dataset, task):
+    global log
+    task.status = cmor_task.status_cmorizing
+    lon_axis = [] if not hasattr(task, "longitude_axis") else [getattr(task, "longitude_axis")]
+    lat_axis = [] if not hasattr(task, "latitude_axis") else [getattr(task, "latitude_axis")]
+    t_axis = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
+    axes = lon_axis + lat_axis + t_axis
+    varid = create_cmor_variable(task, dataset, axes)
+#    ncvar = dataset.variables[task.source.variable()]
+    ncvar = dataset.variables[task.target.out_name]
+    print(ncvar.shape)
+    missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
+    
+    factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
+    log.info("CMORizing variable %s in table %s form %s in "
+             "file %s..." % (task.target.out_name, task.target.table, task.source.variable(),
+                             getattr(task, cmor_task.output_path_key)))
+    cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval),
+                           swaplatlon = True)
+    closed_file = cmor.close(varid, file_name=True)
+    log.info("CMOR closed file %s" % closed_file)
+    task.status = cmor_task.status_cmorized
+
+#Creates cmor time axis for the variable (task)
+#Unlike e.g. the corresponding nemo2cmor function, the axis will be created for each variable instead of a table 
+#in case the LPJ-Guess tables will not be organised so that all the variables in a table have same time axis    
+def create_time_axis(ds, task):
+    #finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and the length of the time_dim list will be 1
+    tgtdims = getattr(task.target, cmor_target.dims_key)
+    time_dim = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+
+    timevals = ds.variables["time"][:] #time variable in the netcdf-file from create_lpjg_netcdf is "time"
+    #time requires bounds as well, the following should simply set them to be from start to end of each year/month/day (as appropriate for current data) 
+    f = np.vectorize(lambda x: x + 1)
+    time_bnd = np.stack((timevals, f(timevals)), axis = -1)
+
+    tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
+                                    coord_vals=timevals, cell_bounds=time_bnd) 
+    setattr(task, "time_axis", tid)
+
+    return
+
+#Creates longitude and latitude cmor-axes for LPJ-Guess variables
+#Seems this is enough for cmor according to the cmor documentation since the grid would now just be a lat/lon grid?
+def create_grid(ds, task):
+    lons = ds.variables["lon"][:]
+    lats = ds.variables["lat"][:]
+    
+    #create the cell bounds since they are required: we have a 512x256 grid with longitude from 0 to 360 and latitude from -90 to 90, i.e. resolution ~0.7
+    #longitude values start from 0 so the cell lower bounds are the same as lons (have to be: cmor requires monononically increasing values so 359.X to 0.X is not allowed)
+    lon_bnd_upper = np.append(lons[1:], 360.0)
+    lon_bnd = np.stack((lons, lon_bnd_upper), axis = -1)
+
+    #creating latitude bounds so that latitude values are the (approximate) mid-points of the cell lower and upper bounds
+    lat_bnd_lower = np.array([-90.0, -89.12264116])
+    for i in range(1, 255):
+        lat_bnd_lower = np.append(lat_bnd_lower, lat_bnd_lower[i] + 0.70175308)
+    lat_bnd_upper = np.append(lat_bnd_lower[1:], 90.0)
+    lat_bnd = np.stack((lat_bnd_lower, lat_bnd_upper), axis = -1)
+
+    lon_id = cmor.axis(table_entry="longitude", units=getattr(ds.variables["lon"], "units"),
+                                    coord_vals=lons, cell_bounds=lon_bnd)
+    lat_id = cmor.axis(table_entry="latitude", units=getattr(ds.variables["lat"], "units"),
+                                    coord_vals=lats, cell_bounds=lat_bnd)
+     
+    return lon_id, lat_id
 
 def create_lpjg_netcdf_ver1(freq,colname,lpjgfiles,outname,outdims,lonmids,latmids):
     global lpjg_path_,ncpath_,ref_date_
@@ -705,22 +809,24 @@ cache = {}
 
 # Unit conversion utility method
 def get_conversion_factor(conversion):
-    #TDOD: update for lpjg!!!
     global log
-    if(not conversion): return 1.0
-    #if(conversion == "tossqfix"): return 1.0
-    if(conversion == "frac2percent"): return 100.0
-    if(conversion == "percent2frac"): return 0.01
+    if not conversion:
+        return 1.0
+ #   if conversion == "tossqfix":
+ #       return 1.0
+    if conversion == "frac2percent":
+        return 100.0
+    if conversion == "percent2frac":
+        return 0.01
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0
 
 # Creates a variable in the cmor package
-def create_cmor_variable(task,dataset,axes):
-    ncvar = dataset.variables[task.target.out_name]
-    unit = getattr(ncvar,"units",None)
-    if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
-        unit = getattr(task.target,"units")
-    return cmor.variable(table_entry = str(task.target.out_name),units = str(unit),axis_ids = axes,original_name = str(task.source.colname))
+def create_cmor_variable(task, dataset, axes):
+    srcvar = task.source.variable()
+    unit = getattr(task.target, "units")
+    return cmor.variable(table_entry = str(task.target.out_name), units = str(unit), axis_ids = axes,
+                         original_name = str(srcvar))
 
 # Creates all landUse for the given table from the given files
 # used nemo2cmor create_depth_axes as template
@@ -783,34 +889,34 @@ def create_landuse_var(ncfile,gridchar):
     # times = np.array([(d - refdt).total_seconds()/3600 for d in datetimes])
     # return cmor.axis(table_entry = str(name),units = "hours since " + str(ref_date_),coord_vals = times)
     #===========================================================================
-def create_time_axis(freq,ds):
-    global log, ref_date_
-    vals = None
-    tname = "time"
-    timvar = ds.variables[tname]
-    vals = timvar[:]
-    print(vals)
-    units = getattr(timvar,"units", None)        
-    if(len(vals) == 0 or units == None):
-        log.error("No time values or units could be read from lpjg output file")
-        return 0
-    calendar = getattr(timvar, "calendar", u"proleptic_gregorian") # or standard        
-    datevar = []
-    datevar.append(netCDF4.num2date(vals,units = units,calendar = calendar))
-    
-    bnds = getattr(timvar,"bounds", None)
-    if bnds: #FIXME: weird genrated ncfile does not seem to have time_bnds
-        bndvar = ds.variables[bnds]
-    else:
-        #lets fake the time bnds
-        n = len(vals)
-        bndvar = np.empty([n, 2])
-        bndvar[:, 0] = vals[:]
-        bndvar[0:n - 1, 1] = vals[1:n]
-        bndvar[n - 1, 1] = max(vals)+1
-    print(bndvar)
-    ax_id = cmor.axis(table_entry = "time1",units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
-    return ax_id
+#def create_time_axis(freq,ds):
+#    global log, ref_date_
+#    vals = None
+#    tname = "time"
+#    timvar = ds.variables[tname]
+#    vals = timvar[:]
+#    print(vals)
+#    units = getattr(timvar,"units", None)        
+#    if(len(vals) == 0 or units == None):
+#        log.error("No time values or units could be read from lpjg output file")
+#        return 0
+#    calendar = getattr(timvar, "calendar", u"proleptic_gregorian") # or standard        
+#    datevar = []
+#    datevar.append(netCDF4.num2date(vals,units = units,calendar = calendar))
+#    
+#    bnds = getattr(timvar,"bounds", None)
+#    if bnds: #FIXME: weird genrated ncfile does not seem to have time_bnds
+#        bndvar = ds.variables[bnds]
+#    else:
+#        #lets fake the time bnds
+#        n = len(vals)
+#        bndvar = np.empty([n, 2])
+#        bndvar[:, 0] = vals[:]
+#        bndvar[0:n - 1, 1] = vals[1:n]
+#        bndvar[n - 1, 1] = max(vals)+1
+#    print(bndvar)
+#    ax_id = cmor.axis(table_entry = "time1",units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
+#    return ax_id
 
 def create_grid_axis(task,gridname,ds):
     global log
