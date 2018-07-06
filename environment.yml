@@ -1,25 +1,30 @@
-# conda update --all
-# conda-env remove -n ece2cmor3-check
-# conda clean --all
-# conda-env list
-# conda list
+# Some remove, built and test commands:
+#  conda-env remove -n ece2cmor3-check
+#  conda clean --all
+#  conda env create -f environment.yml
+#  conda update --all
+#  conda-env list
+#  conda list
+#  cdo -V
+#  nosetests
+
 name: ece2cmor3-check
 channels:
-- pcmdi
+- pcmdi/label/nightly
 - conda-forge
 - defaults
 dependencies:
-- cmor=2018.06.28.master.npy1.14=py27h9ac9557_0          #0 depends on cdms2, hdf5 >=1.10, libnetcdf >=4.4, numpy 1.13.*, ossuuid >=1.6, python >=2.7,<2.8.0a0, udunits2
-- cdo=1.9.3=1
+- cmor=2018.06.28.master.npy1.14=py27h9ac9557_0   # Depends on libnetcdf >=4.4 and hdf5 >=1.10, python >=2.7,<2.8
+- cdo=1.9.3
 - python-cdo
-- python-eccodes=2.8.0      #9 depends on eccodes 2.7.0, hdf5 1.10.1, jasper, libnetcdf 4.4.*, libpng >=1.6.32,<1.6.35, numpy >=1.8, python 2.7*
-- netcdf4                   #3 depends on hdf5 >=1.10.1,<1.10.2.0a0, libgcc-ng 7.2.0.*, libnetcdf >=4.4.1.1,<4.4.2.0a0, numpy >=1.9.3,<2.0a0, python >=2.7,<2.8.0a0, setuptools
+- python-eccodes=2.8.0
+- netcdf4
 - nose=1.3.7
-- pip=9.0.1
+- pip=10.0.1
 - python=2.7.15
 - setuptools=39.2.0
-- numpy>=1.13.0
-- libiconv                          # Unlisted dependency of cdo
+- numpy>=1.14.0
+- libiconv                                        # Unlisted dependency of cdo
 - pip:
   - f90nml==0.20
   - jsonschema==2.5.1
@@ -27,3 +32,5 @@ dependencies:
   - testfixtures==5.3.1
   - xlrd==1.1.0
   - xlsxwriter==1.0.2
+  - dreqPy==01.00.24
+  - cython
