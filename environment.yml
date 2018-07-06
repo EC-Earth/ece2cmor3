@@ -1,5 +1,5 @@
 # Some remove, built and test commands:
-#  conda-env remove -n ece2cmor3-check
+#  conda-env remove -n ece2cmor3
 #  conda clean --all
 #  conda env create -f environment.yml
 #  conda update --all
@@ -8,7 +8,7 @@
 #  cdo -V
 #  nosetests
 
-name: ece2cmor3-check
+name: ece2cmor3
 channels:
 - pcmdi/label/nightly
 - conda-forge
