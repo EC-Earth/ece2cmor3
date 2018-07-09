@@ -1,18 +1,16 @@
-import Queue
 import datetime
-import logging
-import tempfile
-import os
-import threading
 
 import cdo
 import cmor
-
 import dateutil.relativedelta
+import logging
+import multiprocessing
 import netCDF4
 import numpy
-from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
+import os
+import tempfile
 
+from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -342,29 +340,24 @@ def cmorize(tasks):
         except Exception as e:
             log.error("CMOR failed to load table %s, the following variables will be skipped: %s. Reason: %s" % (
                 tab, str([t.target.variable for t in task_group]), e.message))
+            for task in task_group:
+                task.set_failed()
             continue
         log.info("Creating time axes for table %s..." % tab)
         create_time_axes(task_group)
         log.info("Creating depth axes for table %s..." % tab)
         create_depth_axes(task_group)
-        q = Queue.Queue()
-        for i in range(postproc.task_threads):
-            worker = threading.Thread(target=cmor_worker, args=[q])
-            worker.setDaemon(True)
-            worker.start()
-        for task in task_group:
-            q.put(task)
-        q.join()
+    pool = multiprocessing.Pool(processes=postproc.task_threads)
+    pool.map(cmor_worker, [task for task in tasks if task.status not in [cmor_task.status_failed,
+                                                                         cmor_task.status_cmorized,
+                                                                         cmor_task.status_cmorizing]])
 
 
 # Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(queue):
-    while True:
-        task = queue.get()
-        log.info("Cmorizing source variable %s to target variable %s..." % (
-            task.source.get_grib_code().var_id, task.target.variable))
-        execute_netcdf_task(task)
-        queue.task_done()
+def cmor_worker(task):
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    execute_netcdf_task(task)
 
 
 # Executes a single task
@@ -598,44 +591,44 @@ def create_soil_depth_axis(name, filepath):
     values = 0.5*(bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
-    dataset = None
-    try:
-        dataset = netCDF4.Dataset(filepath, 'r')
-        ncvar = dataset.variables.get("depth", None)
-        if not ncvar:
-            log.error("Could retrieve depth coordinate from file %s" % filepath)
-            return 0
-        units = getattr(ncvar, "units", "cm")
-        if units == "mm":
-            factor = 0.001
-        elif units == "cm":
-            factor = 0.01
-        elif units == "m":
-            factor = 1
-        else:
-            log.error("Unknown units for depth axis in file %s" % filepath)
-            return 0
-        values = factor * ncvar[:]
-        ncvar = dataset.variables.get("depth_bnds", None)
-        if not ncvar:
-            n = len(values)
-            bounds = numpy.empty([n, 2])
-            bounds[0, 0] = 0.
-            if n > 1:
-                bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
-                bounds[0:n - 1, 1] = bounds[1:n, 0]
-                bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
-            else:
-                bounds[0, 1] = 2 * values[0]
-        else:
-            bounds = factor * ncvar[:, :]
-        return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-    except Exception as e:
-        log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
-    finally:
-        if dataset is not None:
-            dataset.close()
-    return 0
+    # dataset = None
+    # try:
+    #     dataset = netCDF4.Dataset(filepath, 'r')
+    #     ncvar = dataset.variables.get("depth", None)
+    #     if not ncvar:
+    #         log.error("Could retrieve depth coordinate from file %s" % filepath)
+    #         return 0
+    #     units = getattr(ncvar, "units", "cm")
+    #     if units == "mm":
+    #         factor = 0.001
+    #     elif units == "cm":
+    #         factor = 0.01
+    #     elif units == "m":
+    #         factor = 1
+    #     else:
+    #         log.error("Unknown units for depth axis in file %s" % filepath)
+    #         return 0
+    #     values = factor * ncvar[:]
+    #     ncvar = dataset.variables.get("depth_bnds", None)
+    #     if not ncvar:
+    #         n = len(values)
+    #         bounds = numpy.empty([n, 2])
+    #         bounds[0, 0] = 0.
+    #         if n > 1:
+    #             bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
+    #             bounds[0:n - 1, 1] = bounds[1:n, 0]
+    #             bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
+    #         else:
+    #             bounds[0, 1] = 2 * values[0]
+    #     else:
+    #         bounds = factor * ncvar[:, :]
+    #     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
+    # except Exception as e:
+    #     log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
+    # finally:
+    #     if dataset is not None:
+    #         dataset.close()
+    # return 0
 
 
 # Makes a time axis for the given table
@@ -669,7 +662,6 @@ def get_sp_var(ncpath):
         return None
     if not os.path.exists(ncpath):
         return None
-    ds = None
     try:
         ds = netCDF4.Dataset(ncpath)
         if "var134" in ds.variables:
