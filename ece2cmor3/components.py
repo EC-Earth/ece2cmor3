@@ -13,7 +13,7 @@ script_flags = "option_keys"
 models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce"],
                   table_file: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json"),
                   script_flags: ("atm", 'a')},
-          "nemo": {realms: ["ocean", "ocnBgChem", "seaIce"],
+          "nemo": {realms: ["ocean", "ocnBgchem", "seaIce"],
                    table_file: os.path.join(os.path.dirname(__file__), "resources", "nemopar.json"),
                    script_flags: ("oce", 'o')}
           }

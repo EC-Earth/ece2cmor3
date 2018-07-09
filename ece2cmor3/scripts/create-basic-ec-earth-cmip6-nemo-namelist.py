@@ -48,7 +48,9 @@ from os.path import expanduser
 
 # Note that the ping files are not yet available within ec-earth3 trunk, so you need the Shaconemo repository
 # or the Shaconemo vendor branch of the ec-earth3 repository: ^/ecearth3/vendor/nemo/shaconemo/ORCA1_LIM3_PISCES/EXP00/
-ping_file_directory            = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
+ping_file_name_ocean           = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_ocean.xml"
+ping_file_name_seaIce          = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_seaIce.xml"
+ping_file_name_ocnBgchem       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_ocnBgChem.xml"
 field_def_file_directory       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
 #field_def_file_directory       = expanduser("~")+"/ec-earth-3.2.3/trunk/runtime/classic/ctrl/"
 
@@ -84,25 +86,25 @@ produce_nemopar_json = False
 # READING THE PING FILES:
 
 # Checking whether the ping files exist:
-if os.path.isfile(ping_file_directory + "ping_ocean.xml"    ) == False: print ' The file ', ping_file_directory + "ping_ocean.xml"    , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_directory + "ping_seaIce.xml"   ) == False: print ' The file ', ping_file_directory + "ping_seaIce.xml"   , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_directory + "ping_ocnBgChem.xml") == False: print ' The file ', ping_file_directory + "ping_ocnBgChem.xml", '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocean    ) == False: print ' The file ', ping_file_name_ocean    , '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_name_seaIce   ) == False: print ' The file ', ping_file_name_seaIce   , '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocnBgchem) == False: print ' The file ', ping_file_name_ocnBgchem, '  does not exist.'; sys.exit(' stop')
 
-treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean.xml"    )
-treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce.xml"   )
-treeOcnBgChem = xmltree.parse(ping_file_directory + "ping_ocnBgChem.xml")
+treeOcean     = xmltree.parse(ping_file_name_ocean    )
+treeSeaIce    = xmltree.parse(ping_file_name_seaIce   )
+treeOcnBgchem = xmltree.parse(ping_file_name_ocnBgchem)
 
 rootOcean     = treeOcean.getroot()            # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 rootSeaIce    = treeSeaIce.getroot()           # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-rootOcnBgChem = treeOcnBgChem.getroot()        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+rootOcnBgchem = treeOcnBgchem.getroot()        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
 field_elements_Ocean     = rootOcean    [0][:]
 field_elements_SeaIce    = rootSeaIce   [0][:]
-field_elements_OcnBgChem = rootOcnBgChem[0][:]
+field_elements_OcnBgchem = rootOcnBgchem[0][:]
 
 #field_elements_Ocean     = treeOcean.getroot()    [0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 #field_elements_SeaIce    = treeSeaIce.getroot()   [0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-#field_elements_OcnBgChem = treeOcnBgChem.getroot()[0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+#field_elements_OcnBgchem = treeOcnBgchem.getroot()[0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
 #Exclude the dummy_ variables from the ping list and removes the CMIP6_ prefix.
 pinglistOcean_id        = []
@@ -133,24 +135,24 @@ for child in field_elements_SeaIce:
   if "expr" in child.attrib: pinglistSeaIce_expr.append(child.attrib["expr"])
   else:                      pinglistSeaIce_expr.append("None")
 
-pinglistOcnBgChem_id        = []
-pinglistOcnBgChem_field_ref = []
-pinglistOcnBgChem_text      = []
-pinglistOcnBgChem_expr      = []
-for child in field_elements_OcnBgChem:
+pinglistOcnBgchem_id        = []
+pinglistOcnBgchem_field_ref = []
+pinglistOcnBgchem_text      = []
+pinglistOcnBgchem_expr      = []
+for child in field_elements_OcnBgchem:
  if exclude_dummy_fields and child.attrib["field_ref"].startswith('dummy_'):
   continue
  else:
-  pinglistOcnBgChem_id.append(child.attrib["id"][6:])
-  pinglistOcnBgChem_field_ref.append(child.attrib["field_ref"])
-  pinglistOcnBgChem_text.append(child.text)
-  if "expr" in child.attrib: pinglistOcnBgChem_expr.append(child.attrib["expr"])
-  else:                      pinglistOcnBgChem_expr.append("None")
+  pinglistOcnBgchem_id.append(child.attrib["id"][6:])
+  pinglistOcnBgchem_field_ref.append(child.attrib["field_ref"])
+  pinglistOcnBgchem_text.append(child.text)
+  if "expr" in child.attrib: pinglistOcnBgchem_expr.append(child.attrib["expr"])
+  else:                      pinglistOcnBgchem_expr.append("None")
 
-total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgChem_id
-total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + pinglistOcnBgChem_field_ref
-total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgChem_text
-total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgChem_expr
+total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgchem_id
+total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + pinglistOcnBgchem_field_ref
+total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgchem_text
+total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgchem_expr
 
 if exclude_dummy_fields:
  print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
@@ -182,17 +184,17 @@ index_in_ping_list = pinglistOcean_id.index(field_example)
 
 #history
 
-#print rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgChem.attrib["id"]
+#print rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgchem.attrib["id"]
 
 #print field_elements_Ocean    [1].__dict__  # Example print of the 1st Ocean     field-element
 #print field_elements_SeaIce   [1].__dict__  # Example print of the 1st SeaIce    field-element
-#print field_elements_OcnBgChem[1].__dict__  # Example print of the 1st OcnBgChem field-element
+#print field_elements_OcnBgchem[1].__dict__  # Example print of the 1st OcnBgchem field-element
 
 #print field_elements_Ocean    [1].tag,field_elements_Ocean    [1].attrib["id"],field_elements_Ocean    [1].attrib["field_ref"],field_elements_Ocean    [1].text  # Example print of the tag and some specified attributes of the 1st Ocean     field-element
 #print field_elements_SeaIce   [1].tag,field_elements_SeaIce   [1].attrib["id"],field_elements_SeaIce   [1].attrib["field_ref"],field_elements_SeaIce   [1].text  # Example print of the tag and some specified attributes of the 1st SeaIce    field-element
-#print field_elements_OcnBgChem[1].tag,field_elements_OcnBgChem[1].attrib["id"],field_elements_OcnBgChem[1].attrib["field_ref"],field_elements_OcnBgChem[1].text  # Example print of the tag and some specified attributes of the 1st OcnBgChem field-element
+#print field_elements_OcnBgchem[1].tag,field_elements_OcnBgchem[1].attrib["id"],field_elements_OcnBgchem[1].attrib["field_ref"],field_elements_OcnBgchem[1].text  # Example print of the tag and some specified attributes of the 1st OcnBgchem field-element
 
-#for field_elements in [field_elements_Ocean, field_elements_SeaIce, field_elements_OcnBgChem]:
+#for field_elements in [field_elements_Ocean, field_elements_SeaIce, field_elements_OcnBgchem]:
 #    for child in field_elements:
 #        print child.attrib["id"], child.attrib["field_ref"], child.text
 
@@ -476,7 +478,7 @@ dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_ping
 for element_counter in range(0,len(dr_ping_component)):
  if dr_ping_component[element_counter] == "ocean"    : dr_ping_component[element_counter] = "opa"
  if dr_ping_component[element_counter] == "seaIce"   : dr_ping_component[element_counter] = "lim"
- if dr_ping_component[element_counter] == "ocnBgChem": dr_ping_component[element_counter] = "pisces"
+ if dr_ping_component[element_counter] == "ocnBgchem": dr_ping_component[element_counter] = "pisces"
 ################################################################################
 
 
