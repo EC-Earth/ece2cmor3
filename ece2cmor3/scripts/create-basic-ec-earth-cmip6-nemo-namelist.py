@@ -11,8 +11,9 @@
 # Second, this script reads the four NEMO xml field_def files (the files which contain the basic info
 # about the fields required by XIOS. These field_def files can either be taken from the shaconemo
 # repository or from the EC-Earth repository. The four field_def files contain nearly 1200 variables
-# with an id (15 id's occur twice) and about 100 variables whithout an id but with a field_ref (most
-# of the latter one have an name attribute, but not all of them).
+# with an id (15 id's occur twice, one of them bn2 is direct problematic because of a different
+# grid_def) and about 100 variables without an id but with a field_ref (most of the latter one have an
+# name attribute, but not all of them).
 #
 # Third, the NEMO only excel xlsx CMIP6 data request file is read. This file has been created
 # elsewhere by checking the non-dummy NEMO shaconemo ping file cmor variable list against the

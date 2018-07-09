@@ -56,7 +56,7 @@ if [ "$#" -eq 4 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
  #source deactivate
  fi
- mkdir -p ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mkdir -p ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
  mv -f pptdddddd0300 pptdddddd0600 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
  
 
@@ -66,9 +66,9 @@ if [ "$#" -eq 4 ]; then
  mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
  mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
  mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
 
  echo
  echo 'The produced data request excel file:'
@@ -84,9 +84,9 @@ if [ "$#" -eq 4 ]; then
  ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
  ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
  ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa-compact.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3-compact.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces-compact.xml
+ ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
  echo
 
 else
