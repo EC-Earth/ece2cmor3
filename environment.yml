@@ -1,6 +1,6 @@
 # For developers only:
 #  Remove the ece2cmor environment and clean the downloaded conda cache:
-#   conda deactivate
+#   source deactivate ece2cmor3
 #   conda-env remove -y -n ece2cmor3
 #   conda clean --all -y
 #  Create the ece2cmor3 environment:
