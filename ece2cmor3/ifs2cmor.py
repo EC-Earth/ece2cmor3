@@ -322,41 +322,53 @@ def cmorize(tasks):
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
     if not any(tasks):
         return
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(table_root_ + "_grids.json")
-    grid = create_grid_from_grib(getattr(tasks[0], "path"))
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key).split()
-        if "latitude" in tgtdims and "longitude" in tgtdims:
-            setattr(task, "grid_id", grid)
-    task_dict = cmor_utils.group(tasks, lambda tsk: tsk.target.table)
-    for k, v in task_dict.iteritems():
-        tab = k
-        task_group = v
-        log.info("Loading CMOR table %s..." % tab)
-        try:
-            tab_id = cmor.load_table("_".join([table_root_, tab]) + ".json")
-            cmor.set_table(tab_id)
-        except Exception as e:
-            log.error("CMOR failed to load table %s, the following variables will be skipped: %s. Reason: %s" % (
-                tab, str([t.target.variable for t in task_group]), e.message))
-            for task in task_group:
-                task.set_failed()
-            continue
-        log.info("Creating time axes for table %s..." % tab)
-        create_time_axes(task_group)
-        log.info("Creating depth axes for table %s..." % tab)
-        create_depth_axes(task_group)
-    pool = multiprocessing.Pool(processes=postproc.task_threads)
+    path = getattr([t for t in tasks if hasattr(t, "path")][0], "path")
+    pool = multiprocessing.Pool(processes=postproc.task_threads, initializer=init_cmor, initargs=[path])
     pool.map(cmor_worker, [task for task in tasks if task.status not in [cmor_task.status_failed,
                                                                          cmor_task.status_cmorized,
                                                                          cmor_task.status_cmorizing]])
+
+
+grid_id = 0
+time_axis_ids = {}
+depth_axis_ids = {}
+
+
+def init_cmor(filepath):
+    global grid_id
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    cmor.load_table(table_root_ + "_grids.json")
+    if grid_id == 0:
+        grid_id = create_grid_from_grib(filepath)
+
+
+def define_cmor_axes(task):
+    global grid_id
+    tgtdims = getattr(task.target, cmor_target.dims_key).split()
+    if "latitude" in tgtdims and "longitude" in tgtdims:
+        setattr(task, "grid_id", grid_id)
+    log.info("Loading CMOR table %s..." % task.target.table)
+    try:
+        tab_id = cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
+        cmor.set_table(tab_id)
+    except Exception as e:
+        log.error("CMOR failed to load table %s, the following variable will be skipped: %s. Reason: %s" % (
+            task.target.table, task.target.variable, e.message))
+        task.set_failed()
+        return
+    create_time_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    create_depth_axes(task)
 
 
 # Worker function for parallel cmorization (not working at the present...)
 def cmor_worker(task):
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
+    define_cmor_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
     execute_netcdf_task(task)
 
 
@@ -379,12 +391,12 @@ def execute_netcdf_task(task):
             "%s" % (task.target.variable, task.target.table))
         return
     axes = []
-    grid_id = getattr(task, "grid_id", 0)
-    if grid_id != 0:
-        axes.append(grid_id)
+    gid = getattr(task, "grid_id", 0)
+    if gid != 0:
+        axes.append(gid)
     if hasattr(task, "z_axis_id"):
         axes.append(getattr(task, "z_axis_id"))
-    time_id = getattr(task, "time_axis", 0)
+    time_id = getattr(task, "t_axis_id", 0)
     if time_id != 0:
         axes.append(time_id)
     try:
@@ -461,91 +473,98 @@ def get_conversion_factor(conversion, output_frequency):
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
-def create_time_axes(tasks):
-    global log
-    time_axes = {}
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key)
-        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
-        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
-            if time_dim in time_axes:
-                tid = time_axes[time_dim]
-            else:
-                time_operator = getattr(task.target, "time_operator", ["point"])
-                log.info("Creating time axis using variable %s..." % task.target.variable)
-                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
-                                       name=time_dim, has_bounds=(time_operator != ["point"]))
-                time_axes[time_dim] = tid
-            setattr(task, "time_axis", tid)
-            break
+def create_time_axes(task):
+    global log, time_axis_ids
+    tgtdims = getattr(task.target, cmor_target.dims_key)
+    # TODO: better to check in the table axes if the standard name of the dimension equals "time"
+    time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    if not any(time_dims):
+        return
+    if len(time_dims) > 1:
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple time dimensions." % (
+            task.target.variable, task.target.table, tgtdims))
+        task.set_failed()
+        return
+    time_dim = str(time_dims[0])
+    key = (task.target.table, time_dim)
+    if key in time_axis_ids:
+        tid = time_axis_ids[key]
+    else:
+        time_operator = getattr(task.target, "time_operator", ["point"])
+        log.info("Creating time axis using variable %s..." % task.target.variable)
+        tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                               name=time_dim, has_bounds=(time_operator != ["point"]))
+        time_axis_ids[key] = tid
+    setattr(task, "t_axis_id", tid)
 
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
-def create_depth_axes(tasks):
-    global log
-    depth_axes = {}
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key)
-        zdims = getattr(task.target, "z_dims", [])
-        if len(zdims) == 0:
-            continue
-        if len(zdims) > 1:
-            log.error("Skipping variable %s in table %s with dimensions %s with multiple directions." % (
-                task.target.variable, task.target.table, tgtdims))
-            continue
-        zdim = str(zdims[0])
-        if zdim in depth_axes:
-            setattr(task, "z_axis_id", depth_axes[zdim])
-            if zdim == "alevel":
-                setattr(task, "z_axis_id", depth_axes[zdim][0])
-                setattr(task, "store_with", depth_axes[zdim][1])
-            continue
-        elif zdim == "alevel":
-            log.info("Creating model level axis using variable %s..." % task.target.variable)
-            axisid, psid = create_hybrid_level_axis(task)
-            depth_axes[zdim] = (axisid, psid)
-            setattr(task, "z_axis_id", axisid)
-            setattr(task, "store_with", psid)
-            continue
-        elif zdim == "sdepth":
-            axisid = create_soil_depth_axis(zdim, getattr(task, cmor_task.output_path_key))
-            depth_axes[zdim] = axisid
-            setattr(task, "z_axis_id", axisid)
-        elif zdim in cmor_target.get_axis_info(task.target.table):
-            axis = cmor_target.get_axis_info(task.target.table)[zdim]
-            levels = axis.get("requested", [])
-            if levels == "":
-                levels = []
-            value = axis.get("value", None)
-            if value:
-                levels.append(value)
-            unit = axis.get("units", None)
-            if len(levels) == 0:
-                log.warning("Skipping axis %s in table %s with no levels" % (zdim, task.target.table))
-                continue
-            else:
-                log.info("Creating vertical axis for %s..." % str(zdim))
-                values = [float(l) for l in levels]
-                if axis.get("must_have_bounds", "no") == "yes":
-                    bounds_list, n = axis.get("requested_bounds", []), len(values)
-                    if not bounds_list:
-                        bounds_list = [float(x) for x in axis.get("bounds_values", []).split()]
-                    if len(bounds_list) == 2 * n:
-                        bounds_array = numpy.empty([n, 2])
-                        for i in range(n):
-                            bounds_array[i, 0], bounds_array[i, 1] = bounds_list[2 * i], bounds_list[2 * i + 1]
-                        axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit,
-                                           cell_bounds=bounds_array)
-                    else:
-                        log.error("Failed to retrieve bounds for vertical axis %s" % str(zdim))
-                        axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit)
-                else:
-                    axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit)
-            depth_axes[zdim] = axisid
-            setattr(task, "z_axis_id", axisid)
+def create_depth_axes(task):
+    global log, depth_axis_ids
+    tgtdims = getattr(task.target, cmor_target.dims_key)
+    z_dims = getattr(task.target, "z_dims", [])
+    if not any(z_dims):
+        return
+    if len(z_dims) > 1:
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple z-directions." % (
+            task.target.variable, task.target.table, tgtdims))
+        task.set_failed()
+        return
+    z_dim = str(z_dims[0])
+    key = (task.target.table, z_dim)
+    if key in depth_axis_ids:
+        if z_dim == "alevel":
+            setattr(task, "z_axis_id", depth_axis_ids[key][0])
+            setattr(task, "store_with", depth_axis_ids[key][1])
         else:
-            log.error("Vertical dimension %s for variable %s not found in header of table %s" % (
-                zdim, task.target.variable, task.target.table))
+            setattr(task, "z_axis_id", depth_axis_ids[key])
+        return
+    elif z_dim == "alevel":
+        log.info("Creating model level axis using variable %s..." % task.target.variable)
+        axisid, psid = create_hybrid_level_axis(task)
+        depth_axis_ids[key] = (axisid, psid)
+        setattr(task, "z_axis_id", axisid)
+        setattr(task, "store_with", psid)
+        return
+    elif z_dim == "sdepth":
+        log.info("Creating soil depth axis using variable %s..." % task.target.variable)
+        axisid = create_soil_depth_axis(z_dim, getattr(task, cmor_task.output_path_key))
+        depth_axis_ids[key] = axisid
+        setattr(task, "z_axis_id", axisid)
+    elif z_dim in cmor_target.get_axis_info(task.target.table):
+        axis = cmor_target.get_axis_info(task.target.table)[z_dim]
+        levels = axis.get("requested", [])
+        if levels == "":
+            levels = []
+        value = axis.get("value", None)
+        if value:
+            levels.append(value)
+        unit = axis.get("units", None)
+        if len(levels) == 0:
+            log.warning("Skipping axis %s in table %s with no levels" % (z_dim, task.target.table))
+            return
+        else:
+            values = [float(l) for l in levels]
+            if axis.get("must_have_bounds", "no") == "yes":
+                bounds_list, n = axis.get("requested_bounds", []), len(values)
+                if not bounds_list:
+                    bounds_list = [float(x) for x in axis.get("bounds_values", []).split()]
+                if len(bounds_list) == 2 * n:
+                    bounds_array = numpy.empty([n, 2])
+                    for i in range(n):
+                        bounds_array[i, 0], bounds_array[i, 1] = bounds_list[2 * i], bounds_list[2 * i + 1]
+                    axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit,
+                                       cell_bounds=bounds_array)
+                else:
+                    log.error("Failed to retrieve bounds for vertical axis %s" % str(z_dim))
+                    axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
+            else:
+                axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
+            depth_axis_ids[key] = axisid
+            setattr(task, "z_axis_id", axisid)
+    else:
+        log.error("Vertical dimension %s for variable %s not found in header of table %s" % (
+            z_dim, task.target.variable, task.target.table))
 
 
 # Creates the hybrid model vertical axis in cmor.
@@ -576,7 +595,7 @@ def create_hybrid_level_axis(task):
         cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
                      zfactor_bounds=bbnds)
         storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
-                                 axis_ids=[getattr(task, "grid_id"), getattr(task, "time_axis")], units="Pa")
+                                 axis_ids=[grid_id, getattr(task, "t_axis_id")], units="Pa")
         return axisid, storewith
     finally:
         if ds is not None:
@@ -588,7 +607,7 @@ def create_soil_depth_axis(name, filepath):
     global log
     # New version of cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
-    values = 0.5*(bndcm[:4] + bndcm[1:])
+    values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
     # dataset = None
