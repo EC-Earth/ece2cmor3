@@ -33,11 +33,13 @@ if [ "$#" -eq 0 ]; then
 # After updating the pre* file it is most convenient to commit it first.
 
 # Step 4: Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use a
-#         list-of-identified-missing-cmpi6-requested-variables.xlsx which contains the non-dummy ping file variables
+#         list-of-identified-missing-cmpi6-requested-variables.xlsx which contains the non-dummy ping file variables.
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   /bin/cp -f create-nemo-only-list/empty-nemopar.json                                                      ../resources/nemopar.json
   /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx                            ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
   /bin/cp -f create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+# Use the line below instead of the one above in order to create one list (without ping info, the resulting nemo-miss-list can be used to create a ping file template):
+# /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx                            ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
 
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
@@ -52,6 +54,7 @@ if [ "$#" -eq 0 ]; then
   #/bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
   #/bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
 
+# Revert the temporary changed files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
    git checkout list-of-ignored-cmpi6-requested-variables.xlsx
@@ -63,6 +66,16 @@ if [ "$#" -eq 0 ]; then
 # step 1 here, which includes all EC-Earth MIPs for the Core MIP experiments, however this does not include the endorsed MIP experiments (e.g drq -m LS3MIP -e LS3MIP ).
 # Therefore the identified missing and ignored vraiables coming from the endorsed MIP experiments have to be added manually to the basic lists.
 
+
+# Comment next two lines in order to continue with step 7 in this script.
+   echo ' Omit step 7 (default) in this script.'
+   exit
+   echo ' Continue with step 7.'
+
+
+# This prepares step 7 below:
+#  Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use an empty
+#  list-of-identified-missing-cmpi6-requested-variables.xlsx and copy the detected nemo-only and nemo-miss in two ignore files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
    /bin/cp -f create-nemo-only-list/empty-nemopar.json                            ../resources/nemopar.json
    /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx  ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
@@ -104,6 +117,7 @@ if [ "$#" -eq 0 ]; then
 # ll *.missing.txt|grep -v 266B
 # m *.missing.txt|grep r256
 
+# Revert the temporary changed files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
    git checkout list-of-ignored-cmpi6-requested-variables.xlsx
