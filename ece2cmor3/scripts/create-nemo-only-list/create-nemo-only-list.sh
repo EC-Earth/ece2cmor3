@@ -32,7 +32,8 @@ if [ "$#" -eq 0 ]; then
 # of the xlsx file, and the column with comment2 in the "actual comment"-column of the xlsx file.
 # After updating the pre* file it is most convenient to commit it first.
 
-# Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files:
+# Step 4: Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use a
+#         list-of-identified-missing-cmpi6-requested-variables.xlsx which contains the non-dummy ping file variables
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   /bin/cp -f create-nemo-only-list/empty-nemopar.json                                                      ../resources/nemopar.json
   /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx                            ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
