@@ -56,23 +56,23 @@ if [ "$#" -eq 4 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
  #source deactivate
  fi
- mkdir -p ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f pptdddddd0300 pptdddddd0600 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mkdir -p ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
+ mv -f pptdddddd0300 pptdddddd0600 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
  # Add the initial ppt0000000000 file:
- cd ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ cd ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
  sed -e 's/MFPPHY =/MFPPHY = 172,/' pptdddddd0600 > ppt0000000000
  cd ../../
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
 
  echo
  echo 'The produced data request excel file:'
@@ -80,24 +80,24 @@ if [ "$#" -eq 4 ]; then
 
  echo
  echo 'The generated ppt files are:'
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
 
  echo
  echo 'The generated file_def files are:'
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
  echo
 
 else
     echo '  '
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-    echo '  ' $0 CMIP amip 1 1
+    echo '  ' $0 CMIP piControl 1 1
     echo '  '
 fi
 
@@ -124,5 +124,5 @@ fi
 # ./generate-ec-earth-namelists.sh VIACSAB      amip 1 1
 # ./generate-ec-earth-namelists.sh DAMIP        amip 1 1
 
-# diff ec-earth-namelists/ec-earth-cmip6-namelists-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-namelists/ec-earth-cmip6-namelists-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
+# diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
 
