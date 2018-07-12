@@ -69,8 +69,9 @@ if [ "$#" -eq -2 ]; then
 
 # Note exel-diff is installed by following:
 #   https://github.com/na-ka-na/ExcelCompare/blob/master/README.md
+# Java is needed, on ubuntu this can be installed by: sudo apt-get update; sudo apt-get install -y default-jre
 # Extract the zip and 
-#  mv Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
+#  mv Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
 
 
 else
