@@ -1,5 +1,10 @@
 Some starting guide lines about how to add a new model component to ece2cmor3. Like
-for instance adding a TM5 component or LPJ-GUESS component.
+for instance adding a TM5, an LPJ-GUESS or a PISM component.
+
+In the ece2cmor3/ece2cmor3 directory
+ grep -iHn NEWCOMPONENT *.py
+Gives an idea where some action is needed, as we labeled all points by "NEWCOMPONENT". So open
+the involved files and study the comments an suggestive examples.
 
 It starts with adding a few lines in the file (see the commented template lines with "NEWCOMPONENT"):
  ece2cmor3/ece2cmor.py
@@ -7,4 +12,9 @@ And by adding a function which will take care of all the tasks (see the commente
 "NEWCOMPONENT") in the file:
  ece2cmor3/ece2cmorlib.py
 
-Further there have to be made model component specific chages to the taskloader.py.
+Further (ask if you are in doubt Thomas) a new 
+ ece2cmor3/ece2cmor3/resources/NEWCOMPONENTpar.json
+has to be created. Therefore in the ece2cmor3/ece2cmor3/scripts/ directory
+ cp generate-tm5.json.sh generate-NEWCOMPONENT.json.sh
+and replace tm5 by NEWCOMPONENT and replace the variable list in "arr" by the
+list of cmor names which will be produced by your NEWCOMPONENT model component.
