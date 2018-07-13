@@ -7,9 +7,8 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 * netCDF4
 * cmor3 (see cmor [dependencies](https://anaconda.org/PCMDI/cmor/files?channel=main))
 * cdo (version 1.9.3; only for atmosphere post-processing)
-* nose (only for testing)
-* testfixtures (only for testing)
-* python-dateutil
+* eccodes/gribapi (for filtering IFS output GRIB files)
+* nose, testfixtures (only for testing)
 * f90nml (only for fortran namelist I/O)
 * xlrd (for reading *.xlsx excel sheets)
 * XlsxWriter (for writing *.xlsx excel sheets)
@@ -35,21 +34,18 @@ The anaconda installation optionally adds the anaconda python to your $PATH by a
 For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
 
 ```shell
-mkdir -p ${HOME}/cmorize/; cd ${HOME}/cmorize/
 git clone https://github.com/EC-Earth/ece2cmor3.git
-cd ${HOME}/cmorize/ece2cmor3/
+cd ece2cmor3
 git submodule update --init --recursive
 ```
 
 ##### Creating a virtual conda environment and installing ece3cmor3 therein:
-
+In the ece2cmor3 git checkout directory, type
 ```shell
-cd ${HOME}/cmorize/ece2cmor3/
 conda env create -f environment.yml       # for linux
 conda env create -f env-osx-64.yml        # for mac os
 source activate ece2cmor3
 python setup.py install
-source deactivate
 ```
 
 ##### Running ece2cmor3 inside the conda environment:
@@ -63,22 +59,25 @@ source deactivate
 
 #### Note that the nested CMOR tables require an update once in a while: 
 
-The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. Once in a while one of the ece2cmor3 developers will update the nested repository of the CMOR tables. This will be visisble from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. In that case one has to repeat the following:
+The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. 
+Once in a while one of the ece2cmor3 developers will update the nested repository of the CMOR tables. 
+This will be visible from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. 
+In that case one has to repeat the following inside the git checkout directory:
 ```shell
-cd ${HOME}/cmorize/ece2cmor3/; git submodule update --init --recursive
+git submodule update --init --recursive
 ```
 
 #### Note for developers: 
 
-For instance in case one is developing the checkvars.py script which uses the ece2cmor3 package, after any change in the ece2cmor code the line below has to be repeated in order to reload the ece2cmor3 package:
+To avoid many installation calls during development, you can symlink the installed modules to the source directory by executing
 ```shell
- cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
+python setup.py develop;
 ```
 
-#### Updating the nested CMOR table repository by developers:
-
+#### Updating the nested CMOR table repository by maintainers:
+Navigate to your git checkout directory and execute
 ```shell
-cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
+cd ece2cmor3/resources/tables/
 git pull origin master
 cd ../; git add cmip6-cmor-tables
 git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'
