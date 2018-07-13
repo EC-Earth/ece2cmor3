@@ -1,7 +1,8 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This script produces the "ready to copy" ec-earth-cmip6-nemo-namelists for the ctrl/ directory in ec-earth3.
+# This script produces the "ready to copy" ec-earth-cmip6-nemo-namelists for the ctrl/ directory in ec-earth3 for
+# the EC-EARTH3-AOGCM-mips: DECK+historical (=CMIP) and (TO BE ADDED:) DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB
 #
 # This scripts requires no arguments
 #
@@ -28,6 +29,9 @@ if [ "$#" -eq 0 ]; then
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=abrupt-4xCO2-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=piControl-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=historical-t=1-p=1/file_def_nemo-opa.xml
+
+ mkdir -p DECK+historical
+ mv -f cmip6-experiment-m=* DECK+historical/
 
 else
     echo '  '
