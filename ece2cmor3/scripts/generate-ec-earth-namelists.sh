@@ -57,12 +57,7 @@ if [ "$#" -eq 4 ]; then
  #source deactivate
  fi
  mkdir -p ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f pptdddddd0300 pptdddddd0600 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
-
- # Add the initial ppt0000000000 file:
- cd ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- sed -e 's/MFPPHY =/MFPPHY = 172,/' pptdddddd0600 > ppt0000000000
- cd ../../
+ mv -f pptdddddd0300 pptdddddd0600 ppt0000000000 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
