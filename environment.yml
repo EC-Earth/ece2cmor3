@@ -40,7 +40,7 @@ dependencies:
 - libdrs=2.12=0
 - libdrs_f=2.12=1
 - libffi=3.2.1=3
-- libiconv=1.15=0
+- libiconv
 - libnetcdf=4.4.1.1=h816af47_8      #6 depends on curl, hdf4 >=4.2.13,<4.2.14.0a0, hdf5 >=1.10.1,<1.10.2.0a0, libgcc-ng 7.2.0.*, zlib >=1.2.11,<1.3.0a0
 - libpng=1.6.34=0
 - libssh2=1.8.0=2
@@ -79,12 +79,12 @@ dependencies:
 - numpy=1.13.3=py27hbcc08e0_0
 - util-linux=2.21=0
 - cmor=3.3.2.npy1.13=py27hb8bc26d_0  #0 depends on cdms2, hdf5 >=1.10, libnetcdf >=4.4, numpy 1.13.*, ossuuid >=1.6, python >=2.7,<2.8.0a0, udunits2
+- pandas>=0.17.1
 - pip:
   - cdat-info==0.0.0
   - f90nml==0.20
   - jsonschema==2.5.1
   - mv2==3.0.0
-  - python-dateutil==2.4.1
   - regrid2==3.0.0
   - testfixtures==5.3.1
   - xlrd==1.1.0

@@ -74,12 +74,12 @@ dependencies:
 - mkl=2017.0.3=0
 - numpy=1.13.1=py27_0
 - cmor=3.3.2.npy1.13=py27_0         #0 depends on cdms2, gcc, hdf5 >=1.10, libnetcdf >=4.4, numpy 1.13.*, ossuuid >=1.6, python >=2.7,<2.8.0a0, udunits2
+- pandas>=0.17.1
 - pip:
   - cdat-info==0.0.0
   - f90nml==0.20
   - jsonschema==2.5.1
   - mv2==3.0.0
-  - python-dateutil==2.4.1
   - regrid2==3.0.0
   - testfixtures==5.3.1
   - xlrd==1.1.0
