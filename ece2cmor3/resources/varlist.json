@@ -155,6 +155,7 @@
     ],
     "Emon": [
         "mrsol",
+	"mrsoLut",
         "ta27",
         "ua27",
         "va27",
@@ -282,5 +283,8 @@
         "zg",
         "snw",
         "mrro"
+    ],
+    "Eyr": [
+        "cVegLut"
     ]
 }

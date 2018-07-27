@@ -25,9 +25,6 @@ table_root_ = None
 # Dictionary of lpjg grid type with cmor grid id.
 grid_ids_ = {}
 
-# List of land use tyle ids with ??? cmor grid id ???.
-landuse_ = {}
-
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_ = {}
 
@@ -41,6 +38,12 @@ ncpath_ = None
 ncpath_created_ = False
 
 gridfile_ = "ece2cmor3/resources/ingrid_T255_unstructured.txt"
+
+#list of requested entries for the land use axis (CMIP6)
+_landuse_requested = ['primary_and_secondary_land', 'pastures', 'crops', 'urban']
+
+#list of LPJG land use types in the order needed for CMIP6 land use axis (primary and secondary is a compound of several LPJG types)
+_landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
 
 _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
@@ -68,22 +71,23 @@ def coords(df, root, meta):
     lats = np.arcsin(x) * 180 / -np.pi
     lats = [lats[i] for i, n in enumerate(grids[deg]) for _ in range(n)]
 
-    i = root.createDimension('i', len(lons))
-    j = root.createDimension('j', 1)
+    if 'i' not in root.dimensions:
+        i = root.createDimension('i', len(lons))
+        j = root.createDimension('j', 1)
 
-    latitude = root.createVariable('lat', 'f4', ('j', 'i'))
-    latitude.standard_name = 'latitude'
-    latitude.long_name = 'latitude coordinate'
-    latitude.units = 'degrees_north'
-    # latitude.bounds = 'lat_vertices'
-    latitude[:] = lats
+        latitude = root.createVariable('lat', 'f4', ('j', 'i'))
+        latitude.standard_name = 'latitude'
+        latitude.long_name = 'latitude coordinate'
+        latitude.units = 'degrees_north'
+        # latitude.bounds = 'lat_vertices'
+        latitude[:] = lats
 
-    longitude = root.createVariable('lon', 'f4', ('j', 'i'))
-    longitude.standard_name = 'longitude'
-    longitude.long_name = 'longitude coordinate'
-    longitude.units = 'degrees_east'
-    # longitude.bounds = 'lon_vertices'
-    longitude[:] = lons
+        longitude = root.createVariable('lon', 'f4', ('j', 'i'))
+        longitude.standard_name = 'longitude'
+        longitude.long_name = 'longitude coordinate'
+        longitude.units = 'degrees_east'
+        # longitude.bounds = 'lon_vertices'
+        longitude[:] = lons
 
     run_lons = [rnd(i) for i in (df.index.levels[0].values + 360.0) % 360.0]
     run_lats = [rnd(i) for i in df.index.levels[1]]
@@ -117,23 +121,20 @@ def initialize(path,ncpath,expname,tableroot,start,length,refdate):
 
 # Resets the module globals.
 def finalize():
-    global grid_ids_,landuse_,time_axes_
+    global grid_ids_,time_axes_
     grid_ids_ = {}
-    landuse_ = {}
     time_axes_ = {}
 
 
 # Executes the processing loop.
 # used the nemo2cmor.py execute as template
 def execute(tasks):
-    global log,time_axes_,landuse_,table_root_
+    global log,time_axes_,table_root_
     global lpjg_path_, ncpath_
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
 
-    lon_id = None
-    lat_id = None
     for table, tasklist in taskdict.iteritems():
         try:
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
@@ -143,6 +144,8 @@ def execute(tasks):
                       % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
             continue
 
+        lon_id = None
+        lat_id = None
         for task in tasklist:
             freq = task.target.frequency.encode()
             lpjgfiles = task.source.srcpath()
@@ -150,11 +153,12 @@ def execute(tasks):
             colname = task.source.variable().encode()
             outname = task.target.out_name
             outdims = task.target.dimensions
+            is_landUse = "landUse" in outdims.split()
             
-            #Read data from the .out-file and generate and the netCDF file including remapping
-            ncfile = create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims)
-            
-            dataset = netCDF4.Dataset(ncfile, 'r')
+            #Read data from the .out-file and generate the netCDF file including remapping
+            ncfile = create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse)
+
+            dataset = netCDF4.Dataset(ncfile, 'r')            
             #Create the grid, need to do only once as all LPJG variables will be on same grid
             #Currently create_grid just creates latitude and longitude axis since that should be all that is needed
             if lon_id is None and lat_id is None:
@@ -164,6 +168,10 @@ def execute(tasks):
 
             #Create cmor time axis for current variable
             create_time_axis(dataset, task)
+
+            #if this is a land use variable create cmor land use axis
+            if is_landUse:
+                create_landuse_axis(dataset, task)
 
             #cmorize the current task (variable)
             execute_single_task(dataset, task)
@@ -175,12 +183,12 @@ def execute(tasks):
     return 
 
 #this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
-def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
+def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
     global lpjg_path_, ncpath_, ref_date_, gridfile_
 
     #should lpjg_path be inside the runleg or parent dir?
     lpjgfile = os.path.join(lpjg_path_, lpjgfiles)
-
+    
     #assigns a flag to handle two different possible monthly LPJ-Guess formats
     months_as_cols = False
     if freq == "mon":
@@ -198,33 +206,38 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
     df = pd.read_csv(lpjgfile, delim_whitespace=True, index_col=idx_col, dtype=np.float64, compression='infer')
 #    df.rename(columns=lambda x: x.lower(), inplace=True)
     
-    if freq == "day":
-        #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
-        df['timecolumn'] = df['year'] + 0.001*df['day']
-        df.set_index('timecolumn',append=True, inplace=True)
-        df.drop(columns=['year', 'day'],inplace=True)
+    if is_landUse:
+        df_landusetypes = read_landuse_data(df, freq)
+        df = df_landusetypes['urban'] #just to keep time dimension creation below simple
+    
+    else: #regular variable
+        if freq == "day":
+            #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
+            df['timecolumn'] = df['year'] + 0.001*df['day']
+            df.set_index('timecolumn',append=True, inplace=True)
+            df.drop(columns=['year', 'day'],inplace=True)
 
-        if df.shape[1] != 1:
-            raise ValueError('Multiple columns in the daily file are not supported')
-        df = df.unstack()
-    elif freq == "yr":
-        df = df.pop(colname) #assume that the variable name actually exists in the lpjgfile (this is checked at some point earlier right?)
-        df = df.unstack()
-    elif freq == "mon":
-        if months_as_cols:
-            df.rename(columns=lambda x: x.lower(), inplace=True)
+            if df.shape[1] != 1:
+                raise ValueError('Multiple columns in the daily file are not supported')
             df = df.unstack()
-            sortrule = lambda x: (x[1], _months.index(x[0]))
-            df = df.reindex(sorted(df.columns, key=sortrule),
-                            axis=1, copy=False)
-        else:
-            df = df.pop(colname)
-            df = df.unstack().unstack()
-            sortrule = lambda x: (x[1], x[0])
-            df = df.reindex(sorted(df.columns, key=sortrule),
-                            axis=1, copy=False)
+        elif freq.startswith("yr"):
+            df = df.pop(colname) #assume that the variable name actually exists in the lpjgfile (this is checked at some point earlier right?)
+            df = df.unstack()
+        elif freq == "mon":
+            if months_as_cols:
+                df.rename(columns=lambda x: x.lower(), inplace=True)
+                df = df.unstack()
+                sortrule = lambda x: (x[1], _months.index(x[0]))
+                df = df.reindex(sorted(df.columns, key=sortrule),
+                                axis=1, copy=False)
+            else:
+                df = df.pop(colname)
+                df = df.unstack().unstack()
+                sortrule = lambda x: (x[1], x[0])
+                df = df.reindex(sorted(df.columns, key=sortrule),
+                                axis=1, copy=False)
 
-    if freq == "yr":
+    if freq.startswith("yr"):
         startdate = str(int(df.columns[0])) + "01"
         enddate = str(int(df.columns[-1])) + "12"
     else:
@@ -236,11 +249,7 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
 
     #temporary netcdf file name (will be removed after remapping is done)
     temp_ncfile = os.path.join(ncpath_, 'LPJGtemp.nc')
-    root = netCDF4.Dataset(temp_ncfile, 'w', format='NETCDF4_CLASSIC') #what is the desired format here? 
-                   
-    meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
-                                  #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e. out2nc-style) for now
-    df_normalised, dimensions = coords(df, root, meta)
+    root = netCDF4.Dataset(temp_ncfile, 'w') #now format is NETCDF4 
 
     time = root.createDimension('time', None)
     timev = root.createVariable('time', 'f4', ('time',))
@@ -254,12 +263,32 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, outdims):
     #TODO: add the option (if required) for the start year to be a reference year other than the first year in the data file 
     timev.units = '{}s since {}-01-01'.format(tres, fyear)
     timev.calendar = "proleptic_gregorian"
-    dimensions = 'time', dimensions[0], dimensions[1]
-        
-    variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-                                   shuffle=False, complevel=5, fill_value=meta['missing'])
-    variable[:] = df_normalised.values.T
 
+    meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
+                                  #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e. out2nc-style) for now
+
+    if not is_landUse:
+        df_normalised, dimensions = coords(df, root, meta)
+        dimensions = 'time', dimensions[0], dimensions[1]
+        
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        variable[:] = df_normalised.values.T
+
+    else:
+        root.createDimension('landusedim', 4)
+            
+        df_normalised = []
+        for lut in _landuse_types:
+            df_out, dimensions = coords(df_landusetypes[lut], root, meta)
+            df_normalised.append(df_out)
+
+        dimensions = 'time', 'landusedim', dimensions[0], dimensions[1]
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        for lu in range(len(df_normalised)):
+            variable[:, lu, :, :] = df_normalised[lu].values.T
+    
     root.sync()
     root.close()
 
@@ -282,7 +311,8 @@ def execute_single_task(dataset, task):
     lon_axis = [] if not hasattr(task, "longitude_axis") else [getattr(task, "longitude_axis")]
     lat_axis = [] if not hasattr(task, "latitude_axis") else [getattr(task, "latitude_axis")]
     t_axis = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
-    axes = lon_axis + lat_axis + t_axis
+    lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
+    axes = lon_axis + lat_axis + lu_axis + t_axis 
     varid = create_cmor_variable(task, dataset, axes)
 #    ncvar = dataset.variables[task.source.variable()]
     ncvar = dataset.variables[task.target.out_name]
@@ -386,20 +416,40 @@ def create_landuse_data(tab_id,files):
         if(did != 0): result[index] = did
     return result
 
+def read_landuse_data(df, freq):
+    
+    df.rename(columns=lambda x: x.lower(), inplace=True)
+    if freq == "day":
+        raise ValueError('Multiple columns in the daily file: daily land use data not supported')
+    
+    #create a column for the primary_and_secondary_land land use coordinate value
+    df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland'] + df['barren']
+    df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
+    
+    #dictionary of dataframes of each land use type
+    df_lutypes = {}
+    #for each land use type perform the same initial dataframe manipulation as for a "regular" variable (in create_lpjg_netcdf)
+    for lut in _landuse_types:
+        df_lut = df.pop(lut)
+        df_lut = df_lut.unstack()
 
-# Creates a cmor landUse dimension/axis
-# used nemo2cmor create_depth_axis as template
-def create_landuse_var(ncfile,gridchar):
+        if freq == "mon":
+            df_lut = df_lut.unstack()
+            sortrule = lambda x: (x[1], x[0])
+            df_lut = df_lut.reindex(sorted(df_lut.columns, key=sortrule),
+                            axis=1, copy=False)
+        
+        df_lutypes[lut] = df_lut
+    
+    return df_lutypes
+
+# Creates a cmor landUse axis
+def create_landuse_axis(ds, task):
     global log
-    ds=netCDF4.Dataset(ncfile)
-    varname="landUse"
-#    if(not varname in ds.variables):
-#        log.error("Could not find landuse axis variable %s in lpjg output file %s; skipping landuse axis creation." % (varname,gridchar))
-#        return 0
-    landusevar = ds.variables[varname]
-#    landusebnd = getattr(landusevar,"bounds")
-    units = getattr(landusevar,"units")
-#    bndvar = ds.variables[landusebnd]
-#    b = bndvar[:,:]
-#    b[b<0] = 0
-    return cmor.axis(table_entry = "landUse",units = units,coord_vals = landusevar[:],cell_bounds = None)
+
+    landusevals = _landuse_requested #ds.variables["landuse"][:]
+    
+    LU_id = cmor.axis(table_entry = "landUse", units = 'none', coord_vals = landusevals)
+
+    setattr(task, "landUse_axis", LU_id)
+    return

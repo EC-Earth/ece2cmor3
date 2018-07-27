@@ -15,9 +15,14 @@
         "target": "cLitter"
     },
     {
-	"source": "NATURAL",
+	"source": "cVegLut",
+	"filepath": "cVegLut.out",
+	"target": "cVegLut"
+    },
+    {
+	"source": "mrsoLut",
 	"filepath": "mrsoLut.out",
-	"target": "mrsoLutNatural"
+	"target": "mrsoLut"
     },
     {
         "source": "Total",
