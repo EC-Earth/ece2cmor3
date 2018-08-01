@@ -217,7 +217,9 @@
         "evspsblsoi",
         "tsl",
 	"cLitter",
-	"cVeg"
+	"cVeg",
+	"grassFrac",
+	"landCoverFrac"
     ],
     "LImon": [
         "snc",

@@ -45,6 +45,10 @@ _landuse_requested = ['primary_and_secondary_land', 'pastures', 'crops', 'urban'
 #list of LPJG land use types in the order needed for CMIP6 land use axis (primary and secondary is a compound of several LPJG types)
 _landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
 
+#list of plant functional types in LPJ-Guess, needed for the vegtype dimension in variable landCoverFrac
+_pfts = ['BNE', 'BINE', 'BNS', 'TeNE', 'TeBS', 'IBS', 'TeBE', 'TrBE', 'TrIBE', 'TrBR', 'C3G', 'C4G', 'C3G_pas', 'C4G_pas', 'C3G_pea', 'C4G_pea', 'C3G_urb',
+         'C4G_urb', 'CC3ann', 'CC3per', 'CC3nfx', 'CC4ann', 'CC4per', 'CC3anni', 'CC3peri', 'CC3nfxi', 'CC4anni', 'CC4peri', 'CC3G_ic', 'CC4G_ic', 'Barren']
+
 _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 #various things extracted from Michael.Mischurow out2nc tool: ec_earth.py
@@ -148,15 +152,13 @@ def execute(tasks):
         lat_id = None
         for task in tasklist:
             freq = task.target.frequency.encode()
-            lpjgfiles = task.source.srcpath()
-            setattr(task, cmor_task.output_path_key, lpjgfiles)
-            colname = task.source.variable().encode()
+            lpjgfile = os.path.join(lpjg_path_, task.source.srcpath())
+            setattr(task, cmor_task.output_path_key, task.source.srcpath())
             outname = task.target.out_name
             outdims = task.target.dimensions
-            is_landUse = "landUse" in outdims.split()
             
             #Read data from the .out-file and generate the netCDF file including remapping
-            ncfile = create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse)
+            ncfile = create_lpjg_netcdf(freq, lpjgfile, outname, outdims)
 
             dataset = netCDF4.Dataset(ncfile, 'r')            
             #Create the grid, need to do only once as all LPJG variables will be on same grid
@@ -170,8 +172,12 @@ def execute(tasks):
             create_time_axis(dataset, task)
 
             #if this is a land use variable create cmor land use axis
-            if is_landUse:
-                create_landuse_axis(dataset, task)
+            if "landUse" in outdims.split():
+                create_landuse_axis(task)
+
+            #if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
+            if "vegtype" in outdims.split():
+                create_vegtype_axis(task)
 
             #cmorize the current task (variable)
             execute_single_task(dataset, task)
@@ -183,12 +189,13 @@ def execute(tasks):
     return 
 
 #this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
-def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
-    global lpjg_path_, ncpath_, ref_date_, gridfile_
-
-    #should lpjg_path be inside the runleg or parent dir?
-    lpjgfile = os.path.join(lpjg_path_, lpjgfiles)
+def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
+    global ncpath_, ref_date_, gridfile_
     
+    #checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists in lpjg data)
+    is_landUse = "landUse" in outdims.split()
+    is_vegtype = "vegtype" in outdims.split()
+
     #assigns a flag to handle two different possible monthly LPJ-Guess formats
     months_as_cols = False
     if freq == "mon":
@@ -204,38 +211,28 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
         idx_col = [0, 1, 2]
 
     df = pd.read_csv(lpjgfile, delim_whitespace=True, index_col=idx_col, dtype=np.float64, compression='infer')
-#    df.rename(columns=lambda x: x.lower(), inplace=True)
+    df.rename(columns=lambda x: x.lower(), inplace=True)
     
     if is_landUse:
-        df_landusetypes = read_landuse_data(df, freq)
+        #create a column for the primary_and_secondary_land land use coordinate value
+        df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland'] + df['barren']
+        df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
+        #dictionary of dataframes of each land use type
+        df_landusetypes = {}
+        for lut in _landuse_types:
+            df_landusetypes[lut] = get_lpjg_datacolumn(df, freq, lut, months_as_cols)
         df = df_landusetypes['urban'] #just to keep time dimension creation below simple
-    
+        
+    elif is_vegtype:
+        df_list = []
+        for p in range(len(_pfts)):
+            colname = _pfts[p].lower()
+            df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
+        df = df_list[0]
+            
     else: #regular variable
-        if freq == "day":
-            #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
-            df['timecolumn'] = df['year'] + 0.001*df['day']
-            df.set_index('timecolumn',append=True, inplace=True)
-            df.drop(columns=['year', 'day'],inplace=True)
-
-            if df.shape[1] != 1:
-                raise ValueError('Multiple columns in the daily file are not supported')
-            df = df.unstack()
-        elif freq.startswith("yr"):
-            df = df.pop(colname) #assume that the variable name actually exists in the lpjgfile (this is checked at some point earlier right?)
-            df = df.unstack()
-        elif freq == "mon":
-            if months_as_cols:
-                df.rename(columns=lambda x: x.lower(), inplace=True)
-                df = df.unstack()
-                sortrule = lambda x: (x[1], _months.index(x[0]))
-                df = df.reindex(sorted(df.columns, key=sortrule),
-                                axis=1, copy=False)
-            else:
-                df = df.pop(colname)
-                df = df.unstack().unstack()
-                sortrule = lambda x: (x[1], x[0])
-                df = df.reindex(sorted(df.columns, key=sortrule),
-                                axis=1, copy=False)
+        colname = "total" if not months_as_cols else ""
+        df = get_lpjg_datacolumn(df, freq, colname, months_as_cols)
 
     if freq.startswith("yr"):
         startdate = str(int(df.columns[0])) + "01"
@@ -245,7 +242,7 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
         enddate = str(int(df.columns[-1][1])) + "12"
     ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + startdate + "_" + enddate + ".nc") 
     #Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper naming conventions for the final file 
-    print("create_lpjg_netcdf " + colname + " into " + ncfile)
+    print("create_lpjg_netcdf " + outname + " into " + ncfile)
 
     #temporary netcdf file name (will be removed after remapping is done)
     temp_ncfile = os.path.join(ncpath_, 'LPJGtemp.nc')
@@ -263,21 +260,13 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
     #TODO: add the option (if required) for the start year to be a reference year other than the first year in the data file 
     timev.units = '{}s since {}-01-01'.format(tres, fyear)
     timev.calendar = "proleptic_gregorian"
-
+    
     meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
                                   #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e. out2nc-style) for now
 
-    if not is_landUse:
-        df_normalised, dimensions = coords(df, root, meta)
-        dimensions = 'time', dimensions[0], dimensions[1]
+    if is_landUse:
+        root.createDimension('landusedim', len(_landuse_requested))
         
-        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-                                       shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised.values.T
-
-    else:
-        root.createDimension('landusedim', 4)
-            
         df_normalised = []
         for lut in _landuse_types:
             df_out, dimensions = coords(df_landusetypes[lut], root, meta)
@@ -288,7 +277,27 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for lu in range(len(df_normalised)):
             variable[:, lu, :, :] = df_normalised[lu].values.T
-    
+
+    elif is_vegtype:
+        root.createDimension('vegtypedim', len(_pfts))
+        df_normalised = []
+        for p in range(len(_pfts)):
+            df_out, dimensions = coords(df_list[p], root, meta)
+            df_normalised.append(df_out)
+
+        dimensions = 'time', 'vegtypedim', dimensions[0], dimensions[1]
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        for p in range(len(_pfts)):
+            variable[:, p, :, :] = df_normalised[p].values.T
+    else:
+        df_normalised, dimensions = coords(df, root, meta)
+        dimensions = 'time', dimensions[0], dimensions[1]
+        
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        variable[:] = df_normalised.values.T
+
     root.sync()
     root.close()
 
@@ -304,6 +313,35 @@ def create_lpjg_netcdf(freq, colname, lpjgfiles, outname, is_landUse):
 
     return ncfile
 
+# Extracts single column from the .out-file
+def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
+    if freq == "day":
+        #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
+        df['timecolumn'] = df['year'] + 0.001*df['day']
+        df.set_index('timecolumn',append=True, inplace=True)
+        df.drop(columns=['year', 'day'],inplace=True)
+        
+        if df.shape[1] != 1:
+            raise ValueError('Multiple columns in the daily file are not supported')
+        df = df.unstack()
+    elif freq.startswith("yr"):
+        df = df.pop(colname) 
+        df = df.unstack()
+    elif freq == "mon":
+        if months_as_cols:
+#            df.rename(columns=lambda x: x.lower(), inplace=True)
+            df = df.unstack()
+            sortrule = lambda x: (x[1], _months.index(x[0]))
+            df = df.reindex(sorted(df.columns, key=sortrule),
+                            axis=1, copy=False)
+        else:
+            df = df.pop(colname)
+            df = df.unstack().unstack()
+            sortrule = lambda x: (x[1], x[0])
+            df = df.reindex(sorted(df.columns, key=sortrule),
+                            axis=1, copy=False)
+    return df
+
 # Performs a single task.
 def execute_single_task(dataset, task):
     global log
@@ -312,7 +350,8 @@ def execute_single_task(dataset, task):
     lat_axis = [] if not hasattr(task, "latitude_axis") else [getattr(task, "latitude_axis")]
     t_axis = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
-    axes = lon_axis + lat_axis + lu_axis + t_axis 
+    veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + t_axis 
     varid = create_cmor_variable(task, dataset, axes)
 #    ncvar = dataset.variables[task.source.variable()]
     ncvar = dataset.variables[task.target.out_name]
@@ -340,7 +379,7 @@ def create_time_axis(ds, task):
     #time requires bounds as well, the following should simply set them to be from start to end of each year/month/day (as appropriate for current data) 
     f = np.vectorize(lambda x: x + 1)
     time_bnd = np.stack((timevals, f(timevals)), axis = -1)
-
+    
     tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
                                     coord_vals=timevals, cell_bounds=time_bnd) 
     setattr(task, "time_axis", tid)
@@ -393,63 +432,21 @@ def create_cmor_variable(task, dataset, axes):
     return cmor.variable(table_entry = str(task.target.out_name), units = str(unit), axis_ids = axes,
                          original_name = str(srcvar))
 
-# Creates all landUse for the given table from the given files
-# used nemo2cmor create_depth_axes as template
-# Note: The land use routines are not yet functional!
-def create_landuse_data(tab_id,files):
-    global log,exp_name_
-    result = {}
-    for f in files:        
-        #TODO: has the tab_id or look into files lpjg ncfile f the landuse dimensions
-        #if yes: need to also create the cmo2 landuse var 
-        #FIXME: is the grid check needed?
-        gridstr = get_lpjg_grid(f,exp_name_)
-        if(not gridstr in cmor_source.lpjg_grid):
-            log.error("Unknown lpjg grid %s encountered. Skipping landuse axis creation" % gridstr)
-            continue
-        index = cmor_source.lpjg_grid.index(gridstr)
-        if(not index in cmor_source.lpjg_landuse):
-            continue
-        if(index in result):
-            continue
-        did = create_landuse_var(f,cmor_source.lpjg_landuse[index])
-        if(did != 0): result[index] = did
-    return result
-
-def read_landuse_data(df, freq):
-    
-    df.rename(columns=lambda x: x.lower(), inplace=True)
-    if freq == "day":
-        raise ValueError('Multiple columns in the daily file: daily land use data not supported')
-    
-    #create a column for the primary_and_secondary_land land use coordinate value
-    df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland'] + df['barren']
-    df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
-    
-    #dictionary of dataframes of each land use type
-    df_lutypes = {}
-    #for each land use type perform the same initial dataframe manipulation as for a "regular" variable (in create_lpjg_netcdf)
-    for lut in _landuse_types:
-        df_lut = df.pop(lut)
-        df_lut = df_lut.unstack()
-
-        if freq == "mon":
-            df_lut = df_lut.unstack()
-            sortrule = lambda x: (x[1], x[0])
-            df_lut = df_lut.reindex(sorted(df_lut.columns, key=sortrule),
-                            axis=1, copy=False)
-        
-        df_lutypes[lut] = df_lut
-    
-    return df_lutypes
-
 # Creates a cmor landUse axis
-def create_landuse_axis(ds, task):
-    global log
+def create_landuse_axis(task):
 
-    landusevals = _landuse_requested #ds.variables["landuse"][:]
+    landusevals = _landuse_requested 
     
     LU_id = cmor.axis(table_entry = "landUse", units = 'none', coord_vals = landusevals)
 
     setattr(task, "landUse_axis", LU_id)
+    return
+
+# Creates a cmor vegtype axis
+def create_vegtype_axis(task):
+    
+    vegtypevals = _pfts
+    veg_id = cmor.axis(table_entry = "vegtype", units = 'none', coord_vals = vegtypevals)
+
+    setattr(task, "vegtype_axis", veg_id)
     return

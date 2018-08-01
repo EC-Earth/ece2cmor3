@@ -25,29 +25,13 @@
 	"target": "mrsoLut"
     },
     {
-        "source": "Total",
-        "filepath": [ 
-          "LUMIP/LUMIP_cSoil_URBAN.out.gz",
-          "LUMIP/LUMIP_cSoil_PEATLAND.out.gz",
-          "LUMIP/LUMIP_cSoil_PASTURE.out.gz",
-          "LUMIP/LUMIP_cSoil_NATURAL.out.gz",
-          "LUMIP/LUMIP_cSoil_FOREST.out.gz",
-          "LUMIP/LUMIP_cSoil_CROPLAND.out.gz",
-          "LUMIP/LUMIP_cSoil_BARREN.out.gz"
-        ],
-        "target": "cSoilLut"
+	"source": "grassFrac",
+	"filepath": "grassFrac.out",
+	"target": "grassFrac"
     },
     {
-        "source": "Total",
-        "filepath": [ 
-          "LUMIP_cVeg_URBAN.out.gz",
-          "LUMIP_cVeg_PEATLAND.out.gz",
-          "LUMIP_cVeg_PASTURE.out.gz",
-          "LUMIP_cVeg_NATURAL.out.gz",
-          "LUMIP_cVeg_FOREST.out.gz",
-          "LUMIP_cVeg_CROPLAND.out.gz",
-          "LUMIP_cVeg_BARREN.out.gz"
-        ],
-        "target": "cVegLut"
+	"source": "landCoverFrac",
+	"filepath": "landCoverFrac.out",
+	"target": "landCoverFrac"
     }    
 ]
