@@ -1,0 +1,534 @@
+[
+    {
+        "source": "o3",
+        "target": "o3"
+    },
+    {
+        "source": "co2",
+        "target": "co2"
+    },
+    {
+        "source": "ch4",
+        "target": "ch4"
+    },
+    {
+        "source": "phalf",
+        "target": "phalf"
+    },
+    {
+        "source": "ec550aer",
+        "target": "ec550aer"
+    },
+    {
+        "source": "sfno2",
+        "target": "sfno2"
+    },
+    {
+        "source": "sfo3",
+        "target": "sfo3"
+    },
+    {
+        "source": "sfpm25",
+        "target": "sfpm25"
+    },
+    {
+        "source": "abs550aer",
+        "target": "abs550aer"
+    },
+    {
+        "source": "airmass",
+        "target": "airmass"
+    },
+    {
+        "source": "bldep",
+        "target": "bldep"
+    },
+    {
+        "source": "c2h6",
+        "target": "c2h6"
+    },
+    {
+        "source": "c3h6",
+        "target": "c3h6"
+    },
+    {
+        "source": "c3h8",
+        "target": "c3h8"
+    },
+    {
+        "source": "ch3coch3",
+        "target": "ch3coch3"
+    },
+    {
+        "source": "ch4",
+        "target": "ch4"
+    },
+    {
+        "source": "cheaqpso4",
+        "target": "cheaqpso4"
+    },
+    {
+        "source": "chegpso4",
+        "target": "chegpso4"
+    },
+    {
+        "source": "chepsoa",
+        "target": "chepsoa"
+    },
+    {
+        "source": "co",
+        "target": "co"
+    },
+    {
+        "source": "co2",
+        "target": "co2"
+    },
+    {
+        "source": "dms",
+        "target": "dms"
+    },
+    {
+        "source": "drybc",
+        "target": "drybc"
+    },
+    {
+        "source": "drydust",
+        "target": "drydust"
+    },
+    {
+        "source": "drynh3",
+        "target": "drynh3"
+    },
+    {
+        "source": "drynh4",
+        "target": "drynh4"
+    },
+    {
+        "source": "drynoy",
+        "target": "drynoy"
+    },
+    {
+        "source": "dryo3",
+        "target": "dryo3"
+    },
+    {
+        "source": "dryoa",
+        "target": "dryoa"
+    },
+    {
+        "source": "dryso2",
+        "target": "dryso2"
+    },
+    {
+        "source": "dryso4",
+        "target": "dryso4"
+    },
+    {
+        "source": "dryss",
+        "target": "dryss"
+    },
+    {
+        "source": "emibc",
+        "target": "emibc"
+    },
+    {
+        "source": "emico",
+        "target": "emico"
+    },
+    {
+        "source": "emidms",
+        "target": "emidms"
+    },
+    {
+        "source": "emidust",
+        "target": "emidust"
+    },
+    {
+        "source": "emiisop",
+        "target": "emiisop"
+    },
+    {
+        "source": "emilnox",
+        "target": "emilnox"
+    },
+    {
+        "source": "eminh3",
+        "target": "eminh3"
+    },
+    {
+        "source": "eminox",
+        "target": "eminox"
+    },
+    {
+        "source": "emioa",
+        "target": "emioa"
+    },
+    {
+        "source": "emiso2",
+        "target": "emiso2"
+    },
+    {
+        "source": "emiso4",
+        "target": "emiso4"
+    },
+    {
+        "source": "emiss",
+        "target": "emiss"
+    },
+    {
+        "source": "h2o",
+        "target": "h2o"
+    },
+    {
+        "source": "hno3",
+        "target": "hno3"
+    },
+    {
+        "source": "isop",
+        "target": "isop"
+    },
+    {
+        "source": "jno2",
+        "target": "jno2"
+    },
+    {
+        "source": "mmraerh2o",
+        "target": "mmraerh2o"
+    },
+    {
+        "source": "mmrbc",
+        "target": "mmrbc"
+    },
+    {
+        "source": "mmrdust",
+        "target": "mmrdust"
+    },
+    {
+        "source": "mmrnh4",
+        "target": "mmrnh4"
+    },
+    {
+        "source": "mmrno3",
+        "target": "mmrno3"
+    },
+    {
+        "source": "mmroa",
+        "target": "mmroa"
+    },
+    {
+        "source": "mmrpm1",
+        "target": "mmrpm1"
+    },
+    {
+        "source": "mmrpm10",
+        "target": "mmrpm10"
+    },
+    {
+        "source": "mmrpm2p5",
+        "target": "mmrpm2p5"
+    },
+    {
+        "source": "mmrso4",
+        "target": "mmrso4"
+    },
+    {
+        "source": "mmrsoa",
+        "target": "mmrsoa"
+    },
+    {
+        "source": "mmrss",
+        "target": "mmrss"
+    },
+    {
+        "source": "nh50",
+        "target": "nh50"
+    },
+    {
+        "source": "no",
+        "target": "no"
+    },
+    {
+        "source": "no2",
+        "target": "no2"
+    },
+    {
+        "source": "o3",
+        "target": "o3"
+    },
+    {
+        "source": "od440aer",
+        "target": "od440aer"
+    },
+    {
+        "source": "od550aer",
+        "target": "od550aer"
+    },
+    {
+        "source": "od550aerh2o",
+        "target": "od550aerh2o"
+    },
+    {
+        "source": "od550bc",
+        "target": "od550bc"
+    },
+    {
+        "source": "od550csaer",
+        "target": "od550csaer"
+    },
+    {
+        "source": "od550dust",
+        "target": "od550dust"
+    },
+    {
+        "source": "od550lt1aer",
+        "target": "od550lt1aer"
+    },
+    {
+        "source": "od550no3",
+        "target": "od550no3"
+    },
+    {
+        "source": "od550oa",
+        "target": "od550oa"
+    },
+    {
+        "source": "od550so4",
+        "target": "od550so4"
+    },
+    {
+        "source": "od550soa",
+        "target": "od550soa"
+    },
+    {
+        "source": "od550ss",
+        "target": "od550ss"
+    },
+    {
+        "source": "od870aer",
+        "target": "od870aer"
+    },
+    {
+        "source": "oh",
+        "target": "oh"
+    },
+    {
+        "source": "pan",
+        "target": "pan"
+    },
+    {
+        "source": "hcho",
+        "target": "hcho"
+    },
+    {
+        "source": "o3ste",
+        "target": "o3ste"
+    },
+    {
+        "source": "phalf",
+        "target": "phalf"
+    },
+    {
+        "source": "ptp",
+        "target": "ptp"
+    },
+    {
+        "source": "so2",
+        "target": "so2"
+    },
+    {
+        "source": "tatp",
+        "target": "tatp"
+    },
+    {
+        "source": "toz",
+        "target": "toz"
+    },
+    {
+        "source": "tropoz",
+        "target": "tropoz"
+    },
+    {
+        "source": "wetbc",
+        "target": "wetbc"
+    },
+    {
+        "source": "wetdust",
+        "target": "wetdust"
+    },
+    {
+        "source": "wetnh3",
+        "target": "wetnh3"
+    },
+    {
+        "source": "wetnh4",
+        "target": "wetnh4"
+    },
+    {
+        "source": "wetnoy",
+        "target": "wetnoy"
+    },
+    {
+        "source": "wetoa",
+        "target": "wetoa"
+    },
+    {
+        "source": "wetso2",
+        "target": "wetso2"
+    },
+    {
+        "source": "wetso4",
+        "target": "wetso4"
+    },
+    {
+        "source": "wetss",
+        "target": "wetss"
+    },
+    {
+        "source": "ztp",
+        "target": "ztp"
+    },
+    {
+        "source": "cdnc",
+        "target": "cdnc"
+    },
+    {
+        "source": "maxpblz",
+        "target": "maxpblz"
+    },
+    {
+        "source": "minpblz",
+        "target": "minpblz"
+    },
+    {
+        "source": "od550aer",
+        "target": "od550aer"
+    },
+    {
+        "source": "sfo3max",
+        "target": "sfo3max"
+    },
+    {
+        "source": "toz",
+        "target": "toz"
+    },
+    {
+        "source": "phalf",
+        "target": "phalf"
+    },
+    {
+        "source": "ch4",
+        "target": "ch4"
+    },
+    {
+        "source": "h2o",
+        "target": "h2o"
+    },
+    {
+        "source": "hno3",
+        "target": "hno3"
+    },
+    {
+        "source": "ho2",
+        "target": "ho2"
+    },
+    {
+        "source": "noy",
+        "target": "noy"
+    },
+    {
+        "source": "o3",
+        "target": "o3"
+    },
+    {
+        "source": "oh",
+        "target": "oh"
+    },
+    {
+        "source": "emibvoc",
+        "target": "emibvoc"
+    },
+    {
+        "source": "emivoc",
+        "target": "emivoc"
+    },
+    {
+        "source": "fco2antt",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2fos",
+        "target": "fco2fos"
+    },
+    {
+        "source": "fco2nat",
+        "target": "fco2nat"
+    },
+    {
+        "source": "o3Clim",
+        "target": "o3Clim"
+    },
+    {
+        "source": "co2Clim",
+        "target": "co2Clim"
+    },
+    {
+        "source": "co2mass",
+        "target": "co2mass"
+    },
+    {
+        "source": "co2massClim",
+        "target": "co2massClim"
+    },
+    {
+        "source": "ch4Clim",
+        "target": "ch4Clim"
+    },
+    {
+        "source": "ch4global",
+        "target": "ch4global"
+    },
+    {
+        "source": "ch4globalClim",
+        "target": "ch4globalClim"
+    },
+    {
+        "source": "lossch4",
+        "target": "lossch4"
+    },
+    {
+        "source": "lossco",
+        "target": "lossco"
+    },
+    {
+        "source": "o3loss",
+        "target": "o3loss"
+    },
+    {
+        "source": "o3prod",
+        "target": "o3prod"
+    },
+    {
+        "source": "flashrate",
+        "target": "flashrate"
+    },
+    {
+        "source": "depdust",
+        "target": "depdust"
+    },
+    {
+        "source": "sedustCI",
+        "target": "sedustCI"
+    },
+    {
+        "source": "md",
+        "target": "md"
+    },
+    {
+        "source": "loaddust",
+        "target": "loaddust"
+    },
+    {
+        "source": "concdust",
+        "target": "concdust"
+    }
+]

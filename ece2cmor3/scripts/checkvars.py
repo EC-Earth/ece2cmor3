@@ -107,19 +107,16 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
     # Fix conflicting flags
-    if sum([args.oce, args.atm, args.lpj]) != 1:
-        procatmos, prococean, proclpjg = True, True, True
-    else:
-        procatmos = args.atm
-        prococean = args.oce
-        proclpjg = args.lpj
+    # TODO: Use same flags as ece2cmor3 script
+    active_components = {"ifs": args.atm, "nemo": args.oce, "lpjg": args.lpj}
+    if not any(active_components.values()):
+        active_components = {"ifs": True, "nemo": True, "lpjg": True}
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
 
     # Load the variables as task targets:
-    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,load_atm_tasks = procatmos,
-                                                                                                   load_oce_tasks = prococean, load_lpjg_tasks=proclpjg, silent = args.verbose)
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,active_components=active_components, silent = args.verbose)
 
     if(args.output):
         output_dir = os.path.dirname(args.output)

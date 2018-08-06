@@ -141,17 +141,11 @@
         "mrsol",
         "tauu",
         "tauv",
-        "snw",
-        "mrro",
         "mrros",
         "mrrob",
         "snd",
         "lwsnl",
         "snm"
-    ],
-    "AERmon": [
-        "orog",
-        "ps"
     ],
     "Emon": [
         "mrsol",
@@ -203,11 +197,6 @@
         "tossq",
         "tos",
         "sos"
-    ],
-    "E3hrPt": [
-        "ua850",
-        "va850",
-        "psl"
     ],
     "Lmon": [
         "mrsos",

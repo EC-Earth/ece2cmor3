@@ -42,7 +42,7 @@ skip_tables = False
 
 
 # API function: loads the argument list of targets
-def load_targets(varlist, active_components={}, silent=False):
+def load_targets(varlist, active_components=None, silent=False):
     global log
     targetlist = []
     if isinstance(varlist, basestring):
@@ -197,11 +197,11 @@ def load_checkvars_excel(basic_ignored_excel_file):
 
 
 # Creates tasks for the given targets, using the parameter tables in the resource folder
-def create_tasks(targets, active_components={}, silent=False):
+def create_tasks(targets, active_components=None, silent=False):
     global log, ignored_vars_file, json_table_key, skip_tables
     active_realms, model_vars = {}, {}
     for m in components.models:
-        is_active = active_components.get(m, True)
+        is_active = True if active_components is None else active_components.get(m, True)
         for r in components.models[m][components.realms]:
             active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the rea
         tabfile = components.models[m].get(components.table_file, "")
@@ -227,7 +227,8 @@ def create_tasks(targets, active_components={}, silent=False):
             continue  # If all variable's realms are flagged false, skip
         matchpars = {}
         for model in components.models:
-            if active_components.get(model, True):  # Only consider models that are 'enabled'
+            is_active = True if active_components is None else active_components.get(model, True)
+            if is_active:  # Only consider models that are 'enabled'
                 matches = [p for p in model_vars.get(model, []) if
                            matchvarpar(target.variable, p) and target.table == p.get(json_table_key, target.table)]
                 if any(matches):

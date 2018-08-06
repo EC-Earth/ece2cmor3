@@ -49,7 +49,7 @@ def main():
                                         tableprefix=args.tabid)
 
     # Load the variables as task targets:
-    taskloader.load_targets(args.vars, load_atm_tasks=False, load_oce_tasks=True)
+    taskloader.load_targets(args.vars, active_components={"ifs": False, "nemo": True})
     
     for task in ece2cmorlib.tasks:
     	 print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)

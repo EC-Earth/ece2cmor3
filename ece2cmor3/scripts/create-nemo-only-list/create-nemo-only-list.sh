@@ -19,7 +19,7 @@ if [ "$#" -eq 0 ]; then
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
+  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
   cd ${HOME}/cmorize/shaconemo/ping-files/
@@ -32,25 +32,29 @@ if [ "$#" -eq 0 ]; then
 # of the xlsx file, and the column with comment2 in the "actual comment"-column of the xlsx file.
 # After updating the pre* file it is most convenient to commit it first.
 
-# Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files:
+# Step 4: Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use a
+#         list-of-identified-missing-cmpi6-requested-variables.xlsx which contains the non-dummy ping file variables.
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   /bin/cp -f create-nemo-only-list/empty-nemopar.json                                                      ../resources/nemopar.json
   /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx                            ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
   /bin/cp -f create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+# Use the line below instead of the one above in order to create one list (without ping info, the resulting nemo-miss-list can be used to create a ping file template):
+# /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx                            ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
 
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars.py to the basic identifiedmissing and the basic ignored:
    /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.xlsx
    /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.xlsx           create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.xlsx
-   /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
-   /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
+  #/bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.txt
+  #/bin/cp -f cmvmm-all-mips-t=3-p=3.missing.txt            create-nemo-only-list/nemo-miss-list-cmpi6-requested-variables.txt
 
+# Revert the temporary changed files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
    git checkout list-of-ignored-cmpi6-requested-variables.xlsx
@@ -62,6 +66,16 @@ if [ "$#" -eq 0 ]; then
 # step 1 here, which includes all EC-Earth MIPs for the Core MIP experiments, however this does not include the endorsed MIP experiments (e.g drq -m LS3MIP -e LS3MIP ).
 # Therefore the identified missing and ignored vraiables coming from the endorsed MIP experiments have to be added manually to the basic lists.
 
+
+# Comment next two lines in order to continue with step 7 in this script.
+   echo ' Omit step 7 (default) in this script.'
+   exit
+   echo ' Continue with step 7.'
+
+
+# This prepares step 7 below:
+#  Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use an empty
+#  list-of-identified-missing-cmpi6-requested-variables.xlsx and copy the detected nemo-only and nemo-miss in two ignore files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
    /bin/cp -f create-nemo-only-list/empty-nemopar.json                            ../resources/nemopar.json
    /bin/cp -f create-nemo-only-list/empty-list-of-cmpi6-requested-variables.xlsx  ../resources/list-of-ignored-cmpi6-requested-variables.xlsx
@@ -74,12 +88,13 @@ if [ "$#" -eq 0 ]; then
 # Step 7: :
 #  From here on one can uncomment one or more of the data requests below.
 
-# Request for all EC-EARTH3-AOGCM MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh DCPP,LS3MIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
+# Step 1: Request for CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP       CMIP          1 1 --oce
 
-# Request for all EC-EARTH3 MIPs (+ DAMIP) of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
+# Step 1+2: Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
+# ./determine-missing-variables.sh CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP CMIP 1 1 --oce
 
+# Step 3:
 # ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1 --oce
 # ./determine-missing-variables.sh C4MIP       C4MIP        1 1 --oce
 # ./determine-missing-variables.sh DCPP        DCPP         1 1 --oce
@@ -87,6 +102,7 @@ if [ "$#" -eq 0 ]; then
 # ./determine-missing-variables.sh ISMIP6      ISMIP6       1 1 --oce
 # ./determine-missing-variables.sh LS3MIP      LS3MIP       1 1 --oce
 # ./determine-missing-variables.sh LUMIP       LUMIP        1 1 --oce
+# ./determine-missing-variables.sh PAMIP       PAMIP        1 1 --oce
 # ./determine-missing-variables.sh PMIP        PMIP         1 1 --oce
 # ./determine-missing-variables.sh RFMIP       RFMIP        1 1 --oce
 # ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1 --oce
@@ -101,6 +117,7 @@ if [ "$#" -eq 0 ]; then
 # ll *.missing.txt|grep -v 266B
 # m *.missing.txt|grep r256
 
+# Revert the temporary changed files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;
    git checkout nemopar.json
    git checkout list-of-ignored-cmpi6-requested-variables.xlsx

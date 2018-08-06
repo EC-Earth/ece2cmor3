@@ -16,6 +16,10 @@
         "target": "siconca"
     },
     {
+        "source": "32.128",
+        "target": "albsn"
+    },
+    {
         "source": "34.128",
         "target": "tos"
     },
@@ -285,6 +289,11 @@
         "target": "cltc"
     },
     {
+        "source": "198.128",
+        "convert": "vol2massl",
+        "target": "cw"
+    },
+    {
         "source": "201.128",
         "target": "tasmax"
     },
@@ -328,7 +337,10 @@
     },
     {
         "source": "235.128",
-        "target": "tslsi",
+        "target": [
+            "tslsi",
+            "tr"
+        ],
         "masked": "land"
     },
     {
@@ -507,6 +519,13 @@
         "convert": "cum2inst"
     },
     {
+        "source": "121.129",
+        "target": "hfdsl",
+        "expr": "var121=var146+var147",
+        "convert": "cum2inst",
+        "masked": "land"
+    },
+    {
         "source": "122.129",
         "target": "prraIs",
         "expr": "var122=var142+var143-var144"
@@ -530,6 +549,32 @@
         "source": "126.129",
         "target": "prra",
         "expr": "var126=var142+var143-var144"
+    },
+    {
+        "source": "127.129",
+        "target": "hfmlt",
+        "expr": "var127=333411*var45",
+        "convert": "vol2flux",
+        "masked": "land"
+    },
+    {
+        "source": "128.129",
+        "target": "hfsbl",
+        "expr": "var127=2834123*var44",
+        "convert": "vol2flux",
+        "masked": "land"
+    },
+    {
+        "source": "129.129",
+        "target": "tau",
+        "expr": "var214=sqrt(sqr(var180)+sqr(var181))"
+    },
+    {
+        "source": "130.129",
+        "target": "esn",
+        "expr": "var130=var44+var182",
+        "convert": "cum2inst",
+        "masked": "land"
     },
     {
         "mask": "land",

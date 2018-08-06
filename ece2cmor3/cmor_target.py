@@ -14,6 +14,10 @@ coord_file = "coordinate"
 
 # Json file keys:
 head_key = "header"
+specs_version_key = "data_specs_version"
+cmor_version_key = "cmor_version"
+conventions_key = "Conventions"
+date_key = "table_date"
 axis_key = "axis_entry"
 var_key = "variable_entry"
 freq_key = "frequency"
@@ -46,18 +50,33 @@ def get_table_id(filepath, prefix):
     return regex.group()[len(prefix) + 1:len(fname) - 5]
 
 
+def print_drq_version(filepath):
+    with open(filepath, 'r') as f:
+        try:
+            data = json.loads(f.read())
+            header = get_lowercase(data, head_key, None)
+            if header is None:
+                return False
+            for key in [specs_version_key, cmor_version_key, conventions_key, date_key]:
+                log.info("CMOR tables %s : %s" % (key, header.get(key, "unknown")))
+            return True
+        except ValueError as err:
+            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            return False
+
+
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath, prefix):
     global log, axes, head_key, freq_key, realm_key, levs_key, axis_key, var_key, dims_key
     global cell_methods_key, cell_measures_key, cell_measure_axes
     tabid = get_table_id(filepath, prefix)
-    s = open(filepath).read()
-    result = []
-    try:
-        data = json.loads(s)
-    except ValueError as err:
-        log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
-        return result
+    with open(filepath, 'r') as f:
+        result = []
+        try:
+            data = json.loads(f.read())
+        except ValueError as err:
+            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            return result
     freq = None
     realm = None
     header = get_lowercase(data, head_key, None)
@@ -119,14 +138,14 @@ def create_targets_for_file(filepath, prefix):
 def create_axes_for_file(filepath, prefix):
     global log, axes, axis_key
     tabid = get_table_id(filepath, prefix)
-    s = open(filepath).read()
-    result = []
-    try:
-        data = json.loads(s)
-    except ValueError as err:
-        log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
-        return result
-    axes[tabid] = get_lowercase(data, axis_key, {})
+    with open(filepath, 'r') as f:
+        result = []
+        try:
+            data = json.loads(f.read())
+        except ValueError as err:
+            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            return result
+        axes[tabid] = get_lowercase(data, axis_key, {})
 
 
 # Utility function for lower-case dictionary searches
@@ -144,17 +163,23 @@ def get_lowercase(dictionary, key, default):
 def create_targets(path, prefix):
     global coord_file
     result = []
+    drq_version_printed = False
     if os.path.isfile(path):
         if os.path.basename(path) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:
+            print_drq_version(path)
             result = result + create_targets_for_file(path, prefix)
     elif os.path.isdir(path):
         coordfilepath = os.path.join(path, prefix + "_" + coord_file + ".json")
+        if not drq_version_printed:
+            drq_version_printed = print_drq_version(coordfilepath)
         if os.path.exists(coordfilepath):
             create_axes_for_file(coordfilepath, prefix)
         expr = re.compile("^" + prefix + "_.*.json$")
         paths = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
         for p in paths:
             if os.path.basename(p) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:
+                if not drq_version_printed:
+                    drq_version_printed = print_drq_version(p)
                 result = result + create_targets_for_file(p, prefix)
     return result
 
