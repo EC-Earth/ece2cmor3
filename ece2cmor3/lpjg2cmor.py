@@ -153,6 +153,8 @@ def execute(tasks):
         for task in tasklist:
             freq = task.target.frequency.encode()
             lpjgfile = os.path.join(lpjg_path_, task.source.srcpath())
+            if not os.path.exists(lpjgfile):
+                continue
             setattr(task, cmor_task.output_path_key, task.source.srcpath())
             outname = task.target.out_name
             outdims = task.target.dimensions
@@ -214,33 +216,34 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
     df.rename(columns=lambda x: x.lower(), inplace=True)
     
     if is_landUse:
-        #create a column for the primary_and_secondary_land land use coordinate value
-        df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland'] + df['barren']
+        #group the LPJG output landuse types into the CMIP6 requested types
+        df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland']
+        df['urban'] = df['urban'] + df['barren']
         df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
-        #dictionary of dataframes of each land use type
-        df_landusetypes = {}
-        for lut in _landuse_types:
-            df_landusetypes[lut] = get_lpjg_datacolumn(df, freq, lut, months_as_cols)
-        df = df_landusetypes['urban'] #just to keep time dimension creation below simple
+        df_list = []
+        for lut in range(len(_landuse_types)):
+            colname = _landuse_types[lut]
+            df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
         
     elif is_vegtype:
         df_list = []
         for p in range(len(_pfts)):
             colname = _pfts[p].lower()
             df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
-        df = df_list[0]
             
     else: #regular variable
         colname = "total" if not months_as_cols else ""
         df = get_lpjg_datacolumn(df, freq, colname, months_as_cols)
+        df_list = [df] 
 
-    if freq.startswith("yr"):
-        startdate = str(int(df.columns[0])) + "01"
-        enddate = str(int(df.columns[-1])) + "12"
-    else:
-        startdate = str(int(df.columns[0][1])) + "01"
-        enddate = str(int(df.columns[-1][1])) + "12"
-    ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + startdate + "_" + enddate + ".nc") 
+#    if freq.startswith("yr"):
+#        startdate = str(int(df.columns[0])) + "01"
+#        enddate = str(int(df.columns[-1])) + "12"
+#    else:
+#        startdate = str(int(df.columns[0][1])) + "01"
+#        enddate = str(int(df.columns[-1][1])) + "12"
+#    ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + startdate + "_" + enddate + ".nc")
+    ncfile = os.path.join(ncpath_, outname + "_" + freq + ".nc")
     #Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper naming conventions for the final file 
     print("create_lpjg_netcdf " + outname + " into " + ncfile)
 
@@ -250,13 +253,13 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
 
     time = root.createDimension('time', None)
     timev = root.createVariable('time', 'f4', ('time',))
-    timev[:] = np.arange(df.shape[1])
+    timev[:] = np.arange(df_list[0].shape[1])
     if freq == "mon":
-        fyear, tres = int(df.columns[0][1]), 'month'
+        fyear, tres = int(df_list[0].columns[0][1]), 'month'
     elif freq == "day":
-        fyear, tres = int(df.columns[0][1]), 'day'
+        fyear, tres = int(df_list[0].columns[0][1]), 'day'
     else:
-        fyear, tres = int(df.columns[0]), 'year'
+        fyear, tres = int(df_list[0].columns[0]), 'year'
     #TODO: add the option (if required) for the start year to be a reference year other than the first year in the data file 
     timev.units = '{}s since {}-01-01'.format(tres, fyear)
     timev.calendar = "proleptic_gregorian"
@@ -264,46 +267,42 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
     meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
                                   #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e. out2nc-style) for now
 
+    N_dfs = len(df_list)
+    df_normalised = []
+    for l in range(N_dfs):
+        df_out, dimensions = coords(df_list[l], root, meta)
+        df_normalised.append(df_out)
+    
     if is_landUse:
-        root.createDimension('landusedim', len(_landuse_requested))
-        
-        df_normalised = []
-        for lut in _landuse_types:
-            df_out, dimensions = coords(df_landusetypes[lut], root, meta)
-            df_normalised.append(df_out)
+        root.createDimension('landusedim', N_dfs)
 
         dimensions = 'time', 'landusedim', dimensions[0], dimensions[1]
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        for lu in range(len(df_normalised)):
+        for lu in range(N_dfs):
             variable[:, lu, :, :] = df_normalised[lu].values.T
 
     elif is_vegtype:
-        root.createDimension('vegtypedim', len(_pfts))
-        df_normalised = []
-        for p in range(len(_pfts)):
-            df_out, dimensions = coords(df_list[p], root, meta)
-            df_normalised.append(df_out)
+        root.createDimension('vegtypedim', N_dfs)
 
         dimensions = 'time', 'vegtypedim', dimensions[0], dimensions[1]
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        for p in range(len(_pfts)):
+        for p in range(N_dfs):
             variable[:, p, :, :] = df_normalised[p].values.T
     else:
-        df_normalised, dimensions = coords(df, root, meta)
         dimensions = 'time', dimensions[0], dimensions[1]
         
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised.values.T
+        variable[:] = df_normalised[0].values.T
 
     root.sync()
     root.close()
 
     #do the remapping
     cdo = Cdo()
-    #for some reason chaining the other commands to invertlat gives an error, the line below works fine in out2nc.py 
+    #for some reason chaining the other commands to invertlat gives an error, the line below worked fine in out2nc.py 
 #    cdo.invertlat(input = "-remapycon,n128 -setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
     interm_file = os.path.join(ncpath_, 'intermediate.nc')
     cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file)
@@ -368,8 +367,7 @@ def execute_single_task(dataset, task):
     task.status = cmor_task.status_cmorized
 
 #Creates cmor time axis for the variable (task)
-#Unlike e.g. the corresponding nemo2cmor function, the axis will be created for each variable instead of a table 
-#in case the LPJ-Guess tables will not be organised so that all the variables in a table have same time axis    
+#Unlike e.g. the corresponding nemo2cmor function, the axis is currently created for each variable instead of a table     
 def create_time_axis(ds, task):
     #finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and the length of the time_dim list will be 1
     tgtdims = getattr(task.target, cmor_target.dims_key)
