@@ -276,7 +276,7 @@ def create_tasks(targets, active_components=None, silent=False):
         notable_pars = [p for p in pars if json_table_key not in p]
         if len(table_pars) > 1 or len(notable_pars) > 1:
             log.warning("Multiple entries found for variable %s, table %s in file %s...choosing first." % (
-                target.variable, target.table, components.models[modelmatch]["parfile"]))
+                target.variable, target.table, components.models[modelmatch][components.table_file]))
         parmatch = table_pars[0] if any(table_pars) else pars[0]
         task = create_cmor_task(parmatch, target, modelmatch)
         if task is None:
