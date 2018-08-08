@@ -99,7 +99,7 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
-def execute(tasks, cleanup=True, autofilter=True):
+def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
     global log, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
@@ -134,10 +134,11 @@ def execute(tasks, cleanup=True, autofilter=True):
     processed_tasks = []
     try:
         log.info("Post-processing tasks...")
+        postproc.task_threads = nthreads
         processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
         for task in [t for t in processed_tasks if t in mask_tasks]:
             read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-        cmorize([t for t in processed_tasks if t in supported_tasks])
+        cmorize([t for t in processed_tasks if t in supported_tasks], nthreads=nthreads)
     except Exception:
         if cleanup:
             clean_tmp_data(processed_tasks, True)
@@ -317,16 +318,24 @@ def find_sp_variable(task, autofilter):
 
 
 # Do the cmorization tasks
-def cmorize(tasks):
+def cmorize(tasks, nthreads):
     global log, table_root_
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
     if not any(tasks):
         return
+    skip_status = [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_cmorizing]
     path = getattr([t for t in tasks if hasattr(t, "path")][0], "path")
-    pool = multiprocessing.Pool(processes=postproc.task_threads, initializer=init_cmor, initargs=[path])
-    pool.map(cmor_worker, [task for task in tasks if task.status not in [cmor_task.status_failed,
-                                                                         cmor_task.status_cmorized,
-                                                                         cmor_task.status_cmorizing]])
+    if nthreads < 1:
+        log.error("Number of available threads %d for cmorization is non-positive: skipping cmor part" % nthreads)
+        return
+    if nthreads == 1:
+        init_cmor(path)
+        for task in tasks:
+            if task.status not in skip_status:
+                cmor_worker(task)
+        return
+    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
+    pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
 
 
 grid_id = 0

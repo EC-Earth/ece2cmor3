@@ -39,7 +39,7 @@ def main(args=None):
                         help="Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar="DIR", type=str, default="/tmp/ece2cmor",
                         help="Temporary working directory")
-    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of post-processing threads")
+    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks")
     parser.add_argument("--tmpsize", metavar="X", type=float, default=float("inf"),
                         help="Size of tempdir (in GB) that triggers flushing")
     parser.add_argument("--ncdo", metavar="N", type=int, default=4,
