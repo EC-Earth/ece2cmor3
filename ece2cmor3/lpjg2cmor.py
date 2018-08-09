@@ -45,10 +45,6 @@ _landuse_requested = ['primary_and_secondary_land', 'pastures', 'crops', 'urban'
 #list of LPJG land use types in the order needed for CMIP6 land use axis (primary and secondary is a compound of several LPJG types)
 _landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
 
-#list of plant functional types in LPJ-Guess, needed for the vegtype dimension in variable landCoverFrac
-_pfts = ['BNE', 'BINE', 'BNS', 'TeNE', 'TeBS', 'IBS', 'TeBE', 'TrBE', 'TrIBE', 'TrBR', 'C3G', 'C4G', 'C3G_pas', 'C4G_pas', 'C3G_pea', 'C4G_pea', 'C3G_urb',
-         'C4G_urb', 'CC3ann', 'CC3per', 'CC3nfx', 'CC4ann', 'CC4per', 'CC3anni', 'CC3peri', 'CC3nfxi', 'CC4anni', 'CC4peri', 'CC3G_ic', 'CC4G_ic', 'Barren']
-
 _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 #various things extracted from Michael.Mischurow out2nc tool: ec_earth.py
@@ -179,7 +175,11 @@ def execute(tasks):
 
             #if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
             if "vegtype" in outdims.split():
-                create_vegtype_axis(task)
+                create_vegtype_axis(task, lpjgfile, freq)
+
+            #if this variable has the soil depth dimension sdepth (NB! not sdepth1 or sdepth10) create cmor sdepth axis
+            if "sdepth" in outdims.split():
+                create_sdepth_axis(task, lpjgfile, freq)
 
             #cmorize the current task (variable)
             execute_single_task(dataset, task)
@@ -197,6 +197,7 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
     #checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists in lpjg data)
     is_landUse = "landUse" in outdims.split()
     is_vegtype = "vegtype" in outdims.split()
+    is_sdepth = "sdepth" in outdims.split()
 
     #assigns a flag to handle two different possible monthly LPJ-Guess formats
     months_as_cols = False
@@ -226,10 +227,16 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
             df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
         
     elif is_vegtype:
+        pfts = list(df.columns.values)
         df_list = []
-        for p in range(len(_pfts)):
-            colname = _pfts[p].lower()
-            df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
+        for p in range(len(pfts)):
+            df_list.append(get_lpjg_datacolumn(df, freq, pfts[p], months_as_cols))
+
+    elif is_sdepth:
+        depths = list(df.columns.values)
+        df_list = []
+        for sd in range(len(depths)):
+            df_list.append(get_lpjg_datacolumn(df, freq, depths[sd], months_as_cols))
             
     else: #regular variable
         colname = "total" if not months_as_cols else ""
@@ -290,6 +297,15 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for p in range(N_dfs):
             variable[:, p, :, :] = df_normalised[p].values.T
+            
+    elif is_sdepth:
+        root.createDimension('sdepthdim', N_dfs)
+
+        dimensions = 'time', 'sdepthdim', dimensions[0], dimensions[1]
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        for sd in range(N_dfs):
+            variable[:, sd, :, :] = df_normalised[sd].values.T
     else:
         dimensions = 'time', dimensions[0], dimensions[1]
         
@@ -350,7 +366,8 @@ def execute_single_task(dataset, task):
     t_axis = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + t_axis 
+    sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis 
     varid = create_cmor_variable(task, dataset, axes)
 #    ncvar = dataset.variables[task.source.variable()]
     ncvar = dataset.variables[task.target.out_name]
@@ -441,10 +458,37 @@ def create_landuse_axis(task):
     return
 
 # Creates a cmor vegtype axis
-def create_vegtype_axis(task):
+def create_vegtype_axis(task, lpjgfile, freq):
+
+    with open(lpjgfile) as f:
+        header = next(f).lower().split()
+        if freq.startswith("yr"):
+            pfts = header[3:]
+        else:
+            pfts = header[4:]
+    vegtypevals = pfts
     
-    vegtypevals = _pfts
     veg_id = cmor.axis(table_entry = "vegtype", units = 'none', coord_vals = vegtypevals)
 
     setattr(task, "vegtype_axis", veg_id)
+    return
+
+#Creates a cmor sdepth axis
+def create_sdepth_axis(task, lpjgfile, freq):
+
+    with open(lpjgfile) as f:
+        header = next(f).lower().split()
+        if freq.startswith("yr"):
+            depths = header[3:]
+        else:
+            depths = header[4:]
+    sdepthvals = np.array([float(d) for d in depths])
+
+    sdepth_bnd_lower = np.append(0, sdepthvals[:-1])
+    sdepth_bnd = np.stack((sdepth_bnd_lower, sdepthvals), axis = -1)
+
+    sdep_id = cmor.axis(table_entry = "sdepth", units = 'm', coord_vals = sdepthvals,
+                        cell_bounds = sdepth_bnd)
+
+    setattr(task, "sdepth_axis", sdep_id)
     return
