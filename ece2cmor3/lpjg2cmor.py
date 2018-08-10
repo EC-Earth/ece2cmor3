@@ -148,10 +148,12 @@ def execute(tasks):
         lat_id = None
         for task in tasklist:
             freq = task.target.frequency.encode()
-            lpjgfile = os.path.join(lpjg_path_, task.source.srcpath())
+            lpjgfile = os.path.join(lpjg_path_, task.source.variable() + ".out")
             if not os.path.exists(lpjgfile):
                 continue
-            setattr(task, cmor_task.output_path_key, task.source.srcpath())
+            if not check_time_resolution(lpjgfile, freq):
+                continue #the data in the .out file did not match the requested frequency
+            setattr(task, cmor_task.output_path_key, task.source.variable() + ".out")
             outname = task.target.out_name
             outdims = task.target.dimensions
             
@@ -189,6 +191,24 @@ def execute(tasks):
             os.remove(ncfile)
             
     return 
+
+#checks that the time resolution in the .out data file matches the requested frequency
+def check_time_resolution(lpjgfile, freq):
+
+    with open(lpjgfile) as f:
+        header = next(f).lower().split()
+    if freq == "mon":
+        return 'mth' in header or header[-12:] == _months
+    elif freq == "day":
+        return 'day' in header
+    elif freq.startswith("yr"):
+        #to find out if it is yearly data have to check that it is neither monthly nor daily
+        if 'mth' in header or header[-12:] == _months or 'day' in header:
+            return False
+        else:
+            return True
+    else:
+        return False #LPJ-Guess only supports yearly, monthly or daily time resolutions
 
 #this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
 def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
@@ -279,39 +299,21 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
     for l in range(N_dfs):
         df_out, dimensions = coords(df_list[l], root, meta)
         df_normalised.append(df_out)
-    
-    if is_landUse:
-        root.createDimension('landusedim', N_dfs)
 
-        dimensions = 'time', 'landusedim', dimensions[0], dimensions[1]
-        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-                                       shuffle=False, complevel=5, fill_value=meta['missing'])
-        for lu in range(N_dfs):
-            variable[:, lu, :, :] = df_normalised[lu].values.T
-
-    elif is_vegtype:
-        root.createDimension('vegtypedim', N_dfs)
-
-        dimensions = 'time', 'vegtypedim', dimensions[0], dimensions[1]
-        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-                                       shuffle=False, complevel=5, fill_value=meta['missing'])
-        for p in range(N_dfs):
-            variable[:, p, :, :] = df_normalised[p].values.T
-            
-    elif is_sdepth:
-        root.createDimension('sdepthdim', N_dfs)
-
-        dimensions = 'time', 'sdepthdim', dimensions[0], dimensions[1]
-        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
-                                       shuffle=False, complevel=5, fill_value=meta['missing'])
-        for sd in range(N_dfs):
-            variable[:, sd, :, :] = df_normalised[sd].values.T
-    else:
+    if N_dfs == 1:
         dimensions = 'time', dimensions[0], dimensions[1]
         
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         variable[:] = df_normalised[0].values.T
+    else:
+        root.createDimension('fourthdim', N_dfs)
+
+        dimensions = 'time', 'fourthdim', dimensions[0], dimensions[1]
+        variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
+                                       shuffle=False, complevel=5, fill_value=meta['missing'])
+        for l in range(N_dfs):
+            variable[:, l, :, :] = df_normalised[l].values.T
 
     root.sync()
     root.close()
@@ -461,7 +463,7 @@ def create_landuse_axis(task):
 def create_vegtype_axis(task, lpjgfile, freq):
 
     with open(lpjgfile) as f:
-        header = next(f).lower().split()
+        header = next(f).split()
         if freq.startswith("yr"):
             pfts = header[3:]
         else:
@@ -477,7 +479,7 @@ def create_vegtype_axis(task, lpjgfile, freq):
 def create_sdepth_axis(task, lpjgfile, freq):
 
     with open(lpjgfile) as f:
-        header = next(f).lower().split()
+        header = next(f).split()
         if freq.startswith("yr"):
             depths = header[3:]
         else:

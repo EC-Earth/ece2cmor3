@@ -40,8 +40,7 @@ def create_cmor_source(attributes, component):
     if component == "lpjg":
         if src is None:
             log.error("Could not find a LPJG source variable within attributes %s" % (str(attributes.__dict__)))
-        filepath = attributes.get("filepath", None)
-        result = lpjg_source(src, filepath)
+        result = lpjg_source(src)
     # if component == NEWCOMPONENT:
     # create some source here, if NEWCOMPONENT has nc files as output, the NEMO case can be copied
     return result
@@ -212,10 +211,9 @@ class ifs_source(cmor_source):
 #LPJ-Guess source subclass
 class lpjg_source(cmor_source):
 
-    def __init__(self, colname, filepath):
+    def __init__(self, colname):
         super(lpjg_source, self).__init__()
         self.colname_ = colname
-        self.srcpath_ = filepath
 
     def model_component(self):
         return "lpjg"
@@ -223,7 +221,5 @@ class lpjg_source(cmor_source):
     def variable(self):
         return self.colname_
 
-    def srcpath(self):
-        return self.srcpath_
 
     

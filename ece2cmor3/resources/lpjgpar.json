@@ -33,5 +33,10 @@
 	"source": "landCoverFrac",
 	"filepath": "landCoverFrac.out",
 	"target": "landCoverFrac"
-    }    
+    },
+    {
+	"source": "mrsol",
+	"filepath": "mrsol.out",
+	"target": "mrsol"
+    }
 ]
