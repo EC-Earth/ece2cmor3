@@ -45,7 +45,8 @@ def main(args=None):
     parser.add_argument("--ncdo", metavar="N", type=int, default=4,
                         help="Number of available threads per CDO postprocessing task")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
-    parser.add_argument("--filter", action="store_true", default=False, help="Automatic filtering of grib files")
+    parser.add_argument("--nofilter", action="store_true", default=False, help="Disable automatic filtering of grib "
+                                                                               "files")
     model_attributes, model_tabfile_attributes = {}, {}
     for c in components.models:
         flag1, flag2 = components.get_script_options(c)
@@ -70,7 +71,7 @@ def main(args=None):
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid)
     ece2cmorlib.enable_masks = not args.nomask
-    ece2cmorlib.auto_filter = args.filter
+    ece2cmorlib.auto_filter = not args.nofilter
 
     # Fix exclusive run flags: if none are used, we cmorize for all components
     model_active_flags = dict.fromkeys(components.models, False)
