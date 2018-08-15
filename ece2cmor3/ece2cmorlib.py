@@ -156,7 +156,7 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
         ifs2cmor.masks = {}
     ofreq = -1 if auto_filter else outputfreq
     if (not ifs2cmor.initialize(datadir, expname, tableroot, startdate, interval, refdate if refdate else startdate,
-                                outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb, autofilter=auto_filter)):
+                                outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads

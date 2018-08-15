@@ -1,8 +1,7 @@
 import datetime
-
 import cdo
 import cmor
-import dateutil.relativedelta
+import glob
 import logging
 import multiprocessing
 import netCDF4
@@ -10,92 +9,115 @@ import numpy
 import os
 import tempfile
 
-from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
+from ece2cmor3 import grib_filter, grib_file, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger construction
 log = logging.getLogger(__name__)
-
-# Experiment name
-exp_name_ = None
-
-# Table root
-table_root_ = None
-
-# Files that are being processed in the current execution loop.
-ifs_gridpoint_file_ = None
-ifs_spectral_file_ = None
-ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
 ln_surface_pressure = cmor_source.grib_code(152)
 
+# Settings keys
+gridpoint_files_key = "gridpoint_files"
+spectral_files_key = "spectral_files"
+temp_dirs_key = "temp_dirs"
+parent_dir_key = "parent_dir"
+exp_name_key = "exp_name"
+leg_number_key = "num_leg"
+table_root_key = "table_root"
+ref_date_key = "ref_date"
+
+
 # IFS grid description data
 ifs_grid_descr_ = {}
 
-# Start date of the processed data
-start_date_ = None
-
-# Output interval. Denotes the output file periods.
-output_interval_ = None
-
 # Output frequency (hrs). Minimal interval between output variables.
 output_frequency_ = 6
-
-# Fast storage temporary path
-temp_dir_ = None
-max_size_ = float("inf")
-
-# Reference date, times will be converted to hours since refdate
-ref_date_ = None
 
 # Available geospatial masks, assigned by ece2cmorlib
 masks = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
-               outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
-        output_interval_, ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
+def initialize(path, expname, tableroot, refdate, tempdir=None):
 
-    exp_name_ = expname
-    table_root_ = tableroot
-    start_date_ = start
-    output_interval_ = interval
-    output_frequency_ = outputfreq
-    ref_date_ = refdate
+    settings = {exp_name_key: expname, table_root_key: tableroot, ref_date_key: refdate}
 
-    datafiles = select_files(path, exp_name_, start, length)
-    inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
-    if len(gpfiles) > 1 or len(shfiles) > 1:
-        # TODO: Support postprocessing over multiple files
-        log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
-                     will take first file of each list." % (path, str(gpfiles), str(shfiles)))
-    ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
-    ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
-    if any(inifiles):
-        ifs_init_gridpoint_file_ = inifiles[0]
-        if len(inifiles) > 1:
-            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
-    else:
-        ifs_init_gridpoint_file_ = ifs_gridpoint_file_
+    file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
+    settings[gridpoint_files_key] = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern)}
+    settings[spectral_files_key] = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern)}
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
-    temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
-        log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
-        temp_dir_ = tempfile.mkdtemp(prefix=dirname, dir=tmpdir_parent)
-        log.warning("generated new temporary directory %s" % temp_dir_)
+    temp_dirs = {}
+    for date in set(settings[gridpoint_files_key].keys() + settings[spectral_files_key].keys()):
+        dirname = settings[exp_name_key] + date.strftime("-ifs-%Y%m")
+        temp_dir = os.path.join(tmpdir_parent, dirname)
+        if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
+            log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir)
+            temp_dir = tempfile.mkdtemp(prefix=dirname, dir=tmpdir_parent)
+            log.warning("generated new temporary directory %s" % temp_dir)
+        else:
+            os.makedirs(temp_dir)
+        temp_dirs[date] = temp_dir
+    settings[temp_dirs_key] = temp_dirs
+    return settings
+
+
+# Computes variable frequencies in output
+def get_var_freqs(file_type_key, settings):
+    varsfreq = {}
+    dates = sorted(settings.get(file_type_key, {}).keys())
+    if any(dates):
+        ini_date = dates[0]
+        with open(settings[file_type_key][ini_date]) as gribfile:
+            grid_type = cmor_source.ifs_grid.spec if file_type_key == spectral_files_key else gridpoint_files_key
+            varsfreq = grib_filter.inspect_day(grib_file.create_grib_file(gribfile), grid=grid_type)
+    return varsfreq
+
+
+# Determines variable file names etc.
+def init_filter_tasks(tasks, gp_vars_freq, sp_vars_freq):
+    vars_freq = gp_vars_freq
+    vars_freq.update(sp_vars_freq)
+    valid_tasks, vars_tasks = grib_filter.validate_tasks(tasks, vars_freq)
+    return grib_filter.cluster_files(valid_tasks, vars_tasks, vars_freq)
+
+
+# Does actual filtering
+def run_filter_tasks(vars_files, vars_freqs, date, file_type, settings):
+    file_handles = grib_filter.open_files(vars_files, settings.get(temp_dirs_key, {}).get(date, None))
+    file_path = settings.get(file_type, {}).get(date, None)
+    if file_path is not None:
+        prev_file = get_previous_file(date, file_type, settings)
+        grib_filter.proc_mon(date.month, file_path, prev_file, vars_files, vars_freqs, file_handles)
+
+
+# Utility function to get previous month output
+def get_previous_file(date, file_type, settings):
+    if date.month == 1 and settings.get(leg_number_key, 1) == 1:
+        date_string = "000000"
     else:
-        os.makedirs(temp_dir_)
-    max_size_ = maxsizegb
-    if autofilter:
-        grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
-    return True
+        if date.month > 1:
+            prev_date = datetime.date(year=date.year, month=date.month - 1, day=1)
+        else:
+            prev_date = datetime.date(year=date.year - 1, month=12, day=1)
+        date_string = prev_date.strftime("%Y%m")
+    exp_name = settings.get(exp_name_key, None)
+    fname = "ICM" + ("SH" if file_type == spectral_files_key else "GG") + '+' + date_string
+    parent_dir = settings.get(parent_dir_key, None)
+    for filepath in cmor_utils.find_ifs_output(parent_dir, expname=exp_name):
+        if os.path.basename(filepath) == fname:
+            return filepath
+    return None
+
+
+def postproc_task_month(task, filename, settings):
+    pass
+
+
+def cmor_worker_task(task, filename, settings):
+    pass
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
@@ -614,49 +636,10 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name, filepath):
     global log
-    # New version of cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
-    # dataset = None
-    # try:
-    #     dataset = netCDF4.Dataset(filepath, 'r')
-    #     ncvar = dataset.variables.get("depth", None)
-    #     if not ncvar:
-    #         log.error("Could retrieve depth coordinate from file %s" % filepath)
-    #         return 0
-    #     units = getattr(ncvar, "units", "cm")
-    #     if units == "mm":
-    #         factor = 0.001
-    #     elif units == "cm":
-    #         factor = 0.01
-    #     elif units == "m":
-    #         factor = 1
-    #     else:
-    #         log.error("Unknown units for depth axis in file %s" % filepath)
-    #         return 0
-    #     values = factor * ncvar[:]
-    #     ncvar = dataset.variables.get("depth_bnds", None)
-    #     if not ncvar:
-    #         n = len(values)
-    #         bounds = numpy.empty([n, 2])
-    #         bounds[0, 0] = 0.
-    #         if n > 1:
-    #             bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
-    #             bounds[0:n - 1, 1] = bounds[1:n, 0]
-    #             bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
-    #         else:
-    #             bounds[0, 1] = 2 * values[0]
-    #     else:
-    #         bounds = factor * ncvar[:, :]
-    #     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-    # except Exception as e:
-    #     log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
-    # finally:
-    #     if dataset is not None:
-    #         dataset.close()
-    # return 0
 
 
 # Makes a time axis for the given table
@@ -701,15 +684,6 @@ def get_sp_var(ncpath):
     except Exception as e:
         log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
-
-
-# Retrieves all IFS output files in the input directory.
-def select_files(path, expname, start, length):
-    allfiles = cmor_utils.find_ifs_output(path, expname)
-    start_date = cmor_utils.make_datetime(start).date()
-    end_date = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if f.endswith(expname + "+000000") or
-            (end_date > cmor_utils.get_ifs_date(f) >= start_date)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
