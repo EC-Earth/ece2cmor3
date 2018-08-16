@@ -178,7 +178,7 @@ def create_depth_axes(ds, tasks, table):
     if table not in depth_axes_:
         depth_axes_[table] = {}
     table_depth_axes = time_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y", "typesi"]
+    other_nc_axes = ["time_counter", "x", "y", "typesi", "x_grid_T", "y_grid_T", "x_grid_U", "y_grid_U", "x_grid_V", "y_grid_V"]
     for task in tasks:
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
@@ -291,11 +291,17 @@ def create_grids(tasks):
 # Reads a particular NEMO grid from the given input file.
 def read_grid(ncfile):
     ds = None
+    name = ""
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
-        name = getattr(ds.variables["nav_lon"], "nav_model", os.path.basename(ncfile))
-        lons = ds.variables["nav_lon"][:, :]
-        lats = ds.variables["nav_lat"][:, :]
+        if "icemod" not in ncfile:
+            name = getattr(ds.variables["nav_lon"], "nav_model", os.path.basename(ncfile))
+            lons = ds.variables['nav_lon'][:,:]
+            lats = ds.variables['nav_lat'][:,:]
+        else:
+            name = getattr(ds.variables["nav_lon_grid_T"], "nav_model", os.path.basename(ncfile))
+            lons = ds.variables['nav_lon_grid_T'][:,:]
+            lats = ds.variables['nav_lat_grid_T'][:,:]
         return nemo_grid(name, lons, lats)
     finally:
         if ds is not None:
