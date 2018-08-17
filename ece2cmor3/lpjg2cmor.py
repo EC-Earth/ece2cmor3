@@ -39,11 +39,12 @@ ncpath_created_ = False
 
 gridfile_ = "ece2cmor3/resources/ingrid_T255_unstructured.txt"
 
-#list of requested entries for the land use axis (CMIP6)
-_landuse_requested = ['primary_and_secondary_land', 'pastures', 'crops', 'urban']
+#list of requested entries for the land use axis
+landuse_requested_ = []
 
-#list of LPJG land use types in the order needed for CMIP6 land use axis (primary and secondary is a compound of several LPJG types)
-_landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
+#the cmor prefix (e.g. CMIP6) is currently needed to treat the possible requests for land use types,
+#but  might be unnecessary in the future depending on how much of the request will be handled in already when writing the model output
+cmor_prefix_ = None
 
 _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
@@ -99,13 +100,14 @@ def coords(df, root, meta):
 
 
 # Initializes the processing loop.
-def initialize(path,ncpath,expname,tableroot,start,length,refdate):
+def initialize(path, ncpath, expname, tabledir, prefix, start, length, refdate):
     global log,exp_name_,table_root_
-    global lpjg_path_, ncpath_, ncpath_created_
+    global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
     exp_name_ = expname
-    table_root_ = tableroot
+    table_root_ = os.path.join(tabledir, prefix)
     lpjg_path_ = path
     ref_date_ = refdate
+    cmor_prefix_ = prefix
     if not ncpath.startswith("/"):
         ncpath_ = os.path.join(lpjg_path_,ncpath)
     else:
@@ -114,8 +116,17 @@ def initialize(path,ncpath,expname,tableroot,start,length,refdate):
         os.makedirs(ncpath_)
         ncpath_created_ = True
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(tableroot + "_grids.json")
-    
+    cmor.load_table(table_root_ + "_grids.json")
+
+    coordfile = os.path.join(tabledir, prefix + "_coordinate.json")
+    if os.path.exists(coordfile):
+        with open(coordfile) as f:
+            data = json.loads(f.read())
+        axis_entries = data.get("axis_entry", {})
+        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}  
+        if axis_entries['landuse']['requested']:
+            landuse_requested_ = [entry.encode('ascii') for entry in axis_entries['landuse']['requested']]
+
     return True
 
 
@@ -160,6 +171,11 @@ def execute(tasks):
             #Read data from the .out-file and generate the netCDF file including remapping
             ncfile = create_lpjg_netcdf(freq, lpjgfile, outname, outdims)
 
+            if ncfile is None:
+                log.error("Land use columns in file %s do not contain all of the requested land use types. "
+                          "Skipping CMORization of variable %s" % (getattr(task, cmor_task.output_path_key), task.source.variable()))
+                continue
+
             dataset = netCDF4.Dataset(ncfile, 'r')            
             #Create the grid, need to do only once as all LPJG variables will be on same grid
             #Currently create_grid just creates latitude and longitude axis since that should be all that is needed
@@ -173,7 +189,7 @@ def execute(tasks):
 
             #if this is a land use variable create cmor land use axis
             if "landUse" in outdims.split():
-                create_landuse_axis(task)
+                create_landuse_axis(task, lpjgfile, freq)
 
             #if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
             if "vegtype" in outdims.split():
@@ -237,13 +253,26 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
     df.rename(columns=lambda x: x.lower(), inplace=True)
     
     if is_landUse:
-        #group the LPJG output landuse types into the CMIP6 requested types
-        df['primary_and_secondary'] = df['forest'] + df['natural'] + df['peatland']
-        df['urban'] = df['urban'] + df['barren']
-        df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
+        #NOTE: The following treatment of landuse types is likely to change depending on how the lut data requests will be treated when creating the .out-files
+        if not landuse_requested_: #no specific request for land use types, pick all types present in the .out-file
+            landuse_types = list(df.columns.values)
+        elif cmor_prefix_:
+            #NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in name) for future CMIP6 runs
+            #this is just a temporary placeholder solution!
+            df['primary_and_secondary'] = df['natural']
+            df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
+            landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
+        else:
+            #for now skip the variable entirely if there is not exact matches in the .out-file for all the requested landuse types (except for CMIP6-case of course)
+            colnames = list(df.columns.values)
+            for lut in landuse_requested_:
+                if lut not in colnames:
+                    return None
+            landuse_types = landuse_requested_
+
         df_list = []
-        for lut in range(len(_landuse_types)):
-            colname = _landuse_types[lut]
+        for lut in range(len(landuse_types)):
+            colname = landuse_types[lut]
             df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
         
     elif is_vegtype:
@@ -450,9 +479,17 @@ def create_cmor_variable(task, dataset, axes):
                          original_name = str(srcvar))
 
 # Creates a cmor landUse axis
-def create_landuse_axis(task):
+def create_landuse_axis(task, lpjgfile, freq):
 
-    landusevals = _landuse_requested 
+    if landuse_requested_:
+        landusevals = landuse_requested_ 
+    else:
+        with open(lpjgfile) as f:
+            header = next(f).split()
+            if freq.startswith("yr"):
+                landusevals = header[3:]
+            else:
+                landusevals = header[4:]
     
     LU_id = cmor.axis(table_entry = "landUse", units = 'none', coord_vals = landusevals)
 
