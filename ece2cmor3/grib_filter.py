@@ -121,15 +121,14 @@ def validate_tasks(tasks, varsfreq):
                         grid_key = match_key[4]
                 if match_key not in varsfreq:
                     log.error("Field missing in the first day of file: "
-                              "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (key[0], key[1], key[2], key[3], task.target.variable, task.target.table))
+                              "code %d.%d, level type %d, level %d. Dismissing task %s" %
+                              (key[0], key[1], key[2], key[3], str(task)))
                     task.set_failed()
                     break
                 if 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
-                              "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (task.target.variable, key[0], key[1], key[2], key[3], task.target.variable,
-                               task.target.table))
+                              "code %d.%d, level type %d, level %d. Dismissing task %s" %
+                              (task.target.variable, key[0], key[1], key[2], key[3], str(task)))
                     task.set_failed()
                     break
         if task.status != cmor_task.status_failed:

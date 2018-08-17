@@ -31,10 +31,14 @@ mask_key = "mask"
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
+
     def __init__(self, var_id__, tab_id__):
         self.variable = var_id__
         self.table = tab_id__
         self.dims = 2
+
+    def __str__(self):
+        return ' '.join([self.variable, "in", self.table])
 
 
 # Derives the table id for the given file path

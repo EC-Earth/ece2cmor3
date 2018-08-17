@@ -29,9 +29,10 @@ def post_process(task, path, output_freq, grid_descr=None, cdo_threads=1):
     if grid_descr is None:
         grid_descr = {}
     command = create_command(task, output_freq, {} if grid_descr is None else grid_descr)
-    output_file = apply_command(command, task, cdo_threads, path)
-    if os.path.exists(output_file):
-        return output_file
+    if task.status != cmor_task.status_failed:
+        output_file = apply_command(command, task, cdo_threads, path)
+        if os.path.exists(output_file):
+            return output_file
     return None
 
 
@@ -47,15 +48,11 @@ def validate_task_list(tasks):
 
 # Creates a cdo postprocessing command for the given IFS task.
 def create_command(task, source_freq, grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
-    if not isinstance(task.source, cmor_source.ifs_source):
-        raise Exception("This function can only be used to create cdo commands for IFS tasks")
-    if hasattr(task, "paths") and len(getattr(task, "paths")) > 1:
-        raise Exception("Multiple merged cdo commands are not supported yet")
-    result = cdoapi.cdo_command() if hasattr(task.source, cmor_source.expression_key) else cdoapi.cdo_command(
-        code=task.source.get_grib_code().var_id)
-    add_grid_operators(result, task, grid_descr)
+    if hasattr(task.source, cmor_source.expression_key):
+        result = cdoapi.cdo_command()
+    else:
+        result = cdoapi.cdo_command(code=task.source.get_grib_code().var_id)
+    add_grid_operators(result, task.source.grid_id(), {} if grid_descr is None else grid_descr)
     add_expr_operators(result, task)
     add_time_operators(result, task, source_freq)
     add_level_operators(result, task)
@@ -68,40 +65,45 @@ def add_expr_operators(cdo, task):
     if not expr:
         return
     sides = expr.split('=')
-    if len(sides) != 2:
-        log.error("Could not parse expression %s" % expr)
-        task.set_failed()
-        return
+    lhs = sides[0]
     regex = "var[0-9]{1,3}"
-    if not re.match(regex, sides[0]):
-        log.error("Could not parse expression %s" % expr)
+    if not re.match(regex, lhs):
+        log.error("Could not parse expression %s for task %s" % (expr, str(task)))
         task.set_failed()
         return
     new_code = int(sides[0].strip()[3:])
-    if sides[1].startswith("merge(") and sides[1].endswith(")"):
-        arg = sides[1][6:-1]
-        sub_expr_list = arg.split(',')
-        if not any(getattr(task.target, "z_dims", [])):
-            log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
-            sub_expr = sub_expr_list[0].strip()
-            if not re.match(regex, sub_expr):
-                cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(new_code) + "=" + sub_expr)
-            else:
-                task.source = cmor_source.ifs_source.read(sub_expr)
-            root_codes = [int(s.strip()[3:]) for s in re.findall(regex, sub_expr)]
-            cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
-            return
-        else:
-            for sub_expr in sub_expr_list:
-                if not re.match(regex, sub_expr):
-                    sub_vars = re.findall(regex, sub_expr)
-                    if len(sub_vars) != 1:
-                        log.error("Merging expressions of multiple variables per layer is not supported.")
-                        continue
-                    cdo.add_operator(cdoapi.cdo_command.add_expression_operator, sub_vars[0] + "=" + sub_expr)
-            cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
+    if len(sides) == 1:
+        log.error("Could not find right hand side of expression %s for task %s" % (expr, str(task)))
+        rhs = None
     else:
-        cdo.add_operator(cdoapi.cdo_command.expression_operator, expr)
+        rhs = sides[1]
+    if len(sides) > 2:
+        log.warning("Taking first-matching right hand side %s for expression %s for task %s" % (rhs, expr, str(task)))
+    if rhs is not None:
+        if rhs.startswith("merge(") and sides[1].endswith(")"):
+            arg = rhs[6:-1]
+            sub_expr_list = arg.split(',')
+            if not any(getattr(task.target, "z_dims", [])):
+                log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
+                sub_expr = sub_expr_list[0].strip()
+                if not re.match(regex, sub_expr):
+                    cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(new_code) + "=" + sub_expr)
+                # TODO: Is this necessary?
+                root_codes = [int(s.strip()[3:]) for s in re.findall(regex, sub_expr)]
+                cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
+                return
+            else:
+                for sub_expr in sub_expr_list:
+                    if not re.match(regex, sub_expr):
+                        sub_vars = re.findall(regex, sub_expr)
+                        if len(sub_vars) != 1:
+                            log.error("Merging expressions of multiple variables per layer for task %s is not "
+                                      "supported." % str(task))
+                            continue
+                        cdo.add_operator(cdoapi.cdo_command.add_expression_operator, sub_vars[0] + "=" + sub_expr)
+                cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
+        else:
+            cdo.add_operator(cdoapi.cdo_command.expression_operator, expr)
     cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[c.var_id for c in task.source.get_root_codes()])
 
 
@@ -155,8 +157,7 @@ def apply_command(command, task_list, cdo_threads, base_path=None):
 
 
 # Adds grid remapping operators to the cdo commands for the given task
-def add_grid_operators(cdo, task, grid_descr):
-    grid = task.source.grid_id()
+def add_grid_operators(cdo, grid, grid_descr):
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:

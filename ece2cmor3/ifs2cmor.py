@@ -1,6 +1,7 @@
 import datetime
 import cdo
 import cmor
+import copy
 import glob
 import logging
 import multiprocessing
@@ -8,6 +9,7 @@ import netCDF4
 import numpy
 import os
 import tempfile
+import dask
 
 from ece2cmor3 import grib_filter, grib_file, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
@@ -64,7 +66,29 @@ def initialize(path, expname, tableroot, refdate, tempdir=None):
     return settings
 
 
+# def build_task_graph(tasks, settings):
+#     gp_vars_freqs = get_var_freqs(gridpoint_files_key, settings)
+#     sp_vars_freqs = get_var_freqs(spectral_files_key, settings)
+#     varsfiles, task2files, task2freqs = init_filter_tasks(tasks, gp_vars_freqs, sp_vars_freqs)
+#
+#
+#     futures = {}
+#     for date in settings[gridpoint_files_key].keys():
+#         gp_files = run_filter_tasks(varsfiles, gp_vars_freqs, date, gridpoint_files_key, settings)
+#         for task in tasks:
+#             mon_task_future = dask.delayed(postproc)(task, gp_files, settings)
+#
+#     futures.append(dask.delayed(cmor_task)(pp_gp_task, settings))
+#     for date in settings[spectral_files_key].keys():
+#         sp_files = run_filter_tasks(varsfiles, sp_vars_freqs, date, spectral_files_key, settings)
+#         for task in tasks:
+#             pp_sp_task = dask.delayed(postproc)(task, sp_files, settings)
+#             futures.append(dask.delayed(cmor_task)(pp_sp_task, settings))
+#     return futures
+
+
 # Computes variable frequencies in output
+@dask.delayed
 def get_var_freqs(file_type_key, settings):
     varsfreq = {}
     dates = sorted(settings.get(file_type_key, {}).keys())
@@ -77,20 +101,23 @@ def get_var_freqs(file_type_key, settings):
 
 
 # Determines variable file names etc.
+@dask.delayed(nout=3)
 def init_filter_tasks(tasks, gp_vars_freq, sp_vars_freq):
     vars_freq = gp_vars_freq
     vars_freq.update(sp_vars_freq)
-    valid_tasks, vars_tasks = grib_filter.validate_tasks(tasks, vars_freq)
+    valid_tasks, vars_tasks = grib_filter.validate_tasks(copy.deepcopy(tasks), vars_freq)
     return grib_filter.cluster_files(valid_tasks, vars_tasks, vars_freq)
 
 
 # Does actual filtering
+@dask.delayed
 def run_filter_tasks(vars_files, vars_freqs, date, file_type, settings):
     file_handles = grib_filter.open_files(vars_files, settings.get(temp_dirs_key, {}).get(date, None))
     file_path = settings.get(file_type, {}).get(date, None)
     if file_path is not None:
         prev_file = get_previous_file(date, file_type, settings)
         grib_filter.proc_mon(date.month, file_path, prev_file, vars_files, vars_freqs, file_handles)
+    return
 
 
 # Utility function to get previous month output

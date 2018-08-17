@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import os
@@ -49,6 +50,9 @@ class netcdf_source(cmor_source):
         super(netcdf_source, self).__init__()
         self.variable_ = variable
         self.component_ = component
+
+    def __str__(self):
+        return self.variable_
 
     def variable(self):
         return self.variable_
@@ -128,6 +132,15 @@ class ifs_source(cmor_source):
             self.spatial_dims = -1
             self.grid_ = ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
             self.spatial_dims = 3 if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn) else 2
+
+    def __eq__(self, other):
+        return self.code_ == other.code_
+
+    def __str__(self):
+        return str(self.code_)
+
+    def __hash__(self):
+        return hash(self.code_)
 
     # Returns the model component.
     def model_component(self):

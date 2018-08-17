@@ -1,3 +1,4 @@
+import copy
 import logging
 from ece2cmor3 import cmor_source, cmor_target
 
@@ -29,6 +30,9 @@ class cmor_task(object):
         self.source = source_
         self.target = target_
         self.status = status_initialized
+
+    def __str__(self):
+        return str(self.target)
 
     def next_state(self):
         if self.status == status_failed:
