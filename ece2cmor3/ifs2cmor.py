@@ -30,7 +30,6 @@ leg_number_key = "num_leg"
 table_root_key = "table_root"
 ref_date_key = "ref_date"
 
-
 # IFS grid description data
 ifs_grid_descr_ = {}
 
@@ -43,7 +42,6 @@ masks = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, tempdir=None):
-
     settings = {exp_name_key: expname, table_root_key: tableroot, ref_date_key: refdate}
 
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
@@ -66,25 +64,28 @@ def initialize(path, expname, tableroot, refdate, tempdir=None):
     return settings
 
 
-# def build_task_graph(tasks, settings):
-#     gp_vars_freqs = get_var_freqs(gridpoint_files_key, settings)
-#     sp_vars_freqs = get_var_freqs(spectral_files_key, settings)
-#     varsfiles, task2files, task2freqs = init_filter_tasks(tasks, gp_vars_freqs, sp_vars_freqs)
-#
-#
-#     futures = {}
-#     for date in settings[gridpoint_files_key].keys():
-#         gp_files = run_filter_tasks(varsfiles, gp_vars_freqs, date, gridpoint_files_key, settings)
-#         for task in tasks:
-#             mon_task_future = dask.delayed(postproc)(task, gp_files, settings)
-#
-#     futures.append(dask.delayed(cmor_task)(pp_gp_task, settings))
-#     for date in settings[spectral_files_key].keys():
-#         sp_files = run_filter_tasks(varsfiles, sp_vars_freqs, date, spectral_files_key, settings)
-#         for task in tasks:
-#             pp_sp_task = dask.delayed(postproc)(task, sp_files, settings)
-#             futures.append(dask.delayed(cmor_task)(pp_sp_task, settings))
-#     return futures
+def build_task_graph(tasks, settings):
+    gp_vars_freqs = get_var_freqs(gridpoint_files_key, settings)
+    sp_vars_freqs = get_var_freqs(spectral_files_key, settings)
+    varsfiles, task2files, task2freqs = init_filter_tasks(tasks, gp_vars_freqs, sp_vars_freqs)
+    gp_futures = build_task_subgraph(gp_tasks, varsfiles, task2freqs, gridpoint_files_key, settings)
+    sp_futures = build_task_subgraph(sp_tasks, varsfiles, task2freqs, spectral_files_key, settings)
+    return gp_futures + sp_futures
+
+
+def build_task_subgraph(tasks, vars_to_files, vars_to_freqs, file_type, settings):
+    task2futures = {}
+    for date in settings[file_type].keys():
+        gp_files = run_filter_tasks(vars_to_files, vars_to_freqs, date, file_type, settings)
+        for task in tasks:
+            if task not in task2futures:
+                task2futures[task] = []
+            else:
+                task2futures[task].append(postproc_task_month(task, gp_files, settings))
+    futures = []
+    for task in tasks:
+        futures.append(cmor_worker_task(task, task2futures[task], settings))
+    return futures
 
 
 # Computes variable frequencies in output
@@ -120,6 +121,15 @@ def run_filter_tasks(vars_files, vars_freqs, date, file_type, settings):
     return
 
 
+@dask.delayed
+def postproc_task_month(task, filenames, settings):
+    pass
+
+
+def cmor_worker_task(task, filename, settings):
+    pass
+
+
 # Utility function to get previous month output
 def get_previous_file(date, file_type, settings):
     if date.month == 1 and settings.get(leg_number_key, 1) == 1:
@@ -137,14 +147,6 @@ def get_previous_file(date, file_type, settings):
         if os.path.basename(filepath) == fname:
             return filepath
     return None
-
-
-def postproc_task_month(task, filename, settings):
-    pass
-
-
-def cmor_worker_task(task, filename, settings):
-    pass
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
