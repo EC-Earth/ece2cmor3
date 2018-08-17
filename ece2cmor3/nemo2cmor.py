@@ -80,10 +80,10 @@ def execute(tasks):
                           % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
                 continue
             if table not in time_axes_:
-                log.info("Creating time axes for table %s..." % table)
+                log.info("Creating time axes for table %s from data in %s..." % (table, filename))
             create_time_axes(dataset, task_list, table)
             if table not in depth_axes_:
-                log.info("Creating depth axes for table %s..." % table)
+                log.info("Creating depth axes for table %s from data in %s ..." % (table, filename))
             create_depth_axes(dataset, task_list, table)
             for task in task_list:
                 execute_netcdf_task(dataset, task)
@@ -128,12 +128,12 @@ def execute_netcdf_task(dataset, task):
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
-    if not any(grid_axes):  # Fix for global averages
+    if not any(grid_axes):  # Fix for global averages/sums
         vals = numpy.copy(ncvar[:, :, :])
         vals[vals == missval] = numpy.nan
         ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
-    log.info("CMORizing variable %s in table %s form %s in "
+    log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval))
@@ -282,10 +282,11 @@ def create_grids(tasks):
     for filename, task_list in task_groups.iteritems():
         if filename is not None:
             grid = read_grid(filename)
-            grid_id = write_grid(grid)
-            grid_ids_[grid.name] = grid_id
-            for task in task_list:
-                setattr(task, "grid_id", grid_id)
+            if grid is not None:
+                grid_id = write_grid(grid)
+                grid_ids_[grid.name] = grid_id
+                for task in task_list:
+                    setattr(task, "grid_id", grid_id)
 
 
 # Reads a particular NEMO grid from the given input file.
@@ -293,7 +294,9 @@ def read_grid(ncfile):
     ds = None
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
-        name = getattr(ds.variables["nav_lon"], "nav_model", os.path.basename(ncfile))
+        name = getattr(ds.variables["nav_lon"], "nav_model", cmor_utils.get_nemo_grid(ncfile, exp_name_))
+        if name == "scalar":
+            return None
         lons = ds.variables["nav_lon"][:, :]
         lats = ds.variables["nav_lat"][:, :]
         return nemo_grid(name, lons, lats)
