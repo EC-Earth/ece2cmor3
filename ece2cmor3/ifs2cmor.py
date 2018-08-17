@@ -86,10 +86,11 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
-        log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
-        temp_dir_ = tempfile.mkdtemp(prefix=dirname, dir=tmpdir_parent)
-        log.warning("generated new temporary directory %s" % temp_dir_)
+    if os.path.exists(temp_dir_):
+        if any(os.listdir(temp_dir_)):
+            log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
+            temp_dir_ = tempfile.mkdtemp(prefix=dirname + '-', dir=tmpdir_parent)
+            log.warning("generated new temporary directory %s" % temp_dir_)
     else:
         os.makedirs(temp_dir_)
     max_size_ = maxsizegb
@@ -139,14 +140,9 @@ def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
         for task in [t for t in processed_tasks if t in mask_tasks]:
             read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
         cmorize([t for t in processed_tasks if t in supported_tasks], nthreads=nthreads)
-    except Exception:
-        if cleanup:
-            clean_tmp_data(processed_tasks, True)
-            processed_tasks = []
-        raise
     finally:
         if cleanup:
-            clean_tmp_data(processed_tasks, False)
+            clean_tmp_data(processed_tasks)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -219,16 +215,20 @@ def read_mask(name, filepath):
 
 
 # Deletes all temporary paths and removes temp directory
-def clean_tmp_data(tasks, cleanup_dir=True):
+def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_file_, ifs_spectral_file_
     for task in tasks:
-        ncpath = getattr(task, "path", None)
-        if ncpath is not None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_, ifs_gridpoint_file_]:
-            os.remove(ncpath)
-            delattr(task, "path")
-    if cleanup_dir and len(os.listdir(temp_dir_)) == 0:
+        for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
+            data_path = getattr(task, key, None)
+            if data_path is not None and data_path not in [ifs_spectral_file_, ifs_gridpoint_file_] and \
+                    data_path in os.listdir(temp_dir_):
+                os.remove(data_path)
+                delattr(task, cmor_task.output_path_key)
+    if not any(os.listdir(temp_dir_)):
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
+    else:
+        log.warning("Skipped removal of nonempty work directory %s" % temp_dir_)
 
 
 # Creates a sub-list of tasks that we believe we can successfully process
