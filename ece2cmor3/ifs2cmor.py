@@ -72,6 +72,9 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
     gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
     shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG") if "+000000" not in  os.path.basename(f) ]
+    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH") if "+000000" not in  os.path.basename(f) ]
+
     if len(gpfiles) > 1 or len(shfiles) > 1:
         # TODO: Support postprocessing over multiple files
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \

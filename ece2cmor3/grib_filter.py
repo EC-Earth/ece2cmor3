@@ -122,7 +122,8 @@ def get_record_key(gribfile):
     if codevar in [49, 165, 166]:
         level = 10
         levtype = grib_file.height_level_code
-    if codevar in [167, 168, 201, 202]:
+#    if codevar in [167, 168, 201, 202]:
+    if codevar in [167, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
     if codevar in [9]:
