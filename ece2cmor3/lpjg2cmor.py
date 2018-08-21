@@ -100,13 +100,13 @@ def coords(df, root, meta):
 
 
 # Initializes the processing loop.
-def initialize(path, ncpath, expname, tabledir, prefix, start, length, refdate):
+def initialize(path, ncpath, expname, tabledir, prefix, start, length):
     global log,exp_name_,table_root_
     global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
     exp_name_ = expname
     table_root_ = os.path.join(tabledir, prefix)
     lpjg_path_ = path
-    ref_date_ = refdate
+    ref_date_ = start
     cmor_prefix_ = prefix
     if not ncpath.startswith("/"):
         ncpath_ = os.path.join(lpjg_path_,ncpath)
@@ -161,9 +161,13 @@ def execute(tasks):
             freq = task.target.frequency.encode()
             lpjgfile = os.path.join(lpjg_path_, task.source.variable() + ".out")
             if not os.path.exists(lpjgfile):
+                log.error("The file %s does not exist. Skipping CMORization of variable %s."
+                          % (lpjgfile, task.source.variable()))
                 continue
             if not check_time_resolution(lpjgfile, freq):
-                continue #the data in the .out file did not match the requested frequency
+                log.error("The data in the file %s did not match the expected frequency (time resolution). "
+                          "Skipping CMORization of variable %s." % (lpjgfile, task.source.variable()))
+                continue
             setattr(task, cmor_task.output_path_key, task.source.variable() + ".out")
             outname = task.target.out_name
             outdims = task.target.dimensions
@@ -172,8 +176,13 @@ def execute(tasks):
             ncfile = create_lpjg_netcdf(freq, lpjgfile, outname, outdims)
 
             if ncfile is None:
-                log.error("Land use columns in file %s do not contain all of the requested land use types. "
-                          "Skipping CMORization of variable %s" % (getattr(task, cmor_task.output_path_key), task.source.variable()))
+                if "landUse" in outdims.split():
+                    log.error("Land use columns in file %s do not contain all of the requested land use types. "
+                              "Skipping CMORization of variable %s" % (getattr(task, cmor_task.output_path_key), task.source.variable()))
+                else:
+                    log.error("Unexpected subtype in file %s: either no type axis has been requested for variable %s "
+                              "or explicit treatment for the axis has not yet been implemented. Skipping CMORization."
+                              % (getattr(task, cmor_task.output_path_key), task.source.variable()))
                 continue
 
             dataset = netCDF4.Dataset(ncfile, 'r')            
@@ -288,7 +297,12 @@ def create_lpjg_netcdf(freq, lpjgfile, outname, outdims):
             df_list.append(get_lpjg_datacolumn(df, freq, depths[sd], months_as_cols))
             
     else: #regular variable
-        colname = "total" if not months_as_cols else ""
+        colname = ""
+        if not months_as_cols:
+            if "total" not in list(df.columns.values):
+                return None
+            else:
+                colname = "total"
         df = get_lpjg_datacolumn(df, freq, colname, months_as_cols)
         df_list = [df] 
 

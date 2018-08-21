@@ -177,14 +177,14 @@ def perform_nemo_tasks(datadir, expname, startdate, interval):
     nemo2cmor.execute(nemo_tasks)
 
 # Performs a LPJG cmorization processing:
-def perform_lpjg_tasks(datadir, ncdir, expname, startdate, interval, refdate):
+def perform_lpjg_tasks(datadir, ncdir, expname, startdate, interval):
     global log ,tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
     log.info("Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks), len(tasks)))
 #    tableroot = os.path.join(table_dir, prefix)
-    if(not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, startdate, interval, refdate if refdate else startdate)):
+    if(not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, startdate, interval)):
         return
     lpjg2cmor.execute(lpjg_tasks)
 
