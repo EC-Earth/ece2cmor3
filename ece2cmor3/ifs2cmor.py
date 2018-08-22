@@ -221,7 +221,7 @@ def clean_tmp_data(tasks):
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
             if data_path is not None and data_path not in [ifs_spectral_file_, ifs_gridpoint_file_] and \
-                    data_path in os.listdir(temp_dir_):
+                    data_path in [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]:
                 os.remove(data_path)
                 delattr(task, cmor_task.output_path_key)
     if not any(os.listdir(temp_dir_)):
