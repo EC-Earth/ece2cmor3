@@ -132,29 +132,34 @@ def execute_netcdf_task(dataset, task):
         vals = numpy.copy(ncvar[:, :, :])
         vals[vals == missval] = numpy.nan
         ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
-    factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
+    factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
     log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
-    cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval))
+    cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, term,
+                           missval=getattr(task.target, cmor_target.missval_key, missval))
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
 
 
-# Unit conversion utility method
-def get_conversion_factor(conversion):
+# Returns the constants A,B for unit conversions of type y = A*x + B
+def get_conversion_constants(conversion):
     global log
     if not conversion:
-        return 1.0
+        return 1.0, 0.0
     if conversion == "tossqfix":
-        return 1.0
+        return 1.0, 0.0
     if conversion == "frac2percent":
-        return 100.0
+        return 100.0, 0.0
     if conversion == "percent2frac":
-        return 0.01
+        return 0.01, 0.0
+    if conversion == "K2degC":
+        return 1.0, -273.15
+    if conversion == "degC2K":
+        return 1.0, 273.15
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
-    return 1.0
+    return 1.0, 0.0
 
 
 # Creates a variable in the cmor package
