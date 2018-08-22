@@ -433,8 +433,8 @@ def execute_netcdf_task(task):
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
-        factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None),
-                                       getattr(task, cmor_task.output_frequency_key))
+        factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None),
+                                                getattr(task, cmor_task.output_frequency_key))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
             if d.startswith("time"):
@@ -446,7 +446,7 @@ def execute_netcdf_task(task):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
-        cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, store_var, get_sp_var(surf_pressure_path),
+        cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
                                swaplatlon=False, fliplat=True, mask=mask_array, missval=missval)
         cmor.close(var_id)
         task.next_state()
@@ -456,29 +456,33 @@ def execute_netcdf_task(task):
         dataset.close()
 
 
-# Returns the conversion factor from the input string
-def get_conversion_factor(conversion, output_frequency):
+# Returns the constants A,B for unit conversions of type y = A*x + B
+def get_conversion_constants(conversion, output_frequency):
     global log
     if not conversion:
-        return 1.0
+        return 1.0, 0.0
     if conversion == "cum2inst":
-        return 1.0 / (3600 * output_frequency)
+        return 1.0 / (3600 * output_frequency), 0.0
     if conversion == "inst2cum":
-        return 3600 * output_frequency
+        return 3600 * output_frequency, 0.0
     if conversion == "pot2alt":
-        return 1.0 / 9.81
+        return 1.0 / 9.81, 0.0
     if conversion == "alt2pot":
-        return 9.81
+        return 9.81, 0.0
     if conversion == "vol2flux":
-        return 1000.0 / (3600 * output_frequency)
+        return 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2massl":
-        return 1000.0
+        return 1000.0, 0.0
     if conversion == "frac2percent":
-        return 100.0
+        return 100.0, 0.0
     if conversion == "percent2frac":
-        return 0.01
+        return 0.01, 0.0
+    if conversion == "K2degC":
+        return 1.0, -273.15
+    if conversion == "degC2K":
+        return 1.0, 273.15
     log.error("Unknown explicit unit conversion: %s" % conversion)
-    return 1.0
+    return 1.0, 0.0
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
