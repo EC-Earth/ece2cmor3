@@ -144,7 +144,7 @@ def execute_netcdf_task(dataset, task):
 
 
 # Returns the constants A,B for unit conversions of type y = A*x + B
-def get_conversion_constants(conversion, output_frequency):
+def get_conversion_constants(conversion):
     global log
     if not conversion:
         return 1.0, 0.0
