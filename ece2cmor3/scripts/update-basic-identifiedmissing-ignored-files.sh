@@ -52,7 +52,6 @@ if [ "$#" -eq -2 ]; then
 #   manually to list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Adding manually the Eday LS3MIP (for step 3 LS3MIP) the variables prrc, ec, tran, evspsblpot, (et)
 #   to the list-of-identified-missing-cmpi6-requested-variables.xlsx
-#  -Manually adjust the Efx rlu, rsu, tld, rsd comments. [these are gone in data request 01.00.25]
 
 
 # Test that this replace gives still the same results:
