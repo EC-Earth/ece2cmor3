@@ -46,14 +46,13 @@ if [ "$#" -eq -2 ]; then
 # step 1 here, which includes all EC-Earth MIPs for the Core MIP experiments, however this does not include the endorsed MIP experiments (e.g drq -m LS3MIP -e LS3MIP ).
 # Therefore the identified missing and ignored variables coming from the endorsed MIP experiments have to be added manually to the basic lists:
 #  -Note copying before saving in microsoft format allows correct copying of the links.
-#  -Move Antarctic IfxAnt, (IyrAnt) and ImonAnt variables from list-of-identified-missing-cmpi6-requested-variables.xlsx
-#   manually to the list-of-ignored-cmpi6-requested-variables.xlsx and adjust the comment.
-#  -Move CFsubhr AerChemMIP variables (one block of variables) from list-of-identified-missing-cmpi6-requested-variables.xlsx 
-#   manually to list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Adding manually the Eday LS3MIP (for step 3 LS3MIP) the variables prrc, ec, tran, evspsblpot, (et)
-#   to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Move Antarctic IfxAnt, (IyrAnt) and ImonAnt variables from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to the list-of-ignored-cmpi6-requested-variables.xlsx and adjust the comment.
+#  -Move CFsubhr AerChemMIP variables (one block of variables) from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   LS3MIP (step 3) variables prrc, ec, tran, evspsblpot, (et) to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Add manually the IyrGre ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the Efx RFMIP (step 3) variables rlu, rsu, rld, rsd to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno) to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
