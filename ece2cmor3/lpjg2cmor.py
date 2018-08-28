@@ -3,13 +3,13 @@ import os
 import re
 import numpy as np
 import pandas as pd
-import datetime
 import json
 import logging
 import netCDF4
 from cdo import *
 import cmor
 from ece2cmor3 import cmor_utils, cmor_source, cmor_target, cmor_task
+from datetime import date
 
 #from cmor.Test.test_python_open_close_cmor_multiple import path
 
@@ -372,11 +372,13 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
     timev = root.createVariable('time', 'f4', ('time',))
     if freq == "mon":
         curyear, tres = int(df_list[0].columns[0][1]), 'month'
+        t_since_fyear = (curyear - refyear)*12
     elif freq == "day":
         curyear, tres = int(df_list[0].columns[0][1]), 'day'
+        t_since_fyear = (date(curyear, 1, 1) - date(refyear, 1, 1)).days
     else:
         curyear, tres = int(df_list[0].columns[0]), 'year'
-    t_since_fyear = (curyear - refyear)*df_list[0].shape[1]
+        t_since_fyear = curyear - refyear
     timev[:] = np.arange(t_since_fyear, t_since_fyear + df_list[0].shape[1])
     timev.units = '{}s since {}-01-01'.format(tres, refyear)
     timev.calendar = "proleptic_gregorian"
