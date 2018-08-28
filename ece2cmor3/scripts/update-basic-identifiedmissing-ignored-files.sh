@@ -52,7 +52,8 @@ if [ "$#" -eq -2 ]; then
 #   manually to list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Adding manually the Eday LS3MIP (for step 3 LS3MIP) the variables prrc, ec, tran, evspsblpot, (et)
 #   to the list-of-identified-missing-cmpi6-requested-variables.xlsx
-
+#  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Efx RFMIP (step 3) variables rlu, rsu, rld, rsd to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
