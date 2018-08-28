@@ -36,7 +36,12 @@
     },
     {
 	"source": "mrsol",
-	"filepath": "mrsol.out",
+	"table": "Emon",
+	"target": "mrsol"
+    },
+    {
+	"source": "dmrsol",
+	"table": "Eday",
 	"target": "mrsol"
     }
 ]
