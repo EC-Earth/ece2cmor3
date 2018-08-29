@@ -99,7 +99,7 @@ def inspect_day(gribfile, grid):
     result = {}
     for key, val in records.iteritems():
         hrs = numpy.array(val)
-        frqs = 24 if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
+        frqs = [24] if len(hrs) == 1 else numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
         frq = frqs[0]
         if any(frqs != frq):
             log.error("Variable %d.%d on level %d or type %s is not output on regular "

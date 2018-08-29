@@ -21,7 +21,9 @@
     },
     {
         "source": "34.128",
-        "target": "tos"
+        "target": "tos",
+        "table": "3hr",
+        "convert": "K2degC"
     },
     {
         "source": "43.128",

@@ -1,3 +1,8 @@
+# Reply from Martin Juckes at 16 Jul 2018, 12:43 dreq: looping over MIPs and experiments
+#
+# There is some code in the attached script which does the looping you ask for. There are two versions: (1) looping over experiments defined by each MIP and (2) looping over experiments from which each MIP requests data (generally a larger set). I'm working on some support methods which will simplify the code for (2)
+# 
+
 import json
 import logging
 import os
@@ -113,7 +118,7 @@ def load_targets_excel(varlist):
     targets = []
     cmor_colname = "CMOR Name"
     vid_colname = "vid"
-    priority_colname = "Priority"
+    priority_colname = "Default Priority"
     mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
@@ -277,7 +282,7 @@ def create_tasks(targets, active_components=None, silent=False):
         notable_pars = [p for p in pars if json_table_key not in p]
         if len(table_pars) > 1 or len(notable_pars) > 1:
             log.warning("Multiple entries found for variable %s, table %s in file %s...choosing first." % (
-                target.variable, target.table, components.models[modelmatch]["table_file"]))
+                target.variable, target.table, components.models[modelmatch][components.table_file]))
         parmatch = table_pars[0] if any(table_pars) else pars[0]
         task = create_cmor_task(parmatch, target, modelmatch)
         if task is None:

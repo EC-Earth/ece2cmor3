@@ -77,7 +77,7 @@ python setup.py develop;
 #### Updating the nested CMOR table repository by maintainers:
 Navigate to your git checkout directory and execute
 ```shell
-cd ece2cmor3/resources/tables/
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
 git pull origin master
 cd ../; git add cmip6-cmor-tables
 git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'

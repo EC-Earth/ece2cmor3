@@ -1,18 +1,16 @@
-import Queue
 import datetime
-import logging
-import tempfile
-import os
-import threading
 
 import cdo
 import cmor
-
 import dateutil.relativedelta
+import logging
+import multiprocessing
 import netCDF4
 import numpy
-from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
+import os
+import tempfile
 
+from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger construction
 log = logging.getLogger(__name__)
@@ -91,10 +89,11 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    if os.path.exists(temp_dir_) and any(os.listdir(temp_dir_)):
-        log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
-        temp_dir_ = tempfile.mkdtemp(prefix=dirname, dir=tmpdir_parent)
-        log.warning("generated new temporary directory %s" % temp_dir_)
+    if os.path.exists(temp_dir_):
+        if any(os.listdir(temp_dir_)):
+            log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
+            temp_dir_ = tempfile.mkdtemp(prefix=dirname + '-', dir=tmpdir_parent)
+            log.warning("generated new temporary directory %s" % temp_dir_)
     else:
         os.makedirs(temp_dir_)
     max_size_ = maxsizegb
@@ -104,7 +103,7 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
-def execute(tasks, cleanup=True, autofilter=True):
+def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
     global log, start_date_, ifs_grid_descr_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
@@ -139,18 +138,14 @@ def execute(tasks, cleanup=True, autofilter=True):
     processed_tasks = []
     try:
         log.info("Post-processing tasks...")
+        postproc.task_threads = nthreads
         processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
         for task in [t for t in processed_tasks if t in mask_tasks]:
             read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-        cmorize([t for t in processed_tasks if t in supported_tasks])
-    except Exception:
-        if cleanup:
-            clean_tmp_data(processed_tasks, True)
-            processed_tasks = []
-        raise
+        cmorize([t for t in processed_tasks if t in supported_tasks], nthreads=nthreads)
     finally:
         if cleanup:
-            clean_tmp_data(processed_tasks, False)
+            clean_tmp_data(processed_tasks)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -223,16 +218,20 @@ def read_mask(name, filepath):
 
 
 # Deletes all temporary paths and removes temp directory
-def clean_tmp_data(tasks, cleanup_dir=True):
+def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_file_, ifs_spectral_file_
     for task in tasks:
-        ncpath = getattr(task, "path", None)
-        if ncpath is not None and os.path.exists(ncpath) and ncpath not in [ifs_spectral_file_, ifs_gridpoint_file_]:
-            os.remove(ncpath)
-            delattr(task, "path")
-    if cleanup_dir and len(os.listdir(temp_dir_)) == 0:
+        for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
+            data_path = getattr(task, key, None)
+            if data_path is not None and data_path not in [ifs_spectral_file_, ifs_gridpoint_file_] and \
+                    data_path in [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]:
+                os.remove(data_path)
+                delattr(task, cmor_task.output_path_key)
+    if not any(os.listdir(temp_dir_)):
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
+    else:
+        log.warning("Skipped removal of nonempty work directory %s" % temp_dir_)
 
 
 # Creates a sub-list of tasks that we believe we can successfully process
@@ -322,52 +321,67 @@ def find_sp_variable(task, autofilter):
 
 
 # Do the cmorization tasks
-def cmorize(tasks):
+def cmorize(tasks, nthreads):
     global log, table_root_
     log.info("Cmorizing %d IFS tasks..." % len(tasks))
     if not any(tasks):
         return
+    skip_status = [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_cmorizing]
+    path = getattr([t for t in tasks if hasattr(t, "path")][0], "path")
+    if nthreads < 1:
+        log.error("Number of available threads %d for cmorization is non-positive: skipping cmor part" % nthreads)
+        return
+    if nthreads == 1:
+        init_cmor(path)
+        for task in tasks:
+            if task.status not in skip_status:
+                cmor_worker(task)
+        return
+    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
+    pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
+
+
+grid_id = 0
+time_axis_ids = {}
+depth_axis_ids = {}
+
+
+def init_cmor(filepath):
+    global grid_id
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
-    grid = create_grid_from_grib(getattr(tasks[0], "path"))
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key).split()
-        if "latitude" in tgtdims and "longitude" in tgtdims:
-            setattr(task, "grid_id", grid)
-    task_dict = cmor_utils.group(tasks, lambda tsk: tsk.target.table)
-    for k, v in task_dict.iteritems():
-        tab = k
-        task_group = v
-        log.info("Loading CMOR table %s..." % tab)
-        try:
-            tab_id = cmor.load_table("_".join([table_root_, tab]) + ".json")
-            cmor.set_table(tab_id)
-        except Exception as e:
-            log.error("CMOR failed to load table %s, the following variables will be skipped: %s. Reason: %s" % (
-                tab, str([t.target.variable for t in task_group]), e.message))
-            continue
-        log.info("Creating time axes for table %s..." % tab)
-        create_time_axes(task_group)
-        log.info("Creating depth axes for table %s..." % tab)
-        create_depth_axes(task_group)
-        q = Queue.Queue()
-        for i in range(postproc.task_threads):
-            worker = threading.Thread(target=cmor_worker, args=[q])
-            worker.setDaemon(True)
-            worker.start()
-        for task in task_group:
-            q.put(task)
-        q.join()
+    if grid_id == 0:
+        grid_id = create_grid_from_grib(filepath)
+
+
+def define_cmor_axes(task):
+    global grid_id
+    tgtdims = getattr(task.target, cmor_target.dims_key).split()
+    if "latitude" in tgtdims and "longitude" in tgtdims:
+        setattr(task, "grid_id", grid_id)
+    log.info("Loading CMOR table %s..." % task.target.table)
+    try:
+        tab_id = cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
+        cmor.set_table(tab_id)
+    except Exception as e:
+        log.error("CMOR failed to load table %s, the following variable will be skipped: %s. Reason: %s" % (
+            task.target.table, task.target.variable, e.message))
+        task.set_failed()
+        return
+    create_time_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    create_depth_axes(task)
 
 
 # Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(queue):
-    while True:
-        task = queue.get()
-        log.info("Cmorizing source variable %s to target variable %s..." % (
-            task.source.get_grib_code().var_id, task.target.variable))
-        execute_netcdf_task(task)
-        queue.task_done()
+def cmor_worker(task):
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    define_cmor_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    execute_netcdf_task(task)
 
 
 # Executes a single task
@@ -389,12 +403,12 @@ def execute_netcdf_task(task):
             "%s" % (task.target.variable, task.target.table))
         return
     axes = []
-    grid_id = getattr(task, "grid_id", 0)
-    if grid_id != 0:
-        axes.append(grid_id)
+    gid = getattr(task, "grid_id", 0)
+    if gid != 0:
+        axes.append(gid)
     if hasattr(task, "z_axis_id"):
         axes.append(getattr(task, "z_axis_id"))
-    time_id = getattr(task, "time_axis", 0)
+    time_id = getattr(task, "t_axis_id", 0)
     if time_id != 0:
         axes.append(time_id)
     try:
@@ -422,8 +436,8 @@ def execute_netcdf_task(task):
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
-        factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None),
-                                       getattr(task, cmor_task.output_frequency_key))
+        factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None),
+                                                getattr(task, cmor_task.output_frequency_key))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
             if d.startswith("time"):
@@ -435,7 +449,7 @@ def execute_netcdf_task(task):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
-        cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, store_var, get_sp_var(surf_pressure_path),
+        cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
                                swaplatlon=False, fliplat=True, mask=mask_array, missval=missval)
         cmor.close(var_id)
         task.next_state()
@@ -445,117 +459,128 @@ def execute_netcdf_task(task):
         dataset.close()
 
 
-# Returns the conversion factor from the input string
-def get_conversion_factor(conversion, output_frequency):
+# Returns the constants A,B for unit conversions of type y = A*x + B
+def get_conversion_constants(conversion, output_frequency):
     global log
     if not conversion:
-        return 1.0
+        return 1.0, 0.0
     if conversion == "cum2inst":
-        return 1.0 / (3600 * output_frequency)
+        return 1.0 / (3600 * output_frequency), 0.0
     if conversion == "inst2cum":
-        return 3600 * output_frequency
+        return 3600 * output_frequency, 0.0
     if conversion == "pot2alt":
-        return 1.0 / 9.81
+        return 1.0 / 9.81, 0.0
     if conversion == "alt2pot":
-        return 9.81
+        return 9.81, 0.0
     if conversion == "vol2flux":
-        return 1000.0 / (3600 * output_frequency)
+        return 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2massl":
-        return 1000.0
+        return 1000.0, 0.0
     if conversion == "frac2percent":
-        return 100.0
+        return 100.0, 0.0
     if conversion == "percent2frac":
-        return 0.01
+        return 0.01, 0.0
+    if conversion == "K2degC":
+        return 1.0, -273.15
+    if conversion == "degC2K":
+        return 1.0, 273.15
     log.error("Unknown explicit unit conversion: %s" % conversion)
-    return 1.0
+    return 1.0, 0.0
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
-def create_time_axes(tasks):
-    global log
-    time_axes = {}
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key)
-        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
-        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
-            if time_dim in time_axes:
-                tid = time_axes[time_dim]
-            else:
-                time_operator = getattr(task.target, "time_operator", ["point"])
-                log.info("Creating time axis using variable %s..." % task.target.variable)
-                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
-                                       name=time_dim, has_bounds=(time_operator != ["point"]))
-                time_axes[time_dim] = tid
-            setattr(task, "time_axis", tid)
-            break
+def create_time_axes(task):
+    global log, time_axis_ids
+    tgtdims = getattr(task.target, cmor_target.dims_key)
+    # TODO: better to check in the table axes if the standard name of the dimension equals "time"
+    time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    if not any(time_dims):
+        return
+    if len(time_dims) > 1:
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple time dimensions." % (
+            task.target.variable, task.target.table, tgtdims))
+        task.set_failed()
+        return
+    time_dim = str(time_dims[0])
+    key = (task.target.table, time_dim)
+    if key in time_axis_ids:
+        tid = time_axis_ids[key]
+    else:
+        time_operator = getattr(task.target, "time_operator", ["point"])
+        log.info("Creating time axis using variable %s..." % task.target.variable)
+        tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                               name=time_dim, has_bounds=(time_operator != ["point"]))
+        time_axis_ids[key] = tid
+    setattr(task, "t_axis_id", tid)
 
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
-def create_depth_axes(tasks):
-    global log
-    depth_axes = {}
-    for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key)
-        zdims = getattr(task.target, "z_dims", [])
-        if len(zdims) == 0:
-            continue
-        if len(zdims) > 1:
-            log.error("Skipping variable %s in table %s with dimensions %s with multiple directions." % (
-                task.target.variable, task.target.table, tgtdims))
-            continue
-        zdim = str(zdims[0])
-        if zdim in depth_axes:
-            setattr(task, "z_axis_id", depth_axes[zdim])
-            if zdim == "alevel":
-                setattr(task, "z_axis_id", depth_axes[zdim][0])
-                setattr(task, "store_with", depth_axes[zdim][1])
-            continue
-        elif zdim == "alevel":
-            log.info("Creating model level axis using variable %s..." % task.target.variable)
-            axisid, psid = create_hybrid_level_axis(task)
-            depth_axes[zdim] = (axisid, psid)
-            setattr(task, "z_axis_id", axisid)
-            setattr(task, "store_with", psid)
-            continue
-        elif zdim == "sdepth":
-            axisid = create_soil_depth_axis(zdim, getattr(task, cmor_task.output_path_key))
-            depth_axes[zdim] = axisid
-            setattr(task, "z_axis_id", axisid)
-        elif zdim in cmor_target.get_axis_info(task.target.table):
-            axis = cmor_target.get_axis_info(task.target.table)[zdim]
-            levels = axis.get("requested", [])
-            if levels == "":
-                levels = []
-            value = axis.get("value", None)
-            if value:
-                levels.append(value)
-            unit = axis.get("units", None)
-            if len(levels) == 0:
-                log.warning("Skipping axis %s in table %s with no levels" % (zdim, task.target.table))
-                continue
-            else:
-                log.info("Creating vertical axis for %s..." % str(zdim))
-                values = [float(l) for l in levels]
-                if axis.get("must_have_bounds", "no") == "yes":
-                    bounds_list, n = axis.get("requested_bounds", []), len(values)
-                    if not bounds_list:
-                        bounds_list = [float(x) for x in axis.get("bounds_values", []).split()]
-                    if len(bounds_list) == 2 * n:
-                        bounds_array = numpy.empty([n, 2])
-                        for i in range(n):
-                            bounds_array[i, 0], bounds_array[i, 1] = bounds_list[2 * i], bounds_list[2 * i + 1]
-                        axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit,
-                                           cell_bounds=bounds_array)
-                    else:
-                        log.error("Failed to retrieve bounds for vertical axis %s" % str(zdim))
-                        axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit)
-                else:
-                    axisid = cmor.axis(table_entry=str(zdim), coord_vals=values, units=unit)
-            depth_axes[zdim] = axisid
-            setattr(task, "z_axis_id", axisid)
+def create_depth_axes(task):
+    global log, depth_axis_ids
+    tgtdims = getattr(task.target, cmor_target.dims_key)
+    z_dims = getattr(task.target, "z_dims", [])
+    if not any(z_dims):
+        return
+    if len(z_dims) > 1:
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple z-directions." % (
+            task.target.variable, task.target.table, tgtdims))
+        task.set_failed()
+        return
+    z_dim = str(z_dims[0])
+    key = (task.target.table, z_dim)
+    if key in depth_axis_ids:
+        if z_dim == "alevel":
+            setattr(task, "z_axis_id", depth_axis_ids[key][0])
+            setattr(task, "store_with", depth_axis_ids[key][1])
         else:
-            log.error("Vertical dimension %s for variable %s not found in header of table %s" % (
-                zdim, task.target.variable, task.target.table))
+            setattr(task, "z_axis_id", depth_axis_ids[key])
+        return
+    elif z_dim == "alevel":
+        log.info("Creating model level axis using variable %s..." % task.target.variable)
+        axisid, psid = create_hybrid_level_axis(task)
+        depth_axis_ids[key] = (axisid, psid)
+        setattr(task, "z_axis_id", axisid)
+        setattr(task, "store_with", psid)
+        return
+    elif z_dim == "sdepth":
+        log.info("Creating soil depth axis using variable %s..." % task.target.variable)
+        axisid = create_soil_depth_axis(z_dim, getattr(task, cmor_task.output_path_key))
+        depth_axis_ids[key] = axisid
+        setattr(task, "z_axis_id", axisid)
+    elif z_dim in cmor_target.get_axis_info(task.target.table):
+        axis = cmor_target.get_axis_info(task.target.table)[z_dim]
+        levels = axis.get("requested", [])
+        if levels == "":
+            levels = []
+        value = axis.get("value", None)
+        if value:
+            levels.append(value)
+        unit = axis.get("units", None)
+        if len(levels) == 0:
+            log.warning("Skipping axis %s in table %s with no levels" % (z_dim, task.target.table))
+            return
+        else:
+            values = [float(l) for l in levels]
+            if axis.get("must_have_bounds", "no") == "yes":
+                bounds_list, n = axis.get("requested_bounds", []), len(values)
+                if not bounds_list:
+                    bounds_list = [float(x) for x in axis.get("bounds_values", []).split()]
+                if len(bounds_list) == 2 * n:
+                    bounds_array = numpy.empty([n, 2])
+                    for i in range(n):
+                        bounds_array[i, 0], bounds_array[i, 1] = bounds_list[2 * i], bounds_list[2 * i + 1]
+                    axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit,
+                                       cell_bounds=bounds_array)
+                else:
+                    log.error("Failed to retrieve bounds for vertical axis %s" % str(z_dim))
+                    axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
+            else:
+                axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
+            depth_axis_ids[key] = axisid
+            setattr(task, "z_axis_id", axisid)
+    else:
+        log.error("Vertical dimension %s for variable %s not found in header of table %s" % (
+            z_dim, task.target.variable, task.target.table))
 
 
 # Creates the hybrid model vertical axis in cmor.
@@ -586,7 +611,7 @@ def create_hybrid_level_axis(task):
         cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
                      zfactor_bounds=bbnds)
         storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
-                                 axis_ids=[getattr(task, "grid_id"), getattr(task, "time_axis")], units="Pa")
+                                 axis_ids=[grid_id, getattr(task, "t_axis_id")], units="Pa")
         return axisid, storewith
     finally:
         if ds is not None:
@@ -598,47 +623,47 @@ def create_soil_depth_axis(name, filepath):
     global log
     # New version of cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
-    values = 0.5*(bndcm[:4] + bndcm[1:])
+    values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
-    dataset = None
-    try:
-        dataset = netCDF4.Dataset(filepath, 'r')
-        ncvar = dataset.variables.get("depth", None)
-        if not ncvar:
-            log.error("Could retrieve depth coordinate from file %s" % filepath)
-            return 0
-        units = getattr(ncvar, "units", "cm")
-        if units == "mm":
-            factor = 0.001
-        elif units == "cm":
-            factor = 0.01
-        elif units == "m":
-            factor = 1
-        else:
-            log.error("Unknown units for depth axis in file %s" % filepath)
-            return 0
-        values = factor * ncvar[:]
-        ncvar = dataset.variables.get("depth_bnds", None)
-        if not ncvar:
-            n = len(values)
-            bounds = numpy.empty([n, 2])
-            bounds[0, 0] = 0.
-            if n > 1:
-                bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
-                bounds[0:n - 1, 1] = bounds[1:n, 0]
-                bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
-            else:
-                bounds[0, 1] = 2 * values[0]
-        else:
-            bounds = factor * ncvar[:, :]
-        return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-    except Exception as e:
-        log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
-    finally:
-        if dataset is not None:
-            dataset.close()
-    return 0
+    # dataset = None
+    # try:
+    #     dataset = netCDF4.Dataset(filepath, 'r')
+    #     ncvar = dataset.variables.get("depth", None)
+    #     if not ncvar:
+    #         log.error("Could retrieve depth coordinate from file %s" % filepath)
+    #         return 0
+    #     units = getattr(ncvar, "units", "cm")
+    #     if units == "mm":
+    #         factor = 0.001
+    #     elif units == "cm":
+    #         factor = 0.01
+    #     elif units == "m":
+    #         factor = 1
+    #     else:
+    #         log.error("Unknown units for depth axis in file %s" % filepath)
+    #         return 0
+    #     values = factor * ncvar[:]
+    #     ncvar = dataset.variables.get("depth_bnds", None)
+    #     if not ncvar:
+    #         n = len(values)
+    #         bounds = numpy.empty([n, 2])
+    #         bounds[0, 0] = 0.
+    #         if n > 1:
+    #             bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
+    #             bounds[0:n - 1, 1] = bounds[1:n, 0]
+    #             bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
+    #         else:
+    #             bounds[0, 1] = 2 * values[0]
+    #     else:
+    #         bounds = factor * ncvar[:, :]
+    #     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
+    # except Exception as e:
+    #     log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
+    # finally:
+    #     if dataset is not None:
+    #         dataset.close()
+    # return 0
 
 
 # Makes a time axis for the given table
@@ -672,7 +697,6 @@ def get_sp_var(ncpath):
         return None
     if not os.path.exists(ncpath):
         return None
-    ds = None
     try:
         ds = netCDF4.Dataset(ncpath)
         if "var134" in ds.variables:
