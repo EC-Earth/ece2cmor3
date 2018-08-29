@@ -112,7 +112,8 @@ def load_targets_excel(varlist):
     targets = []
     cmor_colname = "CMOR Name"
     vid_colname = "vid"
-    priority_colname = "Default Priority"
+    priority_colname = "Priority"                 # Priority column name for the experiment   cmvme_*.xlsx files
+    default_priority_colname = "Default Priority" # Priority column name for the mip overview cmvmm_*.xlsx files
     mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
@@ -126,7 +127,12 @@ def load_targets_excel(varlist):
             continue
         index = row.index(cmor_colname)
         vid_index = row.index(vid_colname)
-        priority_index = row.index(priority_colname)
+        if priority_colname in row:
+            priority_index = row.index(priority_colname)
+        elif default_priority_colname in row:                       # If no "Priority" column is found try to find a "Default Priority" column
+            priority_index = row.index(default_priority_colname)
+        else:                                                       # If no "Priority" column and no "Default Priority" column are found, abort with message
+            raise Exception("Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (sheet, varlist))
         mip_list_index = row.index(mip_list_colname)
         varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
         vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
