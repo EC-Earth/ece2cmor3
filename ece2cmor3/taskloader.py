@@ -1,8 +1,3 @@
-# Reply from Martin Juckes at 16 Jul 2018, 12:43 dreq: looping over MIPs and experiments
-#
-# There is some code in the attached script which does the looping you ask for. There are two versions: (1) looping over experiments defined by each MIP and (2) looping over experiments from which each MIP requests data (generally a larger set). I'm working on some support methods which will simplify the code for (2)
-# 
-
 import json
 import logging
 import os
