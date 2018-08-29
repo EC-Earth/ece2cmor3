@@ -98,6 +98,8 @@ def coords(df, root, meta):
 
     return df, ('j', 'i')
 
+#TODO: if LPJG data that has been run on the regular grid is also used, the corresponding coords function
+#from Michael Mischurow's regular.py should be added here (possibly with some modifications)
 
 # Initializes the processing loop.
 def initialize(path, ncpath, expname, tabledir, prefix, start, length):
@@ -174,6 +176,11 @@ def execute(tasks):
 
             #find first and last year in the .out-file
             firstyear, lastyear = find_timespan(lpjgfile)
+            #check if user given reference year is after the first year in data file: this is not allowed
+            if int(ref_date_.year) > firstyear:
+                log.error("The reference date given is after the first year in the data (%s) for variable %s "
+                          "in file %s. Skipping CMORization." % (firstyear, task.source.variable(), lpjgfile))
+                continue
 
             #divide the data in the .out-file by year to temporary files
             yearly_files = divide_years(lpjgfile, firstyear, lastyear, outname)
@@ -181,7 +188,7 @@ def execute(tasks):
             for yearfile in yearly_files:
 
                 #Read data from the .out-file and generate the netCDF file including remapping
-                ncfile = create_lpjg_netcdf(freq, yearfile, outname, outdims, firstyear)
+                ncfile = create_lpjg_netcdf(freq, yearfile, outname, outdims)
 
                 if ncfile is None:
                     if "landUse" in outdims.split():
@@ -251,11 +258,6 @@ def find_timespan(lpjgfile):
     firstyr = df['Year'].min()
     lastyr = df['Year'].max()
 
-    #check if user given start year is after the first year in data file (ignore if also after last year)
-    refyear = int(ref_date_.year)
-    if refyear > firstyr and refyear < lastyr:
-        firstyr = refyear
-
     return firstyr, lastyr
 
 # Divides the .out file by year to a set of temporary files
@@ -286,7 +288,7 @@ def divide_years(lpjgfile, firstyr, lastyr, outname):
     return filenames
 
 #this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
-def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
+def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     global ncpath_, gridfile_
     
     #checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists in lpjg data)
@@ -370,6 +372,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
 
     time = root.createDimension('time', None)
     timev = root.createVariable('time', 'f4', ('time',))
+    refyear = int(ref_date_.year)
     if freq == "mon":
         curyear, tres = int(df_list[0].columns[0][1]), 'month'
         t_since_fyear = (curyear - refyear)*12
@@ -389,7 +392,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
     N_dfs = len(df_list)
     df_normalised = []
     for l in range(N_dfs):
-        df_out, dimensions = coords(df_list[l], root, meta)
+        df_out, dimensions = coords(df_list[l], root, meta) #TODO: if different LPJG grids possible you need an if-check here to choose which function is called
         df_normalised.append(df_out)
 
     if N_dfs == 1:
@@ -397,7 +400,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
         
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised[0].values.T
+        variable[:] = df_normalised[0].values.T #TODO: see out2nc for what to do here if you have the LPJG regular grid
     else:
         root.createDimension('fourthdim', N_dfs)
 
@@ -405,7 +408,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for l in range(N_dfs):
-            variable[:, l, :, :] = df_normalised[l].values.T
+            variable[:, l, :, :] = df_normalised[l].values.T #TODO: see out2nc for what to do here if you have the LPJG regular grid
 
     root.sync()
     root.close()
@@ -415,7 +418,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims, refyear):
     #for some reason chaining the other commands to invertlat gives an error, the line below worked fine in out2nc.py 
 #    cdo.invertlat(input = "-remapycon,n128 -setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
     interm_file = os.path.join(ncpath_, 'intermediate.nc')
-    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file)
+    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file) #TODO: add remapping for possible other grids
     cdo.invertlat(input = interm_file, output=ncfile)
     os.remove(interm_file)
     os.remove(temp_ncfile)
@@ -438,7 +441,6 @@ def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
         df = df.unstack()
     elif freq == "mon":
         if months_as_cols:
-#            df.rename(columns=lambda x: x.lower(), inplace=True)
             df = df.unstack()
             sortrule = lambda x: (x[1], _months.index(x[0]))
             df = df.reindex(sorted(df.columns, key=sortrule),
@@ -463,7 +465,7 @@ def execute_single_task(dataset, task):
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
     axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis 
     varid = create_cmor_variable(task, dataset, axes)
-#    ncvar = dataset.variables[task.source.variable()]
+
     ncvar = dataset.variables[task.target.out_name]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
     
