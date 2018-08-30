@@ -22,18 +22,14 @@ exp_name_ = None
 # Table root
 table_root_ = None
 
-# Dictionary of lpjg grid type with cmor grid id.
-grid_ids_ = {}
-
-# Dictionary of output frequencies with cmor time axis id.
-time_axes_ = {}
-
-# Reference date, will be start date if not given as a command line parameter 
+# Reference date i.e. the start date given by user as a command line parameter
 ref_date_ = None
 cmor_calendar_ = None
 
+#lpjg_path_ is the directory where the data files (LPJG .out-files) are located
 lpjg_path_ = None
 
+#ncpath_ is the tmp directory where the temporary netcdf files will be placed
 ncpath_ = None
 ncpath_created_ = False
 
@@ -101,7 +97,7 @@ def coords(df, root, meta):
 #TODO: if LPJG data that has been run on the regular grid is also used, the corresponding coords function
 #from Michael Mischurow's regular.py should be added here (possibly with some modifications)
 
-# Initializes the processing loop.
+# Initializion before the processing of the LPJ-Guess tasks
 def initialize(path, ncpath, expname, tabledir, prefix, start, length):
     global log,exp_name_,table_root_, ref_date_
     global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
@@ -131,18 +127,10 @@ def initialize(path, ncpath, expname, tabledir, prefix, start, length):
 
     return True
 
-
-# Resets the module globals.
-def finalize():
-    global grid_ids_,time_axes_
-    grid_ids_ = {}
-    time_axes_ = {}
-
-
 # Executes the processing loop.
 # used the nemo2cmor.py execute as template
 def execute(tasks):
-    global log,time_axes_,table_root_
+    global log, table_root_
     global lpjg_path_, ncpath_
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
@@ -261,7 +249,7 @@ def find_timespan(lpjgfile):
     return firstyr, lastyr
 
 # Divides the .out file by year to a set of temporary files
-# This is to avoid problems with trying to keep huge amounts of data in the memory as the original .out-files can have even hundreds of years worth of data
+# This approach was chosen to avoid problems with trying to keep huge amounts of data in the memory as the original .out-files can have even >100 years worth of daily data
 def divide_years(lpjgfile, firstyr, lastyr, outname):
 
     files = {}
@@ -319,10 +307,13 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
             landuse_types = list(df.columns.values)
         elif cmor_prefix_ == "CMIP6":
             #NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in name) for future CMIP6 runs
-            #this is just a temporary placeholder solution!
+            #this is just a temporary placeholder solution for testing purposes!
             df['primary_and_secondary'] = df['natural']
             df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
             landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
+            #Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types and column names denoted
+            #by the abbreviations psl, pst, crp & urb, uncomment the line below and delete the placeholder solution above (i.e. the above three lines)
+            #landuse_types = ['psl', 'pst', 'crp', 'urb']
         else:
             #for now skip the variable entirely if there is not exact matches in the .out-file for all the requested landuse types (except for CMIP6-case of course)
             colnames = list(df.columns.values)
@@ -415,8 +406,6 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     #do the remapping
     cdo = Cdo()
-    #for some reason chaining the other commands to invertlat gives an error, the line below worked fine in out2nc.py 
-#    cdo.invertlat(input = "-remapycon,n128 -setgrid," + gridfile_ + " " + temp_ncfile, output=ncfile)
     interm_file = os.path.join(ncpath_, 'intermediate.nc')
     cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file) #TODO: add remapping for possible other grids
     cdo.invertlat(input = interm_file, output=ncfile)
@@ -453,7 +442,7 @@ def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
                             axis=1, copy=False)
     return df
 
-# Performs a single task.
+# Performs CMORization of a single task/year
 def execute_single_task(dataset, task):
     global log
     task.status = cmor_task.status_cmorizing
@@ -479,8 +468,8 @@ def execute_single_task(dataset, task):
     log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
 
-#Creates cmor time axis for the variable (task)
-#Unlike e.g. the corresponding nemo2cmor function, the axis is currently created for each variable instead of a table     
+#Creates cmor time axis for the variable
+#The axis is created separately for each variable and each year
 def create_time_axis(ds, task):
     #finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and the length of the time_dim list will be 1
     tgtdims = getattr(task.target, cmor_target.dims_key)
@@ -498,7 +487,7 @@ def create_time_axis(ds, task):
     return
 
 #Creates longitude and latitude cmor-axes for LPJ-Guess variables
-#Seems this is enough for cmor according to the cmor documentation since the grid would now just be a lat/lon grid?
+#Seems this is enough for cmor according to the cmor documentation, and there is indeed no problem at least when passing the data through the CMORization functions
 def create_grid(ds, task):
     lons = ds.variables["lon"][:]
     lats = ds.variables["lat"][:]
@@ -522,7 +511,7 @@ def create_grid(ds, task):
      
     return lon_id, lat_id
 
-# Unit conversion utility method
+# Unit conversion utility method (not really needed but carried over from nemo2cmor anyway)
 def get_conversion_factor(conversion):
     global log
     if not conversion:
