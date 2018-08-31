@@ -40,11 +40,20 @@ if [ "$#" -eq 0 ]; then
  rm -rf cmip6-experiment-m=*/file_def-compact
  rm -f  cmip6-experiment-m=*/cmip6-file_def_nemo.xml
 
+ # Just set the toce fields false again because we still face troubles with them
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=amip-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=1pctCO2-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=abrupt-4xCO2-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=piControl-t=1-p=1/file_def_nemo-opa.xml
  sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=CMIP-e=historical-t=1-p=1/file_def_nemo-opa.xml
+
+ # Just remove the "3hr" block because of troubles with XIOS xml reading:
+ # Error [StdIStream& operator>>(StdIStream& in , CDuration& duration)] : In file 'branch-r5717-cmip6-nemo-namelists/sources/xios-2/src/duration.cpp', line 66 -> Bad duration format: impossible to read a pair (value, unit).
+ sed -i '/3hr/,+6d' cmip6-experiment-m=CMIP-e=amip-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=CMIP-e=1pctCO2-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=CMIP-e=abrupt-4xCO2-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=CMIP-e=piControl-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=CMIP-e=historical-t=1-p=1/file_def_nemo-opa.xml
 
  mkdir -p DECK+historical
  mv -f cmip6-experiment-m=* DECK+historical/
@@ -66,6 +75,31 @@ if [ "$#" -eq 0 ]; then
  cd ec-earth-cmip6-nemo-namelists
  rm -rf cmip6-experiment-m=*/file_def-compact
  rm -f  cmip6-experiment-m=*/cmip6-file_def_nemo.xml
+
+ # Just set the toce fields false again because we still face troubles with them
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-pac-control-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-ipv-pos-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-ipv-neg-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-hindcast-noPinatubo-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-forecast-addPinatubo-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-atl-control-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-amv-pos-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppC-amv-neg-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppB-forecast-t=1-p=1/file_def_nemo-opa.xml
+ sed -i -e 's/True\" field_ref=\"toce_pot/False\" field_ref=\"toce_pot/' cmip6-experiment-m=DCPP-e=dcppA-hindcast-t=1-p=1/file_def_nemo-opa.xml
+
+ # Just remove the "3hr" block because of troubles with XIOS xml reading:
+ # Error [StdIStream& operator>>(StdIStream& in , CDuration& duration)] : In file 'branch-r5717-cmip6-nemo-namelists/sources/xios-2/src/duration.cpp', line 66 -> Bad duration format: impossible to read a pair (value, unit).
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-pac-control-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-ipv-pos-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-ipv-neg-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-hindcast-noPinatubo-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-forecast-addPinatubo-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-atl-control-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-amv-pos-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppC-amv-neg-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppB-forecast-t=1-p=1/file_def_nemo-opa.xml
+ sed -i '/3hr/,+6d' cmip6-experiment-m=DCPP-e=dcppA-hindcast-t=1-p=1/file_def_nemo-opa.xml
 
  mkdir -p DCPP
  mv -f cmip6-experiment-m=* DCPP/
