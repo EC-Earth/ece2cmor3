@@ -178,7 +178,7 @@
     </file>
 
 
-    <file id="file13" name_suffix="_opa_3hr_grid_T_2D" output_freq="3hr">
+    <file id="file13" name_suffix="_opa_3h_grid_T_2D" output_freq="3h">
 
      <field id="id_tos"                              name="tos"                     table="3hr"           field_ref="sst_pot"                                grid_ref="grid_T_2D"                      enabled="False" >                                                                        </field>
 
