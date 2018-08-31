@@ -291,6 +291,9 @@ def postprocess(tasks):
 # Finds the surface pressure data source: gives priority to SH file.
 def find_sp_variable(task, autofilter):
     global ifs_gridpoint_file_, ifs_spectral_file_, surface_pressure, ln_surface_pressure
+    ifs_ps_source = cmor_source.ifs_source.create(134)
+    setattr(ifs_ps_source, cmor_source.expression_key, "var134=exp(var152)")
+    setattr(ifs_ps_source, "root_codes", [cmor_source.grib_code(134)])
     if autofilter:
         if grib_filter.spvar is None:
             log.error("Could not find surface pressure in model output...")
@@ -298,7 +301,7 @@ def find_sp_variable(task, autofilter):
         log.info("Found surface pressure in file %s" % grib_filter.spvar[2])
         setattr(task, cmor_task.filter_output_key, [grib_filter.spvar[2]])
         if grib_filter.spvar[0] == 152:
-            task.source = cmor_source.ifs_source.read("var134=exp(var152)")
+            task.source = ifs_ps_source
         task.source.grid_ = 1 if grib_filter.spvar[2] == ifs_spectral_file_ else 0
         return
     log.info("Looking for surface pressure variable in input files...")
@@ -313,7 +316,7 @@ def find_sp_variable(task, autofilter):
     if ln_surface_pressure in codes:
         log.info("Found lnsp in spectral file")
         setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
-        task.source = cmor_source.ifs_source.read("var134=exp(var152)")
+        task.source = ifs_ps_source
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
     setattr(task, cmor_task.filter_output_key, [ifs_gridpoint_file_])

@@ -42,38 +42,48 @@ class cmor_source_tests(unittest.TestCase):
         eq_(src.get_grib_code(), grib_code(133, 128))
 
     @staticmethod
-    def test_invalid_codes():
-        with LogCapture() as logc:
-            src = ifs_source.create(88, 128)
-            ok_("cmor_source ERROR" in str(logc))
-
-    @staticmethod
     def test_create_from_string():
         src = ifs_source.read("133.128")
         eq_(src.get_grib_code(), grib_code(133, 128))
 
     @staticmethod
+    def test_create_from_short_string():
+        src = ifs_source.read("133")
+        eq_(src.get_grib_code(), grib_code(133, 128))
+
+    @staticmethod
+    def test_create_from_var_string():
+        src = ifs_source.read("var133")
+        eq_(src.get_grib_code(), grib_code(133, 128))
+
+    @staticmethod
     def test_create_from_expr():
-        expr = "var88=sqrt(sq(var165)+sq(var166))"
-        src = ifs_source.read(expr)
+        src = ifs_source.read("88.128", "sqrt(sq(var165)+sq(var166))")
         eq_(src.get_grib_code(), grib_code(88, 128))
         eq_(src.get_root_codes(), [grib_code(165, 128), grib_code(166, 128)])
-        eq_(getattr(src, "expr"), expr)
+        eq_(getattr(src, "expr"), "var88=sqrt(sq(var165)+sq(var166))")
         eq_(src.grid(), "point")
         eq_(src.spatial_dims, 2)
 
     @staticmethod
+    def test_create_from_expr2():
+        src = ifs_source.read("var88", "sqrt(sq(var131)+sq(var132))")
+        eq_(src.get_grib_code(), grib_code(88, 128))
+        eq_(src.get_root_codes(), [grib_code(131, 128), grib_code(132, 128)])
+        eq_(getattr(src, "expr"), "var88=sqrt(sq(var131)+sq(var132))")
+        eq_(src.grid(), "spec")
+        eq_(src.spatial_dims, 3)
+
+    @staticmethod
     def test_invalid_expression1():
         with LogCapture() as logc:
-            expr = "var141=sqrt(sq(var165)+sq(var166))"
-            src = ifs_source.read(expr)
+            src = ifs_source.read("141.128", "sqrt(sq(var165)+sq(var166))")
             ok_("cmor_source ERROR" in str(logc))
 
     @staticmethod
     def test_invalid_expression2():
         with LogCapture() as logc:
-            expr = "var89=sqrt(sq(var88)+sq(var166))"
-            src = ifs_source.read(expr)
+            src = ifs_source.read("89.128", "sqrt(sq(var88)+sq(var166))")
             ok_("cmor_source ERROR" in str(logc))
 
     @staticmethod

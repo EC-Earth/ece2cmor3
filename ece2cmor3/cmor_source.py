@@ -32,7 +32,7 @@ def create_cmor_source(attributes, component):
             log.error(
                 "Could not find an IFS source or expression entry within attributes %s" % (str(attributes.__dict__)))
             return None
-        result = ifs_source.read(expr if expr is not None else src)
+        result = ifs_source.read(src, expr)
     if component == "nemo":
         if src is None:
             log.error("Could not find a NEMO source variable within attributes %s" % (str(attributes.__dict__)))
@@ -79,11 +79,17 @@ class grib_code:
     @classmethod
     def read(cls, istr):
         s = istr[3:] if istr.startswith("var") else istr
-        strpair = s.split('.')
-        if len(strpair) > 2:
+        string_pair = s.split('.')
+        if len(string_pair) == 1:
+            code_string = string_pair[0]
+            if len(code_string) > 3:
+                vid, tid = int(code_string[3:]), int(code_string[0:3])
+            else:
+                vid, tid = int(code_string), 128
+        elif len(string_pair) == 2:
+            vid, tid = int(string_pair[0]), int(string_pair[1])
+        else:
             raise Exception("Invalid input string for grib code:", istr)
-        vid = int(strpair[0])
-        tid = 128 if len(strpair) == 1 else int(strpair[1])
         cls = grib_code(vid, tid)
         return cls
 
@@ -125,9 +131,6 @@ class ifs_source(cmor_source):
             self.spatial_dims = -1
             self.grid_ = -1
         else:
-            if code not in ifs_source.grib_codes:
-                log.error(
-                    "Unknown grib code %d.%d passed to IFS source parameter constructor" % (code.var_id, code.tab_id))
             self.code_ = code
             self.spatial_dims = -1
             self.grid_ = ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
@@ -161,45 +164,39 @@ class ifs_source(cmor_source):
 
     # Creates an instance from the input string s.
     @classmethod
-    def read(cls, s):
+    def read(cls, s, expr=None):
         global log
-        if re.match("^[0-9]{1,3}.[0-9]{3}$", s) or re.match("^[0-9]{1,3}$", s) or re.match("^[0-9]{1,3}$", s):
-            gc = grib_code.read(s)
-            cls = ifs_source(gc)
-        elif re.match("^var[0-9]{1,3}$", s):
-            gc = grib_code.read(s[3:])
-            cls = ifs_source(gc)
-        else:
-            varstrs = re.findall("var[0-9]{1,3}", s)
-            if len(varstrs) == 0 or not s.replace(" ", "").startswith(varstrs[0] + "="):
-                raise Exception("Unable to read grib codes from expression", s)
+        expr_string = expr
+        gc = grib_code.read(s)
+        cls = ifs_source(gc)
+        if expr is not None:
+            if gc in ifs_source.grib_codes:
+                log.error("Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
+                          % (expr, str(gc)))
             else:
-                newcode = grib_code(int(varstrs[0][3:]), 128)
-                gclist = map(lambda x: grib_code(int(x[3:]), 128), varstrs[1:])
-                incodes = []
-                for c in gclist:
-                    if c not in incodes:
-                        incodes.append(c)
-                cls = ifs_source(None)
-                if s.replace(" ", "") != "var134=exp(var152)":
-                    if newcode in set(ifs_source.grib_codes) - set(ifs_source.grib_codes_extra):
-                        log.error("New expression code %d.%d already reserved for existing output variable" % (
-                            newcode.var_id, newcode.tab_id))
-                cls.code_ = newcode
-                grid = ifs_grid.spec if (
-                        len(incodes) > 0 and incodes[0] in ifs_source.grib_codes_sh) else ifs_grid.point
-                dims = 3 if (len(incodes) > 0 and incodes[0] in ifs_source.grib_codes_3D) else 2
-                for c in incodes:
-                    if c not in ifs_source.grib_codes:
-                        log.error("Unknown grib code %d.%d in expression %s found" % (c.var_id, c.tab_id, s))
-                    cgrid = ifs_grid.spec if (c in ifs_source.grib_codes_sh) else ifs_grid.point
-                    if cgrid != grid: log.error(
-                        "Invalid combination of gridpoint and spectral variables in expression %s" % s)
-                    if c in ifs_source.grib_codes_3D: dims = 3
-                cls.grid_ = grid
-                cls.spatial_dims = dims
-                setattr(cls, "root_codes", incodes)
-                setattr(cls, expression_key, s)
+                varstrs = re.findall("var[0-9]{1,3}", expr)
+                if s.replace(" ", "").startswith(varstrs[0] + "="):
+                    log.warning("Ignoring left-hand side assignment in expression %s" % expr)
+                    varstrs = varstrs[1:]
+                else:
+                    expr_string = '='.join(["var" + str(gc.var_id), expr])
+                root_codes = []
+                for varstr in varstrs:
+                    code = grib_code.read(varstr)
+                    if code not in ifs_source.grib_codes:
+                        log.error("Unknown grib code %s in expression %s found" % (str(code), expr))
+                    if code not in root_codes:
+                        root_codes.append(code)
+                num_sp_codes = len([c for c in root_codes if c in ifs_source.grib_codes_sh])
+                if num_sp_codes != 0 and num_sp_codes != len(root_codes):
+                    log.error(
+                        "Invalid combination of gridpoint and spectral variables in expression %s" % expr)
+
+                cls.grid_ = ifs_grid.spec if all(
+                    [c in ifs_source.grib_codes_sh for c in root_codes]) else ifs_grid.point
+                cls.spatial_dims = 3 if any([c in ifs_source.grib_codes_3D for c in root_codes]) else 2
+                setattr(cls, "root_codes", root_codes)
+                setattr(cls, expression_key, expr_string)
         return cls
 
     # Creates in instance from the input codes.
@@ -208,7 +205,8 @@ class ifs_source(cmor_source):
         cls = ifs_source(grib_code(vid, tid))
         return cls
 
-#LPJ-Guess source subclass
+
+# LPJ-Guess source subclass
 class lpjg_source(cmor_source):
 
     def __init__(self, colname):
@@ -220,6 +218,3 @@ class lpjg_source(cmor_source):
 
     def variable(self):
         return self.colname_
-
-
-    

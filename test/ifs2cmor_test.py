@@ -105,7 +105,7 @@ class ifs2cmor_tests(unittest.TestCase):
     def test_postproc_windspeed():
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
-        source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
+        source = cmor_source.ifs_source.read("var88", "sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWind" and t.table == "6hrPlevPt"][0]
         task = cmor_task.cmor_task(source, target)
         postproc.mode = postproc.skip
@@ -122,7 +122,7 @@ class ifs2cmor_tests(unittest.TestCase):
     def test_postproc_max_windspeed():
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
-        source = cmor_source.ifs_source.read("var88=sqrt(sqr(var165)+sqr(var166))")
+        source = cmor_source.ifs_source.read("var88", "sqrt(sqr(var165)+sqr(var166))")
         target = [t for t in targets if t.variable == "sfcWindmax" and t.table == "day"][0]
         task = cmor_task.cmor_task(source, target)
         postproc.mode = postproc.skip
