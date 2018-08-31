@@ -33,10 +33,10 @@ dependencies:
 - setuptools=39.2.0
 - numpy>=1.15.0
 - libiconv                                        # Unlisted dependency of cdo
+- pandas>=0.17.1
 - pip:
   - f90nml==0.20
   - jsonschema==2.5.1
-  - python-dateutil==2.4.1
   - testfixtures==5.3.1
   - xlrd==1.1.0
   - xlsxwriter==1.0.2

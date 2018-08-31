@@ -13,6 +13,7 @@ json_target_key = "target"
 json_table_key = "table"
 json_mask_key = "mask"
 json_masked_key = "masked"
+json_filepath_key = "filepath"
 
 omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
                                  "list-of-omitted-variables-01.xlsx")

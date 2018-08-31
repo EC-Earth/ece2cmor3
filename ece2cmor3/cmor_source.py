@@ -37,6 +37,10 @@ def create_cmor_source(attributes, component):
         if src is None:
             log.error("Could not find a NEMO source variable within attributes %s" % (str(attributes.__dict__)))
         result = netcdf_source(src, component)
+    if component == "lpjg":
+        if src is None:
+            log.error("Could not find a LPJG source variable within attributes %s" % (str(attributes.__dict__)))
+        result = lpjg_source(src)
     # if component == NEWCOMPONENT:
     # create some source here, if NEWCOMPONENT has nc files as output, the NEMO case can be copied
     return result
@@ -203,3 +207,19 @@ class ifs_source(cmor_source):
     def create(cls, vid, tid=128):
         cls = ifs_source(grib_code(vid, tid))
         return cls
+
+#LPJ-Guess source subclass
+class lpjg_source(cmor_source):
+
+    def __init__(self, colname):
+        super(lpjg_source, self).__init__()
+        self.colname_ = colname
+
+    def model_component(self):
+        return "lpjg"
+
+    def variable(self):
+        return self.colname_
+
+
+    

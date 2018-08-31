@@ -102,9 +102,11 @@ def main(args=None):
                                       maxsizegb=args.tmpsize)
     if model_active_flags["nemo"]:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
+    if model_active_flags["lpjg"]:
+        ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
-
+   
     ece2cmorlib.finalize()
 
 

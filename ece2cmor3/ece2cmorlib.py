@@ -1,7 +1,7 @@
 import cmor
 import os
 import logging
-from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, postproc
+from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, postproc
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -175,6 +175,16 @@ def perform_nemo_tasks(datadir, expname, startdate, interval):
         return
     nemo2cmor.execute(nemo_tasks)
 
+# Performs a LPJG cmorization processing:
+def perform_lpjg_tasks(datadir, ncdir, expname, startdate, interval):
+    global log ,tasks, table_dir, prefix
+    validate_setup_settings()
+    validate_run_settings(datadir, expname)
+    lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
+    log.info("Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks), len(tasks)))
+    if(not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, startdate, interval)):
+        return
+    lpjg2cmor.execute(lpjg_tasks)
 
 #def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix

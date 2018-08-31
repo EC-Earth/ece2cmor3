@@ -1,0 +1,762 @@
+[
+    {
+        "source": "baresoilFrac",
+        "table": "Lmon",
+        "target": "baresoilFrac"
+    },
+    {
+        "source": "cCwd",
+        "table": "Lmon",
+        "target": "cCwd"
+    },
+    {
+        "source": "cLand",
+        "table": "Emon",
+        "target": "cLand"
+    },
+    {
+        "source": "cLeaf",
+        "table": "Lmon",
+        "target": "cLeaf"
+    },
+    {
+        "source": "cLitter",
+        "table": "Lmon",
+        "target": "cLitter"
+    },
+    {
+        "source": "cLitterAbove",
+        "table": "Lmon",
+        "target": "cLitterAbove"
+    },
+    {
+        "source": "cLitterBelow",
+        "table": "Lmon",
+        "target": "cLitterBelow"
+    },
+    {
+        "source": "cLitterCwd",
+        "table": "Emon",
+        "target": "cLitterCwd"
+    },
+    {
+        "source": "cLitterLut",
+        "table": "Eyr",
+        "target": "cLitterLut"
+    },
+    {
+        "source": "cLitterSubSurf",
+        "table": "Emon",
+        "target": "cLitterSubSurf"
+    },
+    {
+        "source": "cLitterSurf",
+        "table": "Emon",
+        "target": "cLitterSurf"
+    },
+    {
+        "source": "cOther",
+        "table": "Emon",
+        "target": "cOther"
+    },
+    {
+        "source": "cProduct",
+        "table": "Lmon",
+        "target": "cProduct"
+    },
+    {
+        "source": "cProductLut",
+        "table": "Eyr",
+        "target": "cProductLut"
+    },
+    {
+        "source": "cRoot",
+        "table": "Lmon",
+        "target": "cRoot"
+    },
+    {
+        "source": "cropFrac",
+        "table": "Lmon",
+        "target": "cropFrac"
+    },
+    {
+        "source": "cropFracC3",
+        "table": "Emon",
+        "target": "cropFracC3"
+    },
+    {
+        "source": "cropFracC4",
+        "table": "Emon",
+        "target": "cropFracC4"
+    },
+    {
+        "source": "cSoil",
+        "table": "Emon",
+        "target": "cSoil"
+    },
+    {
+        "source": "cSoilFast",
+        "table": "Lmon",
+        "target": "cSoilFast"
+    },
+    {
+        "source": "cSoilLut",
+        "table": "Eyr",
+        "target": "cSoilLut"
+    },
+    {
+        "source": "cSoilMedium",
+        "table": "Lmon",
+        "target": "cSoilMedium"
+    },
+    {
+        "source": "cSoilSlow",
+        "table": "Lmon",
+        "target": "cSoilSlow"
+    },
+    {
+        "source": "cStem",
+        "table": "Emon",
+        "target": "cStem"
+    },
+    {
+        "source": "cTotFireLut",
+        "table": "Emon",
+        "target": "cTotFireLut"
+    },
+    {
+        "source": "cVeg",
+        "table": "Lmon",
+        "target": "cVeg"
+    },
+    {
+        "source": "cVegLut",
+        "table": "Eyr",
+        "target": "cVegLut"
+    },
+    {
+        "source": "cWood",
+        "table": "Emon",
+        "target": "cWood"
+    },
+    {
+        "source": "ec",
+        "table": "Eday",
+        "target": "ec"
+    },
+    {
+        "source": "et",
+        "table": "Eday",
+        "target": "et"
+    },
+    {
+        "source": "evspsblpot",
+        "table": "Emon",
+        "target": "evspsblpot"
+    },
+    {
+        "source": "devspsblpot",
+        "table": "Eday",
+        "target": "evspsblpot"
+    },
+    {
+        "source": "evspsblsoi",
+        "table": "Lmon",
+        "target": "evspsblsoi"
+    },
+    {
+        "source": "evspsblveg",
+        "table": "Lmon",
+        "target": "evspsblveg"
+    },
+    {
+        "source": "fAnthDisturb",
+        "table": "Emon",
+        "target": "fAnthDisturb"
+    },
+    {
+        "source": "fBNF",
+        "table": "Emon",
+        "target": "fBNF"
+    },
+    {
+        "source": "fCLandToOcean",
+        "table": "Emon",
+        "target": "fCLandToOcean"
+    },
+    {
+        "source": "fDeforestToAtmos",
+        "table": "Emon",
+        "target": "fDeforestToAtmos"
+    },
+    {
+        "source": "fDeforestToProduct",
+        "table": "Emon",
+        "target": "fDeforestToProduct"
+    },
+    {
+        "source": "fFire",
+        "table": "Lmon",
+        "target": "fFire"
+    },
+    {
+        "source": "fFireAll",
+        "table": "Emon",
+        "target": "fFireAll"
+    },
+    {
+        "source": "fFireNat",
+        "table": "Emon",
+        "target": "fFireNat"
+    },
+    {
+        "source": "fGrazing",
+        "table": "Lmon",
+        "target": "fGrazing"
+    },
+    {
+        "source": "fHarvest",
+        "table": "Lmon",
+        "target": "fHarvest"
+    },
+    {
+        "source": "fHarvestToAtmos",
+        "table": "Emon",
+        "target": "fHarvestToAtmos"
+    },
+    {
+        "source": "fHarvestToProduct",
+        "table": "Emon",
+        "target": "fHarvestToProduct"
+    },
+    {
+        "source": "fLitterFire",
+        "table": "Emon",
+        "target": "fLitterFire"
+    },
+    {
+        "source": "fLitterSoil",
+        "table": "Lmon",
+        "target": "fLitterSoil"
+    },
+    {
+        "source": "fLuc",
+        "table": "Emon",
+        "target": "fLuc"
+    },
+    {
+        "source": "fLulccAtmLut",
+        "table": "Emon",
+        "target": "fLulccAtmLut"
+    },
+    {
+        "source": "fLulccProductLut",
+        "table": "Emon",
+        "target": "fLulccProductLut"
+    },
+    {
+        "source": "fLulccResidueLut",
+        "table": "Emon",
+        "target": "fLulccResidueLut"
+    },
+    {
+        "source": "fNAnthDisturb",
+        "table": "Emon",
+        "target": "fNAnthDisturb"
+    },
+    {
+        "source": "fNdep",
+        "table": "Emon",
+        "target": "fNdep"
+    },
+    {
+        "source": "fNfert",
+        "table": "Emon",
+        "target": "fNfert"
+    },
+    {
+        "source": "fNgas",
+        "table": "Emon",
+        "target": "fNgas"
+    },
+    {
+        "source": "fNgasFire",
+        "table": "Emon",
+        "target": "fNgasFire"
+    },
+    {
+        "source": "fNgasNonFire",
+        "table": "Emon",
+        "target": "fNgasNonFire"
+    },
+    {
+        "source": "fNLandToOcean",
+        "table": "Emon",
+        "target": "fNLandToOcean"
+    },
+    {
+        "source": "fNleach",
+        "table": "Emon",
+        "target": "fNleach"
+    },
+    {
+        "source": "fNLitterSoil",
+        "table": "Emon",
+        "target": "fNLitterSoil"
+    },
+    {
+        "source": "fNloss",
+        "table": "Emon",
+        "target": "fNloss"
+    },
+    {
+        "source": "fNnetmin",
+        "table": "Emon",
+        "target": "fNnetmin"
+    },
+    {
+        "source": "fNProduct",
+        "table": "Emon",
+        "target": "fNProduct"
+    },
+    {
+        "source": "fNup",
+        "table": "Emon",
+        "target": "fNup"
+    },
+    {
+        "source": "fNVegLitter",
+        "table": "Emon",
+        "target": "fNVegLitter"
+    },
+    {
+        "source": "fProductDecomp",
+        "table": "Emon",
+        "target": "fProductDecomp"
+    },
+    {
+        "source": "fProductDecompLut",
+        "table": "Emon",
+        "target": "fProductDecompLut"
+    },
+    {
+        "source": "fracInLut",
+        "table": "Eyr",
+        "target": "fracInLut"
+    },
+    {
+        "source": "fracLut",
+        "table": "Eyr",
+        "target": "fracLut"
+    },
+    {
+        "source": "mfracLut",
+        "table": "Emon",
+        "target": "fracLut"
+    },
+    {
+        "source": "fracOutLut",
+        "table": "Eyr",
+        "target": "fracOutLut"
+    },
+    {
+        "source": "fVegFire",
+        "table": "Emon",
+        "target": "fVegFire"
+    },
+    {
+        "source": "fVegLitter",
+        "table": "Lmon",
+        "target": "fVegLitter"
+    },
+    {
+        "source": "gpp",
+        "table": "Lmon",
+        "target": "gpp"
+    },
+    {
+        "source": "gppGrass",
+        "table": "Emon",
+        "target": "gppGrass"
+    },
+    {
+        "source": "gppLut",
+        "table": "Emon",
+        "target": "gppLut"
+    },
+    {
+        "source": "gppTree",
+        "table": "Emon",
+        "target": "gppTree"
+    },
+    {
+        "source": "grassFrac",
+        "table": "Lmon",
+        "target": "grassFrac"
+    },
+    {
+        "source": "grassFracC3",
+        "table": "Emon",
+        "target": "grassFracC3"
+    },
+    {
+        "source": "grassFracC4",
+        "table": "Emon",
+        "target": "grassFracC4"
+    },
+    {
+        "source": "irrLut",
+        "table": "Emon",
+        "target": "irrLut"
+    },
+    {
+        "source": "lai",
+        "table": "Lmon",
+        "target": "lai"
+    },
+    {
+        "source": "dlai",
+        "table": "Eday",
+        "target": "lai"
+    },
+    {
+        "source": "laiLut",
+        "table": "Emon",
+        "target": "laiLut"
+    },
+    {
+        "source": "landCoverFrac",
+        "table": "Lmon",
+        "target": "landCoverFrac"
+    },
+    {
+        "source": "mrro",
+        "table": "Lmon",
+        "target": "mrro"
+    },
+    {
+        "source": "mrroLut",
+        "table": "Emon",
+        "target": "mrroLut"
+    },
+    {
+        "source": "mrros",
+        "table": "Lmon",
+        "target": "mrros"
+    },
+    {
+        "source": "mrsll",
+        "table": "Emon",
+        "target": "mrsll"
+    },
+    {
+        "source": "mrso",
+        "table": "Lmon",
+        "target": "mrso"
+    },
+    {
+        "source": "mrsol",
+        "table": "Emon",
+        "target": "mrsol"
+    },
+    {
+        "source": "dmrsol",
+        "table": "Eday",
+        "target": "mrsol"
+    },
+    {
+        "source": "mrsoLut",
+        "table": "Emon",
+        "target": "mrsoLut"
+    },
+    {
+        "source": "mrsos",
+        "table": "Lmon",
+        "target": "mrsos"
+    },
+    {
+        "source": "mrsosLut",
+        "table": "Emon",
+        "target": "mrsosLut"
+    },
+    {
+        "source": "nbp",
+        "table": "Lmon",
+        "target": "nbp"
+    },
+    {
+        "source": "necbLut",
+        "table": "Emon",
+        "target": "necbLut"
+    },
+    {
+        "source": "nep",
+        "table": "Emon",
+        "target": "nep"
+    },
+    {
+        "source": "netAtmosLandCO2Flux",
+        "table": "Emon",
+        "target": "netAtmosLandCO2Flux"
+    },
+    {
+        "source": "nLand",
+        "table": "Emon",
+        "target": "nLand"
+    },
+    {
+        "source": "nLeaf",
+        "table": "Emon",
+        "target": "nLeaf"
+    },
+    {
+        "source": "nLitter",
+        "table": "Emon",
+        "target": "nLitter"
+    },
+    {
+        "source": "nLitterCwd",
+        "table": "Emon",
+        "target": "nLitterCwd"
+    },
+    {
+        "source": "nLitterSubSurf",
+        "table": "Emon",
+        "target": "nLitterSubSurf"
+    },
+    {
+        "source": "nLitterSurf",
+        "table": "Emon",
+        "target": "nLitterSurf"
+    },
+    {
+        "source": "nMineral",
+        "table": "Emon",
+        "target": "nMineral"
+    },
+    {
+        "source": "nMineralNH4",
+        "table": "Emon",
+        "target": "nMineralNH4"
+    },
+    {
+        "source": "nMineralNO3",
+        "table": "Emon",
+        "target": "nMineralNO3"
+    },
+    {
+        "source": "nOther",
+        "table": "Emon",
+        "target": "nOther"
+    },
+    {
+        "source": "npp",
+        "table": "Lmon",
+        "target": "npp"
+    },
+    {
+        "source": "nppGrass",
+        "table": "Emon",
+        "target": "nppGrass"
+    },
+    {
+        "source": "nppLut",
+        "table": "Emon",
+        "target": "nppLut"
+    },
+    {
+        "source": "nppTree",
+        "table": "Emon",
+        "target": "nppTree"
+    },
+    {
+        "source": "nProduct",
+        "table": "Emon",
+        "target": "nProduct"
+    },
+    {
+        "source": "nRoot",
+        "table": "Emon",
+        "target": "nRoot"
+    },
+    {
+        "source": "nSoil",
+        "table": "Emon",
+        "target": "nSoil"
+    },
+    {
+        "source": "nStem",
+        "table": "Emon",
+        "target": "nStem"
+    },
+    {
+        "source": "nwdFracLut",
+        "table": "Emon",
+        "target": "nwdFracLut"
+    },
+    {
+        "source": "nVeg",
+        "table": "Emon",
+        "target": "nVeg"
+    },
+    {
+        "source": "pastureFrac",
+        "table": "Lmon",
+        "target": "pastureFrac"
+    },
+    {
+        "source": "pastureFracC3",
+        "table": "Emon",
+        "target": "pastureFracC3"
+    },
+    {
+        "source": "pastureFracC4",
+        "table": "Emon",
+        "target": "pastureFracC4"
+    },
+    {
+        "source": "prCrop",
+        "table": "Emon",
+        "target": "prCrop"
+    },
+    {
+        "source": "prveg",
+        "table": "Lmon",
+        "target": "prveg"
+    },
+    {
+        "source": "ra",
+        "table": "Lmon",
+        "target": "ra"
+    },
+    {
+        "source": "raGrass",
+        "table": "Emon",
+        "target": "raGrass"
+    },
+    {
+        "source": "raLeaf",
+        "table": "Emon",
+        "target": "raLeaf"
+    },
+    {
+        "source": "raLut",
+        "table": "Emon",
+        "target": "raLut"
+    },
+    {
+        "source": "raOther",
+        "table": "Emon",
+        "target": "raOther"
+    },
+    {
+        "source": "raRoot",
+        "table": "Emon",
+        "target": "raRoot"
+    },
+    {
+        "source": "raStem",
+        "table": "Emon",
+        "target": "raStem"
+    },
+    {
+        "source": "raTree",
+        "table": "Emon",
+        "target": "raTree"
+    },
+    {
+        "source": "residualFrac",
+        "table": "Lmon",
+        "target": "residualFrac"
+    },
+    {
+        "source": "rGrowth",
+        "table": "Lmon",
+        "target": "rGrowth"
+    },
+    {
+        "source": "rh",
+        "table": "Lmon",
+        "target": "rh"
+    },
+    {
+        "source": "rhLitter",
+        "table": "Emon",
+        "target": "rhLitter"
+    },
+    {
+        "source": "rhLut",
+        "table": "Emon",
+        "target": "rhLut"
+    },
+    {
+        "source": "rhSoil",
+        "table": "Emon",
+        "target": "rhSoil"
+    },
+    {
+        "source": "rMaint",
+        "table": "Lmon",
+        "target": "rMaint"
+    },
+    {
+        "source": "shrubFrac",
+        "table": "Lmon",
+        "target": "shrubFrac"
+    },
+    {
+        "source": "tran",
+        "table": "Lmon",
+        "target": "tran"
+    },
+    {
+        "source": "dtran",
+        "table": "Eday",
+        "target": "tran"
+    },
+    {
+        "source": "treeFrac",
+        "table": "Lmon",
+        "target": "treeFrac"
+    },
+    {
+        "source": "treeFracBdlDcd",
+        "table": "Emon",
+        "target": "treeFracBdlDcd"
+    },
+    {
+        "source": "treeFracBdlEvg",
+        "table": "Emon",
+        "target": "treeFracBdlEvg"
+    },
+    {
+        "source": "treeFracNdlDcd",
+        "table": "Emon",
+        "target": "treeFracNdlDcd"
+    },
+    {
+        "source": "treeFracNdlEvg",
+        "table": "Emon",
+        "target": "treeFracNdlEvg"
+    },
+    {
+        "source": "tsl",
+        "table": "Lmon",
+        "target": "tsl"
+    },
+    {
+        "source": "dtsl",
+        "table": "Eday",
+        "target": "tsl"
+    },
+    {
+        "source": "vegFrac",
+        "table": "Emon",
+        "target": "vegFrac"
+    },
+    {
+        "source": "vegHeightTree",
+        "table": "Emon",
+        "target": "vegHeightTree"
+    }
+]
