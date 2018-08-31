@@ -497,7 +497,7 @@ for table in range(0,len(dr_table)):
  if                               dr_table[table] == "Oclim"                                                           : dr_output_frequency[table] = 'output_freq="1mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
  if                               dr_table[table] == "Ofx"                                                             : dr_output_frequency[table] = 'output_freq="1y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
  if                               dr_table[table] == "Odec"                                                            : dr_output_frequency[table] = 'output_freq="1y"'   # Save "y", then in post process average it over the decadal intervals
- if                               dr_table[table] == "3hr"                                                             : dr_output_frequency[table] = 'output_freq="3hr"'  # 
+ if                               dr_table[table] == "3hr"                                                             : dr_output_frequency[table] = 'output_freq="3h"'   # h  stands in XIOS for hourly  output
 ################################################################################
 
 
