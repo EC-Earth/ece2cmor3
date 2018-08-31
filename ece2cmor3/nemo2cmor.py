@@ -300,6 +300,8 @@ def read_grid(ncfile):
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
         name = getattr(ds.variables["nav_lon"], "nav_model", cmor_utils.get_nemo_grid(ncfile, exp_name_))
+        if name == "scalar":
+            return None
         lons = ds.variables["nav_lon"][:, :] if "nav_lon" in ds.variables else []
         lats = ds.variables["nav_lat"][:, :] if "nav_lat" in ds.variables else []
         if not len(lons) == 0 or not len(lats) == 0:
