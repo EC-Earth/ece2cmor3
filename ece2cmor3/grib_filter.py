@@ -245,6 +245,27 @@ def execute(tasks, month, multi_threaded=False):
     return valid_tasks
 
 
+def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
+    if (varid, tabid, levtype, level, gridtype) in keys:
+        return varid, tabid, levtype, level, gridtype
+    # Fix for orog and ps: find them in either GG or SH file
+    if varid in [134, 129] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.surface_level_code]
+        if any(matches):
+            return matches[0]
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[3] == 0]
+        if any(matches):
+            return matches[0]
+    # Fix for single height level variables: might be listed in tables as surface variables...
+    if varid in [165, 166, 167, 168] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.height_level_code and
+                   k[3] == 2]
+        if any(matches):
+            return matches[0]
+    return None
+
+
 # Checks tasks that are compatible with the variables listed in grib_vars and
 # returns those that are compatible.
 def validate_tasks(tasks):
@@ -256,44 +277,33 @@ def validate_tasks(tasks):
             continue
         codes = task.source.get_root_codes()
         target_freq = cmor_target.get_freq(task.target)
-        grid_key = task.source.grid_
+        matched_keys = []
         for c in codes:
             levtype, levels = get_levels(task, c)
             for l in levels:
                 if task.status == cmor_task.status_failed:
                     break
-                key = (c.var_id, c.tab_id, levtype, l, task.source.grid_)
-                match_key = key
-                if levtype == grib_file.hybrid_level_code:
-                    matches = [k for k in varsfreq.keys() if k[:3] == key[:3] and k[4] == key[4]]
-                    match_key = key if not any(matches) else matches[0]
-                if c.var_id == 134 and len(codes) == 1:
-                    matches = [k for k in varsfreq.keys() if k[:3] == key[:3]]
-                    match_key = key if not any(matches) else matches[0]
-                    if any(matches):
-                        grid_key = match_key[4]
-                if match_key not in varsfreq:
+                match_key = soft_match_key(c.var_id, c.tab_id, levtype, l, task.source.grid_, varsfreq.keys())
+                if match_key is None:
                     log.error("Field missing in the first day of file: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (key[0], key[1], key[2], key[3], task.target.variable, task.target.table))
+                              (c.var_id, c.tab_id, levtype, l, task.target.variable, task.target.table))
                     task.set_failed()
                     break
                 if 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (task.target.variable, key[0], key[1], key[2], key[3], task.target.variable,
+                              (task.target.variable, c.var_id, c.tab_id, levtype, l, task.target.variable,
                                task.target.table))
                     task.set_failed()
                     break
+                matched_keys.append(match_key)
         if task.status != cmor_task.status_failed:
-            for c in codes:
-                levtype, levels = get_levels(task, c)
-                for l in levels:
-                    key = (c.var_id, c.tab_id, levtype, l, grid_key)
-                    if key in varstasks:
-                        varstasks[key].append(task)
-                    else:
-                        varstasks[key] = [task]
+            for key in matched_keys:
+                if key in varstasks:
+                    varstasks[key].append(task)
+                else:
+                    varstasks[key] = [task]
             valid_tasks.append(task)
     return valid_tasks
 
