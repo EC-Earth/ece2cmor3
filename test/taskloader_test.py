@@ -73,3 +73,13 @@ class taskloader_test(unittest.TestCase):
             eq_("var214=sqrt(sqr(var165)+sqr(var166))", getattr(ece2cmorlib.tasks[0].source, "expr"))
         finally:
             ece2cmorlib.finalize()
+
+    @staticmethod
+    def test_load_tos():
+        ece2cmorlib.initialize()
+        try:
+            taskloader.load_targets({"3hr": ["tos"]}, active_components={"ifs": True})
+            eq_(len(ece2cmorlib.tasks), 1)
+        finally:
+            ece2cmorlib.finalize()
+
