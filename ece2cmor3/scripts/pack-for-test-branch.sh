@@ -31,10 +31,10 @@ if [ "$#" -eq 0 ]; then
 
  # DECK+HISTORICAL
  ./generate-ec-earth-namelists.sh CMIP 1pctCO2      1 1
- ./generate-ec-earth-namelists.sh CMIP abrupt-4xCO2 1 1
- ./generate-ec-earth-namelists.sh CMIP amip         1 1
- ./generate-ec-earth-namelists.sh CMIP historical   1 1
- ./generate-ec-earth-namelists.sh CMIP piControl    1 1
+ ./generate-ec-earth-namelists.sh CMIP abrupt-4xCO2 1 1 omit-setup
+ ./generate-ec-earth-namelists.sh CMIP amip         1 1 omit-setup
+ ./generate-ec-earth-namelists.sh CMIP historical   1 1 omit-setup
+ ./generate-ec-earth-namelists.sh CMIP piControl    1 1 omit-setup
 
  cd ec-earth-cmip6-nemo-namelists
  rm -rf cmip6-experiment-m=*/file_def-compact
@@ -53,16 +53,16 @@ if [ "$#" -eq 0 ]; then
 
 
  # DCPP
- ./generate-ec-earth-namelists.sh DCPP dcppC-pac-control          1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-ipv-pos              1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-ipv-neg              1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-hindcast-noPinatubo  1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-forecast-addPinatubo 1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-atl-control          1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-amv-pos              1 1
- ./generate-ec-earth-namelists.sh DCPP dcppC-amv-neg              1 1
- ./generate-ec-earth-namelists.sh DCPP dcppB-forecast             1 1
- ./generate-ec-earth-namelists.sh DCPP dcppA-hindcast             1 1
+ ./generate-ec-earth-namelists.sh DCPP dcppC-pac-control          1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-ipv-pos              1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-ipv-neg              1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-hindcast-noPinatubo  1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-forecast-addPinatubo 1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-atl-control          1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-amv-pos              1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppC-amv-neg              1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppB-forecast             1 1 omit-setup
+ ./generate-ec-earth-namelists.sh DCPP dcppA-hindcast             1 1 omit-setup
 
  cd ec-earth-cmip6-nemo-namelists
  rm -rf cmip6-experiment-m=*/file_def-compact

@@ -7,6 +7,7 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
+# ${5} the fifth   OPTIONAL argument will omit the install of the ece2cmor setup if equal to "omit-setup". To improve the performance when calling this script multiple times from another script.
 #
 #
 # Run example:
@@ -21,17 +22,24 @@ ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
 if [ ! -d ${ece2cmor_root_directory} ]; then 
  echo
  echo ' The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
- echo ' Adjust the ece2cmor_root_directory at line 18 of the script: ' $0
+ echo ' Adjust the ece2cmor_root_directory at line 19 of the script: ' $0
  echo ' Stop'
  exit
  echo
 fi
 
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  mip=$1
  experiment=$2
  tier=$3
  priority=$4
+
+ install_setup="include-setup"
+ if [ "$#" -eq 5 ]; then
+  if [ "$5" = "omit-setup" ]; then
+   install_setup="omit-setup"
+  fi
+ fi
  
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
@@ -47,7 +55,11 @@ if [ "$#" -eq 4 ]; then
   exit
  else
  #source activate ece2cmor3
-  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  if [ "${install_setup}" = "include-setup" ]; then
+   cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  else
+   echo "Omit python setup.py install"
+  fi
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
