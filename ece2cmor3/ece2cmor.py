@@ -39,13 +39,14 @@ def main(args=None):
                         help="Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar="DIR", type=str, default="/tmp/ece2cmor",
                         help="Temporary working directory")
-    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of post-processing threads")
+    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks")
     parser.add_argument("--tmpsize", metavar="X", type=float, default=float("inf"),
                         help="Size of tempdir (in GB) that triggers flushing")
     parser.add_argument("--ncdo", metavar="N", type=int, default=4,
                         help="Number of available threads per CDO postprocessing task")
     parser.add_argument("--nomask", action="store_true", default=False, help="Disable masking of fields")
-    parser.add_argument("--filter", action="store_true", default=False, help="Automatic filtering of grib files")
+    parser.add_argument("--nofilter", action="store_true", default=False, help="Disable automatic filtering of grib "
+                                                                               "files")
     model_attributes, model_tabfile_attributes = {}, {}
     for c in components.models:
         flag1, flag2 = components.get_script_options(c)
@@ -70,7 +71,7 @@ def main(args=None):
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid)
     ece2cmorlib.enable_masks = not args.nomask
-    ece2cmorlib.auto_filter = args.filter
+    ece2cmorlib.auto_filter = not args.nofilter
 
     # Fix exclusive run flags: if none are used, we cmorize for all components
     model_active_flags = dict.fromkeys(components.models, False)
@@ -101,9 +102,11 @@ def main(args=None):
                                       maxsizegb=args.tmpsize)
     if model_active_flags["nemo"]:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
+    if model_active_flags["lpjg"]:
+        ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
-
+   
     ece2cmorlib.finalize()
 
 

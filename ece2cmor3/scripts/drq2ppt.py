@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_amip_1_1.xlsx
+#  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
 
 import argparse
 import logging
@@ -9,7 +9,7 @@ import re
 
 import f90nml
 
-from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils
+from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
@@ -132,6 +132,14 @@ def write_ppt_files(tasks):
         nml = f90nml.Namelist({"NAMFPC": namelist})
         nml.uppercase, nml.end_comma = True, True
         f90nml.write(nml, "pptdddddd%04d" % (100 * freq,))
+        if freq == 6:
+            mfpphy.extend([129, 172])
+            mfpphy = sorted(list(set(mfpphy)))
+            namelist["MFPPHY"] = mfpphy
+            namelist["NFPPHY"] = len(mfpphy)
+            nml = f90nml.Namelist({"NAMFPC": namelist})
+            nml.uppercase, nml.end_comma = True, True
+            f90nml.write(nml, "ppt0000000000")
 
 
 # Main program
@@ -150,8 +158,10 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
-    # Load the variables as task targets:
-    taskloader.load_targets(args.vars, active_components={"ifs": True, "nemo": False})
+    # Load only atmosphere variables as task targets:
+    active_components = {component: False for component in components.models}
+    active_components["ifs"] = True
+    taskloader.load_targets(args.vars, active_components=active_components)
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

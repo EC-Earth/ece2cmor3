@@ -89,7 +89,7 @@ class grib_filter_test(unittest.TestCase):
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         ece2cmorlib.initialize()
         tgt = ece2cmorlib.get_cmor_target("sfcWind", "Amon")
-        src = cmor_source.ifs_source.read("var214=sqrt(sqr(var165)+sqr(var166))")
+        src = cmor_source.ifs_source.read("214.128", "sqrt(sqr(var165)+sqr(var166))")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk], 1)
         filepath = os.path.join(tmp_path, "166.128.105_165.128.105.3")

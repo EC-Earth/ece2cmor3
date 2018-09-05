@@ -7,6 +7,7 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
+# ${5} the fifth   OPTIONAL argument will omit the install of the ece2cmor setup if equal to "omit-setup". To improve the performance when calling this script multiple times from another script.
 #
 #
 # Run example:
@@ -21,17 +22,24 @@ ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
 if [ ! -d ${ece2cmor_root_directory} ]; then 
  echo
  echo ' The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
- echo ' Adjust the ece2cmor_root_directory at line 18 of the script: ' $0
+ echo ' Adjust the ece2cmor_root_directory at line 19 of the script: ' $0
  echo ' Stop'
  exit
  echo
 fi
 
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  mip=$1
  experiment=$2
  tier=$3
  priority=$4
+
+ install_setup="include-setup"
+ if [ "$#" -eq 5 ]; then
+  if [ "$5" = "omit-setup" ]; then
+   install_setup="omit-setup"
+  fi
+ fi
  
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
@@ -47,7 +55,11 @@ if [ "$#" -eq 4 ]; then
   exit
  else
  #source activate ece2cmor3
-  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  if [ "${install_setup}" = "include-setup" ]; then
+   cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  else
+   echo "Omit python setup.py install"
+  fi
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
@@ -56,19 +68,18 @@ if [ "$#" -eq 4 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
  #source deactivate
  fi
- mkdir -p ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f pptdddddd0300 pptdddddd0600 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- 
+ mkdir -p ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
+ mv -f pptdddddd0300 pptdddddd0600 ppt0000000000 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
 
  echo
  echo 'The produced data request excel file:'
@@ -76,23 +87,24 @@ if [ "$#" -eq 4 ]; then
 
  echo
  echo 'The generated ppt files are:'
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
 
  echo
  echo 'The generated file_def files are:'
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ec-earth-namelists/ec-earth-cmip6-namelists-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
  echo
 
 else
     echo '  '
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-    echo '  ' $0 CMIP amip 1 1
+    echo '  ' $0 CMIP piControl 1 1
     echo '  '
 fi
 
@@ -119,5 +131,5 @@ fi
 # ./generate-ec-earth-namelists.sh VIACSAB      amip 1 1
 # ./generate-ec-earth-namelists.sh DAMIP        amip 1 1
 
-# diff ec-earth-namelists/ec-earth-cmip6-namelists-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-namelists/ec-earth-cmip6-namelists-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
+# diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
 

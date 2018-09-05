@@ -99,6 +99,7 @@ def main():
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
+    parser.add_argument("-l", "--lpj", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess variables")
 
     args = parser.parse_args()
 
@@ -107,9 +108,9 @@ def main():
 
     # Fix conflicting flags
     # TODO: Use same flags as ece2cmor3 script
-    active_components = {"ifs": args.atm, "nemo": args.oce}
+    active_components = {"ifs": args.atm, "nemo": args.oce, "lpjg": args.lpj}
     if not any(active_components.values()):
-        active_components = {"ifs": True, "nemo": True}
+        active_components = {"ifs": True, "nemo": True, "lpjg": True}
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck

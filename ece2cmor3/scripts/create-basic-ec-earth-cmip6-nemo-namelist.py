@@ -486,17 +486,18 @@ for element_counter in range(0,len(dr_ping_component)):
 # Create the output_freq attribute from the table name:
 table_list_of_dr = list(set(dr_table))
 for table in range(0,len(table_list_of_dr)):
- if not table_list_of_dr[table] in set(["", "SImon", "Omon", "SIday", "Oyr", "Oday", "Oclim", "Ofx", "Odec"]): print "\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n"
+ if not table_list_of_dr[table] in set(["", "SImon", "Omon", "Emon", "EmonZ", "SIday", "Oday", "Eday", "Oyr", "Oclim", "Ofx", "Odec", "3hr"]): print "\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n"
 
 # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
 dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
 for table in range(0,len(dr_table)):
- if dr_table[table] == "SImon" or dr_table[table] == "Omon" : dr_output_frequency[table] = 'output_freq="1mo"'  # mo stands in XIOS for monthly output
- if dr_table[table] == "SIday" or dr_table[table] == "Oday" : dr_output_frequency[table] = 'output_freq="1d"'   # d  stands in XIOS for dayly   output
- if                               dr_table[table] == "Oyr"  : dr_output_frequency[table] = 'output_freq="1y"'   # y  stands in XIOS for yearly  output
- if                               dr_table[table] == "Oclim": dr_output_frequency[table] = 'output_freq="1mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
- if                               dr_table[table] == "Ofx"  : dr_output_frequency[table] = 'output_freq="1y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
- if                               dr_table[table] == "Odec" : dr_output_frequency[table] = 'output_freq="1y"'   # Save "y", then in post process average it over the decadal intervals
+ if dr_table[table] == "SImon" or dr_table[table] == "Omon" or dr_table[table] == "Emon" or dr_table[table] == "EmonZ" : dr_output_frequency[table] = 'output_freq="1mo"'  # mo stands in XIOS for monthly output
+ if dr_table[table] == "SIday" or dr_table[table] == "Oday" or dr_table[table] == "Eday"                               : dr_output_frequency[table] = 'output_freq="1d"'   # d  stands in XIOS for dayly   output
+ if                               dr_table[table] == "Oyr"                                                             : dr_output_frequency[table] = 'output_freq="1y"'   # y  stands in XIOS for yearly  output
+ if                               dr_table[table] == "Oclim"                                                           : dr_output_frequency[table] = 'output_freq="1mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
+ if                               dr_table[table] == "Ofx"                                                             : dr_output_frequency[table] = 'output_freq="1y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
+ if                               dr_table[table] == "Odec"                                                            : dr_output_frequency[table] = 'output_freq="1y"'   # Save "y", then in post process average it over the decadal intervals
+ if                               dr_table[table] == "3hr"                                                             : dr_output_frequency[table] = 'output_freq="3h"'   # h  stands in XIOS for hourly  output
 ################################################################################
 
 
