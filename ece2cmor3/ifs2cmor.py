@@ -24,7 +24,6 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
-ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -56,7 +55,7 @@ masks = {}
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
                outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
+    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, \
         output_interval_, ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
 
     exp_name_ = expname
@@ -67,24 +66,16 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     ref_date_ = refdate
 
     datafiles = select_files(path, exp_name_, start, length)
-    inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
-    #prevent inifile with "000000" to be aded to gpfiles
-#    gpfiles  = [f for f in datafiles if (os.path.basename(f).startswith("ICMGG") and not(os.path.basename(f).endswith("000000")))]
-#    shfiles  = [f for f in datafiles if (os.path.basename(f).startswith("ICMSH") and not(os.path.basename(f).endswith("000000")))]
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG") and
+               not os.path.basename(f).endswith("+000000")]
+    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH") and
+               not os.path.basename(f).endswith("+000000")]
     if len(gpfiles) > 1 or len(shfiles) > 1:
         # TODO: Support postprocessing over multiple files
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path, str(gpfiles), str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
     ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
-    if any(inifiles):
-        ifs_init_gridpoint_file_ = inifiles[0]
-        if len(inifiles) > 1:
-            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
-    else:
-        ifs_init_gridpoint_file_ = ifs_gridpoint_file_
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
