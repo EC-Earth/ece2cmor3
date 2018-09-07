@@ -278,6 +278,7 @@ def validate_tasks(tasks):
         codes = task.source.get_root_codes()
         target_freq = cmor_target.get_freq(task.target)
         matched_keys = []
+        matched_grid = None
         for c in codes:
             levtype, levels = get_levels(task, c)
             for l in levels:
@@ -297,8 +298,16 @@ def validate_tasks(tasks):
                                task.target.table))
                     task.set_failed()
                     break
+                if matched_grid is None:
+                    matched_grid = match_key[4]
+                else:
+                    if match_key[4] != matched_grid:
+                        log.warning("Task %s in table %s depends on both gridpoint and spectral fields" %
+                                    (task.target.variable, task.target.table))
                 matched_keys.append(match_key)
         if task.status != cmor_task.status_failed:
+            # Fix for zg and ps on gridpoints:
+            task.source.grid_ = matched_grid
             for key in matched_keys:
                 if key in varstasks:
                     varstasks[key].append(task)
