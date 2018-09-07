@@ -68,18 +68,19 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
  #source deactivate
  fi
- mkdir -p ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f pptdddddd0300 pptdddddd0600 ppt0000000000 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mkdir -p ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
+ mv -f ppt0000000000 pptdddddd0300 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f pptdddddd0600               ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
 
  echo
  echo 'The produced data request excel file:'
@@ -87,18 +88,19 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
  echo
  echo 'The generated ppt files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0300
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
 
  echo
  echo 'The generated file_def files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
  echo
 
 else
@@ -114,22 +116,20 @@ fi
 # ./generate-ec-earth-namelists.sh CMIP         historical   1 1
 # ./generate-ec-earth-namelists.sh CMIP         piControl    1 1
 
-# ./generate-ec-earth-namelists.sh AerChemMIP   amip 1 1
-# ./generate-ec-earth-namelists.sh C4MIP        amip 1 1
-# ./generate-ec-earth-namelists.sh DCPP         amip 1 1
-# ./generate-ec-earth-namelists.sh HighResMIP   amip 1 1
-# ./generate-ec-earth-namelists.sh ISMIP6       amip 1 1
-# ./generate-ec-earth-namelists.sh LS3MIP       amip 1 1
-# ./generate-ec-earth-namelists.sh LUMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh PMIP         amip 1 1
-# ./generate-ec-earth-namelists.sh RFMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh ScenarioMIP  amip 1 1
-# ./generate-ec-earth-namelists.sh VolMIP       amip 1 1
-# ./generate-ec-earth-namelists.sh CORDEX       amip 1 1
-# ./generate-ec-earth-namelists.sh DynVar       amip 1 1
-# ./generate-ec-earth-namelists.sh SIMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh VIACSAB      amip 1 1
-# ./generate-ec-earth-namelists.sh DAMIP        amip 1 1
-
-# diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
+# ./generate-ec-earth-namelists.sh AerChemMIP   piControl 1 1
+# ./generate-ec-earth-namelists.sh C4MIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh DCPP         piControl 1 1
+# ./generate-ec-earth-namelists.sh HighResMIP   piControl 1 1
+# ./generate-ec-earth-namelists.sh ISMIP6       piControl 1 1
+# ./generate-ec-earth-namelists.sh LS3MIP       piControl 1 1
+# ./generate-ec-earth-namelists.sh LUMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh PMIP         piControl 1 1
+# ./generate-ec-earth-namelists.sh RFMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh ScenarioMIP  piControl 1 1
+# ./generate-ec-earth-namelists.sh VolMIP       piControl 1 1
+# ./generate-ec-earth-namelists.sh CORDEX       piControl 1 1
+# ./generate-ec-earth-namelists.sh DynVar       piControl 1 1
+# ./generate-ec-earth-namelists.sh SIMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh VIACSAB      piControl 1 1
+# ./generate-ec-earth-namelists.sh DAMIP        piControl 1 1
 
