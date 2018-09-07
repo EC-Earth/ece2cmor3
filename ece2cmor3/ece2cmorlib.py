@@ -1,7 +1,7 @@
 import cmor
 import os
 import logging
-from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, postproc
+from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -185,6 +185,19 @@ def perform_lpjg_tasks(datadir, ncdir, expname, startdate, interval):
     if(not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, startdate, interval)):
         return
     lpjg2cmor.execute(lpjg_tasks)
+
+# Performs a LPJG cmorization processing:
+def perform_tm5_tasks(datadir, ncdir, expname, startdate, interval):
+    global log ,tasks, table_dir, prefix
+    validate_setup_settings()
+    validate_run_settings(datadir, expname)
+    tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
+    log.info("Selected %d TM5 tasks from %d input tasks" % (len(tm5_tasks), len(tasks)))
+    print '22222',table_dir
+    if(not tm52cmor.initialize(datadir, expname, table_dir, prefix, startdate, interval)):
+        return
+    print 'hep',tm5_tasks
+    tm52cmor.execute(tm5_tasks)
 
 #def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix

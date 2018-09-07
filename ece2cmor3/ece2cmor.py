@@ -104,6 +104,8 @@ def main(args=None):
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, startdate, length)
     if model_active_flags["lpjg"]:
         ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
+    if model_active_flags["tm5"]:
+        ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
    

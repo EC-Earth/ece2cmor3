@@ -113,7 +113,9 @@ def find_ifs_output(path, expname=None):
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
     global log
+    print filepath
     fname = os.path.basename(filepath)
+    print fname
     regex = re.search("\+[0-9]{6}", fname)
     if not regex:
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
@@ -176,6 +178,75 @@ def get_nemo_grid(filepath, expname):
         log.error("File path %s does not contain a grid string" % filepath)
         return None
     match = result.group(0)
+    return match[0:len(match) - 3]
+
+def find_tm5_output(path, expname=None,varname=None,freq=None):
+    subexpr = ".*"
+    if expname:
+        subexpr = expname
+    print 'output'
+    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,8}-[0-9]{6,8}.nc$")
+
+    a=[os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+    print 'a',a,path,subexpr
+    return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+
+def get_tm5_frequency(filepath, expname):
+    global log
+    print filepath,expname
+    f = os.path.basename(filepath)
+    print f
+    expr = re.compile(".*_[0-9]{6,8}-[0-9]{6,8}.nc$")
+    if not re.match(expr, f):
+        log.error("File path %s does not correspond to tm5 output of experiment %s" % (filepath, expname))
+        return None
+
+    fstr = f.split("_")[1]
+    expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday)")
+    if not re.match(expr, fstr):
+        log.error("File path %s does not contain a valid frequency indicator" % filepath)
+        return None
+    print 'list',fstr
+    #n = int(fstr[0:len(fstr))
+    #if n == 0:
+    #    log.error("Invalid frequency 0 parsed from file path %s" % filepath)
+    #    return None
+    return fstr
+# Returns the start and end date corresponding to the given nemo output file.
+def get_tm5_interval(filepath):
+    global log
+    fname = os.path.basename(filepath)
+    regex = re.findall("[0-9]{6,8}", fname) #mon(6),day(8), hour(10)
+    if not regex or len(regex) != 2:
+        log.error("Unable to parse dates from tm5 file name %s" % fname)
+        return None
+    print regex[0],regex[1]
+    if len(regex[0])==8:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d")
+    elif  len(regex[0])==6:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m")
+    elif  len(regex[0])==10:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%h")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d%h")
+    else:
+        log.error("Date string in filename %s not supported." % fname)
+    return start, end
+# Returns the grid for the given file name.
+def get_tm5_grid(filepath, expname):
+    global log
+    f = os.path.basename(filepath)
+    print filepath  
+    expr = re.compile("([^\/]+)"+ expname +".*.nc$")
+    #expr = re.compile("(?<=^.*" + expname + ".*_[0-9]{8}-[0-9]{8}_).*.nc$")
+    result = re.search(expr, f)
+    if not result:
+        log.error("File path %s does not contain a grid string" % filepath)
+        return None
+    match = result.group(0)
+    print match
+    print match[0:len(match) - 3]
     return match[0:len(match) - 3]
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid

@@ -41,6 +41,10 @@ def create_cmor_source(attributes, component):
         if src is None:
             log.error("Could not find a LPJG source variable within attributes %s" % (str(attributes.__dict__)))
         result = lpjg_source(src)
+    if component == "tm5":
+        if src is None:
+            log.error("Could not find a LPJG source variable within attributes %s" % (str(attributes.__dict__)))
+        result = tm5_source(src)
     # if component == NEWCOMPONENT:
     # create some source here, if NEWCOMPONENT has nc files as output, the NEMO case can be copied
     return result
@@ -215,6 +219,18 @@ class lpjg_source(cmor_source):
 
     def model_component(self):
         return "lpjg"
+
+    def variable(self):
+        return self.colname_
+# LTM5 source subclass
+class tm5_source(cmor_source):
+
+    def __init__(self, colname):
+        super(tm5_source, self).__init__()
+        self.colname_ = colname
+
+    def model_component(self):
+        return "tm5"
 
     def variable(self):
         return self.colname_
