@@ -196,7 +196,6 @@ def perform_tm5_tasks(datadir, ncdir, expname, startdate, interval):
     print '22222',table_dir
     if(not tm52cmor.initialize(datadir, expname, table_dir, prefix, startdate, interval)):
         return
-    print 'hep',tm5_tasks
     tm52cmor.execute(tm5_tasks)
 
 #def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
