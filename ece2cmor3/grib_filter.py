@@ -257,10 +257,9 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
                    k[3] == 0]
         if any(matches):
             return matches[0]
-    # Fix for single height level variables: might be listed in tables as surface variables...
-    if varid in [165, 166, 167, 168] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.height_level_code and
-                   k[3] == 2]
+    # Fix for depth levels variables
+    if levtype == grib_file.depth_level_code:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
         if any(matches):
             return matches[0]
     return None
