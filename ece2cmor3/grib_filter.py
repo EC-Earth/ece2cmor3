@@ -109,6 +109,8 @@ def inspect_day(gribfile, grid):
     return result
 
 
+# TODO: Merge the 2 functions below into one matching function:
+
 # Creates a key (code + table + level type + level) for a grib message iterator
 def get_record_key(gribfile):
     codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
@@ -125,16 +127,44 @@ def get_record_key(gribfile):
     if codevar in [167, 168, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
-    if codevar in [9]:
-        level = 0
-        levtype = grib_file.surface_level_code
-    if codevar == 134 and levtype == grib_file.hybrid_level_code:
+    if codevar == 9 or (codevar == 134 and levtype == grib_file.hybrid_level_code):
         level = 0
         levtype = grib_file.surface_level_code
     if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
     return codevar, codetab, levtype, level
+
+
+# Converts cmor-levels to grib levels code
+def get_levels(task, code):
+    global log
+    # Special cases
+    if code.tab_id == 128:
+        gc = code.var_id
+        if gc in [9, 134]:
+            return grib_file.surface_level_code, [0]
+        if gc in [35, 36, 37, 38, 39, 40, 41, 42, 139, 170, 183, 236]:
+            return grib_file.depth_level_code, [0]
+        if gc in [49, 165, 166]:
+            return grib_file.height_level_code, [10]
+        if gc in [167, 168, 201, 202]:
+            return grib_file.height_level_code, [2]
+    # Normal cases
+    zaxis, levels = cmor_target.get_z_axis(task.target)
+    if zaxis is None:
+        return grib_file.surface_level_code, [0]
+    if zaxis in ["sdepth"]:
+        return grib_file.depth_level_code, [0]
+    if zaxis in ["alevel", "alevhalf"]:
+        return grib_file.hybrid_level_code, [-1]
+    if zaxis == "air_pressure":
+        return grib_file.pressure_level_Pa_code, [int(float(l)) for l in levels]
+    if zaxis in ["height", "altitude"]:
+        return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
+    log.error("Could not convert vertical axis type %s to grib vertical coordinate "
+              "code for %s" % (zaxis, task.target.variable))
+    return -1, []
 
 
 # Searches the file system for the previous month file, necessary for the 0-hour
@@ -337,31 +367,6 @@ def proc_mon(month, cur_grib_file, prev_grib_file, handles=None):
             proc_prev_month(month, grib_file.create_grib_file(fin), handles)
     with open(cur_grib_file, 'r') as fin:
         proc_next_month(month, grib_file.create_grib_file(fin), handles)
-
-
-# Converts cmor-levels to grib levels code
-def get_levels(task, code):
-    global log
-    if (code.var_id, code.tab_id) == (134, 128):
-        return grib_file.surface_level_code, [0]
-    if 34 < code.var_id < 43 and code.tab_id == 128:
-        return grib_file.depth_level_code, [0]
-    if code.var_id in [139, 170, 183, 236] and code.tab_id == 128:
-        return grib_file.depth_level_code, [0]
-    zaxis, levels = cmor_target.get_z_axis(task.target)
-    if zaxis is None:
-        return grib_file.surface_level_code, [0]
-    if zaxis in ["sdepth"]:
-        return grib_file.depth_level_code, [0]
-    if zaxis in ["alevel", "alevhalf"]:
-        return grib_file.hybrid_level_code, [-1]
-    if zaxis == "air_pressure":
-        return grib_file.pressure_level_Pa_code, [int(float(l)) for l in levels]
-    if zaxis in ["height", "altitude"]:
-        return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
-    log.error("Could not convert vertical axis type %s to grib vertical coordinate "
-              "code for %s" % (zaxis, task.target.variable))
-    return -1, []
 
 
 # Converts 24 hours into extra days
