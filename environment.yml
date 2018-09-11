@@ -42,3 +42,4 @@ dependencies:
   - xlsxwriter==1.0.2
   - dreqPy==01.00.27
   - cython                                        # Unlisted dependency dreq 
+  - xarray                                        # Unlisted dependency dreq and/or drq
