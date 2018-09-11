@@ -60,6 +60,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   else
    echo "Omit python setup.py install"
   fi
+  echo
+  echo 'Executing the following job:'
+  echo ' '$0 "$@"
+  echo
+
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
