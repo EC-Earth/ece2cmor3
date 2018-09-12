@@ -129,9 +129,8 @@ def execute_netcdf_task(dataset, task):
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
     if not any(grid_axes):  # Fix for global averages/sums
-        vals = numpy.copy(ncvar[:, :, :])
-        vals[vals == missval] = numpy.nan
-        ncvar = numpy.mean(vals[:, :, :], axis=(1, 2))
+        vals = numpy.ma.masked_equal(ncvar[...], missval)
+        ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
     log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
