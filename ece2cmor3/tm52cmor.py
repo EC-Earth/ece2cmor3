@@ -89,10 +89,10 @@ def execute(tasks):
         # save ps task for frequency
         if task.target.variable=='ps':
             if task.target.frequency not in ps_tasks:
+                print task.target.frequency
                 ps_tasks[task.target.frequency]=task
         print task.target.variable,task.target.frequency
-    #print ps_tasks.keys()
-
+        #print ps_tasks.keys()
     log.info('Creating TM5 3x2 deg lon-lat grid')
     grid = create_lonlat_grid()#xsize, xfirst, yvals)
     grid_ids_['lonlat']=grid
@@ -111,11 +111,15 @@ def execute(tasks):
             log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
                       % (table, ','.join([tsk.target.variable for tsk in tasklist]), e.message))
             continue
-        log.info("Creating time axes for table %s..." % tab_id)
+        log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
         if table == 'AERmonZ':
             log.error("Table %s not implemented yet" %(table))
+            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
             continue
+            #postprocess data to zonal mean and plev39, or do it before this point
+
+
         taskmask = dict([t,False] for t in tasklist)
         for task in tasklist:
             #define task properties 
@@ -130,23 +134,28 @@ def execute(tasks):
             #Vertical
             if "alevel" in tgtdims:
                 if task.target.frequency not in ps_tasks:
-                    log.error("XXXXXXXXX %s ps task not available!!" % (task.target.frequency))
+                    log.error("ps task not available for frequency %s !!" % (task.target.frequency))
                     continue
                     afasdf
                 setattr(task,"ps_task",ps_tasks[task.target.frequency])
-            freq = task.target.frequency.encode()
-            #freq = tskgroup[0].target.frequency
-            files = select_freq_files(freq)
-            targetvars = task.target.variable
-            ff=[f for f in files if os.path.basename(f).startswith(task.source.variable())]
+            ###############
+            #Redundant part
+            # freq = task.target.frequency.encode()
+            # files = select_freq_files(freq)
+            # targetvars = task.target.variable
 
-            if(len(ff) == 0):
-                #log.error("No tm5 output files found for frequency %s in file list %s, skipping variables %s" % (freq,str(tm5_files_),str(targetvars)))
-                log.error("No tm5 output files found for frequency %s, skipping variables %s" % (freq,str(targetvars)))
-                continue
+            # output_var_file=[f for f in files if os.path.basename(f).startswith(task.source.variable())]
+
+            # if(len(output_var_file) == 0):
+            #     #log.error("No tm5 output files found for frequency %s in file list %s, skipping variables %s" % (freq,str(tm5_files_),str(targetvars)))
+            #     log.error("No tm5 output file found for frequency %s, skipping variables %s" % (freq,str(targetvars)))
+            #     continue
+            # elif(len(output_var_file) > 1):
+            #     log.error("More than one tm5 output file found for frequency %s, skipping variables %s" % (freq,str(targetvars)))
+            #     continue
+            ################
 
             create_depth_axes(task)
-            #taskmask = dict([t,False] for t in tskgroup)
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
             else:
@@ -210,7 +219,11 @@ def execute_netcdf_task(task,tableid):
     factor = 1.0#get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     term=0.0
     timdim=0
-    cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None)),
+    if store_var:
+        cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None)),
+                               swaplatlon=False, fliplat=True, mask=None,missval=missval)
+    else:
+        cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, None,
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
     cmor.close(varid)
     if store_var:
@@ -410,14 +423,14 @@ def create_depth_axes(task):
     key = (task.target.table, zdim)
     #print "KEY",key,task.target.variable
     #print depth_axis_ids.keys()
-    if zdim not in depth_axis_ids:
+    if key not in depth_axis_ids:
         log.info("Creating vertical axis for table %s..." % task.target.table)
 
     if key in depth_axis_ids:
-        setattr(task, "z_axis_id", depth_axis_ids[zdim])
+        #setattr(task, "z_axis_id", depth_axis_ids[zdim])
         if zdim == "alevel":
-            setattr(task, "z_axis_id", depth_axis_ids[zdim][0])
-            setattr(task, "store_with", depth_axis_ids[zdim][1])
+            setattr(task, "z_axis_id", depth_axis_ids[key][0])
+            setattr(task, "store_with", depth_axis_ids[key][1])
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -426,18 +439,27 @@ def create_depth_axes(task):
         if zdim not in depth_axis_ids:
             log.info("Creating model level axis for variable %s..." % task.target.variable)
             axisid, psid = create_hybrid_level_axis(task)
-            depth_axis_ids[zdim] = (axisid, psid)
+            depth_axis_ids[key] = (axisid, psid)
             setattr(task, "z_axis_id", axisid)
             setattr(task, "store_with", psid)
             return 
         else:
-            axisid,psid=depth_axis_ids[zdim]
+            axisid,psid=depth_axis_ids[key]
             setattr(task, "z_axis_id", axisid)
             setattr(task, "store_with", psid)
+    elif zdim == 'alevhalf':
+        # if zdim not in depth_axis_ids:
+        #     log.info("Creating model level axis for variable %s..." % task.target.variable)
+        #     axisid, psid = create_hybrid_level_axis(task)
+        #     depth_axis_ids[zdim] = (axisid, psid)
+        #     setattr(task, "z_axis_id", axisid)
+        #     setattr(task, "store_with", psid)
+        #     return 
+        log.error("Vertical axis %s not implemented yet" %(zdim))
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
-        depth_axis_ids[zdim]=axisid
+        depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
         return True
     elif zdim=="plev19":
