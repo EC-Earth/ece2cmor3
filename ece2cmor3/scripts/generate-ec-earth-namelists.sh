@@ -66,7 +66,6 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo
   echo 'First, the CMIP6 data request is applied by:'
   echo ' ' drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-  exit
   echo
 
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
