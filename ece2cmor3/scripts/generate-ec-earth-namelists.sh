@@ -64,6 +64,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo 'Executing the following job:'
   echo ' '$0 "$@"
   echo
+  echo 'First, the CMIP6 data request is applied by:'
+  echo ' ' drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  exit
+  echo
 
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
@@ -112,6 +116,8 @@ else
     echo '  '
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 CMIP piControl 1 1
+    echo '  or with the fifth optional arument the "python setup.py install" is omitted:'
+    echo '  ' $0 CMIP piControl 1 1 omit-setup
     echo '  '
 fi
 
