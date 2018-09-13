@@ -209,7 +209,7 @@ def create_tasks(targets, active_components=None, silent=False):
     for m in components.models:
         is_active = True if active_components is None else active_components.get(m, True)
         for r in components.models[m][components.realms]:
-            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the rea
+            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the realm
         tabfile = components.models[m].get(components.table_file, "")
         if os.path.isfile(tabfile):
             with open(tabfile) as f:
