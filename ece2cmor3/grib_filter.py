@@ -292,6 +292,10 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
         matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
         if any(matches):
             return matches[0]
+    if levtype == grib_file.hybrid_level_code and level == -1:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code]
+        if any(matches):
+            return matches[0]
     return None
 
 
@@ -377,8 +381,7 @@ def fix_date_time(date, time):
 
 
 # Writes the grib messages
-def write_record(gribfile, shift=0, handles=None):
-    key = get_record_key(gribfile)
+def write_record(gribfile, key, shift=0, handles=None):
     if key[2] == grib_file.hybrid_level_code:
         matches = [varsfiles[k] for k in varsfiles if k[:3] == key[:3]]
     else:
@@ -399,8 +402,7 @@ def write_record(gribfile, shift=0, handles=None):
             shifttime = 100 * hours
         timestamp = int(shifttime)
         gribfile.set_field(grib_file.time_key, timestamp)
-    levtype = gribfile.get_field(grib_file.levtype_key)
-    if levtype == 210:
+    if gribfile.get_field(grib_file.levtype_key) == grib_file.pressure_level_Pa_code:
         gribfile.set_field(grib_file.levtype_key, 99)
     for var_info in var_infos:
         if timestamp / 100 % var_info[1] != 0:
@@ -415,28 +417,50 @@ def write_record(gribfile, shift=0, handles=None):
 
 # Function writing data from previous monthly file, writing the 0-hour fields
 def proc_prev_month(month, gribfile, handles):
+    timestamp = -1
+    keys = set()
     while gribfile.read_next():
-        if get_mon(gribfile) == month:
-            code = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
-            if code not in accum_codes:
-                write_record(gribfile, handles=handles)
+        date = gribfile.get_field(grib_file.date_key)
+        if (date % 10 ** 4) / 10 ** 2 == month:
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            if (key[0], key[1]) not in accum_codes:
+                write_record(gribfile, key, handles=handles)
         gribfile.release()
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
 def proc_next_month(month, gribfile, handles):
+    timestamp = -1
+    keys = set()
     while gribfile.read_next():
-        mon = get_mon(gribfile)
-        code = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
-        cumvar = code in accum_codes
+        date = gribfile.get_field(grib_file.date_key)
+        mon = (date % 10 ** 4) / 10 ** 2
         if mon == month:
-            write_record(gribfile, shift=-1 if cumvar else 0, handles=handles)
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
         elif mon == (month + 1) % 12:
-            if cumvar:
-                write_record(gribfile, shift=-1, handles=handles)
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            if (key[0], key[1]) in accum_codes:
+                write_record(gribfile, key, shift=-1, handles=handles)
         gribfile.release()
-
-
-def get_mon(gribfile):
-    date = gribfile.get_field(grib_file.date_key)
-    return (date % 10 ** 4) / 10 ** 2
