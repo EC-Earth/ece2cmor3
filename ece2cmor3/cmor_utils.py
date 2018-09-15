@@ -119,8 +119,6 @@ def get_ifs_date(filepath):
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
     ss = regex.group()[1:]
-    #prevent runtimeerror for "000000"
-#    return datetime.datetime.strptime("000101","%Y%m").date() if ss.startswith("000000") else datetime.datetime.strptime(ss,"%Y%m").date()
     return datetime.datetime.strptime(ss, "%Y%m").date()
 
 

@@ -11,10 +11,8 @@ from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
 # Log object.
 log = logging.getLogger(__name__)
 
-gridpoint_file = None
-prev_gridpoint_file = None
-spectral_file = None
-prev_spectral_file = None
+gridpoint_files = {}
+spectral_files = {}
 temp_dir = None
 accum_key = "ACCUMFLD"
 accum_codes = []
@@ -38,14 +36,15 @@ def update_sp_key(fname):
                 spvar = (134, freq, fname)
 
 
-def initialize(gpfile, shfile, tmpdir):
-    global gridpoint_file, prev_gridpoint_file, spectral_file, prev_spectral_file, temp_dir, varsfreq, accum_codes
-    gridpoint_file = gpfile
-    spectral_file = shfile
+def initialize(gpfiles, shfiles, tmpdir):
+    global gridpoint_files, spectral_files, temp_dir, varsfreq, accum_codes
+    gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
+    spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
-    prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
+    gpdate, shdate = sorted(gridpoint_files.keys())[0], sorted(spectral_files.keys())[0]
+    gpfile, shfile = gridpoint_files[gpdate][1], spectral_files[shdate][1]
     with open(gpfile) as gpf, open(shfile) as shf:
         varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
         update_sp_key(gpfile)
@@ -139,39 +138,25 @@ def get_record_key(gribfile):
 
 # Searches the file system for the previous month file, necessary for the 0-hour
 # fields.
-def get_prev_files(gpfile):
-    log.info("Searching for previous month file of %s" % gpfile)
-    date = cmor_utils.get_ifs_date(gpfile)
-    prevdate = date - relativedelta.relativedelta(months=1)
-    ifsoutputdir = os.path.abspath(os.path.join(os.path.dirname(gridpoint_file), ".."))
-    expname = os.path.basename(gpfile)[5:9]
-    inigpfile, inishfile = None, None
-    prevgpfiles, prevshfiles = [], []
-    for f in cmor_utils.find_ifs_output(ifsoutputdir, expname=expname):
-        if f.endswith("+000000"):
-            if os.path.basename(f).startswith("ICMGG"):
-                inigpfile = f
-            if os.path.basename(f).startswith("ICMSH"):
-                inishfile = f
-        elif cmor_utils.get_ifs_date(f) == prevdate:
-            if os.path.basename(f).startswith("ICMGG"):
-                prevgpfiles.append(f)
-            if os.path.basename(f).startswith("ICMSH"):
-                prevshfiles.append(f)
-    if not any(prevgpfiles) or not any(prevshfiles):
-        log.info("No regular previous month files found, taking initial state files...")
-        if not inigpfile:
-            log.warning("No initial gridpoint file found in %s" % ifsoutputdir)
-        if not inishfile:
-            log.warning("No initial spectral file found in %s" % ifsoutputdir)
-        return inigpfile, inishfile
-    if len(prevgpfiles) > 1:
-        log.warning("Multiple previous month gridpoint files found: %s. Taking first match" % ",".join(prevgpfiles))
-    elif len(prevshfiles) > 1:
-        log.warning("Multiple previous month spectral files found: %s. Taking first match" % ",".join(prevshfiles))
+def get_prev_file(grb_file):
+    log.info("Searching for previous month file of %s" % grib_file)
+    fname = os.path.basename(grb_file)
+    exp, year, mon = fname[5:10], int(fname[10:14]), int(fname[14:])
+    if mon == 1:
+        prev_year, prev_mon = year - 1, 12
     else:
-        log.info("Found previous month gridpoint file %s and spectral file %s" % (prevgpfiles[0], prevshfiles[0]))
-    return prevgpfiles[0], prevshfiles[0]
+        prev_year, prev_mon = year, mon - 1
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(grib_file), ".."))
+    output_files = cmor_utils.find_ifs_output(output_dir, exp)
+    ini_path = None
+    for output_path in output_files:
+        output_name = os.path.basename(output_path)
+        if output_name[:10] == fname[:10] + "+000000":
+            ini_path = output_name
+        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and int(output_name[14:]) == prev_mon:
+            log.info("Found previous month file %s" % output_path)
+            return output_path
+    return ini_path
 
 
 # Splits the grib file for the given set of tasks
@@ -225,15 +210,15 @@ def execute(tasks, month, multi_threaded=False):
     filehandles = open_files(varsfiles)
     if multi_threaded:
         threads = []
-        for path, prev_path in [(gridpoint_file, prev_gridpoint_file), (spectral_file, prev_spectral_file)]:
-            thread = threading.Thread(target=proc_mon, args=(month, path, prev_path, filehandles))
+        for filelist in [gridpoint_files, spectral_files]:
+            thread = threading.Thread(target=proc_mon, args=(filelist, filehandles, month))
             threads.append(thread)
             thread.start()
         threads[0].join()
         threads[1].join()
     else:
-        for path, prev_path in [(gridpoint_file, prev_gridpoint_file), (spectral_file, prev_spectral_file)]:
-            proc_mon(month, path, prev_path, filehandles)
+        for filelist in [gridpoint_files, spectral_files]:
+            proc_mon(filelist, filehandles, month)
     for handle in filehandles.values():
         handle.close()
     for task in task2files:
