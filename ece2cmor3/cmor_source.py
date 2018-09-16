@@ -175,7 +175,7 @@ class ifs_source(cmor_source):
                           % (expr, str(gc)))
             else:
                 varstrs = re.findall("var[0-9]{1,3}", expr)
-                if s.replace(" ", "").startswith(varstrs[0] + "="):
+                if expr.replace(" ", "").startswith(varstrs[0] + "="):
                     log.warning("Ignoring left-hand side assignment in expression %s" % expr)
                     varstrs = varstrs[1:]
                 else:

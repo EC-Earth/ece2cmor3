@@ -286,10 +286,10 @@ def add_time_operators(cdo, task):
 
 
 def add_high_freq_operator(cdo_command, target_freq, operator, task):
-    timestamps = [i*target_freq for i in range(24/target_freq)]
-    aggregators = {"mean":(cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
-                   "minimum":(cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
-                   "maximum":(cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
+    timestamps = [i * target_freq for i in range(24 / target_freq)]
+    aggregators = {"mean": (cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
+                   "minimum": (cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
+                   "maximum": (cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
     if operator == "point":
         if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
             log.warning("Sampling values of accumulated model output for variable %s in "

@@ -72,8 +72,8 @@ def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, t
             log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
 
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
-    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern)}
-    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern)}
+    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern) and not f.endswith("+000000")}
+    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern) and not f.endswith("+000000")}
     gpfiles = {date: gpfiles[date] for date in gpfiles.keys() if start <= date < start + length}
     shfiles = {date: shfiles[date] for date in shfiles.keys() if start <= date < start + length}
 

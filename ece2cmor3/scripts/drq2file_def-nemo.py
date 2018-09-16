@@ -14,7 +14,7 @@ import argparse
 import logging
 import re                                                     # for regular expressions
 
-from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils
+from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
 basic_file_def_file_name          = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
 file_def_file_name                = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
@@ -44,12 +44,19 @@ def main():
 
     args = parser.parse_args()
 
+    print ""
+    print "Running drq2ppt.py with:"
+    print "./drq2file_def-nemo.py --vars " + args.vars
+    print ""
+
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
-    # Load the variables as task targets:
-    taskloader.load_targets(args.vars, active_components={"ifs": False, "nemo": True})
+    # Load only ocean variables as task targets:
+    active_components = {component: False for component in components.models}
+    active_components["nemo"] = True
+    taskloader.load_targets(args.vars, active_components=active_components)
     
     for task in ece2cmorlib.tasks:
     	 print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
