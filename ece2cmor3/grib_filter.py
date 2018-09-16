@@ -298,7 +298,10 @@ def open_files(vars2files):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def proc_mon(month, cur_grib_file, prev_grib_file, handles=None):
+def proc_mon(file_list, handles=None, month=0):
+    date = [k for k in file_list.keys() if k.month == month]
+    prev_grib_file = file_list[date][0]
+    cur_grib_file = file_list[date][1]
     if prev_grib_file:
         with open(prev_grib_file, 'r') as fin:
             proc_prev_month(month, grib_file.create_grib_file(fin), handles)
