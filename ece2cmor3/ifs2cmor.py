@@ -72,8 +72,8 @@ def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, t
             log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
 
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
-    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern) and not f.endswith("+000000")}
-    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern) and not f.endswith("+000000")}
+    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern) if not f.endswith("+000000")}
+    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern) if not f.endswith("+000000")}
     gpfiles = {date: gpfiles[date] for date in gpfiles.keys() if start <= date < start + length}
     shfiles = {date: shfiles[date] for date in shfiles.keys() if start <= date < start + length}
 
@@ -114,7 +114,7 @@ def execute(tasks, cleanup=True, nthreads=1):
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
     grid_descr_file = None
     if auto_filter_:
-        tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
+        tasks_todo = grib_filter.execute(tasks_todo)
         for t in tasks_todo:
             if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point:
                 filepaths = getattr(t, cmor_task.filter_output_key, [])
