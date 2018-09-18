@@ -644,7 +644,8 @@ for component_value in component_overview:
    #print ' Number of fields per file is {:3} for the combination: {:7} {:4} {}'.format(number_of_fields_per_file, component_value, output_freq_value, grid_ref_value)
 
     # Writing the file elements for the file_def file:
-    basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value, output_freq_value, grid_ref_value, output_freq_value))
+   #basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value[0:3], grid_ref_value, output_freq_value)) # Shorten model component label to 3 characters
+    basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value     , grid_ref_value, output_freq_value))
     # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
     for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
     #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
