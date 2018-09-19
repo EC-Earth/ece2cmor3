@@ -331,12 +331,13 @@ def cmorize(tasks, nthreads):
             if task.status not in skip_status:
                 cmor_worker(task)
         return
-    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
+    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path, tasks])
     pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
 
 
 grid_id = 0
 time_axis_ids = {}
+time_axis_bnds = {}
 depth_axis_ids = {}
 
 
@@ -346,6 +347,16 @@ def init_cmor(filepath):
     cmor.load_table(table_root_ + "_grids.json")
     if grid_id == 0:
         grid_id = create_grid_from_grib(filepath)
+
+
+# Worker function for parallel cmorization (not working at the present...)
+def cmor_worker(task):
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    define_cmor_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    execute_netcdf_task(task)
 
 
 def define_cmor_axes(task):
@@ -368,16 +379,6 @@ def define_cmor_axes(task):
     create_depth_axes(task)
 
 
-# Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(task):
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
-    define_cmor_axes(task)
-    if task.status == cmor_task.status_failed:
-        return
-    execute_netcdf_task(task)
-
-
 # Executes a single task
 def execute_netcdf_task(task):
     global log
@@ -397,14 +398,14 @@ def execute_netcdf_task(task):
             "%s" % (task.target.variable, task.target.table))
         return
     axes = []
-    gid = getattr(task, "grid_id", 0)
-    if gid != 0:
-        axes.append(gid)
+    t_bnds = []
+    if hasattr(task, "grid_id"):
+        axes.append(getattr(task, "grid_id"))
     if hasattr(task, "z_axis_id"):
         axes.append(getattr(task, "z_axis_id"))
-    time_id = getattr(task, "t_axis_id", 0)
-    if time_id != 0:
-        axes.append(time_id)
+    if hasattr(task, "t_axis_id"):
+        axes.append(getattr(task, "t_axis_id"))
+        t_bnds = time_axis_bnds.get(getattr(task, "t_axis_id"), [])
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
@@ -438,6 +439,24 @@ def execute_netcdf_task(task):
                 time_dim = index
                 break
             index += 1
+
+        time_selection = None
+        time_vars = [v for v in ncvars.variables if v.lower().startswith("time") or
+                     getattr(v, "standard_name", "").lower() == "time"]
+        if any(time_vars):
+            source_time_vals = netCDF4.num2date(time_vars[0][:], getattr(time_vars[0], "units", None),
+                                                getattr(dataset, "calendar", "standard"))
+            time_slice_map = []
+            for bnd in t_bnds:
+                candidates = [t for t in source_time_vals if bnd[0] <= t <= bnd[1]]
+                if any(candidates):
+                    time_slice_map.append(source_time_vals.index(candidates[0]))
+                else:
+                    log.warning("For variable %s in table %s, no valid time point could be found at %s...inserting "
+                                "missing values" % (task.target.variable, task.target.table, str(bnd[0])))
+                    time_slice_map.append(-1)
+            time_selection = numpy.array(time_slice_map)
+        print "The time selection for", task.target.variable, "in", task.target.table, "is", time_selection
         mask = getattr(task.target, cmor_target.mask_key, None)
         mask_array = masks[mask].get("array", None) if mask in masks else None
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
@@ -484,7 +503,7 @@ def get_conversion_constants(conversion, output_frequency):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(task):
-    global log, time_axis_ids
+    global log, time_axis_ids, time_axis_bnds
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # TODO: better to check in the table axes if the standard name of the dimension equals "time"
     time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
@@ -502,9 +521,10 @@ def create_time_axes(task):
     else:
         time_operator = getattr(task.target, "time_operator", ["point"])
         log.info("Creating time axis using variable %s..." % task.target.variable)
-        tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
-                               name=time_dim, has_bounds=(time_operator != ["point"]))
+        tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                                          name=time_dim, has_bounds=(time_operator != ["point"]))
         time_axis_ids[key] = tid
+        time_axis_bnds[tid] = zip(tlow, tup)
     setattr(task, "t_axis_id", tid)
 
 
@@ -665,24 +685,44 @@ def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
     command = cdo.Cdo()
     times = command.showtimestamp(input=path)[0].split()
-    datetimes = sorted(set(map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)))
-    if len(datetimes) == 0:
+    date_times = sorted(set(map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)))
+    if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return
     refdate = cmor_utils.make_datetime(ref_date_)
+    start_point = (start_date_ - refdate).total_seconds() / 3600.
     if has_bounds:
-        n = len(datetimes)
+        n = len(date_times)
         bounds = numpy.empty([n, 2])
         rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time) - refdate).total_seconds() / 3600.,
-                            datetimes)
+                            date_times)
         bounds[:, 0] = rounded_times[:]
         bounds[0:n - 1, 1] = rounded_times[1:n]
-        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, datetimes[n - 1], 1) - refdate).total_seconds() / 3600.
+        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
         times[:] = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
+        if bounds[0, 0] != start_point:
+            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
+                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
+        dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
+        dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
-                         cell_bounds=bounds)
-    times = numpy.array([(d - refdate).total_seconds() / 3600 for d in datetimes])
-    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times)
+                         cell_bounds=bounds), dt_low, dt_up
+    times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
+    if times[0] != start_point:
+        log.warning("Initial time stamp %s is not equal to start date %s..." % (times[0], start_date_))
+        stephr = cmor_utils.make_cmor_frequency(freq).total_seconds() / 3600.
+        if times[0] > start_point:
+            n = numpy.math.floor((times[0] - start_point) / stephr)
+            log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
+                        (path, n))
+            times = range(times[0] - n * stephr, times[0], stephr) + times
+        else:
+            n = numpy.math.ceil((start_point - times[0]) / stephr)
+            log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
+                        "removed" % (path, n))
+            times = times[n:]
+    dt = [refdate + datetime.timedelta(hours=t) for t in times]
+    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
 
 
 # Surface pressure variable lookup utility

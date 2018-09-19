@@ -2,11 +2,11 @@ import datetime
 import math
 import cmor
 import dateutil.relativedelta
-#lpjg related
+# lpjg related
 import gzip
 import io
 import csv
-#lpjg end
+# lpjg end
 
 import logging
 import numpy
@@ -119,8 +119,8 @@ def get_ifs_date(filepath):
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
     ss = regex.group()[1:]
-    #prevent runtimeerror for "000000"
-#    return datetime.datetime.strptime("000101","%Y%m").date() if ss.startswith("000000") else datetime.datetime.strptime(ss,"%Y%m").date()
+    # prevent runtimeerror for "000000"
+    #    return datetime.datetime.strptime("000101","%Y%m").date() if ss.startswith("000000") else datetime.datetime.strptime(ss,"%Y%m").date()
     return datetime.datetime.strptime(ss, "%Y%m").date()
 
 
@@ -177,6 +177,7 @@ def get_nemo_grid(filepath, expname):
         return None
     match = result.group(0)
     return match[0:len(match) - 3]
+
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
