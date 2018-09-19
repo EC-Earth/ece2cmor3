@@ -331,7 +331,7 @@ def cmorize(tasks, nthreads):
             if task.status not in skip_status:
                 cmor_worker(task)
         return
-    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path, tasks])
+    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
     pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
 
 
