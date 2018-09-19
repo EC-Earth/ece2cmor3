@@ -441,29 +441,28 @@ def execute_netcdf_task(task):
             index += 1
 
         time_selection = None
-        time_vars = [v for v in ncvars.variables if v.lower().startswith("time") or
-                     getattr(v, "standard_name", "").lower() == "time"]
-        if any(time_vars):
-            source_time_vals = netCDF4.num2date(time_vars[0][:], getattr(time_vars[0], "units", None),
-                                                getattr(dataset, "calendar", "standard"))
+        time_stamps = cmor_utils.read_time_stamps(filepath)
+        if any(time_stamps):
             time_slice_map = []
             for bnd in t_bnds:
-                candidates = [t for t in source_time_vals if bnd[0] <= t <= bnd[1]]
+                candidates = [t for t in time_stamps if bnd[0] <= t <= bnd[1]]
                 if any(candidates):
-                    time_slice_map.append(source_time_vals.index(candidates[0]))
+                    time_slice_map.append(time_stamps.index(candidates[0]))
                 else:
                     log.warning("For variable %s in table %s, no valid time point could be found at %s...inserting "
                                 "missing values" % (task.target.variable, task.target.table, str(bnd[0])))
                     time_slice_map.append(-1)
             time_selection = numpy.array(time_slice_map)
         print "The time selection for", task.target.variable, "in", task.target.table, "is", time_selection
+
         mask = getattr(task.target, cmor_target.mask_key, None)
         mask_array = masks[mask].get("array", None) if mask in masks else None
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
-                               swaplatlon=False, fliplat=True, mask=mask_array, missval=missval)
+                               swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
+                               time_selection=time_selection)
         cmor.close(var_id)
         task.next_state()
         if store_var:
@@ -683,9 +682,7 @@ def create_soil_depth_axis(name, filepath):
 # Makes a time axis for the given table
 def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
-    command = cdo.Cdo()
-    times = command.showtimestamp(input=path)[0].split()
-    date_times = sorted(set(map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)))
+    date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return
@@ -699,7 +696,7 @@ def create_time_axis(freq, path, name, has_bounds):
         bounds[:, 0] = rounded_times[:]
         bounds[0:n - 1, 1] = rounded_times[1:n]
         bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
-        times[:] = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
+        times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
         if bounds[0, 0] != start_point:
             log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
                         (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))

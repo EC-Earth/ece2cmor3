@@ -1,5 +1,7 @@
 import datetime
 import math
+
+import cdo
 import cmor
 import dateutil.relativedelta
 # lpjg related
@@ -179,17 +181,29 @@ def get_nemo_grid(filepath, expname):
     return match[0:len(match) - 3]
 
 
+def read_time_stamps(path):
+    command = cdo.Cdo()
+    times = command.showtimestamp(input=path)[0].split()
+    return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
+
+
+# TODO: This is getting out of hand, refactor
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
-                fliplat=False, mask=None, missval=1.e+20):
+                fliplat=False, mask=None, missval=1.e+20, time_selection=None):
     global log
     dims = len(ncvar.shape)
     times = 1 if timdim < 0 else ncvar.shape[timdim]
     size = ncvar.size / times
     chunk = int(math.floor(4.0E+9 / (8 * size)))  # Use max 4 GB of memory
+    if time_selection is not None and any([i for i in time_selection if i == -1]):
+        chunk = 1
     missval_in = float(getattr(ncvar, "missing_value", missval))
     for i in range(0, times, chunk):
         imax = min(i + chunk, times)
+        time_slice = slice(i, imax, 1) if time_selection is None else time_selection[i:imax]
+        if time_selection == list(range(i, imax)):
+            time_slice = slice(i, imax, 1)
         vals = None
         if dims == 1:
             if timdim < 0:
@@ -202,41 +216,64 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)).transpose() if swaplatlon else \
                     apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)
             elif timdim == 0:
-                vals = numpy.transpose(apply_mask(factor * ncvar[i:imax, :] + term, None, missval_in, missval),
-                                       axes=[1, 0])
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[1:, ...], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :] + term, None, missval_in, missval),
+                                           axes=[1, 0])
             elif timdim == 1:
-                vals = apply_mask(factor * ncvar[:, i:imax] + term, None, missval_in, missval)
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[..., :-1], missval)
+                else:
+                    vals = apply_mask(factor * ncvar[:, time_slice] + term, None, missval_in, missval)
         elif dims == 3:
             if timdim < 0:
                 vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :] + term, mask, missval_in, missval),
                                        axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 0:
-                vals = numpy.transpose(apply_mask(factor * ncvar[i:imax, :, :] + term, mask, missval_in, missval),
-                                       axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[1:, ...], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :] + term, mask,
+                                                      missval_in, missval),
+                                           axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 2:
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
-                vals = numpy.transpose(apply_mask(factor * ncvar[:, :, i:imax] + term, None, missval_in, missval),
-                                       axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[..., :-1], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, time_slice] + term, None, missval_in,
+                                                      missval),
+                                           axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
             else:
                 log.error("Unsupported array structure with 3 dimensions and time dimension index 1")
                 return
         elif dims == 4:
             if timdim == 0:
-                vals = numpy.transpose(apply_mask(factor * ncvar[i:imax, :, :, :] + term, mask, missval_in, missval),
-                                       axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[1:, ...], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :] + term, mask, missval_in,
+                                                      missval),
+                                           axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
             elif timdim == 3:
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
-                vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, i:imax] + term, mask, missval_in, missval),
-                                       axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
+                if time_slice == [-1]:
+                    vals = numpy.full(ncvar.shape[..., :-1], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, time_slice] + term, mask, missval_in,
+                                                      missval),
+                                           axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
             else:
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
         else:
             log.error("Cmorizing arrays of rank %d is not supported" % dims)
             return
-        if fliplat and (dims > 1 or timdim < 0): vals = numpy.flipud(vals)
+        if fliplat and (dims > 1 or timdim < 0):
+            vals = numpy.flipud(vals)
         cmor.write(varid, vals, ntimes_passed=(0 if timdim < 0 else (imax - i)))
         del vals
         if psvarid is not None and ncpsvar is not None:
