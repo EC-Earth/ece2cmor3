@@ -453,7 +453,6 @@ def execute_netcdf_task(task):
                                 "missing values" % (task.target.variable, task.target.table, str(bnd[0])))
                     time_slice_map.append(-1)
             time_selection = numpy.array(time_slice_map)
-        print "The time selection for", task.target.variable, "in", task.target.table, "is", time_selection
 
         mask = getattr(task.target, cmor_target.mask_key, None)
         mask_array = masks[mask].get("array", None) if mask in masks else None
