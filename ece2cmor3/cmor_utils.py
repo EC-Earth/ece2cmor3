@@ -54,7 +54,7 @@ def make_cmor_frequency(s):
             return dateutil.relativedelta.relativedelta(years=1)
         if s in ["mon", "monC", "monPt"]:
             return dateutil.relativedelta.relativedelta(months=1)
-        if s in ["day"]:
+        if s in ["day", "dayPt"]:
             return dateutil.relativedelta.relativedelta(days=1)
         if s in ["6hr", "6hrPt"]:
             return dateutil.relativedelta.relativedelta(hours=6)

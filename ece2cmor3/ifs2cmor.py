@@ -668,7 +668,7 @@ def create_time_axis(freq, path, name, has_bounds):
 
     step = cmor_utils.make_cmor_frequency(freq)
 
-    if date_times[0] > start_date_:
+    if date_times[0] >= start_date_ + step:
         date = date_times[0]
         extra_dates = []
         while date > start_date_:
@@ -677,10 +677,10 @@ def create_time_axis(freq, path, name, has_bounds):
         log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
                     (path, len(extra_dates)))
         date_times = extra_dates[::-1] + date_times
-    elif date_times[0] > start_date_:
-        date_times = [t for t in date_times if t >= start_date_ - step]
+    if date_times[0] < start_date_:
+        date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
-                    "removed" % (path, len([t for t in date_times if t > start_date_ - step])))
+                    "removed" % (path, len([t for t in date_times if t >= start_date_])))
     times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
     dt = [refdate + datetime.timedelta(hours=t) for t in times]
     return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
