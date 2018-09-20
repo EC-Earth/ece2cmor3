@@ -15,12 +15,14 @@
 # grid_def) and about 100 variables without an id but with a field_ref (most of the latter one have an
 # name attribute, but not all of them).
 #
-# Third, the NEMO only excel xlsx CMIP6 data request file is read. This file has been created
-# elsewhere by checking the non-dummy NEMO shaconemo ping file cmor variable list against the
+# Third, the NEMO only excel xlsx CMIP6 data request file is read. This file,the 
+# create-nemo-only-list/nemo-only-list-cmpi6-requested-variables.xlsx has been created by
+# ./create-nemo-only-list/create-nemo-only-list.sh from the scripts directory.
+# by checking the non-dummy NEMO shaconemo ping file cmor variable list against the
 # full CMIP6 data request for all CMIP6 MIPs in which EC-Earth participates, i.e. for tier 3
 # and priority 3: about 320 unique cmor-table - cmor-variable-name combinations.
 #
-# Fourth, a few lists are created or or/and modified, some renaming or for instance selecting the
+# Fourth, a few lists are created and/or modified, some renaming, and for instance selecting the
 # output frequency per field from the cmor table label.
 #
 # Five, the exentensive basic flat ec-earth cmip6 nemo XIOS input file template (the namelist or the
