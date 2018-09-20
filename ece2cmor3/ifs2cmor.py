@@ -648,7 +648,6 @@ def create_time_axis(freq, path, name, has_bounds):
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return
     refdate = cmor_utils.make_datetime(ref_date_)
-#    start_point = (start_date_ - refdate).total_seconds() / 3600.
     if has_bounds:
         n = len(date_times)
         bounds = numpy.empty([n, 2])
@@ -667,7 +666,7 @@ def create_time_axis(freq, path, name, has_bounds):
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
                          cell_bounds=bounds), dt_low, dt_up
 
-    step = cmor_utils.make_cmor_frequency(freq).total_seconds()
+    step = cmor_utils.make_cmor_frequency(freq)
 
     if date_times[0] > start_date_:
         date = date_times[0]
