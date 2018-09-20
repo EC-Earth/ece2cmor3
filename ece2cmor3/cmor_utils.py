@@ -50,20 +50,16 @@ def make_cmor_frequency(s):
     if isinstance(s, dateutil.relativedelta.relativedelta) or isinstance(s, datetime.timedelta):
         return s
     if isinstance(s, basestring):
-        if s == "monClim":
+        if s in ["yr", "yrPt", "dec"]:
             return dateutil.relativedelta.relativedelta(years=1)
-        elif s.endswith("mon"):
-            n = 1 if s == "mon" else int(s[:-3])
-            return dateutil.relativedelta.relativedelta(months=n)
-        elif s.endswith("day"):
-            n = 1 if s == "day" else int(s[:-3])
-            return dateutil.relativedelta.relativedelta(days=n)
-        elif s.endswith("hr"):
-            n = 1 if s == "hr" else int(s[:-2])
-            return dateutil.relativedelta.relativedelta(hours=n)
-        elif s.endswith("hrs"):
-            n = 1 if s == "hrs" else int(s[:-2])
-            return dateutil.relativedelta.relativedelta(hours=n)
+        if s in ["mon", "monC", "monPt"]:
+            return dateutil.relativedelta.relativedelta(months=1)
+        if s in ["day"]:
+            return dateutil.relativedelta.relativedelta(days=1)
+        if s in ["6hr", "6hrPt"]:
+            return dateutil.relativedelta.relativedelta(hours=6)
+        if s in ["3hr", "3hrPt"]:
+            return dateutil.relativedelta.relativedelta(hours=3)
     raise Exception("Could not convert argument", s, "to a relative time interval")
 
 
