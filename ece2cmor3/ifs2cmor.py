@@ -646,7 +646,7 @@ def create_time_axis(freq, path, name, has_bounds):
     date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
-        return
+        return 0
     refdate = cmor_utils.make_datetime(ref_date_)
     if has_bounds:
         n = len(date_times)
@@ -657,10 +657,10 @@ def create_time_axis(freq, path, name, has_bounds):
         bounds[0:n - 1, 1] = rounded_times[1:n]
         bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
-        #TODO (Low Priority) replace lower bound in initial leg...
-#        if bounds[0, 0] != start_point:
-#            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
-#                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
+        # TODO (Low Priority) replace lower bound in initial leg...
+        #        if bounds[0, 0] != start_point:
+        #            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
+        #                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
         dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
         dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
@@ -676,7 +676,7 @@ def create_time_axis(freq, path, name, has_bounds):
             extra_dates.append(date)
         log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
                     (path, len(extra_dates)))
-        date_times = extra_dates.reverse() + date_times
+        date_times = extra_dates[::-1] + date_times
     elif date_times[0] > start_date_:
         date_times = [t for t in date_times if t >= start_date_ - step]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
