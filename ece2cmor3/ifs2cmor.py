@@ -556,7 +556,7 @@ def create_depth_axes(task):
         return
     elif z_dim == "sdepth":
         log.info("Creating soil depth axis using variable %s..." % task.target.variable)
-        axisid = create_soil_depth_axis(z_dim, getattr(task, cmor_task.output_path_key))
+        axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
     elif z_dim in cmor_target.get_axis_info(task.target.table):
@@ -631,51 +631,13 @@ def create_hybrid_level_axis(task):
 
 
 # Creates a soil depth axis.
-def create_soil_depth_axis(name, filepath):
+def create_soil_depth_axis(name):
     global log
     # New version of cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
-    # dataset = None
-    # try:
-    #     dataset = netCDF4.Dataset(filepath, 'r')
-    #     ncvar = dataset.variables.get("depth", None)
-    #     if not ncvar:
-    #         log.error("Could retrieve depth coordinate from file %s" % filepath)
-    #         return 0
-    #     units = getattr(ncvar, "units", "cm")
-    #     if units == "mm":
-    #         factor = 0.001
-    #     elif units == "cm":
-    #         factor = 0.01
-    #     elif units == "m":
-    #         factor = 1
-    #     else:
-    #         log.error("Unknown units for depth axis in file %s" % filepath)
-    #         return 0
-    #     values = factor * ncvar[:]
-    #     ncvar = dataset.variables.get("depth_bnds", None)
-    #     if not ncvar:
-    #         n = len(values)
-    #         bounds = numpy.empty([n, 2])
-    #         bounds[0, 0] = 0.
-    #         if n > 1:
-    #             bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
-    #             bounds[0:n - 1, 1] = bounds[1:n, 0]
-    #             bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
-    #         else:
-    #             bounds[0, 1] = 2 * values[0]
-    #     else:
-    #         bounds = factor * ncvar[:, :]
-    #     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-    # except Exception as e:
-    #     log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
-    # finally:
-    #     if dataset is not None:
-    #         dataset.close()
-    # return 0
 
 
 # Makes a time axis for the given table
@@ -686,7 +648,7 @@ def create_time_axis(freq, path, name, has_bounds):
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return
     refdate = cmor_utils.make_datetime(ref_date_)
-    start_point = (start_date_ - refdate).total_seconds() / 3600.
+#    start_point = (start_date_ - refdate).total_seconds() / 3600.
     if has_bounds:
         n = len(date_times)
         bounds = numpy.empty([n, 2])
@@ -696,27 +658,31 @@ def create_time_axis(freq, path, name, has_bounds):
         bounds[0:n - 1, 1] = rounded_times[1:n]
         bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
-        if bounds[0, 0] != start_point:
-            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
-                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
+        #TODO (Low Priority) replace lower bound in initial leg...
+#        if bounds[0, 0] != start_point:
+#            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
+#                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
         dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
         dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
                          cell_bounds=bounds), dt_low, dt_up
+
+    step = cmor_utils.make_cmor_frequency(freq).total_seconds()
+
+    if date_times[0] > start_date_:
+        date = date_times[0]
+        extra_dates = []
+        while date > start_date_:
+            date = date - step
+            extra_dates.append(date)
+        log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
+                    (path, len(extra_dates)))
+        date_times = extra_dates.reverse() + date_times
+    elif date_times[0] > start_date_:
+        date_times = [t for t in date_times if t >= start_date_ - step]
+        log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
+                    "removed" % (path, len([t for t in date_times if t > start_date_ - step])))
     times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
-    if times[0] != start_point:
-        log.warning("Initial time stamp %s is not equal to start date %s..." % (times[0], start_date_))
-        stephr = cmor_utils.make_cmor_frequency(freq).total_seconds() / 3600.
-        if times[0] > start_point:
-            n = numpy.math.floor((times[0] - start_point) / stephr)
-            log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
-                        (path, n))
-            times = range(times[0] - n * stephr, times[0], stephr) + times
-        else:
-            n = numpy.math.ceil((start_point - times[0]) / stephr)
-            log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
-                        "removed" % (path, n))
-            times = times[n:]
     dt = [refdate + datetime.timedelta(hours=t) for t in times]
     return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
 
