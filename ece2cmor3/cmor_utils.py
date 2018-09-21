@@ -201,7 +201,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         if time_selection is not None:
             if numpy.array_equal(time_selection[i: imax], numpy.arange(i, imax)):
                 time_slice = slice(i, imax, 1)
-            elif numpy.array_equal(time_selection, numpy.array([-1])):
+            elif numpy.array_equal(time_selection[i: imax], numpy.array([-1])):
                 time_slice = None
             else:
                 time_slice = time_selection[i: imax]
