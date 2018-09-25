@@ -161,6 +161,14 @@ if exclude_dummy_fields:
 else:
  print '\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n'
 
+# Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
+# in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
+# removed and only therafter both are compared:
+for i in range(len(total_pinglist_id)):
+  if total_pinglist_expr[i] != 'None':
+   if total_pinglist_expr[i].replace(" ", "").replace("@", "")  != total_pinglist_text[i].replace(" ", ""):
+    print ' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n'
+
 #print pinglistOcean_id
 #print pinglistOcean_field_ref
 #print pinglistOcean_text
