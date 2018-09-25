@@ -77,8 +77,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #source deactivate
  fi
  mkdir -p ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f ppt0000000000 pptdddddd0300 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f pptdddddd0600               ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
+ mv -f ppt0000000000 pptdddddd0*00 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
@@ -98,7 +97,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  echo 'The generated ppt files are:'
  ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
  ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0300
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
+ ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0600
 
  echo
  echo 'The generated file_def files are:'
