@@ -74,6 +74,9 @@ include_root_field_group_attributes = True
 exclude_dummy_fields = True
 #exclude_dummy_fields = False
 
+give_preference_to_pingfile_expression_attribute = True
+#give_preference_to_pingfile_expression_attribute = False
+
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
@@ -168,6 +171,14 @@ for i in range(len(total_pinglist_id)):
   if total_pinglist_expr[i] != 'None':
    if total_pinglist_expr[i].replace(" ", "").replace("@", "")  != total_pinglist_text[i].replace(" ", ""):
     print ' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n'
+
+# Give preference to the ping file "expr"-attribute in case the ping file "expr"-attribute has a value: that means overwrite the
+# xml content (the pinglist_text) by this ping file "expr"-attribute:
+if give_preference_to_pingfile_expression_attribute:
+ for i in range(len(total_pinglist_id)):
+   if total_pinglist_expr[i] != 'None':
+    print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
+    total_pinglist_text[i] = total_pinglist_expr[i]
 
 #print pinglistOcean_id
 #print pinglistOcean_field_ref
