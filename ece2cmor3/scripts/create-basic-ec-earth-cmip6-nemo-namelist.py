@@ -75,7 +75,7 @@ exclude_dummy_fields = True
 #exclude_dummy_fields = False
 
 give_preference_to_pingfile_expression_attribute = True
-#give_preference_to_pingfile_expression_attribute = False
+give_preference_to_pingfile_expression_attribute = False
 
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
