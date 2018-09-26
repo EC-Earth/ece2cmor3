@@ -16,14 +16,14 @@ dq = dreq.loadDreq()
 
 # Specify which tier experiments should be included:
 experiment_tiers_included = 1
-#ec_earth_mips = ['CMIP'] # for basic test
-ec_earth_mips = ['CMIP', 'DCPP']
+ec_earth_mips = ['CMIP'] # for basic test
+#ec_earth_mips = ['CMIP', 'DCPP']
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP',          'DAMIP', 'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP',         'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 18 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 23 CMIP6 MIPs
 experiment_counter = 0
 
 
-command_0 = 'rm -rf ec-earth-cmip6-nemo-namelists'
+command_0 = 'rm -rf cmip6-output-control-files'
 os.system(command_0)
 
 # Loop over MIPs:
@@ -35,11 +35,12 @@ for mip in dq.coll['mip'].items:
       command = './generate-ec-earth-namelists.sh ' + mip.label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1'
     else:
       command = './generate-ec-earth-namelists.sh ' + mip.label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 omit-setup'
-    command_2 = 'rm -rf ec-earth-cmip6-nemo-namelists/' + mip.label + '/cmip6-experiment-m=*/file_def-compact'
-    command_3 = 'rm -f  ec-earth-cmip6-nemo-namelists/' + mip.label + '/cmip6-experiment-m=*/cmip6-file_def_nemo.xml'
-    command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' ec-earth-cmip6-nemo-namelists/" + mip.label + '/cmip6-experiment-m=' + mip.label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
-    command_5 = "sed -i -e '/sfdsi_2/d' ec-earth-cmip6-nemo-namelists/" + mip.label + '/cmip6-experiment-m=' + mip.label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
-  ##equivalent:  sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-experiment-m=CMIP-e=piControl-t=1-p=1/file_def_nemo-opa.xml
+    command_2 = 'rm -rf cmip6-output-control-files/' + mip.label + '/cmip6-experiment-*/file_def-compact'
+    command_3 = 'rm -f  cmip6-output-control-files/' + mip.label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
+    command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-' + mip.label + '-' + ex.label + '/file_def_nemo-opa.xml'
+    command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-' + mip.label + '-' + ex.label + '/file_def_nemo-opa.xml'
+#    command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-m=' + mip.label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
+#    command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-m=' + mip.label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
    #print print '{}'.format(command)
     if mip.label in ec_earth_mips: 
       #if ex.tier[0] == experiment_tiers_included and mip.label in ec_earth_mips and ex.label == 'piControl':  # for basic test
