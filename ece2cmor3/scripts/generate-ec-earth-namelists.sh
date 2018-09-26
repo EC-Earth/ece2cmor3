@@ -44,7 +44,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
 
- path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}
+ path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
  echo ${path_of_created_output_control_files}
 
 #activateanaconda
