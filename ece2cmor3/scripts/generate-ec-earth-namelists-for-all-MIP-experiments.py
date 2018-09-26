@@ -16,8 +16,8 @@ dq = dreq.loadDreq()
 
 # Specify which tier experiments should be included:
 experiment_tiers_included = 1
-ec_earth_mips = ['CMIP'] # for basic test
-#ec_earth_mips = ['CMIP', 'DCPP']
+#ec_earth_mips = ['CMIP'] # for basic test
+ec_earth_mips = ['CMIP', 'DCPP']
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP',          'DAMIP', 'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP',         'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 18 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 23 CMIP6 MIPs
 experiment_counter = 0
