@@ -34,7 +34,7 @@ def write_varlist_ascii(targets,opath):
     ofile.close()
 
 
-def write_varlist_excel(targets,opath):
+def write_varlist_excel(targets,opath,with_pingfile):
     import xlsxwriter
     tgtgroups = cmor_utils.group(targets,lambda t:t.table)
     workbook = xlsxwriter.Workbook(opath)
@@ -51,6 +51,10 @@ def write_varlist_excel(targets,opath):
     worksheet.set_column('I:I', 15)  # Adjust the column width of column H
     worksheet.set_column('J:J',200)  # Adjust the column width of column I
     worksheet.set_column('K:K', 80)  # Adjust the column width of column J
+    if with_pingfile:
+     worksheet.set_column('L:L', 28) # Adjust the column width of column L
+     worksheet.set_column('M:M', 15) # Adjust the column width of column M
+     worksheet.set_column('N:N',100) # Adjust the column width of column N
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
 
@@ -65,6 +69,10 @@ def write_varlist_excel(targets,opath):
     worksheet.write(0, 8, 'comment author', bold)
     worksheet.write(0, 9, 'extensive variable description', bold)
     worksheet.write(0,10, 'list of MIPs which request this variable', bold)
+    if with_pingfile:
+     worksheet.write(0,11, 'model component in ping file', bold)
+     worksheet.write(0,12, 'ping file units', bold)
+     worksheet.write(0,13, 'ping file comment', bold)
 
     row_counter = 1
     for k,vlist in tgtgroups.iteritems():
@@ -82,6 +90,10 @@ def write_varlist_excel(targets,opath):
             worksheet.write(row_counter, 8, getattr(tgtvar,"comment_author",""))
             worksheet.write(row_counter, 9, getattr(tgtvar,"comment","unknown"))
             worksheet.write(row_counter,10, tgtvar.mip_list)
+            if with_pingfile:
+             worksheet.write(row_counter,11, getattr(tgtvar,"model",""))
+             worksheet.write(row_counter,12, getattr(tgtvar,"units",""))
+             worksheet.write(row_counter,13, getattr(tgtvar,"pingcomment",""))
             row_counter += 1
     workbook.close()
     logging.info(" Writing the excel file: %s" % opath)
@@ -96,6 +108,7 @@ def main():
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
     parser.add_argument("--withouttablescheck", action = "store_true", default = False, help = "Ignore variable tables when performing var checking")
+    parser.add_argument("--withping", action = "store_true", default = False, help = "Read and write addition ping file fields")
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
     parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
     parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
@@ -114,6 +127,7 @@ def main():
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
+    taskloader.with_pingfile = args.withping
 
     # Load the variables as task targets:
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,active_components=active_components, silent = args.verbose)
@@ -124,15 +138,15 @@ def main():
             if(output_dir != ''): os.makedirs(output_dir)
         write_varlist(loadedtargets,args.output + ".available.json")
         if(args.verbose):
-            write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx")
-            write_varlist_excel(ignoredtargets          ,args.output + ".ignored.xlsx")
-            write_varlist_excel(identifiedmissingtargets,args.output + ".identifiedmissing.xlsx")
-            write_varlist_excel(missingtargets          ,args.output + ".missing.xlsx")
+            write_varlist_excel(loadedtargets           ,args.output + ".available.xlsx"        , args.withping)
+            write_varlist_excel(ignoredtargets          ,args.output + ".ignored.xlsx"          , args.withping)
+            write_varlist_excel(identifiedmissingtargets,args.output + ".identifiedmissing.xlsx", args.withping)
+            write_varlist_excel(missingtargets          ,args.output + ".missing.xlsx"          , args.withping)
 
-            write_varlist_ascii(loadedtargets           ,args.output + ".available.txt")
-            write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt")
+            write_varlist_ascii(loadedtargets           ,args.output + ".available.txt"        )
+            write_varlist_ascii(ignoredtargets          ,args.output + ".ignored.txt"          )
             write_varlist_ascii(identifiedmissingtargets,args.output + ".identifiedmissing.txt")
-            write_varlist_ascii(missingtargets          ,args.output + ".missing.txt")
+            write_varlist_ascii(missingtargets          ,args.output + ".missing.txt"          )
 
 
     # Finishing up
