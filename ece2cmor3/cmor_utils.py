@@ -270,6 +270,26 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             else:
                 log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
                 return
+        elif ndims == 5:
+            if timdim == 0:
+                if time_slice is None:
+                    vals = numpy.full(ncvar.shape[1:], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :, :] + term, mask, missval_in,
+                                                      missval),
+                                           axes=[4, 3, 2, 1, 0] if swaplatlon else [3, 4, 2, 1, 0])
+            elif timdim == 4:
+                if mask is not None:
+                    log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
+                if time_slice is None:
+                    vals = numpy.full(ncvar.shape[:-1], missval)
+                else:
+                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, :, time_slice] + term, mask, missval_in,
+                                                      missval),
+                                           axes=[1, 0, 2, 3, 4] if swaplatlon else [0, 1, 2, 3, 4])
+            else:
+                log.error("Unsupported array structure with 4 dimensions and time dimension index %d" % timdim)
+                return
         else:
             log.error("Cmorizing arrays of rank %d is not supported" % ndims)
             return

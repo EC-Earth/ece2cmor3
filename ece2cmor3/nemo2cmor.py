@@ -160,6 +160,8 @@ def get_conversion_constants(conversion):
         return 1.0, -273.15
     if conversion == "degC2K":
         return 1.0, 273.15
+    if conversion == "sv2kgps":
+        return 1.e+9, 0.
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0, 0.0
 
@@ -231,14 +233,9 @@ def create_time_axes(ds, tasks, table):
     return table_time_axes
 
 
-extra_axes = {"basin":
-                  {"ncdim": "3basin",
-                   "ncvals": {"Global": "global_ocean",
-                              "Atlantic": "atlantic_arctic_ocean",
-                              "Indo-Pacific": "indian_pacific_ocean"
-                              }
-                   }
-              }
+extra_axes = {"basin": {"ncdim": "3basin",
+                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
+              "typesi": {"ncdim": "ncatice"}}
 
 
 def create_type_axes(ds, tasks, table):
@@ -247,28 +244,23 @@ def create_type_axes(ds, tasks, table):
         type_axes_[table] = {}
     table_type_axes = type_axes_[table]
     for task in tasks:
-        tgtdims = set(getattr(task.target, cmor_target.dims_key)).intersection(extra_axes.keys())
+        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
         for dim in tgtdims:
             if dim in table_type_axes:
                 axis_id = table_type_axes[dim]
             else:
-                if dim == "typesi":
-                    axis_id = cmor.axis(table_entry=dim, coord_vals=[1])
+                axisinfo = extra_axes[dim]
+                if "ncvals" in axisinfo:
+                    axis_values = axisinfo["ncvals"]
+                    axis_unit = axisinfo.get("ncunits", "1")
                 else:
-                    ncdim = ds.dimensions[extra_axes[dim]["ncdim"]]
+                    ncdim = ds.dimensions[axisinfo["ncdim"]]
                     ncvars = [v for v in ds.variables if list(v.dimensions) == [ncdim]]
                     axis_values, axis_unit = list(range(len(ncdim))), "1"
                     if any(ncvars):
-                        ncvals = list(ncvars[0][:])
-                        value_mapping = extra_axes[dim]["ncvals"]
-                        axis_values = []
+                        axis_values = list(ncvars[0][:])
                         axis_unit = getattr(ncvars[0], "units", None)
-                        for v in ncvals:
-                            if v not in value_mapping:
-                                log.error("Could not find determine cmor equivalent for %s" % str(v))
-                                continue
-                            axis_values.append(value_mapping[v])
-                    axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
+                axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
                 table_type_axes[dim] = axis_id
             setattr(task, dim + "_axis", axis_id)
     return table_type_axes
@@ -322,13 +314,12 @@ def read_calendar(ncfile):
 # Reads all the NEMO grid data from the input files.
 def create_grids(tasks):
     global grid_ids_
-    cmor.load_table(table_root_ + "_grids.json")
     task_groups = cmor_utils.group(tasks, lambda t: getattr(t, cmor_task.output_path_key, None))
     for filename, task_list in task_groups.iteritems():
         if filename is not None:
             grid = read_grid(filename)
             if grid is not None:
-                grid_id = write_grid(grid)
+                grid_id = write_grid(grid, task_list[0])
                 grid_ids_[grid.name] = grid_id
                 for task in task_list:
                     setattr(task, "grid_id", grid_id)
@@ -353,17 +344,26 @@ def read_grid(ncfile):
 
 
 # Transfers the grid to cmor.
-def write_grid(grid):
+def write_grid(grid, task):
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
+    if ny == 1:
+        cmor.load_table(table_root_ + "_" + task.target.table + ".json")
+        f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
+        b = numpy.zeros([nx, 2])
+        b[0, 0] = -90.
+        b[1:, 0] = 0.5 * (grid.lats[:-1, 0] + grid.lats[1:, 0])
+        b[:-1, 1] = b[1:nx, 0]
+        b[-1, 1] = 90.
+        return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north", cell_bounds=b)
+        # return cmor.grid(axis_ids=[i_index_id],
+        #                  latitude=grid.lats[:, 0],
+        #                  longitude=grid.lons[:, 0],
+        #                  latitude_vertices=grid.vertex_lats,
+        #                  longitude_vertices=grid.vertex_lons)
+    cmor.load_table(table_root_ + "_grids.json")
     i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
     j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    if ny == 1:
-        return cmor.grid(axis_ids=[i_index_id],
-                         latitude=grid.lats[:, 0],
-                         longitude=grid.lons[:, 0],
-                         latitude_vertices=grid.vertex_lats,
-                         longitude_vertices=grid.vertex_lons)
     return cmor.grid(axis_ids=[i_index_id, j_index_id],
                      latitude=grid.lats,
                      longitude=grid.lons,
@@ -379,9 +379,14 @@ class nemo_grid(object):
         flon = numpy.vectorize(lambda x: x % 360)
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))
-        self.lats = flat(lats_)
+        input_lats = lats_
+        # Dirty hack for lost precision:
+        if input_lats.shape[1] == 1 and input_lats[-1, 0] == input_lats[-2, 0]:
+            print "HOHO", input_lats.shape
+            input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
+        self.lats = flat(input_lats)
         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
-        self.vertex_lats = nemo_grid.create_vertex_lats(lats_)
+        self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
 
     @staticmethod
     def create_vertex_lons(a):
@@ -391,7 +396,7 @@ class nemo_grid(object):
         if ny == 1:
             b = numpy.zeros([nx, 2])
             b[1:nx, 0] = f(0.5 * (a[0:nx - 1, 0] + a[1:nx, 0]))
-            b[0:nx - 1, 1] = b[1:nx, 1]
+            b[0:nx - 1, 1] = b[1:nx, 0]
             return b
         b = numpy.zeros([nx, ny, 4])
         b[1:nx, :, 0] = f(0.5 * (a[0:nx - 1, :] + a[1:nx, :]))
