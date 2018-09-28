@@ -85,6 +85,9 @@ def execute(tasks):
             if table not in depth_axes_:
                 log.info("Creating depth axes for table %s from data in %s ..." % (table, filename))
             create_depth_axes(dataset, task_list, table)
+            if table not in type_axes_:
+                log.info("Creating extra axes for table %s from data in %s ..." % (table, filename))
+            create_type_axes(dataset, task_list, table)
             for task in task_list:
                 execute_netcdf_task(dataset, task)
         dataset.close()
@@ -121,10 +124,10 @@ def execute_netcdf_task(dataset, task):
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
     t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
-    axes = grid_axes + z_axes + t_axes
-    for type_axis in type_axes_:
-        if type_axis in getattr(task.target, cmor_target.dims_key):
-            axes.append(type_axes_[type_axis])
+    type_axes = [getattr(task, dim + "_axis") for dim in type_axes_.get(task.target.table, {}).keys() if
+                 hasattr(task, dim + "_axis")]
+    #TODO: Read axes order from netcdf file!
+    axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
@@ -181,8 +184,8 @@ def create_depth_axes(ds, tasks, table):
     global depth_axes_
     if table not in depth_axes_:
         depth_axes_[table] = {}
-    table_depth_axes = time_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y", "typesi"]
+    table_depth_axes = depth_axes_[table]
+    other_nc_axes = ["time_counter", "x", "y", "typesi", "3basin"]
     for task in tasks:
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
@@ -228,9 +231,47 @@ def create_time_axes(ds, tasks, table):
     return table_time_axes
 
 
-def create_type_axes():
+extra_axes = {"basin":
+                  {"ncdim": "3basin",
+                   "ncvals": {"Global": "global_ocean",
+                              "Atlantic": "atlantic_arctic_ocean",
+                              "Indo-Pacific": "indian_pacific_ocean"
+                              }
+                   }
+              }
+
+
+def create_type_axes(ds, tasks, table):
     global type_axes_
-    type_axes_["typesi"] = cmor.axis(table_entry="typesi", coord_vals=[1])
+    if table not in type_axes_:
+        type_axes_[table] = {}
+    table_type_axes = type_axes_[table]
+    for task in tasks:
+        tgtdims = set(getattr(task.target, cmor_target.dims_key)).intersection(extra_axes.keys())
+        for dim in tgtdims:
+            if dim in table_type_axes:
+                axis_id = table_type_axes[dim]
+            else:
+                if dim == "typesi":
+                    axis_id = cmor.axis(table_entry=dim, coord_vals=[1])
+                else:
+                    ncdim = ds.dimensions[extra_axes[dim]["ncdim"]]
+                    ncvars = [v for v in ds.variables if list(v.dimensions) == [ncdim]]
+                    axis_values, axis_unit = list(range(len(ncdim))), "1"
+                    if any(ncvars):
+                        ncvals = list(ncvars[0][:])
+                        value_mapping = extra_axes[dim]["ncvals"]
+                        axis_values = []
+                        axis_unit = getattr(ncvars[0], "units", None)
+                        for v in ncvals:
+                            if v not in value_mapping:
+                                log.error("Could not find determine cmor equivalent for %s" % str(v))
+                                continue
+                            axis_values.append(value_mapping[v])
+                    axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
+                table_type_axes[dim] = axis_id
+            setattr(task, dim + "_axis", axis_id)
+    return table_type_axes
 
 
 # Selects files with data with the given frequency
