@@ -415,7 +415,6 @@ class nemo_grid(object):
             b[0, 0] = f(2 * a[0, 0] - b[1, 0])
             b[0:ny - 1, 1] = b[1:ny, 0]
             b[ny - 1, 1] = f(1.5 * a[ny - 1, 0] - 0.5 * a[ny - 2, 0])
-            print b
             return b
         b = numpy.zeros([ny, nx, 4])
         b[1:ny, :, 0] = f(0.5 * (a[0:ny - 1, :] + a[1:ny, :]))

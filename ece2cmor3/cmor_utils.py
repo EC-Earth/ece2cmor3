@@ -295,7 +295,6 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             return
         if fliplat and (ndims > 1 or timdim < 0):
             vals = numpy.flipud(vals)
-        print vals.shape, 0 if timdim < 0 else (imax - i)
         cmor.write(varid, vals, ntimes_passed=(0 if timdim < 0 else (imax - i)))
         del vals
         if psvarid is not None and ncpsvar is not None:
