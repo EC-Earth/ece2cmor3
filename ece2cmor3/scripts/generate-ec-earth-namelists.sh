@@ -44,6 +44,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
 
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}
+ path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
+
 #activateanaconda
  if ! type "drq" > /dev/null; then
   echo
@@ -76,19 +81,18 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
  #source deactivate
  fi
- mkdir -p ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f ppt0000000000 pptdddddd0300 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f pptdddddd0600               ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
+ mkdir -p ${path_of_created_output_control_files}/file_def-compact
+ mv -f ppt0000000000 pptdddddd0*00 ${path_of_created_output_control_files}
 
  # Creating the file_def files for XIOS NEMO input:.
  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ${path_of_created_output_control_files}
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+ mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
  echo
  echo 'The produced data request excel file:'
@@ -96,19 +100,19 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
  echo
  echo 'The generated ppt files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0300
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0000
+ ls -1 ${path_of_created_output_control_files}/ppt0000000000
+ ls -1 ${path_of_created_output_control_files}/pptdddddd0300
+ ls -1 ${path_of_created_output_control_files}/pptdddddd0600
 
  echo
  echo 'The generated file_def files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
+ ls -1 ${path_of_created_output_control_files}/cmip6-file_def_nemo.xml
+ ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
+ ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
+ ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
+ ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+ ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+ ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
  echo
 
 else

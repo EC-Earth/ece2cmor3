@@ -31,7 +31,7 @@ dependencies:
 - pip
 - python=2.7.15
 - setuptools=39.2.0
-- numpy>=1.15.0
+- numpy>=1.15.1
 - libiconv                                        # Unlisted dependency of cdo
 - pandas>=0.17.1
 - pip:

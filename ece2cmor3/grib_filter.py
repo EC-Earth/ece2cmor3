@@ -425,7 +425,7 @@ def proc_final_month(month, gribfile, handles):
                 timestamp = t
             keys.add(key)
             write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
-        elif mon == (month + 1) % 12:
+        elif mon == month % 12 + 1:
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile)
             if t == timestamp and key in keys:

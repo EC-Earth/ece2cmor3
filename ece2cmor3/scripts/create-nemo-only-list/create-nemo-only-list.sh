@@ -22,8 +22,8 @@ if [ "$#" -eq 0 ]; then
   drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
-  cd ${HOME}/cmorize/shaconemo/ping-files/
-  ./extract-info-from-ping-files.csh
+# cd ${HOME}/cmorize/shaconemo/ping-files/
+# ./extract-info-from-ping-files.csh
 
 # Step 3: Open the following files:
 ##  nedit ${HOME}/cmorize/shaconemo/ping-files/r256/cmor-varlist-based-on-ping-r256-without-dummy-lines*.txt
@@ -44,7 +44,7 @@ if [ "$#" -eq 0 ]; then
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck --withping --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
