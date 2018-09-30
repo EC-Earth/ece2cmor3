@@ -131,7 +131,7 @@ def execute_netcdf_task(dataset, task):
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
-    if not any(grid_axes):  # Fix for global averages/sums
+    if len(grid_axes) == 0:  # Fix for global averages/sums
         vals = numpy.ma.masked_equal(ncvar[...], missval)
         ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
@@ -250,16 +250,27 @@ def create_type_axes(ds, tasks, table):
                 axis_id = table_type_axes[dim]
             else:
                 axisinfo = extra_axes[dim]
-                if "ncvals" in axisinfo:
-                    axis_values = axisinfo["ncvals"]
-                    axis_unit = axisinfo.get("ncunits", "1")
+                nc_dim_name = axisinfo["ncdim"]
+                if nc_dim_name in ds.dimensions:
+                    ncdim, ncvals = ds.dimensions[nc_dim_name], axisinfo.get("ncvals", [])
+                    if len(ncdim) == len(ncvals):
+                        axis_values, axis_unit = ncvals, axisinfo.get("ncunits", "1")
+                    else:
+                        if any(ncvals):
+                            log.error("Ece2cmor values for extra axis %s, %s, do not match dimension %s length %d found"
+                                      " in file %s, taking values found in file" % (dim, str(ncvals), nc_dim_name,
+                                                                                   len(ncdim), ds.filepath()))
+                        ncvars = [v for v in ds.variables if list(ds.variables[v].dimensions) == [ncdim]]
+                        axis_values, axis_unit = list(range(len(ncdim))), "1"
+                        if any(ncvars):
+                            if len(ncvars) > 1:
+                                log.warning("Multiple axis variables found for dimension %s in file %s, choosing %s" %
+                                            (nc_dim_name, ds.filepath(), ncvars[0]))
+                            axis_values, axis_unit = list(ncvars[0][:]), getattr(ncvars[0], "units", None)
                 else:
-                    ncdim = ds.dimensions[axisinfo["ncdim"]]
-                    ncvars = [v for v in ds.variables if list(v.dimensions) == [ncdim]]
-                    axis_values, axis_unit = list(range(len(ncdim))), "1"
-                    if any(ncvars):
-                        axis_values = list(ncvars[0][:])
-                        axis_unit = getattr(ncvars[0], "units", None)
+                    log.error("Dimension %s could not be found in file %s, inserting using length-one dimension "
+                              "instead" % (nc_dim_name, ds.filepath()))
+                    axis_values, axis_unit = [1], "1"
                 axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
                 table_type_axes[dim] = axis_id
             setattr(task, dim + "_axis", axis_id)
@@ -349,18 +360,8 @@ def write_grid(grid, task):
     ny = grid.lons.shape[1]
     if ny == 1:
         cmor.load_table(table_root_ + "_" + task.target.table + ".json")
-        f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
-        b = numpy.zeros([nx, 2])
-        b[0, 0] = -90.
-        b[1:, 0] = 0.5 * (grid.lats[:-1, 0] + grid.lats[1:, 0])
-        b[:-1, 1] = b[1:nx, 0]
-        b[-1, 1] = 90.
-        return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north", cell_bounds=b)
-        # return cmor.grid(axis_ids=[i_index_id],
-        #                  latitude=grid.lats[:, 0],
-        #                  longitude=grid.lons[:, 0],
-        #                  latitude_vertices=grid.vertex_lats,
-        #                  longitude_vertices=grid.vertex_lons)
+        return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
+                         cell_bounds=grid.vertex_lats)
     cmor.load_table(table_root_ + "_grids.json")
     i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
     j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
@@ -382,7 +383,6 @@ class nemo_grid(object):
         input_lats = lats_
         # Dirty hack for lost precision:
         if input_lats.shape[1] == 1 and input_lats[-1, 0] == input_lats[-2, 0]:
-            print "HOHO", input_lats.shape
             input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
@@ -390,39 +390,39 @@ class nemo_grid(object):
 
     @staticmethod
     def create_vertex_lons(a):
-        nx = a.shape[0]
-        ny = a.shape[1]
+        ny = a.shape[0]
+        nx = a.shape[1]
         f = numpy.vectorize(lambda x: x % 360)
-        if ny == 1:
-            b = numpy.zeros([nx, 2])
-            b[1:nx, 0] = f(0.5 * (a[0:nx - 1, 0] + a[1:nx, 0]))
-            b[0:nx - 1, 1] = b[1:nx, 0]
-            return b
-        b = numpy.zeros([nx, ny, 4])
-        b[1:nx, :, 0] = f(0.5 * (a[0:nx - 1, :] + a[1:nx, :]))
-        b[0, :, 0] = b[nx - 1, :, 0]
-        b[0:nx - 1, :, 1] = b[1:nx, :, 0]
-        b[nx - 1, :, 1] = b[1, :, 1]
+        if nx == 1:  # Longitudes were integrated out
+            return numpy.zeros([ny, 2])
+        b = numpy.zeros([ny, nx, 4])
+        b[:, 1:nx, 0] = f(0.5 * (a[:, 0:nx - 1] + a[:, 1:nx]))
+        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
+        b[:, 0:nx - 1, 1] = b[:, 1:nx, 0]
+        b[:, nx - 1, 1] = f(1.5 * a[:, nx - 1] - 0.5 * a[:, nx - 2])
         b[:, :, 2] = b[:, :, 1]
         b[:, :, 3] = b[:, :, 0]
         return b
 
     @staticmethod
     def create_vertex_lats(a):
-        nx = a.shape[0]
-        ny = a.shape[1]
+        ny = a.shape[0]
+        nx = a.shape[1]
         f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
-        if ny == 1:  # Longitudes were integrated out
-            b = numpy.zeros([nx, 2])
-            b[:, 0] = f(a[:, 0])
-            b[:, 1] = f(a[:, 0])
+        if nx == 1:  # Longitudes were integrated out
+            b = numpy.zeros([ny, 2])
+            b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
+            b[0, 0] = f(2 * a[0, 0] - b[1, 0])
+            b[0:ny - 1, 1] = b[1:ny, 0]
+            b[ny - 1, 1] = f(1.5 * a[ny - 1, 0] - 0.5 * a[ny - 2, 0])
+            print b
             return b
-        b = numpy.zeros([nx, ny, 4])
-        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
-        b[:, 1:ny, 0] = f(0.5 * (a[:, 0:ny - 1] + a[:, 1:ny]))
+        b = numpy.zeros([ny, nx, 4])
+        b[1:ny, :, 0] = f(0.5 * (a[0:ny - 1, :] + a[1:ny, :]))
+        b[0, :, 0] = f(2 * a[0, :] - b[1, :, 0])
         b[:, :, 1] = b[:, :, 0]
-        b[:, 0:ny - 1, 2] = b[:, 1:ny, 0]
-        b[:, ny - 1, 2] = f(1.5 * a[:, ny - 1] - 0.5 * a[:, ny - 2])
+        b[0:ny - 1, :, 2] = b[1:ny, :, 0]
+        b[ny - 1, :, 2] = f(1.5 * a[ny - 1, :] - 0.5 * a[ny - 2, :])
         b[:, :, 3] = b[:, :, 2]
         return b
 
