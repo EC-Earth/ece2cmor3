@@ -112,40 +112,52 @@ def execute(tasks, cleanup=True, nthreads=1):
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
-    grid_descr_file = None
     if auto_filter_:
         tasks_todo = grib_filter.execute(tasks_todo)
-        for t in tasks_todo:
-            if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point:
-                filepaths = getattr(t, cmor_task.filter_output_key, [])
-                if any(filepaths):
-                    grid_descr_file = filepaths[0]
-                    break
     else:
         for task in tasks_todo:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+                setattr(task, cmor_task.output_frequency_key, output_frequency_)
             elif task.source.grid_id() == cmor_source.ifs_grid.spec:
                 setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+                setattr(task, cmor_task.output_frequency_key, output_frequency_)
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
                 task.set_failed()
-            setattr(task, cmor_task.output_frequency_key, output_frequency_)
-        grid_descr_file = ifs_gridpoint_files_.values()[0]
-    log.info("Fetching grid description from %s ..." % grid_descr_file)
-    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(grid_descr_file) if os.path.exists(grid_descr_file) else {}
-    processed_tasks = []
-    try:
-        log.info("Post-processing tasks...")
-        postproc.task_threads = nthreads
-        processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
-        for task in [t for t in processed_tasks if t in mask_tasks]:
-            read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-        cmorize([t for t in processed_tasks if t in supported_tasks], nthreads=nthreads)
-    finally:
-        if cleanup:
-            clean_tmp_data(processed_tasks)
+    log.info("Fetching grid description from %s ..." % ifs_init_gridpoint_file_)
+    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(ifs_init_gridpoint_file_) if \
+        os.path.exists(ifs_init_gridpoint_file_) else {}
+    # First post-process surface pressure and mask tasks
+    for t in mask_tasks + surf_pressure_tasks:
+        postproc.post_process(t, temp_dir_, ifs_grid_descr_)
+    for task in mask_tasks:
+        read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
+    tasks = set(tasks_todo).intersection(regular_tasks)
+    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=ifs_init_gridpoint_file_)
+    pool.map(cmor_worker, tasks)
+
+
+def init_cmor(filepath):
+    global grid_id
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    cmor.load_table(table_root_ + "_grids.json")
+    if grid_id == 0:
+        grid_id = create_grid_from_grib(filepath)
+
+
+# Worker function for parallel cmorization (not working at the present...)
+def cmor_worker(task):
+    log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    postproc.post_process(task, temp_dir_, ifs_grid_descr_)
+
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    define_cmor_axes(task)
+    if task.status != cmor_task.status_failed:
+        execute_netcdf_task(task)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -278,15 +290,6 @@ def get_sp_tasks(tasks):
     return result
 
 
-# Postprocessing of IFS tasks
-def postprocess(tasks):
-    global log, temp_dir_, max_size_, ifs_grid_descr_, surface_pressure
-    log.info("Post-processing %d IFS tasks..." % len(tasks))
-    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_, ifs_grid_descr_)
-    log.info("Post-processed batch of %d tasks." % len(tasks_done))
-    return tasks_done
-
-
 # Finds the surface pressure data source: gives priority to SH file.
 def find_sp_variable(task):
     global ifs_gridpoint_files_, ifs_spectral_files_, surface_pressure, ln_surface_pressure, auto_filter_
@@ -322,49 +325,10 @@ def find_sp_variable(task):
     task.source.grid_ = 0
 
 
-# Do the cmorization tasks
-def cmorize(tasks, nthreads):
-    global log, table_root_
-    log.info("Cmorizing %d IFS tasks..." % len(tasks))
-    if not any(tasks):
-        return
-    skip_status = [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_cmorizing]
-    path = getattr([t for t in tasks if hasattr(t, "path")][0], "path")
-    if nthreads < 1:
-        log.error("Number of available threads %d for cmorization is non-positive: skipping cmor part" % nthreads)
-        return
-    if nthreads == 1:
-        init_cmor(path)
-        for task in tasks:
-            if task.status not in skip_status:
-                cmor_worker(task)
-        return
-    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
-    pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
-
-
 grid_id = 0
 time_axis_ids = {}
 time_axis_bnds = {}
 depth_axis_ids = {}
-
-
-def init_cmor(filepath):
-    global grid_id
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(table_root_ + "_grids.json")
-    if grid_id == 0:
-        grid_id = create_grid_from_grib(filepath)
-
-
-# Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(task):
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
-    define_cmor_axes(task)
-    if task.status == cmor_task.status_failed:
-        return
-    execute_netcdf_task(task)
 
 
 def define_cmor_axes(task):
