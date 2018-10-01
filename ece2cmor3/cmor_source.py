@@ -166,7 +166,6 @@ class ifs_source(cmor_source):
     @classmethod
     def read(cls, s, expr=None):
         global log
-        expr_string = expr
         gc = grib_code.read(s)
         cls = ifs_source(gc)
         if expr is not None:
@@ -178,6 +177,7 @@ class ifs_source(cmor_source):
                 if expr.replace(" ", "").startswith(varstrs[0] + "="):
                     log.warning("Ignoring left-hand side assignment in expression %s" % expr)
                     varstrs = varstrs[1:]
+                    expr_string = '='.join(["var" + str(gc.var_id), expr.split('=')[-1]])
                 else:
                     expr_string = '='.join(["var" + str(gc.var_id), expr])
                 root_codes = []

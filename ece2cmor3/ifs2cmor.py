@@ -29,9 +29,6 @@ ifs_spectral_file_ = None
 surface_pressure = cmor_source.grib_code(134)
 ln_surface_pressure = cmor_source.grib_code(152)
 
-# IFS grid description data
-ifs_grid_descr_ = {}
-
 # Start date of the processed data
 start_date_ = None
 
@@ -56,7 +53,7 @@ masks = {}
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
                outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, \
-        output_interval_, ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
+        output_interval_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -95,22 +92,15 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
 def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
-    global log, start_date_, ifs_grid_descr_
+    global log, start_date_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     surf_pressure_tasks = get_sp_tasks(supported_tasks, autofilter)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
-    grid_descr_file = None
     if autofilter:
         tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
-        for t in tasks_todo:
-            if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point:
-                filepaths = getattr(t, cmor_task.filter_output_key, [])
-                if any(filepaths):
-                    grid_descr_file = filepaths[0]
-                    break
     else:
         for task in tasks_todo:
             grid = getattr(task.source, "grid_")
@@ -123,9 +113,6 @@ def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
                                                                                    task.target.table))
                 task.set_failed()
             setattr(task, cmor_task.output_frequency_key, output_frequency_)
-        grid_descr_file = ifs_gridpoint_file_
-    log.info("Fetching grid description from %s ..." % grid_descr_file)
-    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(grid_descr_file) if os.path.exists(grid_descr_file) else {}
     processed_tasks = []
     try:
         log.info("Post-processing tasks...")
@@ -272,9 +259,9 @@ def get_sp_tasks(tasks, autofilter):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
-    global log, temp_dir_, max_size_, ifs_grid_descr_, surface_pressure
+    global log, temp_dir_, max_size_, surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
-    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_, ifs_grid_descr_)
+    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 

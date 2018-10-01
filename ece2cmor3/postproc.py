@@ -35,15 +35,13 @@ finished_tasks_ = []
 
 
 # Post-processes a list of tasks
-def post_process(tasks, path, max_size_gb=float("inf"), grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
+def post_process(tasks, path, max_size_gb=float("inf")):
     global finished_tasks_, task_threads
     comm_dict = {}
     comm_buf = {}
     max_size = 1000000000. * max_size_gb
     for task in tasks:
-        command = create_command(task, grid_descr)
+        command = create_command(task)
         comm_string = command.create_command()
         if comm_string not in comm_buf:
             comm_buf[comm_string] = command
@@ -95,16 +93,14 @@ def validate_task_list(tasks):
 
 
 # Creates a cdo postprocessing command for the given IFS task.
-def create_command(task, grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
+def create_command(task):
     if not isinstance(task.source, cmor_source.ifs_source):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if hasattr(task, "paths") and len(getattr(task, "paths")) > 1:
         raise Exception("Multiple merged cdo commands are not supported yet")
     result = cdoapi.cdo_command() if hasattr(task.source, cmor_source.expression_key) else cdoapi.cdo_command(
         code=task.source.get_grib_code().var_id)
-    add_grid_operators(result, task, grid_descr)
+    add_grid_operators(result, task)
     add_expr_operators(result, task)
     add_time_operators(result, task)
     add_level_operators(result, task)
@@ -222,14 +218,12 @@ def apply_command(command, task_list, base_path=None):
 
 
 # Adds grid remapping operators to the cdo commands for the given task
-def add_grid_operators(cdo, task, grid_descr):
+def add_grid_operators(cdo, task):
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        gridtype = grid_descr.get("gridtype", "gaussian reduced")
-        if gridtype in ["gaussian reduced", "gaussian_reduced"]:
-            cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
 
 
 # Adds time averaging operators to the cdo command for the given task
