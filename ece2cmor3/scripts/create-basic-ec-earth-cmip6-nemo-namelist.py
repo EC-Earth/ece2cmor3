@@ -440,16 +440,19 @@ check_which_list_elements_are_identical(total_field_def_nemo_id, total_field_def
 # basic identified missing, available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(excel_file):
     import xlrd
-    table_colname       = "Table"                                        # CMOR table name
-    var_colname         = "variable"                                     # CMOR variable name
-    prio_colname        = "prio"                                         # priority of variable
-    dimension_colname   = "Dimension format of variable"                 # 
-    longname_colname    = "variable long name"                           # 
-    link_colname        = "link"                                         # 
-    comment_colname     = "comment"                                      # for the purpose here: this is the model component
-    author_colname      = "comment author"                               # 
-    description_colname = "extensive variable description"               # 
-    miplist_colname     = "list of MIPs which request this variable"     # 
+    table_colname           = "Table"                                        # CMOR table name
+    var_colname             = "variable"                                     # CMOR variable name
+    prio_colname            = "prio"                                         # priority of variable
+    dimension_colname       = "Dimension format of variable"                 #
+    longname_colname        = "variable long name"                           #
+    link_colname            = "link"                                         #
+    comment_colname         = "comment"                                      #
+    author_colname          = "comment author"                               #
+    description_colname     = "extensive variable description"               #
+    miplist_colname         = "list of MIPs which request this variable"     #
+    model_component_colname = "model component in ping file"                 # The source of this data are the ping files
+    ping_units_colname      = "units as in ping file"                        # The source of this data are the ping files
+    ping_comment_colname    = "ping file comment"                            # The source of this data are the ping files
 
     book = xlrd.open_workbook(excel_file)
     for sheetname in book.sheet_names():
@@ -458,22 +461,25 @@ def load_checkvars_excel(excel_file):
         sheet = book.sheet_by_name(sheetname)
         header = sheet.row_values(0)
         coldict = {}
-        for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, link_colname, comment_colname, description_colname, miplist_colname]:
+        for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
             if colname not in header:
               print " Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n"
               quit()
             coldict[colname] = header.index(colname)
         nr_of_header_lines = 2
-        tablenames   = [c.value for c in sheet.col_slice(colx=coldict[table_colname      ], start_rowx = nr_of_header_lines)]
-        varnames     = [c.value for c in sheet.col_slice(colx=coldict[var_colname        ], start_rowx = nr_of_header_lines)]
-        varpriority  = [c.value for c in sheet.col_slice(colx=coldict[prio_colname       ], start_rowx = nr_of_header_lines)]
-        vardimension = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname  ], start_rowx = nr_of_header_lines)]
-        varlongname  = [c.value for c in sheet.col_slice(colx=coldict[longname_colname   ], start_rowx = nr_of_header_lines)]
-        weblink      = [c.value for c in sheet.col_slice(colx=coldict[link_colname       ], start_rowx = nr_of_header_lines)]
-        comments     = [c.value for c in sheet.col_slice(colx=coldict[comment_colname    ], start_rowx = nr_of_header_lines)]
-        description  = [c.value for c in sheet.col_slice(colx=coldict[description_colname], start_rowx = nr_of_header_lines)]
-        miplist      = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname    ], start_rowx = nr_of_header_lines)]
-    return tablenames, varnames, varpriority, vardimension, varlongname, weblink, comments, description, miplist
+        tablenames      = [c.value for c in sheet.col_slice(colx=coldict[table_colname          ], start_rowx = nr_of_header_lines)]
+        varnames        = [c.value for c in sheet.col_slice(colx=coldict[var_colname            ], start_rowx = nr_of_header_lines)]
+        varpriority     = [c.value for c in sheet.col_slice(colx=coldict[prio_colname           ], start_rowx = nr_of_header_lines)]
+        vardimension    = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname      ], start_rowx = nr_of_header_lines)]
+        varlongname     = [c.value for c in sheet.col_slice(colx=coldict[longname_colname       ], start_rowx = nr_of_header_lines)]
+        weblink         = [c.value for c in sheet.col_slice(colx=coldict[link_colname           ], start_rowx = nr_of_header_lines)]
+        comments        = [c.value for c in sheet.col_slice(colx=coldict[comment_colname        ], start_rowx = nr_of_header_lines)]
+        description     = [c.value for c in sheet.col_slice(colx=coldict[description_colname    ], start_rowx = nr_of_header_lines)]
+        miplist         = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname        ], start_rowx = nr_of_header_lines)]
+        model_component = [c.value for c in sheet.col_slice(colx=coldict[model_component_colname], start_rowx = nr_of_header_lines)]
+        ping_units      = [c.value for c in sheet.col_slice(colx=coldict[ping_units_colname     ], start_rowx = nr_of_header_lines)]
+        ping_comment    = [c.value for c in sheet.col_slice(colx=coldict[ping_comment_colname   ], start_rowx = nr_of_header_lines)]
+    return tablenames, varnames, varpriority, vardimension, varlongname, weblink, comments, description, miplist, model_component, ping_units, ping_comment
 
 
 if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
@@ -482,7 +488,7 @@ if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False:
  sys.exit(' stop')
 
 # Read the excel file with the NEMO data request:
-dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_ping_component, dr_description, dr_miplist = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
+dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
 
 #print dr_miplist[0]
 
