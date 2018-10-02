@@ -193,7 +193,8 @@
     },
     {
         "source": "msftyz",
-        "target": "msftyz"
+        "target": "msftyz",
+        "convert": "sv2kgps"
     },
     {
         "source": "obvfsq",

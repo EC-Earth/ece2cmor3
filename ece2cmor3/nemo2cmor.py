@@ -85,6 +85,9 @@ def execute(tasks):
             if table not in depth_axes_:
                 log.info("Creating depth axes for table %s from data in %s ..." % (table, filename))
             create_depth_axes(dataset, task_list, table)
+            if table not in type_axes_:
+                log.info("Creating extra axes for table %s from data in %s ..." % (table, filename))
+            create_type_axes(dataset, task_list, table)
             for task in task_list:
                 execute_netcdf_task(dataset, task)
         dataset.close()
@@ -121,14 +124,14 @@ def execute_netcdf_task(dataset, task):
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
     t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
-    axes = grid_axes + z_axes + t_axes
-    for type_axis in type_axes_:
-        if type_axis in getattr(task.target, cmor_target.dims_key):
-            axes.append(type_axes_[type_axis])
+    type_axes = [getattr(task, dim + "_axis") for dim in type_axes_.get(task.target.table, {}).keys() if
+                 hasattr(task, dim + "_axis")]
+    #TODO: Read axes order from netcdf file!
+    axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
-    if not any(grid_axes):  # Fix for global averages/sums
+    if len(grid_axes) == 0:  # Fix for global averages/sums
         vals = numpy.ma.masked_equal(ncvar[...], missval)
         ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
@@ -157,6 +160,8 @@ def get_conversion_constants(conversion):
         return 1.0, -273.15
     if conversion == "degC2K":
         return 1.0, 273.15
+    if conversion == "sv2kgps":
+        return 1.e+9, 0.
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0, 0.0
 
@@ -181,8 +186,8 @@ def create_depth_axes(ds, tasks, table):
     global depth_axes_
     if table not in depth_axes_:
         depth_axes_[table] = {}
-    table_depth_axes = time_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y", "typesi"]
+    table_depth_axes = depth_axes_[table]
+    other_nc_axes = ["time_counter", "x", "y", "typesi", "3basin"]
     for task in tasks:
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
@@ -228,9 +233,48 @@ def create_time_axes(ds, tasks, table):
     return table_time_axes
 
 
-def create_type_axes():
+extra_axes = {"basin": {"ncdim": "3basin",
+                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
+              "typesi": {"ncdim": "ncatice"}}
+
+
+def create_type_axes(ds, tasks, table):
     global type_axes_
-    type_axes_["typesi"] = cmor.axis(table_entry="typesi", coord_vals=[1])
+    if table not in type_axes_:
+        type_axes_[table] = {}
+    table_type_axes = type_axes_[table]
+    for task in tasks:
+        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
+        for dim in tgtdims:
+            if dim in table_type_axes:
+                axis_id = table_type_axes[dim]
+            else:
+                axisinfo = extra_axes[dim]
+                nc_dim_name = axisinfo["ncdim"]
+                if nc_dim_name in ds.dimensions:
+                    ncdim, ncvals = ds.dimensions[nc_dim_name], axisinfo.get("ncvals", [])
+                    if len(ncdim) == len(ncvals):
+                        axis_values, axis_unit = ncvals, axisinfo.get("ncunits", "1")
+                    else:
+                        if any(ncvals):
+                            log.error("Ece2cmor values for extra axis %s, %s, do not match dimension %s length %d found"
+                                      " in file %s, taking values found in file" % (dim, str(ncvals), nc_dim_name,
+                                                                                   len(ncdim), ds.filepath()))
+                        ncvars = [v for v in ds.variables if list(ds.variables[v].dimensions) == [ncdim]]
+                        axis_values, axis_unit = list(range(len(ncdim))), "1"
+                        if any(ncvars):
+                            if len(ncvars) > 1:
+                                log.warning("Multiple axis variables found for dimension %s in file %s, choosing %s" %
+                                            (nc_dim_name, ds.filepath(), ncvars[0]))
+                            axis_values, axis_unit = list(ncvars[0][:]), getattr(ncvars[0], "units", None)
+                else:
+                    log.error("Dimension %s could not be found in file %s, inserting using length-one dimension "
+                              "instead" % (nc_dim_name, ds.filepath()))
+                    axis_values, axis_unit = [1], "1"
+                axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
+                table_type_axes[dim] = axis_id
+            setattr(task, dim + "_axis", axis_id)
+    return table_type_axes
 
 
 # Selects files with data with the given frequency
@@ -281,13 +325,12 @@ def read_calendar(ncfile):
 # Reads all the NEMO grid data from the input files.
 def create_grids(tasks):
     global grid_ids_
-    cmor.load_table(table_root_ + "_grids.json")
     task_groups = cmor_utils.group(tasks, lambda t: getattr(t, cmor_task.output_path_key, None))
     for filename, task_list in task_groups.iteritems():
         if filename is not None:
             grid = read_grid(filename)
             if grid is not None:
-                grid_id = write_grid(grid)
+                grid_id = write_grid(grid, task_list[0])
                 grid_ids_[grid.name] = grid_id
                 for task in task_list:
                     setattr(task, "grid_id", grid_id)
@@ -312,17 +355,16 @@ def read_grid(ncfile):
 
 
 # Transfers the grid to cmor.
-def write_grid(grid):
+def write_grid(grid, task):
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
+    if ny == 1:
+        cmor.load_table(table_root_ + "_" + task.target.table + ".json")
+        return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
+                         cell_bounds=grid.vertex_lats)
+    cmor.load_table(table_root_ + "_grids.json")
     i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
     j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    if ny == 1:
-        return cmor.grid(axis_ids=[i_index_id],
-                         latitude=grid.lats[:, 0],
-                         longitude=grid.lons[:, 0],
-                         latitude_vertices=grid.vertex_lats,
-                         longitude_vertices=grid.vertex_lons)
     return cmor.grid(axis_ids=[i_index_id, j_index_id],
                      latitude=grid.lats,
                      longitude=grid.lons,
@@ -338,45 +380,48 @@ class nemo_grid(object):
         flon = numpy.vectorize(lambda x: x % 360)
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))
-        self.lats = flat(lats_)
+        input_lats = lats_
+        # Dirty hack for lost precision:
+        if input_lats.shape[1] == 1 and input_lats[-1, 0] == input_lats[-2, 0]:
+            input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
+        self.lats = flat(input_lats)
         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
-        self.vertex_lats = nemo_grid.create_vertex_lats(lats_)
+        self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
 
     @staticmethod
     def create_vertex_lons(a):
-        nx = a.shape[0]
-        ny = a.shape[1]
+        ny = a.shape[0]
+        nx = a.shape[1]
         f = numpy.vectorize(lambda x: x % 360)
-        if ny == 1:
-            b = numpy.zeros([nx, 2])
-            b[1:nx, 0] = f(0.5 * (a[0:nx - 1, 0] + a[1:nx, 0]))
-            b[0:nx - 1, 1] = b[1:nx, 1]
-            return b
-        b = numpy.zeros([nx, ny, 4])
-        b[1:nx, :, 0] = f(0.5 * (a[0:nx - 1, :] + a[1:nx, :]))
-        b[0, :, 0] = b[nx - 1, :, 0]
-        b[0:nx - 1, :, 1] = b[1:nx, :, 0]
-        b[nx - 1, :, 1] = b[1, :, 1]
+        if nx == 1:  # Longitudes were integrated out
+            return numpy.zeros([ny, 2])
+        b = numpy.zeros([ny, nx, 4])
+        b[:, 1:nx, 0] = f(0.5 * (a[:, 0:nx - 1] + a[:, 1:nx]))
+        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
+        b[:, 0:nx - 1, 1] = b[:, 1:nx, 0]
+        b[:, nx - 1, 1] = f(1.5 * a[:, nx - 1] - 0.5 * a[:, nx - 2])
         b[:, :, 2] = b[:, :, 1]
         b[:, :, 3] = b[:, :, 0]
         return b
 
     @staticmethod
     def create_vertex_lats(a):
-        nx = a.shape[0]
-        ny = a.shape[1]
+        ny = a.shape[0]
+        nx = a.shape[1]
         f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
-        if ny == 1:  # Longitudes were integrated out
-            b = numpy.zeros([nx, 2])
-            b[:, 0] = f(a[:, 0])
-            b[:, 1] = f(a[:, 0])
+        if nx == 1:  # Longitudes were integrated out
+            b = numpy.zeros([ny, 2])
+            b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
+            b[0, 0] = f(2 * a[0, 0] - b[1, 0])
+            b[0:ny - 1, 1] = b[1:ny, 0]
+            b[ny - 1, 1] = f(1.5 * a[ny - 1, 0] - 0.5 * a[ny - 2, 0])
             return b
-        b = numpy.zeros([nx, ny, 4])
-        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
-        b[:, 1:ny, 0] = f(0.5 * (a[:, 0:ny - 1] + a[:, 1:ny]))
+        b = numpy.zeros([ny, nx, 4])
+        b[1:ny, :, 0] = f(0.5 * (a[0:ny - 1, :] + a[1:ny, :]))
+        b[0, :, 0] = f(2 * a[0, :] - b[1, :, 0])
         b[:, :, 1] = b[:, :, 0]
-        b[:, 0:ny - 1, 2] = b[:, 1:ny, 0]
-        b[:, ny - 1, 2] = f(1.5 * a[:, ny - 1] - 0.5 * a[:, ny - 2])
+        b[0:ny - 1, :, 2] = b[1:ny, :, 0]
+        b[ny - 1, :, 2] = f(1.5 * a[ny - 1, :] - 0.5 * a[ny - 2, :])
         b[:, :, 3] = b[:, :, 2]
         return b
 
