@@ -1,0 +1,52 @@
+{
+    "outpath":                      "./cmor/cmor-CMIP-piControl",
+
+    "activity_id":                  "CMIP",
+    "experiment_id":                "piControl",
+    "source_id":                    "EC-Earth3",
+    "#source":                       "EC-Earth3-HR 3.3",
+    "source_type":                  "AOGCM",
+    "grid":                         "T511-ORCA025",  # model configuration but take off the ocean grid label for AMIP experiments
+    "grid_label":                   "gr",            # model component dependent
+    "nominal_resolution":           "50 km",         # model component dependent
+    "frequency":                    "3hr",           # based on file name or data request differs per variable
+
+    "sub_experiment":               "none",          # "none" except for DCPP hindcasts and forecasts
+    "sub_experiment_id":            "none",          # "none" except for DCPP where it is ?s1960?, ?s1965?, etc
+
+    "realization_index":            "1",
+    "initialization_index":         "1",
+    "physics_index":                "1",
+    "forcing_index":                "1",
+    "#variant_label":                "r1i1:p1:f1",
+    "#variant_info":                "uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)",
+
+    "parent_activity_id":           "CMIP",
+    "parent_experiment_id":         "piControl-spinup",
+    "parent_source_id":             "EC-Earth3",
+    "parent_time_units":            "days since 1750-01-01",
+    "parent_variant_label":         "r1i1p1f1",
+
+    "branch_method":                "none provided",
+    "branch_time":                  "0.0D",
+    "branch_time_in_child":         "0.0D",
+    "branch_time_in_parent":        "0.0D",
+
+    "comment":                      "",
+    "history":                      "",
+
+
+    "product":                      "model-output",
+
+    "_control_vocabulary_file":     "CMIP6_CV.json",
+    "_cmip6_option":                "CMIP6",
+    "mip_era":                      "CMIP6",
+    "parent_mip_era":               "CMIP6",
+
+    "license":                      "CMIP6 model data produced by EC-Earth-Consortium is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (https://creativecommons.org/licenses). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file) and at http://www.ec-earth.org. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.",
+    "data_specs_version":           "01.00.27",              # can be done automatically
+    "tracking_prefix":              "hdl:21.14100",
+
+    "#institution_id":               "EC-Earth-Consortium",
+    "contact":                      "cmip6-results@ec-earth.org"     # mail address has to be confirmed
+}
