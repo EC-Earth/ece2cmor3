@@ -22,7 +22,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- cmor=2018.08.16.master.npy1.14=py27h9ac9557_0   # Depends on libnetcdf >=4.6 and hdf5 >=1.10, python >=2.7,<2.8
+- cmor=2018.09.19.master.npy1.14=py27h9ac9557_0   # Depends on libnetcdf >=4.6 and hdf5 >=1.10, python >=2.7,<2.8
 - cdo=1.9.3
 - python-cdo
 - python-eccodes=2.8.0
