@@ -398,6 +398,7 @@ def check_all_list_elements_are_identical(iterator):
 get_indices = lambda x, xs: [i for (y, i) in zip(xs, range(len(xs))) if x == y]
 
 def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribute_2):
+    list_of_duplicate_variables = []
     for child in list_of_attribute_1:
      indices_identical_ids = get_indices(child, list_of_attribute_1)
     #print len(indices_identical_ids), indices_identical_ids
@@ -410,12 +411,15 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
      if not check_all_list_elements_are_identical(id_list)      : print ' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list
      if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
      if message_occurence_identical_id and len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+     if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
+    return list(set(list_of_duplicate_variables))
 
-#check_which_list_elements_are_identical(field_def_nemo_opa_id      , field_def_nemo_opa_grid_ref      )
-#check_which_list_elements_are_identical(field_def_nemo_lim_id      , field_def_nemo_lim_grid_ref      )
-#check_which_list_elements_are_identical(field_def_nemo_pisces_id   , field_def_nemo_pisces_grid_ref   )
-#check_which_list_elements_are_identical(field_def_nemo_inerttrc_id , field_def_nemo_inerttrc_grid_ref )
-check_which_list_elements_are_identical(total_field_def_nemo_id, total_field_def_nemo_grid_ref)
+#vars_with_duplicate_id_definition_nemo_opa      = check_which_list_elements_are_identical(field_def_nemo_opa_id      , field_def_nemo_opa_grid_ref      )
+#vars_with_duplicate_id_definition_nemo_lim      = check_which_list_elements_are_identical(field_def_nemo_lim_id      , field_def_nemo_lim_grid_ref      )
+#vars_with_duplicate_id_definition_nemo_pisces   = check_which_list_elements_are_identical(field_def_nemo_pisces_id   , field_def_nemo_pisces_grid_ref   )
+#vars_with_duplicate_id_definition_nemo_inerttrc = check_which_list_elements_are_identical(field_def_nemo_inerttrc_id , field_def_nemo_inerttrc_grid_ref )
+vars_with_duplicate_id_definition_total         = check_which_list_elements_are_identical(total_field_def_nemo_id    , total_field_def_nemo_grid_ref    )
+#print vars_with_duplicate_id_definition_total
 
 #x = [ 'w', 'e', 's', 's', 's', 'z','z', 's']
 #print [i for i, n in enumerate(x) if n == 's']
@@ -600,6 +604,7 @@ for i in range(0, len(dr_varname)):
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
+  if dr_varname[i] in vars_with_duplicate_id_definition_total: print ' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i]
 
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
