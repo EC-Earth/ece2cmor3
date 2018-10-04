@@ -447,13 +447,14 @@ def load_checkvars_excel(excel_file):
     table_colname           = "Table"                                        # CMOR table name
     var_colname             = "variable"                                     # CMOR variable name
     prio_colname            = "prio"                                         # priority of variable
-    dimension_colname       = "Dimension format of variable"                 #
-    longname_colname        = "variable long name"                           #
-    link_colname            = "link"                                         #
-    comment_colname         = "comment"                                      #
-    author_colname          = "comment author"                               #
-    description_colname     = "extensive variable description"               #
-    miplist_colname         = "list of MIPs which request this variable"     #
+    dimension_colname       = "Dimension format of variable"                 # Dimension format of variable according to the data request
+    longname_colname        = "variable long name"                           # Variable long name according to the data request
+    unit_colname            = "unit"                                         # Unit according to the data request
+    link_colname            = "link"                                         # Link provided by the data request
+    comment_colname         = "comment"                                      # Identification comment by EC-Earth members
+    author_colname          = "comment author"                               # Author(s) of the identification comment
+    description_colname     = "extensive variable description"               # Description according to the data request
+    miplist_colname         = "list of MIPs which request this variable"     # List of MIPs which request this variable in the data request
     model_component_colname = "model component in ping file"                 # The source of this data are the ping files
     ping_units_colname      = "units as in ping file"                        # The source of this data are the ping files
     ping_comment_colname    = "ping file comment"                            # The source of this data are the ping files
@@ -465,7 +466,7 @@ def load_checkvars_excel(excel_file):
         sheet = book.sheet_by_name(sheetname)
         header = sheet.row_values(0)
         coldict = {}
-        for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
+        for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, unit_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
             if colname not in header:
               print " Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n"
               quit()
@@ -476,6 +477,7 @@ def load_checkvars_excel(excel_file):
         varpriority     = [c.value for c in sheet.col_slice(colx=coldict[prio_colname           ], start_rowx = nr_of_header_lines)]
         vardimension    = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname      ], start_rowx = nr_of_header_lines)]
         varlongname     = [c.value for c in sheet.col_slice(colx=coldict[longname_colname       ], start_rowx = nr_of_header_lines)]
+        varunit         = [c.value for c in sheet.col_slice(colx=coldict[unit_colname           ], start_rowx = nr_of_header_lines)]
         weblink         = [c.value for c in sheet.col_slice(colx=coldict[link_colname           ], start_rowx = nr_of_header_lines)]
         comments        = [c.value for c in sheet.col_slice(colx=coldict[comment_colname        ], start_rowx = nr_of_header_lines)]
         description     = [c.value for c in sheet.col_slice(colx=coldict[description_colname    ], start_rowx = nr_of_header_lines)]
@@ -483,7 +485,7 @@ def load_checkvars_excel(excel_file):
         model_component = [c.value for c in sheet.col_slice(colx=coldict[model_component_colname], start_rowx = nr_of_header_lines)]
         ping_units      = [c.value for c in sheet.col_slice(colx=coldict[ping_units_colname     ], start_rowx = nr_of_header_lines)]
         ping_comment    = [c.value for c in sheet.col_slice(colx=coldict[ping_comment_colname   ], start_rowx = nr_of_header_lines)]
-    return tablenames, varnames, varpriority, vardimension, varlongname, weblink, comments, description, miplist, model_component, ping_units, ping_comment
+    return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
 
 
 if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
@@ -492,7 +494,7 @@ if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False:
  sys.exit(' stop')
 
 # Read the excel file with the NEMO data request:
-dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
+dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_unit, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
 
 #print dr_miplist[0]
 
@@ -773,7 +775,6 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 #  Check: Does the most general file contain all tier, prio = 3 and include all ping dummy variables?
 #  Check for name attribute occurence in case the id attribute is available in element definition, if occuring: any action?
 #  Add header to file_def containing: source of column data, instruction and idea of file
-#  Actually the units of the data request should be added in the excel files, and then the dr_unit should also be included in the xml file.
 #  Generate the dummy latest data request based ping files. And also the ones with the merged Shaconemo content.
 #  Read also the ping comment, use np.genfromtxt for that.
 
@@ -784,6 +785,7 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 #  Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element? DONE
 #  Add script which reads ping file xml files and write the nemo only pre basic xmls file. DONE (within this script)
 #  Does the added field_def_nemo-inerttrc.xml for pisces need any additional action? DONE (not realy, just include it)
+#  Actually the units of the data request should be added in the excel files, and then the dr_unit should also be included in the xml file. DONE
 #  Add link from dr TRIED (rejected, too much effort due to string conversion.)
 #  Check whether the xml field_def text, which contains the arithmetic expression, is consistent with the expression given in the ping files. DONE, i.e. this data is added in fdf_expression attribute
 # 'standard_name' in the field_def files can be ignored, right? Yes, omit.
