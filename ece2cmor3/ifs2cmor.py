@@ -63,6 +63,7 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     ref_date_ = refdate
 
     datafiles = select_files(path, exp_name_, start, length)
+
     gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG") and
                not os.path.basename(f).endswith("+000000")]
     shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH") and

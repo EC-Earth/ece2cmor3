@@ -339,6 +339,7 @@ def create_grids(tasks):
 # Reads a particular NEMO grid from the given input file.
 def read_grid(ncfile):
     ds = None
+    name = ""
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
         name = getattr(ds.variables["nav_lon"], "nav_model", cmor_utils.get_nemo_grid(ncfile, exp_name_))
