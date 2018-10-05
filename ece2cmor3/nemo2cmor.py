@@ -331,9 +331,10 @@ def create_grids(tasks):
             grid = read_grid(filename)
             if grid is not None:
                 grid_id = write_grid(grid, task_list[0])
-                grid_ids_[grid.name] = grid_id
-                for task in task_list:
-                    setattr(task, "grid_id", grid_id)
+                if grid_id != 0:
+                    grid_ids_[grid.name] = grid_id
+                    for task in task_list:
+                        setattr(task, "grid_id", grid_id)
 
 
 # Reads a particular NEMO grid from the given input file.
@@ -360,6 +361,8 @@ def write_grid(grid, task):
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
     if ny == 1:
+        if nx == 1:
+            return 0
         cmor.load_table(table_root_ + "_" + task.target.table + ".json")
         return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
                          cell_bounds=grid.vertex_lats)
@@ -382,9 +385,10 @@ class nemo_grid(object):
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))
         input_lats = lats_
-        # Dirty hack for lost precision:
-        if input_lats.shape[1] == 1 and input_lats[-1, 0] == input_lats[-2, 0]:
-            input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
+        # Dirty hack for lost precision in zonal grids:
+        if input_lats.shape[1] == 1:
+            if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
+                input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
         self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
@@ -395,6 +399,8 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: x % 360)
         if nx == 1:  # Longitudes were integrated out
+            if nx == 1:
+                return f(numpy.array([a[0, 0]]))
             return numpy.zeros([ny, 2])
         b = numpy.zeros([ny, nx, 4])
         b[:, 1:nx, 0] = f(0.5 * (a[:, 0:nx - 1] + a[:, 1:nx]))
@@ -411,6 +417,8 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         if nx == 1:  # Longitudes were integrated out
+            if nx == 1:
+                return f(numpy.array([a[0, 0]]))
             b = numpy.zeros([ny, 2])
             b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
             b[0, 0] = f(2 * a[0, 0] - b[1, 0])
