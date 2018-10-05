@@ -33,7 +33,8 @@ lpjg_path_ = None
 ncpath_ = None
 ncpath_created_ = False
 
-gridfile_ = "ece2cmor3/resources/ingrid_T255_unstructured.txt"
+gridfile_ = os.path.join(os.path.dirname(__file__), "resources", "ingrid_T255_unstructured.txt")
+
 
 #list of requested entries for the land use axis
 landuse_requested_ = []
@@ -568,7 +569,7 @@ def create_vegtype_axis(task, lpjgfile, freq):
 
 #Creates a cmor sdepth axis
 def create_sdepth_axis(task, lpjgfile, freq):
-
+    log.info("Creating depth axis using file %s..." % lpjgfile)
     with open(lpjgfile) as f:
         header = next(f).split()
         if freq.startswith("yr"):
