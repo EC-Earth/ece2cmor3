@@ -51,7 +51,7 @@ for mip in dq.coll['mip'].items:
            os.system(command)
            os.system(command_2)
            os.system(command_3)
-           os.system(command_4) # Just set the toce fields false again because we still face troubles with them
+          #os.system(command_4) # Just set the toce fields false again because we still face troubles with them
            os.system(command_5) # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
            experiment_counter = experiment_counter + 1
         else:
