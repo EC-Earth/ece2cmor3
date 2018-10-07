@@ -31,10 +31,8 @@ output_frequency_ = 3
 
 
 # Post-processes a task
-def post_process(task, path, grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
-    command = get_command(task, grid_descr)
+def post_process(task, path):
+    command = create_command(task)
     output_file_name = task.target.variable + "_" + task.target.table + ".nc"
     output_path = os.path.join(path, output_file_name) if path else None
     filepath = apply_command(command, task, output_path)
@@ -42,17 +40,25 @@ def post_process(task, path, grid_descr=None):
         setattr(task, cmor_task.output_path_key, filepath)
 
 
+# Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
+def validate_task_list(tasks):
+    global log
+    freqset = set(map(lambda t: cmor_target.get_freq(t.target), tasks))
+    if len(freqset) != 1:
+        log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
+        return False
+    return True
+
+
 # Creates a cdo postprocessing command for the given IFS task.
-def get_command(task, grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
+def create_command(task):
     if not isinstance(task.source, cmor_source.ifs_source):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if hasattr(task, "paths") and len(getattr(task, "paths")) > 1:
         raise Exception("Multiple merged cdo commands are not supported yet")
     result = cdoapi.cdo_command() if hasattr(task.source, cmor_source.expression_key) else cdoapi.cdo_command(
         code=task.source.get_grib_code().var_id)
-    add_grid_operators(result, task, grid_descr)
+    add_grid_operators(result, task)
     add_expr_operators(result, task)
     add_time_operators(result, task)
     add_level_operators(result, task)
@@ -142,14 +148,12 @@ def add_expr_operators(cdo, task):
 
 
 # Adds grid remapping operators to the cdo commands for the given task
-def add_grid_operators(cdo, task, grid_descr):
+def add_grid_operators(cdo, task):
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        gridtype = grid_descr.get("gridtype", "gaussian reduced")
-        if gridtype in ["gaussian reduced", "gaussian_reduced"]:
-            cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
 
 
 # Adds time averaging operators to the cdo command for the given task

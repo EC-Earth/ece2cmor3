@@ -29,9 +29,6 @@ ifs_init_gridpoint_file_ = None
 surface_pressure = cmor_source.grib_code(134)
 ln_surface_pressure = cmor_source.grib_code(152)
 
-# IFS grid description data
-ifs_grid_descr_ = {}
-
 # Start date of the processed data
 start_date_ = None
 
@@ -56,7 +53,7 @@ masks = {}
 def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, tempdir=None, maxsizegb=float("inf"),
                autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
-        ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_, auto_filter_
+        temp_dir_, max_size_, ref_date_, start_date_, output_frequency_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -126,12 +123,9 @@ def execute(tasks, cleanup=True, nthreads=1):
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
                 task.set_failed()
-    log.info("Fetching grid description from %s ..." % ifs_init_gridpoint_file_)
-    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(ifs_init_gridpoint_file_) if \
-        os.path.exists(ifs_init_gridpoint_file_) else {}
     # First post-process surface pressure and mask tasks
     for t in mask_tasks + surf_pressure_tasks:
-        postproc.post_process(t, temp_dir_, ifs_grid_descr_)
+        postproc.post_process(t, temp_dir_)
     for task in mask_tasks:
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     tasks = set(tasks_todo).intersection(regular_tasks)
@@ -151,7 +145,7 @@ def init_cmor(filepath):
 def cmor_worker(task):
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
-    postproc.post_process(task, temp_dir_, ifs_grid_descr_)
+    postproc.post_process(task, temp_dir_)
 
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))

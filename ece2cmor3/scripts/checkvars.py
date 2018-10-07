@@ -53,7 +53,7 @@ def write_varlist_excel(targets,opath,with_pingfile):
     worksheet.set_column('K:K', 80)  # Adjust the column width of column J
     if with_pingfile:
      worksheet.set_column('L:L', 28) # Adjust the column width of column L
-     worksheet.set_column('M:M', 15) # Adjust the column width of column M
+     worksheet.set_column('M:M', 17) # Adjust the column width of column M
      worksheet.set_column('N:N',100) # Adjust the column width of column N
 
     bold = workbook.add_format({'bold': True})   # Add a bold format
@@ -71,7 +71,7 @@ def write_varlist_excel(targets,opath,with_pingfile):
     worksheet.write(0,10, 'list of MIPs which request this variable', bold)
     if with_pingfile:
      worksheet.write(0,11, 'model component in ping file', bold)
-     worksheet.write(0,12, 'ping file units', bold)
+     worksheet.write(0,12, 'units as in ping file', bold)
      worksheet.write(0,13, 'ping file comment', bold)
 
     row_counter = 1
