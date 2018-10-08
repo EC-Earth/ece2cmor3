@@ -102,7 +102,7 @@ def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, t
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
 def execute(tasks, cleanup=True, nthreads=1):
-    global log, start_date_, ifs_grid_descr_, auto_filter_
+    global log, start_date_, auto_filter_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
