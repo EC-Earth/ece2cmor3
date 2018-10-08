@@ -49,8 +49,8 @@ for mip in dq.coll['mip'].items:
        #if ex.tier[0] == experiment_tiers_included and mip.label in ec_earth_mips and ex.label == 'piControl':  # for basic test
         if ex.tier[0] == experiment_tiers_included and mip.label in ec_earth_mips: 
            os.system(command)
-           os.system(command_2)
-           os.system(command_3)
+           os.system(command_2) # Remove the file_def-compact subdirectory with the compact file_def files
+           os.system(command_3) # Remove the cmip6-file_def_nemo.xml file
           #os.system(command_4) # Just set the toce fields false again because we still face troubles with them
           #os.system(command_5) # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
            experiment_counter = experiment_counter + 1
