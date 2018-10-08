@@ -120,7 +120,7 @@ def write_ppt_files(tasks):
         if any(mfp3dfs):
             namelist["NFP3DFS"] = len(mfp3dfs)
             namelist["MFP3DFS"] = mfp3dfs
-            namelist["NRFP3S"] = -1
+            namelist["NRFP3S"] = -99            # To include all model levels use magic number -99. To exclude all model levels use magic number -1.
         if any(mfp3dfp):
             namelist["NFP3DFP"] = len(mfp3dfp)
             namelist["MFP3DFP"] = mfp3dfp
