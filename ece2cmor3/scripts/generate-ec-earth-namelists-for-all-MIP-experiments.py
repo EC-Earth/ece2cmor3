@@ -61,3 +61,10 @@ for mip in dq.coll['mip'].items:
 
 
 print ' There are {} experiments included. '.format(experiment_counter)
+
+# Add a test case with which all available variables over all EC-Earth MIP experiments are switched on,
+# i.e. are enabled in the file_def files:
+command_a = "cp -r cmip6-output-control-files/CMIP/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-mips/"
+command_b = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' cmip6-output-control-files/test-all-mips/file_def_nemo-*"
+os.system(command_a)
+os.system(command_b)
