@@ -599,6 +599,11 @@ for i in range(0, len(dr_varname)):
    test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
   var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
+  # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
+  if dr_table[i] in ["SImon", "SIday"] and dr_ping_component[i] != 'lim': 
+   print ' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".'
+   dr_ping_component[i] = "lim"
+
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
   #                                                                                                                                                                                                                                                          41,                         25,                                                               40,       32,                      20,                  15,                          60,    25,                                30,                                       30,           30,                                              17,                                50,                        15,                                      22,                              14,                            115,                                       125,                                                              1030,                                                                                    480,    80,                                                          80,     4,                                      60,          10,   {}))
