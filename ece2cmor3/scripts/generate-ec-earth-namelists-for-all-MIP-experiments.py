@@ -66,5 +66,7 @@ print ' There are {} experiments included. '.format(experiment_counter)
 # i.e. are enabled in the file_def files:
 command_a = "cp -r cmip6-output-control-files/CMIP/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-mips/"
 command_b = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' cmip6-output-control-files/test-all-mips/file_def_nemo-*"
-os.system(command_a)
-os.system(command_b)
+command_c = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/test-all-mips/file_def_nemo-*"
+os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files
+os.system(command_b) # Switch on all available variables in the file_def files
+os.system(command_c) # Switch of the 'transect' variables (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
