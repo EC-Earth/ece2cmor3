@@ -193,8 +193,7 @@
     },
     {
         "source": "msftyz",
-        "target": "msftyz",
-        "convert": "sv2kgps"
+        "target": "msftyz"
     },
     {
         "source": "obvfsq",
@@ -977,7 +976,7 @@
         "target": "sisnthick"
     },
     {
-        "source": "sivelo",
+        "source": "sispeed",
         "target": "sispeed"
     },
     {
@@ -1013,11 +1012,11 @@
         "target": "sitempsnic"
     },
     {
-        "source": "sitemp",
+        "source": "sitemptop",
         "target": "sitemptop"
     },
     {
-        "source": "sithic",
+        "source": "sithick",
         "target": "sithick"
     },
     {
@@ -1025,15 +1024,15 @@
         "target": "sitimefrac"
     },
     {
-        "source": "sivelu",
+        "source": "siu",
         "target": "siu"
     },
     {
-        "source": "sivelv",
+        "source": "siv",
         "target": "siv"
     },
     {
-        "source": "sivolu",
+        "source": "sivol",
         "target": "sivol"
     },
     {
