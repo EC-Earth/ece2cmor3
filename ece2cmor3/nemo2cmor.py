@@ -399,7 +399,7 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: x % 360)
         if nx == 1:  # Longitudes were integrated out
-            if nx == 1:
+            if ny == 1:
                 return f(numpy.array([a[0, 0]]))
             return numpy.zeros([ny, 2])
         b = numpy.zeros([ny, nx, 4])
@@ -417,7 +417,7 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         if nx == 1:  # Longitudes were integrated out
-            if nx == 1:
+            if ny == 1:
                 return f(numpy.array([a[0, 0]]))
             b = numpy.zeros([ny, 2])
             b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
