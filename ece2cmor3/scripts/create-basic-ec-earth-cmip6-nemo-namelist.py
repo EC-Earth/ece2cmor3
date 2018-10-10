@@ -31,15 +31,18 @@
 # variables on true which are asked for in the various data requests of each individual MIP
 # experiment.
 #
-# Six, the basic flat file_def file is read again, now all gathered info is part of this single xml
+# Six, a varlist.json can be generated which contains all nemo available variables, this file can be used
+# as data request to test the cmorization of all CMIP6 available nemo variables for all the MIP experiments.
+#
+# Seven, the basic flat file_def file is read again, now all gathered info is part of this single xml
 # tree which allows a more convenient way of selecting.
 #
-# Seven, a basic file_def is created by selecting on model component, output frequency and grid. For
+# Eight, a basic file_def is created by selecting on model component, output frequency and grid. For
 # each sub selection a file element is defined.
 #
-# Eight, produce a nemopar.sjon file with all the non-dummy ping file variables.
+# Nine, produce a nemopar.sjon file with all the non-dummy ping file variables.
 #
-# Nine, just read the basic file_def in order to check in case of modifications to the script whether
+# Ten, just read the basic file_def in order to check in case of modifications to the script whether
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
@@ -79,6 +82,9 @@ give_preference_to_pingfile_expression_attribute = False
 
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
+
+produce_varlistjson_file = True
+produce_varlistjson_file = False
 
 produce_nemopar_json = True
 produce_nemopar_json = False
@@ -622,7 +628,36 @@ flat_nemo_file_def_xml_file.close()
 
 
 ################################################################################
-###################################    6     ###################################
+###################################    6    ###################################
+################################################################################
+if produce_varlistjson_file:
+ varlistjson_file_name = 'varlist-nemo-all.json'
+
+ varlistjson = open(varlistjson_file_name,'w')
+ varlistjson.write('{}{}'.format('{','\n'))  
+
+ previous_table = 'no'
+
+ # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
+ for i in range(0, len(dr_varname)):
+ #print dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varname[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]
+  if not dr_varname[i] == "":
+   if dr_table[i] != previous_table:
+    if previous_table != 'no': 
+     varlistjson.write('    ],{}'.format('\n'))  
+    varlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
+   varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
+  #varlistjson.write('        {:20} {:10} {}'.format('"'+dr_varname[i]+'",', dr_table[i], '\n'))
+   previous_table = dr_table[i]
+
+ varlistjson.write('    ]{}'.format('\n'))  
+ varlistjson.write('{}{}'.format('}','\n'))  
+ varlistjson.close()
+
+ print ' \n The produced', varlistjson_file_name, ' file contains', i, 'variables.'
+
+################################################################################
+###################################    7     ###################################
 ################################################################################
 
 # READING THE BASIC FLAT FILE_DEF FILE:
@@ -655,7 +690,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 
 
 ################################################################################
-###################################    7     ###################################
+###################################    8     ###################################
 ################################################################################
 
 # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
@@ -726,7 +761,7 @@ print '\n There are', field_counter, 'fields distributed over', file_counter, 'f
 
 
 ################################################################################
-###################################    8     ###################################
+###################################    9     ###################################
 ################################################################################
 
 # PRODUCE A nemopar.sjon FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
@@ -754,7 +789,7 @@ if produce_nemopar_json:
 
 
 ################################################################################
-###################################    9     ###################################
+###################################   10     ###################################
 ################################################################################
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
