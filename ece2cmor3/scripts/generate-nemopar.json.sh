@@ -333,6 +333,6 @@ if [ "$#" -eq 1 ]; then
 else
     echo '  '
     echo '  This scripts requires one argument, e.g.:'
-    echo '  ' $0 no-grid-nemopar.json
+    echo '  ' $0 new-grid-nemopar.json
     echo '  '
 fi
