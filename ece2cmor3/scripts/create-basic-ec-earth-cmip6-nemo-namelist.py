@@ -84,7 +84,7 @@ include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
 produce_varlistjson_file = True
-produce_varlistjson_file = False
+#produce_varlistjson_file = False
 
 produce_nemopar_json = True
 produce_nemopar_json = False
@@ -640,14 +640,24 @@ if produce_varlistjson_file:
 
  # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
  for i in range(0, len(dr_varname)):
- #print dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varname[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]
+  if i == len(dr_varname) - 1:
+   ending_status = True
+  else:
+   if dr_table[i+1] != dr_table[i]:
+    ending_status = True
+   else:
+    ending_status = False
+   
   if not dr_varname[i] == "":
    if dr_table[i] != previous_table:
     if previous_table != 'no': 
      varlistjson.write('    ],{}'.format('\n'))  
     varlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
-   varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
-  #varlistjson.write('        {:20} {:10} {}'.format('"'+dr_varname[i]+'",', dr_table[i], '\n'))
+   if ending_status:
+    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
+   else:
+    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
+  #varlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
    previous_table = dr_table[i]
 
  varlistjson.write('    ]{}'.format('\n'))  
