@@ -131,13 +131,6 @@ def execute_netcdf_task(dataset, task):
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
-    if len(grid_axes) == 0:  # Fix for global averages/sums
-        vals = numpy.ma.masked_equal(ncvar[...], missval)
-        ncvar = numpy.mean(vals, axis=(1, 2))
-    factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
-    log.info("CMORizing variable %s in table %s from %s in "
-             "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
-                             getattr(task, cmor_task.output_path_key)))
     time_dim, index, time_sel = -1, 0, None
     for d in ncvar.dimensions:
         if d.startswith("time"):
@@ -150,6 +143,13 @@ def execute_netcdf_task(dataset, task):
             if d.startswith("time"):
                 time_sel = range(len(d)) # ensure copying of constant fields
                 break
+    if len(grid_axes) == 0:  # Fix for global averages/sums
+        vals = numpy.ma.masked_equal(ncvar[...], missval)
+        ncvar = numpy.mean(vals, axis=(1, 2))
+    factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
+    log.info("CMORizing variable %s in table %s from %s in "
+             "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
+                             getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
