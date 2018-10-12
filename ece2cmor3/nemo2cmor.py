@@ -186,8 +186,12 @@ def create_cmor_variable(task, dataset, axes):
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
         unit = getattr(task.target, "units")
-    return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                         original_name=str(srcvar))
+    if hasattr(task.target, "positive") and len(task.target.positive) != 0:
+        return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
+                             original_name=str(srcvar), positive=getattr(task.target, "positive"))
+    else:
+        return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
+                             original_name=str(srcvar))
 
 
 # Creates all depth axes for the given table from the given files
