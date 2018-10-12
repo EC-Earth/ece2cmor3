@@ -138,8 +138,18 @@ def execute_netcdf_task(dataset, task):
     log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
-    cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, term,
-                           missval=getattr(task.target, cmor_target.missval_key, missval))
+    time_dim, index, time_sel = -1, 0, None
+    for d in ncvar.dimensions:
+        if d.startswith("time"):
+            time_dim = index
+            time_sel = range(len(d))
+            break
+        index += 1
+    if time_dim != -1:
+        time_sel = None
+    cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
+                           missval=getattr(task.target, cmor_target.missval_key, missval),
+                           time_selection=time_sel)
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
