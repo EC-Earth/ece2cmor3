@@ -84,7 +84,7 @@ include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
 produce_varlistjson_file = True
-#produce_varlistjson_file = False
+produce_varlistjson_file = False
 
 produce_nemopar_json = True
 produce_nemopar_json = False
