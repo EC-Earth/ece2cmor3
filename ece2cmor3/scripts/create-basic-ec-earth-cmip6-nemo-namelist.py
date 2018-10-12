@@ -620,6 +620,18 @@ for i in range(0, len(dr_varname)):
   if dr_varname[i] in vars_with_duplicate_id_definition_total: print ' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i]
   if dr_unit[i] != dr_ping_units[i]:                           print ' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i]
 
+
+  # Checking whether variables are used that are present in the default file_def files with an operation definition different from: operation="average"
+  # Lists constructed with help of:
+  #  more file_def_nemo-*|grep -e'operation="instant"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > instant-vars.txt
+  #  more file_def_nemo-*|grep -e'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > maximum-vars.txt
+  #  more file_def_nemo-*|grep -e'operation="average"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > average-vars.txt
+  #  more file_def_nemo-*|grep -e operation=|grep -v -e 'operation="average"' -e 'operation="instant"' -e 'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g'|wc
+  if total_pinglist_field_ref[index_in_ping_list] in ["tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot"]:
+      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".'
+  if total_pinglist_field_ref[index_in_ping_list] in ["mldkz5", "mldr10_1max", "mldkz5"]:
+      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".'
+
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
 flat_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
