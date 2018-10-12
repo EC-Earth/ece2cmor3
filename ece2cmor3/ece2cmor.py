@@ -68,10 +68,6 @@ def main(args=None):
     if not os.path.isdir(args.datadir):
         print ' ERROR for the datadir argument: The datadir directory is not found: ', args.datadir, ' no such directory.'
         sys.exit(' Exiting ece2cmor.')
-    else:
-        if not any(fname.endswith('.true') for fname in os.listdir('.')):
-            print(" Directory contains no data files.")
-            sys.exit(' Exiting ece2cmor.')
 
     if not os.path.isfile(args.vars):
         print ' ERROR for the --vars argument: The data request file is not found: ', args.vars, ' no such file.'
