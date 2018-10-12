@@ -142,11 +142,14 @@ def execute_netcdf_task(dataset, task):
     for d in ncvar.dimensions:
         if d.startswith("time"):
             time_dim = index
-            time_sel = range(len(d))
             break
         index += 1
-    if time_dim != -1:
-        time_sel = None
+    time_sel = None
+    if len(t_axes) > 0 > time_dim:
+        for d in dataset.dimensions:
+            if d.startswith("time"):
+                time_sel = range(len(d)) # ensure copying of constant fields
+                break
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
