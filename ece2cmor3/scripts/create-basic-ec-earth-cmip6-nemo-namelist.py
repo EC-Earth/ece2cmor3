@@ -543,8 +543,8 @@ for table in range(0,len(dr_table)):
 ################################################################################
 # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
 if include_root_field_group_attributes:
-#root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
  root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20"'
+#root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20" detect_missing_value="true"'
 else:
  root_field_group_attributes =''
 ################################################################################
