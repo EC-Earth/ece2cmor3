@@ -31,15 +31,18 @@
 # variables on true which are asked for in the various data requests of each individual MIP
 # experiment.
 #
-# Six, the basic flat file_def file is read again, now all gathered info is part of this single xml
+# Six, a varlist.json can be generated which contains all nemo available variables, this file can be used
+# as data request to test the cmorization of all CMIP6 available nemo variables for all the MIP experiments.
+#
+# Seven, the basic flat file_def file is read again, now all gathered info is part of this single xml
 # tree which allows a more convenient way of selecting.
 #
-# Seven, a basic file_def is created by selecting on model component, output frequency and grid. For
+# Eight, a basic file_def is created by selecting on model component, output frequency and grid. For
 # each sub selection a file element is defined.
 #
-# Eight, produce a nemopar.sjon file with all the non-dummy ping file variables.
+# Nine, produce a nemopar.sjon file with all the non-dummy ping file variables.
 #
-# Nine, just read the basic file_def in order to check in case of modifications to the script whether
+# Ten, just read the basic file_def in order to check in case of modifications to the script whether
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
@@ -79,6 +82,9 @@ give_preference_to_pingfile_expression_attribute = False
 
 include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
+
+produce_varlistjson_file = True
+produce_varlistjson_file = False
 
 produce_nemopar_json = True
 produce_nemopar_json = False
@@ -537,8 +543,8 @@ for table in range(0,len(dr_table)):
 ################################################################################
 # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
 if include_root_field_group_attributes:
-#root_field_group_attributes ='level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20"'
  root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20"'
+#root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20" detect_missing_value="true"'
 else:
  root_field_group_attributes =''
 ################################################################################
@@ -599,6 +605,11 @@ for i in range(0, len(dr_varname)):
    test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
   var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
+  # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
+  if dr_table[i] in ["SImon", "SIday"] and dr_ping_component[i] != 'lim': 
+   print ' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".'
+   dr_ping_component[i] = "lim"
+
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
   #                                                                                                                                                                                                                                                          41,                         25,                                                               40,       32,                      20,                  15,                          60,    25,                                30,                                       30,           30,                                              17,                                50,                        15,                                      22,                              14,                            115,                                       125,                                                              1030,                                                                                    480,    80,                                                          80,     4,                                      60,          10,   {}))
@@ -609,6 +620,18 @@ for i in range(0, len(dr_varname)):
   if dr_varname[i] in vars_with_duplicate_id_definition_total: print ' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i]
   if dr_unit[i] != dr_ping_units[i]:                           print ' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i]
 
+
+  # Checking whether variables are used that are present in the default file_def files with an operation definition different from: operation="average"
+  # Lists constructed with help of:
+  #  more file_def_nemo-*|grep -e'operation="instant"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > instant-vars.txt
+  #  more file_def_nemo-*|grep -e'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > maximum-vars.txt
+  #  more file_def_nemo-*|grep -e'operation="average"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > average-vars.txt
+  #  more file_def_nemo-*|grep -e operation=|grep -v -e 'operation="average"' -e 'operation="instant"' -e 'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g'|wc
+  if total_pinglist_field_ref[index_in_ping_list] in ["tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot"]:
+      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".'
+  if total_pinglist_field_ref[index_in_ping_list] in ["mldkz5", "mldr10_1max", "mldkz5"]:
+      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".'
+
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
 flat_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
@@ -617,7 +640,46 @@ flat_nemo_file_def_xml_file.close()
 
 
 ################################################################################
-###################################    6     ###################################
+###################################    6    ###################################
+################################################################################
+if produce_varlistjson_file:
+ varlistjson_file_name = 'varlist-nemo-all.json'
+
+ varlistjson = open(varlistjson_file_name,'w')
+ varlistjson.write('{}{}'.format('{','\n'))  
+
+ previous_table = 'no'
+
+ # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
+ for i in range(0, len(dr_varname)):
+  if i == len(dr_varname) - 1:
+   ending_status = True
+  else:
+   if dr_table[i+1] != dr_table[i]:
+    ending_status = True
+   else:
+    ending_status = False
+   
+  if not dr_varname[i] == "":
+   if dr_table[i] != previous_table:
+    if previous_table != 'no': 
+     varlistjson.write('    ],{}'.format('\n'))  
+    varlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
+   if ending_status:
+    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
+   else:
+    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
+  #varlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
+   previous_table = dr_table[i]
+
+ varlistjson.write('    ]{}'.format('\n'))  
+ varlistjson.write('{}{}'.format('}','\n'))  
+ varlistjson.close()
+
+ print ' \n The produced', varlistjson_file_name, ' file contains', i, 'variables.'
+
+################################################################################
+###################################    7     ###################################
 ################################################################################
 
 # READING THE BASIC FLAT FILE_DEF FILE:
@@ -650,7 +712,7 @@ grid_ref_overview    = list(set(grid_ref_collection))
 
 
 ################################################################################
-###################################    7     ###################################
+###################################    8     ###################################
 ################################################################################
 
 # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
@@ -721,7 +783,7 @@ print '\n There are', field_counter, 'fields distributed over', file_counter, 'f
 
 
 ################################################################################
-###################################    8     ###################################
+###################################    9     ###################################
 ################################################################################
 
 # PRODUCE A nemopar.sjon FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
@@ -749,7 +811,7 @@ if produce_nemopar_json:
 
 
 ################################################################################
-###################################    9     ###################################
+###################################   10     ###################################
 ################################################################################
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:

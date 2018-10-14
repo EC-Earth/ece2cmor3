@@ -11,6 +11,10 @@ import cmor_utils
 # Logger object
 log = logging.getLogger(__name__)
 
+extra_axes = {"basin": {"ncdim": "3basin",
+                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
+              "typesi": {"ncdim": "ncatice"}}
+
 # Experiment name
 exp_name_ = None
 
@@ -131,6 +135,18 @@ def execute_netcdf_task(dataset, task):
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
+    time_dim, index, time_sel = -1, 0, None
+    for d in ncvar.dimensions:
+        if d.startswith("time"):
+            time_dim = index
+            break
+        index += 1
+    time_sel = None
+    if len(t_axes) > 0 > time_dim:
+        for d in dataset.dimensions:
+            if d.startswith("time"):
+                time_sel = range(len(d)) # ensure copying of constant fields
+                break
     if len(grid_axes) == 0:  # Fix for global averages/sums
         vals = numpy.ma.masked_equal(ncvar[...], missval)
         ncvar = numpy.mean(vals, axis=(1, 2))
@@ -138,8 +154,9 @@ def execute_netcdf_task(dataset, task):
     log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
-    cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, term,
-                           missval=getattr(task.target, cmor_target.missval_key, missval))
+    cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
+                           missval=getattr(task.target, cmor_target.missval_key, missval),
+                           time_selection=time_sel)
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
@@ -175,7 +192,7 @@ def create_cmor_variable(task, dataset, axes):
         unit = getattr(task.target, "units")
     if hasattr(task.target, "positive") and len(task.target.positive) != 0:
         return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                             original_name=str(srcvar), positive="down")
+                             original_name=str(srcvar), positive=getattr(task.target, "positive"))
     else:
         return cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
                              original_name=str(srcvar))
@@ -187,7 +204,7 @@ def create_depth_axes(ds, tasks, table):
     if table not in depth_axes_:
         depth_axes_[table] = {}
     table_depth_axes = depth_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y", "typesi", "3basin"]
+    other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
@@ -196,8 +213,15 @@ def create_depth_axes(ds, tasks, table):
                 z_axis_ids.append(table_depth_axes[z_axis])
             else:
                 depth_coordinates = ds.variables[z_axis]
-                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds")]
-                units = getattr(depth_coordinates, "units")
+                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds", None)]
+                if depth_bounds is None:
+                    log.warning("No depth bounds found in file %s, taking midpoints" % (ds.filepath()))
+                    depth_bounds = numpy.zeros((len(depth_coordinates[:]), 2), dtype=numpy.float64)
+                    depth_bounds[1:, 0] = 0.5 * (depth_coordinates[0:-1] + depth_coordinates[1:])
+                    depth_bounds[0:-1, 1] = depth_bounds[1:, 0]
+                    depth_bounds[0, 0] = depth_coordinates[0]
+                    depth_bounds[-1, 1] = depth_coordinates[-1]
+                units = getattr(depth_coordinates, "units", "1")
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
                 z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
@@ -231,11 +255,6 @@ def create_time_axes(ds, tasks, table):
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
-
-
-extra_axes = {"basin": {"ncdim": "3basin",
-                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
-              "typesi": {"ncdim": "ncatice"}}
 
 
 def create_type_axes(ds, tasks, table):
@@ -399,7 +418,7 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: x % 360)
         if nx == 1:  # Longitudes were integrated out
-            if nx == 1:
+            if ny == 1:
                 return f(numpy.array([a[0, 0]]))
             return numpy.zeros([ny, 2])
         b = numpy.zeros([ny, nx, 4])
@@ -417,7 +436,7 @@ class nemo_grid(object):
         nx = a.shape[1]
         f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         if nx == 1:  # Longitudes were integrated out
-            if nx == 1:
+            if ny == 1:
                 return f(numpy.array([a[0, 0]]))
             b = numpy.zeros([ny, 2])
             b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))

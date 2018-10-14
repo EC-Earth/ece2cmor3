@@ -123,8 +123,8 @@ def get_record_key(gribfile):
     if codevar in [49, 165, 166]:
         level = 10
         levtype = grib_file.height_level_code
-#    if codevar in [167, 168, 201, 202]:
-    if codevar in [167, 201, 202]:
+    if codevar in [167, 168, 201, 202]:
+        #    if codevar in [167, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
     if codevar == 9 or (codevar == 134 and levtype == grib_file.hybrid_level_code):
@@ -382,7 +382,7 @@ def proc_initial_month(month, gribfile, handles):
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile)
             if t == timestamp and key in keys:
-                continue # Prevent double grib messages
+                continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
                 timestamp = t
@@ -420,7 +420,7 @@ def proc_final_month(month, gribfile, handles):
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile)
             if t == timestamp and key in keys:
-                continue # Prevent double grib messages
+                continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
                 timestamp = t
@@ -430,7 +430,7 @@ def proc_final_month(month, gribfile, handles):
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile)
             if t == timestamp and key in keys:
-                continue # Prevent double grib messages
+                continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
                 timestamp = t
