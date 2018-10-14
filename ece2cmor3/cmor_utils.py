@@ -184,12 +184,16 @@ def read_time_stamps(path):
 
 
 # TODO: This is getting out of hand, refactor
+# TODO: Suspecting double transposes, very slow!
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
                 fliplat=False, mask=None, missval=1.e+20, time_selection=None):
     global log
     ndims = len(ncvar.shape)
-    ntimes = 1 if timdim < 0 else (ncvar.shape[timdim] if time_selection is None else len(time_selection))
+    if timdim < 0:
+        ntimes = 1 if time_selection is None else len(time_selection)
+    else:
+        ntimes = ncvar.shape[timdim] if time_selection is None else len(time_selection)
     size = ncvar.size / ntimes
     chunk = int(math.floor(4.0E+9 / (8 * size)))  # Use max 4 GB of memory
     if time_selection is not None and numpy.any(time_selection < 0):
@@ -295,7 +299,9 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             return
         if fliplat and (ndims > 1 or timdim < 0):
             vals = numpy.flipud(vals)
-        cmor.write(varid, vals, ntimes_passed=(0 if timdim < 0 else (imax - i)))
+        if timdim < 0 and ntimes > 1:
+            vals = numpy.repeat(vals, repeats=(imax - i), axis=ndims-1)
+        cmor.write(varid, vals, ntimes_passed=(0 if (timdim < 0 and ntimes == 1) else (imax - i)))
         del vals
         if psvarid is not None and ncpsvar is not None:
             spvals = None
