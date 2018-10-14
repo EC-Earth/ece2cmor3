@@ -366,6 +366,7 @@ def filter_grib_files(file_list, handles=None, month=0, year=0):
                 proc_initial_month(date.month, grib_file.create_grib_file(fin), handles)
         next_chained = i < len(dates) - 1 and (cur_grib_file == file_list[dates[i + 1]][0])
         with open(cur_grib_file, 'r') as fin:
+            log.info("Filtering grib file %s..." % cur_grib_file)
             if next_chained:
                 proc_grib_file(grib_file.create_grib_file(fin), handles)
             else:

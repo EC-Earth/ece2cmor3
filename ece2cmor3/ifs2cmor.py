@@ -131,6 +131,8 @@ def execute(tasks, cleanup=True, nthreads=1):
     tasks = set(tasks_todo).intersection(regular_tasks)
     pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=ifs_init_gridpoint_file_)
     pool.map(cmor_worker, tasks)
+    if cleanup:
+        clean_tmp_data(tasks)
 
 
 def init_cmor(filepath):
@@ -631,9 +633,7 @@ def create_time_axis(freq, path, name, has_bounds):
         dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
                          cell_bounds=bounds), dt_low, dt_up
-
     step = cmor_utils.make_cmor_frequency(freq)
-
     if date_times[0] >= start_date_ + step:
         date = date_times[0]
         extra_dates = []
