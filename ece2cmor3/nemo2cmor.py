@@ -11,6 +11,10 @@ import cmor_utils
 # Logger object
 log = logging.getLogger(__name__)
 
+extra_axes = {"basin": {"ncdim": "3basin",
+                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
+              "typesi": {"ncdim": "ncatice"}}
+
 # Experiment name
 exp_name_ = None
 
@@ -200,7 +204,7 @@ def create_depth_axes(ds, tasks, table):
     if table not in depth_axes_:
         depth_axes_[table] = {}
     table_depth_axes = depth_axes_[table]
-    other_nc_axes = ["time_counter", "x", "y", "typesi", "3basin"]
+    other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
@@ -209,8 +213,15 @@ def create_depth_axes(ds, tasks, table):
                 z_axis_ids.append(table_depth_axes[z_axis])
             else:
                 depth_coordinates = ds.variables[z_axis]
-                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds")]
-                units = getattr(depth_coordinates, "units")
+                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds", None)]
+                if depth_bounds is None:
+                    log.warning("No depth bounds found in file %s, taking midpoints" % (ds.filepath()))
+                    depth_bounds = numpy.zeros((len(depth_coordinates[:]), 2), dtype=numpy.float64)
+                    depth_bounds[1:, 0] = 0.5 * (depth_coordinates[0:-1] + depth_coordinates[1:])
+                    depth_bounds[0:-1, 1] = depth_bounds[1:, 0]
+                    depth_bounds[0, 0] = depth_coordinates[0]
+                    depth_bounds[-1, 1] = depth_coordinates[-1]
+                units = getattr(depth_coordinates, "units", "1")
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
                 z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
@@ -244,11 +255,6 @@ def create_time_axes(ds, tasks, table):
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
-
-
-extra_axes = {"basin": {"ncdim": "3basin",
-                        "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
-              "typesi": {"ncdim": "ncatice"}}
 
 
 def create_type_axes(ds, tasks, table):
