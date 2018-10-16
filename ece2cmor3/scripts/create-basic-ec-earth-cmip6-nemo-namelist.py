@@ -640,13 +640,13 @@ flat_nemo_file_def_xml_file.close()
 
 
 ################################################################################
-###################################    6    ###################################
+###################################    6     ###################################
 ################################################################################
 if produce_varlistjson_file:
  varlistjson_file_name = 'varlist-nemo-all.json'
 
  varlistjson = open(varlistjson_file_name,'w')
- varlistjson.write('{}{}'.format('{','\n'))  
+ varlistjson.write('{}{}'.format('{','\n'))
 
  previous_table = 'no'
 
@@ -659,11 +659,11 @@ if produce_varlistjson_file:
     ending_status = True
    else:
     ending_status = False
-   
+
   if not dr_varname[i] == "":
    if dr_table[i] != previous_table:
-    if previous_table != 'no': 
-     varlistjson.write('    ],{}'.format('\n'))  
+    if previous_table != 'no':
+     varlistjson.write('    ],{}'.format('\n'))
     varlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
    if ending_status:
     varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
@@ -672,8 +672,8 @@ if produce_varlistjson_file:
   #varlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
    previous_table = dr_table[i]
 
- varlistjson.write('    ]{}'.format('\n'))  
- varlistjson.write('{}{}'.format('}','\n'))  
+ varlistjson.write('    ]{}'.format('\n'))
+ varlistjson.write('{}{}'.format('}','\n'))
  varlistjson.close()
 
  print ' \n The produced', varlistjson_file_name, ' file contains', i, 'variables.'
