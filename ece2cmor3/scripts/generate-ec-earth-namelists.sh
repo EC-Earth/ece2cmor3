@@ -82,7 +82,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
   mv -f ppt0000000000 pptdddddd0*00 ${path_of_created_output_control_files}
-  mv -f volume-estimate.txt ${path_of_created_output_control_files}
+  mv -f volume-estimate.txt ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
   # Creating the file_def files for XIOS NEMO input:.
   ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
@@ -113,6 +113,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
   ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
   ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
+
+  echo
+  echo 'The estimate of the Volumes:'
+  ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+
   echo
  #source deactivate
  fi
