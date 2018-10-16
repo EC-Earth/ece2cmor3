@@ -14,8 +14,9 @@ import os
 from dreqPy import dreq
 dq = dreq.loadDreq()
 
-# Specify which tier experiments should be included:
-experiment_tiers_included = 1
+# Specify in the list below which tier experiments should be included. For 
+# instance [1,2] means tier 1 and tier 2 experiments are included:
+experiment_tiers_included = [1]
 #ec_earth_mips = ['CMIP'] # for basic test
 ec_earth_mips = ['CMIP', 'DCPP']
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP',          'DAMIP', 'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP',         'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 18 EC-Earth MIPs
@@ -46,8 +47,8 @@ for mip in dq.coll['mip'].items:
     #command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-m=' + mip.label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
     #print print '{}'.format(command)
      if mip.label in ec_earth_mips: 
-       #if ex.tier[0] == experiment_tiers_included and mip.label in ec_earth_mips and ex.label == 'piControl':  # for basic test
-        if ex.tier[0] == experiment_tiers_included and mip.label in ec_earth_mips: 
+       #if ex.tier[0] in experiment_tiers_included and mip.label in ec_earth_mips and ex.label == 'piControl':  # for basic test
+        if ex.tier[0] in experiment_tiers_included and mip.label in ec_earth_mips: 
            os.system(command)
            os.system(command_2) # Remove the file_def-compact subdirectory with the compact file_def files
            os.system(command_3) # Remove the cmip6-file_def_nemo.xml file
