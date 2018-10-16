@@ -42,13 +42,14 @@ time_axis_ids = {}
 depth_axis_ids = {}
 
 unit_miss_match =[]
+failed=[]
 
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,start,length):
     global log,tm5_files_,exp_name_,table_root_
     exp_name_ = expname
     table_root_ =os.path.join(tabledir, prefix)
-    print path,expname,start,length
+    #print path,expname,start,length
     tm5_files_ = select_files(path,expname,start,length)
     cal = None
     for f in tm5_files_:
@@ -65,7 +66,7 @@ def initialize(path,expname,tabledir, prefix,start,length):
 # Resets the module globals.
 def finalize():
     global tm5_files_,grid_ids_,depth_axes_,time_axes_
-    print unit_miss_match
+    print 'Unit miss match variables',unit_miss_match
     tm5_files_ = []
     grid_ids_ = {}
     depth_axes_ = {}
@@ -79,6 +80,7 @@ def execute(tasks):
     log.info("Cmorizing tm5 tasks...")
     #Assign file to each task
     for task in tasks:
+        print task.target.variable
         setattr(task,cmor_task.output_path_key,None)
         for fstr in tm5_files_:
             #print fstr
@@ -88,10 +90,11 @@ def execute(tasks):
                 setattr(task,cmor_task.output_path_key,fstr)
         # save ps task for frequency
         if task.target.variable=='ps':
+            #print '-------------PS',task.target.variable
             if task.target.frequency not in ps_tasks:
-                print task.target.frequency
+                print 'ps',task.target.frequency
                 ps_tasks[task.target.frequency]=task
-        print task.target.variable,task.target.frequency
+        #print task.target.variable,task.target.frequency
         #print ps_tasks.keys()
     log.info('Creating TM5 3x2 deg lon-lat grid')
     grid = create_lonlat_grid()#xsize, xfirst, yvals)
@@ -138,22 +141,7 @@ def execute(tasks):
                     continue
                     afasdf
                 setattr(task,"ps_task",ps_tasks[task.target.frequency])
-            ###############
-            #Redundant part
-            # freq = task.target.frequency.encode()
-            # files = select_freq_files(freq)
-            # targetvars = task.target.variable
-
-            # output_var_file=[f for f in files if os.path.basename(f).startswith(task.source.variable())]
-
-            # if(len(output_var_file) == 0):
-            #     #log.error("No tm5 output files found for frequency %s in file list %s, skipping variables %s" % (freq,str(tm5_files_),str(targetvars)))
-            #     log.error("No tm5 output file found for frequency %s, skipping variables %s" % (freq,str(targetvars)))
-            #     continue
-            # elif(len(output_var_file) > 1):
-            #     log.error("More than one tm5 output file found for frequency %s, skipping variables %s" % (freq,str(targetvars)))
-            #     continue
-            ################
+        
 
             create_depth_axes(task)
             if(taskmask[task] ):
@@ -169,9 +157,11 @@ def execute(tasks):
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
         for task,executed in taskmask.iteritems():
             if(not executed):
-                log.error("The source variable %s of table %s could not be found in the input tm5 data" % (task.source.variable(),task.target.table))
-    print unit_miss_match
+                log.error("The source variable %s of table %s failed to cmorize" % (task.source.variable(),task.target.table))
+                failed.append([task.target.variable,task.target.table])
 
+    print unit_miss_match
+    print failed
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
     global log,grid_ids_,depth_axes_,time_axes_
@@ -219,9 +209,16 @@ def execute_netcdf_task(task,tableid):
     factor = 1.0#get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
     term=0.0
     timdim=0
+    # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
-        cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None)),
+        #get the ps-data associated with this data
+        psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        # roll psdata like the original
+        psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
+        cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, psdata,
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
+        #cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None)),
+        #                       swaplatlon=False, fliplat=True, mask=None,missval=missval)
     else:
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, None,
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
@@ -456,6 +453,7 @@ def create_depth_axes(task):
         #     setattr(task, "store_with", psid)
         #     return 
         log.error("Vertical axis %s not implemented yet" %(zdim))
+        task.set_failed()
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
@@ -568,9 +566,6 @@ def create_lonlat_grid():#nx, x0, yvals):
 
     lon_bnd=numpy.stack((lon_mids[:-1],lon_mids[1:]),axis=-1)
     lat_bnd=numpy.stack((lat_mids[:-1],lat_mids[1:]),axis=-1)
-    #print lat_bnd
-    print x_vals
-    print lon_arr
     lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
                                     coord_vals=x_vals, cell_bounds=lon_bnd)
     lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
