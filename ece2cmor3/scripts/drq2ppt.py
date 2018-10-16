@@ -9,7 +9,7 @@ import re
 
 import f90nml
 
-from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils
+from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
 # Logging configuration
 logging.basicConfig(level=logging.DEBUG)
@@ -158,8 +158,10 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
-    # Load the variables as task targets:
-    taskloader.load_targets(args.vars, active_components={"ifs": True, "nemo": False})
+    # Load only atmosphere variables as task targets:
+    active_components = {component: False for component in components.models}
+    active_components["ifs"] = True
+    taskloader.load_targets(args.vars, active_components=active_components)
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

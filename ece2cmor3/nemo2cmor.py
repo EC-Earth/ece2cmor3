@@ -304,7 +304,7 @@ def read_grid(ncfile):
             return None
         lons = ds.variables["nav_lon"][:, :] if "nav_lon" in ds.variables else []
         lats = ds.variables["nav_lat"][:, :] if "nav_lat" in ds.variables else []
-        if not len(lons) == 0 or not len(lats) == 0:
+        if len(lons) == 0 and len(lats) == 0:
             return None
         return nemo_grid(name, lons, lats)
     finally:
