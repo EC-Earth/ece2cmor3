@@ -351,7 +351,7 @@ def create_grids(tasks):
             grid = read_grid(filename)
             if grid is not None:
                 grid_id = write_grid(grid, task_list[0])
-                if grid_id >= 0:
+                if grid_id != 0:
                     grid_ids_[grid.name] = grid_id
                     for task in task_list:
                         setattr(task, "grid_id", grid_id)
@@ -381,7 +381,7 @@ def write_grid(grid, task):
     ny = grid.lons.shape[1]
     if ny == 1:
         if nx == 1:
-            return -1
+            return 0
         cmor.load_table(table_root_ + "_" + task.target.table + ".json")
         return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
                          cell_bounds=grid.vertex_lats)
