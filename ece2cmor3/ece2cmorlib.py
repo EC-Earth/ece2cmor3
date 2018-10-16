@@ -193,7 +193,6 @@ def perform_tm5_tasks(datadir, ncdir, expname, startdate, interval):
     validate_run_settings(datadir, expname)
     tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
     log.info("Selected %d TM5 tasks from %d input tasks" % (len(tm5_tasks), len(tasks)))
-    print '22222',table_dir
     if(not tm52cmor.initialize(datadir, expname, table_dir, prefix, startdate, interval)):
         return
     tm52cmor.execute(tm5_tasks)
