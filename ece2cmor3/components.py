@@ -20,6 +20,7 @@ models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce"],
                    table_file: os.path.join(os.path.dirname(__file__), "resources", "lpjgpar.json"),
                    script_flags: ("lpj", 'l')},
           "tm5": {realms: ["aerosol","atmosChem", "atmos"],
+          #"tm5": {realms: ["aerosol","atmosChem"],
                    table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json"),
                    script_flags: ("tm5", 't')}
           }
