@@ -196,7 +196,8 @@ def get_tm5_frequency(filepath, expname):
         return None
 
     fstr = f.split("_")[1]
-    expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday|Emon|Efx)")
+    #expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday|Emon|Efx)")
+    expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
