@@ -1,6 +1,7 @@
 import cmor
 import os
 import logging
+import datetime
 from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, postproc
 
 # Logger instance
@@ -136,7 +137,8 @@ def add_mask(name, src, func, val):
 
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
+def perform_ifs_tasks(datadir, expname, 
+                      refdate=None,
                       postprocmode=postproc.recreate,
                       tempdir="/tmp/ece2cmor",
                       taskthreads=4,
@@ -155,7 +157,7 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
     else:
         ifs2cmor.masks = {}
     ofreq = -1 if auto_filter else outputfreq
-    if (not ifs2cmor.initialize(datadir, expname, tableroot, startdate, interval, refdate if refdate else startdate,
+    if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850,1,1),
                                 outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode

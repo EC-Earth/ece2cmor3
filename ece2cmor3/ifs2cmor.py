@@ -1,6 +1,3 @@
-import datetime
-
-import cdo
 import cmor
 import glob
 import logging
@@ -9,6 +6,7 @@ import netCDF4
 import numpy
 import os
 
+from datetime import datetime, timedelta
 from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger construction
@@ -50,29 +48,23 @@ masks = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, tempdir=None, maxsizegb=float("inf"),
+def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, maxsizegb=float("inf"),
                autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
         temp_dir_, max_size_, ref_date_, start_date_, output_frequency_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
-    start_date_ = start
     output_frequency_ = outputfreq
     ref_date_ = refdate
     auto_filter_ = autofilter
-
-    inifiles = glob.glob1(path, "ICMGG" + exp_name_ + "+000000")
-    if any(inifiles):
-        ifs_init_gridpoint_file_ = inifiles[0]
-        if len(inifiles) > 1:
-            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
-
+    
+    ifs_init_gridpoint_file_ = find_init_file(path, expname)
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
-    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMGG" + file_pattern) if not f.endswith("+000000")}
-    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob1(path, "ICMSH" + file_pattern) if not f.endswith("+000000")}
-    gpfiles = {date: gpfiles[date] for date in gpfiles.keys() if start <= date < start + length}
-    shfiles = {date: shfiles[date] for date in shfiles.keys() if start <= date < start + length}
+    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern) 
+                                                                     if not f.endswith("+000000")}
+    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern) 
+                                                                     if not f.endswith("+000000")}
 
     if set(gpfiles.keys()) != set(shfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
@@ -89,15 +81,32 @@ def initialize(path, expname, tableroot, start, length, refdate, outputfreq=6, t
                         "dates %s" % (str(gpfiles.values()), str(shfiles.values()), str(intersection)))
     else:
         ifs_gridpoint_files_, ifs_spectral_files_ = gpfiles, shfiles
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()),datetime.min.time())
+    if ifs_init_gridpoint_file_ is None:
+        if any(ifs_gridpoint_files_.values()):
+            ifs_init_gridpoint_file_ = ifs_gridpoint_files_.values()[0]
+        else:
+            log.error("No gridpoint files found in directory %s, exiting initialization" % path)
+            return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    os.makedirs(temp_dir_, exist_ok=True)
+    if not os.path.exists(temp_dir_):
+        os.makedirs(temp_dir_)
     max_size_ = maxsizegb
     if auto_filter_:
         grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_)
     return True
+
+
+def find_init_file(path, exp):
+    odir = os.path.abspath(os.path.join(path, ".."))
+    search_str = "ICMGG" + exp + "+000000"
+    for root, dirs, files in os.walk(odir):
+       if search_str in files:
+           return os.path.join(root, search_str)
+    return None
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
@@ -129,18 +138,11 @@ def execute(tasks, cleanup=True, nthreads=1):
     for task in mask_tasks:
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     tasks = set(tasks_todo).intersection(regular_tasks)
-    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=ifs_init_gridpoint_file_)
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    pool = multiprocessing.Pool(processes=nthreads)
     pool.map(cmor_worker, tasks)
     if cleanup:
         clean_tmp_data(tasks)
-
-
-def init_cmor(filepath):
-    global grid_id
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(table_root_ + "_grids.json")
-    if grid_id == 0:
-        grid_id = create_grid_from_grib(filepath)
 
 
 # Worker function for parallel cmorization (not working at the present...)
@@ -148,12 +150,14 @@ def cmor_worker(task):
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     postproc.post_process(task, temp_dir_)
-
+    if task.status == cmor_task.status_failed:
+        return
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     define_cmor_axes(task)
-    if task.status != cmor_task.status_failed:
-        execute_netcdf_task(task)
+    if task.status == cmor_task.status_failed:
+        return
+    execute_netcdf_task(task)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -321,7 +325,7 @@ def find_sp_variable(task):
     task.source.grid_ = 0
 
 
-grid_id = 0
+grid_id = -1
 time_axis_ids = {}
 time_axis_bnds = {}
 depth_axis_ids = {}
@@ -329,6 +333,14 @@ depth_axis_ids = {}
 
 def define_cmor_axes(task):
     global grid_id
+    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized]:
+        return
+    if grid_id == -1:
+        cmor.load_table(table_root_ + "_grids.json")
+        if not hasattr(task, "path"):
+            task.set_failed()
+            return
+        grid_id = create_grid_from_grib(getattr(task, "path"))
     tgtdims = getattr(task.target, cmor_target.dims_key).split()
     if "latitude" in tgtdims and "longitude" in tgtdims:
         setattr(task, "grid_id", grid_id)
@@ -628,9 +640,9 @@ def create_time_axis(freq, path, name, has_bounds):
         # TODO (Low Priority) replace lower bound in initial leg...
         #        if bounds[0, 0] != start_point:
         #            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
-        #                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
-        dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
-        dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
+        #                        (refdate + timedelta(hours=bounds[0, 0]), start_date_))
+        dt_low = [refdate + timedelta(hours=t) for t in bounds[:, 0]]
+        dt_up = [refdate + timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
                          cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
@@ -648,7 +660,7 @@ def create_time_axis(freq, path, name, has_bounds):
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
                     "removed" % (path, len([t for t in date_times if t >= start_date_])))
     times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
-    dt = [refdate + datetime.timedelta(hours=t) for t in times]
+    dt = [refdate + timedelta(hours=t) for t in times]
     return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
 
 
@@ -669,15 +681,6 @@ def get_sp_var(ncpath):
     except Exception as e:
         log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
-
-
-# Retrieves all IFS output files in the input directory.
-def select_files(path, expname, start, length):
-    allfiles = cmor_utils.find_ifs_output(path, expname)
-    start_date = cmor_utils.make_datetime(start).date()
-    end_date = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if f.endswith(expname + "+000000") or
-            (end_date > cmor_utils.get_ifs_date(f) >= start_date)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.

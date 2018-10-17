@@ -20,7 +20,6 @@ def main(args=None):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("datadir", metavar="DIR", type=str)
-    parser.add_argument("date", metavar="YYYY-mm-dd", type=str)
     parser.add_argument("--vars", metavar="FILE", type=str, default=None,
                         help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--conf", metavar="FILE.json", type=str, default=ece2cmorlib.conf_path_default,
@@ -100,12 +99,11 @@ def main(args=None):
 
     taskloader.load_targets(args.vars, model_active_flags)
 
-    startdate = dateutil.parser.parse(args.date)
-    length = dateutil.relativedelta.relativedelta(months=1)
     if model_active_flags["ifs"]:
         refdate = dateutil.parser.parse(args.refd) if args.refd else None
         # Execute the atmosphere cmorization:
-        ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp, startdate, length, refdate=refdate,
+        ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp, 
+				      refdate=refdate,
                                       outputfreq=args.freq,
                                       tempdir=args.tmpdir,
                                       taskthreads=args.npp,

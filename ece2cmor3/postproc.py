@@ -37,7 +37,7 @@ def post_process(task, path):
     output_path = os.path.join(path, output_file_name) if path else None
     filepath = apply_command(command, task, output_path)
     if filepath is not None and task.status != cmor_task.status_failed:
-        setattr(task, cmor_task.output_path_key, filepath)
+        setattr(task, cmor_task.output_path_key, output_path)
 
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.

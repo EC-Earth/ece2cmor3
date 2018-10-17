@@ -238,22 +238,24 @@ def execute(tasks, multi_threaded=False):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
     task2files, task2freqs = cluster_files(valid_tasks)
-    filehandles = open_files(varsfiles)
-    if multi_threaded:
-        threads = []
-        for file_list in [gridpoint_files, spectral_files]:
-            # TODO: Implement month filtering feature
-            thread = threading.Thread(target=filter_grib_files, args=(file_list, filehandles, 0, 0))
-            threads.append(thread)
-            thread.start()
-        threads[0].join()
-        threads[1].join()
-    else:
-        for file_list in [gridpoint_files, spectral_files]:
-            # TODO: Implement month filtering feature
-            filter_grib_files(file_list, filehandles, month=0, year=0)
-    for handle in filehandles.values():
-        handle.close()
+    filter_files = True
+    if filter_files:
+        filehandles = open_files(varsfiles)
+        if multi_threaded:
+            threads = []
+            for file_list in [gridpoint_files, spectral_files]:
+                # TODO: Implement month filtering feature
+                thread = threading.Thread(target=filter_grib_files, args=(file_list, filehandles, 0, 0))
+                threads.append(thread)
+                thread.start()
+            threads[0].join()
+            threads[1].join()
+        else:
+            for file_list in [gridpoint_files, spectral_files]:
+                # TODO: Implement month filtering feature
+                filter_grib_files(file_list, filehandles, month=0, year=0)
+        for handle in filehandles.values():
+            handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.filter_output_key, [os.path.join(temp_dir, p) for p in task2files[task]])
@@ -407,7 +409,7 @@ def proc_grib_file(gribfile, handles):
             timestamp = t
         keys.add(key)
         write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
-    gribfile.release()
+    	gribfile.release()
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
