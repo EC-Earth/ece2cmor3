@@ -122,10 +122,6 @@ def write_ppt_files(tasks):
         mfpphy.append(cmor_source.grib_code(134))
         # Always add the logarithm of surface pressure, recommended by ECMWF
         mfp2df.append(cmor_source.grib_code(152))
-        # Always add orography and land mask for lowest frequency ppt
-        if freq == min_freq:
-            mfpphy.append(cmor_source.grib_code(129))
-            mfpphy.append(cmor_source.grib_code(172))
         nfp2dfsp, nfp2dfgp = count_spectral_codes(mfp2df)
         mfp2df = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp2df))))
         nfpphysp, nfpphygp = count_spectral_codes(mfpphy)
@@ -181,9 +177,14 @@ def write_ppt_files(tasks):
         nml.uppercase, nml.end_comma = True, True
         f90nml.write(nml, "pptdddddd%04d" % (100 * freq,))
         if freq == min_freq:
-            # Write initial state ppt
+            # Always add orography and land mask for lowest frequency ppt
+            mfpphy.extend([129, 172])
+            mfpphy = sorted(list(set(mfpphy)))
+            namelist["MFPPHY"] = mfpphy
+            namelist["NFPPHY"] = len(mfpphy)
             nml = f90nml.Namelist({"NAMFPC": namelist})
             nml.uppercase, nml.end_comma = True, True
+            # Write initial state ppt
             f90nml.write(nml, "ppt0000000000")
     average_hours_per_month = 730
     slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) / prev_freq

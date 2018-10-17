@@ -13,7 +13,8 @@ log = logging.getLogger(__name__)
 
 extra_axes = {"basin": {"ncdim": "3basin",
                         "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
-              "typesi": {"ncdim": "ncatice"}}
+              "typesi": {"ncdim": "ncatice"},
+              "iceband": {"ncdim": "ncatice"}}
 
 # Experiment name
 exp_name_ = None
