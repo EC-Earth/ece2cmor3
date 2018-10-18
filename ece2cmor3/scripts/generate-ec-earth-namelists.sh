@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This scripts needs no arguments
+# This scripts needs four or five arguments
 #
 # ${1} the first   argument is the MIP name
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
@@ -13,6 +13,15 @@
 # Run example:
 #  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
 #
+# With this script it is possible to generate the EC-Earth3 control output files, i.e.
+# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called in a loop over the MIP experiments by the script:
+#  genecec.py
 
 
 # Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
