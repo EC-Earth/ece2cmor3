@@ -2,11 +2,19 @@
 # Thomas Reerink
 #
 # Run example:
-#  python generate-ec-earth-namelists-for-all-MIP-experiments.py
+#  python genecec.py
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
 # namelists are created by calling the generate-ec-earth-namelists.sh script.
+#
+# With this script it is possible to generate the EC-Earth3 control output files, i.e.
+# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) for all MIP experiments in which EC-Earth3
+# participates.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
 #
 
 import sys
