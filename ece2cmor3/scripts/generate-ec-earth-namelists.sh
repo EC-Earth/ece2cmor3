@@ -127,6 +127,9 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo 'The estimate of the Volumes:'
   ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
+  # Generating the available, ignored, identified missing and missing files for this MIP experiment:
+ #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+
   echo
  #source deactivate
  fi
