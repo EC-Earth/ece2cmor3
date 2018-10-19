@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This scripts needs no arguments
+# This scripts needs four or five arguments
 #
 # ${1} the first   argument is the MIP name
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
@@ -11,8 +11,17 @@
 #
 #
 # Run example:
-#  ./generate-ec-earth-namelists.sh CMIP amip 1 1
+#  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
 #
+# With this script it is possible to generate the EC-Earth3 control output files, i.e.
+# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called in a loop over the MIP experiments by the script:
+#  genecec.py
 
 
 # Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
@@ -79,41 +88,51 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+
+  mkdir -p ${path_of_created_output_control_files}/file_def-compact
+  mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+  mv -f volume-estimate.txt ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+
+  # Creating the file_def files for XIOS NEMO input:.
+  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+  mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
+
+  echo
+  echo 'The produced data request excel file:'
+  ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
+
+  echo
+  echo 'The generated ppt files are:'
+  ls -1 ${path_of_created_output_control_files}/ppt0000000000
+  ls -1 ${path_of_created_output_control_files}/pptdddddd0300
+  ls -1 ${path_of_created_output_control_files}/pptdddddd0600
+
+  echo
+  echo 'The generated file_def files are:'
+  ls -1 ${path_of_created_output_control_files}/cmip6-file_def_nemo.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
+
+  echo
+  echo 'The estimate of the Volumes:'
+  ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+
+  # Generating the available, ignored, identified missing and missing files for this MIP experiment:
+ #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+
+  echo
  #source deactivate
  fi
- mkdir -p ${path_of_created_output_control_files}/file_def-compact
- mv -f ppt0000000000 pptdddddd0*00 ${path_of_created_output_control_files}
-
- # Creating the file_def files for XIOS NEMO input:.
- ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ${path_of_created_output_control_files}
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
-
- echo
- echo 'The produced data request excel file:'
- ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
-
- echo
- echo 'The generated ppt files are:'
- ls -1 ${path_of_created_output_control_files}/ppt0000000000
- ls -1 ${path_of_created_output_control_files}/pptdddddd0300
- ls -1 ${path_of_created_output_control_files}/pptdddddd0600
-
- echo
- echo 'The generated file_def files are:'
- ls -1 ${path_of_created_output_control_files}/cmip6-file_def_nemo.xml
- ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
- ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
- ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
- ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
- echo
 
 else
     echo '  '

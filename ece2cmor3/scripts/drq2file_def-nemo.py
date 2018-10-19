@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_amip_1_1.xlsx
-
+#  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#
+# With this script it is possible to generate the EC-Earth3 NEMO control output files, i.e.
+# the NEMO xml files for XIOS (the file_def files for OPA, LIM and PISCES) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
 # Note that this script is called by the script:
 #  generate-ec-earth-namelists.sh
+#
 
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir

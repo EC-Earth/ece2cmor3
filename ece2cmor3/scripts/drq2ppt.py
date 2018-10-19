@@ -2,6 +2,16 @@
 
 # Call this script e.g. by:
 #  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#
+# With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
+# the IFS Fortran namelists (the ppt files) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called by the script:
+#  generate-ec-earth-namelists.sh
+#
 
 import argparse
 import logging
@@ -206,6 +216,13 @@ def write_ppt_files(tasks):
              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
     log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
 
+    volume_estimate = open('volume-estimate.txt','w')
+    volume_estimate.write(' EC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
+    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
+    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
+    volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
+    volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+    volume_estimate.close()
 
 
 
