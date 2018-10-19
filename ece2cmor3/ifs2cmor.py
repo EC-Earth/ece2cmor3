@@ -24,14 +24,10 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 ifs_gridpoint_file_ = None
 ifs_spectral_file_ = None
-ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
 ln_surface_pressure = cmor_source.grib_code(152)
-
-# IFS grid description data
-ifs_grid_descr_ = {}
 
 # Start date of the processed data
 start_date_ = None
@@ -56,8 +52,8 @@ masks = {}
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
                outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, ifs_init_gridpoint_file_, \
-        output_interval_, ifs_grid_descr_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
+    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, \
+        output_interval_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -67,24 +63,17 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
     ref_date_ = refdate
 
     datafiles = select_files(path, exp_name_, start, length)
-    inifiles = [f for f in datafiles if os.path.basename(f) == "ICMGG" + exp_name_ + "+000000"]
-    #prevent inifile with "000000" to be aded to gpfiles
-#    gpfiles  = [f for f in datafiles if (os.path.basename(f).startswith("ICMGG") and not(os.path.basename(f).endswith("000000")))]
-#    shfiles  = [f for f in datafiles if (os.path.basename(f).startswith("ICMSH") and not(os.path.basename(f).endswith("000000")))]
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH")]
+
+    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG") and
+               not os.path.basename(f).endswith("+000000")]
+    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH") and
+               not os.path.basename(f).endswith("+000000")]
     if len(gpfiles) > 1 or len(shfiles) > 1:
         # TODO: Support postprocessing over multiple files
         log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
                      will take first file of each list." % (path, str(gpfiles), str(shfiles)))
     ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
     ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
-    if any(inifiles):
-        ifs_init_gridpoint_file_ = inifiles[0]
-        if len(inifiles) > 1:
-            log.warning("Multiple initial gridpoint files found, will proceed with %s" % ifs_init_gridpoint_file_)
-    else:
-        ifs_init_gridpoint_file_ = ifs_gridpoint_file_
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
@@ -104,22 +93,15 @@ def initialize(path, expname, tableroot, start, length, refdate, interval=dateut
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
 def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
-    global log, start_date_, ifs_grid_descr_
+    global log, start_date_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     surf_pressure_tasks = get_sp_tasks(supported_tasks, autofilter)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
-    grid_descr_file = None
     if autofilter:
         tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
-        for t in tasks_todo:
-            if getattr(t.source, "grid_", None) == cmor_source.ifs_grid.point:
-                filepaths = getattr(t, cmor_task.filter_output_key, [])
-                if any(filepaths):
-                    grid_descr_file = filepaths[0]
-                    break
     else:
         for task in tasks_todo:
             grid = getattr(task.source, "grid_")
@@ -132,9 +114,6 @@ def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
                                                                                    task.target.table))
                 task.set_failed()
             setattr(task, cmor_task.output_frequency_key, output_frequency_)
-        grid_descr_file = ifs_gridpoint_file_
-    log.info("Fetching grid description from %s ..." % grid_descr_file)
-    ifs_grid_descr_ = cdoapi.cdo_command().get_grid_descr(grid_descr_file) if os.path.exists(grid_descr_file) else {}
     processed_tasks = []
     try:
         log.info("Post-processing tasks...")
@@ -281,9 +260,9 @@ def get_sp_tasks(tasks, autofilter):
 
 # Postprocessing of IFS tasks
 def postprocess(tasks):
-    global log, temp_dir_, max_size_, ifs_grid_descr_, surface_pressure
+    global log, temp_dir_, max_size_, surface_pressure
     log.info("Post-processing %d IFS tasks..." % len(tasks))
-    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_, ifs_grid_descr_)
+    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_)
     log.info("Post-processed batch of %d tasks." % len(tasks_done))
     return tasks_done
 
@@ -346,6 +325,7 @@ def cmorize(tasks, nthreads):
 
 grid_id = 0
 time_axis_ids = {}
+time_axis_bnds = {}
 depth_axis_ids = {}
 
 
@@ -355,6 +335,16 @@ def init_cmor(filepath):
     cmor.load_table(table_root_ + "_grids.json")
     if grid_id == 0:
         grid_id = create_grid_from_grib(filepath)
+
+
+# Worker function for parallel cmorization (not working at the present...)
+def cmor_worker(task):
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    define_cmor_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    execute_netcdf_task(task)
 
 
 def define_cmor_axes(task):
@@ -377,16 +367,6 @@ def define_cmor_axes(task):
     create_depth_axes(task)
 
 
-# Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(task):
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
-    define_cmor_axes(task)
-    if task.status == cmor_task.status_failed:
-        return
-    execute_netcdf_task(task)
-
-
 # Executes a single task
 def execute_netcdf_task(task):
     global log
@@ -406,14 +386,14 @@ def execute_netcdf_task(task):
             "%s" % (task.target.variable, task.target.table))
         return
     axes = []
-    gid = getattr(task, "grid_id", 0)
-    if gid != 0:
-        axes.append(gid)
+    t_bnds = []
+    if hasattr(task, "grid_id"):
+        axes.append(getattr(task, "grid_id"))
     if hasattr(task, "z_axis_id"):
         axes.append(getattr(task, "z_axis_id"))
-    time_id = getattr(task, "t_axis_id", 0)
-    if time_id != 0:
-        axes.append(time_id)
+    if hasattr(task, "t_axis_id"):
+        axes.append(getattr(task, "t_axis_id"))
+        t_bnds = time_axis_bnds.get(getattr(task, "t_axis_id"), [])
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
@@ -447,13 +427,29 @@ def execute_netcdf_task(task):
                 time_dim = index
                 break
             index += 1
+
+        time_selection = None
+        time_stamps = cmor_utils.read_time_stamps(filepath)
+        if any(time_stamps):
+            time_slice_map = []
+            for bnd in t_bnds:
+                candidates = [t for t in time_stamps if bnd[0] <= t <= bnd[1]]
+                if any(candidates):
+                    time_slice_map.append(time_stamps.index(candidates[0]))
+                else:
+                    log.warning("For variable %s in table %s, no valid time point could be found at %s...inserting "
+                                "missing values" % (task.target.variable, task.target.table, str(bnd[0])))
+                    time_slice_map.append(-1)
+            time_selection = numpy.array(time_slice_map)
+
         mask = getattr(task.target, cmor_target.mask_key, None)
         mask_array = masks[mask].get("array", None) if mask in masks else None
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
-                               swaplatlon=False, fliplat=True, mask=mask_array, missval=missval)
+                               swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
+                               time_selection=time_selection)
         cmor.close(var_id)
         task.next_state()
         if store_var:
@@ -493,7 +489,7 @@ def get_conversion_constants(conversion, output_frequency):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(task):
-    global log, time_axis_ids
+    global log, time_axis_ids, time_axis_bnds
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # TODO: better to check in the table axes if the standard name of the dimension equals "time"
     time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
@@ -511,9 +507,10 @@ def create_time_axes(task):
     else:
         time_operator = getattr(task.target, "time_operator", ["point"])
         log.info("Creating time axis using variable %s..." % task.target.variable)
-        tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
-                               name=time_dim, has_bounds=(time_operator != ["point"]))
+        tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                                          name=time_dim, has_bounds=(time_operator != ["point"]))
         time_axis_ids[key] = tid
+        time_axis_bnds[tid] = zip(tlow, tup)
     setattr(task, "t_axis_id", tid)
 
 
@@ -547,7 +544,7 @@ def create_depth_axes(task):
         return
     elif z_dim == "sdepth":
         log.info("Creating soil depth axis using variable %s..." % task.target.variable)
-        axisid = create_soil_depth_axis(z_dim, getattr(task, cmor_task.output_path_key))
+        axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
     elif z_dim in cmor_target.get_axis_info(task.target.table):
@@ -622,76 +619,59 @@ def create_hybrid_level_axis(task):
 
 
 # Creates a soil depth axis.
-def create_soil_depth_axis(name, filepath):
+def create_soil_depth_axis(name):
     global log
     # New version of cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="cm")
-    # dataset = None
-    # try:
-    #     dataset = netCDF4.Dataset(filepath, 'r')
-    #     ncvar = dataset.variables.get("depth", None)
-    #     if not ncvar:
-    #         log.error("Could retrieve depth coordinate from file %s" % filepath)
-    #         return 0
-    #     units = getattr(ncvar, "units", "cm")
-    #     if units == "mm":
-    #         factor = 0.001
-    #     elif units == "cm":
-    #         factor = 0.01
-    #     elif units == "m":
-    #         factor = 1
-    #     else:
-    #         log.error("Unknown units for depth axis in file %s" % filepath)
-    #         return 0
-    #     values = factor * ncvar[:]
-    #     ncvar = dataset.variables.get("depth_bnds", None)
-    #     if not ncvar:
-    #         n = len(values)
-    #         bounds = numpy.empty([n, 2])
-    #         bounds[0, 0] = 0.
-    #         if n > 1:
-    #             bounds[1:, 0] = (values[0:n - 1] + values[1:]) / 2
-    #             bounds[0:n - 1, 1] = bounds[1:n, 0]
-    #             bounds[n - 1, 1] = (3 * values[n - 1] - bounds[n - 1, 0]) / 2
-    #         else:
-    #             bounds[0, 1] = 2 * values[0]
-    #     else:
-    #         bounds = factor * ncvar[:, :]
-    #     return cmor.axis(table_entry=name, coord_vals=values, cell_bounds=bounds, units="m")
-    # except Exception as e:
-    #     log.error("Could not read netcdf file %s while creating soil depth axis, reason: %s" % (filepath, e.message))
-    # finally:
-    #     if dataset is not None:
-    #         dataset.close()
-    # return 0
 
 
 # Makes a time axis for the given table
 def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
-    command = cdo.Cdo()
-    times = command.showtimestamp(input=path)[0].split()
-    datetimes = sorted(set(map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)))
-    if len(datetimes) == 0:
+    date_times = cmor_utils.read_time_stamps(path)
+    if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
-        return
+        return 0
     refdate = cmor_utils.make_datetime(ref_date_)
     if has_bounds:
-        n = len(datetimes)
+        n = len(date_times)
         bounds = numpy.empty([n, 2])
         rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time) - refdate).total_seconds() / 3600.,
-                            datetimes)
+                            date_times)
         bounds[:, 0] = rounded_times[:]
         bounds[0:n - 1, 1] = rounded_times[1:n]
-        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, datetimes[n - 1], 1) - refdate).total_seconds() / 3600.
-        times[:] = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
+        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
+        times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
+        # TODO (Low Priority) replace lower bound in initial leg...
+        #        if bounds[0, 0] != start_point:
+        #            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
+        #                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
+        dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
+        dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
         return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
-                         cell_bounds=bounds)
-    times = numpy.array([(d - refdate).total_seconds() / 3600 for d in datetimes])
-    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times)
+                         cell_bounds=bounds), dt_low, dt_up
+
+    step = cmor_utils.make_cmor_frequency(freq)
+
+    if date_times[0] >= start_date_ + step:
+        date = date_times[0]
+        extra_dates = []
+        while date > start_date_:
+            date = date - step
+            extra_dates.append(date)
+        log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
+                    (path, len(extra_dates)))
+        date_times = extra_dates[::-1] + date_times
+    if date_times[0] < start_date_:
+        date_times = [t for t in date_times if t >= start_date_]
+        log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
+                    "removed" % (path, len([t for t in date_times if t >= start_date_])))
+    times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
+    dt = [refdate + datetime.timedelta(hours=t) for t in times]
+    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
 
 
 # Surface pressure variable lookup utility
