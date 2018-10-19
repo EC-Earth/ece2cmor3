@@ -105,7 +105,9 @@ def main(args=None):
     if model_active_flags["lpjg"]:
         ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
     if model_active_flags["tm5"]:
-        ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, startdate, length)
+        refdate = dateutil.parser.parse(args.refd) if args.refd else None
+        
+        ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, startdate, length, refdate)
 #   if procNEWCOMPONENT:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, startdate, length)
    
