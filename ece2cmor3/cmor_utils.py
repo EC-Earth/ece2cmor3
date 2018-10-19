@@ -182,22 +182,24 @@ def find_tm5_output(path, expname=None,varname=None,freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,8}-[0-9]{6,8}.nc$")
+    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
 
     a=[os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+    #print a
+    #fsfafjjj
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 def get_tm5_frequency(filepath, expname):
     global log
     f = os.path.basename(filepath)
-    expr = re.compile(".*_[0-9]{6,8}-[0-9]{6,8}.nc$")
+    expr = re.compile(".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
     if not re.match(expr, f):
         log.error("File path %s does not correspond to tm5 output of experiment %s" % (filepath, expname))
         return None
 
     fstr = f.split("_")[1]
-    #expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday|Emon|Efx)")
-    expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
+    expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday|Emon|Efx|CFsubhr)")
+    #expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
@@ -210,7 +212,8 @@ def get_tm5_frequency(filepath, expname):
 def get_tm5_interval(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.findall("[0-9]{6,8}", fname) #mon(6),day(8), hour(10)
+    regex = re.findall("[0-9]{6,12}", fname) #mon(6),day(8), hour(10)
+    print regex
     if not regex or len(regex) != 2:
         log.error("Unable to parse dates from tm5 file name %s" % fname)
         return None
@@ -221,10 +224,14 @@ def get_tm5_interval(filepath):
         start = datetime.datetime.strptime(regex[0][:], "%Y%m")
         end = datetime.datetime.strptime(regex[1][:], "%Y%m")
     elif  len(regex[0])==10:
-        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%h")
-        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d%h")
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d%H")
+    elif  len(regex[0])==12:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H%M")
+        end = datetime.datetime.strptime(regex[1][:], '%Y%m%d%H%M')
     else:
         log.error("Date string in filename %s not supported." % fname)
+    
     return start, end
 # Returns the grid for the given file name.
 def get_tm5_grid(filepath, expname):
