@@ -35,7 +35,6 @@ output_frequency_ = 6
 
 # Fast storage temporary path
 temp_dir_ = None
-max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
 ref_date_ = None
@@ -48,10 +47,9 @@ masks = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, maxsizegb=float("inf"),
-               autofilter=True):
+def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
-        temp_dir_, max_size_, ref_date_, start_date_, output_frequency_, auto_filter_
+        temp_dir_, ref_date_, start_date_, output_frequency_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -94,7 +92,6 @@ def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, ma
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
-    max_size_ = maxsizegb
     if auto_filter_:
         grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_)
     return True
@@ -613,7 +610,7 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name):
     global log
-    # New version of cdo fails to pass soil depths correctly:
+    # Hard-coded because cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
@@ -627,24 +624,15 @@ def create_time_axis(freq, path, name, has_bounds):
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return 0
-    refdate = cmor_utils.make_datetime(ref_date_)
     if has_bounds:
-        n = len(date_times)
-        bounds = numpy.empty([n, 2])
-        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time) - refdate).total_seconds() / 3600.,
-                            date_times)
-        bounds[:, 0] = rounded_times[:]
-        bounds[0:n - 1, 1] = rounded_times[1:n]
-        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
+        bounds = numpy.empty([len(date_times), 2])
+        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
+        dt_low = rounded_times
+        dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
+        bounds[:, 0], units = cmor_utils.date2num(dt_low, ref_date_)
+        bounds[:, 1], units = cmor_utils.date2num(dt_up, ref_date_)
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
-        # TODO (Low Priority) replace lower bound in initial leg...
-        #        if bounds[0, 0] != start_point:
-        #            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
-        #                        (refdate + timedelta(hours=bounds[0, 0]), start_date_))
-        dt_low = [refdate + timedelta(hours=t) for t in bounds[:, 0]]
-        dt_up = [refdate + timedelta(hours=t) for t in bounds[:, 1]]
-        return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
-                         cell_bounds=bounds), dt_low, dt_up
+        return cmor.axis(table_entry=str(name), units=units, coord_vals=times, cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
     if date_times[0] >= start_date_ + step:
         date = date_times[0]
@@ -659,9 +647,8 @@ def create_time_axis(freq, path, name, has_bounds):
         date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
                     "removed" % (path, len([t for t in date_times if t >= start_date_])))
-    times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
-    dt = [refdate + timedelta(hours=t) for t in times]
-    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
+    times, units = cmor_utils.date2num(date_times, ref_date_)
+    return cmor.axis(table_entry=str(name), units=units, coord_vals=times), date_times, date_times
 
 
 # Surface pressure variable lookup utility

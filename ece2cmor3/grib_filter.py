@@ -184,7 +184,8 @@ def get_prev_file(grb_file):
         output_name = os.path.basename(output_path)
         if output_name[:10] == fname[:10] + "+000000":
             ini_path = output_name
-        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and int(output_name[14:]) == prev_mon:
+        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and int(
+                output_name[14:]) == prev_mon:
             log.info("Found previous month file %s" % output_path)
             return output_path
     return ini_path
@@ -403,13 +404,13 @@ def proc_grib_file(gribfile, handles):
         t = gribfile.get_field(grib_file.time_key)
         key = get_record_key(gribfile)
         if t == timestamp and key in keys:
-            continue # Prevent double grib messages
+            continue  # Prevent double grib messages
         if t != timestamp:
             keys = set()
             timestamp = t
         keys.add(key)
         write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
-    	gribfile.release()
+        gribfile.release()
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields

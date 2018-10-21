@@ -120,8 +120,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
-        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
-                             datetime.timedelta(days=365))
+        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         src = cmor_source.netcdf_source("tos", "nemo")
         tgt = cmor_target.cmor_target("tos", "Omon")
         setattr(tgt, "frequency", "mon")
@@ -156,8 +155,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
-        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
-                             datetime.timedelta(days=100))
+        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         nemo2cmor.finalize()
         cmor.close()
 
@@ -166,8 +164,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
-        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
-                             datetime.timedelta(days=365))
+        nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         src = cmor_source.netcdf_source("to", "nemo")
         tgt = cmor_target.cmor_target("thetao", "Omon")
         setattr(tgt, "frequency", "mon")
