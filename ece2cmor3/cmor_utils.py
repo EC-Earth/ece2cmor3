@@ -36,13 +36,10 @@ def group(objects, func):
 
 
 # Turns a date or datetime into a datetime
-def make_datetime(time):
-    if isinstance(time, datetime.date):
-        return datetime.datetime.combine(time, datetime.datetime.min.time())
-    elif isinstance(time, datetime.datetime):
-        return time
-    else:
-        raise Exception("Cannot convert object", time, "to datetime")
+def date2num(times, ref_time):
+    def shift_times(t):
+        return (t - ref_time).total_seconds()/3600.
+    return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
 
 
 # Creates a time interval from the input string, assuming ec-earth conventions
@@ -117,8 +114,6 @@ def get_ifs_date(filepath):
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
     ss = regex.group()[1:]
-    # prevent runtimeerror for "000000"
-    #    return datetime.datetime.strptime("000101","%Y%m").date() if ss.startswith("000000") else datetime.datetime.strptime(ss,"%Y%m").date()
     return datetime.datetime.strptime(ss, "%Y%m").date()
 
 
@@ -131,17 +126,17 @@ def find_nemo_output(path, expname=None):
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 
-# Returns the start and end date corresponding to the given nemo output file.
-def get_nemo_interval(filepath):
+# Returns the grid for the given file name.
+def get_nemo_grid(filepath, expname):
     global log
-    fname = os.path.basename(filepath)
-    regex = re.findall("_[0-9]{8}", fname)
-    if not regex or len(regex) != 2:
-        log.error("Unable to parse dates from nemo file name %s" % fname)
+    f = os.path.basename(filepath)
+    expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
+    result = re.search(expr, f)
+    if not result:
+        log.error("File path %s does not contain a grid string" % filepath)
         return None
-    start = datetime.datetime.strptime(regex[0][1:], "%Y%m%d")
-    end = datetime.datetime.strptime(regex[1][1:], "%Y%m%d")
-    return start, end
+    match = result.group(0)
+    return match[0:len(match) - 3]
 
 
 # Returns the frequency string for a given nemo output file.
@@ -162,19 +157,6 @@ def get_nemo_frequency(filepath, expname):
         log.error("Invalid frequency 0 parsed from file path %s" % filepath)
         return None
     return fstr
-
-
-# Returns the grid for the given file name.
-def get_nemo_grid(filepath, expname):
-    global log
-    f = os.path.basename(filepath)
-    expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
-    result = re.search(expr, f)
-    if not result:
-        log.error("File path %s does not contain a grid string" % filepath)
-        return None
-    match = result.group(0)
-    return match[0:len(match) - 3]
 
 
 def read_time_stamps(path):

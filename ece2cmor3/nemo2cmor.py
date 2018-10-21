@@ -19,6 +19,9 @@ extra_axes = {"basin": {"ncdim": "3basin",
 # Experiment name
 exp_name_ = None
 
+# Reference date
+ref_date_ = None
+
 # Table root
 table_root_ = None
 
@@ -39,11 +42,12 @@ type_axes_ = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, start, length):
-    global log, nemo_files_, exp_name_, table_root_
+def initialize(path, expname, tableroot, refdate):
+    global log, nemo_files_, exp_name_, table_root_, ref_date_
     exp_name_ = expname
     table_root_ = tableroot
-    nemo_files_ = select_files(path, expname, start, length)
+    ref_date_ = refdate
+    nemo_files_ = cmor_utils.find_nemo_output(path, expname)
     cal = None
     for f in nemo_files_:
         cal = read_calendar(f)
@@ -238,21 +242,40 @@ def create_time_axes(ds, tasks, table):
     if table not in time_axes_:
         time_axes_[table] = {}
     table_time_axes = time_axes_[table]
+    times, time_bounds, time_units = None, None, None
+    for varname, ncvar in ds.variables.items():
+        if getattr(ncvar, "standard_name", None) == "time" or varname == "time_counter":
+            time_bnds = ds.variables.get(getattr(ncvar, "bounds", None), None)
+            if time_bnds is None:
+                time_bnds = numpy.empty([len(ncvar[:]), 2])
+                time_bnds[1:, 0] = 0.5 * (ncvar[0:-1] + ncvar[1:])
+                time_bnds[:-1, 1] = time_bnds[1:, 0]
+                time_bnds[0, 0] = 1.5 * ncvar[0] - 0.5 * ncvar[1]
+                time_bnds[-1, 1] = 1.5 * ncvar[-1] - 0.5 * ncvar[-2]
+            dt_array = netCDF4.num2date(ncvar[:], units=getattr(ncvar, "units", None),
+                                        calendar=getattr(ds, "calendar", "gregorian"))
+            times, time_units = cmor_utils.date2num(dt_array, ref_date_)
+            dtb_array = netCDF4.num2date(time_bnds[:, :], units=getattr(ncvar, "units", None),
+                                         calendar=getattr(ds, "calendar", "gregorian"))
+            time_bounds, time_bounds_units = cmor_utils.date2num(dtb_array, ref_date_)
+            break
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key)
-        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             if time_dim in table_time_axes:
                 tid = table_time_axes[time_dim]
             else:
+                if times is None:
+                    log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
+                              (ds.filepath(), task.target.variable, task.target.table))
+                    task.set_failed()
+                    continue
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 if time_operator == ["point"]:
-                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
-                                    coord_vals=ds.variables["time_counter"][:])
+                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times)
                 else:
-                    tid = cmor.axis(table_entry=str(time_dim), units=getattr(ds.variables["time_counter"], "units"),
-                                    coord_vals=ds.variables["time_counter"][:],
-                                    cell_bounds=ds.variables[getattr(ds.variables["time_counter"], "bounds")][:, :])
+                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times,
+                                    cell_bounds=time_bounds)
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
@@ -313,15 +336,6 @@ def select_freq_files(freq):
         n = 1 if freq == "hr" else int(freq[:-2])
         nemo_freq = str(n) + "h"
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
-
-
-# Retrieves all NEMO output files in the input directory.
-def select_files(path, expname, start, length):
-    allfiles = cmor_utils.find_nemo_output(path, expname)
-    starttime = cmor_utils.make_datetime(start)
-    stoptime = cmor_utils.make_datetime(start + length)
-    return [f for f in allfiles if
-            cmor_utils.get_nemo_interval(f)[0] <= stoptime and cmor_utils.get_nemo_interval(f)[1] >= starttime]
 
 
 # Reads the calendar attribute from the time dimension.

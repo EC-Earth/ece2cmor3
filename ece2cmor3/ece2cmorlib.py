@@ -1,6 +1,7 @@
 import cmor
 import os
 import logging
+import datetime
 from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, postproc
 
 # Logger instance
@@ -136,14 +137,14 @@ def add_mask(name, src, func, val):
 
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
+def perform_ifs_tasks(datadir, expname,
+                      refdate=None,
                       postprocmode=postproc.recreate,
                       tempdir="/tmp/ece2cmor",
                       taskthreads=4,
                       cdothreads=4,
                       cleanup=True,
-                      outputfreq=3,
-                      maxsizegb=float("inf")):
+                      outputfreq=3):
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
@@ -155,38 +156,40 @@ def perform_ifs_tasks(datadir, expname, startdate, interval, refdate=None,
     else:
         ifs2cmor.masks = {}
     ofreq = -1 if auto_filter else outputfreq
-    if (not ifs2cmor.initialize(datadir, expname, tableroot, startdate, interval, refdate if refdate else startdate,
-                                outputfreq=ofreq, tempdir=tempdir, maxsizegb=maxsizegb, autofilter=auto_filter)):
+    if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
+                                outputfreq=ofreq, tempdir=tempdir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
-    ifs2cmor.execute(ifs_tasks, cleanup=cleanup, autofilter=auto_filter, nthreads=taskthreads)
+    ifs2cmor.execute(ifs_tasks, cleanup=cleanup, nthreads=taskthreads)
 
 
 # Performs a NEMO cmorization processing:
-def perform_nemo_tasks(datadir, expname, startdate, interval):
+def perform_nemo_tasks(datadir, expname, refdate):
     global log, tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
-    if not nemo2cmor.initialize(datadir, expname, tableroot, startdate, interval):
+    if not nemo2cmor.initialize(datadir, expname, tableroot, refdate):
         return
     nemo2cmor.execute(nemo_tasks)
 
+
 # Performs a LPJG cmorization processing:
-def perform_lpjg_tasks(datadir, ncdir, expname, startdate, interval):
-    global log ,tasks, table_dir, prefix
+def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
+    global log, tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
     log.info("Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks), len(tasks)))
-    if(not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, startdate, interval)):
+    if not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, refdate):
         return
     lpjg2cmor.execute(lpjg_tasks)
 
-#def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
+
+# def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix
 #    validate_setup_settings()
 #    validate_run_settings(datadir, expname)

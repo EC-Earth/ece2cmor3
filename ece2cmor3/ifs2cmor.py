@@ -1,15 +1,12 @@
-import datetime
-
-import cdo
 import cmor
-import dateutil.relativedelta
+import glob
 import logging
 import multiprocessing
 import netCDF4
 import numpy
 import os
-import tempfile
 
+from datetime import datetime, timedelta
 from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger construction
@@ -22,8 +19,9 @@ exp_name_ = None
 table_root_ = None
 
 # Files that are being processed in the current execution loop.
-ifs_gridpoint_file_ = None
-ifs_spectral_file_ = None
+ifs_gridpoint_files_ = None
+ifs_spectral_files_ = None
+ifs_init_gridpoint_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -32,99 +30,131 @@ ln_surface_pressure = cmor_source.grib_code(152)
 # Start date of the processed data
 start_date_ = None
 
-# Output interval. Denotes the output file periods.
-output_interval_ = None
-
 # Output frequency (hrs). Minimal interval between output variables.
 output_frequency_ = 6
 
 # Fast storage temporary path
 temp_dir_ = None
-max_size_ = float("inf")
 
 # Reference date, times will be converted to hours since refdate
 ref_date_ = None
+
+# Autofilter option
+auto_filter_ = True
 
 # Available geospatial masks, assigned by ece2cmorlib
 masks = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, start, length, refdate, interval=dateutil.relativedelta.relativedelta(month=1),
-               outputfreq=6, tempdir=None, maxsizegb=float("inf"), autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_file_, ifs_spectral_file_, \
-        output_interval_, temp_dir_, max_size_, ref_date_, start_date_, output_frequency_
+def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, autofilter=True):
+    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
+        temp_dir_, ref_date_, start_date_, output_frequency_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
-    start_date_ = start
-    output_interval_ = interval
     output_frequency_ = outputfreq
     ref_date_ = refdate
+    auto_filter_ = autofilter
+    
+    ifs_init_gridpoint_file_ = find_init_file(path, expname)
+    file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
+    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern) 
+                                                                     if not f.endswith("+000000")}
+    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern) 
+                                                                     if not f.endswith("+000000")}
 
-    datafiles = select_files(path, exp_name_, start, length)
-
-    gpfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMGG") and
-               not os.path.basename(f).endswith("+000000")]
-    shfiles = [f for f in datafiles if os.path.basename(f).startswith("ICMSH") and
-               not os.path.basename(f).endswith("+000000")]
-    if len(gpfiles) > 1 or len(shfiles) > 1:
-        # TODO: Support postprocessing over multiple files
-        log.warning("Expected a single grid point and spectral file in %s, found %s and %s; \
-                     will take first file of each list." % (path, str(gpfiles), str(shfiles)))
-    ifs_gridpoint_file_ = gpfiles[0] if len(gpfiles) > 0 else None
-    ifs_spectral_file_ = shfiles[0] if len(shfiles) > 0 else None
+    if set(gpfiles.keys()) != set(shfiles.keys()):
+        intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
+        if not any(intersection):
+            log.error("Gridpoint files %s and spectral files %s correspond to different months, no overlap found..." %
+                      (str(gpfiles.values()), str(shfiles.values())))
+            ifs_gridpoint_files_ = {}
+            ifs_spectral_files_ = {}
+            return False
+        else:
+            ifs_gridpoint_files_ = {date: gpfiles[date] for date in intersection}
+            ifs_spectral_files_ = {date: shfiles[date] for date in intersection}
+            log.warning("Gridpoint files %s and spectral files %s correspond to different months, found overlapping "
+                        "dates %s" % (str(gpfiles.values()), str(shfiles.values()), str(intersection)))
+    else:
+        ifs_gridpoint_files_, ifs_spectral_files_ = gpfiles, shfiles
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()),datetime.min.time())
+    if ifs_init_gridpoint_file_ is None:
+        if any(ifs_gridpoint_files_.values()):
+            ifs_init_gridpoint_file_ = ifs_gridpoint_files_.values()[0]
+        else:
+            log.error("No gridpoint files found in directory %s, exiting initialization" % path)
+            return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    dirname = exp_name_ + start_date_.strftime("-ifs-%Y%m")
+    dirname = exp_name_ + start_date_.strftime("-ifs-%Y")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    if os.path.exists(temp_dir_):
-        if any(os.listdir(temp_dir_)):
-            log.warning("Requested temporary directory %s already exists and is nonempty..." % temp_dir_)
-            temp_dir_ = tempfile.mkdtemp(prefix=dirname + '-', dir=tmpdir_parent)
-            log.warning("generated new temporary directory %s" % temp_dir_)
-    else:
+    if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
-    max_size_ = maxsizegb
-    if autofilter:
-        grib_filter.initialize(ifs_gridpoint_file_, ifs_spectral_file_, temp_dir_)
+    if auto_filter_:
+        grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_)
     return True
 
 
+def find_init_file(path, exp):
+    odir = os.path.abspath(os.path.join(path, ".."))
+    search_str = "ICMGG" + exp + "+000000"
+    for root, dirs, files in os.walk(odir):
+       if search_str in files:
+           return os.path.join(root, search_str)
+    return None
+
+
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
-def execute(tasks, cleanup=True, autofilter=True, nthreads=1):
-    global log, start_date_
+def execute(tasks, cleanup=True, nthreads=1):
+    global log, start_date_, auto_filter_
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
-    surf_pressure_tasks = get_sp_tasks(supported_tasks, autofilter)
+    surf_pressure_tasks = get_sp_tasks(supported_tasks)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
-    if autofilter:
-        tasks_todo = grib_filter.execute(tasks_todo, start_date_.month)
+    if auto_filter_:
+        tasks_todo = grib_filter.execute(tasks_todo)
     else:
         for task in tasks_todo:
-            grid = getattr(task.source, "grid_")
-            if grid == cmor_source.ifs_grid.point:
-                setattr(task, cmor_task.filter_output_key, [ifs_gridpoint_file_])
-            elif grid == cmor_source.ifs_grid.spec:
-                setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
+            if task.source.grid_id() == cmor_source.ifs_grid.point:
+                setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+                setattr(task, cmor_task.output_frequency_key, output_frequency_)
+            elif task.source.grid_id() == cmor_source.ifs_grid.spec:
+                setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+                setattr(task, cmor_task.output_frequency_key, output_frequency_)
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
                 task.set_failed()
-            setattr(task, cmor_task.output_frequency_key, output_frequency_)
-    processed_tasks = []
-    try:
-        log.info("Post-processing tasks...")
-        postproc.task_threads = nthreads
-        processed_tasks = postprocess([t for t in tasks_todo if t.status == cmor_task.status_initialized])
-        for task in [t for t in processed_tasks if t in mask_tasks]:
-            read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-        cmorize([t for t in processed_tasks if t in supported_tasks], nthreads=nthreads)
-    finally:
-        if cleanup:
-            clean_tmp_data(processed_tasks)
+    # First post-process surface pressure and mask tasks
+    for t in mask_tasks + surf_pressure_tasks:
+        postproc.post_process(t, temp_dir_)
+    for task in mask_tasks:
+        read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
+    tasks = set(tasks_todo).intersection(regular_tasks)
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    pool = multiprocessing.Pool(processes=nthreads)
+    pool.map(cmor_worker, tasks)
+    if cleanup:
+        clean_tmp_data(tasks)
+
+
+# Worker function for parallel cmorization (not working at the present...)
+def cmor_worker(task):
+    log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    postproc.post_process(task, temp_dir_)
+    if task.status == cmor_task.status_failed:
+        return
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                        task.target.variable))
+    define_cmor_axes(task)
+    if task.status == cmor_task.status_failed:
+        return
+    execute_netcdf_task(task)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -155,7 +185,7 @@ def get_mask_tasks(tasks):
         setattr(target, cmor_target.freq_key, 0)
         setattr(target, "time_operator", ["point"])
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
-        setattr(result_task, cmor_task.output_path_key, ifs_gridpoint_file_)
+        setattr(result_task, cmor_task.output_path_key, ifs_gridpoint_files_)
         result.append(result_task)
     return result
 
@@ -198,12 +228,12 @@ def read_mask(name, filepath):
 
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
-    global temp_dir_, ifs_gridpoint_file_, ifs_spectral_file_
+    global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
-            if data_path is not None and data_path not in [ifs_spectral_file_, ifs_gridpoint_file_] and \
-                    data_path in [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]:
+            if data_path is not None and data_path not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() \
+                    and data_path in [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]:
                 os.remove(data_path)
                 delattr(task, cmor_task.output_path_key)
     if not any(os.listdir(temp_dir_)):
@@ -233,8 +263,7 @@ def filter_tasks(tasks):
 
 
 # Creates extra tasks for surface pressure
-def get_sp_tasks(tasks, autofilter):
-    global ifs_spectral_file_
+def get_sp_tasks(tasks):
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = []
     for freq, task_group in tasks_by_freq.iteritems():
@@ -251,29 +280,20 @@ def get_sp_tasks(tasks, autofilter):
             surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", freq))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq)
             setattr(surf_pressure_task.target, "time_operator", ["point"])
-            find_sp_variable(surf_pressure_task, autofilter)
+            find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
             setattr(task3d, "sp_task", surf_pressure_task)
     return result
 
 
-# Postprocessing of IFS tasks
-def postprocess(tasks):
-    global log, temp_dir_, max_size_, surface_pressure
-    log.info("Post-processing %d IFS tasks..." % len(tasks))
-    tasks_done = postproc.post_process(tasks, temp_dir_, max_size_)
-    log.info("Post-processed batch of %d tasks." % len(tasks_done))
-    return tasks_done
-
-
 # Finds the surface pressure data source: gives priority to SH file.
-def find_sp_variable(task, autofilter):
-    global ifs_gridpoint_file_, ifs_spectral_file_, surface_pressure, ln_surface_pressure
+def find_sp_variable(task):
+    global ifs_gridpoint_files_, ifs_spectral_files_, surface_pressure, ln_surface_pressure, auto_filter_
     ifs_ps_source = cmor_source.ifs_source.create(134)
     setattr(ifs_ps_source, cmor_source.expression_key, "var134=exp(var152)")
     setattr(ifs_ps_source, "root_codes", [cmor_source.grib_code(134)])
-    if autofilter:
+    if auto_filter_:
         if grib_filter.spvar is None:
             log.error("Could not find surface pressure in model output...")
             return
@@ -281,74 +301,43 @@ def find_sp_variable(task, autofilter):
         setattr(task, cmor_task.filter_output_key, [grib_filter.spvar[2]])
         if grib_filter.spvar[0] == 152:
             task.source = ifs_ps_source
-        task.source.grid_ = 1 if grib_filter.spvar[2] == ifs_spectral_file_ else 0
+        task.source.grid_ = 1 if grib_filter.spvar[2] == ifs_spectral_files_ else 0
         return
     log.info("Looking for surface pressure variable in input files...")
     command = cdoapi.cdo_command()
-    code_string = command.show_code(ifs_spectral_file_)
+    code_string = command.show_code(ifs_spectral_files_.values()[0])
     codes = [cmor_source.grib_code(int(c)) for c in code_string[0].split()]
     if surface_pressure in codes:
-        log.info("Found surface pressure in spectral file")
-        setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
+        log.info("Found surface pressure in spectral files")
+        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
         task.source.grid_ = 1
         return
     if ln_surface_pressure in codes:
         log.info("Found lnsp in spectral file")
-        setattr(task, cmor_task.filter_output_key, [ifs_spectral_file_])
+        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
         task.source = ifs_ps_source
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
-    setattr(task, cmor_task.filter_output_key, [ifs_gridpoint_file_])
+    setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
     task.source.grid_ = 0
 
 
-# Do the cmorization tasks
-def cmorize(tasks, nthreads):
-    global log, table_root_
-    log.info("Cmorizing %d IFS tasks..." % len(tasks))
-    if not any(tasks):
-        return
-    skip_status = [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_cmorizing]
-    path = getattr([t for t in tasks if hasattr(t, "path")][0], "path")
-    if nthreads < 1:
-        log.error("Number of available threads %d for cmorization is non-positive: skipping cmor part" % nthreads)
-        return
-    if nthreads == 1:
-        init_cmor(path)
-        for task in tasks:
-            if task.status not in skip_status:
-                cmor_worker(task)
-        return
-    pool = multiprocessing.Pool(processes=nthreads, initializer=init_cmor, initargs=[path])
-    pool.map(cmor_worker, [task for task in tasks if task.status not in skip_status])
-
-
-grid_id = 0
+grid_id = -1
 time_axis_ids = {}
 time_axis_bnds = {}
 depth_axis_ids = {}
 
 
-def init_cmor(filepath):
-    global grid_id
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(table_root_ + "_grids.json")
-    if grid_id == 0:
-        grid_id = create_grid_from_grib(filepath)
-
-
-# Worker function for parallel cmorization (not working at the present...)
-def cmor_worker(task):
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
-    define_cmor_axes(task)
-    if task.status == cmor_task.status_failed:
-        return
-    execute_netcdf_task(task)
-
-
 def define_cmor_axes(task):
     global grid_id
+    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized]:
+        return
+    if grid_id == -1:
+        cmor.load_table(table_root_ + "_grids.json")
+        if not hasattr(task, "path"):
+            task.set_failed()
+            return
+        grid_id = create_grid_from_grib(getattr(task, "path"))
     tgtdims = getattr(task.target, cmor_target.dims_key).split()
     if "latitude" in tgtdims and "longitude" in tgtdims:
         setattr(task, "grid_id", grid_id)
@@ -621,7 +610,7 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name):
     global log
-    # New version of cdo fails to pass soil depths correctly:
+    # Hard-coded because cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])
     bounds = numpy.transpose(numpy.stack([bndcm[:4], bndcm[1:]]))
@@ -635,27 +624,16 @@ def create_time_axis(freq, path, name, has_bounds):
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return 0
-    refdate = cmor_utils.make_datetime(ref_date_)
     if has_bounds:
-        n = len(date_times)
-        bounds = numpy.empty([n, 2])
-        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time) - refdate).total_seconds() / 3600.,
-                            date_times)
-        bounds[:, 0] = rounded_times[:]
-        bounds[0:n - 1, 1] = rounded_times[1:n]
-        bounds[n - 1, 1] = (cmor_utils.get_rounded_time(freq, date_times[n - 1], 1) - refdate).total_seconds() / 3600.
+        bounds = numpy.empty([len(date_times), 2])
+        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
+        dt_low = rounded_times
+        dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
+        bounds[:, 0], units = cmor_utils.date2num(dt_low, ref_date_)
+        bounds[:, 1], units = cmor_utils.date2num(dt_up, ref_date_)
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
-        # TODO (Low Priority) replace lower bound in initial leg...
-        #        if bounds[0, 0] != start_point:
-        #            log.warning("Initial time bound %s is not equal to start date %s... substituting lower bound" %
-        #                        (refdate + datetime.timedelta(hours=bounds[0, 0]), start_date_))
-        dt_low = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 0]]
-        dt_up = [refdate + datetime.timedelta(hours=t) for t in bounds[:, 1]]
-        return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times,
-                         cell_bounds=bounds), dt_low, dt_up
-
+        return cmor.axis(table_entry=str(name), units=units, coord_vals=times, cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
-
     if date_times[0] >= start_date_ + step:
         date = date_times[0]
         extra_dates = []
@@ -669,9 +647,8 @@ def create_time_axis(freq, path, name, has_bounds):
         date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
                     "removed" % (path, len([t for t in date_times if t >= start_date_])))
-    times = numpy.array([(d - refdate).total_seconds() / 3600. for d in date_times])
-    dt = [refdate + datetime.timedelta(hours=t) for t in times]
-    return cmor.axis(table_entry=str(name), units="hours since " + str(ref_date_), coord_vals=times), dt, dt
+    times, units = cmor_utils.date2num(date_times, ref_date_)
+    return cmor.axis(table_entry=str(name), units=units, coord_vals=times), date_times, date_times
 
 
 # Surface pressure variable lookup utility
@@ -691,15 +668,6 @@ def get_sp_var(ncpath):
     except Exception as e:
         log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
-
-
-# Retrieves all IFS output files in the input directory.
-def select_files(path, expname, start, length):
-    allfiles = cmor_utils.find_ifs_output(path, expname)
-    start_date = cmor_utils.make_datetime(start).date()
-    end_date = cmor_utils.make_datetime(start + length).date()
-    return [f for f in allfiles if f.endswith(expname + "+000000") or
-            (end_date > cmor_utils.get_ifs_date(f) >= start_date)]
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
