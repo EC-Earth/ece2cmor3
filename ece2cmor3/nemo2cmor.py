@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 extra_axes = {"basin": {"ncdim": "3basin",
                         "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
               "typesi": {"ncdim": "ncatice"},
-              "iceband": {"ncdim": "ncatice"}}
+              "iceband": {"ncdim": "ncatice", "ncbnds": [0., 0.454, 1.129, 2.141, 3.671, 99.0]}}
 
 # Experiment name
 exp_name_ = None
@@ -314,7 +314,17 @@ def create_type_axes(ds, tasks, table):
                     log.error("Dimension %s could not be found in file %s, inserting using length-one dimension "
                               "instead" % (nc_dim_name, ds.filepath()))
                     axis_values, axis_unit = [1], "1"
-                axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
+                if "ncbnds" in axisinfo:
+                    bndlist = axisinfo["ncbnds"]
+                    if len(bndlist) - 1 != len(axis_values):
+                        log.error("Length of axis bounds %d does not correspond to axis coordinates %s" %
+                                  (len(bndlist) - 1, str(axis_values)))
+                    bnds = numpy.zeros((len(axis_values), 2))
+                    bnds[:, 0] = bndlist[:-1]
+                    bnds[:, 1] = bndlist[1:]
+                    axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit, cell_bounds=bnds)
+                else:
+                    axis_id = cmor.axis(table_entry=dim, coord_vals=axis_values, units=axis_unit)
                 table_type_axes[dim] = axis_id
             setattr(task, dim + "_axis", axis_id)
     return table_type_axes
