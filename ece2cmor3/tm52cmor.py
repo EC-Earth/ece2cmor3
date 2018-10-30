@@ -41,17 +41,21 @@ ps_tasks = {}
 time_axis_ids = {}
 depth_axis_ids = {}
 
+# Reference date, times will be converted to hours since refdate
+ref_date_ = None
+
 unit_miss_match =[]
 failed=[]
 
 # Initializes the processing loop.
-def initialize(path,expname,tabledir, prefix,start,length):
-    global log,tm5_files_,exp_name_,table_root_
+def initialize(path,expname,tabledir, prefix,start,length,refdate):
+    global log,tm5_files_,exp_name_,table_root_,ref_date_
     exp_name_ = expname
     table_root_ =os.path.join(tabledir, prefix)
     #print path,expname,start,length
     tm5_files_ = select_files(path,expname,start,length)
     cal = None
+    ref_date_ = refdate
     for f in tm5_files_:
         cal = read_calendar(f)
         if(cal):
@@ -66,7 +70,7 @@ def initialize(path,expname,tabledir, prefix,start,length):
 # Resets the module globals.
 def finalize():
     global tm5_files_,grid_ids_,depth_axes_,time_axes_
-    print 'Unit miss match variables',unit_miss_match
+    log.info( 'Unit miss match variables %s '%(unit_miss_match))
     tm5_files_ = []
     grid_ids_ = {}
     depth_axes_ = {}
@@ -80,11 +84,19 @@ def execute(tasks):
     log.info("Cmorizing tm5 tasks...")
     #Assign file to each task
     for task in tasks:
-        print task.target.variable
+        #print task.target.variable,task.target.frequency
         setattr(task,cmor_task.output_path_key,None)
         for fstr in tm5_files_:
-            #print fstr
-            if os.path.basename(fstr).startswith(task.target.variable+"_A") and task.target.frequency in fstr:
+            if task.target.frequency=='1hr':
+                freqid='hr'
+                #print freqid,fstr,freqid in fstr
+            elif task.target.frequency=='fx':
+                print'fx'
+                sdfa
+            else:
+                freqid=task.target.frequency
+            #print os.path.basename(fstr),task.target.frequency,task.target.variable+"_A"
+            if os.path.basename(fstr).startswith(task.target.variable+"_A") and freqid in fstr:
                
                 fname=fstr
                 setattr(task,cmor_task.output_path_key,fstr)
@@ -92,7 +104,7 @@ def execute(tasks):
         if task.target.variable=='ps':
             #print '-------------PS',task.target.variable
             if task.target.frequency not in ps_tasks:
-                print 'ps',task.target.frequency
+                #print 'ps',task.target.frequency
                 ps_tasks[task.target.frequency]=task
         #print task.target.variable,task.target.frequency
         #print ps_tasks.keys()
@@ -114,13 +126,19 @@ def execute(tasks):
             log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
                       % (table, ','.join([tsk.target.variable for tsk in tasklist]), e.message))
             continue
-        log.info("Creating time axes for table %s..." % table)
-        create_time_axes(tasklist)
-        if table == 'AERmonZ':
+        if table == 'AERmonZ' :
             log.error("Table %s not implemented yet" %(table))
             log.error("Skipping variable %s not implemented yet" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
+        if table== 'AERhr':
+            log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
+            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
+            continue
+
+        # create or assign time axes to tasks
+        log.info("Creating time axes for table %s..." % table)
+        create_time_axes(tasklist)
 
 
         taskmask = dict([t,False] for t in tasklist)
@@ -168,7 +186,9 @@ def execute_netcdf_task(task,tableid):
 
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
+
     if not filepath:
+        #print filepath
         log.error(
             "Could not find file containing data for variable %s in table %s" % (task.target.variable,
                                                                                  task.target.table))
@@ -285,78 +305,66 @@ def create_time_axes(tasks):
     global log
     time_axes = {}
     for task in tasks:
+        freq=task.target.frequency
         tgtdims = getattr(task.target, cmor_target.dims_key)
         if getattr(task, cmor_task.output_path_key)==None:
             continue
         # TODO: better to check in the table axes if the standard name of the dimension equals "time"
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
-            if time_dim in time_axes:
-                tid = time_axes[time_dim]
+            key=(task.target.table,time_dim)
+            if key in time_axes:
+                tid = time_axes[key]
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
-                #print task.target.variable
-                #print getattr(task, cmor_task.output_path_key)
-
                 log.info("Creating time axis using variable %s..." % task.target.variable)
                 tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
                                        name=time_dim, has_bounds=(time_operator != ["point"]))
-                time_axes[time_dim] = tid
+                time_axes[key] = tid
             setattr(task, "time_axis", tid)
             break
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,path,name,has_bounds):
-    global log
+    global log,ref_date_
     vals = None
     units = None
     ds = None
-    #for ncfile in files:
-    #has_bounds=False
+    #
     ncfile=path
-
+    refdate = cmor_utils.make_datetime(ref_date_)
     try:
         ds = netCDF4.Dataset(ncfile)
         timvar = ds.variables["time"]
+        tm5unit = ds.variables["time"].units
         vals = timvar[:]
         #if 'bounds' in ds.variables:
         has_bounds=True
         bnds = getattr(timvar,"bounds")
         bndvar = ds.variables[bnds]
         units = getattr(timvar,"units")
-        #break
+        #print len(vals),vals[1]-vals[0]
+        tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
+        #print tm5refdate  
+        diff_days= (refdate-tm5refdate).total_seconds()/86400
+        vals=vals-diff_days
+        bndvar=bndvar[:]-diff_days
+       
     except:
         ds.close()
     if(len(vals) == 0 or units == None):
         log.error("No time values or units could be read from tm5 output files %s" % str(files))
         return 0
-    #print bndvar[:]
+    
+    units="days since " + str(ref_date_)
+    #DEBUG for hourly output
+    if freq=='1hr':
+        print str(name),bndvar[0,0],bndvar[0,1],bndvar[1,0],bndvar[1,1]
+    ####
     if has_bounds:
-        return cmor.axis(table_entry = str(name), units = units,coord_vals = vals,cell_bounds = bndvar[:,:])
+        return cmor.axis(table_entry = str(name), units=units, coord_vals = vals,cell_bounds = bndvar[:,:])
     else:
-        return cmor.axis(table_entry = str(name), units = units,coord_vals = vals)
-
-# needed for wavelength ?
-def create_type_axes():
-    global type_axes_
-    type_axes_["typesi"] = cmor.axis(table_entry="typesi", coord_vals=[1])
-
-# Selects files with data with the given frequency
-def select_freq_files(freq):
-    global exp_name_,tm5_files_
-    tm5freq = None
-    #print 'FREQ',freq,tm5_files_
-    if(freq == "monClim"):
-        tm5freq = "1m"
-    elif(freq.endswith("mon")):
-        #n = 1 if freq == "mon" else int(freq[:-3])
-        tm5freq = "AERmon"
-    elif(freq.endswith("day")):
-        #n = 1 if freq == "day" else int(freq[:-3])
-        tm5freq = "AERday"
-    elif(freq.endswith("hr")):
-        n = 1 if freq == "hr" else int(freq[:-2])
-        tm5freq = "AERhr"
-    return [f for f in tm5_files_ if cmor_utils.get_tm5_frequency(f,exp_name_) == tm5freq]
+        return cmor.axis(table_entry = str(name), units=units, coord_vals = vals)
+    
 
 
 # Retrieves all tm5 output files in the input directory.
@@ -364,7 +372,8 @@ def select_files(path,expname,start,length):
     allfiles = cmor_utils.find_tm5_output(path,expname)
     starttime = cmor_utils.make_datetime(start)
     stoptime = cmor_utils.make_datetime(start+length)
-    return [f for f in allfiles if cmor_utils.get_tm5_interval(f)[0] <= stoptime and cmor_utils.get_tm5_interval(f)[1] >= starttime]
+    #print allfiles,starttime,stoptime
+    return [f for f in allfiles if cmor_utils.get_tm5_interval(f)[0] == starttime]
 
 
 # Reads the calendar attribute from the time dimension.
@@ -382,23 +391,6 @@ def read_calendar(ncfile):
     finally:
         ds.close()
 
-# Creates the regular gaussian grids from the postprocessed file argument.
-def create_grid_from_nc(filepath):
-    global log
-    command = cdoapi.cdo_command()
-    grid_descr = command.get_grid_descr(filepath)
-    gridtype = grid_descr.get("gridtype", "unknown")
-    if gridtype != "gaussian":
-        log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s" % (
-            filepath, gridtype))
-        return None
-    xsize = grid_descr.get("xsize", 0)
-    xfirst = grid_descr.get("xfirst", 0)
-    yvals = grid_descr.get("yvals", numpy.array([]))
-    if not (xsize > 0 and len(yvals) > 0):
-        log.error("Invalid grid detected in post-processed data: %s" % str(grid_descr))
-        return None
-    return create_gauss_grid(xsize, xfirst, yvals)
 
 
 def create_depth_axes(task):
@@ -407,7 +399,6 @@ def create_depth_axes(task):
     #for task in tasks:
     tgtdims = getattr(task.target, cmor_target.dims_key)
     zdims = getattr(task.target, "z_dims", [])
-    #print task.target.variable
     if len(zdims) == 0:
         return False
     if len(zdims) > 1:
@@ -415,11 +406,8 @@ def create_depth_axes(task):
             task.target.variable, task.target.table, tgtdims))
         task.set_failed()
         return False
-    #print zdims
     zdim=str(zdims[0])
     key = (task.target.table, zdim)
-    #print "KEY",key,task.target.variable
-    #print depth_axis_ids.keys()
     if key not in depth_axis_ids:
         log.info("Creating vertical axis for table %s..." % task.target.table)
 
@@ -432,7 +420,6 @@ def create_depth_axes(task):
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
     elif zdim == 'alevel':
-        #print zdim,depth_axis_ids.keys(),str(zdim) not in depth_axis_ids.keys()
         if zdim not in depth_axis_ids:
             log.info("Creating model level axis for variable %s..." % task.target.variable)
             axisid, psid = create_hybrid_level_axis(task)
@@ -456,6 +443,7 @@ def create_depth_axes(task):
         task.set_failed()
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
+        log.info("TOBE CORRECTED:  wavelength axis  BOUNDS IN new tables for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
@@ -473,7 +461,6 @@ def create_depth_axes(task):
 def create_hybrid_level_axis(task):
     pref = 80000  # TODO: Move reference pressure level to model config
     path = getattr(task, cmor_task.output_path_key)
-    #print path, task.target.variable
     ds = None
     try:
         ds = netCDF4.Dataset(path)
@@ -483,7 +470,6 @@ def create_hybrid_level_axis(task):
         bunit = getattr(bm, "units")
         hcm = am[:] / pref + bm[:]
         n = hcm.shape[0]
-        #print n
         
         if "hyai" in ds.variables: 
             ai = ds.variables["hyai"]
@@ -534,7 +520,6 @@ def create_hybrid_level_axis(task):
             ds.close()
 
 def create_lonlat_grid():#nx, x0, yvals):
-   #print 'lonlat create',table_root_
     nx=120
     x0=0
     yvals=numpy.linspace(89,-89,90)
