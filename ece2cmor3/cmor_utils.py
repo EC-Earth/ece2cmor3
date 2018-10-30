@@ -183,8 +183,6 @@ def read_time_stamps(path):
     return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
 
 
-# TODO: This is getting out of hand, refactor
-# TODO: Suspecting double transposes, very slow!
 def find_tm5_output(path, expname=None,varname=None,freq=None):
     subexpr = ".*"
     if expname:
@@ -192,8 +190,7 @@ def find_tm5_output(path, expname=None,varname=None,freq=None):
     expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
 
     a=[os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
-    #print a
-    #fsfafjjj
+   
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 def get_tm5_frequency(filepath, expname):
@@ -205,7 +202,7 @@ def get_tm5_frequency(filepath, expname):
         return None
 
     fstr = f.split("_")[1]
-    expr = re.compile("(AERhr|AERmon|AERday|Ahr|Amon|Aday|Emon|Efx|CFsubhr)")
+    expr = re.compile("(AERhr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
     #expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
@@ -220,7 +217,6 @@ def get_tm5_interval(filepath):
     global log
     fname = os.path.basename(filepath)
     regex = re.findall("[0-9]{6,12}", fname) #mon(6),day(8), hour(10)
-    print regex
     if not regex or len(regex) != 2:
         log.error("Unable to parse dates from tm5 file name %s" % fname)
         return None
@@ -240,18 +236,7 @@ def get_tm5_interval(filepath):
         log.error("Date string in filename %s not supported." % fname)
     
     return start, end
-# Returns the grid for the given file name.
-def get_tm5_grid(filepath, expname):
-    global log
-    f = os.path.basename(filepath)
-    expr = re.compile("([^\/]+)"+ expname +".*.nc$")
-    #expr = re.compile("(?<=^.*" + expname + ".*_[0-9]{8}-[0-9]{8}_).*.nc$")
-    result = re.search(expr, f)
-    if not result:
-        log.error("File path %s does not contain a grid string" % filepath)
-        return None
-    match = result.group(0)
-    return match[0:len(match) - 3]
+
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
