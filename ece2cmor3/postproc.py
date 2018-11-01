@@ -15,7 +15,6 @@ import cmor_target
 log = logging.getLogger(__name__)
 
 # Threading parameters
-task_threads = 1
 cdo_threads = 4
 
 # Flags to control whether to execute cdo.
@@ -30,58 +29,15 @@ mode = 3
 # Output frequency of IFS (in hours)
 output_frequency_ = 3
 
-# Helper list of tasks
-finished_tasks_ = []
 
-
-# Post-processes a list of tasks
-def post_process(tasks, path, max_size_gb=float("inf"), grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
-    global finished_tasks_, task_threads
-    comm_dict = {}
-    comm_buf = {}
-    max_size = 1000000000. * max_size_gb
-    for task in tasks:
-        command = create_command(task, grid_descr)
-        comm_string = command.create_command()
-        if comm_string not in comm_buf:
-            comm_buf[comm_string] = command
-        else:
-            command = comm_buf[comm_string]
-        if task.status != cmor_task.status_failed:
-            if command in comm_dict:
-                comm_dict[command].append(task)
-            else:
-                comm_dict[command] = [task]
-    invalid_commands = []
-    for comm, task_list in comm_dict.iteritems():
-        if not validate_task_list(task_list):
-            invalid_commands.append(comm)
-    for comm in invalid_commands:
-        for t in comm_dict[comm]:
-            t.set_failed()
-        comm_dict.pop(comm)
-    finished_tasks_ = []
-    if task_threads <= 2:
-        tmp_size = 0.
-        for comm, task_list in comm_dict.iteritems():
-            if tmp_size >= max_size:
-                break
-            f = apply_command(comm, task_list, path)
-            if os.path.exists(f):
-                tmp_size += float(os.path.getsize(f))
-            finished_tasks_.extend(task_list)
-    else:
-        q = Queue.Queue()
-        for i in range(task_threads):
-            worker = threading.Thread(target=cdo_worker, args=(q, path, max_size))
-            worker.setDaemon(True)
-            worker.start()
-        for (comm, task_list) in comm_dict.iteritems():
-            q.put((comm, task_list))
-        q.join()
-    return [t for t in list(finished_tasks_) if t.status >= 0]
+# Post-processes a task
+def post_process(task, path):
+    command = create_command(task)
+    output_file_name = task.target.variable + "_" + task.target.table + ".nc"
+    output_path = os.path.join(path, output_file_name) if path else None
+    filepath = apply_command(command, task, output_path)
+    if filepath is not None and task.status != cmor_task.status_failed:
+        setattr(task, cmor_task.output_path_key, output_path)
 
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
@@ -95,19 +51,56 @@ def validate_task_list(tasks):
 
 
 # Creates a cdo postprocessing command for the given IFS task.
-def create_command(task, grid_descr=None):
-    if grid_descr is None:
-        grid_descr = {}
+def create_command(task):
     if not isinstance(task.source, cmor_source.ifs_source):
         raise Exception("This function can only be used to create cdo commands for IFS tasks")
     if hasattr(task, "paths") and len(getattr(task, "paths")) > 1:
         raise Exception("Multiple merged cdo commands are not supported yet")
     result = cdoapi.cdo_command() if hasattr(task.source, cmor_source.expression_key) else cdoapi.cdo_command(
         code=task.source.get_grib_code().var_id)
-    add_grid_operators(result, task, grid_descr)
+    add_grid_operators(result, task)
     add_expr_operators(result, task)
     add_time_operators(result, task)
     add_level_operators(result, task)
+    return result
+
+
+# Executes the command and replaces the path attribute for all tasks in the tasklist
+# to the output of cdo. This path is constructed from the basepath and the first task.
+def apply_command(command, task, output_path=None):
+    global log, cdo_threads, skip, append, recreate, mode
+    if output_path is None and mode in [skip, append]:
+        log.warning(
+            "Executing post-processing in skip/append mode without path given: this will skip the entire task.")
+    input_files = getattr(task, cmor_task.filter_output_key, [])
+    if isinstance(input_files, str):
+        input_files = [input_files]
+    if not any(input_files):
+        log.error("Cannot execute cdo command %s for given task because it has no model "
+                  "output attribute" % command.create_command())
+        return None
+    input_file = input_files[0]
+    if len(input_files) > 1:
+        directory = os.path.dirname(input_file)
+        input_file = os.path.join(directory, '_'.join([os.path.basename(f) for f in input_files]))
+        command.merge(input_files, input_file)
+    comm_string = command.create_command()
+    log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (
+              task.target.variable, task.target.table, input_file, comm_string))
+    setattr(task, "cdo_command", comm_string)
+    task.next_state()
+    result = None
+    if mode != skip:
+        if mode == recreate or (mode == append and not os.path.exists(output_path)):
+            merge_expr = (cdoapi.cdo_command.set_code_operator in command.operators)
+            result = command.apply(input_file, output_path, cdo_threads, grib_first=merge_expr)
+            if not result:
+                task.set_failed()
+    else:
+        if os.path.exists(output_path):
+            result = output_path
+    if result is not None:
+        task.next_state()
     return result
 
 
@@ -154,82 +147,13 @@ def add_expr_operators(cdo, task):
     cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[c.var_id for c in task.source.get_root_codes()])
 
 
-# Multi-thread function wrapper.
-def cdo_worker(q, base_path, maxsize):
-    global finished_tasks_
-    while True:
-        args = q.get()
-        for task in finished_tasks_:
-            if getattr(task, cmor_task.output_path_key, None) is None:
-                log.error("Task %s in table %s has not produced any output... "
-                          "setting it to failed status." % (task.target.variable, task.target.table))
-                task.set_failed()
-        files = list(set(map(lambda t: getattr(t, cmor_task.output_path_key, ""), finished_tasks_)))
-        if sum(map(lambda fname: os.path.getsize(fname), [f for f in files if os.path.exists(f)])) < maxsize:
-            tasks = args[1]
-            apply_command(command=args[0], task_list=tasks, base_path=base_path)
-            finished_tasks_.extend(tasks)
-        q.task_done()
-
-
-# Executes the command and replaces the path attribute for all tasks in the tasklist
-# to the output of cdo. This path is constructed from the basepath and the first task.
-def apply_command(command, task_list, base_path=None):
-    global log, cdo_threads, skip, append, recreate, mode
-    if not task_list:
-        log.warning("Encountered empty task list for post-processing command %s" % command.create_command())
-    if base_path is None and mode in [skip, append]:
-        log.warning(
-            "Executing post-processing in skip/append mode without directory given: this will skip the entire task.")
-    input_files = getattr(task_list[0], cmor_task.filter_output_key, [])
-    if isinstance(input_files, str):
-        input_files = [input_files]
-    if not any(input_files):
-        log.error("Cannot execute cdo command %s for given task because it has no model "
-                  "output attribute" % command.create_command())
-        return None
-    input_file = input_files[0]
-    if len(input_files) > 1:
-        directory = os.path.dirname(input_file)
-        input_file = os.path.join(directory, '_'.join([os.path.basename(f) for f in input_files]))
-        command.merge(input_files, input_file)
-    output_file = task_list[0].target.variable + "_" + task_list[0].target.table + ".nc"
-    ofile = os.path.join(base_path, output_file) if base_path else None
-    for task in task_list:
-        comm_string = command.create_command()
-        log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (
-            task.target.variable, task.target.table, input_file, comm_string))
-        setattr(task, "cdo_command", comm_string)
-        task.next_state()
-    result = ofile
-    if mode != skip:
-        if mode == recreate or (mode == append and not os.path.exists(ofile)):
-            merge_expr = (cdoapi.cdo_command.set_code_operator in command.operators)
-            output_path = command.apply(input_file, ofile, cdo_threads, grib_first=merge_expr)
-            if not output_path:
-                for task in task_list:
-                    task.set_failed()
-            if output_path and not base_path:
-                tmp_path = os.path.dirname(output_path)
-                ofile = os.path.join(tmp_path, output_file)
-                os.rename(output_path, ofile)
-                result = ofile
-    for task in task_list:
-        if task.status >= 0:
-            setattr(task, cmor_task.output_path_key, result)
-            task.next_state()
-    return result
-
-
 # Adds grid remapping operators to the cdo commands for the given task
-def add_grid_operators(cdo, task, grid_descr):
+def add_grid_operators(cdo, task):
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        gridtype = grid_descr.get("gridtype", "gaussian reduced")
-        if gridtype in ["gaussian reduced", "gaussian_reduced"]:
-            cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
 
 
 # Adds time averaging operators to the cdo command for the given task
@@ -286,10 +210,10 @@ def add_time_operators(cdo, task):
 
 
 def add_high_freq_operator(cdo_command, target_freq, operator, task):
-    timestamps = [i*target_freq for i in range(24/target_freq)]
-    aggregators = {"mean":(cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
-                   "minimum":(cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
-                   "maximum":(cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
+    timestamps = [i * target_freq for i in range(24 / target_freq)]
+    aggregators = {"mean": (cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
+                   "minimum": (cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
+                   "maximum": (cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
     if operator == "point":
         if any([c for c in task.source.get_root_codes() if c in cmor_source.ifs_source.grib_codes_accum]):
             log.warning("Sampling values of accumulated model output for variable %s in "

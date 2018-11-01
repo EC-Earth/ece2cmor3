@@ -39,7 +39,7 @@ mask_predicates = {"=": lambda x, a: x == a,
                    ">=": lambda x, a: x >= a}
 
 skip_tables = False
-
+with_pingfile = False
 
 # API function: loads the argument list of targets
 def load_targets(varlist, active_components=None, silent=False):
@@ -168,12 +168,16 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # produced by the checkvars.py script, in other words it can read the basic ignored, basic identified missing,
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
-    global log, skip_tables
+    global log, skip_tables, with_pingfile
     import xlrd
     table_colname = "Table"
     var_colname = "variable"
     comment_colname = "comment"
     author_colname = "comment author"
+    if with_pingfile:
+     model_colname = "model component in ping file"
+     units_colname = "units as in ping file"
+     pingcomment_colname = "ping file comment"
     book = xlrd.open_workbook(basic_ignored_excel_file)
     varlist = {}
     for sheetname in book.sheet_names():
@@ -185,7 +189,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
         for colname in [table_colname, var_colname, comment_colname, author_colname]:
             if colname not in header:
                 log.error(
-                    "Could not find the column %s in sheet %s for file %s: skipping sheet" % (colname, sheet, varlist))
+                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (colname, sheet, varlist))
                 continue
             coldict[colname] = header.index(colname)
         tablenames = [] if skip_tables else [c.value for c in
@@ -193,9 +197,22 @@ def load_checkvars_excel(basic_ignored_excel_file):
         varnames = [c.value for c in sheet.col_slice(colx=coldict[var_colname], start_rowx=1)]
         comments = [c.value for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)]
         authors = [c.value for c in sheet.col_slice(colx=coldict[author_colname], start_rowx=1)]
+        if with_pingfile:
+            if model_colname not in header:
+               #log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname, sheet, varlist))
+                continue
+            coldict[model_colname] = header.index(model_colname)
+            model = [c.value for c in sheet.col_slice(colx=coldict[model_colname], start_rowx=1)]
+            coldict[units_colname] = header.index(units_colname)
+            units = [c.value for c in sheet.col_slice(colx=coldict[units_colname], start_rowx=1)]
+            coldict[pingcomment_colname] = header.index(pingcomment_colname)
+            pingcomment = [c.value for c in sheet.col_slice(colx=coldict[pingcomment_colname], start_rowx=1)]
         if skip_tables:
             for i in range(len(varnames)):
-                varlist[varnames[i]] = (comments[i], authors[i])
+                if with_pingfile:
+                 varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
+                else:
+                 varlist[varnames[i]] = (comments[i], authors[i])
         else:
             for i in range(len(varnames)):
                 varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
@@ -209,7 +226,7 @@ def create_tasks(targets, active_components=None, silent=False):
     for m in components.models:
         is_active = True if active_components is None else active_components.get(m, True)
         for r in components.models[m][components.realms]:
-            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the rea
+            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the realm
         tabfile = components.models[m].get(components.table_file, "")
         if os.path.isfile(tabfile):
             with open(tabfile) as f:
@@ -246,7 +263,10 @@ def create_tasks(targets, active_components=None, silent=False):
                 ignoredtargets.append(target)
                 varword = "ignored"
             elif key in identifiedmissingvarlist:
-                target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
+                if with_pingfile:
+                 target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = identifiedmissingvarlist[key]
+                else:
+                 target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
                 identifiedmissingtargets.append(target)
                 varword = "identified missing"
             elif key in omitvarlist_01:

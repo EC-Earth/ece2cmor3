@@ -2,6 +2,16 @@
 
 # Call this script e.g. by:
 #  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#
+# With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
+# the IFS Fortran namelists (the ppt files) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called by the script:
+#  generate-ec-earth-namelists.sh
+#
 
 import argparse
 import logging
@@ -40,15 +50,34 @@ def get_sample_freq(task):
         return 3
 
 
+# Counts spectral and gridpoint messages in the given list
+def count_spectral_codes(code_list):
+    return len(set([c for c in code_list if c in cmor_source.ifs_source.grib_codes_sh])), \
+           len(set([c for c in code_list if c not in cmor_source.ifs_source.grib_codes_sh]))
+
+
 # Writes a set of input IFS files for the requested tasks
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks, get_output_freq)
+    freqs_to_remove = []
     for freq1 in freqgroups:
         for freq2 in freqgroups:
-            if freq2 > freq1 and freq2 % freq1 == 0:
-                freqgroups[freq2] = freqgroups[freq1] + freqgroups[freq2]
-    for freq in freqgroups:
+            if freq2 > freq1:
+                if freq2 % freq1 == 0:
+                    freqgroups[freq2] = freqgroups[freq1] + freqgroups[freq2]
+                else:
+                    log.error("Frequency %d is not a divisor of frequency %d: this is not supported, "
+                              "removing the former" % (freq1, freq2))
+                    freqs_to_remove.append(freq1)
+    for freq in set(freqs_to_remove):
+        freqgroups.pop(freq, None)
+    num_slices_tot_sp, num_slices_tot_gp, num_blocks_tot_sp, num_blocks_tot_gp = 0, 0, 0, 0
+    min_freq = max(freqgroups.keys())
+    prev_freq = 0
+    # TODO: Sort loop from high freq to low, add blocks recursively
+    for freq in sorted(freqgroups.keys()):
         mfp2df, mfpphy, mfp3dfs, mfp3dfp, mfp3dfv = [], [], [], [], []
+        num_slices_sp, num_slices_gp, num_blocks_sp, num_blocks_gp = 0, 0, 0, 0
         alevs, plevs, hlevs = [], [], []
         for task in freqgroups[freq]:
             zaxis, levs = cmor_target.get_z_axis(task.target)
@@ -100,13 +129,18 @@ def write_ppt_files(tasks):
         if cmor_source.grib_code(129) not in mfp3dfs:
             mfp2df.append(cmor_source.grib_code(129))
         # Always add the surface pressure, recommended by ECMWF
-        mfpphy.append( cmor_source.grib_code(134))
+        mfpphy.append(cmor_source.grib_code(134))
         # Always add the logarithm of surface pressure, recommended by ECMWF
-        mfp2df.append( cmor_source.grib_code(152))
+        mfp2df.append(cmor_source.grib_code(152))
+        nfp2dfsp, nfp2dfgp = count_spectral_codes(mfp2df)
         mfp2df = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp2df))))
+        nfpphysp, nfpphygp = count_spectral_codes(mfpphy)
         mfpphy = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfpphy))))
+        nfp3dfssp, nfp3dfsgp = count_spectral_codes(mfp3dfs)
         mfp3dfs = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfs))))
+        nfp3dfpsp, nfp3dfpgp = count_spectral_codes(mfp3dfp)
         mfp3dfp = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfp))))
+        nfp3dfvsp, nfp3dfvgp = count_spectral_codes(mfp3dfv)
         mfp3dfv = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfv))))
         plevs = sorted(list(set([float(s) for s in plevs])))[::-1]
         hlevs = sorted(list(set([float(s) for s in hlevs])))
@@ -114,32 +148,82 @@ def write_ppt_files(tasks):
         if any(mfp2df):
             namelist["NFP2DF"] = len(mfp2df)
             namelist["MFP2DF"] = mfp2df
+            num_slices_sp += nfp2dfsp
+            num_slices_gp += nfp2dfgp
         if any(mfpphy):
             namelist["NFPPHY"] = len(mfpphy)
             namelist["MFPPHY"] = mfpphy
+            num_slices_sp += nfpphysp
+            num_slices_gp += nfpphygp
         if any(mfp3dfs):
             namelist["NFP3DFS"] = len(mfp3dfs)
             namelist["MFP3DFS"] = mfp3dfs
-            namelist["NRFP3S"] = -1
+            # To include all model levels use magic number -99:
+            namelist["NRFP3S"] = -99
+            num_blocks_sp += nfp3dfssp
+            num_blocks_gp += nfp3dfsgp
         if any(mfp3dfp):
             namelist["NFP3DFP"] = len(mfp3dfp)
             namelist["MFP3DFP"] = mfp3dfp
             namelist["RFP3P"] = plevs
+            num_slices_sp += (nfp3dfpsp * len(plevs))
+            num_slices_gp += (nfp3dfpgp * len(plevs))
         if any(mfp3dfs):
             namelist["NFP3DFV"] = len(mfp3dfv)
             namelist["MFP3DFV"] = mfp3dfv
             namelist["RFP3V"] = hlevs
+            num_slices_sp += (nfp3dfvsp * len(hlevs))
+            num_slices_gp += (nfp3dfvgp * len(hlevs))
+        num_slices_tot_sp = num_slices_sp if prev_freq == 0 else \
+            (num_slices_sp + ((freq/prev_freq) - 1) * num_slices_tot_sp)
+        num_slices_tot_gp = num_slices_gp if prev_freq == 0 else \
+            (num_slices_gp + ((freq/prev_freq) - 1) * num_slices_tot_gp)
+        num_blocks_tot_sp = num_blocks_sp if prev_freq == 0 else \
+            (num_blocks_sp + ((freq/prev_freq) - 1) * num_blocks_tot_sp)
+        num_blocks_tot_gp = num_blocks_gp if prev_freq == 0 else \
+            (num_blocks_gp + ((freq/prev_freq) - 1) * num_blocks_tot_gp)
+        prev_freq = freq
         nml = f90nml.Namelist({"NAMFPC": namelist})
         nml.uppercase, nml.end_comma = True, True
         f90nml.write(nml, "pptdddddd%04d" % (100 * freq,))
-        if freq == 6:
+        if freq == min_freq:
+            # Always add orography and land mask for lowest frequency ppt
             mfpphy.extend([129, 172])
             mfpphy = sorted(list(set(mfpphy)))
             namelist["MFPPHY"] = mfpphy
             namelist["NFPPHY"] = len(mfpphy)
             nml = f90nml.Namelist({"NAMFPC": namelist})
             nml.uppercase, nml.end_comma = True, True
+            # Write initial state ppt
             f90nml.write(nml, "ppt0000000000")
+    average_hours_per_month = 730
+    slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) / prev_freq
+    slices_per_month_gp = (average_hours_per_month * num_slices_tot_gp) / prev_freq
+    blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) / prev_freq
+    blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) / prev_freq
+    num_layers = 91
+    log.info("")
+    log.info("EC-Earth IFS output volume estimates:")
+    log.info("---------------------------------------------------------------------------")
+    log.info("# spectral GRIB messages p/m:  %d" % (slices_per_month_sp + num_layers * blocks_per_month_sp))
+    log.info("# gridpoint GRIB messages p/m: %d" % (slices_per_month_gp + num_layers * blocks_per_month_gp))
+    log.info("---------------------------------------------------------------------------")
+    log.info("                           T255L91                     T511L91               ")
+    log.info("---------------------------------------------------------------------------")
+    vol255 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.133 / 1000. +\
+             (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.180 / 1000.
+    vol511 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.503 / 1000. +\
+             (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
+    log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
+
+    volume_estimate = open('volume-estimate.txt','w')
+    volume_estimate.write(' EC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
+    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
+    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
+    volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
+    volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+    volume_estimate.close()
+
 
 
 # Main program
@@ -153,6 +237,11 @@ def main():
                         help="Cmorization table prefix string")
 
     args = parser.parse_args()
+    
+    print ""
+    print "Running drq2ppt.py with:"
+    print " ./drq2ppt.py --vars " + args.vars
+    print ""
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,

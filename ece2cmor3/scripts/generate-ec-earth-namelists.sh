@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This scripts needs no arguments
+# This scripts needs four or five arguments
 #
 # ${1} the first   argument is the MIP name
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
@@ -11,8 +11,17 @@
 #
 #
 # Run example:
-#  ./generate-ec-earth-namelists.sh CMIP amip 1 1
+#  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
 #
+# With this script it is possible to generate the EC-Earth3 control output files, i.e.
+# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) for one MIP experiment.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called in a loop over the MIP experiments by the script:
+#  genecec.py
 
 
 # Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
@@ -44,6 +53,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
 
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-p=${priority}
+#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}
+ path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
+
 #activateanaconda
  if ! type "drq" > /dev/null; then
   echo
@@ -60,51 +74,72 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   else
    echo "Omit python setup.py install"
   fi
+  echo
+  echo 'Executing the following job:'
+  echo ' '$0 "$@"
+  echo
+  echo 'First, the CMIP6 data request is applied by:'
+  echo ' ' drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  echo
+
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+
+  mkdir -p ${path_of_created_output_control_files}/file_def-compact
+  mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+  mv -f volume-estimate.txt ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+
+  # Creating the file_def files for XIOS NEMO input:.
+  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+  mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ${path_of_created_output_control_files}
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+  mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
+
+  echo
+  echo 'The produced data request excel file:'
+  ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
+
+  echo
+  echo 'The generated ppt files are:'
+  ls -1 ${path_of_created_output_control_files}/ppt0000000000
+  ls -1 ${path_of_created_output_control_files}/pptdddddd0300
+  ls -1 ${path_of_created_output_control_files}/pptdddddd0600
+
+  echo
+  echo 'The generated file_def files are:'
+  ls -1 ${path_of_created_output_control_files}/cmip6-file_def_nemo.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
+  ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
+  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
+
+  echo
+  echo 'The estimate of the Volumes:'
+  ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+
+  # Generating the available, ignored, identified missing and missing files for this MIP experiment:
+ #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+
+  echo
  #source deactivate
  fi
- mkdir -p ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact
- mv -f pptdddddd0300 pptdddddd0600 ppt0000000000 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
-
- # Creating the file_def files for XIOS NEMO input:.
- ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
- mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces.xml         ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/
- mv -f ./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
-
- echo
- echo 'The produced data request excel file:'
- ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
-
- echo
- echo 'The generated ppt files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/ppt0000000000
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/pptdddddd0[3,6]00
-
- echo
- echo 'The generated file_def files are:'
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmip6-file_def_nemo.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def_nemo-pisces.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-opa.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-lim3.xml
- ls -1 ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/file_def-compact/file_def_nemo-pisces.xml
- echo
 
 else
     echo '  '
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 CMIP piControl 1 1
+    echo '  or with the fifth optional arument the "python setup.py install" is omitted:'
+    echo '  ' $0 CMIP piControl 1 1 omit-setup
     echo '  '
 fi
 
@@ -114,22 +149,20 @@ fi
 # ./generate-ec-earth-namelists.sh CMIP         historical   1 1
 # ./generate-ec-earth-namelists.sh CMIP         piControl    1 1
 
-# ./generate-ec-earth-namelists.sh AerChemMIP   amip 1 1
-# ./generate-ec-earth-namelists.sh C4MIP        amip 1 1
-# ./generate-ec-earth-namelists.sh DCPP         amip 1 1
-# ./generate-ec-earth-namelists.sh HighResMIP   amip 1 1
-# ./generate-ec-earth-namelists.sh ISMIP6       amip 1 1
-# ./generate-ec-earth-namelists.sh LS3MIP       amip 1 1
-# ./generate-ec-earth-namelists.sh LUMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh PMIP         amip 1 1
-# ./generate-ec-earth-namelists.sh RFMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh ScenarioMIP  amip 1 1
-# ./generate-ec-earth-namelists.sh VolMIP       amip 1 1
-# ./generate-ec-earth-namelists.sh CORDEX       amip 1 1
-# ./generate-ec-earth-namelists.sh DynVar       amip 1 1
-# ./generate-ec-earth-namelists.sh SIMIP        amip 1 1
-# ./generate-ec-earth-namelists.sh VIACSAB      amip 1 1
-# ./generate-ec-earth-namelists.sh DAMIP        amip 1 1
-
-# diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0300 bup-pptdddddd0300 ; diff ec-earth-cmip6-nemo-namelists/cmip6-experiment-m=CMIP-e=amip-t=1-p=1/pptdddddd0600 bup-pptdddddd0600
+# ./generate-ec-earth-namelists.sh AerChemMIP   piControl 1 1
+# ./generate-ec-earth-namelists.sh C4MIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh DCPP         piControl 1 1
+# ./generate-ec-earth-namelists.sh HighResMIP   piControl 1 1
+# ./generate-ec-earth-namelists.sh ISMIP6       piControl 1 1
+# ./generate-ec-earth-namelists.sh LS3MIP       piControl 1 1
+# ./generate-ec-earth-namelists.sh LUMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh PMIP         piControl 1 1
+# ./generate-ec-earth-namelists.sh RFMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh ScenarioMIP  piControl 1 1
+# ./generate-ec-earth-namelists.sh VolMIP       piControl 1 1
+# ./generate-ec-earth-namelists.sh CORDEX       piControl 1 1
+# ./generate-ec-earth-namelists.sh DynVar       piControl 1 1
+# ./generate-ec-earth-namelists.sh SIMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh VIACSAB      piControl 1 1
+# ./generate-ec-earth-namelists.sh DAMIP        piControl 1 1
 

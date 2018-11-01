@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import logging
 import unittest
 
@@ -20,11 +22,11 @@ def setup():
 
 class grib_filter_test(unittest.TestCase):
     test_mode = True
-
+    date = datetime(year=1990, month=1, day=1, hour=1)
     gg_file = "ICMGGECE3+199001.csv" if test_mode else "ICMGGECE3+199001"
-    gg_path = os.path.join(test_data_path, gg_file)
+    gg_path = {date: os.path.join(test_data_path, gg_file)}
     sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
-    sh_path = os.path.join(test_data_path, sh_file)
+    sh_path = {date: os.path.join(test_data_path, sh_file)}
 
     @staticmethod
     @with_setup(setup)
@@ -64,7 +66,7 @@ class grib_filter_test(unittest.TestCase):
         tgt = ece2cmorlib.get_cmor_target("clwvi", "CFday")
         src = cmor_source.ifs_source.read("79.128")
         tsk = cmor_task.cmor_task(src, tgt)
-        grib_filter.execute([tsk], 1)
+        grib_filter.execute([tsk])
         filepath = os.path.join(tmp_path, "79.128.1.3")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, cmor_task.filter_output_key), [filepath])
@@ -91,7 +93,7 @@ class grib_filter_test(unittest.TestCase):
         tgt = ece2cmorlib.get_cmor_target("sfcWind", "Amon")
         src = cmor_source.ifs_source.read("214.128", "sqrt(sqr(var165)+sqr(var166))")
         tsk = cmor_task.cmor_task(src, tgt)
-        grib_filter.execute([tsk], 1)
+        grib_filter.execute([tsk])
         filepath = os.path.join(tmp_path, "166.128.105_165.128.105.3")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, cmor_task.filter_output_key), [filepath])
@@ -119,7 +121,7 @@ class grib_filter_test(unittest.TestCase):
         tgt = ece2cmorlib.get_cmor_target("ua", "Amon")
         src = cmor_source.ifs_source.read("131.128")
         tsk = cmor_task.cmor_task(src, tgt)
-        grib_filter.execute([tsk], 1)
+        grib_filter.execute([tsk])
         filepath = os.path.join(tmp_path, "131.128.210.6")
         ok_(os.path.isfile(filepath))
         ok_(getattr(tsk, cmor_task.filter_output_key), [filepath])

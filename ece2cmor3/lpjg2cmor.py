@@ -1,17 +1,16 @@
-import os
-
-import re
-import numpy as np
-import pandas as pd
 import json
 import logging
-import netCDF4
-from cdo import *
-import cmor
-from ece2cmor3 import cmor_utils, cmor_source, cmor_target, cmor_task
 from datetime import date
 
-#from cmor.Test.test_python_open_close_cmor_multiple import path
+import cmor
+import netCDF4
+import numpy as np
+import pandas as pd
+from cdo import *
+
+from ece2cmor3 import cmor_utils, cmor_target, cmor_task
+
+# from cmor.Test.test_python_open_close_cmor_multiple import path
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -26,33 +25,44 @@ table_root_ = None
 ref_date_ = None
 cmor_calendar_ = None
 
-#lpjg_path_ is the directory where the data files (LPJG .out-files) are located
+# lpjg_path_ is the directory where the data files (LPJG .out-files) are located
 lpjg_path_ = None
 
-#ncpath_ is the tmp directory where the temporary netcdf files will be placed
+# ncpath_ is the tmp directory where the temporary netcdf files will be placed
 ncpath_ = None
 ncpath_created_ = False
 
-gridfile_ = "ece2cmor3/resources/ingrid_T255_unstructured.txt"
+gridfile_ = os.path.join(os.path.dirname(__file__), "resources", "ingrid_T255_unstructured.txt")
 
-#list of requested entries for the land use axis
+# list of requested entries for the land use axis
 landuse_requested_ = []
 
-#the cmor prefix (e.g. CMIP6) is currently needed to treat the possible requests for land use types,
-#but  might be unnecessary in the future depending on how much of the request will be handled in already when writing the model output
+# the cmor prefix (e.g. CMIP6) is currently needed to treat the possible requests for land use types, but  might be
+# unnecessary in the future depending on how much of the request will be handled in already when writing the model
+# output
 cmor_prefix_ = None
 
 _months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
-#various things extracted from Michael.Mischurow out2nc tool: ec_earth.py
+# various things extracted from Michael.Mischurow out2nc tool: ec_earth.py
 grids = {
-    80:  [18, 25, 36, 40, 45, 54, 60, 64, 72, 72, 80, 90, 96, 100, 108, 120, 120, 128, 135, 144, 144, 150, 160, 160, 180, 180, 180, 192, 192, 200, 200, 216, 216, 216, 225, 225, 240, 240, 240, 256, 256, 256, 256, 288, 288, 288, 288, 288, 288, 288, 288, 288, 300, 300, 300, 300, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320],
-    128: [18, 25, 36, 40, 45, 50, 60, 64, 72, 72, 80, 90, 90, 100, 108, 120, 120, 125, 128, 144, 144, 150, 160, 160, 180, 180, 180, 192, 192, 200, 216, 216, 216, 225, 240, 240, 240, 250, 250, 256, 270, 270, 288, 288, 288, 300, 300, 320, 320, 320, 320, 324, 360, 360, 360, 360, 360, 360, 360, 375, 375, 375, 375, 384, 384, 400, 400, 400, 400, 405, 432, 432, 432, 432, 432, 432, 432, 450, 450, 450, 450, 450, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 486, 486, 486, 500, 500, 500, 500, 500, 500, 500, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512],
+    80: [18, 25, 36, 40, 45, 54, 60, 64, 72, 72, 80, 90, 96, 100, 108, 120, 120, 128, 135, 144, 144, 150, 160, 160, 180,
+         180, 180, 192, 192, 200, 200, 216, 216, 216, 225, 225, 240, 240, 240, 256, 256, 256, 256, 288, 288, 288, 288,
+         288, 288, 288, 288, 288, 300, 300, 300, 300, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320,
+         320, 320, 320, 320, 320, 320, 320, 320, 320, 320, 320],
+    128: [18, 25, 36, 40, 45, 50, 60, 64, 72, 72, 80, 90, 90, 100, 108, 120, 120, 125, 128, 144, 144, 150, 160, 160,
+          180, 180, 180, 192, 192, 200, 216, 216, 216, 225, 240, 240, 240, 250, 250, 256, 270, 270, 288, 288, 288, 300,
+          300, 320, 320, 320, 320, 324, 360, 360, 360, 360, 360, 360, 360, 375, 375, 375, 375, 384, 384, 400, 400, 400,
+          400, 405, 432, 432, 432, 432, 432, 432, 432, 450, 450, 450, 450, 450, 480, 480, 480, 480, 480, 480, 480, 480,
+          480, 480, 486, 486, 486, 500, 500, 500, 500, 500, 500, 500, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512,
+          512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512],
 }
-grids = {i: j+j[::-1] for i, j in grids.items()}
+grids = {i: j + j[::-1] for i, j in grids.items()}
+
 
 def rnd(x, digits=3):
     return round(x, digits)
+
 
 def coords(df, root, meta):
     # deg is 128 in N128
@@ -64,13 +74,13 @@ def coords(df, root, meta):
     # At deg >= 319 polar correction might have to be applied (see Courtier and Naughton, 1994)
     deg = 128
     lons = [lon for num in grids[deg] for lon in np.linspace(0, 360, num, False)]
-    x, w = np.polynomial.legendre.leggauss(deg*2)
+    x, w = np.polynomial.legendre.leggauss(deg * 2)
     lats = np.arcsin(x) * 180 / -np.pi
     lats = [lats[i] for i, n in enumerate(grids[deg]) for _ in range(n)]
 
     if 'i' not in root.dimensions:
-        i = root.createDimension('i', len(lons))
-        j = root.createDimension('j', 1)
+        root.createDimension('i', len(lons))
+        root.createDimension('j', 1)
 
         latitude = root.createVariable('lat', 'f4', ('j', 'i'))
         latitude.standard_name = 'latitude'
@@ -94,20 +104,21 @@ def coords(df, root, meta):
 
     return df, ('j', 'i')
 
-#TODO: if LPJG data that has been run on the regular grid is also used, the corresponding coords function
-#from Michael Mischurow's regular.py should be added here (possibly with some modifications)
 
-# Initializion before the processing of the LPJ-Guess tasks
-def initialize(path, ncpath, expname, tabledir, prefix, start, length):
-    global log,exp_name_,table_root_, ref_date_
+# TODO: if LPJG data that has been run on the regular grid is also used, the corresponding coords function
+# from Michael Mischurow's regular.py should be added here (possibly with some modifications)
+
+# Initialization before the processing of the LPJ-Guess tasks
+def initialize(path, ncpath, expname, tabledir, prefix, refdate):
+    global log, exp_name_, table_root_, ref_date_
     global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
     exp_name_ = expname
     table_root_ = os.path.join(tabledir, prefix)
     lpjg_path_ = path
-    ref_date_ = start
+    ref_date_ = refdate
     cmor_prefix_ = prefix
     if not ncpath.startswith("/"):
-        ncpath_ = os.path.join(lpjg_path_,ncpath)
+        ncpath_ = os.path.join(lpjg_path_, ncpath)
     else:
         ncpath_ = ncpath
     if not os.path.exists(ncpath_) and not ncpath_created_:
@@ -121,11 +132,12 @@ def initialize(path, ncpath, expname, tabledir, prefix, start, length):
         with open(coordfile) as f:
             data = json.loads(f.read())
         axis_entries = data.get("axis_entry", {})
-        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}  
+        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}
         if axis_entries['landuse']['requested']:
             landuse_requested_ = [entry.encode('ascii') for entry in axis_entries['landuse']['requested']]
 
     return True
+
 
 # Executes the processing loop.
 # used the nemo2cmor.py execute as template
@@ -134,7 +146,7 @@ def execute(tasks):
     global lpjg_path_, ncpath_
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
-    taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
+    taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
 
     for table, tasklist in taskdict.iteritems():
         try:
@@ -142,7 +154,7 @@ def execute(tasks):
             cmor.set_table(tab_id)
         except Exception as e:
             log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
-                      % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
+                      % (table, ','.join([tsk.target.variable for tsk in tasklist]), e.message))
             continue
 
         lon_id = None
@@ -162,68 +174,71 @@ def execute(tasks):
             outname = task.target.out_name
             outdims = task.target.dimensions
 
-            #find first and last year in the .out-file
+            # find first and last year in the .out-file
             firstyear, lastyear = find_timespan(lpjgfile)
-            #check if user given reference year is after the first year in data file: this is not allowed
+            # check if user given reference year is after the first year in data file: this is not allowed
             if int(ref_date_.year) > firstyear:
                 log.error("The reference date given is after the first year in the data (%s) for variable %s "
                           "in file %s. Skipping CMORization." % (firstyear, task.source.variable(), lpjgfile))
                 continue
 
-            #divide the data in the .out-file by year to temporary files
+            # divide the data in the .out-file by year to temporary files
             yearly_files = divide_years(lpjgfile, firstyear, lastyear, outname)
 
             for yearfile in yearly_files:
 
-                #Read data from the .out-file and generate the netCDF file including remapping
+                # Read data from the .out-file and generate the netCDF file including remapping
                 ncfile = create_lpjg_netcdf(freq, yearfile, outname, outdims)
 
                 if ncfile is None:
                     if "landUse" in outdims.split():
                         log.error("Land use columns in file %s do not contain all of the requested land use types. "
-                                  "Skipping CMORization of variable %s" % (getattr(task, cmor_task.output_path_key), task.source.variable()))
+                                  "Skipping CMORization of variable %s" % (
+                                      getattr(task, cmor_task.output_path_key), task.source.variable()))
                     else:
-                        log.error("Unexpected subtype in file %s: either no type axis has been requested for variable %s "
-                                  "or explicit treatment for the axis has not yet been implemented. Skipping CMORization."
-                                  % (getattr(task, cmor_task.output_path_key), task.source.variable()))
+                        log.error(
+                            "Unexpected subtype in file %s: either no type axis has been requested for variable %s "
+                            "or explicit treatment for the axis has not yet been implemented. Skipping CMORization."
+                            % (getattr(task, cmor_task.output_path_key), task.source.variable()))
                     break
 
                 dataset = netCDF4.Dataset(ncfile, 'r')
-                #Create the grid, need to do only once as all LPJG variables will be on same grid
-                #Currently create_grid just creates latitude and longitude axis since that should be all that is needed
+                # Create the grid, need to do only once as all LPJG variables will be on same grid
+                # Currently create_grid just creates latitude and longitude axis since that should be all that is needed
                 if lon_id is None and lat_id is None:
                     lon_id, lat_id = create_grid(dataset, task)
                 setattr(task, "longitude_axis", lon_id)
                 setattr(task, "latitude_axis", lat_id)
 
-                #Create cmor time axis for current variable
+                # Create cmor time axis for current variable
                 create_time_axis(dataset, task)
 
-                #if this is a land use variable create cmor land use axis
+                # if this is a land use variable create cmor land use axis
                 if "landUse" in outdims.split():
                     create_landuse_axis(task, lpjgfile, freq)
 
-                #if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
+                # if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
                 if "vegtype" in outdims.split():
                     create_vegtype_axis(task, lpjgfile, freq)
 
-                #if this variable has the soil depth dimension sdepth (NB! not sdepth1 or sdepth10) create cmor sdepth axis
+                # if this variable has the soil depth dimension sdepth (NB! not sdepth1 or sdepth10) create cmor
+                # sdepth axis
                 if "sdepth" in outdims.split():
                     create_sdepth_axis(task, lpjgfile, freq)
 
-                #cmorize the current task (variable)
+                # cmorize the current task (variable)
                 execute_single_task(dataset, task)
                 dataset.close()
-            
-                #remove the regular (non-cmorized) netCDF file and the temporary .out file for current year
+
+                # remove the regular (non-cmorized) netCDF file and the temporary .out file for current year
                 os.remove(ncfile)
                 os.remove(yearfile)
-            
-    return 
 
-#checks that the time resolution in the .out data file matches the requested frequency
+    return
+
+
+# checks that the time resolution in the .out data file matches the requested frequency
 def check_time_resolution(lpjgfile, freq):
-
     with open(lpjgfile) as f:
         header = next(f).lower().split()
     if freq == "mon":
@@ -231,13 +246,14 @@ def check_time_resolution(lpjgfile, freq):
     elif freq == "day":
         return 'day' in header
     elif freq.startswith("yr"):
-        #to find out if it is yearly data have to check that it is neither monthly nor daily
+        # to find out if it is yearly data have to check that it is neither monthly nor daily
         if 'mth' in header or header[-12:] == _months or 'day' in header:
             return False
         else:
             return True
     else:
-        return False #LPJ-Guess only supports yearly, monthly or daily time resolutions
+        return False  # LPJ-Guess only supports yearly, monthly or daily time resolutions
+
 
 # Returns first and last year present in the .out data file
 def find_timespan(lpjgfile):
@@ -248,22 +264,22 @@ def find_timespan(lpjgfile):
 
     return firstyr, lastyr
 
-# Divides the .out file by year to a set of temporary files
-# This approach was chosen to avoid problems with trying to keep huge amounts of data in the memory as the original .out-files can have even >100 years worth of daily data
-def divide_years(lpjgfile, firstyr, lastyr, outname):
 
+# Divides the .out file by year to a set of temporary files This approach was chosen to avoid problems with trying to
+#  keep huge amounts of data in the memory as the original .out-files can have even >100 years worth of daily data
+def divide_years(lpjgfile, firstyr, lastyr, outname):
     files = {}
     filenames = []
     with open(lpjgfile) as f:
         header = next(f)
-        #create the yearly files and write header to each
-        for yr in range(firstyr, lastyr+1):
+        # create the yearly files and write header to each
+        for yr in range(firstyr, lastyr + 1):
             fname = os.path.join(ncpath_, outname + "_" + str(yr) + ".out")
             filenames.append(fname)
             files[yr] = open(fname, 'w')
             files[yr].write(header)
 
-        #assign the data lines in the .out-file to correct yearly file
+        # assign the data lines in the .out-file to correct yearly file
         for line in f:
             yr = int(line.split()[2])
             if yr < firstyr:
@@ -275,16 +291,19 @@ def divide_years(lpjgfile, firstyr, lastyr, outname):
 
     return filenames
 
-#this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael Mischurow
+
+# this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael
+#  Mischurow
 def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     global ncpath_, gridfile_
-    
-    #checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists in lpjg data)
-    is_landUse = "landUse" in outdims.split()
-    is_vegtype = "vegtype" in outdims.split()
+
+    # checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists
+    #  in lpjg data)
+    is_land_use = "landUse" in outdims.split()
+    is_veg_type = "vegtype" in outdims.split()
     is_sdepth = "sdepth" in outdims.split()
 
-    #assigns a flag to handle two different possible monthly LPJ-Guess formats
+    # assigns a flag to handle two different possible monthly LPJ-Guess formats
     months_as_cols = False
     if freq == "mon":
         with open(inputfile) as f:
@@ -300,22 +319,24 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     df = pd.read_csv(inputfile, delim_whitespace=True, index_col=idx_col, dtype=np.float64, compression='infer')
     df.rename(columns=lambda x: x.lower(), inplace=True)
-    
-    if is_landUse:
-        #NOTE: The following treatment of landuse types is likely to change depending on how the lut data requests will be treated when creating the .out-files
-        if not landuse_requested_: #no specific request for land use types, pick all types present in the .out-file
+
+    if is_land_use:
+        # NOTE: The following treatment of landuse types is likely to change depending on how the lut data requests
+        # will be treated when creating the .out-files
+        if not landuse_requested_:  # no specific request for land use types, pick all types present in the .out-file
             landuse_types = list(df.columns.values)
         elif cmor_prefix_ == "CMIP6":
-            #NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in name) for future CMIP6 runs
-            #this is just a temporary placeholder solution for testing purposes!
+            # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
+            # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
             df['primary_and_secondary'] = df['natural']
             df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
             landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
-            #Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types and column names denoted
-            #by the abbreviations psl, pst, crp & urb, uncomment the line below and delete the placeholder solution above (i.e. the above three lines)
-            #landuse_types = ['psl', 'pst', 'crp', 'urb']
+            # Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types
+            #  and column names denoted by the abbreviations psl, pst, crp & urb, uncomment the line below and delete
+            #  the placeholder solution above (i.e. the above three lines) landuse_types = ['psl', 'pst', 'crp', 'urb']
         else:
-            #for now skip the variable entirely if there is not exact matches in the .out-file for all the requested landuse types (except for CMIP6-case of course)
+            # for now skip the variable entirely if there is not exact matches in the .out-file for all the requested
+            #  landuse types (except for CMIP6-case of course)
             colnames = list(df.columns.values)
             for lut in landuse_requested_:
                 if lut not in colnames:
@@ -326,8 +347,8 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         for lut in range(len(landuse_types)):
             colname = landuse_types[lut]
             df_list.append(get_lpjg_datacolumn(df, freq, colname, months_as_cols))
-        
-    elif is_vegtype:
+
+    elif is_veg_type:
         pfts = list(df.columns.values)
         df_list = []
         for p in range(len(pfts)):
@@ -338,8 +359,8 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         df_list = []
         for sd in range(len(depths)):
             df_list.append(get_lpjg_datacolumn(df, freq, depths[sd], months_as_cols))
-            
-    else: #regular variable
+
+    else:  # regular variable
         colname = ""
         if not months_as_cols:
             if "total" not in list(df.columns.values):
@@ -347,26 +368,28 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
             else:
                 colname = "total"
         df = get_lpjg_datacolumn(df, freq, colname, months_as_cols)
-        df_list = [df] 
+        df_list = [df]
 
     if freq.startswith("yr"):
         log.info("Creating lpjg netcdf file for variable " + outname + " for year " + str(int(df_list[0].columns[0])))
     else:
-        log.info("Creating lpjg netcdf file for variable " + outname + " for year " + str(int(df_list[0].columns[0][1])))
+        log.info(
+            "Creating lpjg netcdf file for variable " + outname + " for year " + str(int(df_list[0].columns[0][1])))
 
     ncfile = os.path.join(ncpath_, outname + "_" + freq + ".nc")
-    #Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper naming conventions for the final file 
+    # Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper
+    # naming conventions for the final file
 
-    #temporary netcdf file name (will be removed after remapping is done)
+    # temporary netcdf file name (will be removed after remapping is done)
     temp_ncfile = os.path.join(ncpath_, 'LPJGtemp.nc')
-    root = netCDF4.Dataset(temp_ncfile, 'w') #now format is NETCDF4 
+    root = netCDF4.Dataset(temp_ncfile, 'w')  # now format is NETCDF4
 
-    time = root.createDimension('time', None)
+    root.createDimension('time', None)
     timev = root.createVariable('time', 'f4', ('time',))
     refyear = int(ref_date_.year)
     if freq == "mon":
         curyear, tres = int(df_list[0].columns[0][1]), 'month'
-        t_since_fyear = (curyear - refyear)*12
+        t_since_fyear = (curyear - refyear) * 12
     elif freq == "day":
         curyear, tres = int(df_list[0].columns[0][1]), 'day'
         t_since_fyear = (date(curyear, 1, 1) - date(refyear, 1, 1)).days
@@ -376,22 +399,27 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     timev[:] = np.arange(t_since_fyear, t_since_fyear + df_list[0].shape[1])
     timev.units = '{}s since {}-01-01'.format(tres, refyear)
     timev.calendar = "proleptic_gregorian"
-    
-    meta = { "missing" : 1.e+20 } #the missing/fill value could/should be taken from the target header info if available 
-                                  #and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e. out2nc-style) for now
+
+    meta = {"missing": 1.e+20}  # the missing/fill value could/should be taken from the target header info if available
+    # and does not need to be in a meta dict since coords only needs the fillvalue anyway, but do it like this (i.e.
+    # out2nc-style) for now
 
     N_dfs = len(df_list)
     df_normalised = []
+    dimensions = []
+
     for l in range(N_dfs):
-        df_out, dimensions = coords(df_list[l], root, meta) #TODO: if different LPJG grids possible you need an if-check here to choose which function is called
+        # TODO: if different LPJG grids possible you need an if-check here to choose which function is called
+        df_out, dimensions = coords(df_list[l], root, meta)
         df_normalised.append(df_out)
 
     if N_dfs == 1:
         dimensions = 'time', dimensions[0], dimensions[1]
-        
+
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised[0].values.T #TODO: see out2nc for what to do here if you have the LPJG regular grid
+        variable[:] = df_normalised[
+            0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
     else:
         root.createDimension('fourthdim', N_dfs)
 
@@ -399,48 +427,51 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for l in range(N_dfs):
-            variable[:, l, :, :] = df_normalised[l].values.T #TODO: see out2nc for what to do here if you have the LPJG regular grid
+            variable[:, l, :, :] = df_normalised[
+                l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
     root.sync()
     root.close()
 
-    #do the remapping
+    # do the remapping
     cdo = Cdo()
     interm_file = os.path.join(ncpath_, 'intermediate.nc')
-    cdo.remapycon('n128', input = "-setgrid," + gridfile_ + " " + temp_ncfile, output=interm_file) #TODO: add remapping for possible other grids
-    cdo.invertlat(input = interm_file, output=ncfile)
+    cdo.remapycon('n128', input="-setgrid," + gridfile_ + " " + temp_ncfile,
+                  output=interm_file)  # TODO: add remapping for possible other grids
+    cdo.invertlat(input=interm_file, output=ncfile)
     os.remove(interm_file)
     os.remove(temp_ncfile)
 
     return ncfile
 
+
 # Extracts single column from the .out-file
 def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
     if freq == "day":
-        #create a single time column so that extra days won't be added to the time axis (if there are both leap and non-leap years) 
-        df['timecolumn'] = df['year'] + 0.001*df['day']
-        df.set_index('timecolumn',append=True, inplace=True)
-        df.drop(columns=['year', 'day'],inplace=True)
-        
+        # create a single time column so that extra days won't be added to the time axis (if there are both leap and
+        # non-leap years)
+        df['timecolumn'] = df['year'] + 0.001 * df['day']
+        df.set_index('timecolumn', append=True, inplace=True)
+        df.drop(columns=['year', 'day'], inplace=True)
+
         if df.shape[1] != 1:
             raise ValueError('Multiple columns in the daily file are not supported')
         df = df.unstack()
     elif freq.startswith("yr"):
-        df = df.pop(colname) 
+        df = df.pop(colname)
         df = df.unstack()
     elif freq == "mon":
         if months_as_cols:
             df = df.unstack()
-            sortrule = lambda x: (x[1], _months.index(x[0]))
-            df = df.reindex(sorted(df.columns, key=sortrule),
+            df = df.reindex(sorted(df.columns, key=(lambda x: (x[1], _months.index(x[0])))),
                             axis=1, copy=False)
         else:
             df = df.pop(colname)
             df = df.unstack().unstack()
-            sortrule = lambda x: (x[1], x[0])
-            df = df.reindex(sorted(df.columns, key=sortrule),
+            df = df.reindex(sorted(df.columns, key=(lambda x: (x[1], x[0]))),
                             axis=1, copy=False)
     return df
+
 
 # Performs CMORization of a single task/year
 def execute_single_task(dataset, task):
@@ -452,72 +483,79 @@ def execute_single_task(dataset, task):
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis 
-    varid = create_cmor_variable(task, dataset, axes)
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis
+    varid = create_cmor_variable(task, axes)
 
     ncvar = dataset.variables[task.target.out_name]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
-    
+
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
     log.info("CMORizing variable %s in table %s form %s in "
              "file %s..." % (task.target.out_name, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval),
-                           swaplatlon = True)
+                           swaplatlon=True)
     closed_file = cmor.close(varid, file_name=True)
     log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
 
-#Creates cmor time axis for the variable
-#The axis is created separately for each variable and each year
+
+# Creates cmor time axis for the variable
+# The axis is created separately for each variable and each year
 def create_time_axis(ds, task):
-    #finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and the length of the time_dim list will be 1
+    # finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and
+    #  the length of the time_dim list will be 1
     tgtdims = getattr(task.target, cmor_target.dims_key)
     time_dim = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
 
-    timevals = ds.variables["time"][:] #time variable in the netcdf-file from create_lpjg_netcdf is "time"
-    #time requires bounds as well, the following should simply set them to be from start to end of each year/month/day (as appropriate for current data) 
+    timevals = ds.variables["time"][:]  # time variable in the netcdf-file from create_lpjg_netcdf is "time"
+    # time requires bounds as well, the following should simply set them to be from start to end of each
+    # year/month/day (as appropriate for current data)
     f = np.vectorize(lambda x: x + 1)
-    time_bnd = np.stack((timevals, f(timevals)), axis = -1)
-    
+    time_bnd = np.stack((timevals, f(timevals)), axis=-1)
+
     tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
-                                    coord_vals=timevals, cell_bounds=time_bnd) 
+                    coord_vals=timevals, cell_bounds=time_bnd)
     setattr(task, "time_axis", tid)
 
     return
 
-#Creates longitude and latitude cmor-axes for LPJ-Guess variables
-#Seems this is enough for cmor according to the cmor documentation, and there is indeed no problem at least when passing the data through the CMORization functions
+
+# Creates longitude and latitude cmor-axes for LPJ-Guess variables Seems this is enough for cmor according to the
+# cmor documentation, and there is indeed no problem at least when passing the data through the CMORization functions
 def create_grid(ds, task):
     lons = ds.variables["lon"][:]
     lats = ds.variables["lat"][:]
-    
-    #create the cell bounds since they are required: we have a 512x256 grid with longitude from 0 to 360 and latitude from -90 to 90, i.e. resolution ~0.7
-    #longitude values start from 0 so the cell lower bounds are the same as lons (have to be: cmor requires monononically increasing values so 359.X to 0.X is not allowed)
-    lon_bnd_upper = np.append(lons[1:], 360.0)
-    lon_bnd = np.stack((lons, lon_bnd_upper), axis = -1)
 
-    #creating latitude bounds so that latitude values are the (approximate) mid-points of the cell lower and upper bounds
+    # create the cell bounds since they are required: we have a 512x256 grid with longitude from 0 to 360 and
+    # latitude from -90 to 90, i.e. resolution ~0.7 longitude values start from 0 so the cell lower bounds are the
+    # same as lons (have to be: cmor requires monotonically increasing values so 359.X to 0.X is not allowed)
+    lon_bnd_upper = np.append(lons[1:], 360.0)
+    lon_bnd = np.stack((lons, lon_bnd_upper), axis=-1)
+
+    # creating latitude bounds so that latitude values are the (approximate) mid-points of the cell lower and upper
+    # bounds
     lat_bnd_lower = np.array([-90.0, -89.12264116])
     for i in range(1, 255):
         lat_bnd_lower = np.append(lat_bnd_lower, lat_bnd_lower[i] + 0.70175308)
     lat_bnd_upper = np.append(lat_bnd_lower[1:], 90.0)
-    lat_bnd = np.stack((lat_bnd_lower, lat_bnd_upper), axis = -1)
+    lat_bnd = np.stack((lat_bnd_lower, lat_bnd_upper), axis=-1)
 
     lon_id = cmor.axis(table_entry="longitude", units=getattr(ds.variables["lon"], "units"),
-                                    coord_vals=lons, cell_bounds=lon_bnd)
+                       coord_vals=lons, cell_bounds=lon_bnd)
     lat_id = cmor.axis(table_entry="latitude", units=getattr(ds.variables["lat"], "units"),
-                                    coord_vals=lats, cell_bounds=lat_bnd)
-     
+                       coord_vals=lats, cell_bounds=lat_bnd)
+
     return lon_id, lat_id
+
 
 # Unit conversion utility method (not really needed but carried over from nemo2cmor anyway)
 def get_conversion_factor(conversion):
     global log
     if not conversion:
         return 1.0
- #   if conversion == "tossqfix":
- #       return 1.0
+    #   if conversion == "tossqfix":
+    #       return 1.0
     if conversion == "frac2percent":
         return 100.0
     if conversion == "percent2frac":
@@ -525,18 +563,19 @@ def get_conversion_factor(conversion):
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0
 
+
 # Creates a variable in the cmor package
-def create_cmor_variable(task, dataset, axes):
+def create_cmor_variable(task, axes):
     srcvar = task.source.variable()
     unit = getattr(task.target, "units")
-    return cmor.variable(table_entry = str(task.target.out_name), units = str(unit), axis_ids = axes,
-                         original_name = str(srcvar))
+    return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
+                         original_name=str(srcvar))
+
 
 # Creates a cmor landUse axis
 def create_landuse_axis(task, lpjgfile, freq):
-
     if landuse_requested_:
-        landusevals = landuse_requested_ 
+        landusevals = landuse_requested_
     else:
         with open(lpjgfile) as f:
             header = next(f).split()
@@ -544,15 +583,15 @@ def create_landuse_axis(task, lpjgfile, freq):
                 landusevals = header[3:]
             else:
                 landusevals = header[4:]
-    
-    LU_id = cmor.axis(table_entry = "landUse", units = 'none', coord_vals = landusevals)
+
+    LU_id = cmor.axis(table_entry="landUse", units='none', coord_vals=landusevals)
 
     setattr(task, "landUse_axis", LU_id)
     return
 
+
 # Creates a cmor vegtype axis
 def create_vegtype_axis(task, lpjgfile, freq):
-
     with open(lpjgfile) as f:
         header = next(f).split()
         if freq.startswith("yr"):
@@ -560,15 +599,16 @@ def create_vegtype_axis(task, lpjgfile, freq):
         else:
             pfts = header[4:]
     vegtypevals = pfts
-    
-    veg_id = cmor.axis(table_entry = "vegtype", units = 'none', coord_vals = vegtypevals)
+
+    veg_id = cmor.axis(table_entry="vegtype", units='none', coord_vals=vegtypevals)
 
     setattr(task, "vegtype_axis", veg_id)
     return
 
-#Creates a cmor sdepth axis
-def create_sdepth_axis(task, lpjgfile, freq):
 
+# Creates a cmor sdepth axis
+def create_sdepth_axis(task, lpjgfile, freq):
+    log.info("Creating depth axis using file %s..." % lpjgfile)
     with open(lpjgfile) as f:
         header = next(f).split()
         if freq.startswith("yr"):
@@ -578,10 +618,10 @@ def create_sdepth_axis(task, lpjgfile, freq):
     sdepthvals = np.array([float(d) for d in depths])
 
     sdepth_bnd_lower = np.append(0, sdepthvals[:-1])
-    sdepth_bnd = np.stack((sdepth_bnd_lower, sdepthvals), axis = -1)
+    sdepth_bnd = np.stack((sdepth_bnd_lower, sdepthvals), axis=-1)
 
-    sdep_id = cmor.axis(table_entry = "sdepth", units = 'm', coord_vals = sdepthvals,
-                        cell_bounds = sdepth_bnd)
+    sdep_id = cmor.axis(table_entry="sdepth", units='m', coord_vals=sdepthvals,
+                        cell_bounds=sdepth_bnd)
 
     setattr(task, "sdepth_axis", sdep_id)
     return

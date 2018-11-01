@@ -159,12 +159,6 @@
         ]
     },
     {
-        "source": "139.128",
-        "target": "tsl",
-        "table": "6hrPlevPt",
-        "masked": "land"
-    },
-    {
         "source": "141.128",
         "target": [
           "snw",

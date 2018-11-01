@@ -22,14 +22,18 @@ if [ "$#" -eq 0 ]; then
   drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
-  cd ${HOME}/cmorize/shaconemo/ping-files/
-  ./extract-info-from-ping-files.csh
+# cd ${HOME}/cmorize/shaconemo/ping-files/
+# ./extract-info-from-ping-files.csh
 
 # Step 3: Open the following files:
-##  nedit ${HOME}/cmorize/shaconemo/ping-files/r256/cmor-varlist-based-on-ping-r256-without-dummy-lines*.txt
-##  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
-# And copy manually the column with (cmor) variable names in the "variable"-column of the xlsx file, the column with the model component in the "comment"-column
-# of the xlsx file, and the column with comment2 in the "actual comment"-column of the xlsx file.
+#  nedit ${HOME}/cmorize/shaconemo/ping-files/r256/cmor-varlist-based-on-ping-r256-without-dummy-lines*.txt
+#  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+# And copy manually the content of the file:
+#  cmor-varlist-based-on-ping-r256-without-dummy-lines-only-model-name.txt   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r256-without-dummy-lines-comment2.txt          (the identification comment)           in the                      "comment"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r256-without-dummy-lines-only-model-name.txt   (the nemo model component)             in the "model component in ping file"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r256-without-dummy-lines-ping-file-unit.txt    (the units from the ping file comment) in the        "units as in ping file"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r256-without-dummy-lines-ping-file-comment.txt (the xml comment in the ping file)     in the            "ping file comment"-column of the nemo-only-pre-list-*.xlsx file
 # After updating the pre* file it is most convenient to commit it first.
 
 # Step 4: Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use a
@@ -44,7 +48,7 @@ if [ "$#" -eq 0 ]; then
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck --withping --oce -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 

@@ -16,10 +16,12 @@
 # Declare an array variable with all the lpjg cmor variable names:
 declare -a arr=(
 "baresoilFrac, Lmon, baresoilFrac"
+"baresoilFracEyr, Eyr, baresoilFrac"
 "cCwd, Lmon, cCwd"
 "cLand, Emon, cLand"
 "cLeaf, Lmon, cLeaf"
 "cLitter, Lmon, cLitter"
+"cLitterEyr, Eyr, cLitter"
 "cLitterAbove, Lmon, cLitterAbove"
 "cLitterBelow, Lmon, cLitterBelow"
 "cLitterCwd, Emon, cLitterCwd"
@@ -28,12 +30,15 @@ declare -a arr=(
 "cLitterSurf, Emon, cLitterSurf"
 "cOther, Emon, cOther"
 "cProduct, Lmon, cProduct"
+"cProductEyr, Eyr, cProduct"
 "cProductLut, Eyr, cProductLut"
 "cRoot, Lmon, cRoot"
 "cropFrac, Lmon, cropFrac"
+"cropFracEyr, Eyr, cropFrac"
 "cropFracC3, Emon, cropFracC3"
 "cropFracC4, Emon, cropFracC4"
 "cSoil, Emon, cSoil"
+"cSoilEyr, Eyr, cSoil"
 "cSoilFast, Lmon, cSoilFast"
 "cSoilLut, Eyr, cSoilLut"
 "cSoilMedium, Lmon, cSoilMedium"
@@ -41,6 +46,7 @@ declare -a arr=(
 "cStem, Emon, cStem"
 "cTotFireLut, Emon, cTotFireLut"
 "cVeg, Lmon, cVeg"
+"cVegEyr, Eyr, cVeg"
 "cVegLut, Eyr, cVegLut"
 "cWood, Emon, cWood"
 "ec, Eday, ec"
@@ -94,6 +100,7 @@ declare -a arr=(
 "gppLut, Emon, gppLut"
 "gppTree, Emon, gppTree"
 "grassFrac, Lmon, grassFrac"
+"grassFracEyr, Eyr, grassFrac"
 "grassFracC3, Emon, grassFracC3"
 "grassFracC4, Emon, grassFracC4"
 "irrLut, Emon, irrLut"
@@ -139,6 +146,7 @@ declare -a arr=(
 "pastureFracC3, Emon, pastureFracC3"
 "pastureFracC4, Emon, pastureFracC4"
 "prCrop, Emon, prCrop"
+"prCropEday, Eday, prCrop"
 "prveg, Lmon, prveg"
 "ra, Lmon, ra"
 "raGrass, Emon, raGrass"
@@ -156,9 +164,11 @@ declare -a arr=(
 "rhSoil, Emon, rhSoil"
 "rMaint, Lmon, rMaint"
 "shrubFrac, Lmon, shrubFrac"
+"shrubFracEyr, Eyr, shrubFrac"
 "tran, Lmon, tran"
 "dtran, Eday, tran"
 "treeFrac, Lmon, treeFrac"
+"treeFracEyr, Eyr, treeFrac"
 "treeFracBdlDcd, Emon, treeFracBdlDcd"
 "treeFracBdlEvg, Emon, treeFracBdlEvg"
 "treeFracNdlDcd, Emon, treeFracNdlDcd"
@@ -167,12 +177,16 @@ declare -a arr=(
 "dtsl, Eday, tsl"
 "vegFrac, Emon, vegFrac"
 "vegHeightTree, Emon, vegHeightTree"
+"fco2antt, Amon, fco2antt"
+"fco2nat, Amon, fco2nat"
+"dmrsll, Eday, mrsll"
 )
 
 
 function add_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
+#echo '        "filepath": "'$1'.out",'  >> ${output_file}
  echo '        "table": "'$2'",'  >> ${output_file}
  echo '        "target": "'$3'"'  >> ${output_file}
  echo '    },'                    >> ${output_file}
@@ -181,6 +195,7 @@ function add_item {
 function add_last_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
+#echo '        "filepath": "'$1'.out",'  >> ${output_file}
  echo '        "table": "'$2'",'  >> ${output_file}
  echo '        "target": "'$3'"'  >> ${output_file}
  echo '    }'                     >> ${output_file}

@@ -5,6 +5,11 @@
         "target": "baresoilFrac"
     },
     {
+        "source": "baresoilFracEyr",
+        "table": "Eyr",
+        "target": "baresoilFrac"
+    },
+    {
         "source": "cCwd",
         "table": "Lmon",
         "target": "cCwd"
@@ -22,6 +27,11 @@
     {
         "source": "cLitter",
         "table": "Lmon",
+        "target": "cLitter"
+    },
+    {
+        "source": "cLitterEyr",
+        "table": "Eyr",
         "target": "cLitter"
     },
     {
@@ -65,6 +75,11 @@
         "target": "cProduct"
     },
     {
+        "source": "cProductEyr",
+        "table": "Eyr",
+        "target": "cProduct"
+    },
+    {
         "source": "cProductLut",
         "table": "Eyr",
         "target": "cProductLut"
@@ -80,6 +95,11 @@
         "target": "cropFrac"
     },
     {
+        "source": "cropFracEyr",
+        "table": "Eyr",
+        "target": "cropFrac"
+    },
+    {
         "source": "cropFracC3",
         "table": "Emon",
         "target": "cropFracC3"
@@ -92,6 +112,11 @@
     {
         "source": "cSoil",
         "table": "Emon",
+        "target": "cSoil"
+    },
+    {
+        "source": "cSoilEyr",
+        "table": "Eyr",
         "target": "cSoil"
     },
     {
@@ -127,6 +152,11 @@
     {
         "source": "cVeg",
         "table": "Lmon",
+        "target": "cVeg"
+    },
+    {
+        "source": "cVegEyr",
+        "table": "Eyr",
         "target": "cVeg"
     },
     {
@@ -395,6 +425,11 @@
         "target": "grassFrac"
     },
     {
+        "source": "grassFracEyr",
+        "table": "Eyr",
+        "target": "grassFrac"
+    },
+    {
         "source": "grassFracC3",
         "table": "Emon",
         "target": "grassFracC3"
@@ -620,6 +655,11 @@
         "target": "prCrop"
     },
     {
+        "source": "prCropEday",
+        "table": "Eday",
+        "target": "prCrop"
+    },
+    {
         "source": "prveg",
         "table": "Lmon",
         "target": "prveg"
@@ -705,6 +745,11 @@
         "target": "shrubFrac"
     },
     {
+        "source": "shrubFracEyr",
+        "table": "Eyr",
+        "target": "shrubFrac"
+    },
+    {
         "source": "tran",
         "table": "Lmon",
         "target": "tran"
@@ -717,6 +762,11 @@
     {
         "source": "treeFrac",
         "table": "Lmon",
+        "target": "treeFrac"
+    },
+    {
+        "source": "treeFracEyr",
+        "table": "Eyr",
         "target": "treeFrac"
     },
     {
@@ -758,5 +808,20 @@
         "source": "vegHeightTree",
         "table": "Emon",
         "target": "vegHeightTree"
+    },
+    {
+        "source": "fco2antt",
+        "table": "Amon",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2nat",
+        "table": "Amon",
+        "target": "fco2nat"
+    },
+    {
+        "source": "dmrsll",
+        "table": "Eday",
+        "target": "mrsll"
     }
 ]

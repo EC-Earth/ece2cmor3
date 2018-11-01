@@ -32,6 +32,8 @@ valid_max_key = "valid_max"
 cell_measure_axes = ["time", "area", "volume", "latitude", "longitude", "grid_latitude", "grid_longitude", "depth"]
 mask_key = "mask"
 
+extra_dims = {"basin", "typesi"}
+
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
@@ -103,7 +105,7 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - {"basin", "typesi"})
+                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - extra_dims)
                 target.dims = len(spacedims)
                 zdims = list(set(spacedims) - {"latitude", "longitude"})
                 if any(zdims):
