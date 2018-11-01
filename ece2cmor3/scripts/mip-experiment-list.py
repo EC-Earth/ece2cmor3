@@ -17,21 +17,60 @@ dq = dreq.loadDreq()
 mip_counter        = 0
 experiment_counter = 0
 
-mip_list_file= open( 'mip-experiment-list.txt', 'w' )
+mip_list_file_name = 'mip-experiment-list.txt'
+mip_list_file = open(mip_list_file_name, 'w' )
 
 # Loop over the MIPs:
 for mip in dq.coll['mip'].items:
   mip_counter = mip_counter + 1
-  print '{:3} {:15} {}'.format(mip_counter, mip.label, mip)
+ #print '{:3} {:15} {}'.format(mip_counter, mip.label, mip)
+  print '{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of'))
   # Loop over the MIP experiments:
   for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
     ex = dq.inx.uid[u]
-    mip_list_file.write( '{:20} {:20} {:30} tier-{:1} {}'.format(mip.label, ex.mip, ex.label, ex.tier[0], ex.title) + '\n')
-   #print '{:20} {:20} {:30} {:3} {}'.format(mip.label, ex.mip, ex.label, ex.tier[0], ex.title)
+    if mip.label != ex.mip:
+     print ' The mip.label and ex.mip are different: {:15} versus {:15}'.format(mip.label, ex.mip)
+    mip_list_file.write( '{:12} {:28} tier-{:1}  {}'.format(ex.mip, ex.label, ex.tier[0], ex.title) + '\n')
     experiment_counter = experiment_counter + 1
     
 mip_list_file.close()
 
 print 'Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter)
 
-print '\nThe file  mip-experiment-list.txt  has been created.\n'
+print '\nThe file ', mip_list_file_name, ' has been created.\n'
+
+
+experiment_tiers_included = [1,2,3]
+#ec_earth_mips = ['CMIP'] # for basic test
+#ec_earth_mips = ['CMIP', 'DCPP']
+ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP',          'DAMIP', 'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP',         'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 18 EC-Earth MIPs
+#ec_earth_mips = ['CMIP', 'AerChemMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 23 CMIP6 MIPs
+experiment_counter = 0
+
+mip_counter        = 0
+experiment_counter = 0
+
+mip_list_file_name = 'ece-mip-experiment-list.txt'
+mip_list_file = open(mip_list_file_name, 'w' )
+
+# Loop over the MIPs:
+for mip in dq.coll['mip'].items:
+  if mip.label in ec_earth_mips: 
+   mip_counter = mip_counter + 1
+  #print '{:3} {:15} {}'.format(mip_counter, mip.label, mip)
+   print '{:3} {:15} {}'.format(mip_counter, mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of'))
+   # Loop over the MIP experiments:
+  #mip_list_file.write( '{:36}'.format(mip.label) + '\n')
+   mip_list_file.write( '\n{:36} {}'.format(mip.label, str(mip).replace('Item <1.1 Model Intercomparison Project>: [', '').replace(']', '').replace(mip.label, '').replace(' - set of', 'DECK - set of')) + '\n')
+   for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
+   #if ex.tier[0] in experiment_tiers_included and mip.label in ec_earth_mips: 
+     ex = dq.inx.uid[u]
+     mip_list_file.write( ' {:28} tier-{:1}  {}'.format(ex.label, ex.tier[0], ex.title) + '\n')
+    #mip_list_file.write( ' {:28} tier-{:1}'.format(ex.label, ex.tier[0]) + '\n')
+     experiment_counter = experiment_counter + 1
+    
+mip_list_file.close()
+
+print 'Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter)
+
+print '\nThe file ', mip_list_file_name, ' has been created.\n'

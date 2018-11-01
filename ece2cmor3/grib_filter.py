@@ -11,10 +11,8 @@ from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
 # Log object.
 log = logging.getLogger(__name__)
 
-gridpoint_file = None
-prev_gridpoint_file = None
-spectral_file = None
-prev_spectral_file = None
+gridpoint_files = {}
+spectral_files = {}
 temp_dir = None
 accum_key = "ACCUMFLD"
 accum_codes = []
@@ -38,14 +36,15 @@ def update_sp_key(fname):
                 spvar = (134, freq, fname)
 
 
-def initialize(gpfile, shfile, tmpdir):
-    global gridpoint_file, prev_gridpoint_file, spectral_file, prev_spectral_file, temp_dir, varsfreq, accum_codes
-    gridpoint_file = gpfile
-    spectral_file = shfile
+def initialize(gpfiles, shfiles, tmpdir):
+    global gridpoint_files, spectral_files, temp_dir, varsfreq, accum_codes
+    gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
+    spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
-    prev_gridpoint_file, prev_spectral_file = get_prev_files(gridpoint_file)
+    gpdate, shdate = sorted(gridpoint_files.keys())[0], sorted(spectral_files.keys())[0]
+    gpfile, shfile = gridpoint_files[gpdate][1], spectral_files[shdate][1]
     with open(gpfile) as gpf, open(shfile) as shf:
         varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
         update_sp_key(gpfile)
@@ -170,39 +169,26 @@ def get_levels(task, code):
 
 # Searches the file system for the previous month file, necessary for the 0-hour
 # fields.
-def get_prev_files(gpfile):
-    log.info("Searching for previous month file of %s" % gpfile)
-    date = cmor_utils.get_ifs_date(gpfile)
-    prevdate = date - relativedelta.relativedelta(months=1)
-    ifsoutputdir = os.path.abspath(os.path.join(os.path.dirname(gridpoint_file), ".."))
-    expname = os.path.basename(gpfile)[5:9]
-    inigpfile, inishfile = None, None
-    prevgpfiles, prevshfiles = [], []
-    for f in cmor_utils.find_ifs_output(ifsoutputdir, expname=expname):
-        if f.endswith("+000000"):
-            if os.path.basename(f).startswith("ICMGG"):
-                inigpfile = f
-            if os.path.basename(f).startswith("ICMSH"):
-                inishfile = f
-        elif cmor_utils.get_ifs_date(f) == prevdate:
-            if os.path.basename(f).startswith("ICMGG"):
-                prevgpfiles.append(f)
-            if os.path.basename(f).startswith("ICMSH"):
-                prevshfiles.append(f)
-    if not any(prevgpfiles) or not any(prevshfiles):
-        log.info("No regular previous month files found, taking initial state files...")
-        if not inigpfile:
-            log.warning("No initial gridpoint file found in %s" % ifsoutputdir)
-        if not inishfile:
-            log.warning("No initial spectral file found in %s" % ifsoutputdir)
-        return inigpfile, inishfile
-    if len(prevgpfiles) > 1:
-        log.warning("Multiple previous month gridpoint files found: %s. Taking first match" % ",".join(prevgpfiles))
-    elif len(prevshfiles) > 1:
-        log.warning("Multiple previous month spectral files found: %s. Taking first match" % ",".join(prevshfiles))
+def get_prev_file(grb_file):
+    log.info("Searching for previous month file of %s" % grb_file)
+    fname = os.path.basename(grb_file)
+    exp, year, mon = fname[5:10], int(fname[10:14]), int(fname[14:16])
+    if mon == 1:
+        prev_year, prev_mon = year - 1, 12
     else:
-        log.info("Found previous month gridpoint file %s and spectral file %s" % (prevgpfiles[0], prevshfiles[0]))
-    return prevgpfiles[0], prevshfiles[0]
+        prev_year, prev_mon = year, mon - 1
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(grb_file), ".."))
+    output_files = cmor_utils.find_ifs_output(output_dir, exp)
+    ini_path = None
+    for output_path in output_files:
+        output_name = os.path.basename(output_path)
+        if output_name[:10] == fname[:10] + "+000000":
+            ini_path = output_name
+        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and int(
+                output_name[14:]) == prev_mon:
+            log.info("Found previous month file %s" % output_path)
+            return output_path
+    return ini_path
 
 
 # Splits the grib file for the given set of tasks
@@ -249,24 +235,28 @@ def cluster_files(valid_tasks):
 
 
 # Main execution loop
-def execute(tasks, month, multi_threaded=False):
+def execute(tasks, multi_threaded=False):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
     task2files, task2freqs = cluster_files(valid_tasks)
-    filehandles = open_files(varsfiles)
-    if multi_threaded:
-        threads = []
-        for path, prev_path in [(gridpoint_file, prev_gridpoint_file), (spectral_file, prev_spectral_file)]:
-            thread = threading.Thread(target=proc_mon, args=(month, path, prev_path, filehandles))
-            threads.append(thread)
-            thread.start()
-        threads[0].join()
-        threads[1].join()
-    else:
-        for path, prev_path in [(gridpoint_file, prev_gridpoint_file), (spectral_file, prev_spectral_file)]:
-            proc_mon(month, path, prev_path, filehandles)
-    for handle in filehandles.values():
-        handle.close()
+    filter_files = True
+    if filter_files:
+        filehandles = open_files(varsfiles)
+        if multi_threaded:
+            threads = []
+            for file_list in [gridpoint_files, spectral_files]:
+                # TODO: Implement month filtering feature
+                thread = threading.Thread(target=filter_grib_files, args=(file_list, filehandles, 0, 0))
+                threads.append(thread)
+                thread.start()
+            threads[0].join()
+            threads[1].join()
+        else:
+            for file_list in [gridpoint_files, spectral_files]:
+                # TODO: Implement month filtering feature
+                filter_grib_files(file_list, filehandles, month=0, year=0)
+        for handle in filehandles.values():
+            handle.close()
     for task in task2files:
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.filter_output_key, [os.path.join(temp_dir, p) for p in task2files[task]])
@@ -366,19 +356,92 @@ def open_files(vars2files):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def proc_mon(month, cur_grib_file, prev_grib_file, handles=None):
-    if prev_grib_file:
-        with open(prev_grib_file, 'r') as fin:
-            proc_prev_month(month, grib_file.create_grib_file(fin), handles)
-    with open(cur_grib_file, 'r') as fin:
-        proc_next_month(month, grib_file.create_grib_file(fin), handles)
+def filter_grib_files(file_list, handles=None, month=0, year=0):
+    dates = sorted(file_list.keys())
+    for i in range(len(dates)):
+        date = dates[i]
+        if month != 0 and year != 0 and (date.month, date.year) != (month, year):
+            continue
+        prev_grib_file, cur_grib_file = file_list[date]
+        prev_chained = i > 0 and (prev_grib_file == file_list[dates[i - 1]][1])
+        if prev_grib_file is not None and not prev_chained:
+            with open(prev_grib_file, 'r') as fin:
+                proc_initial_month(date.month, grib_file.create_grib_file(fin), handles)
+        next_chained = i < len(dates) - 1 and (cur_grib_file == file_list[dates[i + 1]][0])
+        with open(cur_grib_file, 'r') as fin:
+            log.info("Filtering grib file %s..." % cur_grib_file)
+            if next_chained:
+                proc_grib_file(grib_file.create_grib_file(fin), handles)
+            else:
+                proc_final_month(date.month, grib_file.create_grib_file(fin), handles)
 
 
-# Converts 24 hours into extra days
-def fix_date_time(date, time):
-    timestamp = datetime.datetime(year=date / 10 ** 4, month=(date % 10 ** 4) / 10 ** 2,
-                                  day=date % 10 ** 2) + datetime.timedelta(hours=time)
-    return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour
+# Function writing data from previous monthly file, writing the 0-hour fields
+def proc_initial_month(month, gribfile, handles):
+    timestamp = -1
+    keys = set()
+    while gribfile.read_next():
+        date = gribfile.get_field(grib_file.date_key)
+        if (date % 10 ** 4) / 10 ** 2 == month:
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue  # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            if (key[0], key[1]) not in accum_codes:
+                write_record(gribfile, key, handles=handles)
+        gribfile.release()
+
+
+# Function writing data from previous monthly file, writing the 0-hour fields
+def proc_grib_file(gribfile, handles):
+    timestamp = -1
+    keys = set()
+    while gribfile.read_next():
+        t = gribfile.get_field(grib_file.time_key)
+        key = get_record_key(gribfile)
+        if t == timestamp and key in keys:
+            continue  # Prevent double grib messages
+        if t != timestamp:
+            keys = set()
+            timestamp = t
+        keys.add(key)
+        write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
+        gribfile.release()
+
+
+# Function writing data from previous monthly file, writing the 0-hour fields
+def proc_final_month(month, gribfile, handles):
+    timestamp = -1
+    keys = set()
+    while gribfile.read_next():
+        date = gribfile.get_field(grib_file.date_key)
+        mon = (date % 10 ** 4) / 10 ** 2
+        if mon == month:
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue  # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
+        elif mon == month % 12 + 1:
+            t = gribfile.get_field(grib_file.time_key)
+            key = get_record_key(gribfile)
+            if t == timestamp and key in keys:
+                continue  # Prevent double grib messages
+            if t != timestamp:
+                keys = set()
+                timestamp = t
+            keys.add(key)
+            if (key[0], key[1]) in accum_codes:
+                write_record(gribfile, key, shift=-1, handles=handles)
+        gribfile.release()
 
 
 # Writes the grib messages
@@ -416,52 +479,8 @@ def write_record(gribfile, key, shift=0, handles=None):
                 gribfile.write(ofile)
 
 
-# Function writing data from previous monthly file, writing the 0-hour fields
-def proc_prev_month(month, gribfile, handles):
-    timestamp = -1
-    keys = set()
-    while gribfile.read_next():
-        date = gribfile.get_field(grib_file.date_key)
-        if (date % 10 ** 4) / 10 ** 2 == month:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
-            if t == timestamp and key in keys:
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
-            if (key[0], key[1]) not in accum_codes:
-                write_record(gribfile, key, handles=handles)
-        gribfile.release()
-
-
-# Function writing data from previous monthly file, writing the 0-hour fields
-def proc_next_month(month, gribfile, handles):
-    timestamp = -1
-    keys = set()
-    while gribfile.read_next():
-        date = gribfile.get_field(grib_file.date_key)
-        mon = (date % 10 ** 4) / 10 ** 2
-        if mon == month:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
-            if t == timestamp and key in keys:
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
-            write_record(gribfile, key, shift=-1 if (key[0], key[1]) in accum_codes else 0, handles=handles)
-        elif mon == month % 12 + 1:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
-            if t == timestamp and key in keys:
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
-            if (key[0], key[1]) in accum_codes:
-                write_record(gribfile, key, shift=-1, handles=handles)
-        gribfile.release()
+# Converts 24 hours into extra days
+def fix_date_time(date, time):
+    timestamp = datetime.datetime(year=date / 10 ** 4, month=(date % 10 ** 4) / 10 ** 2,
+                                  day=date % 10 ** 2) + datetime.timedelta(hours=time)
+    return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour

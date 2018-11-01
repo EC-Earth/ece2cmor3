@@ -77,6 +77,18 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  fi
 
 
+ if [ ${mip} == 'CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP' ] && [ ${experiment} == 'CMIP' ]; then
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.json         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.json
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.txt  cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.txt          cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.xlsx
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.xlsx cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.xlsx
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.xlsx         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx
+  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.xlsx
+ fi
+
  # Some benchmark diffing, which can be activated by the developer:
  benchmark_step_1='benchmark-step-1-v04'
  benchmark_step_1_and_2='benchmark-step-1+2-v04'
@@ -89,16 +101,6 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  fi
 
  if [ -d benchmark/${benchmark_step_1_and_2} ] && [ ${mip} == 'CMIP,AerChemMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB,DAMIP' ] && [ ${experiment} == 'CMIP' ]; then
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.json         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.json
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.txt  cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.txt          cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.missing.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.xlsx
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.identifiedmissing.xlsx cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.xlsx
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.available.xlsx         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx
-  mv cmvmm_m=CMIP.AerChemMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVar.SIMIP.VIACSAB.DAMIP-e=CMIP-t=1-p=1.ignored.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.xlsx
-
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
   echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
   echo 'Diff available.txt file:     ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;

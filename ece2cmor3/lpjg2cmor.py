@@ -109,13 +109,13 @@ def coords(df, root, meta):
 # from Michael Mischurow's regular.py should be added here (possibly with some modifications)
 
 # Initialization before the processing of the LPJ-Guess tasks
-def initialize(path, ncpath, expname, tabledir, prefix, start, length):
+def initialize(path, ncpath, expname, tabledir, prefix, refdate):
     global log, exp_name_, table_root_, ref_date_
     global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
     exp_name_ = expname
     table_root_ = os.path.join(tabledir, prefix)
     lpjg_path_ = path
-    ref_date_ = start
+    ref_date_ = refdate
     cmor_prefix_ = prefix
     if not ncpath.startswith("/"):
         ncpath_ = os.path.join(lpjg_path_, ncpath)
