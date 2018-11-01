@@ -50,12 +50,12 @@ unit_miss_match =[]
 failed=[]
 
 # Initializes the processing loop.
-def initialize(path,expname,tabledir, prefix,start,length,refdate):
+def initialize(path,expname,tabledir, prefix,refdate):
     global log,tm5_files_,exp_name_,table_root_,ref_date_
     exp_name_ = expname
     table_root_ =os.path.join(tabledir, prefix)
-    #print path,expname,start,length
-    tm5_files_ = select_files(path,expname,start,length)
+    #tm5_files_ = select_files(path,expname,start)#,length)
+    tm5_files_ = cmor_utils.find_tm5_output(path,expname)
     cal = None
     ref_date_ = refdate
     for f in tm5_files_:
@@ -101,11 +101,16 @@ def execute(tasks):
             # also check that frequencies match
             if os.path.basename(fstr).startswith(task.target.variable+"_A") and freqid in fstr:
                 fname=fstr
-                setattr(task,cmor_task.output_path_key,fstr)
+                if getattr(task,cmor_task.output_path_key) == None:
+                    setattr(task,cmor_task.output_path_key,fstr)
+                else: 
+                    log.critical('Second file with same frequency and name. Currently supporting only one year per directory.')
+                    exit(' Exiting ece2cmor.')
         # save ps task for frequency
         if task.target.variable=='ps':
             if task.target.frequency not in ps_tasks:
                 ps_tasks[task.target.frequency]=task
+
 
     log.info('Creating TM5 3x2 deg lon-lat grid')
     grid = create_lonlat_grid()#xsize, xfirst, yvals)
@@ -156,6 +161,10 @@ def execute(tasks):
                     log.error("ps task not available for frequency %s !!" % (task.target.frequency))
                     continue
                 setattr(task,"ps_task",ps_tasks[task.target.frequency])
+            if "site" in tgtdims:
+                log.critical('Z-dimension site not implemented ')
+                task.set_failed()
+                continue
 
             create_depth_axes(task)
             if(taskmask[task] ):
@@ -255,12 +264,6 @@ def execute_netcdf_task(task,tableid):
             cmor.close(store_var)
     task.status = cmor_task.status_cmorized
    
-# Unit conversion utility method
-# keep it for future
-def get_conversion_factor(conversion):
-    global log
-    log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
-    return 1.0
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task,dataset,axes):
@@ -286,33 +289,14 @@ def create_cmor_variable(task,dataset,axes):
 
 
 
-# Creates a cmor depth axis
-def create_depth_axis(ncfile):
-    global log
-    try:
-        ds=netCDF4.Dataset(ncfile)
-        varname="lev"
-        #print varname
-        if(not varname in ds.variables): # No 3D variables in this file... skip depth axis
-            return 0
-        depthvar = ds.variables[varname]
-        #print depthvar
-        #depthbnd = getattr(depthvar,"bounds")
-        units = getattr(depthvar,"units")
-        #bndvar = ds.variables[depthbnd]
-        #b = bndvar[:,:]
-        #b[b<0] = 0
-        #return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:],cell_bounds = b)
-        return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:])
-    finally:
-        ds.close()
 
 
 def interpolate_plev(pnew,dataset,psdata,varname):
     ####
-    # Interpolate model levels to pressure levels
+    # Interpolate data from model levels to pressure levels
     # pnew defines the pressure levels
-
+    # Based on pyngl example: 
+    # https://www.pyngl.ucar.edu/Examples/Scripts/vinth2p.py 
     ####
 
     # Reference pressure 1e5 Pa in TM5, here in hPa 
@@ -365,7 +349,7 @@ def create_time_axis(freq,path,name,has_bounds):
     ds = None
     #
     ncfile=path
-    refdate = cmor_utils.make_datetime(ref_date_)
+    refdate = ref_date_
     try:
         ds = netCDF4.Dataset(ncfile)
         timvar = ds.variables["time"]
@@ -399,15 +383,6 @@ def create_time_axis(freq,path,name,has_bounds):
     else:
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals)
     
-
-
-# Retrieves all tm5 output files in the input directory.
-def select_files(path,expname,start,length):
-    allfiles = cmor_utils.find_tm5_output(path,expname)
-    starttime = cmor_utils.make_datetime(start)
-    stoptime = cmor_utils.make_datetime(start+length)
-    #print allfiles,starttime,stoptime
-    return [f for f in allfiles if cmor_utils.get_tm5_interval(f)[0] == starttime]
 
 
 # Reads the calendar attribute from the time dimension.
@@ -500,8 +475,11 @@ def create_depth_axes(task):
         log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
         task.set_failed()
         return False
+    elif zdim=="site":
+        log.critical('Z-dimension %s will not be implemented.'%zdim)
+        return False
     else:
-        log.critical("Z-dimension not found for variable %s..." % task.target.variable)
+        log.critical("Z-dimension %s not found for variable %s..." % (zdim,task.target.variable))
         return False
 
 
