@@ -12,6 +12,8 @@ import cmor_target
 import cmor_task
 import cdo
 from ece2cmor3 import cdoapi
+#import Ngl
+
 # Logger object
 log = logging.getLogger(__name__)
 
@@ -95,19 +97,16 @@ def execute(tasks):
                 sdfa
             else:
                 freqid=task.target.frequency
-            #print os.path.basename(fstr),task.target.frequency,task.target.variable+"_A"
+            # catch variablename + '_A' to prevent o3 and o3loss mixing up...
+            # also check that frequencies match
             if os.path.basename(fstr).startswith(task.target.variable+"_A") and freqid in fstr:
-               
                 fname=fstr
                 setattr(task,cmor_task.output_path_key,fstr)
         # save ps task for frequency
         if task.target.variable=='ps':
-            #print '-------------PS',task.target.variable
             if task.target.frequency not in ps_tasks:
-                #print 'ps',task.target.frequency
                 ps_tasks[task.target.frequency]=task
-        #print task.target.variable,task.target.frequency
-        #print ps_tasks.keys()
+
     log.info('Creating TM5 3x2 deg lon-lat grid')
     grid = create_lonlat_grid()#xsize, xfirst, yvals)
     grid_ids_['lonlat']=grid
@@ -140,7 +139,6 @@ def execute(tasks):
         log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
 
-
         taskmask = dict([t,False] for t in tasklist)
         for task in tasklist:
             #define task properties 
@@ -157,9 +155,7 @@ def execute(tasks):
                 if task.target.frequency not in ps_tasks:
                     log.error("ps task not available for frequency %s !!" % (task.target.frequency))
                     continue
-                    afasdf
                 setattr(task,"ps_task",ps_tasks[task.target.frequency])
-        
 
             create_depth_axes(task)
             if(taskmask[task] ):
@@ -170,7 +166,8 @@ def execute(tasks):
                     execute_netcdf_task(task,tab_id)
                     if task.status<0:
                         log.error("cmorizing failed for %s" % (task.target.variable))
-                    taskmask[task] = True
+                    else:
+                        taskmask[task] = True
                 else:
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
         for task,executed in taskmask.iteritems():
@@ -178,20 +175,18 @@ def execute(tasks):
                 log.error("The source variable %s of table %s failed to cmorize" % (task.source.variable(),task.target.table))
                 failed.append([task.target.variable,task.target.table])
 
-    print unit_miss_match
-    print failed
+    log.info('Unit problems: %s'% unit_miss_match)
+    log.info('Cmorization failed: %s'%failed)
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
     global log,grid_ids_,depth_axes_,time_axes_
-
+    interpolate_to_pressure=False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
 
     if not filepath:
-        #print filepath
-        log.error(
-            "Could not find file containing data for variable %s in table %s" % (task.target.variable,
-                                                                                 task.target.table))
+        log.error("Could not find file containing data for variable %s in table %s" % (task.target.variable,task.target.table))
+        task.set_failed()
         return
 
     store_var = getattr(task, "store_with", None)
@@ -200,6 +195,9 @@ def execute_netcdf_task(task,tableid):
         grid_index = axes#cmor_source.tm5_grid.index(task.grid_id)
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
+            if any (getattr(task.target, cmor_target.dims_key).split())=='plev19':
+                print 'plev'
+                interpolate_to_pressure=True
         #print  'axes',task.source.variable(),axes
         #axes.append(zaxid)
     time_id = getattr(task, "time_axis", 0)
@@ -217,6 +215,16 @@ def execute_netcdf_task(task,tableid):
     varid = create_cmor_variable(task,dataset,axes)
     if varid <0:
         return False
+
+    ## for pressure level variables we need to do interpolation, for which we need
+    ## pyngl module
+    '''
+    if interpolate_to_pressure:
+        psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        ncvar=interpolate_plev(pnew,dataset,psdata,task.source.variable())
+    else:  
+        ncvar = dataset.variables[task.source.variable()]
+    '''
     ncvar = dataset.variables[task.source.variable()]
     vals=numpy.copy(ncvar[:])
     dims = numpy.shape(vals)
@@ -226,7 +234,7 @@ def execute_netcdf_task(task,tableid):
     vals=numpy.copy(ncvar[:,:,:])
     #factor 1. keep it for time being
     # Default values
-    factor = 1.0#get_conversion_factor(getattr(task,cmor_task.conversion_key,None))
+    factor = 1.0
     term=0.0
     timdim=0
     # 3D variables need the surface pressure for calculating the pressure at model levels
@@ -257,7 +265,6 @@ def get_conversion_factor(conversion):
 # Creates a variable in the cmor package
 def create_cmor_variable(task,dataset,axes):
     srcvar = task.source.variable()
-    #print dataset.variables,srcvar
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar,"units",None)
     if unit not in getattr(task.target,"units"):
@@ -299,6 +306,33 @@ def create_depth_axis(ncfile):
         return cmor.axis(table_entry = "depth_coord",units = units,coord_vals = depthvar[:])
     finally:
         ds.close()
+
+
+def interpolate_plev(pnew,dataset,psdata,varname):
+    ####
+    # Interpolate model levels to pressure levels
+    # pnew defines the pressure levels
+
+    ####
+
+    # Reference pressure 1e5 Pa in TM5, here in hPa 
+    p0mb=1000
+
+    # Vertical coordinate must be from top to bottom: [::-1]
+    hyam = cfile.variables["hyam"][::-1]
+
+    # Vertical interplation routine expects formula a*p0 + b*ps, 
+    # TM5 has a + b*ps, change a-> a*p0 by dividing a by the reference in TM5 p0=1e5 (1000 mb / hPa)
+    hyam = hyam/(p0mb*100)
+    # Vertical coordinate must be from top to bottom: [::-1]
+
+    hybm = cfile.variables["hybm"][::-1]
+    # Vertical coordinate must be from top to bottom: [::-1]
+    data   = (cfile.variables[varname][:,::-1,:,:])
+    interpolation=1 #1 linear, 2 log, 3 loglog
+    datanew = Ngl.vinth2p(data,hyam,hybm,pnew,psdata,interpolation,p0mb,1,True)
+    return datanew
+
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
@@ -443,13 +477,27 @@ def create_depth_axes(task):
         task.set_failed()
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
-        log.info("TOBE CORRECTED:  wavelength axis  BOUNDS IN new tables for variable %s..." % task.target.variable)
+        log.info("TOBE CORRECTED:  wavelength axis BOUNDS will be removed in new tables for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
         return True
     elif zdim=="plev19":
-        log.error("Vertical axis %s not implemented yet" %(zdim))
+        plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
+        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev19)
+        depth_axis_ids[key]=axisid
+        setattr(task, "z_axis_id", axisid)
+        #setattr(task, "plev", psid)
+        log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
+        task.set_failed()
+        return False
+    elif zdim=="plev39":
+        plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
+        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev39)
+        depth_axis_ids[key]=axisid
+        setattr(task, "z_axis_id", axisid)
+        #setattr(task, "plev", psid)
+        log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
         task.set_failed()
         return False
     else:
