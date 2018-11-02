@@ -12,7 +12,7 @@ import cmor_target
 import cmor_task
 import cdo
 from ece2cmor3 import cdoapi
-#import Ngl
+import Ngl
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -47,11 +47,15 @@ depth_axis_ids = {}
 ref_date_ = None
 
 unit_miss_match =[]
-failed=[]
+failed  = []
+
+# Pressure levels
+plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
+plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
 
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
-    global log,tm5_files_,exp_name_,table_root_,ref_date_
+    global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_
     exp_name_ = expname
     table_root_ =os.path.join(tabledir, prefix)
     #tm5_files_ = select_files(path,expname,start)#,length)
@@ -64,20 +68,34 @@ def initialize(path,expname,tabledir, prefix,refdate):
             break
     if(cal):
         cmor.set_cur_dataset_attribute("calendar",cal)
-    
+
+    # read pressure level definitions from CMIP6_coordante file
+    # and save globally
+    coordfile = os.path.join(tabledir, prefix + "_coordinate.json")
+    if os.path.exists(coordfile):
+        with open(coordfile) as f:
+            data = json.loads(f.read())
+        axis_entries = data.get("axis_entry", {})
+        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}
+        plev19=numpy.array([numpy.float(value) for value in  axis_entries['plev19']['requested']])
+        plev19_=plev19
+        plev39=numpy.array([numpy.float(value) for value in  axis_entries['plev39']['requested']])
+        plev39_=plev39
+
     cmor.load_table(table_root_ + "_grids.json")
     return True
 
 
 # Resets the module globals.
 def finalize():
-    global tm5_files_,grid_ids_,depth_axes_,time_axes_
+    global tm5_files_,grid_ids_,depth_axes_,time_axes_,plev19_,plev39_
     log.info( 'Unit miss match variables %s '%(unit_miss_match))
     tm5_files_ = []
     grid_ids_ = {}
     depth_axes_ = {}
     time_axes_ = {}
-
+    plev39_ = []
+    plev19_ = []
 
 # Executes the processing loop.
 def execute(tasks):
@@ -204,11 +222,12 @@ def execute_netcdf_task(task,tableid):
         grid_index = axes#cmor_source.tm5_grid.index(task.grid_id)
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
-            if any (getattr(task.target, cmor_target.dims_key).split())=='plev19':
-                print 'plev'
+            if 'plev19' in getattr(task.target, cmor_target.dims_key).split():
+                print 'plev19'
                 interpolate_to_pressure=True
-        #print  'axes',task.source.variable(),axes
-        #axes.append(zaxid)
+            elif'plev39'  in getattr(task.target, cmor_target.dims_key).split():
+                print 'plev39'
+                interpolate_to_pressure=True
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
         axes.append(time_id)
@@ -227,14 +246,13 @@ def execute_netcdf_task(task,tableid):
 
     ## for pressure level variables we need to do interpolation, for which we need
     ## pyngl module
-    '''
     if interpolate_to_pressure:
         psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        pnew=getattr(task,'pnew')
         ncvar=interpolate_plev(pnew,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
-    '''
-    ncvar = dataset.variables[task.source.variable()]
+    #ncvar = dataset.variables[task.source.variable()]
     vals=numpy.copy(ncvar[:])
     dims = numpy.shape(vals)
     nroll=dims[-1]/2
@@ -279,17 +297,12 @@ def create_cmor_variable(task,dataset,axes):
             unit_miss_match.append(task.target.variable)
             log.error("unit miss match, variable %s" % (task.target.variable))
             return task.set_failed()
-
     if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
         unit = getattr(task.target,"units")
     if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar),positive = "down")
     else:
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar))
-
-
-
-
 
 def interpolate_plev(pnew,dataset,psdata,varname):
     ####
@@ -303,18 +316,20 @@ def interpolate_plev(pnew,dataset,psdata,varname):
     p0mb=1000
 
     # Vertical coordinate must be from top to bottom: [::-1]
-    hyam = cfile.variables["hyam"][::-1]
-
+    hyam = dataset.variables["hyam"][:]
     # Vertical interplation routine expects formula a*p0 + b*ps, 
     # TM5 has a + b*ps, change a-> a*p0 by dividing a by the reference in TM5 p0=1e5 (1000 mb / hPa)
-    hyam = hyam/(p0mb*100)
+    hyam = hyam[::-1]/(100000)
     # Vertical coordinate must be from top to bottom: [::-1]
 
-    hybm = cfile.variables["hybm"][::-1]
+    hybm = dataset.variables["hybm"][:]
+    hybm = hybm[::-1]
     # Vertical coordinate must be from top to bottom: [::-1]
-    data   = (cfile.variables[varname][:,::-1,:,:])
+    data   = dataset.variables[varname][:,:,:,:]
+    data = data[:,::-1,:,:]
+
     interpolation=1 #1 linear, 2 log, 3 loglog
-    datanew = Ngl.vinth2p(data,hyam,hybm,pnew,psdata,interpolation,p0mb,1,True)
+    datanew = Ngl.vinth2p(data,hyam,hybm,pnew,psdata[:,:,:],interpolation,p0mb,1,True)
     return datanew
 
 
@@ -400,8 +415,6 @@ def read_calendar(ncfile):
     finally:
         ds.close()
 
-
-
 def create_depth_axes(task):
     global log_depth_axis_ids
     #depth_axes = {}
@@ -425,6 +438,16 @@ def create_depth_axes(task):
         if zdim == "alevel":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
+        elif zdim == "plev19":
+            setattr(task, "z_axis_id", depth_axis_ids[key])
+            #setattr(task, "store_with", depth_axis_ids[key][1])
+            #plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
+            setattr(task, "pnew", plev19_)
+        elif zdim == "plev39":
+            setattr(task, "z_axis_id", depth_axis_ids[key])
+            #setattr(task, "store_with", depth_axis_ids[key][1])
+            #plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
+            setattr(task, "pnew", plev39_)
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -458,23 +481,26 @@ def create_depth_axes(task):
         setattr(task, "z_axis_id", axisid)
         return True
     elif zdim=="plev19":
-        plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
-        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev19)
+        #plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
+        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev19_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
+        setattr(task, "pnew", plev19_)
         #setattr(task, "plev", psid)
-        log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
-        task.set_failed()
-        return False
+        #log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
+        #task.set_failed()
+        return True
     elif zdim=="plev39":
-        plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
-        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev39)
+        print plev39_
+        #plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
+        axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev39_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
+        setattr(task, "pnew", plev39_)
         #setattr(task, "plev", psid)
-        log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
-        task.set_failed()
-        return False
+        #log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
+        #task.set_failed()
+        return True
     elif zdim=="site":
         log.critical('Z-dimension %s will not be implemented.'%zdim)
         return False
