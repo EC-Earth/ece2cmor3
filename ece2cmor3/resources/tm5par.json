@@ -4,10 +4,6 @@
         "target": "o3"
     },
     {
-        "source": "co2",
-        "target": "co2"
-    },
-    {
         "source": "ch4",
         "target": "ch4"
     },
@@ -78,10 +74,6 @@
     {
         "source": "co",
         "target": "co"
-    },
-    {
-        "source": "co2",
-        "target": "co2"
     },
     {
         "source": "dms",
@@ -176,10 +168,6 @@
         "target": "emiss"
     },
     {
-        "source": "h2o",
-        "target": "h2o"
-    },
-    {
         "source": "hno3",
         "target": "hno3"
     },
@@ -240,10 +228,6 @@
         "target": "mmrss"
     },
     {
-        "source": "nh50",
-        "target": "nh50"
-    },
-    {
         "source": "no",
         "target": "no"
     },
@@ -270,10 +254,6 @@
     {
         "source": "od550bc",
         "target": "od550bc"
-    },
-    {
-        "source": "od550csaer",
-        "target": "od550csaer"
     },
     {
         "source": "od550dust",
@@ -420,10 +400,6 @@
         "target": "ch4"
     },
     {
-        "source": "h2o",
-        "target": "h2o"
-    },
-    {
         "source": "hno3",
         "target": "hno3"
     },
@@ -452,32 +428,8 @@
         "target": "emivoc"
     },
     {
-        "source": "fco2antt",
-        "target": "fco2antt"
-    },
-    {
-        "source": "fco2fos",
-        "target": "fco2fos"
-    },
-    {
-        "source": "fco2nat",
-        "target": "fco2nat"
-    },
-    {
         "source": "o3Clim",
         "target": "o3Clim"
-    },
-    {
-        "source": "co2Clim",
-        "target": "co2Clim"
-    },
-    {
-        "source": "co2mass",
-        "target": "co2mass"
-    },
-    {
-        "source": "co2massClim",
-        "target": "co2massClim"
     },
     {
         "source": "ch4Clim",
