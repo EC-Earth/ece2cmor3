@@ -111,14 +111,19 @@ def execute(tasks):
                 freqid='hr'
                 #print freqid,fstr,freqid in fstr
             elif task.target.frequency=='fx':
-                print'fx'
-                sdfa
+                log.info('fx frequency has no variables from TM5')
+                task.failed()
+                continue
+            elif task.target.frequency=='CFday':
+
+                freqid='AERday'
             else:
                 freqid=task.target.frequency
-            # catch variablename + '_A' to prevent o3 and o3loss mixing up...
+            # catch variablename + '_' to prevent o3 and o3loss mixing up...
             # also check that frequencies match
-            if os.path.basename(fstr).startswith(task.target.variable+"_A") and freqid in fstr:
+            if os.path.basename(fstr).startswith(task.target.variable+"_") and freqid in fstr:
                 fname=fstr
+                print fname
                 if getattr(task,cmor_task.output_path_key) == None:
                     setattr(task,cmor_task.output_path_key,fstr)
                 else: 
@@ -135,7 +140,7 @@ def execute(tasks):
     grid_ids_['lonlat']=grid
 
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    cmor.load_table(table_root_ + "_grids.json")
+    #cmor.load_table(table_root_ + "_grids.json")
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -252,7 +257,6 @@ def execute_netcdf_task(task,tableid):
         ncvar=interpolate_plev(pnew,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
-    #ncvar = dataset.variables[task.source.variable()]
     vals=numpy.copy(ncvar[:])
     dims = numpy.shape(vals)
     nroll=dims[-1]/2
@@ -475,7 +479,7 @@ def create_depth_axes(task):
         task.set_failed()
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
-        log.info("TOBE CORRECTED:  wavelength axis BOUNDS will be removed in new tables for variable %s..." % task.target.variable)
+        log.info("TOBE CORRECTED:  wavelength axis BOUNDS will be removed in new tables (1.00.28) for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
@@ -632,28 +636,3 @@ def get_ps_var(ncpath):
         log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
 
-# Creates extra tasks for surface pressure
-# probably not needed
-def get_sp_tasks(tasks, autofilter):
-    global ifs_spectral_file_
-    tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
-    result = []
-    for freq, task_group in tasks_by_freq.iteritems():
-        tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
-        if not any(tasks3d):
-            continue
-        surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure and
-                               getattr(t, "time_operator", "point") in ["mean", "point"]]
-        surf_pressure_task = surf_pressure_tasks[0] if any(surf_pressure_tasks) else None
-        if surf_pressure_task:
-            result.append(surf_pressure_task)
-        else:
-            source = cmor_source.tm5_source(surface_pressure)
-            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("ps", freq))
-            setattr(surf_pressure_task.target, cmor_target.freq_key, freq)
-            setattr(surf_pressure_task.target, "time_operator", ["point"])
-            find_sp_variable(surf_pressure_task, autofilter)
-            result.append(surf_pressure_task)
-        for task3d in tasks3d:
-            setattr(task3d, "sp_task", surf_pressure_task)
-    return result
