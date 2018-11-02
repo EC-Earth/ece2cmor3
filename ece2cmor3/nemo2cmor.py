@@ -159,14 +159,13 @@ def execute_netcdf_task(dataset, task):
         vals = numpy.ma.masked_equal(ncvar[...], missval)
         ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
-    log.info("CMORizing variable %s in table %s from %s in "
+    log.info("cmorizing variable %s in table %s from %s in "
              "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
     closed_file = cmor.close(varid, file_name=True)
-    log.info("CMOR closed file %s" % closed_file)
     task.status = cmor_task.status_cmorized
 
 
@@ -211,6 +210,7 @@ def create_depth_axes(ds, tasks, table):
     global depth_axes_
     if table not in depth_axes_:
         depth_axes_[table] = {}
+    log.info("Creating depth axes for table %s using file %s..." % (table, ds.filepath()))
     table_depth_axes = depth_axes_[table]
     other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
@@ -244,6 +244,7 @@ def create_time_axes(ds, tasks, table):
     global time_axes_
     if table not in time_axes_:
         time_axes_[table] = {}
+    log.info("Creating time axis for table %s using file %s..." % (table, ds.filepath()))
     table_time_axes = time_axes_[table]
     times, time_bounds, time_units = None, None, None
     for varname, ncvar in ds.variables.items():
@@ -288,6 +289,7 @@ def create_type_axes(ds, tasks, table):
     global type_axes_
     if table not in type_axes_:
         type_axes_[table] = {}
+    log.info("Creating extra axes for table %s using file %s..." % (table, ds.filepath()))
     table_type_axes = type_axes_[table]
     for task in tasks:
         tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
