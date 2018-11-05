@@ -228,10 +228,8 @@ def execute_netcdf_task(task,tableid):
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             if 'plev19' in getattr(task.target, cmor_target.dims_key).split():
-                print 'plev19'
                 interpolate_to_pressure=True
             elif'plev39'  in getattr(task.target, cmor_target.dims_key).split():
-                print 'plev39'
                 interpolate_to_pressure=True
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
@@ -444,29 +442,20 @@ def create_depth_axes(task):
             setattr(task, "store_with", depth_axis_ids[key][1])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
-            #setattr(task, "store_with", depth_axis_ids[key][1])
-            #plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
             setattr(task, "pnew", plev19_)
         elif zdim == "plev39":
             setattr(task, "z_axis_id", depth_axis_ids[key])
-            #setattr(task, "store_with", depth_axis_ids[key][1])
-            #plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
             setattr(task, "pnew", plev39_)
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
     elif zdim == 'alevel':
-        if zdim not in depth_axis_ids:
-            log.info("Creating model level axis for variable %s..." % task.target.variable)
-            axisid, psid = create_hybrid_level_axis(task)
-            depth_axis_ids[key] = (axisid, psid)
-            setattr(task, "z_axis_id", axisid)
-            setattr(task, "store_with", psid)
-            return 
-        else:
-            axisid,psid=depth_axis_ids[key]
-            setattr(task, "z_axis_id", axisid)
-            setattr(task, "store_with", psid)
+        log.info("Creating model level axis for variable %s..." % task.target.variable)
+        axisid, psid = create_hybrid_level_axis(task)
+        depth_axis_ids[key] = (axisid, psid)
+        setattr(task, "z_axis_id", axisid)
+        setattr(task, "store_with", psid)
+        return True
     elif zdim == 'alevhalf':
         # if zdim not in depth_axis_ids:
         #     log.info("Creating model level axis for variable %s..." % task.target.variable)
@@ -477,6 +466,7 @@ def create_depth_axes(task):
         #     return 
         log.error("Vertical axis %s not implemented yet" %(zdim))
         task.set_failed()
+        return False
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         log.info("TOBE CORRECTED:  wavelength axis BOUNDS will be removed in new tables (1.00.28) for variable %s..." % task.target.variable)
@@ -485,25 +475,16 @@ def create_depth_axes(task):
         setattr(task, "z_axis_id", axisid)
         return True
     elif zdim=="plev19":
-        #plev19=numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
         axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev19_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "pnew", plev19_)
-        #setattr(task, "plev", psid)
-        #log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
-        #task.set_failed()
         return True
     elif zdim=="plev39":
-        print plev39_
-        #plev39=numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
         axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev39_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "pnew", plev39_)
-        #setattr(task, "plev", psid)
-        #log.error("Vertical axis %s not implemented yet, requires interpolation with pyngl" %(zdim))
-        #task.set_failed()
         return True
     elif zdim=="site":
         log.critical('Z-dimension %s will not be implemented.'%zdim)
