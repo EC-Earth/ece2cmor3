@@ -79,12 +79,53 @@ def main():
     root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
    #field_elements_basic_file_def   = root_basic_file_def[0][:]
 
+    total_layer_equivalent= 0
     count = 0
     for field in root_basic_file_def.findall('.//field[@id]'):
      for task in ece2cmorlib.tasks:
       if field.attrib["name"] == task.target.variable and field.attrib["table"] == task.target.table:
        field.attrib["enabled"] = "True"
        count = count + 1
+
+       # NEMO Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
+       if task.target.frequency == 'yr':
+        layer_number_due_to_freq = 1
+       elif task.target.frequency == 'mon':
+        layer_number_due_to_freq = 12
+       elif task.target.frequency == 'day':
+        layer_number_due_to_freq = 365
+       elif task.target.frequency == '3hrPt':
+        layer_number_due_to_freq = 365.25 * 8.
+       elif task.target.frequency == 'fx':
+        layer_number_due_to_freq = 0
+       else:
+        print '\n Unknown frequency in NEMO Volume estimate for: ', task.target.variable, '\n'
+        layer_number_due_to_freq = 0
+
+       # NEMO Volume estimate: estimate the number vertical layers per variable:
+       zdim=getattr(task.target, "z_dims", [])
+       if len(zdim) == 0:
+        vertical_dim = 1
+       elif len(zdim) == 1:
+        if zdim[0] == 'olevel':
+         vertical_dim = 75
+       #elif zdim[0] == 'typesea':
+       #elif zdim[0] == 'depth100m':
+       #elif zdim[0] == 'depth0m':
+        else:
+         vertical_dim = 1
+       else:
+        print '\n  Unknown vertical dimension in NEMO Volume estimate for: ', task.target.variable, '\n'
+        vertical_dim = 0
+        
+       # NEMO Volume estimate: calculate the number of 2D layers in output due to the number of time steps & the number of vertical layers per year per variable:
+       layers_per_var_per_yr = layer_number_due_to_freq * vertical_dim
+       # NEMO Volume estimate: and for all variables together:
+       total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
+        
+      #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
+        
+        
       #print field.attrib["name"], field.attrib["table"]
      # After the table attribute has been used to match with the data request, the table attribute is removed here because it is not a valid XIOS attribute:
      field.attrib.pop('table', None)
@@ -92,6 +133,7 @@ def main():
     # Write the NEMO XIOS file_def input files:
     tree_basic_file_def.write(file_def_file_name)
 
+    print ' With a layer equivalent of ', total_layer_equivalent, ' the NEMO Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n'
     print ' The number of variables which is enabled in', file_def_file_name, ' is', count
 
 
