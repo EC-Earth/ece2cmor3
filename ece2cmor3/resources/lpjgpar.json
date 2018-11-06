@@ -5,7 +5,7 @@
         "target": "baresoilFrac"
     },
     {
-        "source": "baresoilFracEyr",
+        "source": "abaresoilFrac",
         "table": "Eyr",
         "target": "baresoilFrac"
     },
@@ -30,7 +30,7 @@
         "target": "cLitter"
     },
     {
-        "source": "cLitterEyr",
+        "source": "acLitter",
         "table": "Eyr",
         "target": "cLitter"
     },
@@ -75,7 +75,7 @@
         "target": "cProduct"
     },
     {
-        "source": "cProductEyr",
+        "source": "acProduct",
         "table": "Eyr",
         "target": "cProduct"
     },
@@ -95,7 +95,7 @@
         "target": "cropFrac"
     },
     {
-        "source": "cropFracEyr",
+        "source": "acropFrac",
         "table": "Eyr",
         "target": "cropFrac"
     },
@@ -115,7 +115,7 @@
         "target": "cSoil"
     },
     {
-        "source": "cSoilEyr",
+        "source": "acSoil",
         "table": "Eyr",
         "target": "cSoil"
     },
@@ -155,7 +155,7 @@
         "target": "cVeg"
     },
     {
-        "source": "cVegEyr",
+        "source": "acVeg",
         "table": "Eyr",
         "target": "cVeg"
     },
@@ -213,6 +213,16 @@
         "source": "fCLandToOcean",
         "table": "Emon",
         "target": "fCLandToOcean"
+    },
+    {
+        "source": "fco2antt",
+        "table": "Amon",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2nat",
+        "table": "Amon",
+        "target": "fco2nat"
     },
     {
         "source": "fDeforestToAtmos",
@@ -425,7 +435,7 @@
         "target": "grassFrac"
     },
     {
-        "source": "grassFracEyr",
+        "source": "agrassFrac",
         "table": "Eyr",
         "target": "grassFrac"
     },
@@ -482,6 +492,11 @@
     {
         "source": "mrsll",
         "table": "Emon",
+        "target": "mrsll"
+    },
+    {
+        "source": "dmrsll",
+        "table": "Eday",
         "target": "mrsll"
     },
     {
@@ -655,7 +670,7 @@
         "target": "prCrop"
     },
     {
-        "source": "prCropEday",
+        "source": "dprCrop",
         "table": "Eday",
         "target": "prCrop"
     },
@@ -745,7 +760,7 @@
         "target": "shrubFrac"
     },
     {
-        "source": "shrubFracEyr",
+        "source": "ashrubFrac",
         "table": "Eyr",
         "target": "shrubFrac"
     },
@@ -765,7 +780,7 @@
         "target": "treeFrac"
     },
     {
-        "source": "treeFracEyr",
+        "source": "atreeFrac",
         "table": "Eyr",
         "target": "treeFrac"
     },
@@ -808,20 +823,5 @@
         "source": "vegHeightTree",
         "table": "Emon",
         "target": "vegHeightTree"
-    },
-    {
-        "source": "fco2antt",
-        "table": "Amon",
-        "target": "fco2antt"
-    },
-    {
-        "source": "fco2nat",
-        "table": "Amon",
-        "target": "fco2nat"
-    },
-    {
-        "source": "dmrsll",
-        "table": "Eday",
-        "target": "mrsll"
     }
 ]
