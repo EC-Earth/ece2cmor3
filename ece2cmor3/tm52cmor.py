@@ -123,7 +123,7 @@ def execute(tasks):
             # also check that frequencies match
             if os.path.basename(fstr).startswith(task.target.variable+"_") and freqid in fstr:
                 fname=fstr
-                print fname
+                #print fname
                 if getattr(task,cmor_task.output_path_key) == None:
                     setattr(task,cmor_task.output_path_key,fstr)
                 else: 
