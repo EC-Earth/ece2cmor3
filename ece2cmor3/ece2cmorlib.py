@@ -47,14 +47,14 @@ def initialize_without_cmor(metadata=conf_path_default, mode=cmor_mode_default, 
 
 # Initialization function, must be called before starting
 def initialize(metadata=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
-               tableprefix=prefix_default, outputdir=None):
+               tableprefix=prefix_default, outputdir=None, logfile=None, create_subdirs=True):
     global prefix, table_dir, targets, conf_path, cmor_mode
     conf_path = metadata
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
     validate_setup_settings()
-    cmor.setup(table_dir, cmor_mode)
+    cmor.setup(table_dir, cmor_mode, logfile=logfile, create_subdirectories=(1 if create_subdirs else 0))
     cmor.dataset_json(conf_path)
     if outputdir is not None:
         cmor.set_cur_dataset_attribute("outpath", outputdir)
