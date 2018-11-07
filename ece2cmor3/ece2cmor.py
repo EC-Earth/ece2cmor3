@@ -23,13 +23,15 @@ def main(args=None):
     parser = argparse.ArgumentParser(description="Post-processing and cmorization of EC-Earth output",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("datadir", metavar="DIR", type=str)
+    parser.add_argument("datadir", metavar="DIR", type=str, help="EC-Earth data directory, i.e. for a given component, "
+                                                                 "for a given leg")
     parser.add_argument("--vars", metavar="FILE", type=str, default=None,
                         help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--conf", metavar="FILE.json", type=str, default=ece2cmorlib.conf_path_default,
                         help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
-    parser.add_argument("--odir", metavar="DIR", type=str, default="./cmor", help="Output directory")
+    parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
+                                                                              "metadata \'outpath\' entry")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks")
@@ -86,7 +88,8 @@ def main(args=None):
     modedict = {"preserve": ece2cmorlib.PRESERVE, "append": ece2cmorlib.APPEND, "replace": ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid)
+    ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid,
+                           outputdir=args.odir)
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
 
