@@ -92,7 +92,7 @@ def main(args=None):
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid,
-                           outputdir=args.odir, logfile=logfile, create_subdirs=args.flatdir)
+                           outputdir=args.odir, logfile=logfile, create_subdirs=(not args.flatdir))
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
 
