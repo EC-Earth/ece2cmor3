@@ -133,8 +133,16 @@ def main():
     # Write the NEMO XIOS file_def input files:
     tree_basic_file_def.write(file_def_file_name)
 
-    print ' With a layer equivalent of ', total_layer_equivalent, ' the NEMO Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n'
+    print ' With a 2D layer equivalent of ', total_layer_equivalent, ' the NEMO Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n'
     print ' The number of variables which is enabled in', file_def_file_name, ' is', count
+
+
+    volume_estimate = open('volume-estimate-nemo.txt','w')
+    volume_estimate.write(' \nEC-Earth3 NEMO volume estimates of generated output:{}'.format('\n'))
+    volume_estimate.write('  Volume estimate for the ORCA1L75   grid: {} GB/yr{}'.format(total_layer_equivalent * 0.43 / 1000.0, '\n'))
+    volume_estimate.write('  Volume estimate for the ORCA025L75 grid: {} GB/yr{}'.format(total_layer_equivalent * 5.76 / 1000.0, '\n'))
+    volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+    volume_estimate.close()
 
 
     # SPLIT THE FILE_DEF FILE IN THREE FILE_DEF FILES FOR OPA, LIM AND PISCES:
