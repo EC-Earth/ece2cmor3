@@ -29,6 +29,7 @@ def main(args=None):
     parser.add_argument("--conf", metavar="FILE.json", type=str, default=ece2cmorlib.conf_path_default,
                         help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
+    parser.add_argument("--odir", metavar="DIR", type=str, default="./cmor", help="Output directory")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks")
@@ -41,13 +42,11 @@ def main(args=None):
     parser.add_argument("--log", "-f", action="store_true", default=False, help="Write to log file")
     parser.add_argument("--mode", metavar="MODE", type=str, default="preserve", help="CMOR netcdf mode",
                         choices=["preserve", "replace", "append"])
-    parser.add_argument("--ncdo", metavar="N", type=int, default=4,
-                        help="Number of available threads per CDO postprocessing task")
-    parser.add_argument("--nomask", action="store_true", default=False, help="Disable automatic masking of fields")
-    parser.add_argument("--nofilter", action="store_true", default=False, help="Disable automatic filtering of grib "
-                                                                               "files")
-    parser.add_argument("--freq", metavar="N", type=int, default=3,
-                        help="IFS output frequency, in hours (not required if autofilter is used)")
+    # Deprecated arguments, only for backward compatibility
+    parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
+    parser.add_argument("--nomask", action="store_true", default=False, help=argparse.SUPPRESS)
+    parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
+    parser.add_argument("--freq", metavar="N", type=int, default=3, help=argparse.SUPPRESS)
 
     model_attributes, model_tabfile_attributes = {}, {}
     for c in components.models:
