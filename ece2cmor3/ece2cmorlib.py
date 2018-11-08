@@ -40,8 +40,9 @@ PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 # Initialization function without using the cmor library, must be called before starting
 def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
                             tableprefix=prefix_default):
-    global prefix, table_dir, targets, conf_path, cmor_mode
-    conf_path = metadata
+    global prefix, table_dir, targets, metadata, cmor_mode
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -59,14 +60,20 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     table_dir = tabledir
     prefix = tableprefix
     validate_setup_settings()
-    cmor.setup(table_dir, cmor_mode, logfile=logfile, create_subdirectories=(1 if create_subdirs else 0))
+    logname = logfile
+    if logfile is not None:
+        logname = '.'.join(logfile.split('.')[:-1] + ["cmor", "log"])
+    cmor.setup(table_dir, cmor_mode, logfile=logname, create_subdirectories=(1 if create_subdirs else 0))
     if outputdir is not None:
         metadata["outpath"] = outputdir
-    print metadata
-    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmpf:
-        json.dump(metadata, tmpf)
-    cmor.dataset_json(tmpf.name)
+    for key, val in metadata.items():
+        log.info("Metadata attribute %s: %s", key, val)
+    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+        json.dump(metadata, tmp_file)
+    cmor.dataset_json(tmp_file.name)
     targets = cmor_target.create_targets(table_dir, prefix)
+    tmp_file.close()
+    os.remove(tmp_file.name)
 
 
 # Validation of setup configuration

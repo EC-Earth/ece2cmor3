@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import time
 
 import argparse
 import datetime
@@ -9,8 +10,6 @@ import os
 import sys
 
 from ece2cmor3 import ece2cmorlib, taskloader, components
-
-logging.basicConfig(level=logging.DEBUG)
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -72,9 +71,13 @@ def main(args=None):
     args = parser.parse_args()
 
     logfile = None
-    if getattr(args, "logfile", False):
-        logfile = '.'.join(["ece2cmor3", args.exp, args.datadir.split(os.sep)[-1], "log"])
+    if getattr(args, "log", False):
+        dirs = os.path.abspath(args.datadir).split(os.sep)
+        fname = '-'.join([args.exp] + dirs[-2:] + [time.strftime("%Y%m%d%H%M%S", time.gmtime())])
+        logfile = '.'.join([fname, "log"])
         logging.basicConfig(filename=logfile, level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
 
     if not os.path.isdir(args.datadir):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
