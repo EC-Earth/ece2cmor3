@@ -165,8 +165,61 @@ def read_time_stamps(path):
     return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
 
 
-# TODO: This is getting out of hand, refactor
-# TODO: Suspecting double transposes, very slow!
+def find_tm5_output(path, expname=None,varname=None,freq=None):
+    subexpr = ".*"
+    if expname:
+        subexpr = expname
+    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+
+    a=[os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+   
+    return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+
+def get_tm5_frequency(filepath, expname):
+    global log
+    f = os.path.basename(filepath)
+    expr = re.compile(".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    if not re.match(expr, f):
+        log.error("File path %s does not correspond to tm5 output of experiment %s" % (filepath, expname))
+        return None
+
+    fstr = f.split("_")[1]
+    expr = re.compile("(AERhr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
+    #expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
+    if not re.match(expr, fstr):
+        log.error("File path %s does not contain a valid frequency indicator" % filepath)
+        return None
+    #n = int(fstr[0:len(fstr))
+    #if n == 0:
+    #    log.error("Invalid frequency 0 parsed from file path %s" % filepath)
+    #    return None
+    return fstr
+# Returns the start and end date corresponding to the given nemo output file.
+def get_tm5_interval(filepath):
+    global log
+    fname = os.path.basename(filepath)
+    regex = re.findall("[0-9]{6,12}", fname) #mon(6),day(8), hour(10)
+    if not regex or len(regex) != 2:
+        log.error("Unable to parse dates from tm5 file name %s" % fname)
+        return None
+    if len(regex[0])==8:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d")
+    elif  len(regex[0])==6:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m")
+    elif  len(regex[0])==10:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H")
+        end = datetime.datetime.strptime(regex[1][:], "%Y%m%d%H")
+    elif  len(regex[0])==12:
+        start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H%M")
+        end = datetime.datetime.strptime(regex[1][:], '%Y%m%d%H%M')
+    else:
+        log.error("Date string in filename %s not supported." % fname)
+    
+    return start, end
+
+
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
                 fliplat=False, mask=None, missval=1.e+20, time_selection=None):
