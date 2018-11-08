@@ -1,8 +1,12 @@
-import cmor
-import os
-import logging
-from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc
 import datetime
+
+import cmor
+import json
+import logging
+import os
+import tempfile
+
+from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -14,7 +18,7 @@ prefix_default = "CMIP6"
 table_dir_default = os.path.join(os.path.dirname(__file__), "resources", "tables")
 
 # ece2cmor master API.
-conf_path = conf_path_default
+metadata = {}
 cmor_mode = cmor_mode_default
 prefix = prefix_default
 table_dir = table_dir_default
@@ -34,10 +38,11 @@ PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 
 
 # Initialization function without using the cmor library, must be called before starting
-def initialize_without_cmor(metadata=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
+def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
                             tableprefix=prefix_default):
-    global prefix, table_dir, targets, conf_path, cmor_mode
-    conf_path = metadata
+    global prefix, table_dir, targets, metadata, cmor_mode
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -46,28 +51,34 @@ def initialize_without_cmor(metadata=conf_path_default, mode=cmor_mode_default, 
 
 
 # Initialization function, must be called before starting
-def initialize(metadata=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
-               tableprefix=prefix_default):
-    global prefix, table_dir, targets, conf_path, cmor_mode
-    conf_path = metadata
+def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
+               tableprefix=prefix_default, outputdir=None, logfile=None, create_subdirs=True):
+    global prefix, table_dir, targets, metadata, cmor_mode
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
     validate_setup_settings()
-    cmor.setup(table_dir, cmor_mode)
-    cmor.dataset_json(conf_path)
+    logname = logfile
+    if logfile is not None:
+        logname = '.'.join(logfile.split('.')[:-1] + ["cmor", "log"])
+    cmor.setup(table_dir, cmor_mode, logfile=logname, create_subdirectories=(1 if create_subdirs else 0))
+    if outputdir is not None:
+        metadata["outpath"] = outputdir
+    for key, val in metadata.items():
+        log.info("Metadata attribute %s: %s", key, val)
+    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+        json.dump(metadata, tmp_file)
+    cmor.dataset_json(tmp_file.name)
     targets = cmor_target.create_targets(table_dir, prefix)
+    tmp_file.close()
+    os.remove(tmp_file.name)
 
 
 # Validation of setup configuration
 def validate_setup_settings():
-    global prefix, table_dir, conf_path, cmor_mode
-    if not conf_path or not isinstance(conf_path, str):
-        log.error("Invalid metadata json file string given...aborting")
-        raise Exception("Metadata file path is empty or not a string")
-    if not os.path.isfile(conf_path):
-        log.error("Metadata json file %s does not exist...aborting" % conf_path)
-        raise Exception("Metadata file does not exist or has invalid extension")
+    global prefix, table_dir, cmor_mode
     if not table_dir or not isinstance(table_dir, str):
         log.error("Invalid cmorization table string given...aborting")
         raise Exception("Cmorization table directory is empty or not a string")

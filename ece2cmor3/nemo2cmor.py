@@ -165,7 +165,7 @@ def execute_netcdf_task(dataset, task):
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
-    closed_file = cmor.close(varid, file_name=True)
+    cmor.close(varid, file_name=True)
     task.status = cmor_task.status_cmorized
 
 

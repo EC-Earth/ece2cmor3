@@ -79,15 +79,16 @@ def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, au
                         "dates %s" % (str(gpfiles.values()), str(shfiles.values()), str(intersection)))
     else:
         ifs_gridpoint_files_, ifs_spectral_files_ = gpfiles, shfiles
-    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()),datetime.min.time())
     if ifs_init_gridpoint_file_ is None:
         if any(ifs_gridpoint_files_.values()):
             ifs_init_gridpoint_file_ = ifs_gridpoint_files_.values()[0]
         else:
-            log.error("No gridpoint files found in directory %s, exiting initialization" % path)
+            log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
+                      (exp_name_, path))
             return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time())
     dirname = exp_name_ + start_date_.strftime("-ifs-%Y")
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
