@@ -40,8 +40,11 @@ depth_axes_ = {}
 # Dictionary of output frequencies with cmor time axis id.
 time_axes_ = {}
 
-# Dictionary of sea-ice output types, 1 by default...
+# Dictionary of sea-ice output types, 1 by default.
 type_axes_ = {}
+
+# Dictionary of latitude axes ids for meridional variables.
+lat_axes_ = {}
 
 
 # Initializes the processing loop.
@@ -131,14 +134,14 @@ def lookup_variables(tasks):
 
 # Performs a single task.
 def execute_netcdf_task(dataset, task):
-    global log, grid_ids_, depth_axes_, time_axes_
+    global log
     task.status = cmor_task.status_cmorizing
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
     t_axes = [] if not hasattr(task, "time_axis") else [getattr(task, "time_axis")]
     type_axes = [getattr(task, dim + "_axis") for dim in type_axes_.get(task.target.table, {}).keys() if
                  hasattr(task, dim + "_axis")]
-    #TODO: Read axes order from netcdf file!
+    # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
     ncvar = dataset.variables[task.source.variable()]
@@ -153,7 +156,7 @@ def execute_netcdf_task(dataset, task):
     if len(t_axes) > 0 > time_dim:
         for d in dataset.dimensions:
             if d.startswith("time"):
-                time_sel = range(len(d)) # ensure copying of constant fields
+                time_sel = range(len(d))  # ensure copying of constant fields
                 break
     if len(grid_axes) == 0:  # Fix for global averages/sums
         vals = numpy.ma.masked_equal(ncvar[...], missval)
@@ -307,7 +310,7 @@ def create_type_axes(ds, tasks, table):
                         if any(ncvals):
                             log.error("Ece2cmor values for extra axis %s, %s, do not match dimension %s length %d found"
                                       " in file %s, taking values found in file" % (dim, str(ncvals), nc_dim_name,
-                                                                                   len(ncdim), ds.filepath()))
+                                                                                    len(ncdim), ds.filepath()))
                         ncvars = [v for v in ds.variables if list(ds.variables[v].dimensions) == [ncdim]]
                         axis_values, axis_unit = list(range(len(ncdim))), "1"
                         if any(ncvars):
@@ -373,17 +376,11 @@ def read_calendar(ncfile):
 
 # Reads all the NEMO grid data from the input files.
 def create_grids(tasks):
-    global grid_ids_
     task_groups = cmor_utils.group(tasks, lambda t: getattr(t, cmor_task.output_path_key, None))
     for filename, task_list in task_groups.iteritems():
         if filename is not None:
             grid = read_grid(filename)
-            if grid is not None:
-                grid_id = write_grid(grid, task_list[0])
-                if grid_id != 0:
-                    grid_ids_[grid.name] = grid_id
-                    for task in task_list:
-                        setattr(task, "grid_id", grid_id)
+            write_grid(grid, task_list)
 
 
 # Reads a particular NEMO grid from the given input file.
@@ -405,23 +402,64 @@ def read_grid(ncfile):
 
 
 # Transfers the grid to cmor.
-def write_grid(grid, task):
+def write_grid(grid, tasks):
+    global grid_ids_, lat_axes_
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
     if ny == 1:
         if nx == 1:
-            return 0
-        cmor.load_table(table_root_ + "_" + task.target.table + ".json")
-        return cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
-                         cell_bounds=grid.vertex_lats)
-    cmor.load_table(table_root_ + "_grids.json")
-    i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-    j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    return cmor.grid(axis_ids=[i_index_id, j_index_id],
-                     latitude=grid.lats,
-                     longitude=grid.lons,
-                     latitude_vertices=grid.vertex_lats,
-                     longitude_vertices=grid.vertex_lons)
+            log.error("The grid %s consists of a single point which is not supported, dismissing variables %s" %
+                      (grid.name, ','.join([t.target.variable + " in " + t.target.table for t in tasks])))
+            return
+        for task in tasks:
+            dims = getattr(task.target, "space_dims", "")
+            if "longitude" in dims:
+                log.error("Variable %s in %s has longitude dimension, but this is absent in the ocean output file of "
+                          "grid %s" % (task.target.variable, task.target.table, grid.name))
+                task.set_failed()
+                continue
+            latnames = {"latitude", "gridlatitude"}
+            latvars = list(set(dims).intersection(set(latnames)))
+            if not any(latvars):
+                log.error("Variable %s in %s has no (grid-)latitude defined where its output grid %s does, dismissing "
+                          "it" % (task.target.variable, task.target.table, grid.name))
+                task.set_failed()
+                continue
+            if len(latvars) > 1:
+                log.error("Variable %s in %s with double-latitude dimensions %s is not supported" %
+                          (task.target.variable, task.target.table, str(dims)))
+                task.set_failed()
+                continue
+            key = (grid.name, latvars[0])
+            if key not in lat_axes_.keys():
+                cmor.load_table(table_root_ + "_" + task.target.table + ".json")
+                lat_axis_id = cmor.axis(table_entry="gridlatitude", coord_vals=grid.lats[:, 0], units="degrees_north",
+                                        cell_bounds=grid.vertex_lats)
+                lat_axes_[key] = lat_axis_id
+            else:
+                lat_axis_id = lat_axes_[key]
+            setattr(task, "grid_id", lat_axis_id)
+    else:
+        if grid.name not in grid_ids_:
+            cmor.load_table(table_root_ + "_grids.json")
+            i_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
+            j_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+            grid_id = cmor.grid(axis_ids=[i_index_id, j_index_id],
+                                latitude=grid.lats,
+                                longitude=grid.lons,
+                                latitude_vertices=grid.vertex_lats,
+                                longitude_vertices=grid.vertex_lons)
+            grid_ids_[grid.name] = grid_id
+        else:
+            grid_id = grid_ids_[grid.name]
+        for task in tasks:
+            dims = getattr(task.target, "space_dims", [])
+            if "latitude" in dims and "longitude" in dims:
+                setattr(task, "grid_id", grid_id)
+            else:
+                log.error("Variable %s in %s has output on a 2d horizontal grid, but its requested dimensions are %s" %
+                          (task.target.variable, task.target.table, str(dims)))
+                task.set_failed()
 
 
 # Class holding a NEMO grid, including bounds arrays
