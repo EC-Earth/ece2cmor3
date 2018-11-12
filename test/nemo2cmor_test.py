@@ -126,7 +126,7 @@ class nemo2cmor_tests(unittest.TestCase):
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude time")
         setattr(tgt, "time_operator", ["mean"])
-        tgt.dims = 2
+        tgt.space_dims = {"latitude", "longitude"}
         tsk = cmor_task.cmor_task(src, tgt)
         nemo2cmor.execute([tsk])
         nemo2cmor.finalize()
@@ -170,7 +170,7 @@ class nemo2cmor_tests(unittest.TestCase):
         setattr(tgt, "frequency", "mon")
         setattr(tgt, "dimensions", "longitude latitude olevel time")
         setattr(tgt, "time_operator", ["mean"])
-        tgt.dims = 3
+        tgt.space_dims = {"latitude", "longitude"}
         tsk = cmor_task.cmor_task(src, tgt)
         nemo2cmor.execute([tsk])
         nemo2cmor.finalize()

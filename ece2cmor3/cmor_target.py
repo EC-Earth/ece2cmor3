@@ -31,8 +31,9 @@ valid_min_key = "valid_min"
 valid_max_key = "valid_max"
 cell_measure_axes = ["time", "area", "volume", "latitude", "longitude", "grid_latitude", "grid_longitude", "depth"]
 mask_key = "mask"
-
-extra_dims = {"basin", "typesi"}
+xydims = {"latitude", "longitude", "gridlatitude", "gridlongitude", "xgre", "ygre", "xant", "yant"}
+extra_dims = {"basin", "spectband", "iceband", "landUse", "vertices", "effectRadLi", "effectRadIc", "tau",
+              "lambda550nm", "scatratio", "dbze", "soilpools", "sza5", "vegtype", "site", "siline"}
 
 
 # Class for cmor target objects, which represent output variables.
@@ -105,9 +106,12 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s for s in v2.split() if not s.lower().startswith("time")]) - extra_dims)
+                spacedims = list(set([s.encode("ascii") for s in v2.split() if not (s.lower().startswith("time") or
+                                                                                    s.lower().startswith("type"))])
+                                 - extra_dims)
+                setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
-                zdims = list(set(spacedims) - {"latitude", "longitude"})
+                zdims = list(set(spacedims) - xydims)
                 if any(zdims):
                     setattr(target, "z_dims", zdims)
             if key in [cell_measures_key.lower(), cell_methods_key.lower()]:
