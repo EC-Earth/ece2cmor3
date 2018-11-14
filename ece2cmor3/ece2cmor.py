@@ -33,17 +33,17 @@ def main(args=None):
                                                                               "metadata \'outpath\' entry")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
-    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks")
+    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for IFS cmorization")
     parser.add_argument("--log", action="store_true", default=False, help="Write to log file")
     parser.add_argument("--flatdir", action="store_true", default=False, help="Do not create sub-directories in "
                                                                                     "output folder")
-    parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
+    parser.add_argument("--tabledir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
-    parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
+    parser.add_argument("--tableprefix", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar="DIR", type=str, default="/tmp/ece2cmor",
                         help="Temporary working directory")
-    parser.add_argument("--mode", metavar="MODE", type=str, default="preserve", help="CMOR netcdf mode",
+    parser.add_argument("--overwritemode", metavar="(preserve|replace|append)", type=str, default="preserve", help="CMOR netcdf overwrite mode",
                         choices=["preserve", "replace", "append"])
     # Deprecated arguments, only for backward compatibility
     parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
