@@ -100,7 +100,7 @@ def main(args=None):
     modedict = {"preserve": ece2cmorlib.PRESERVE, "append": ece2cmorlib.APPEND, "replace": ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf, mode=modedict[args.mode], tabledir=args.tabdir, tableprefix=args.tabid,
+    ece2cmorlib.initialize(args.conf, mode=modedict[args.overwritemode], tabledir=args.tabledir, tableprefix=args.tableprefix,
                            outputdir=args.odir, logfile=logfile, create_subdirs=(not args.flatdir))
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
