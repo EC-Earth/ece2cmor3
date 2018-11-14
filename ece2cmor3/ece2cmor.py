@@ -19,8 +19,10 @@ def main(args=None):
     if args is None:
         pass
 
+    formatter = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,max_help_position=30)
+
     parser = argparse.ArgumentParser(description="Post-processing and cmorization of EC-Earth output",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     formatter_class=formatter)
 
     parser.add_argument("datadir", metavar="DIR", type=str, help="EC-Earth data directory, i.e. for a given component, "
                                                                  "for a given leg")
@@ -34,6 +36,18 @@ def main(args=None):
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for IFS cmorization")
+
+    model_attributes = {}
+    for c in components.models:
+            flag1, flag2 = components.get_script_options(c)
+            if flag2 is None:
+                parser.add_argument("--" + flag1, action="store_true", default=False,
+                                    help="Run ece2cmor3 exclusively for %s data" % c)
+            else:
+                parser.add_argument("--" + flag1, '-' + flag2, action="store_true", default=False,
+                                    help="Run ece2cmor3 exclusively for %s data" % c)
+            model_attributes[c] = flag1
+
     parser.add_argument("--log", action="store_true", default=False, help="Write to log file")
     parser.add_argument("--flatdir", action="store_true", default=False, help="Do not create sub-directories in "
                                                                                     "output folder")
@@ -43,7 +57,7 @@ def main(args=None):
                         help="Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar="DIR", type=str, default="/tmp/ece2cmor",
                         help="Temporary working directory")
-    parser.add_argument("--overwritemode", metavar="(preserve|replace|append)", type=str, default="preserve", help="CMOR netcdf overwrite mode",
+    parser.add_argument("--overwritemode", metavar="MODE", type=str, default="preserve", help="MODE:preserve|replace|append, CMOR netcdf overwrite mode",
                         choices=["preserve", "replace", "append"])
     # Deprecated arguments, only for backward compatibility
     parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
@@ -51,16 +65,8 @@ def main(args=None):
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--freq", metavar="N", type=int, default=3, help=argparse.SUPPRESS)
 
-    model_attributes, model_tabfile_attributes = {}, {}
+    model_tabfile_attributes = {}
     for c in components.models:
-        flag1, flag2 = components.get_script_options(c)
-        if flag2 is None:
-            parser.add_argument("--" + flag1, action="store_true", default=False,
-                                help="Run ece2cmor3 exclusively for %s data" % c)
-        else:
-            parser.add_argument("--" + flag1, '-' + flag2, action="store_true", default=False,
-                                help="Run ece2cmor3 exclusively for %s data" % c)
-        model_attributes[c] = flag1
         tabfile = components.models[c].get(components.table_file, "")
         if tabfile:
             option = os.path.basename(tabfile)
