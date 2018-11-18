@@ -65,7 +65,7 @@ class ifs2cmor_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source, target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),
-                       "-expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selhour,0,6,12,18 -selcode,"
+                       "-setgridtype,regular -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -selhour,0,6,12,18 -selcode,"
                        "165,166")
 
     @staticmethod
@@ -77,7 +77,7 @@ class ifs2cmor_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source, target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(),
-                       "-daymax -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -setgridtype,regular -selcode,165,166")
+                       "-daymax -setgridtype,regular -expr,'var88=sqrt(sqr(var165)+sqr(var166))' -selcode,165,166")
 
     @staticmethod
     def test_postproc_wap500():

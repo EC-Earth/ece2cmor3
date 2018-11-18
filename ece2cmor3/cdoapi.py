@@ -48,14 +48,11 @@ class cdo_command:
 
     # Optimized operator ordering for CDO:
     operator_ordering = [set_code_operator, mean_time_operators[month], min_time_operators[month],
-                         max_time_operators[month],
-                         mean_time_operators[day], min_time_operators[day], max_time_operators[day],
-                         timselmean_operator,
-                         add_expression_operator,
-                         expression_operator, spectral_operator, gridtype_operator, ml2pl_operator, ml2hl_operator,
+                         max_time_operators[month], mean_time_operators[day], min_time_operators[day],
+                         max_time_operators[day], timselmean_operator, gridtype_operator, ml2pl_operator,
+                         ml2hl_operator, add_expression_operator, expression_operator, spectral_operator,
                          select_lev_operator, select_z_operator, select_hour_operator, select_day_operator,
-                         select_month_operator,
-                         shift_time_operator, select_step_operator, select_code_operator]
+                         select_month_operator, shift_time_operator, select_step_operator, select_code_operator]
 
     # Constructor
     def __init__(self, code=0):
