@@ -20,7 +20,8 @@ log = logging.getLogger(__name__)
 
 
 # Enum utility class
-class cmor_enum(tuple): __getattr__ = tuple.index
+class cmor_enum(tuple):
+    __getattr__ = tuple.index
 
 
 # Grouping to dictionary utility function
@@ -35,10 +36,26 @@ def group(objects, func):
     return d
 
 
+# Gets the git hash
+def get_git_hash():
+    from ece2cmor3 import __version__
+    try:
+        result = __version__.sha
+    except AttributeError:
+        import git
+        repo = git.Repo(search_parent_directories=True)
+        sha = str(repo.head.object.hexsha)
+        if repo.is_dirty():
+            sha += "-changes"
+        result = sha
+    return result
+
+
 # Turns a date or datetime into a datetime
 def date2num(times, ref_time):
     def shift_times(t):
-        return (t - ref_time).total_seconds()/3600.
+        return (t - ref_time).total_seconds() / 3600.
+
     return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
 
 
@@ -165,15 +182,16 @@ def read_time_stamps(path):
     return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
 
 
-def find_tm5_output(path, expname=None,varname=None,freq=None):
+def find_tm5_output(path, expname=None, varname=None, freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
     expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
 
-    a=[os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
-   
+    a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+
 
 def get_tm5_frequency(filepath, expname):
     global log
@@ -185,38 +203,40 @@ def get_tm5_frequency(filepath, expname):
 
     fstr = f.split("_")[1]
     expr = re.compile("(AERhr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
-    #expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
+    # expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
-    #n = int(fstr[0:len(fstr))
-    #if n == 0:
+    # n = int(fstr[0:len(fstr))
+    # if n == 0:
     #    log.error("Invalid frequency 0 parsed from file path %s" % filepath)
     #    return None
     return fstr
+
+
 # Returns the start and end date corresponding to the given nemo output file.
 def get_tm5_interval(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.findall("[0-9]{6,12}", fname) #mon(6),day(8), hour(10)
+    regex = re.findall("[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
+    start, end = None, None
     if not regex or len(regex) != 2:
         log.error("Unable to parse dates from tm5 file name %s" % fname)
-        return None
-    if len(regex[0])==8:
+        return start, end
+    if len(regex[0]) == 8:
         start = datetime.datetime.strptime(regex[0][:], "%Y%m%d")
         end = datetime.datetime.strptime(regex[1][:], "%Y%m%d")
-    elif  len(regex[0])==6:
+    elif len(regex[0]) == 6:
         start = datetime.datetime.strptime(regex[0][:], "%Y%m")
         end = datetime.datetime.strptime(regex[1][:], "%Y%m")
-    elif  len(regex[0])==10:
+    elif len(regex[0]) == 10:
         start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H")
         end = datetime.datetime.strptime(regex[1][:], "%Y%m%d%H")
-    elif  len(regex[0])==12:
+    elif len(regex[0]) == 12:
         start = datetime.datetime.strptime(regex[0][:], "%Y%m%d%H%M")
         end = datetime.datetime.strptime(regex[1][:], '%Y%m%d%H%M')
     else:
         log.error("Date string in filename %s not supported." % fname)
-    
     return start, end
 
 
@@ -335,7 +355,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         if fliplat and (ndims > 1 or timdim < 0):
             vals = numpy.flipud(vals)
         if timdim < 0 and ntimes > 1:
-            vals = numpy.repeat(vals, repeats=(imax - i), axis=ndims-1)
+            vals = numpy.repeat(vals, repeats=(imax - i), axis=ndims - 1)
         cmor.write(varid, vals, ntimes_passed=(0 if (timdim < 0 and ntimes == 1) else (imax - i)))
         del vals
         if psvarid is not None and ncpsvar is not None:

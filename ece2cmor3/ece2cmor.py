@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 
-from ece2cmor3 import ece2cmorlib, taskloader, components
+from ece2cmor3 import ece2cmorlib, taskloader, components, __version__
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def main(args=None):
     if args is None:
         pass
 
-    formatter = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,max_help_position=30)
+    formatter = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, max_help_position=30)
 
     parser = argparse.ArgumentParser(description="Post-processing and cmorization of EC-Earth output",
                                      formatter_class=formatter)
@@ -35,8 +35,8 @@ def main(args=None):
                                                                               "metadata \'outpath\' entry")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
-    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for IFS cmorization")
-
+    parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for "
+                                                                        "IFS cmorization")
     model_attributes = {}
     for c in components.models:
             flag1, flag2 = components.get_script_options(c)
@@ -57,8 +57,11 @@ def main(args=None):
                         help="Cmorization table prefix string")
     parser.add_argument("--tmpdir", metavar="DIR", type=str, default="/tmp/ece2cmor",
                         help="Temporary working directory")
-    parser.add_argument("--overwritemode", metavar="MODE", type=str, default="preserve", help="MODE:preserve|replace|append, CMOR netcdf overwrite mode",
+    parser.add_argument("--overwritemode", metavar="MODE", type=str, default="preserve",
+                        help="MODE:preserve|replace|append, CMOR netcdf overwrite mode",
                         choices=["preserve", "replace", "append"])
+    parser.add_argument("-V", "--version", action="version",
+                        version="%(prog)s {version}".format(version=__version__.version))
     # Deprecated arguments, only for backward compatibility
     parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
     parser.add_argument("--nomask", action="store_true", default=False, help=argparse.SUPPRESS)

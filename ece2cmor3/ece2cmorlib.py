@@ -6,7 +6,8 @@ import logging
 import os
 import tempfile
 
-from ece2cmor3 import cmor_source, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc
+from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
+    cmor_utils
 
 # Logger instance
 log = logging.getLogger(__name__)
@@ -66,6 +67,10 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     cmor.setup(table_dir, cmor_mode, logfile=logname, create_subdirectories=(1 if create_subdirs else 0))
     if outputdir is not None:
         metadata["outpath"] = outputdir
+    hist = metadata.get("history", "")
+    newline = "processed by ece2cmor v{version}, git rev. " \
+              "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
+    metadata["history"] = newline + hist if len(hist) != 0 else newline
     for key, val in metadata.items():
         log.info("Metadata attribute %s: %s", key, val)
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
@@ -199,16 +204,18 @@ def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
         return
     lpjg2cmor.execute(lpjg_tasks)
 
+
 # Performs a LPJG cmorization processing:
 def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
-    global log ,tasks, table_dir, prefix
+    global log, tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
     log.info("Selected %d TM5 tasks from %d input tasks" % (len(tm5_tasks), len(tasks)))
-    if(not tm52cmor.initialize(datadir, expname, table_dir, prefix, refdate )):
+    if (not tm52cmor.initialize(datadir, expname, table_dir, prefix, refdate)):
         return
     tm52cmor.execute(tm5_tasks)
+
 
 # def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix
