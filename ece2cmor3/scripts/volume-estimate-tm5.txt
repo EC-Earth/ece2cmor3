@@ -1,8 +1,0 @@
- 
-EC-Earth3 TM5 Volume estimates of generated output:
-  Volume estimate for the TM5-??          grid: 5.24261733333 GB/yr
-  Volume estimate for the TM5-??-HightRes grid: 70.226688 GB/yr
-  With    12192 horizontal data slices per year across the vertical and time dimension.
-
-  NOTE ALL NUMBERS ARE NONSENSE SOFAR in this TM5 version
-
