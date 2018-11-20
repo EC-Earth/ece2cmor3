@@ -13,7 +13,7 @@
 #   conda list
 #   conda update --all
 #  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active): 
-#   pip uninstall -y dreqPy==01.00.27; pip install dreqPy==01.00.24
+#   pip uninstall -y dreqPy==01.00.28; pip install dreqPy==01.00.24
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3
@@ -35,12 +35,13 @@ dependencies:
 - numpy>=1.15.1
 - libiconv                                        # Unlisted dependency of cdo
 - pandas>=0.17.1
+- gitpython=2.1.11
 - pip:
   - f90nml==0.20
   - jsonschema==2.5.1
   - testfixtures==5.3.1
   - xlrd==1.1.0
   - xlsxwriter==1.0.2
-  - dreqPy==01.00.27
+  - dreqPy==01.00.28
   - cython                                        # Unlisted dependency dreq 
   - xarray                                        # Unlisted dependency dreq and/or drq
