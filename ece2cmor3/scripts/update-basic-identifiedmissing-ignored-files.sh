@@ -27,6 +27,16 @@ if [ "$#" -eq -2 ]; then
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
 
+  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
+  nedit generate-nemopar.json.sh ../resources/nemopar.json &
+# and copy (as described in generate-nemopar.json.sh) the result of:
+  more ${HOME}/cmorize/shaconemo/ping-files/r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
+# into the "arr" list of generate-nemopar.json.sh. Therafter run generate-nemopar.json.sh:
+  ./generate-nemopar.json.sh new-nemopar.json
+  diff new-nemopar.json ../resources/nemopar.json
+  mv -f new-nemopar.json ../resources/nemopar.json
+  git diff ../resources/nemopar.json
+
 # Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files by their corresponding pre-* ones:
   cpf ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx             ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
   cpf ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables.xlsx                        ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
