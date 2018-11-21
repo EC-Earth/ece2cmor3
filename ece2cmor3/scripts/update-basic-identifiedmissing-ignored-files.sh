@@ -15,15 +15,15 @@ if [ "$#" -eq -2 ]; then
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-  drq -m CMIP,AerChemMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -t 3 -p 3 -e CMIP  --xls --xlsDir xls-all-cmip6-t=3-p=3
+  drq -m CMIP,AerChemMIP,CDRMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -e CMIP -t 3 -p 3 --xls --xlsDir xls-m=all-cmip6-mips-e=CMIP-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
   cd ${HOME}/cmorize/shaconemo/ping-files/
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-  nedit r256/cmor-varlist-based-on-ping-r256-without-dummy-lines.txt
-# and copy them manually into the variable column in the file (also update the comment column):
+  nedit r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt r270/cmor-varlist-based-on-ping-r270-without-dummy-lines-comment2.txt &
+# and copy them manually into the variable column in the file and update the comment column (and comment author):
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
 
@@ -34,7 +34,7 @@ if [ "$#" -eq -2 ]; then
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck -v --vars  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
@@ -59,7 +59,7 @@ if [ "$#" -eq -2 ]; then
    mv ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.* ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/;
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py -v --vars  xls-all-cmip6-t=3-p=3/cmvmm_ae.c4.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py -v --vars  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 # The diff is not identical but the excel-diff gives no cel differences:
    diff       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt
    diff       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.ignored.txt            ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.ignored.txt
