@@ -26,10 +26,10 @@ if [ "$#" -eq 0 ]; then
 # ./extract-info-from-ping-files.csh
 
 # Step 3: Open the following files:
-#  nedit ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines*.txt &
+#  cd ${HOME}/cmorize/shaconemo/ping-files/r274/; nedit cmor-*-without-dummy-lines.txt cmor-*-without-dummy-lines-only-model-name.txt cmor-*-without-dummy-lines-comment2.txt cmor-*-without-dummy-lines-only-model-name.txt cmor-*-without-dummy-lines-ping-file-unit.txt cmor-*-without-dummy-lines-ping-file-comment.txt; cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/;
 #  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # And copy manually the content of the file:
-#  cmor-varlist-based-on-ping-r274-without-dummy-lines-only-model-name.txt   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines.txt                   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
 #  cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt          (the identification comment)           in the                      "comment"-column of the nemo-only-pre-list-*.xlsx file
 #  cmor-varlist-based-on-ping-r274-without-dummy-lines-only-model-name.txt   (the nemo model component)             in the "model component in ping file"-column of the nemo-only-pre-list-*.xlsx file
 #  cmor-varlist-based-on-ping-r274-without-dummy-lines-ping-file-unit.txt    (the units from the ping file comment) in the        "units as in ping file"-column of the nemo-only-pre-list-*.xlsx file
