@@ -26,14 +26,14 @@ if [ "$#" -eq 0 ]; then
 # ./extract-info-from-ping-files.csh
 
 # Step 3: Open the following files:
-#  nedit ${HOME}/cmorize/shaconemo/ping-files/r270/cmor-varlist-based-on-ping-r270-without-dummy-lines*.txt &
+#  nedit ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines*.txt &
 #  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # And copy manually the content of the file:
-#  cmor-varlist-based-on-ping-r270-without-dummy-lines-only-model-name.txt   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
-#  cmor-varlist-based-on-ping-r270-without-dummy-lines-comment2.txt          (the identification comment)           in the                      "comment"-column of the nemo-only-pre-list-*.xlsx file
-#  cmor-varlist-based-on-ping-r270-without-dummy-lines-only-model-name.txt   (the nemo model component)             in the "model component in ping file"-column of the nemo-only-pre-list-*.xlsx file
-#  cmor-varlist-based-on-ping-r270-without-dummy-lines-ping-file-unit.txt    (the units from the ping file comment) in the        "units as in ping file"-column of the nemo-only-pre-list-*.xlsx file
-#  cmor-varlist-based-on-ping-r270-without-dummy-lines-ping-file-comment.txt (the xml comment in the ping file)     in the            "ping file comment"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines-only-model-name.txt   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt          (the identification comment)           in the                      "comment"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines-only-model-name.txt   (the nemo model component)             in the "model component in ping file"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines-ping-file-unit.txt    (the units from the ping file comment) in the        "units as in ping file"-column of the nemo-only-pre-list-*.xlsx file
+#  cmor-varlist-based-on-ping-r274-without-dummy-lines-ping-file-comment.txt (the xml comment in the ping file)     in the            "ping file comment"-column of the nemo-only-pre-list-*.xlsx file
 # After updating the pre* file it is most convenient to commit it first.
 
 # Step 4: Temporary overwrite: Use an empty nemopar.json, use an empty list-of-ignored-cmpi6-requested-variables.xlsx and use a
@@ -120,7 +120,7 @@ if [ "$#" -eq 0 ]; then
 
 # ll *.missing.xlsx|grep -v 5.5K
 # ll *.missing.txt|grep -v 266B
-# m *.missing.txt|grep r270
+# m *.missing.txt|grep r274
 
 # Revert the temporary changed files:
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/;

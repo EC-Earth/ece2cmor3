@@ -22,7 +22,7 @@ if [ "$#" -eq -2 ]; then
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-  nedit r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt r270/cmor-varlist-based-on-ping-r270-without-dummy-lines-comment2.txt &
+  nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
 # and copy them manually into the variable column in the file and update the comment column (and comment author):
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
@@ -30,7 +30,7 @@ if [ "$#" -eq -2 ]; then
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   nedit generate-nemopar.json.sh ../resources/nemopar.json &
 # and copy (as described in generate-nemopar.json.sh) the result of:
-  more ${HOME}/cmorize/shaconemo/ping-files/r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
+  more ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
 # into the "arr" list of generate-nemopar.json.sh. Therafter run generate-nemopar.json.sh:
   ./generate-nemopar.json.sh new-nemopar.json
   diff new-nemopar.json ../resources/nemopar.json
