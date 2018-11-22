@@ -170,6 +170,7 @@ def execute(tasks):
                 log.error("The data in the file %s did not match the expected frequency (time resolution). "
                           "Skipping CMORization of variable %s." % (lpjgfile, task.source.variable()))
                 continue
+            log.info("Processing file "+lpjgfile)
             setattr(task, cmor_task.output_path_key, task.source.variable() + ".out")
             outname = task.target.out_name
             outdims = task.target.dimensions
@@ -328,12 +329,13 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         elif cmor_prefix_ == "CMIP6":
             # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
             # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
-            df['primary_and_secondary'] = df['natural']
-            df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
-            landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
+            #CLNdf['primary_and_secondary'] = df['natural']
+            #CLNdf.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
+            #CLNlanduse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
             # Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types
             #  and column names denoted by the abbreviations psl, pst, crp & urb, uncomment the line below and delete
-            #  the placeholder solution above (i.e. the above three lines) landuse_types = ['psl', 'pst', 'crp', 'urb']
+            #the placeholder solution above (i.e. the above three lines) 
+            landuse_types = ['psl', 'pst', 'crp', 'urb']
         else:
             # for now skip the variable entirely if there is not exact matches in the .out-file for all the requested
             #  landuse types (except for CMIP6-case of course)
@@ -356,6 +358,11 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     elif is_sdepth:
         depths = list(df.columns.values)
+        if "year" in depths:
+            if freq == "mon" or freq == "day":
+                depths = list(depths[2:])
+            else:
+                depths = list(depths[1:])
         df_list = []
         for sd in range(len(depths)):
             df_list.append(get_lpjg_datacolumn(df, freq, depths[sd], months_as_cols))
@@ -450,13 +457,19 @@ def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
     if freq == "day":
         # create a single time column so that extra days won't be added to the time axis (if there are both leap and
         # non-leap years)
-        df['timecolumn'] = df['year'] + 0.001 * df['day']
-        df.set_index('timecolumn', append=True, inplace=True)
-        df.drop(columns=['year', 'day'], inplace=True)
-
-        if df.shape[1] != 1:
-            raise ValueError('Multiple columns in the daily file are not supported')
+        #check for 
+        #CLNdf['timecolumn'] = df['year'] + 0.001 * df['day']
+        #CLNdf.drop(columns=['year', 'day'], inplace=True)
+        #CLNdf.set_index('timecolumn', append=True, inplace=True)
+        #CLNif df.shape[1] != 1:
+        #CLN    raise ValueError('Multiple columns in the daily file are not supported')
+        if "year" in list(df.columns.values):
+            df['timecolumn'] = df['year'] + 0.001 * df['day']
+            df.drop(columns=['year', 'day'], inplace=True)
+            df.set_index('timecolumn', append=True, inplace=True)
+        df = df[[colname]]
         df = df.unstack()
+         
     elif freq.startswith("yr"):
         df = df.pop(colname)
         df = df.unstack()
@@ -483,9 +496,9 @@ def execute_single_task(dataset, task):
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis
-    varid = create_cmor_variable(task, axes)
-
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis 
+    varid = create_cmor_variable(task, dataset, axes)
+    
     ncvar = dataset.variables[task.target.out_name]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
 
@@ -565,12 +578,15 @@ def get_conversion_factor(conversion):
 
 
 # Creates a variable in the cmor package
-def create_cmor_variable(task, axes):
+def create_cmor_variable(task, dataset, axes):
     srcvar = task.source.variable()
     unit = getattr(task.target, "units")
-    return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
-                         original_name=str(srcvar))
-
+    if hasattr(task.target, "positive") and len(task.target.positive) != 0:
+        return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
+                             original_name=str(srcvar), positive=task.target.positive)
+    else:
+        return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
+                             original_name=str(srcvar))
 
 # Creates a cmor landUse axis
 def create_landuse_axis(task, lpjgfile, freq):
