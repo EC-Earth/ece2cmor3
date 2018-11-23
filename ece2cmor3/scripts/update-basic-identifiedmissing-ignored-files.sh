@@ -22,7 +22,7 @@ if [ "$#" -eq -2 ]; then
   ./extract-info-from-ping-files.csh
 
 # Step 3: Manually select the total column of variables in this file:
-  nedit r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt r270/cmor-varlist-based-on-ping-r270-without-dummy-lines-comment2.txt &
+  nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
 # and copy them manually into the variable column in the file and update the comment column (and comment author):
   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
 # After updating the pre* files it is most convenient to commit them first.
@@ -30,7 +30,7 @@ if [ "$#" -eq -2 ]; then
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   nedit generate-nemopar.json.sh ../resources/nemopar.json &
 # and copy (as described in generate-nemopar.json.sh) the result of:
-  more ${HOME}/cmorize/shaconemo/ping-files/r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
+  more ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
 # into the "arr" list of generate-nemopar.json.sh. Therafter run generate-nemopar.json.sh:
   ./generate-nemopar.json.sh new-nemopar.json
   diff new-nemopar.json ../resources/nemopar.json
@@ -56,13 +56,14 @@ if [ "$#" -eq -2 ]; then
 # step 1 here, which includes all EC-Earth MIPs for the Core MIP experiments, however this does not include the endorsed MIP experiments (e.g drq -m LS3MIP -e LS3MIP ).
 # Therefore the identified missing and ignored variables coming from the endorsed MIP experiments have to be added manually to the basic lists:
 #  -Note copying using the "Paste Special..." before saving in microsoft format allows correct copying of the links.
-#  -Move Antarctic IfxAnt, (IyrAnt) and ImonAnt variables from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to the list-of-ignored-cmpi6-requested-variables.xlsx and adjust the comment.
-#  -Move CFsubhr AerChemMIP variables (one block of variables) from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the Eday   LS3MIP (step 3) variables prrc, ec, tran, evspsblpot, (et) to the list-of-identified-missing-cmpi6-requested-variables.xlsx
-#  -Add manually the IyrGre ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf to the list-of-identified-missing-cmpi6-requested-variables.xlsx
-#  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno) to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Move Antarctic IfxAnt, and ImonAnt variables               from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to the list-of-ignored-cmpi6-requested-variables.xlsx and adjust the comment.
+#  -Move CFsubhr AerChemMIP variables (one block of variables) from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   LS3MIP (step 3) variable  prrc                                  to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Add manually the IyrGre ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd                    to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno)     to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the 6hrPlevPt-Eday-E6hrZ VolMIP (step 3) block (swtoafluxaerocs--zmlwaero) to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
@@ -78,9 +79,9 @@ if [ "$#" -eq -2 ]; then
 
 # Note exel-diff is installed by following:
 #   https://github.com/na-ka-na/ExcelCompare/blob/master/README.md
-# Java is needed, on ubuntu this can be installed by: sudo apt-get update; sudo apt-get install -y default-jre
+# Java is needed, on ubuntu this can be installed by: sudo apt update; sudo apt install -y default-jre
 # Extract the zip and 
-#  mv Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
+#  cd ${HOME}; mv Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
 
 
 else

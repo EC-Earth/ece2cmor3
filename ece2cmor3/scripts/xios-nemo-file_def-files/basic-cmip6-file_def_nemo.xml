@@ -181,7 +181,7 @@
 
     <file id="file13" name_suffix="_opa_grid_T_2D" output_freq="3h">
 
-     <field id="id_3h_tos"                           name="tos"                     table="3hr"           field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="K"                  enabled="False" >                                                                        </field>
+     <field id="id_3h_tos"                           name="tos"                     table="3hr"           field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="degC"               enabled="False" >                                                                        </field>
 
     </file>
 
@@ -189,7 +189,7 @@
     <file id="file14" name_suffix="_opa_grid_T_2D" output_freq="1d">
 
      <field id="id_1d_tossq"                         name="tossq"                   table="Oday"          field_ref="sst_pot2"                               grid_ref="grid_T_2D"                      unit="degC2"              enabled="False" >                                                                        </field>
-     <field id="id_1d_tos"                           name="tos"                     table="Oday"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="K"                  enabled="False" >                                                                        </field>
+     <field id="id_1d_tos"                           name="tos"                     table="Oday"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="degC"               enabled="False" >                                                                        </field>
      <field id="id_1d_sossq"                         name="sossq"                   table="Oday"          field_ref="sss2"                                   grid_ref="grid_T_2D"                      unit="1e-06"              enabled="False" >     this * $convSpsu * $convSpsu                                       </field>
      <field id="id_1d_sos"                           name="sos"                     table="Oday"          field_ref="sss"                                    grid_ref="grid_T_2D"                      unit="0.001"              enabled="False" >     this * $convSpsu                                                   </field>
      <field id="id_1d_omldamax"                      name="omldamax"                table="Oday"          field_ref="mldkz5"                                 grid_ref="grid_T_2D"                      unit="m"                  enabled="False" >                                                                        </field>
@@ -257,7 +257,7 @@
      <field id="id_1m_zos"                           name="zos"                     table="Omon"          field_ref="sshdyn"                                 grid_ref="grid_T_2D"                      unit="m"                  enabled="False" >                                                                        </field>
      <field id="id_1m_fgcfc12"                       name="fgcfc12"                 table="Omon"          field_ref="qtr_CFC12"                              grid_ref="grid_T_2D"                      unit="mol sec-1 m-2"      enabled="False" >                                                                        </field>
      <field id="id_1m_zossq"                         name="zossq"                   table="Omon"          field_ref="sshdyn2"                                grid_ref="grid_T_2D"                      unit="m2"                 enabled="False" >                                                                        </field>
-     <field id="id_1m_tos"                           name="tos"                     table="Omon"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="K"                  enabled="False" >                                                                        </field>
+     <field id="id_1m_tos"                           name="tos"                     table="Omon"          field_ref="sst_pot"                                grid_ref="grid_T_2D"                      unit="degC"               enabled="False" >                                                                        </field>
      <field id="id_1m_tob"                           name="tob"                     table="Omon"          field_ref="toce_potb_e3tb"                         grid_ref="grid_T_2D"                      unit="degC"               enabled="False" >    @toce_potb_e3tb / @e3tb                                             </field>
      <field id="id_1m_tossq"                         name="tossq"                   table="Omon"          field_ref="sst_pot2"                               grid_ref="grid_T_2D"                      unit="degC2"              enabled="False" >                                                                        </field>
      <field id="id_1m_sos"                           name="sos"                     table="Omon"          field_ref="sss"                                    grid_ref="grid_T_2D"                      unit="0.001"              enabled="False" >     this * $convSpsu                                                   </field>
@@ -271,7 +271,9 @@
      <field id="id_1m_friver"                        name="friver"                  table="Omon"          field_ref="runoffs"                                grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >     this - iceberg_cea                                                 </field>
      <field id="id_1m_ficeberg2d"                    name="ficeberg2d"              table="Omon"          field_ref="iceberg_cea"                            grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
      <field id="id_1m_fsitherm"                      name="fsitherm"                table="Omon"          field_ref="fmmflx"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
-     <field id="id_1m_wfonocorr"                     name="wfonocorr"               table="Omon"          field_ref="empmr"                                  grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
+     <field id="id_1m_wfo"                           name="wfo"                     table="Omon"          field_ref="empmr"                                  grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
+     <field id="id_1m_wfonocorr"                     name="wfonocorr"               table="Omon"          field_ref="empmr"                                  grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >     empmr - erp                                                        </field>
+     <field id="id_1m_wfcorr"                        name="wfcorr"                  table="Omon"          field_ref="erp"                                    grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
      <field id="id_1m_sfdsi_2"                       name="sfdsi"                   table="Omon"          field_ref="saltflx"                                grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >     this * $convSpsu                                                   </field>
      <field id="id_1m_hfgeou"                        name="hfgeou"                  table="Omon"          field_ref="hfgeou"                                 grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
      <field id="id_1m_hfrainds"                      name="hfrainds"                table="Omon"          field_ref="hflx_rain_cea"                          grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
@@ -280,7 +282,8 @@
      <field id="id_1m_hfsnthermds2d"                 name="hfsnthermds2d"           table="Omon"          field_ref="hflx_snow_ao_cea"                       grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
      <field id="id_1m_hfibthermds2d"                 name="hfibthermds2d"           table="Omon"          field_ref="hflx_icb_cea"                           grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
      <field id="id_1m_rsntds"                        name="rsntds"                  table="Omon"          field_ref="qsr"                                    grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
-     <field id="id_1m_hfds"                          name="hfds"                    table="Omon"          field_ref="qt"                                     grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
+     <field id="id_1m_hfcorr"                        name="hfcorr"                  table="Omon"          field_ref="qrp"                                    grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >                                                                        </field>
+     <field id="id_1m_hfds"                          name="hfds"                    table="Omon"          field_ref="qt"                                     grid_ref="grid_T_2D"                      unit="W m-2"              enabled="False" >     qt - qrp                                                           </field>
      <field id="id_1m_somint"                        name="somint"                  table="Emon"          field_ref="somint"                                 grid_ref="grid_T_2D"                      unit="1e-3 kg m-2"        enabled="False" >     this * $convSpsu                                                   </field>
      <field id="id_1m_flandice"                      name="flandice"                table="Emon"          field_ref="iceshelf_cea"                           grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >                                                                        </field>
      <field id="id_1m_t20d"                          name="t20d"                    table="Emon"          field_ref="20d"                                    grid_ref="grid_T_2D"                      unit="m"                  enabled="False" >                                                                        </field>
@@ -393,14 +396,7 @@
     </file>
 
 
-    <file id="file31" name_suffix="_opa_grid_ptr_T_2D" output_freq="1mo">
-
-     <field id="id_1m_sltnortha"                     name="sltnortha"               table="EmonZ"         field_ref="sopst_atl"                              grid_ref="grid_ptr_T_2D"                  unit="kg s-1"             enabled="False" >     this * 1e6 * $convSpsu                                             </field>
-
-    </file>
-
-
-    <file id="file32" name_suffix="_pisces_grid_T_3D" output_freq="1y">
+    <file id="file31" name_suffix="_pisces_grid_T_3D" output_freq="1y">
 
      <field id="id_1y_dissic"                        name="dissic"                  table="Oyr"           field_ref="DIC_E3T"                                grid_ref="grid_T_3D"                      unit="mol m-3"            enabled="False" >    @DIC_E3T / @e3t * 1e-3                                              </field>
      <field id="id_1y_dissoc"                        name="dissoc"                  table="Oyr"           field_ref="DOC_E3T"                                grid_ref="grid_T_3D"                      unit="mol m-3"            enabled="False" >    @DOC_E3T / @e3t * 1e-3                                              </field>
@@ -439,7 +435,7 @@
      <field id="id_1y_expsi"                         name="expsi"                   table="Oyr"           field_ref="EXPSI"                                  grid_ref="grid_T_3D"                      unit="mol m-2 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1y_expcalc"                       name="expcalc"                 table="Oyr"           field_ref="EXPCAL"                                 grid_ref="grid_T_3D"                      unit="mol m-2 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1y_remoc"                         name="remoc"                   table="Oyr"           field_ref="REMIN"                                  grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
-     <field id="id_1y_dcalc"                         name="dcalc"                   table="Oyr"           field_ref="PCAL"                                   grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
+     <field id="id_1y_dcalc"                         name="dcalc"                   table="Oyr"           field_ref="DCAL"                                   grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1y_ppdiat"                        name="ppdiat"                  table="Oyr"           field_ref="PPPHY2"                                 grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1y_ppmisc"                        name="ppmisc"                  table="Oyr"           field_ref="PPPHY"                                  grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1y_graz"                          name="graz"                    table="Oyr"           field_ref="GRAZ1"                                  grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >     this + GRAZ2                                                       </field>
@@ -447,14 +443,14 @@
     </file>
 
 
-    <file id="file33" name_suffix="_pisces_grid_T_2D" output_freq="1y">
+    <file id="file32" name_suffix="_pisces_grid_T_2D" output_freq="1y">
 
      <field id="id_1y_fgco2"                         name="fgco2"                   table="Oyr"           field_ref="Cflx"                                   grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False" >     this * 12 * 1e-3                                                   </field>
 
     </file>
 
 
-    <file id="file34" name_suffix="_pisces_grid_T_SFC" output_freq="1d">
+    <file id="file33" name_suffix="_pisces_grid_T_SFC" output_freq="1d">
 
      <field id="id_1d_chlos"                         name="chlos"                   table="Oday"          field_ref="NCHLSFC_E3T"                            grid_ref="grid_T_SFC"                     unit="kg m-3"             enabled="False" >    @NCHLSFC_E3T / @E3TSFC * 1e-3 + @DCHLSFC_E3T / @E3TSFC * 1e-3       </field>
      <field id="id_1d_phycos"                        name="phycos"                  table="Oday"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @PHYSFC_E3T / @E3TSFC * 1e-3 + @PHY2SFC_E3T / @E3TSFC * 1e-3        </field>
@@ -462,7 +458,7 @@
     </file>
 
 
-    <file id="file35" name_suffix="_pisces_grid_T_3D" output_freq="1mo">
+    <file id="file34" name_suffix="_pisces_grid_T_3D" output_freq="1mo">
 
      <field id="id_1m_graz"                          name="graz"                    table="Omon"          field_ref="GRAZ1"                                  grid_ref="grid_T_3D"                      unit="mol m-3 s-1"        enabled="False" >     this + GRAZ2                                                       </field>
      <field id="id_1m_expc"                          name="expc"                    table="Omon"          field_ref="EXPC"                                   grid_ref="grid_T_3D"                      unit="mol m-2 s-1"        enabled="False" >                                                                        </field>
@@ -503,7 +499,7 @@
     </file>
 
 
-    <file id="file36" name_suffix="_pisces_grid_T_2D" output_freq="1mo">
+    <file id="file35" name_suffix="_pisces_grid_T_2D" output_freq="1mo">
 
      <field id="id_1m_intpp"                         name="intpp"                   table="Omon"          field_ref="INTPP"                                  grid_ref="grid_T_2D"                      unit="mol m-2 s-1"        enabled="False" >                                                                        </field>
      <field id="id_1m_intppnitrate"                  name="intppnitrate"            table="Omon"          field_ref="INTPNEW"                                grid_ref="grid_T_2D"                      unit="mol m-2 s-1"        enabled="False" >                                                                        </field>
@@ -538,12 +534,24 @@
     </file>
 
 
-    <file id="file37" name_suffix="_pisces_grid_T_SFC" output_freq="1mo">
+    <file id="file36" name_suffix="_pisces_grid_T_SFC" output_freq="1mo">
 
      <field id="id_1m_dissicos"                      name="dissicos"                table="Omon"          field_ref="DICSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @DICSFC_E3T / @E3TSFC * 1e-3                                        </field>
+     <field id="id_1m_dissocos"                      name="dissocos"                table="Omon"          field_ref="DOCSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @DOCSFC_E3T / @E3TSFC * 1e-3                                        </field>
      <field id="id_1m_phycos"                        name="phycos"                  table="Omon"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @PHYSFC_E3T / @E3TSFC * 1e-3 + @PHY2SFC_E3T / @E3TSFC * 1e-3        </field>
+     <field id="id_1m_zoocos"                        name="zoocos"                  table="Omon"          field_ref="ZOOSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @ZOOSFC_E3T / @E3TSFC * 1e-3 + @ZOO2SFC_E3T / @E3TSFC * 1e-3        </field>
+     <field id="id_1m_detocos"                       name="detocos"                 table="Omon"          field_ref="POCSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @POCSFC_E3T / @E3TSFC * 1e-3 + @GOCSFC_E3T / @E3TSFC * 1e-3         </field>
+     <field id="id_1m_calcos"                        name="calcos"                  table="Omon"          field_ref="CaCO3SFC_E3T"                           grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @CaCO3SFC_E3T / @E3TSFC * 1e-3                                      </field>
+     <field id="id_1m_phydiatos"                     name="phydiatos"               table="Omon"          field_ref="PHY2SFC_E3T"                            grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @PHY2SFC_E3T / @E3TSFC * 1e-3                                       </field>
+     <field id="id_1m_phymiscos"                     name="phymiscos"               table="Omon"          field_ref="PHYSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @PHYSFC_E3T / @E3TSFC * 1e-3                                        </field>
+     <field id="id_1m_zmicroos"                      name="zmicroos"                table="Omon"          field_ref="ZOOSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @ZOOSFC_E3T / @E3TSFC * 1e-3                                        </field>
+     <field id="id_1m_zmesoos"                       name="zmesoos"                 table="Omon"          field_ref="ZOO2SFC_E3T"                            grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @ZOO2SFC_E3T / @E3TSFC * 1e-3                                       </field>
+     <field id="id_1m_talkos"                        name="talkos"                  table="Omon"          field_ref="AlkaliniSFC_E3T"                        grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @AlkaliniSFC_E3T / @E3TSFC * 1e-3                                   </field>
+     <field id="id_1m_phos"                          name="phos"                    table="Omon"          field_ref="PHSFC"                                  grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_o2os"                          name="o2os"                    table="Omon"          field_ref="O2SFC_E3T"                              grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @O2SFC_E3T / @E3TSFC * 1e-3                                         </field>
      <field id="id_1m_no3os"                         name="no3os"                   table="Omon"          field_ref="NO3SFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @NO3SFC_E3T / @E3TSFC * 1e-3                                        </field>
+     <field id="id_1m_nh4os"                         name="nh4os"                   table="Omon"          field_ref="NH4SFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @NH4SFC_E3T / @E3TSFC * 1e-3                                        </field>
+     <field id="id_1m_po4os"                         name="po4os"                   table="Omon"          field_ref="PO4SFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @PO4SFC_E3T / @E3TSFC * 1e-3                                        </field>
      <field id="id_1m_dfeos"                         name="dfeos"                   table="Omon"          field_ref="FerSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @FerSFC_E3T / @E3TSFC * 1e-3                                        </field>
      <field id="id_1m_sios"                          name="sios"                    table="Omon"          field_ref="SiSFC_E3T"                              grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @SiSFC_E3T / @E3TSFC * 1e-3                                         </field>
      <field id="id_1m_chlos"                         name="chlos"                   table="Omon"          field_ref="NCHLSFC_E3T"                            grid_ref="grid_T_SFC"                     unit="kg m-3"             enabled="False" >    @NCHLSFC_E3T / @E3TSFC * 1e-3 + @DCHLSFC_E3T / @E3TSFC * 1e-3       </field>
@@ -553,12 +561,15 @@
      <field id="id_1m_bsios"                         name="bsios"                   table="Omon"          field_ref="GSiSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @GSiSFC_E3T / @E3TSFC * 1e-3                                        </field>
      <field id="id_1m_phyfeos"                       name="phyfeos"                 table="Omon"          field_ref="NFeSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @NFeSFC_E3T / @E3TSFC * 1e-3 + @DFeSFC_E3T / @E3TSFC * 1e-3         </field>
      <field id="id_1m_physios"                       name="physios"                 table="Omon"          field_ref="DSiSFC_E3T"                             grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >    @DSiSFC_E3T / @E3TSFC * 1e-3                                        </field>
-     <field id="id_1m_limndiat"                      name="limndiat"                table="Omon"          field_ref="LDnutSFC"                               grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
+     <field id="id_1m_co3os"                         name="co3os"                   table="Omon"          field_ref="CO3SFC"                                 grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >                                                                        </field>
+     <field id="id_1m_co3satcalcos"                  name="co3satcalcos"            table="Omon"          field_ref="CO3satSFC"                              grid_ref="grid_T_SFC"                     unit="mol m-3"            enabled="False" >                                                                        </field>
+     <field id="id_1m_limndiaz"                      name="limndiaz"                table="Omon"          field_ref="LDnutSFC"                               grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_limnmisc"                      name="limnmisc"                table="Omon"          field_ref="LNnutSFC"                               grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_limirrdiat"                    name="limirrdiat"              table="Omon"          field_ref="LDlightSFC"                             grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_limirrmisc"                    name="limirrmisc"              table="Omon"          field_ref="LNlightSFC"                             grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_limfediat"                     name="limfediat"               table="Omon"          field_ref="LDFeSFC"                                grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
      <field id="id_1m_limfemisc"                     name="limfemisc"               table="Omon"          field_ref="LNFeSFC"                                grid_ref="grid_T_SFC"                     unit="1.0"                enabled="False" >                                                                        </field>
+     <field id="id_1m_ppos"                          name="ppos"                    table="Omon"          field_ref="TPPSFC"                                 grid_ref="grid_T_SFC"                     unit="mol m-3 s-1"        enabled="False" >                                                                        </field>
 
     </file>
 

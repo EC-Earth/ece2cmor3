@@ -87,6 +87,7 @@ def execute(tasks):
         dataset = netCDF4.Dataset(filename, 'r')
         task_sub_groups = cmor_utils.group(task_group, lambda tsk: tsk.target.table)
         for table, task_list in task_sub_groups.iteritems():
+            log.info("Start cmorization of %s in table %s" % (','.join([t.target.variable for t in task_list]), table))
             try:
                 tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
                 cmor.set_table(tab_id)
@@ -430,7 +431,7 @@ def write_grid(grid, tasks):
                           (task.target.variable, task.target.table, str(dims)))
                 task.set_failed()
                 continue
-            key = (grid.name, latvars[0])
+            key = (task.target.table, grid.name, latvars[0])
             if key not in lat_axes_.keys():
                 cmor.load_table(table_root_ + "_" + task.target.table + ".json")
                 lat_axis_id = cmor.axis(table_entry=latvars[0], coord_vals=grid.lats[:, 0], units="degrees_north",

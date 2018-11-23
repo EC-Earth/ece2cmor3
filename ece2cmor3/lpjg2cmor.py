@@ -343,12 +343,6 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         elif cmor_prefix_ == "CMIP6":
             # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
             # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
-            #CLNdf['primary_and_secondary'] = df['natural']
-            #CLNdf.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
-            #CLNlanduse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
-            # Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types
-            #  and column names denoted by the abbreviations psl, pst, crp & urb, uncomment the line below and delete
-            #the placeholder solution above (i.e. the above three lines) 
             landuse_types = ['psl', 'pst', 'crp', 'urb']
         else:
             # for now skip the variable entirely if there is not exact matches in the .out-file for all the requested
@@ -505,6 +499,7 @@ def execute_single_task(dataset, task):
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
+
     # loop over potential singleton axes
     singleton_axis = []
     for ax in dir(task):
@@ -513,7 +508,7 @@ def execute_single_task(dataset, task):
             
     axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis + singleton_axis 
     varid = create_cmor_variable(task, dataset, axes)
-    
+
     ncvar = dataset.variables[task.target.out_name]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
 

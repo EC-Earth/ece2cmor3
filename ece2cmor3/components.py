@@ -10,7 +10,7 @@ script_flags = "option_keys"
 
 # List of components, used to determine the script arguments and used by task loader.
 # Add your NEWCOMPONENT to this dictionary if you want to extend ece2cmor3 to more models.
-models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce"],
+models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "seaIce"],
                   table_file: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json"),
                   script_flags: ("atm", 'a')},
           "nemo": {realms: ["ocean", "ocnBgchem", "seaIce"],
@@ -19,10 +19,9 @@ models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce"],
           "lpjg": {realms: ["land", "atmos"],
                    table_file: os.path.join(os.path.dirname(__file__), "resources", "lpjgpar.json"),
                    script_flags: ("lpj", 'l')},
-          "tm5": {realms: ["aerosol","atmosChem", "atmos"],
-          #"tm5": {realms: ["aerosol","atmosChem"],
-                   table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json"),
-                   script_flags: ("tm5", 't')}
+          "tm5": {realms: ["aerosol", "atmosChem", "atmos"],
+                  table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json"),
+                  script_flags: ("tm5", 't')}
           }
 
 
