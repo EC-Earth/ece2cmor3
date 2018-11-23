@@ -236,7 +236,7 @@ def execute(tasks):
                             singleton_value = "herbaceous_vegetation"
                         else:
                             log.error("Dimension %s doesn't have value attached." % lpjcol )
-                            raise.ValueError('Missing dimension-value in lpjg2cmor')
+                            raise ValueError('Missing dimension-value in lpjg2cmor')
                         create_singleton_axis(task, lpjgfile, str(lpjgcol), singleton_value)
 
                 # cmorize the current task (variable)
