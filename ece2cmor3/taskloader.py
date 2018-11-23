@@ -41,6 +41,7 @@ mask_predicates = {"=": lambda x, a: x == a,
 skip_tables = False
 with_pingfile = False
 
+
 # API function: loads the argument list of targets
 def load_targets(varlist, active_components=None, silent=False):
     global log
@@ -113,8 +114,8 @@ def load_targets_excel(varlist):
     targets = []
     cmor_colname = "CMOR Name"
     vid_colname = "vid"
-    priority_colname = "Priority"                 # Priority column name for the experiment   cmvme_*.xlsx files
-    default_priority_colname = "Default Priority" # Priority column name for the mip overview cmvmm_*.xlsx files
+    priority_colname = "Priority"  # Priority column name for the experiment   cmvme_*.xlsx files
+    default_priority_colname = "Default Priority"  # Priority column name for the mip overview cmvmm_*.xlsx files
     mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
@@ -130,10 +131,12 @@ def load_targets_excel(varlist):
         vid_index = row.index(vid_colname)
         if priority_colname in row:
             priority_index = row.index(priority_colname)
-        elif default_priority_colname in row:                       # If no "Priority" column is found try to find a "Default Priority" column
+        elif default_priority_colname in row:  # If no "Priority" column is found try to find a "Default Priority" column
             priority_index = row.index(default_priority_colname)
-        else:                                                       # If no "Priority" column and no "Default Priority" column are found, abort with message
-            raise Exception("Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (sheet, varlist))
+        else:  # If no "Priority" column and no "Default Priority" column are found, abort with message
+            raise Exception(
+                "Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (
+                sheet, varlist))
         mip_list_index = row.index(mip_list_colname)
         varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
         vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
@@ -175,9 +178,9 @@ def load_checkvars_excel(basic_ignored_excel_file):
     comment_colname = "comment"
     author_colname = "comment author"
     if with_pingfile:
-     model_colname = "model component in ping file"
-     units_colname = "units as in ping file"
-     pingcomment_colname = "ping file comment"
+        model_colname = "model component in ping file"
+        units_colname = "units as in ping file"
+        pingcomment_colname = "ping file comment"
     book = xlrd.open_workbook(basic_ignored_excel_file)
     varlist = {}
     for sheetname in book.sheet_names():
@@ -189,7 +192,8 @@ def load_checkvars_excel(basic_ignored_excel_file):
         for colname in [table_colname, var_colname, comment_colname, author_colname]:
             if colname not in header:
                 log.error(
-                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (colname, sheet, varlist))
+                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (
+                    colname, sheet, varlist))
                 continue
             coldict[colname] = header.index(colname)
         tablenames = [] if skip_tables else [c.value for c in
@@ -199,7 +203,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
         authors = [c.value for c in sheet.col_slice(colx=coldict[author_colname], start_rowx=1)]
         if with_pingfile:
             if model_colname not in header:
-               #log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname, sheet, varlist))
+                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname, sheet, varlist))
                 continue
             coldict[model_colname] = header.index(model_colname)
             model = [c.value for c in sheet.col_slice(colx=coldict[model_colname], start_rowx=1)]
@@ -210,9 +214,9 @@ def load_checkvars_excel(basic_ignored_excel_file):
         if skip_tables:
             for i in range(len(varnames)):
                 if with_pingfile:
-                 varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
+                    varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
                 else:
-                 varlist[varnames[i]] = (comments[i], authors[i])
+                    varlist[varnames[i]] = (comments[i], authors[i])
         else:
             for i in range(len(varnames)):
                 varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
@@ -264,9 +268,10 @@ def create_tasks(targets, active_components=None, silent=False):
                 varword = "ignored"
             elif key in identifiedmissingvarlist:
                 if with_pingfile:
-                 target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = identifiedmissingvarlist[key]
+                    target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = \
+                    identifiedmissingvarlist[key]
                 else:
-                 target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
+                    target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
                 identifiedmissingtargets.append(target)
                 varword = "identified missing"
             elif key in omitvarlist_01:
@@ -283,9 +288,8 @@ def create_tasks(targets, active_components=None, silent=False):
                 missingtargets.append(target)
                 varword = "missing"
             if not silent:
-                log.error(
-                    "Could not find parameter table entry for {:17} in table {:6} ...skipping variable. This variable is {}".format(
-                        target.variable, target.table, varword))
+                log.error("Could not find parameter table entry for %s in table %s ...skipping variable. "
+                          "This variable is %s" % (target.variable, target.table, varword))
             continue
         modelmatch = None
         for model in matchpars:

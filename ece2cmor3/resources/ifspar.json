@@ -22,7 +22,7 @@
     {
         "source": "34.128",
         "target": "tos",
-        "table": "3hr",
+        "table": "none",
         "convert": "K2degC"
     },
     {
@@ -586,5 +586,9 @@
     {
         "mask": "sea",
         "expr": "var172<=0.5"
+    },
+    {
+        "mask": "sea_ice",
+        "expr": "var31>0"
     }
 ]
