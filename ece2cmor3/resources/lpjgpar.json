@@ -170,12 +170,12 @@
         "target": "cWood"
     },
     {
-        "source": "ec",
+        "source": "dec",
         "table": "Eday",
         "target": "ec"
     },
     {
-        "source": "et",
+        "source": "det",
         "table": "Eday",
         "target": "et"
     },

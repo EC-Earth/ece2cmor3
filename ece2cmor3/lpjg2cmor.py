@@ -235,8 +235,8 @@ def execute(tasks):
                         # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
                         if lpjgcol == "typenwd":
                             singleton_value = "herbaceous_vegetation"
-                        elif lpjgcol == "typec3pastures":
-                            singleton_value = "pastures_of_c3_plant_functional_types"
+                        elif lpjgcol == "typepasture":
+                            singleton_value = "pastures"
                         else:
                             continue
                         create_singleton_axis(task, lpjgfile, str(lpjgcol), singleton_value)
