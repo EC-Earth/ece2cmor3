@@ -92,7 +92,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
-  # Creating the file_def files for XIOS NEMO input:.
+  # Creating the file_def files for XIOS NEMO input:
   ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
   mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
@@ -102,8 +102,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
   mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
-  cat volume-estimate-ifs.txt volume-estimate-nemo.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
-  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt
+  # Estimating the Volume of the TM5 output:
+  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+
+  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt
 
   echo
   echo 'The produced data request excel file:'
