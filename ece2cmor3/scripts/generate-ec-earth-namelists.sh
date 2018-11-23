@@ -152,12 +152,15 @@ fi
 # ./generate-ec-earth-namelists.sh CMIP         piControl    1 1
 
 # ./generate-ec-earth-namelists.sh AerChemMIP   piControl 1 1
+# ./generate-ec-earth-namelists.sh CDRMIP       piControl 1 1
 # ./generate-ec-earth-namelists.sh C4MIP        piControl 1 1
 # ./generate-ec-earth-namelists.sh DCPP         piControl 1 1
 # ./generate-ec-earth-namelists.sh HighResMIP   piControl 1 1
 # ./generate-ec-earth-namelists.sh ISMIP6       piControl 1 1
 # ./generate-ec-earth-namelists.sh LS3MIP       piControl 1 1
 # ./generate-ec-earth-namelists.sh LUMIP        piControl 1 1
+# ./generate-ec-earth-namelists.sh OMIP         piControl 1 1
+# ./generate-ec-earth-namelists.sh PAMIP        piControl 1 1
 # ./generate-ec-earth-namelists.sh PMIP         piControl 1 1
 # ./generate-ec-earth-namelists.sh RFMIP        piControl 1 1
 # ./generate-ec-earth-namelists.sh ScenarioMIP  piControl 1 1
@@ -166,5 +169,3 @@ fi
 # ./generate-ec-earth-namelists.sh DynVar       piControl 1 1
 # ./generate-ec-earth-namelists.sh SIMIP        piControl 1 1
 # ./generate-ec-earth-namelists.sh VIACSAB      piControl 1 1
-# ./generate-ec-earth-namelists.sh DAMIP        piControl 1 1
-
