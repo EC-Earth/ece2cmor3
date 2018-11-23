@@ -222,10 +222,22 @@ def execute(tasks):
                 if "vegtype" in outdims.split():
                     create_vegtype_axis(task, lpjgfile, freq)
 
-                # if this variable has the soil depth dimension sdepth (NB! not sdepth1 or sdepth10) create cmor
-                # sdepth axis
+                # if this variable has the soil depth dimension sdepth 
+                # (NB! not sdepth1 or sdepth10) create cmor sdepth axis
                 if "sdepth" in outdims.split():
                     create_sdepth_axis(task, lpjgfile, freq)
+
+                # if this variable has one or more "singleton axes" (i.e. axes 
+                # of length 1) which seems to hold for every dimension 
+                # named "type*", these will be created here
+                for lpjgcol in outdims.split():
+                    if lpjgcol.startswith("type"): 
+                        if lpjcol == "typenwd":
+                            singleton_value = "herbaceous_vegetation"
+                        else:
+                            log.error("Dimension %s doesn't have value attached." % lpjcol )
+                            raise.ValueError('Missing dimension-value in lpjg2cmor')
+                        create_singleton_axis(task, lpjgfile, str(lpjgcol), singleton_value)
 
                 # cmorize the current task (variable)
                 execute_single_task(dataset, task)
@@ -455,14 +467,9 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 # Extracts single column from the .out-file
 def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
     if freq == "day":
-        # create a single time column so that extra days won't be added to the time axis (if there are both leap and
-        # non-leap years)
-        #check for 
-        #CLNdf['timecolumn'] = df['year'] + 0.001 * df['day']
-        #CLNdf.drop(columns=['year', 'day'], inplace=True)
-        #CLNdf.set_index('timecolumn', append=True, inplace=True)
-        #CLNif df.shape[1] != 1:
-        #CLN    raise ValueError('Multiple columns in the daily file are not supported')
+        # create a single time column so that extra days won't be added to 
+        # the time axis (if there are both leap and non-leap years)
+        # Time axis needs to be modified on first call 
         if "year" in list(df.columns.values):
             df['timecolumn'] = df['year'] + 0.001 * df['day']
             df.drop(columns=['year', 'day'], inplace=True)
@@ -496,7 +503,13 @@ def execute_single_task(dataset, task):
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis 
+    # loop over potential singleton axes
+    singleton_axis = []
+    for ax in dir(task):
+        if ax.startswith("singleton_"):
+            singleton_axis += [getattr(task, ax)] 
+            
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis + singleton_axis 
     varid = create_cmor_variable(task, dataset, axes)
     
     ncvar = dataset.variables[task.target.out_name]
@@ -640,4 +653,14 @@ def create_sdepth_axis(task, lpjgfile, freq):
                         cell_bounds=sdepth_bnd)
 
     setattr(task, "sdepth_axis", sdep_id)
+    return
+
+# Creates a cmor singleton depth axis
+def create_singleton_axis(task, lpjgfile, lpjgcol, singleton_value):
+    log.info("Creating singleton axis for %s using file %s..." % (lpjgcol,lpjgfile))
+
+    axis_name = "singleton_"+lpjgcol+"_axis"   
+    single_id = cmor.axis(table_entry=lpjgcol, units='none', coord_vals=[singleton_value])
+    
+    setattr(task, axis_name, single_id)
     return
