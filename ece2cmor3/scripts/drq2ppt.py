@@ -59,6 +59,9 @@ def count_spectral_codes(code_list):
 # Writes a set of input IFS files for the requested tasks
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks, get_output_freq)
+    # Fix for issue 313, make sure to always generate 6-hourly ppt:
+    if freqgroups.keys() == [3]:
+        freqgroups[6] = []
     freqs_to_remove = []
     for freq1 in freqgroups:
         for freq2 in freqgroups:
