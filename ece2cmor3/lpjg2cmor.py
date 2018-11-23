@@ -228,10 +228,9 @@ def execute(tasks):
                     create_sdepth_axis(task, lpjgfile, freq)
 
                 # if this variable has one or more "singleton axes" (i.e. axes 
-                # of length 1) which seems to hold for every dimension 
+                # of length 1) which can be those dimensions 
                 # named "type*", these will be created here
-                for lpjgcol in outdims.split():
-                    print("CLN lpjgcol",lpjgcol)
+                for lpjgcol in outdims.split():                    
                     if lpjgcol.startswith("type"): 
                         # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
                         if lpjgcol == "typenwd":
