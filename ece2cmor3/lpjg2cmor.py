@@ -231,12 +231,13 @@ def execute(tasks):
                 # of length 1) which seems to hold for every dimension 
                 # named "type*", these will be created here
                 for lpjgcol in outdims.split():
+                    print("CLN lpjgcol",lpjgcol)
                     if lpjgcol.startswith("type"): 
-                        if lpjcol == "typenwd":
+                        # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
+                        if lpjgcol == "typenwd":
                             singleton_value = "herbaceous_vegetation"
                         else:
-                            log.error("Dimension %s doesn't have value attached." % lpjcol )
-                            raise ValueError('Missing dimension-value in lpjg2cmor')
+                            continue
                         create_singleton_axis(task, lpjgfile, str(lpjgcol), singleton_value)
 
                 # cmorize the current task (variable)
