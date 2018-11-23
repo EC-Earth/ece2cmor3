@@ -3,6 +3,7 @@
 # Call this script e.g. by:
 #  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
 #  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
+#  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
 #
 # This script estimates the volume of the output from TM5 for one MIP experiment.
 #
@@ -83,7 +84,8 @@ def main():
       elif task.target.frequency == 'monC':
        layer_number_due_to_freq = 1./30.        # Number of climate points: 1 per 30 year?
       elif task.target.frequency == 'subhrPt':
-       layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
+      #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
+       layer_number_due_to_freq = 0             # Because there won't be any subhourly output from TM5.
       else:
        print '\n Unknown frequency in TM5 Volume estimate for: ', task.target.variable, '\n'
        layer_number_due_to_freq = 0
@@ -93,11 +95,14 @@ def main():
       if len(zdim) == 0:
        vertical_dim = 1
       else:
-       if zdim[0] == 'olevel':
-        vertical_dim = 75
-      #elif zdim[0] == 'typesea':
-      #elif zdim[0] == 'depth100m':
-      #elif zdim[0] == 'depth0m':
+       if zdim[0] == 'alevel':
+        vertical_dim = 34
+       elif zdim[0] == 'alevhalf':
+        vertical_dim = 35
+       elif zdim[0] == 'plev39':
+        vertical_dim = 39
+       elif zdim[0] == 'plev19':
+        vertical_dim = 19
        else:
         vertical_dim = 1
 
@@ -107,17 +112,13 @@ def main():
       total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
      #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
 
-    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.43 / 1000.0, ' GB per year\n'
+    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.1 / 1000.0, ' GB per year\n'
     print ' The number of variables which is available from TM5 in EC-Erth3 for this experiment is', count
-
-    print '\n\n NOTE ALL NUMBERS ARE NONSENSE SOFAR in this TM5 version\n\n'
 
     volume_estimate = open('volume-estimate-tm5.txt','w')
     volume_estimate.write(' \nEC-Earth3 TM5 Volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate for the TM5-??          grid: {} GB/yr{}'.format(total_layer_equivalent * 0.43 / 1000.0, '\n'))
-    volume_estimate.write('  Volume estimate for the TM5-??-HightRes grid: {} GB/yr{}'.format(total_layer_equivalent * 5.76 / 1000.0, '\n'))
+    volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.1 / 1000.0, '\n'))
     volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
-    volume_estimate.write('  NOTE ALL NUMBERS ARE NONSENSE SOFAR in this TM5 version{}'.format('\n\n'))
     volume_estimate.close()
 
 
