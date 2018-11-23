@@ -430,7 +430,7 @@ def write_grid(grid, tasks):
                           (task.target.variable, task.target.table, str(dims)))
                 task.set_failed()
                 continue
-            key = (grid.name, latvars[0])
+            key = (task.table, grid.name, latvars[0])
             if key not in lat_axes_.keys():
                 cmor.load_table(table_root_ + "_" + task.target.table + ".json")
                 lat_axis_id = cmor.axis(table_entry=latvars[0], coord_vals=grid.lats[:, 0], units="degrees_north",
