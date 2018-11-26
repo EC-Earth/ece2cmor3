@@ -105,8 +105,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   # Estimating the Volume of the TM5 output:
   ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
 
-  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
-  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt
+  # Estimating the Volume of the LPJ-GUESS output:
+  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+
+  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
 
   echo
   echo 'The produced data request excel file:'

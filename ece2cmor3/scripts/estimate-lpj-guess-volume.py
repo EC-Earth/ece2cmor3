@@ -44,7 +44,7 @@ def main():
     args = parser.parse_args()
 
     print ""
-    print "Running drq2ppt.py with:"
+    print "Running estimate-lpj-guess-volume.py with:"
     print "./estimate-lpj-guess-volume.py --vars " + args.vars
     print ""
 
