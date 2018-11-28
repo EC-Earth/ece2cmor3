@@ -222,10 +222,24 @@ def execute(tasks):
                 if "vegtype" in outdims.split():
                     create_vegtype_axis(task, lpjgfile, freq)
 
-                # if this variable has the soil depth dimension sdepth (NB! not sdepth1 or sdepth10) create cmor
-                # sdepth axis
+                # if this variable has the soil depth dimension sdepth 
+                # (NB! not sdepth1 or sdepth10) create cmor sdepth axis
                 if "sdepth" in outdims.split():
                     create_sdepth_axis(task, lpjgfile, freq)
+
+                # if this variable has one or more "singleton axes" (i.e. axes 
+                # of length 1) which can be those dimensions 
+                # named "type*", these will be created here
+                for lpjgcol in outdims.split():                    
+                    if lpjgcol.startswith("type"): 
+                        # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
+                        if lpjgcol == "typenwd":
+                            singleton_value = "herbaceous_vegetation"
+                        elif lpjgcol == "typepasture":
+                            singleton_value = "pastures"
+                        else:
+                            continue
+                        create_singleton_axis(task, lpjgfile, str(lpjgcol), singleton_value)
 
                 # cmorize the current task (variable)
                 execute_single_task(dataset, task)
@@ -329,12 +343,6 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         elif cmor_prefix_ == "CMIP6":
             # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
             # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
-            #CLN df['primary_and_secondary'] = df['natural']
-            #CLN df.drop(columns=['forest', 'natural', 'peatland', 'barren'], inplace=True)
-            #CLN landuse_types = ['primary_and_secondary', 'pasture', 'cropland', 'urban']
-            # Once LPJ-Guess is producing the land use output for CMIP6-related runs with the requested landuse types
-            #  and column names denoted by the abbreviations psl, pst, crp & urb, uncomment the line below and delete
-            #the placeholder solution above (i.e. the above three lines)
             landuse_types = ['psl', 'pst', 'crp', 'urb']
         else:
             # for now skip the variable entirely if there is not exact matches in the .out-file for all the requested
@@ -455,20 +463,16 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 # Extracts single column from the .out-file
 def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
     if freq == "day":
-        # create a single time column so that extra days won't be added to the time axis (if there are both leap and
-        # non-leap years)
-        #check for
-        #CLN df['timecolumn'] = df['year'] + 0.001 * df['day']
-        #CLN df.drop(columns=['year', 'day'], inplace=True)
-        #CLN df.set_index('timecolumn', append=True, inplace=True)
-        #CLN if df.shape[1] != 1:
-        #CLN     raise ValueError('Multiple columns in the daily file are not supported')
+        # create a single time column so that extra days won't be added to 
+        # the time axis (if there are both leap and non-leap years)
+        # Time axis needs to be modified on first call 
         if "year" in list(df.columns.values):
             df['timecolumn'] = df['year'] + 0.001 * df['day']
             df.drop(columns=['year', 'day'], inplace=True)
             df.set_index('timecolumn', append=True, inplace=True)
         df = df[[colname]]
         df = df.unstack()
+         
     elif freq.startswith("yr"):
         df = df.pop(colname)
         df = df.unstack()
@@ -495,7 +499,14 @@ def execute_single_task(dataset, task):
     lu_axis = [] if not hasattr(task, "landUse_axis") else [getattr(task, "landUse_axis")]
     veg_axis = [] if not hasattr(task, "vegtype_axis") else [getattr(task, "vegtype_axis")]
     sdep_axis = [] if not hasattr(task, "sdepth_axis") else [getattr(task, "sdepth_axis")]
-    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis
+
+    # loop over potential singleton axes
+    singleton_axis = []
+    for ax in dir(task):
+        if ax.startswith("singleton_"):
+            singleton_axis += [getattr(task, ax)] 
+            
+    axes = lon_axis + lat_axis + lu_axis + veg_axis + sdep_axis + t_axis + singleton_axis 
     varid = create_cmor_variable(task, dataset, axes)
 
     ncvar = dataset.variables[task.target.out_name]
@@ -587,7 +598,6 @@ def create_cmor_variable(task, dataset, axes):
         return cmor.variable(table_entry=str(task.target.out_name), units=str(unit), axis_ids=axes,
                              original_name=str(srcvar))
 
-
 # Creates a cmor landUse axis
 def create_landuse_axis(task, lpjgfile, freq):
     if landuse_requested_:
@@ -640,4 +650,14 @@ def create_sdepth_axis(task, lpjgfile, freq):
                         cell_bounds=sdepth_bnd)
 
     setattr(task, "sdepth_axis", sdep_id)
+    return
+
+# Creates a cmor singleton depth axis
+def create_singleton_axis(task, lpjgfile, lpjgcol, singleton_value):
+    log.info("Creating singleton axis for %s using file %s..." % (lpjgcol,lpjgfile))
+
+    axis_name = "singleton_"+lpjgcol+"_axis"   
+    single_id = cmor.axis(table_entry=lpjgcol, units='none', coord_vals=[singleton_value])
+    
+    setattr(task, axis_name, single_id)
     return
