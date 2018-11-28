@@ -171,6 +171,7 @@ def execute(tasks):
         for task in tasklist:
             #define task properties 
             #2D grid
+            ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
                 setattr(task, "grid_id", grid)
@@ -194,10 +195,10 @@ def execute(tasks):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
             else:
                 if task.status not in [cmor_task.status_failed]:
-                    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.variable(),task.target.variable))
+                    log.info("Cmorizing source variable %s to target variable %s from file %s." % (task.source.variable(),task.target.variable,ncf))
                     execute_netcdf_task(task,tab_id)
                     if task.status<0:
-                        log.error("cmorizing failed for %s" % (task.target.variable))
+                        log.error("Cmorizing failed for %s" % (task.target.variable))
                     else:
                         taskmask[task] = True
                 else:
