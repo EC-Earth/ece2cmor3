@@ -89,7 +89,7 @@ def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, au
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
     start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time())
-    dirname = exp_name_ + start_date_.strftime("-ifs-%Y")
+    dirname = '-'.join([exp_name_, "ifs", start_date_.isoformat().split('-')[0]])
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
