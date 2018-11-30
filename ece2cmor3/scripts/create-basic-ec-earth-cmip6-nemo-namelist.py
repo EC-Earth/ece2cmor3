@@ -46,6 +46,7 @@
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
+from ece2cmor3 import cmor_target
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                    # for aborting: sys.exit
 import numpy as np                                            # for the use of e.g. np.multiply
@@ -575,6 +576,10 @@ number_of_field_element = 0
 nr_of_missing_fields_in_field_def = 0
 nr_of_available_fields_in_field_def = 0
 
+
+# Load the ece2cmor targetsinorder to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
+targets = cmor_target.create_targets("../resources/tables/", "CMIP6")
+
 var_id_in_created_file_def = dr_varname[:]  # Take care here: a slice copy is needed.
 
 # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
@@ -605,6 +610,23 @@ for i in range(0, len(dr_varname)):
   else:
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
+
+
+
+  # Work in progress, for now: checking the cmor tables which time operation is asked:
+  for t in targets:
+     #if t.variable == dr_varname[i] and t.table == 'Omon': #t.table in ["Omon", "Oday" ]:
+     #print dr_varname[i], t.variable, t.table, getattr(t, "cell_methods"), getattr(t, "time_operator")[0]
+     #if t.variable == dr_varname[i] and t.table == 'Omon': #t.table in ["Omon", "Oday" ]:
+      if t.variable == dr_varname[i] and t.table == dr_table[i]:
+         if t.table in ["Ofx", "fx"]:
+          print '   The variable ', t.variable, ' has no time axis for table: ', t.table
+          print t.variable, t.table, getattr(t, "cell_methods")
+         else:
+          if getattr(t, "time_operator")[0] != 'mean':
+           print t.variable, t.table, getattr(t, "cell_methods"), getattr(t, "time_operator")[0]
+
+
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
   if test_var_id_in_created_file_def in var_id_in_created_file_def:
