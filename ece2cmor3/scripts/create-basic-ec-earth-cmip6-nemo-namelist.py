@@ -615,16 +615,12 @@ for i in range(0, len(dr_varname)):
 
   # Work in progress, for now: checking the cmor tables which time operation is asked:
   for t in targets:
-     #if t.variable == dr_varname[i] and t.table == 'Omon': #t.table in ["Omon", "Oday" ]:
-     #print dr_varname[i], t.variable, t.table, getattr(t, "cell_methods"), getattr(t, "time_operator")[0]
-     #if t.variable == dr_varname[i] and t.table == 'Omon': #t.table in ["Omon", "Oday" ]:
       if t.variable == dr_varname[i] and t.table == dr_table[i]:
          if t.table in ["Ofx", "fx"]:
-          print '   The variable ', t.variable, ' has no time axis for table: ', t.table
-          print t.variable, t.table, getattr(t, "cell_methods")
+          print(' The cmor variable {:15} {:5} area operator: {:20},  no time axis   {:20}, cell method: {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "cell_methods")))
          else:
-          if getattr(t, "time_operator")[0] != 'mean':
-           print t.variable, t.table, getattr(t, "cell_methods"), getattr(t, "time_operator")[0]
+          if getattr(t, "time_operator")[0] not in ['mean', 'mean where sea_ice']:
+           print(' The cmor variable {:15} {:5} area operator: {:20},  time operator: {:20}, cell method: {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "cell_methods")))
 
 
 
