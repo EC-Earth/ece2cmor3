@@ -617,11 +617,13 @@ for i in range(0, len(dr_varname)):
   for t in targets:
       if t.variable == dr_varname[i] and t.table == dr_table[i]:
          if t.table in ["Ofx", "fx"]:
-          print(' The cmor variable {:15} {:5} area operator: {:20},  no time axis   {:20}, cell method: {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "cell_methods")))
+          print(' The cmor variable {:16} {:5} area operator: {:14},  no time axis   {:18}, cell method: {:31}  {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
          else:
-          if getattr(t, "time_operator")[0] not in ['mean', 'mean where sea_ice']:
-           print(' The cmor variable {:15} {:5} area operator: {:20},  time operator: {:20}, cell method: {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "cell_methods")))
-
+          if hasattr(t, 'area_operator'):
+          #if getattr(t, "time_operator")[0] not in ['mean', 'mean where sea_ice']:
+           print(' The cmor variable {:16} {:5} area operator: {:14},  time operator: {:18}, cell method: {:31}  {}'.format(t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+          else:
+           print(' The cmor variable {:16} {:5} area operator: {:14},  time operator: {:18}, cell method: {:31}  {}'.format(t.variable, t.table, ' '                           , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
 
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
