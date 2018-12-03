@@ -584,6 +584,8 @@ var_id_in_created_file_def = dr_varname[:]  # Take care here: a slice copy is ne
 
 cmor_table_operation = dr_varname[:]  # Take care here: a slice copy is needed.
 cmor_table_freq_op   = dr_varname[:]  # Take care here: a slice copy is needed.
+cmor_table_realm     = dr_varname[:]  # Take care here: a slice copy is needed.
+cmor_table_units     = dr_varname[:]  # Take care here: a slice copy is needed.
 
 # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
 for i in range(0, len(dr_varname)):
@@ -647,9 +649,13 @@ for i in range(0, len(dr_varname)):
          print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
 
 
-  # Setting the cmor table attributes: operation & freq_op
+  # Setting the cmor table attributes: modeling_realm, units, operation & freq_op
   for t in targets:
    if t.variable == dr_varname[i] and t.table == dr_table[i]:
+    cmor_table_realm = getattr(t, "modeling_realm")
+    cmor_table_units = getattr(t, "units")
+    if False:
+     if cmor_table_units != str(dr_unit[i]): print ' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i])
     if not hasattr(t, 'time_operator'):
      cmor_table_operation = 'operation="once"'
      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
@@ -684,8 +690,8 @@ for i in range(0, len(dr_varname)):
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                                                                                    41,                         25,                                                               40,       32,                      20,                  15,                           2,    25,                                30,                                       30,                   20,                 15,           30,                                              17,                                50,                        15,                                      22,                              14,                            125,                                       125,                                                              1030,                                                                                   1280,    80,                                                          80,     4,                                      65,           9,   {}))
-  flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:2} {:25} {:30} {:30} {:20} {:15} {:30} {:17} {:50} {:15} {:22} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format('     <field id="'+var_id_in_created_file_def[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, 'cmor_unit="'+str(dr_unit[i])+'"', ' ping_unit="'+str(dr_ping_units[i])+'"', cmor_table_operation, cmor_table_freq_op, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i].replace("<", "less then ")+'"', ' ping_comment="'+dr_ping_comment[i].replace("\"", "'").replace("<", "less then ")+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                                                                                                41,                         25,                                                               40,       32,                      20,                  15,                           2,    25,                                         32,                                30,                                       30,                   20,                 15,           30,                                              17,                                50,                        15,                                      22,                                       31,                              14,                            125,                                       125,                                                              1030,                                                                                   1280,    80,                                                          80,     4,                                      65,           9,   {}))
+  flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:2} {:25} {:32} {:30} {:30} {:20} {:15} {:30} {:17} {:50} {:15} {:22} {:31} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format('     <field id="'+var_id_in_created_file_def[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, ' cmor_table_units="'+cmor_table_units+'"', 'cmor_unit="'+str(dr_unit[i])+'"', ' ping_unit="'+str(dr_ping_units[i])+'"', cmor_table_operation, cmor_table_freq_op, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' modeling_realm="'+cmor_table_realm+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i].replace("<", "less then ")+'"', ' ping_comment="'+dr_ping_comment[i].replace("\"", "'").replace("<", "less then ")+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
