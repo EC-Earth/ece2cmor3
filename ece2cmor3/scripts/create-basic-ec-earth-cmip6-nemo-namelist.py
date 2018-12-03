@@ -579,7 +579,7 @@ nr_of_available_fields_in_field_def = 0
 
 # Load the ece2cmor targetsinorder to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
 targets = cmor_target.create_targets("../resources/tables/", "CMIP6")
-count_var_in_cmor_table = 0
+view_counter = 0
 
 var_id_in_created_file_def = dr_varname[:]  # Take care here: a slice copy is needed.
 
@@ -616,21 +616,30 @@ for i in range(0, len(dr_varname)):
   # Work in progress, for now: checking the cmor tables which time operation is asked:
   for t in targets:
    if t.variable == dr_varname[i] and t.table == dr_table[i]:
-    count_var_in_cmor_table = count_var_in_cmor_table + 1
     if not hasattr(t, 'time_operator'):
-     if True:    print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(count_var_in_cmor_table, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
+     if True:
+      view_counter = view_counter + 1
+      print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
     else:
      if hasattr(t, 'area_operator'):
      #if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice']:
       if getattr(t, "time_operator")[0] in ['mean'] and getattr(t, "area_operator")[0] in ['areacello'] and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
-       if True:  print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(count_var_in_cmor_table, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       if False:
+        view_counter = view_counter + 1
+        print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
       else:
-       if True:  print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(count_var_in_cmor_table, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       if True:
+        view_counter = view_counter + 1
+        print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
      else:
       if getattr(t, "time_operator")[0] in ['mean']                                                     and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
-       if True:  print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(count_var_in_cmor_table, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       if False:
+        view_counter = view_counter + 1
+        print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
       else:  
-       if True:  print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(count_var_in_cmor_table, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       if True:
+        view_counter = view_counter + 1
+        print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
 
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
