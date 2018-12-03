@@ -613,33 +613,37 @@ for i in range(0, len(dr_varname)):
    grid_ref = ''
 
 
-  # Work in progress, for now: checking the cmor tables which time operation is asked:
+  # Checking the cmor table attributes:
   for t in targets:
    if t.variable == dr_varname[i] and t.table == dr_table[i]:
-    if not hasattr(t, 'time_operator'):
-     if True:
-      view_counter = view_counter + 1
-      print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
-    else:
-     if hasattr(t, 'area_operator'):
-     #if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice']:
-      if getattr(t, "time_operator")[0] in ['mean'] and getattr(t, "area_operator")[0] in ['areacello'] and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
-       if False:
-        view_counter = view_counter + 1
-        print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
-      else:
-       if True:
-        view_counter = view_counter + 1
-        print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+    if False:
+     print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_methods: {:68} cell_measures: {:32}   type: {:8}   positive: {:8}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_methods"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive")))
+    #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_measures: {:32}   type: {:8}   positive: {:8}  valid_min: {:2} valid_max: {:2} ok_min_mean_abs: {:2} ok_max_mean_abs: {:2}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive"), getattr(t, "valid_min"), getattr(t, "valid_max"), getattr(t, "ok_min_mean_abs"), getattr(t, "ok_max_mean_abs")))
+    if True:
+     if not hasattr(t, 'time_operator'):
+      if True:
+       view_counter = view_counter + 1
+       print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
      else:
-      if getattr(t, "time_operator")[0] in ['mean']                                                     and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
-       if False:
-        view_counter = view_counter + 1
-        print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
-      else:  
-       if True:
-        view_counter = view_counter + 1
-        print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+      if hasattr(t, 'area_operator'):
+      #if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice']:
+       if getattr(t, "time_operator")[0] in ['mean'] and getattr(t, "area_operator")[0] in ['areacello'] and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
+        if False:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       else:
+        if True:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+      else:
+       if getattr(t, "time_operator")[0] in ['mean']                                                     and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
+        if False:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       else:  
+        if True:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
 
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
