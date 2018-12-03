@@ -621,30 +621,12 @@ for i in range(0, len(dr_varname)):
     if False:
      print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_methods: {:68} cell_measures: {:32}   type: {:8}   positive: {:8}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_methods"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive")))
     #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_measures: {:32}   type: {:8}   positive: {:8}  valid_min: {:2} valid_max: {:2} ok_min_mean_abs: {:2} ok_max_mean_abs: {:2}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive"), getattr(t, "valid_min"), getattr(t, "valid_max"), getattr(t, "ok_min_mean_abs"), getattr(t, "ok_max_mean_abs")))
-    if True:
+    if False:
      if not hasattr(t, 'time_operator'):
-      cmor_table_operation = 'operation="once"'
-      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
       if True:
        view_counter = view_counter + 1
        print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
      else:
-      if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice', 'mean within years']:
-       cmor_table_operation = 'operation="average"'
-       cmor_table_freq_op   = 'freq_op="1ts"'
-      elif getattr(t, "time_operator")[0] in ['point']:
-       cmor_table_operation = 'operation="instant"'
-       cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
-      elif getattr(t, "time_operator")[0] in ['minimum']:
-       cmor_table_operation = 'operation="minimum"'
-       cmor_table_freq_op   = 'freq_op="1ts"'
-      elif getattr(t, "time_operator")[0] in ['maximum']:
-       cmor_table_operation = 'operation="maximum"'
-       cmor_table_freq_op   = 'freq_op="1ts"'
-      else:
-       cmor_table_operation = 'operation="??"'
-       cmor_table_freq_op   = 'freq_op="??"'
-
       if hasattr(t, 'area_operator'):
        if getattr(t, "time_operator")[0] in ['mean'] and getattr(t, "area_operator")[0] in ['areacello'] and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
         if False:
@@ -663,6 +645,30 @@ for i in range(0, len(dr_varname)):
         if True:
          view_counter = view_counter + 1
          print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+
+
+  # Setting the cmor table attributes: operation & freq_op
+  for t in targets:
+   if t.variable == dr_varname[i] and t.table == dr_table[i]:
+    if not hasattr(t, 'time_operator'):
+     cmor_table_operation = 'operation="once"'
+     cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
+    else:
+     if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice', 'mean within years']:
+      cmor_table_operation = 'operation="average"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     elif getattr(t, "time_operator")[0] in ['point']:
+      cmor_table_operation = 'operation="instant"'
+      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
+     elif getattr(t, "time_operator")[0] in ['minimum']:
+      cmor_table_operation = 'operation="minimum"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     elif getattr(t, "time_operator")[0] in ['maximum']:
+      cmor_table_operation = 'operation="maximum"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     else:
+      cmor_table_operation = 'operation="??"'
+      cmor_table_freq_op   = 'freq_op="??"'
 
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
