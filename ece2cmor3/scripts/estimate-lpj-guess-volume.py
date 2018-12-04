@@ -2,7 +2,6 @@
 
 # Call this script e.g. by:
 #  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvmm_CMIP_TOTAL_1_1.xlsx
 #  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
 #
 # This script estimates the volume of the output from LPJ-GUESS for one MIP experiment.
@@ -56,12 +55,8 @@ def main():
     active_components = {component: False for component in components.models}
     active_components["lpjg"] = True
     taskloader.load_targets(args.vars, active_components=active_components)
-    
-    for task in ece2cmorlib.tasks:
-    	 print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
-        #print task.target.__dict__
 
-    print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
+    print '\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n'
         
 
     total_layer_equivalent= 0
