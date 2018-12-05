@@ -246,6 +246,8 @@ def create_depth_axes(ds, tasks, table):
 # Creates a time axis for the currently loaded table
 def create_time_axes(ds, tasks, table):
     global time_axes_
+    if table == "Ofx":
+        return
     if table not in time_axes_:
         time_axes_[table] = {}
     log.info("Creating time axis for table %s using file %s..." % (table, ds.filepath()))
@@ -343,7 +345,9 @@ def create_type_axes(ds, tasks, table):
 def select_freq_files(freq):
     global exp_name_, nemo_files_
     nemo_freq = None
-    if freq == "monClim":
+    if freq == "fx":
+        nemo_freq = "1y"
+    elif freq == "monClim":
         nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
