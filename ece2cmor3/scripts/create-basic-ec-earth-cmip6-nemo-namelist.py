@@ -191,7 +191,7 @@ for i in range(len(total_pinglist_id)):
 if give_preference_to_pingfile_expression_attribute:
  for i in range(len(total_pinglist_id)):
    if total_pinglist_expr[i] != 'None':
-    print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
+   #print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
     total_pinglist_text[i] = total_pinglist_expr[i]
 
 #print pinglistOcean_id
@@ -648,7 +648,6 @@ for i in range(0, len(dr_varname)):
          view_counter = view_counter + 1
          print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
 
-
   # Setting the cmor table attributes: modeling_realm, units, operation & freq_op
   for t in targets:
    if t.variable == dr_varname[i] and t.table == dr_table[i]:
@@ -675,6 +674,13 @@ for i in range(0, len(dr_varname)):
      else:
       cmor_table_operation = 'operation="??"'
       cmor_table_freq_op   = 'freq_op="??"'
+
+  # Check whether variables which have a time average "@"-operator in their expression are time averaged variables, if not adjust the expression by removing the "@"-operator in this expression:
+  if total_pinglist_text[index_in_ping_list] != None:
+   if '@' in total_pinglist_text[index_in_ping_list]:
+    if cmor_table_operation != 'operation="average"':
+     print(' Warning, the time averaging operators @ are removed from the expression because a non time average variable is detected: {} becomes {} for {} {} with {}'.format(total_pinglist_text[index_in_ping_list], total_pinglist_text[index_in_ping_list].replace('@',''), dr_varname[i], dr_table[i], cmor_table_operation))
+     total_pinglist_text[index_in_ping_list] = total_pinglist_text[index_in_ping_list].replace('@','')
 
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
