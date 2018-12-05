@@ -90,6 +90,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
+  if [ -f pptdddddd-100 ]; then rm -f pptdddddd-100 ; fi
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
   # Creating the file_def files for XIOS NEMO input:
