@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
+#  ./drq2ins.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  ./drq2ins.py --vars cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
 #
-# This script estimates the volume of the output from LPJ-GUESS for one MIP experiment.
+# With this script it is possible to generate the EC-Earth3 LPJ-GUESS control output files, i.e.
+# the LPJ-GUESS instruction files (the .ins files) for one MIP experiment.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
@@ -43,8 +44,8 @@ def main():
     args = parser.parse_args()
 
     print ""
-    print "Running estimate-lpj-guess-volume.py with:"
-    print "./estimate-lpj-guess-volume.py --vars " + args.vars
+    print "Running drq2ins.py with:"
+    print "./drq2ins.py --vars " + args.vars
     print ""
 
     # Initialize ece2cmor:
@@ -55,15 +56,33 @@ def main():
     active_components = {component: False for component in components.models}
     active_components["lpjg"] = True
     taskloader.load_targets(args.vars, active_components=active_components)
-
+    
     print '\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n'
         
+    instruction_file = open('lpjg_cmip6_output.ins','w')
 
     total_layer_equivalent= 0
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
       print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+
+      if task.target.frequency == 'yr':
+       instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == 'mon':
+       instruction_file.write('file_{}_monthly "{}_monthly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == 'day':
+       instruction_file.write('file_{}_daily "{}_daily.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == '3hrPt':
+       print ' LPJ-GUESS does not provide 3hrPt output', task.target.variable, task.target.table, task.target.frequency
+      elif task.target.frequency == 'fx':
+      #print ' LPJ-GUESS does not provide fx output', task.target.variable, task.target.table, task.target.frequency
+       instruction_file.write('file_{}_once "{}_once.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == 'monC':
+      #print ' LPJ-GUESS does not provide monC output', task.target.variable, task.target.table, task.target.frequency
+       instruction_file.write('file_{}_monthly_clim "{}_monthly_clim.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == 'subhrPt':
+       print ' LPJ-GUESS does not provide subhourly output', task.target.variable, task.target.table, task.target.frequency
 
       # LPJ-GUESS Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
@@ -105,6 +124,8 @@ def main():
       total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
      #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
 
+    instruction_file.close()
+
     print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the LPJ-GUESS Volume estimate for this CMIP6 data request at T255 grid is ', total_layer_equivalent * 0.12 / 1000.0, ' GB per year\n'
     print ' The number of variables which is available from LPJ-GUESS in EC-Erth3 for this experiment is', count
 
@@ -114,6 +135,7 @@ def main():
     volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
     volume_estimate.close()
 
+    volume_estimate.close()
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()

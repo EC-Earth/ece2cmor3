@@ -46,6 +46,7 @@
 # the basic file_def file is still a valid xml file.
 
 import xml.etree.ElementTree as xmltree
+from ece2cmor3 import cmor_target
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                    # for aborting: sys.exit
 import numpy as np                                            # for the use of e.g. np.multiply
@@ -79,7 +80,7 @@ message_occurence_identical_id = True
 message_occurence_identical_id = False
 
 include_root_field_group_attributes = True
-#include_root_field_group_attributes = False
+include_root_field_group_attributes = False
 
 exclude_dummy_fields = True
 #exclude_dummy_fields = False
@@ -190,7 +191,7 @@ for i in range(len(total_pinglist_id)):
 if give_preference_to_pingfile_expression_attribute:
  for i in range(len(total_pinglist_id)):
    if total_pinglist_expr[i] != 'None':
-    print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
+   #print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
     total_pinglist_text[i] = total_pinglist_expr[i]
 
 #print pinglistOcean_id
@@ -550,8 +551,7 @@ for table in range(0,len(dr_table)):
 ################################################################################
 # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
 if include_root_field_group_attributes:
- root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20"'
-#root_field_group_attributes ='level="1" prec="4" operation="average" default_value="1.e20" detect_missing_value="true"'
+ root_field_group_attributes ='level="1" prec="4" default_value="1.e20" detect_missing_value="true"'
 else:
  root_field_group_attributes =''
 ################################################################################
@@ -575,7 +575,17 @@ number_of_field_element = 0
 nr_of_missing_fields_in_field_def = 0
 nr_of_available_fields_in_field_def = 0
 
+
+# Load the ece2cmor targetsinorder to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
+targets = cmor_target.create_targets("../resources/tables/", "CMIP6")
+view_counter = 0
+
 var_id_in_created_file_def = dr_varname[:]  # Take care here: a slice copy is needed.
+
+cmor_table_operation = dr_varname[:]  # Take care here: a slice copy is needed.
+cmor_table_freq_op   = dr_varname[:]  # Take care here: a slice copy is needed.
+cmor_table_realm     = dr_varname[:]  # Take care here: a slice copy is needed.
+cmor_table_units     = dr_varname[:]  # Take care here: a slice copy is needed.
 
 # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
 for i in range(0, len(dr_varname)):
@@ -606,6 +616,73 @@ for i in range(0, len(dr_varname)):
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
 
+
+  # Checking the cmor table attributes:
+  for t in targets:
+   if t.variable == dr_varname[i] and t.table == dr_table[i]:
+    if False:
+     print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_methods: {:68} cell_measures: {:32}   type: {:8}   positive: {:8}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_methods"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive")))
+    #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_measures: {:32}   type: {:8}   positive: {:8}  valid_min: {:2} valid_max: {:2} ok_min_mean_abs: {:2} ok_max_mean_abs: {:2}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive"), getattr(t, "valid_min"), getattr(t, "valid_max"), getattr(t, "ok_min_mean_abs"), getattr(t, "ok_max_mean_abs")))
+    if False:
+     if not hasattr(t, 'time_operator'):
+      if True:
+       view_counter = view_counter + 1
+       print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   no time axis   {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], ' ', getattr(t, "dimensions"), getattr(t, "cell_methods")))
+     else:
+      if hasattr(t, 'area_operator'):
+       if getattr(t, "time_operator")[0] in ['mean'] and getattr(t, "area_operator")[0] in ['areacello'] and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
+        if False:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       else:
+        if True:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} area operator: {:14}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, getattr(t, "area_operator")[0], getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+      else:
+       if getattr(t, "time_operator")[0] in ['mean']                                                     and getattr(t, "dimensions") in ['longitude latitude time', 'longitude latitude olevel time']:
+        if False:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+       else:  
+        if True:
+         view_counter = view_counter + 1
+         print(' {:3}. The cmor variable {:16} {:6} no area operator {:12}   time operator: {:18}  dimensions: {:34}  {}'.format(view_counter, t.variable, t.table, ' '                         , getattr(t, "time_operator")[0], getattr(t, "dimensions"), getattr(t, "cell_methods")))
+
+  # Setting the cmor table attributes: modeling_realm, units, operation & freq_op
+  for t in targets:
+   if t.variable == dr_varname[i] and t.table == dr_table[i]:
+    cmor_table_realm = getattr(t, "modeling_realm")
+    cmor_table_units = getattr(t, "units")
+    if False:
+     if cmor_table_units != str(dr_unit[i]): print ' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i])
+    if not hasattr(t, 'time_operator'):
+     cmor_table_operation = 'operation="once"'
+     cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
+    else:
+     if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice', 'mean within years']:
+      cmor_table_operation = 'operation="average"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     elif getattr(t, "time_operator")[0] in ['point']:
+      cmor_table_operation = 'operation="instant"'
+      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
+     elif getattr(t, "time_operator")[0] in ['minimum']:
+      cmor_table_operation = 'operation="minimum"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     elif getattr(t, "time_operator")[0] in ['maximum']:
+      cmor_table_operation = 'operation="maximum"'
+      cmor_table_freq_op   = 'freq_op="1ts"'
+     else:
+      cmor_table_operation = 'operation="??"'
+      cmor_table_freq_op   = 'freq_op="??"'
+
+  # Check whether variables which have a time average "@"-operator in their expression are time averaged variables, if not adjust the expression by removing the "@"-operator in this expression:
+  if total_pinglist_text[index_in_ping_list] != None:
+   if '@' in total_pinglist_text[index_in_ping_list]:
+    if cmor_table_operation != 'operation="average"':
+     print(' Warning, the time averaging operators @ are removed from the expression because a non time average variable is detected: {} becomes {} for {} {} with {}'.format(total_pinglist_text[index_in_ping_list], total_pinglist_text[index_in_ping_list].replace('@',''), dr_varname[i], dr_table[i], cmor_table_operation))
+     total_pinglist_text[index_in_ping_list] = total_pinglist_text[index_in_ping_list].replace('@','')
+
+
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
   if test_var_id_in_created_file_def in var_id_in_created_file_def:
    print ' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.'
@@ -619,8 +696,8 @@ for i in range(0, len(dr_varname)):
 
  #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
  #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
-  #                                                                                                                                                                                                                                                         41,                         25,                                                               40,       32,                      20,                  15,                          60,    25,                                30,                                       30,           30,                                              17,                                50,                        15,                                      22,                              14,                            125,                                       125,                                                              1030,                                                                                   1280,    80,                                                          80,     4,                                      65,           9,   {}))
-  flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:60} {:25} {:30} {:30} {:30} {:17} {:50} {:15} {:22} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format('     <field id="'+var_id_in_created_file_def[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, 'cmor_unit="'+str(dr_unit[i])+'"', ' ping_unit="'+str(dr_ping_units[i])+'"', freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i].replace("<", "less then ")+'"', ' ping_comment="'+dr_ping_comment[i].replace("\"", "'").replace("<", "less then ")+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
+  #                                                                                                                                                                                                                                                                                41,                         25,                                                               40,       32,                      20,                  15,                           2,    25,                                         32,                                30,                                       30,                   20,                 15,           30,                                              17,                                50,                        15,                                      22,                                       31,                              14,                            125,                                       125,                                                              1030,                                                                                   1280,    80,                                                          80,     4,                                      65,           9,   {}))
+  flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:2} {:25} {:32} {:30} {:30} {:20} {:15} {:30} {:17} {:50} {:15} {:22} {:31} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format('     <field id="'+var_id_in_created_file_def[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, ' cmor_table_units="'+cmor_table_units+'"', 'cmor_unit="'+str(dr_unit[i])+'"', ' ping_unit="'+str(dr_ping_units[i])+'"', cmor_table_operation, cmor_table_freq_op, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' modeling_realm="'+cmor_table_realm+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i].replace("<", "less then ")+'"', ' ping_comment="'+dr_ping_comment[i].replace("\"", "'").replace("<", "less then ")+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
 # print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
 
@@ -761,7 +838,10 @@ for component_value in component_overview:
     for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
     #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
      if written_field.text == "   None                                                               " : written_field.text = ''
-     basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False" > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_unit"]+'"', written_field.text))
+    #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                                  > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                                                                    , written_field.text))
+    #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}                > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"'                                         , written_field.text))
+    #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                     freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                           , '"'+written_field.attrib["freq_op"]+'"', written_field.text))
+     basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}   freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"', '"'+written_field.attrib["freq_op"]+'"', written_field.text))
     basic_nemo_file_def_xml_file.write(  '\n    </file>\n')
 
   #else: print ' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value)
