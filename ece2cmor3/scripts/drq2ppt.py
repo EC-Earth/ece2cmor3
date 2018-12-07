@@ -72,6 +72,7 @@ def join_namelists(nml1, nml2):
         levels = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
         if len(levels) > 0:
             result[key] = levels
+    return result
 
 
 # Writes a set of input IFS files for the requested tasks
