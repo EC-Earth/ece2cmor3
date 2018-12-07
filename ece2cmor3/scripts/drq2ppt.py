@@ -192,7 +192,7 @@ def write_ppt_files(tasks):
             namelist["RFP3P"] = plevs
             num_slices_sp += (nfp3dfpsp * len(plevs))
             num_slices_gp += (nfp3dfpgp * len(plevs))
-        if any(mfp3dfs):
+        if any(mfp3dfh):
             namelist["NFP3DFH"] = len(mfp3dfh)
             namelist["MFP3DFH"] = mfp3dfh
             namelist["RFP3H"] = hlevs
