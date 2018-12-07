@@ -140,7 +140,7 @@ def write_ppt_files(tasks):
                             mfp3dfp.append(code)
                             plevs.extend(levs)
                         elif zaxis in cmor_target.height_axes:
-                            log.info("Adding grib code %s to MFP3DFV %dhr ppt file for variable "
+                            log.info("Adding grib code %s to MFP3DFH %dhr ppt file for variable "
                                      "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
                             mfp3dfh.append(code)
                             hlevs.extend(levs)
