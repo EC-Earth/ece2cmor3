@@ -56,6 +56,24 @@ def count_spectral_codes(code_list):
            len(set([c for c in code_list if c not in cmor_source.ifs_source.grib_codes_sh]))
 
 
+# Takes the union of two namelists
+def join_namelists(nml1, nml2):
+    result = {"CFPFMT": "MODEL"}
+    for key in ["MFP2DF", "MFPPHY", "MFP3DFS", "MFP3DFP", "MFP3DFV"]:
+        codes = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
+        numcodes = len(codes)
+        numkey_chars = list(key)
+        numkey_chars[0] = 'N'
+        numkey = "".join(numkey_chars)
+        if numcodes > 0:
+            result[key] = codes
+            result[numkey] = numcodes
+    for key in ["RFP3P", "RFP3V"]:
+        levels = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
+        if len(levels) > 0:
+            result[key] = levels
+
+
 # Writes a set of input IFS files for the requested tasks
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks, get_output_freq)
@@ -64,6 +82,8 @@ def write_ppt_files(tasks):
         freqgroups[6] = []
     freqs_to_remove = []
     for freq1 in freqgroups:
+        if freq1 <= 0:
+            continue
         for freq2 in freqgroups:
             if freq2 > freq1:
                 if freq2 % freq1 == 0:
@@ -77,7 +97,7 @@ def write_ppt_files(tasks):
     num_slices_tot_sp, num_slices_tot_gp, num_blocks_tot_sp, num_blocks_tot_gp = 0, 0, 0, 0
     min_freq = max(freqgroups.keys())
     prev_freq = 0
-    # TODO: Sort loop from high freq to low, add blocks recursively
+    fx_namelist = {}
     for freq in sorted(freqgroups.keys()):
         mfp2df, mfpphy, mfp3dfs, mfp3dfp, mfp3dfv = [], [], [], [], []
         num_slices_sp, num_slices_gp, num_blocks_sp, num_blocks_gp = 0, 0, 0, 0
@@ -188,14 +208,17 @@ def write_ppt_files(tasks):
         prev_freq = freq
         nml = f90nml.Namelist({"NAMFPC": namelist})
         nml.uppercase, nml.end_comma = True, True
-        f90nml.write(nml, "pptdddddd%04d" % (100 * freq,))
+        if freq > 0:
+            f90nml.write(nml, "pptdddddd%04d" % (100 * freq,))
+        if freq == 0:
+            fx_namelist = namelist
         if freq == min_freq:
             # Always add orography and land mask for lowest frequency ppt
             mfpphy.extend([129, 172])
             mfpphy = sorted(list(set(mfpphy)))
             namelist["MFPPHY"] = mfpphy
             namelist["NFPPHY"] = len(mfpphy)
-            nml = f90nml.Namelist({"NAMFPC": namelist})
+            nml = f90nml.Namelist({"NAMFPC": join_namelists(namelist, fx_namelist)})
             nml.uppercase, nml.end_comma = True, True
             # Write initial state ppt
             f90nml.write(nml, "ppt0000000000")
