@@ -59,7 +59,7 @@ def count_spectral_codes(code_list):
 # Takes the union of two namelists
 def join_namelists(nml1, nml2):
     result = {"CFPFMT": "MODEL"}
-    for key in ["MFP2DF", "MFPPHY", "MFP3DFS", "MFP3DFP", "MFP3DFV"]:
+    for key in ["MFP2DF", "MFPPHY", "MFP3DFS", "MFP3DFP", "MFP3DFH"]:
         codes = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
         numcodes = len(codes)
         numkey_chars = list(key)
@@ -68,7 +68,7 @@ def join_namelists(nml1, nml2):
         if numcodes > 0:
             result[key] = codes
             result[numkey] = numcodes
-    for key in ["RFP3P", "RFP3V"]:
+    for key in ["RFP3P", "RFP3H"]:
         levels = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
         if len(levels) > 0:
             result[key] = levels
@@ -99,7 +99,7 @@ def write_ppt_files(tasks):
     prev_freq = 0
     fx_namelist = {}
     for freq in sorted(freqgroups.keys()):
-        mfp2df, mfpphy, mfp3dfs, mfp3dfp, mfp3dfv = [], [], [], [], []
+        mfp2df, mfpphy, mfp3dfs, mfp3dfp, mfp3dfh = [], [], [], [], []
         num_slices_sp, num_slices_gp, num_blocks_sp, num_blocks_gp = 0, 0, 0, 0
         alevs, plevs, hlevs = [], [], []
         for task in freqgroups[freq]:
@@ -137,7 +137,7 @@ def write_ppt_files(tasks):
                         elif zaxis in cmor_target.height_axes:
                             log.info("Adding grib code %s to MFP3DFV %dhr ppt file for variable "
                                      "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
-                            mfp3dfv.append(code)
+                            mfp3dfh.append(code)
                             hlevs.extend(levs)
                         else:
                             log.error("Axis type %s unknown, adding grib code %s"
@@ -163,8 +163,8 @@ def write_ppt_files(tasks):
         mfp3dfs = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfs))))
         nfp3dfpsp, nfp3dfpgp = count_spectral_codes(mfp3dfp)
         mfp3dfp = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfp))))
-        nfp3dfvsp, nfp3dfvgp = count_spectral_codes(mfp3dfv)
-        mfp3dfv = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfv))))
+        nfp3dfhsp, nfp3dfhgp = count_spectral_codes(mfp3dfh)
+        mfp3dfh = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfh))))
         plevs = sorted(list(set([float(s) for s in plevs])))[::-1]
         hlevs = sorted(list(set([float(s) for s in hlevs])))
         namelist = {"CFPFMT": "MODEL"}
@@ -192,11 +192,11 @@ def write_ppt_files(tasks):
             num_slices_sp += (nfp3dfpsp * len(plevs))
             num_slices_gp += (nfp3dfpgp * len(plevs))
         if any(mfp3dfs):
-            namelist["NFP3DFV"] = len(mfp3dfv)
-            namelist["MFP3DFV"] = mfp3dfv
-            namelist["RFP3V"] = hlevs
-            num_slices_sp += (nfp3dfvsp * len(hlevs))
-            num_slices_gp += (nfp3dfvgp * len(hlevs))
+            namelist["NFP3DFH"] = len(mfp3dfh)
+            namelist["MFP3DFH"] = mfp3dfh
+            namelist["RFP3H"] = hlevs
+            num_slices_sp += (nfp3dfhsp * len(hlevs))
+            num_slices_gp += (nfp3dfhgp * len(hlevs))
         num_slices_tot_sp = num_slices_sp if prev_freq == 0 else \
             (num_slices_sp + ((freq/prev_freq) - 1) * num_slices_tot_sp)
         num_slices_tot_gp = num_slices_gp if prev_freq == 0 else \
