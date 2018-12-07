@@ -68,12 +68,14 @@ def join_namelists(nml1, nml2):
         if numcodes > 0:
             result[key] = codes
             result[numkey] = numcodes
-    for key in ["RFP3P", "RFP3H", "NRFP3S"]:
+    for key in ["RFP3P", "RFP3H"]:
         levels = sorted(list(set(nml1.get(key, [])) | set(nml2.get(key, []))))
         if key == "RFP3P":
             levels = list(reversed(levels))
         if len(levels) > 0:
             result[key] = levels
+    if "NRFP3S" in nml1.keys() or "NRFP3S" in nml2.keys():
+        result["NRFP3S"] = -99
     return result
 
 
