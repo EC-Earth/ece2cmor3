@@ -144,6 +144,14 @@
         "target": "fCLandToOcean"
     },
     {
+        "source": "fco2antt",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2nat",
+        "target": "fco2nat"
+    },
+    {
         "source": "fDeforestToAtmos",
         "target": "fDeforestToAtmos"
     },

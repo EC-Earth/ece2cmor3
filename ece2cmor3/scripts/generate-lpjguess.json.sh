@@ -55,6 +55,8 @@ declare -a arr=(
 "fAnthDisturb"
 "fBNF"
 "fCLandToOcean"
+"fco2antt"
+"fco2nat"
 "fDeforestToAtmos"
 "fDeforestToProduct"
 "fFire"
