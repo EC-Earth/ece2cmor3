@@ -159,7 +159,6 @@ def perform_ifs_tasks(datadir, expname,
                       tempdir="/tmp/ece2cmor",
                       taskthreads=4,
                       cdothreads=4,
-                      cleanup=True,
                       outputfreq=3):
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
@@ -177,7 +176,7 @@ def perform_ifs_tasks(datadir, expname,
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
-    ifs2cmor.execute(ifs_tasks, cleanup=cleanup, nthreads=taskthreads)
+    ifs2cmor.execute(ifs_tasks, nthreads=taskthreads)
 
 
 # Performs a NEMO cmorization processing:
