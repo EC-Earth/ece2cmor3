@@ -141,6 +141,16 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
 
 # Executes the processing loop.
 # used the nemo2cmor.py execute as template
+def get_lpj_freq(frequency):
+    if frequency == "yr":
+        return "yearly"
+    if frequency == "mon":
+        return "monthly"
+    if frequency == "day":
+        return "daily"
+    return None
+
+
 def execute(tasks):
     global log, table_root_
     global lpjg_path_, ncpath_
@@ -161,14 +171,23 @@ def execute(tasks):
         lat_id = None
         for task in tasklist:
             freq = task.target.frequency.encode()
-            lpjgfile = os.path.join(lpjg_path_, task.source.variable() + ".out")
+            freqstr = get_lpj_freq(task.target.frequency)
+            if freqstr is None:
+                log.error("The frequency %s for variable %s in table %s is not supported by lpj2cmor" %
+                          (task.target.frequency, task.target.variable, task.target.table))
+                task.set_failed()
+                continue
+            lpjgfile = os.path.join(lpjg_path_, task.source.variable() + "_" + freqstr + ".out")
+
             if not os.path.exists(lpjgfile):
                 log.error("The file %s does not exist. Skipping CMORization of variable %s."
                           % (lpjgfile, task.source.variable()))
+                task.set_failed()
                 continue
             if not check_time_resolution(lpjgfile, freq):
                 log.error("The data in the file %s did not match the expected frequency (time resolution). "
                           "Skipping CMORization of variable %s." % (lpjgfile, task.source.variable()))
+                task.set_failed()
                 continue
             log.info("Processing file "+lpjgfile)
             setattr(task, cmor_task.output_path_key, task.source.variable() + ".out")
@@ -181,6 +200,7 @@ def execute(tasks):
             if int(ref_date_.year) > firstyear:
                 log.error("The reference date given is after the first year in the data (%s) for variable %s "
                           "in file %s. Skipping CMORization." % (firstyear, task.source.variable(), lpjgfile))
+                task.set_failed()
                 continue
 
             # divide the data in the .out-file by year to temporary files
