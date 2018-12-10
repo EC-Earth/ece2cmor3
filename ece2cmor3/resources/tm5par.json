@@ -1,33 +1,5 @@
 [
     {
-        "source": "o3",
-        "target": "o3"
-    },
-    {
-        "source": "ch4",
-        "target": "ch4"
-    },
-    {
-        "source": "phalf",
-        "target": "phalf"
-    },
-    {
-        "source": "ec550aer",
-        "target": "ec550aer"
-    },
-    {
-        "source": "sfno2",
-        "target": "sfno2"
-    },
-    {
-        "source": "sfo3",
-        "target": "sfo3"
-    },
-    {
-        "source": "sfpm25",
-        "target": "sfpm25"
-    },
-    {
         "source": "abs550aer",
         "target": "abs550aer"
     },
@@ -52,12 +24,28 @@
         "target": "c3h8"
     },
     {
+        "source": "cdnc",
+        "target": "cdnc"
+    },
+    {
         "source": "ch3coch3",
         "target": "ch3coch3"
     },
     {
         "source": "ch4",
         "target": "ch4"
+    },
+    {
+        "source": "ch4Clim",
+        "target": "ch4Clim"
+    },
+    {
+        "source": "ch4global",
+        "target": "ch4global"
+    },
+    {
+        "source": "ch4globalClim",
+        "target": "ch4globalClim"
     },
     {
         "source": "cheaqpso4",
@@ -74,6 +62,14 @@
     {
         "source": "co",
         "target": "co"
+    },
+    {
+        "source": "concdust",
+        "target": "concdust"
+    },
+    {
+        "source": "depdust",
+        "target": "depdust"
     },
     {
         "source": "dms",
@@ -120,8 +116,16 @@
         "target": "dryss"
     },
     {
+        "source": "ec550aer",
+        "target": "ec550aer"
+    },
+    {
         "source": "emibc",
         "target": "emibc"
+    },
+    {
+        "source": "emibvoc",
+        "target": "emibvoc"
     },
     {
         "source": "emico",
@@ -168,8 +172,24 @@
         "target": "emiss"
     },
     {
+        "source": "emivoc",
+        "target": "emivoc"
+    },
+    {
+        "source": "flashrate",
+        "target": "flashrate"
+    },
+    {
+        "source": "hcho",
+        "target": "hcho"
+    },
+    {
         "source": "hno3",
         "target": "hno3"
+    },
+    {
+        "source": "ho2",
+        "target": "ho2"
     },
     {
         "source": "isop",
@@ -178,6 +198,30 @@
     {
         "source": "jno2",
         "target": "jno2"
+    },
+    {
+        "source": "loaddust",
+        "target": "loaddust"
+    },
+    {
+        "source": "lossch4",
+        "target": "lossch4"
+    },
+    {
+        "source": "lossco",
+        "target": "lossco"
+    },
+    {
+        "source": "maxpblz",
+        "target": "maxpblz"
+    },
+    {
+        "source": "md",
+        "target": "md"
+    },
+    {
+        "source": "minpblz",
+        "target": "minpblz"
     },
     {
         "source": "mmraerh2o",
@@ -236,8 +280,28 @@
         "target": "no2"
     },
     {
+        "source": "noy",
+        "target": "noy"
+    },
+    {
         "source": "o3",
         "target": "o3"
+    },
+    {
+        "source": "o3Clim",
+        "target": "o3Clim"
+    },
+    {
+        "source": "o3loss",
+        "target": "o3loss"
+    },
+    {
+        "source": "o3prod",
+        "target": "o3prod"
+    },
+    {
+        "source": "o3ste",
+        "target": "o3ste"
     },
     {
         "source": "od440aer",
@@ -296,20 +360,32 @@
         "target": "pan"
     },
     {
-        "source": "hcho",
-        "target": "hcho"
-    },
-    {
-        "source": "o3ste",
-        "target": "o3ste"
-    },
-    {
         "source": "phalf",
         "target": "phalf"
     },
     {
         "source": "ptp",
         "target": "ptp"
+    },
+    {
+        "source": "sedustCI",
+        "target": "sedustCI"
+    },
+    {
+        "source": "sfno2",
+        "target": "sfno2"
+    },
+    {
+        "source": "sfo3",
+        "target": "sfo3"
+    },
+    {
+        "source": "sfo3max",
+        "target": "sfo3max"
+    },
+    {
+        "source": "sfpm25",
+        "target": "sfpm25"
     },
     {
         "source": "so2",
@@ -366,125 +442,5 @@
     {
         "source": "ztp",
         "target": "ztp"
-    },
-    {
-        "source": "cdnc",
-        "target": "cdnc"
-    },
-    {
-        "source": "maxpblz",
-        "target": "maxpblz"
-    },
-    {
-        "source": "minpblz",
-        "target": "minpblz"
-    },
-    {
-        "source": "od550aer",
-        "target": "od550aer"
-    },
-    {
-        "source": "sfo3max",
-        "target": "sfo3max"
-    },
-    {
-        "source": "toz",
-        "target": "toz"
-    },
-    {
-        "source": "phalf",
-        "target": "phalf"
-    },
-    {
-        "source": "ch4",
-        "target": "ch4"
-    },
-    {
-        "source": "hno3",
-        "target": "hno3"
-    },
-    {
-        "source": "ho2",
-        "target": "ho2"
-    },
-    {
-        "source": "noy",
-        "target": "noy"
-    },
-    {
-        "source": "o3",
-        "target": "o3"
-    },
-    {
-        "source": "oh",
-        "target": "oh"
-    },
-    {
-        "source": "emibvoc",
-        "target": "emibvoc"
-    },
-    {
-        "source": "emivoc",
-        "target": "emivoc"
-    },
-    {
-        "source": "o3Clim",
-        "target": "o3Clim"
-    },
-    {
-        "source": "ch4Clim",
-        "target": "ch4Clim"
-    },
-    {
-        "source": "ch4global",
-        "target": "ch4global"
-    },
-    {
-        "source": "ch4globalClim",
-        "target": "ch4globalClim"
-    },
-    {
-        "source": "lossch4",
-        "target": "lossch4"
-    },
-    {
-        "source": "lossco",
-        "target": "lossco"
-    },
-    {
-        "source": "o3loss",
-        "target": "o3loss"
-    },
-    {
-        "source": "o3prod",
-        "target": "o3prod"
-    },
-    {
-        "source": "flashrate",
-        "target": "flashrate"
-    },
-    {
-        "source": "depdust",
-        "target": "depdust"
-    },
-    {
-        "source": "sedustCI",
-        "target": "sedustCI"
-    },
-    {
-        "source": "md",
-        "target": "md"
-    },
-    {
-        "source": "loaddust",
-        "target": "loaddust"
-    },
-    {
-        "source": "concdust",
-        "target": "concdust"
-    },
-    {
-        "source": "ps",
-        "target": "ps"
     }
 ]

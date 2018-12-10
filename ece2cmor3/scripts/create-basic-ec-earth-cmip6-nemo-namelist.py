@@ -839,9 +839,9 @@ for component_value in component_overview:
     #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
      if written_field.text == "   None                                                               " : written_field.text = ''
     #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                                  > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                                                                    , written_field.text))
-    #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}                > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"'                                         , written_field.text))
+     basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}                > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"'                                         , written_field.text))
     #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                     freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                           , '"'+written_field.attrib["freq_op"]+'"', written_field.text))
-     basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}   freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"', '"'+written_field.attrib["freq_op"]+'"', written_field.text))
+    #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}   freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"', '"'+written_field.attrib["freq_op"]+'"', written_field.text))
     basic_nemo_file_def_xml_file.write(  '\n    </file>\n')
 
   #else: print ' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value)
@@ -926,7 +926,6 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 #  Check for name attribute occurence in case the id attribute is available in element definition, if occuring: any action?
 #  Add header to file_def containing: source of column data, instruction and idea of file
 #  Generate the dummy latest data request based ping files. And also the ones with the merged Shaconemo content.
-#  Read also the ping comment, use np.genfromtxt for that.
 
 # DONE:
 #  Read the basic-flat-cmip6-file_def_nemo.xml so all data is inside one xml tree. DONE
@@ -941,6 +940,7 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 # 'standard_name' in the field_def files can be ignored, right? Yes, omit.
 # 'long_name'     in the field_def files can be ignored because it is taken from the cmor tables, right? Yes, omit.
 # 'unit'          in the field_def files can be ignored because it is taken from the cmor tables, right? Add for consistency check. DONE: quite some variables miss a unit attribute
+#  Read also the ping comment, use np.genfromtxt for that. DONE: this done via the nemo-only file.
 
 # The <!-- Transects --> block in field_def_nemo-opa.xml has field element definitions which are defined without a file_group element,
 # that means they have one element layer less. DONE: this case is now covered
@@ -972,7 +972,7 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 #  grep -iHn operation field_def_nemo-* | grep -v '<field_'
 #  grep -iHn operation field_def_nemo-* | grep -v '<field '
 #  grep -iHn operation field_def_nemo-* | sed -e 's/.*operation="//' -e 's/".*//'
-# This data has NOT (YET) been added to the basic flat xml.
+# This data, based on the cmor tables themselves, has now been added to the basic flat xml. DONE
 
 
 # One variables has the read_access attribute in the field element, but so far is not part of CMIP6 data request:
