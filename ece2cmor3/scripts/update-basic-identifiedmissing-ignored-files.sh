@@ -64,6 +64,7 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd                    to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno)     to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the 6hrPlevPt-Eday-E6hrZ VolMIP (step 3) block (swtoafluxaerocs--zmlwaero) to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Emon   ec550aer                                                        to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
