@@ -30,9 +30,6 @@ ln_surface_pressure = cmor_source.grib_code(152)
 # Start date of the processed data
 start_date_ = None
 
-# Output frequency (hrs). Minimal interval between output variables.
-output_frequency_ = 3
-
 # Fast storage temporary path
 temp_dir_ = None
 
@@ -78,18 +75,18 @@ def get_output_freq(task):
         return getattr(task,  cmor_task.output_frequency_key)
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
-        raise Exception("Reading time intervals has not been implemented yet")
+        raise Exception("Cannot determine post-processing frequency for IFS output, please provide it by setting the "
+                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)")
 #        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, autofilter=True):
+def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
-        temp_dir_, ref_date_, start_date_, output_frequency_, auto_filter_
+        temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
-    output_frequency_ = outputfreq
     ref_date_ = refdate
     auto_filter_ = autofilter
 
