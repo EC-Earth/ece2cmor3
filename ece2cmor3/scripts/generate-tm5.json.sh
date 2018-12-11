@@ -106,6 +106,7 @@ declare -a arr=(
 "oh"
 "pan"
 "phalf"
+"ps"
 "ptp"
 "sedustCI"
 "sfno2"

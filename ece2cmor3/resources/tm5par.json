@@ -364,6 +364,10 @@
         "target": "phalf"
     },
     {
+        "source": "ps",
+        "target": "ps"
+    },
+    {
         "source": "ptp",
         "target": "ptp"
     },
