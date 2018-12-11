@@ -235,17 +235,15 @@ def cluster_files(valid_tasks):
 
 
 # Main execution loop
-def execute(tasks, multi_threaded=False):
+def execute(tasks, filter_files=True, multi_threaded=False):
     global varsfiles
     valid_tasks = validate_tasks(tasks)
     task2files, task2freqs = cluster_files(valid_tasks)
-    filter_files = True
     if filter_files:
         filehandles = open_files(varsfiles)
         if multi_threaded:
             threads = []
             for file_list in [gridpoint_files, spectral_files]:
-                # TODO: Implement month filtering feature
                 thread = threading.Thread(target=filter_grib_files, args=(file_list, filehandles, 0, 0))
                 threads.append(thread)
                 thread.start()
@@ -253,7 +251,6 @@ def execute(tasks, multi_threaded=False):
             threads[1].join()
         else:
             for file_list in [gridpoint_files, spectral_files]:
-                # TODO: Implement month filtering feature
                 filter_grib_files(file_list, filehandles, month=0, year=0)
         for handle in filehandles.values():
             handle.close()

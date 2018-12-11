@@ -158,9 +158,7 @@ def perform_ifs_tasks(datadir, expname,
                       postprocmode=postproc.recreate,
                       tempdir="/tmp/ece2cmor",
                       taskthreads=4,
-                      cdothreads=4,
-                      cleanup=True,
-                      outputfreq=3):
+                      cdothreads=4):
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
@@ -171,13 +169,12 @@ def perform_ifs_tasks(datadir, expname,
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
-    ofreq = -1 if auto_filter else outputfreq
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
-                                outputfreq=ofreq, tempdir=tempdir, autofilter=auto_filter)):
+                                tempdir=tempdir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
-    ifs2cmor.execute(ifs_tasks, cleanup=cleanup, nthreads=taskthreads)
+    ifs2cmor.execute(ifs_tasks, nthreads=taskthreads)
 
 
 # Performs a NEMO cmorization processing:

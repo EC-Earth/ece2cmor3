@@ -66,7 +66,6 @@ def main(args=None):
     parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
     parser.add_argument("--nomask", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
-    parser.add_argument("--freq", metavar="N", type=int, default=3, help=argparse.SUPPRESS)
 
     model_tabfile_attributes = {}
     for c in components.models:
@@ -130,7 +129,6 @@ def main(args=None):
         # Execute the atmosphere cmorization:
         ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp,
                                       refdate=refdate,
-                                      outputfreq=args.freq,
                                       tempdir=args.tmpdir,
                                       taskthreads=args.npp,
                                       cdothreads=args.ncdo)

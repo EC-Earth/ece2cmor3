@@ -30,9 +30,6 @@ ln_surface_pressure = cmor_source.grib_code(152)
 # Start date of the processed data
 start_date_ = None
 
-# Output frequency (hrs). Minimal interval between output variables.
-output_frequency_ = 6
-
 # Fast storage temporary path
 temp_dir_ = None
 
@@ -46,23 +43,59 @@ auto_filter_ = True
 masks = {}
 
 
+# Controls whether we enter filtering+post-processing stage
+def do_post_process():
+    return str(os.environ.get("ECE2CMOR3_IFS_POSTPROC", "True")).lower() != "false"
+
+
+# Controls whether we use 2d grid for IFS, or just lat/lon axes
+def use_2d_grid():
+    return str(os.environ.get("ECE2CMOR3_IFS_GRID_2D", "True")).lower() != "false"
+
+
+# Controls whether to clean up the IFS temporary data
+def cleanup_tmpdir():
+    return str(os.environ.get("ECE2CMOR3_IFS_CLEANUP", "True")).lower() != "false"
+
+
+# Guesses the IFS output frequency
+def get_output_freq(task):
+    # If the environment variable is set, we take that as our guess
+    env_val = os.environ.get("ECE2CMOR3_IFS_NFRPOS", -1)
+    try:
+        env_val = int(env_val)
+    except ValueError:
+        log.error("Could not interpret environment variable ECE2CMOR3_IFS_NFRPOS with value %s as integer" %
+                  str(env_val))
+        env_val = -1
+    if env_val >= 0:
+        return env_val
+    # If the output frequency was set (auto-filtering), take that one
+    if hasattr(task, cmor_task.output_frequency_key):
+        return getattr(task,  cmor_task.output_frequency_key)
+    # Try to read from the raw model output
+    if hasattr(task, cmor_task.filter_output_key):
+        raise Exception("Cannot determine post-processing frequency for IFS output, please provide it by setting the "
+                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)")
+#        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
+
+
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate, outputfreq=6, tempdir=None, autofilter=True):
+def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
-        temp_dir_, ref_date_, start_date_, output_frequency_, auto_filter_
+        temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
-    output_frequency_ = outputfreq
     ref_date_ = refdate
     auto_filter_ = autofilter
-    
+
     ifs_init_gridpoint_file_ = find_init_file(path, expname)
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
-    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern) 
-                                                                     if not f.endswith("+000000")}
-    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern) 
-                                                                     if not f.endswith("+000000")}
+    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern)
+               if not f.endswith("+000000")}
+    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern)
+               if not f.endswith("+000000")}
 
     if set(gpfiles.keys()) != set(shfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
@@ -102,44 +135,52 @@ def find_init_file(path, exp):
     odir = os.path.abspath(os.path.join(path, ".."))
     search_str = "ICMGG" + exp + "+000000"
     for root, dirs, files in os.walk(odir):
-       if search_str in files:
-           return os.path.join(root, search_str)
+        if search_str in files:
+            return os.path.join(root, search_str)
     return None
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
-def execute(tasks, cleanup=True, nthreads=1):
+def execute(tasks, nthreads=1):
     global log, start_date_, auto_filter_
+
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
     tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
+
     if auto_filter_:
-        tasks_todo = grib_filter.execute(tasks_todo)
+        tasks_todo = grib_filter.execute(tasks_todo, filter_files=do_post_process(), multi_threaded=(nthreads > 1))
     else:
         for task in tasks_todo:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
-                setattr(task, cmor_task.output_frequency_key, output_frequency_)
             elif task.source.grid_id() == cmor_source.ifs_grid.spec:
                 setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
-                setattr(task, cmor_task.output_frequency_key, output_frequency_)
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
                 task.set_failed()
+
+    for task in tasks_todo:
+        setattr(task, cmor_task.output_frequency_key, get_output_freq(task))
+
     # First post-process surface pressure and mask tasks
     for t in mask_tasks + surf_pressure_tasks:
-        postproc.post_process(t, temp_dir_)
+        postproc.post_process(t, temp_dir_, do_post_process())
     for task in mask_tasks:
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-    tasks = set(tasks_todo).intersection(regular_tasks)
+    tasks = list(set(tasks_todo).intersection(regular_tasks))
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    pool = multiprocessing.Pool(processes=nthreads)
-    pool.map(cmor_worker, tasks)
-    if cleanup:
+    if nthreads == 1:
+        for task in tasks:
+            cmor_worker(task)
+    else:
+        pool = multiprocessing.Pool(processes=nthreads)
+        pool.map(cmor_worker, tasks)
+    if cleanup_tmpdir():
         clean_tmp_data(tasks)
 
 
@@ -147,7 +188,7 @@ def execute(tasks, cleanup=True, nthreads=1):
 def cmor_worker(task):
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
-    postproc.post_process(task, temp_dir_)
+    postproc.post_process(task, temp_dir_, do_post_process())
     if task.status == cmor_task.status_failed:
         return
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
@@ -230,13 +271,20 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
+    tmp_files = [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
-            if data_path is not None and data_path not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() \
-                    and data_path in [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]:
-                os.remove(data_path)
-                delattr(task, cmor_task.output_path_key)
+            print "cleaning up", data_path
+            if data_path is None:
+                continue
+            if data_path is list:
+                data_paths = data_path
+            else:
+                data_paths = [data_path]
+            for dp in data_paths:
+                if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
+                    os.remove(dp)
     if not any(os.listdir(temp_dir_)):
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
@@ -323,24 +371,30 @@ def find_sp_variable(task):
     task.source.grid_ = 0
 
 
-grid_id = -1
+global_grid_id = -1
+local_grid_ids = {}
 time_axis_ids = {}
 time_axis_bnds = {}
 depth_axis_ids = {}
 
 
 def define_cmor_axes(task):
-    global grid_id
+    global global_grid_id, local_grid_ids
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized]:
         return
-    if grid_id == -1:
-        cmor.load_table(table_root_ + "_grids.json")
-        if not hasattr(task, "path"):
-            task.set_failed()
-            return
-        grid_id = create_grid_from_grib(getattr(task, "path"))
     tgtdims = getattr(task.target, cmor_target.dims_key).split()
     if "latitude" in tgtdims and "longitude" in tgtdims:
+        if use_2d_grid():
+            if global_grid_id == -1:
+                cmor.load_table(table_root_ + "_grids.json")
+                global_grid_id = create_grid_from_file(getattr(task, cmor_task.output_path_key))
+            grid_id = global_grid_id
+        else:
+            grid_id = local_grid_ids.get(task.target.table, None)
+            if grid_id is None:
+                cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
+                grid_id = create_grid_from_file(getattr(task, cmor_task.output_path_key))
+                local_grid_ids[task.target.table] = grid_id
         setattr(task, "grid_id", grid_id)
     log.info("Loading CMOR table %s..." % task.target.table)
     try:
@@ -378,7 +432,11 @@ def execute_netcdf_task(task):
     axes = []
     t_bnds = []
     if hasattr(task, "grid_id"):
-        axes.append(getattr(task, "grid_id"))
+        task_grid_id = getattr(task, "grid_id")
+        if isinstance(task_grid_id, tuple):
+            axes.extend(task_grid_id)
+        else:
+            axes.append(task_grid_id)
     if hasattr(task, "z_axis_id"):
         axes.append(getattr(task, "z_axis_id"))
     if hasattr(task, "t_axis_id"):
@@ -451,6 +509,7 @@ def execute_netcdf_task(task):
 # Returns the constants A,B for unit conversions of type y = A*x + B
 def get_conversion_constants(conversion, output_frequency):
     global log
+    print "THE OUTPUT FREQ IS", output_frequency
     if not conversion:
         return 1.0, 0.0
     if conversion == "cum2inst":
@@ -600,8 +659,15 @@ def create_hybrid_level_axis(task):
                      zfactor_bounds=abnds)
         cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
                      zfactor_bounds=bbnds)
-        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
-                                 axis_ids=[grid_id, getattr(task, "t_axis_id")], units="Pa")
+        axes = []
+        if hasattr(task, "grid_id"):
+            task_grid_id = getattr(task, "grid_id")
+            if isinstance(task_grid_id, tuple):
+                axes.extend(task_grid_id)
+            else:
+                axes.append(task_grid_id)
+        axes.append(getattr(task, "t_axis_id"))
+        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps", axis_ids=axes, units="Pa")
         return axisid, storewith
     finally:
         if ds is not None:
@@ -672,7 +738,7 @@ def get_sp_var(ncpath):
 
 
 # Creates the regular gaussian grids from the postprocessed file argument.
-def create_grid_from_grib(filepath):
+def create_grid_from_file(filepath):
     global log
     command = cdoapi.cdo_command()
     grid_descr = command.get_grid_descr(filepath)
@@ -693,8 +759,6 @@ def create_grid_from_grib(filepath):
 # Creates the regular gaussian grid from its arguments.
 def create_gauss_grid(nx, x0, yvals):
     ny = len(yvals)
-    i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-    j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
     dx = 360. / nx
     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
     lon_arr = numpy.tile(x_vals, (ny, 1))
@@ -704,15 +768,24 @@ def create_gauss_grid(nx, x0, yvals):
     lat_mids[0] = 90.
     lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])
     lat_mids[ny] = -90.
-    vert_lats = numpy.empty([ny, nx, 4])
-    vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
-    vert_lats[:, :, 1] = vert_lats[:, :, 0]
-    vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
-    vert_lats[:, :, 3] = vert_lats[:, :, 2]
-    vert_lons = numpy.empty([ny, nx, 4])
-    vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
-    vert_lons[:, :, 3] = vert_lons[:, :, 0]
-    vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
-    vert_lons[:, :, 2] = vert_lons[:, :, 1]
-    return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,
-                     latitude_vertices=vert_lats, longitude_vertices=vert_lons)
+    if use_2d_grid():
+        vert_lats = numpy.empty([ny, nx, 4])
+        vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
+        vert_lats[:, :, 1] = vert_lats[:, :, 0]
+        vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
+        vert_lats[:, :, 3] = vert_lats[:, :, 2]
+        vert_lons = numpy.empty([ny, nx, 4])
+        vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
+        vert_lons[:, :, 3] = vert_lons[:, :, 0]
+        vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
+        vert_lons[:, :, 2] = vert_lons[:, :, 1]
+        i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
+        j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+        return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,
+                         latitude_vertices=vert_lats, longitude_vertices=vert_lons)
+    else:
+        lats = cmor.axis(table_entry="latitude", coord_vals=lat_arr[:, 0], cell_bounds=lat_mids[::-1],
+                         units="degrees_north")
+        lons = cmor.axis(table_entry="longitude", coord_vals=lon_arr[0, :], cell_bounds=lon_mids,
+                         units="degrees_east")
+        return lats, lons
