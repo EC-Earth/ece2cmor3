@@ -43,11 +43,14 @@ def get_git_hash():
         result = __version__.sha
     except AttributeError:
         import git
-        repo = git.Repo(search_parent_directories=True)
-        sha = str(repo.head.object.hexsha)
-        if repo.is_dirty():
-            sha += "-changes"
-        result = sha
+        try:
+            repo = git.Repo(search_parent_directories=True)
+            sha = str(repo.head.object.hexsha)
+            if repo.is_dirty():
+                sha += "-changes"
+            result = sha
+        except git.exc.InvalidGitRepositoryError:
+            result = "local unknown branch"
     return result
 
 

@@ -26,16 +26,16 @@ modes = [skip, append, recreate]
 # Mode for post-processing
 mode = 3
 
-# Output frequency of IFS (in hours)
-output_frequency_ = 3
-
 
 # Post-processes a task
-def post_process(task, path):
+def post_process(task, path, do_postprocess):
     command = create_command(task)
     output_file_name = task.target.variable + "_" + task.target.table + ".nc"
     output_path = os.path.join(path, output_file_name) if path else None
-    filepath = apply_command(command, task, output_path)
+    if do_postprocess:
+        filepath = apply_command(command, task, output_path)
+    else:
+        filepath = 1
     if filepath is not None and task.status != cmor_task.status_failed:
         setattr(task, cmor_task.output_path_key, output_path)
 
@@ -86,7 +86,7 @@ def apply_command(command, task, output_path=None):
         command.merge(input_files, input_file)
     comm_string = command.create_command()
     log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (
-              task.target.variable, task.target.table, input_file, comm_string))
+        task.target.variable, task.target.table, input_file, comm_string))
     setattr(task, "cdo_command", comm_string)
     task.next_state()
     result = None
@@ -158,7 +158,6 @@ def add_grid_operators(cdo, task):
 
 # Adds time averaging operators to the cdo command for the given task
 def add_time_operators(cdo, task):
-    global output_frequency_
     freq = getattr(task.target, cmor_target.freq_key, None)
     operators = getattr(task.target, "time_operator", ["point"])
     if freq == "mon":
@@ -227,7 +226,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
         cdo_command.add_operator(cdoapi.cdo_command.select_hour_operator, *timestamps)
     elif operator in aggregators:
         if not all([c for c in task.source.get_root_codes() if c in aggregators[operator][0]]):
-            source_freq = getattr(task, cmor_task.output_frequency_key, output_frequency_)
+            source_freq = getattr(task, cmor_task.output_frequency_key)
             steps = target_freq / source_freq
             if steps == 0:
                 log.error("Requested %s at %d-hourly frequency cannot be computed for variable %s in table %s "
