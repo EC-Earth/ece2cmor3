@@ -28,7 +28,7 @@ experiment_tiers_included = [1]
 ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
 #ec_earth_mips = ['CMIP', 'DCPP']
-ec_earth_mips = ['CMIP'] # for basic test
+#ec_earth_mips = ['CMIP'] # for basic test
 experiment_counter = 0
 
 
@@ -44,9 +44,10 @@ for mip in dq.coll['mip'].items:
      print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
     else:
      if experiment_counter == 0:
-       command = './generate-ec-earth-namelists.sh ' + mip.label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + ' '
+       omit_setup_argument = ''
      else:
-       command = './generate-ec-earth-namelists.sh ' + mip.label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + ' omit-setup'
+       omit_setup_argument = ' omit-setup'
+     command   = './generate-ec-earth-namelists.sh ' + mip.label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
      command_2 = 'rm -rf cmip6-output-control-files/' + mip.label + '/cmip6-experiment-*/file_def-compact'
      command_3 = 'rm -f  cmip6-output-control-files/' + mip.label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
      command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip.label + '/cmip6-experiment-' + mip.label + '-' + ex.label + '/file_def_nemo-opa.xml'
