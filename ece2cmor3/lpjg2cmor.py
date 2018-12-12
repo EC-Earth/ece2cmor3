@@ -157,7 +157,6 @@ def execute(tasks):
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
-
     for table, tasklist in taskdict.iteritems():
         try:
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
