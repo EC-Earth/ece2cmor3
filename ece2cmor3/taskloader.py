@@ -119,7 +119,7 @@ def load_targets_excel(varlist):
     mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
-        if sheetname.lower() in ["notes", "fx", "Ofx"]:
+        if sheetname.lower() in ["notes", "fx"]:
             continue
         sheet = book.sheet_by_name(sheetname)
         row = sheet.row_values(0)
