@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # Thomas Reerink
 #
-# Run example:
+# Run examples:
 #  python genecec.py
+#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec &
+#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout 2> log-genecec/log-genecec-stderr &
+#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec-22-with-freq_op-drq-v29b1 &
+#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout-22-with-freq_op-drq-v29b1 2> log-genecec/log-genecec-stderr-22-with-freq_op-drq-v29b1 &
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
