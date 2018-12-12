@@ -28,8 +28,7 @@ def main(args=None):
                                                                  "for a given leg")
     parser.add_argument("--vars", metavar="FILE", type=str, default=None,
                         help="File (json|f90 namelist|xlsx) containing cmor variables")
-    parser.add_argument("--conf", metavar="FILE.json", type=str, default=ece2cmorlib.conf_path_default,
-                        help="Input metadata file")
+    parser.add_argument("--conf", metavar="FILE.json", type=str, default=None, help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")

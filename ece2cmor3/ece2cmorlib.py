@@ -13,7 +13,8 @@ from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, 
 log = logging.getLogger(__name__)
 
 # Module configuration defaults
-conf_path_default = os.path.join(os.path.dirname(__file__), "resources", "metadata-template.json")
+conf_path_default = os.path.join(os.path.dirname(__file__), "resources", "metadata-templates",
+                                 "cmip6-CMIP-piControl-metadata-template.json")
 cmor_mode_default = cmor.CMOR_PRESERVE
 prefix_default = "CMIP6"
 table_dir_default = os.path.join(os.path.dirname(__file__), "resources", "tables")
@@ -67,6 +68,8 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     cmor.setup(table_dir, cmor_mode, logfile=logname, create_subdirectories=(1 if create_subdirs else 0))
     if outputdir is not None:
         metadata["outpath"] = outputdir
+    if "outpath" not in metadata:
+        metadata["outpath"] = os.path.join(os.getcwd(), "cmor")
     hist = metadata.get("history", "")
     newline = "processed by ece2cmor v{version}, git rev. " \
               "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
