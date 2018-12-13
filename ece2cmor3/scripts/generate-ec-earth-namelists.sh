@@ -14,8 +14,10 @@
 #  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
-# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
-# file_def files for OPA, LIM and PISCES) for one MIP experiment.
+# the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) and the LPJ-GUESS instruction (.ins) file
+# for one MIP experiment. In addition it produces the volume estimates for IFS, NEMO,
+# LPJ-GUESS and TM5.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
