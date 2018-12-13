@@ -11,11 +11,15 @@
 #
 #
 # Run example:
-#  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
-# the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
-# file_def files for OPA, LIM and PISCES) for one MIP experiment.
+# the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
+# file_def files for OPA, LIM and PISCES) and the LPJ-GUESS instruction (.ins) file
+# for one MIP experiment. In addition it produces the volume estimates for IFS, NEMO,
+# LPJ-GUESS and TM5.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
@@ -181,27 +185,27 @@ else
     echo '  '
 fi
 
-# ./generate-ec-earth-namelists.sh CMIP         1pctCO2      1 1
-# ./generate-ec-earth-namelists.sh CMIP         abrupt-4xCO2 1 1
-# ./generate-ec-earth-namelists.sh CMIP         amip         1 1
-# ./generate-ec-earth-namelists.sh CMIP         historical   1 1
-# ./generate-ec-earth-namelists.sh CMIP         piControl    1 1
+# ./genecec-per-mip-experiment.sh CMIP         1pctCO2      1 1
+# ./genecec-per-mip-experiment.sh CMIP         abrupt-4xCO2 1 1
+# ./genecec-per-mip-experiment.sh CMIP         amip         1 1
+# ./genecec-per-mip-experiment.sh CMIP         historical   1 1
+# ./genecec-per-mip-experiment.sh CMIP         piControl    1 1
 
-# ./generate-ec-earth-namelists.sh AerChemMIP   piControl 1 1
-# ./generate-ec-earth-namelists.sh CDRMIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh C4MIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh DCPP         piControl 1 1
-# ./generate-ec-earth-namelists.sh HighResMIP   piControl 1 1
-# ./generate-ec-earth-namelists.sh ISMIP6       piControl 1 1
-# ./generate-ec-earth-namelists.sh LS3MIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh LUMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh OMIP         piControl 1 1
-# ./generate-ec-earth-namelists.sh PAMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh PMIP         piControl 1 1
-# ./generate-ec-earth-namelists.sh RFMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh ScenarioMIP  piControl 1 1
-# ./generate-ec-earth-namelists.sh VolMIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh CORDEX       piControl 1 1
-# ./generate-ec-earth-namelists.sh DynVar       piControl 1 1
-# ./generate-ec-earth-namelists.sh SIMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh VIACSAB      piControl 1 1
+# ./genecec-per-mip-experiment.sh AerChemMIP   piControl 1 1
+# ./genecec-per-mip-experiment.sh CDRMIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh C4MIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh DCPP         piControl 1 1
+# ./genecec-per-mip-experiment.sh HighResMIP   piControl 1 1
+# ./genecec-per-mip-experiment.sh ISMIP6       piControl 1 1
+# ./genecec-per-mip-experiment.sh LS3MIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh LUMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh OMIP         piControl 1 1
+# ./genecec-per-mip-experiment.sh PAMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh PMIP         piControl 1 1
+# ./genecec-per-mip-experiment.sh RFMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh ScenarioMIP  piControl 1 1
+# ./genecec-per-mip-experiment.sh VolMIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh CORDEX       piControl 1 1
+# ./genecec-per-mip-experiment.sh DynVar       piControl 1 1
+# ./genecec-per-mip-experiment.sh SIMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh VIACSAB      piControl 1 1
