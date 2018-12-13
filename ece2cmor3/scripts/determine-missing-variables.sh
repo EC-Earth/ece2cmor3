@@ -112,7 +112,7 @@ else
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 CMIP CMIP 1 1
     echo '  The first argument can represent a list of MIPs, seperated by commas, e.g.:'
-    echo '  ' $0 CMIP,AerChemMIP CMIP 1 1
+    echo '  ' $0 CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1
     echo '  '
 fi
 
