@@ -11,7 +11,7 @@
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
-# namelists are created by calling the generate-ec-earth-namelists.sh script.
+# namelists are created by calling the genecec-per-mip-experiment.sh script.
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files) and the NEMO xml files for XIOS (the
@@ -61,7 +61,7 @@ for mip in dq.coll['mip'].items:
        omit_setup_argument = ''
      else:
        omit_setup_argument = ' omit-setup'
-     command   = './generate-ec-earth-namelists.sh ' + mip_label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
+     command   = './genecec-per-mip-experiment.sh ' + mip_label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
      command_2 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
      command_3 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
      command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
