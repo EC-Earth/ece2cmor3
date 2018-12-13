@@ -23,12 +23,13 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description="Post-processing and cmorization of EC-Earth output",
                                      formatter_class=formatter)
+    required = parser.add_argument_group("required arguments")
 
     parser.add_argument("datadir", metavar="DIR", type=str, help="EC-Earth data directory, i.e. for a given component, "
                                                                  "for a given leg")
-    parser.add_argument("--vars", metavar="FILE", type=str, default=None,
+    required.add_argument("--vars", metavar="FILE", type=str, required=True,
                         help="File (json|f90 namelist|xlsx) containing cmor variables")
-    parser.add_argument("--conf", metavar="FILE.json", type=str, default=None, help="Input metadata file")
+    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
