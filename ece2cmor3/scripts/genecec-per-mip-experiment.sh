@@ -49,7 +49,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
  # Check whether more than one MIP is specified in the data request
  multiplemips='no'
- if [[ ${mip} == *","* ]];then
+ if [[ ${mip} = *","* ]];then
   multiplemips='yes'
   echo ' Multiple mip case = ' ${multiplemips}
  fi
@@ -59,7 +59,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 #echo ' mip =' ${mip} '    experiment =' ${experiment} '    mip_label =' ${mip_label}
 #echo "${mip_label}" | tr '[:upper:]' '[:lower:]'
 
- if [ "${multiplemips}" == "yes" ]; then
+ if [ "${multiplemips}" = "yes" ]; then
   # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
   select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
  else
@@ -111,7 +111,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
   # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
   # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:
-  if [ ${mip_label} == 'ScenarioMIP' ]; then
+  if [ ${mip_label} = 'ScenarioMIP' ]; then
    cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
    if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
     rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
