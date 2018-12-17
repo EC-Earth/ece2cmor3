@@ -87,7 +87,8 @@ def write_ppt_files(tasks):
     # Fix for issue 313, make sure to always generate 6-hourly ppt:
     if freqgroups.keys() == [3]:
         freqgroups[6] = []
-   #freqgroups.pop(-1)
+    if -1 in freqgroups.keys():
+        freqgroups.pop(-1)
     freqs_to_remove = []
     for freq1 in freqgroups:
         if freq1 <= 0:
