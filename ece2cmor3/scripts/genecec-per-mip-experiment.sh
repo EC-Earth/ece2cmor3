@@ -125,6 +125,22 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    fi
   fi
 
+  # Because in the VolMIP dcppC-forecast-addPinatubo experiment the cmvme_${mip_label}_${experiment}_1_1.xlsx file is not produced, a link
+  # with this name is created to a file cmvme_cm.vo_${experiment}_1_1.xlsx which should be most similar:
+  if [ ${mip_label} = 'VolMIP' ] && [ ${experiment} = 'dcppC-forecast-addPinatubo' ]; then
+   cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+   # However, first check whether the file is correctly present, in that case no action:
+   if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    ln -s cmvme_cm.vo_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
+    echo
+    echo 'Create for '${mip_label}' a soft link:'
+    ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+  fi
+
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
 
