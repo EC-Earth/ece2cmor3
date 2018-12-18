@@ -71,8 +71,8 @@ for mip in dq.coll['mip'].items:
      command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
     #print print '{}'.format(command)
      if mip_label in ec_earth_mips:
-       #if ex.tier[0] in experiment_tiers_included and mip_label in ec_earth_mips and ex.label == 'piControl':  # for basic test
-        if ex.tier[0] in experiment_tiers_included and mip_label in ec_earth_mips:
+       #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':  # for basic test
+        if ex.tier[0] in experiment_tiers_included:
            os.system(command)
            os.system(command_2) # Remove the file_def-compact subdirectory with the compact file_def files
            os.system(command_3) # Remove the cmip6-file_def_nemo.xml file
