@@ -73,10 +73,11 @@ def main():
        instruction_file.write('file_{}_monthly "{}_monthly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == 'day':
        instruction_file.write('file_{}_daily "{}_daily.out"{}'.format(task.target.variable, task.target.variable, '\n'))
-     #elif task.target.frequency == 'yrPt':
+      elif task.target.frequency == 'yrPt':
+       print ' LPJ-GUESS does not provide yearly instantaneous (yrPt) output: ', task.target.variable, task.target.table, task.target.frequency
      # instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == '3hrPt':
-       print ' LPJ-GUESS does not provide 3hrPt output', task.target.variable, task.target.table, task.target.frequency
+       print ' LPJ-GUESS does not provide three hourly instantaneous (3hrPt) output: ', task.target.variable, task.target.table, task.target.frequency
       elif task.target.frequency == 'fx':
       #print ' LPJ-GUESS does not provide fx output', task.target.variable, task.target.table, task.target.frequency
        instruction_file.write('file_{}_once "{}_once.out"{}'.format(task.target.variable, task.target.variable, '\n'))
@@ -84,7 +85,7 @@ def main():
       #print ' LPJ-GUESS does not provide monC output', task.target.variable, task.target.table, task.target.frequency
        instruction_file.write('file_{}_monthly_clim "{}_monthly_clim.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == 'subhrPt':
-       print ' LPJ-GUESS does not provide subhourly output', task.target.variable, task.target.table, task.target.frequency
+       print ' LPJ-GUESS does not provide subhourly instantaneous (subhrPt) output: ', task.target.variable, task.target.table, task.target.frequency
       else:
        print '\n Unknown frequency in creating the LPJ-GUESS instruction file for: ', task.target.variable, task.target.table, task.target.frequency
 
@@ -95,7 +96,8 @@ def main():
        layer_number_due_to_freq = 12
       elif task.target.frequency == 'day':
        layer_number_due_to_freq = 365
-     #elif task.target.frequency == 'yrPt':
+      elif task.target.frequency == 'yrPt':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide yearly instantaneous (yrPt) output
      # layer_number_due_to_freq = 1
       elif task.target.frequency == '3hrPt':
        layer_number_due_to_freq = 365.25 * 8.
