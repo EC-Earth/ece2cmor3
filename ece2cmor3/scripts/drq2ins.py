@@ -73,6 +73,10 @@ def main():
        instruction_file.write('file_{}_monthly "{}_monthly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == 'day':
        instruction_file.write('file_{}_daily "{}_daily.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == '3hr':
+       print ' LPJ-GUESS does not provide three hourly (3hr) output: ', task.target.variable, task.target.table, task.target.frequency
+      elif task.target.frequency == '6hr':
+       print ' LPJ-GUESS does not provide six hourly (6hr) output: ', task.target.variable, task.target.table, task.target.frequency
       elif task.target.frequency == 'yrPt':
        print ' LPJ-GUESS does not provide yearly instantaneous (yrPt) output: ', task.target.variable, task.target.table, task.target.frequency
      # instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
@@ -96,6 +100,10 @@ def main():
        layer_number_due_to_freq = 12
       elif task.target.frequency == 'day':
        layer_number_due_to_freq = 365
+      elif task.target.frequency == '3hr':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide three hourly (3hr) output
+      elif task.target.frequency == '6hr':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide six hourly (6hr) output
       elif task.target.frequency == 'yrPt':
        layer_number_due_to_freq = 0             # LPJ-GUESS does not provide yearly instantaneous (yrPt) output
      # layer_number_due_to_freq = 1
