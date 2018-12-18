@@ -77,7 +77,8 @@ def join_namelists(nml1, nml2):
         if len(levels) > 0:
             result[key] = levels
     if "NRFP3S" in nml1.keys() or "NRFP3S" in nml2.keys():
-        result["NRFP3S"] = -99
+        # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
+        result["NRFP3S"] = -1
     return result
 
 
@@ -190,8 +191,8 @@ def write_ppt_files(tasks):
         if any(mfp3dfs):
             namelist["NFP3DFS"] = len(mfp3dfs)
             namelist["MFP3DFS"] = mfp3dfs
-            # To include all model levels use magic number -99:
-            namelist["NRFP3S"] = -99
+            # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
+            namelist["NRFP3S"] = -1
             num_blocks_sp += nfp3dfssp
             num_blocks_gp += nfp3dfsgp
         if any(mfp3dfp):
