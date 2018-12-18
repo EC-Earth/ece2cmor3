@@ -92,6 +92,8 @@ for mip in dq.coll['mip'].items:
     #command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
     #command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
      command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+   ##command_7 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
+   ##command_8 = '      mv cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + ec_earth_model_configurations[1] + '.txt'
     #print print '{}'.format(command)
      if mip_name in ec_earth_mips:
        #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':  # for basic test
@@ -102,6 +104,8 @@ for mip in dq.coll['mip'].items:
           #os.system(command_4) # Just set the toce fields false again because we still face troubles with them
           #os.system(command_5) # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
            os.system(command_6) # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+         ##os.system(command_7) # Rename directry names for joint MIPs
+         ##os.system(command_8) # Rename volume-estimate file for joint MIPs
            experiment_counter = experiment_counter + 1
         else:
            print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command)
