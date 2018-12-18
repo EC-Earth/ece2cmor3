@@ -35,7 +35,6 @@ dependencies:
 - numpy>=1.15.1
 - libiconv                                        # Unlisted dependency of cdo
 - pandas>=0.17.1
-- gitpython=2.1.11
 - pip:
   - f90nml==0.20
   - jsonschema==2.5.1
