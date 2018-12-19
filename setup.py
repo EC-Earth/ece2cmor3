@@ -14,10 +14,13 @@ def read(fname):
 # Utility function to get the git hash, possibly with local changes flag
 def get_git_hash():
     import git
-    repo = git.Repo(search_parent_directories=True)
-    sha = str(repo.head.object.hexsha)
-    if repo.is_dirty():
-        sha += "-changes"
+    try:
+        repo = git.Repo(search_parent_directories=True)
+        sha = str(repo.head.object.hexsha)
+        if repo.is_dirty():
+            sha += "-changes"
+    except git.exc.InvalidGitRepositoryError:
+        sha = "local unknown branch"
     return sha
 
 
