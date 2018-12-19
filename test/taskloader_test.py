@@ -2,7 +2,7 @@ import logging
 import unittest
 from nose.tools import eq_
 
-from ece2cmor3 import taskloader, ece2cmorlib, cmor_source, cmor_task
+from ece2cmor3 import taskloader, ece2cmorlib, cmor_source, cmor_task, cmor_target
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -29,6 +29,21 @@ class taskloader_test(unittest.TestCase):
             eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
         finally:
             ece2cmorlib.finalize()
+
+    @staticmethod
+    def test_skip_alevel():
+        def ifs_model_level_variable(target):
+            zaxis, levs = cmor_target.get_z_axis(target)
+            return zaxis not in ["alevel", "alevhalf"]
+        ece2cmorlib.initialize()
+        try:
+            taskloader.load_targets({"3hr": ["clt", "uas", "vas"], "CFmon": ["clwc", "hur", "ps"]},
+                                    target_filters={"model level": ifs_model_level_variable})
+            eq_(len(ece2cmorlib.tasks), 4)
+            eq_(len([t for t in ece2cmorlib.tasks if t.target.table == "CFmon"]), 1)
+        finally:
+            ece2cmorlib.finalize()
+
 
     @staticmethod
     def test_load_ovars():
