@@ -275,7 +275,6 @@ def clean_tmp_data(tasks):
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
-            print "cleaning up", data_path
             if data_path is None:
                 continue
             if data_path is list:
@@ -509,7 +508,6 @@ def execute_netcdf_task(task):
 # Returns the constants A,B for unit conversions of type y = A*x + B
 def get_conversion_constants(conversion, output_frequency):
     global log
-    print "THE OUTPUT FREQ IS", output_frequency
     if not conversion:
         return 1.0, 0.0
     if conversion == "cum2inst":
