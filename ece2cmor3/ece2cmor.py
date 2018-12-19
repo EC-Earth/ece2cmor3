@@ -123,12 +123,12 @@ def main(args=None):
         if attribute_value is not None:
             components.models[model][components.table_file] = attribute_value
 
-    filters = []
+    filters = None
     if args.skip_alevel_vars:
         def ifs_model_level_variable(target):
             zaxis, levs = cmor_target.get_z_axis(target)
             return zaxis not in ["alevel", "alevhalf"]
-        filters.append(ifs_model_level_variable)
+        filters = {"model level": ifs_model_level_variable}
 
     taskloader.load_targets(args.vars, model_active_flags, target_filters=filters)
 
