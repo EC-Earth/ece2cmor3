@@ -66,7 +66,7 @@ def main():
     taskloader.load_targets(args.vars, active_components=active_components)
     
     for task in ece2cmorlib.tasks:
-    	 print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+         print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
         #print task.target.__dict__
 
     print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
@@ -100,7 +100,7 @@ def main():
        elif task.target.frequency == 'fx':
         layer_number_due_to_freq = 0
        else:
-        print '\n Unknown frequency in NEMO Volume estimate for: ', task.target.variable, '\n'
+        print '\n Unknown frequency in NEMO Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
         layer_number_due_to_freq = 0
 
        # NEMO Volume estimate: estimate the number vertical layers per variable:

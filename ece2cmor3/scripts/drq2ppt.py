@@ -130,7 +130,7 @@ def write_ppt_files(tasks):
                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
                         mfpphy.append(code)
                     else:
-                        log.error("Unknown IFS grib code %s skipped" % str(code))
+                        log.error("Unknown 2D IFS grib code %s skipped" % str(code))
             else:
                 for code in root_codes:
                     if code in cmor_source.ifs_source.grib_codes_3D:
@@ -156,8 +156,9 @@ def write_ppt_files(tasks):
                         mfp2df.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_phy:
                         mfpphy.append(code)
+                    # case for PEXTRA tendencies is missing
                     else:
-                        log.error("Unknown IFS grib code %s skipped" % str(code))
+                        log.error("Unknown 3D IFS grib code %s skipped" % str(code))
         # Always add the geopotential, recommended by ECMWF
         if cmor_source.grib_code(129) not in mfp3dfs:
             mfp2df.append(cmor_source.grib_code(129))

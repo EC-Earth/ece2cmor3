@@ -65,7 +65,7 @@ def main():
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+      print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
 
       if task.target.frequency == 'yr':
        instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
@@ -91,7 +91,7 @@ def main():
       elif task.target.frequency == 'subhrPt':
        print ' LPJ-GUESS does not provide subhourly instantaneous (subhrPt) output: ', task.target.variable, task.target.table, task.target.frequency
       else:
-       print '\n Unknown frequency in creating the LPJ-GUESS instruction file for: ', task.target.variable, task.target.table, task.target.frequency
+       print '\n Unknown frequency in creating the LPJG instruction file for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
 
       # LPJ-GUESS Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
@@ -117,7 +117,7 @@ def main():
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
        layer_number_due_to_freq = 0             # Because there won't be any subhourly output from LPJ-GUESS.
       else:
-       print '\n Unknown frequency in LPJ-GUESS Volume estimate for: ', task.target.variable, '\n'
+       print '\n Unknown frequency in LPJG Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
        layer_number_due_to_freq = 0
 
       # LPJ-GUESS Volume estimate: estimate the number vertical layers per variable:
