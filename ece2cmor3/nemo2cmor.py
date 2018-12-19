@@ -57,7 +57,7 @@ def initialize(path, expname, tableroot, refdate):
     cal = None
     for f in nemo_files_:
         cal = read_calendar(f)
-        if cal:
+        if cal is not None:
             break
     if cal:
         cmor.set_cur_dataset_attribute("calendar", cal)
@@ -368,10 +368,9 @@ def read_calendar(ncfile):
         ds = netCDF4.Dataset(ncfile, 'r')
         if not ds:
             return None
-        timvar = ds.variables["time_centered"]
-        if timvar:
-            result = getattr(timvar, "calendar")
-            return result
+        timvar = ds.variables.get("time_centered", None)
+        if timvar is not None:
+            return getattr(timvar, "calendar", None)
         else:
             return None
     finally:

@@ -21,14 +21,14 @@
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
 #
-# drq -m CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-AOGCM-mips
-# drq -m CMIP,DCPP,HighResMIP                                                        -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-HR-mips
-# drq -m CMIP,PMIP                                                                   -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-LR-mips
-# drq -m CMIP,CDRMIP,C4MIP,LUMIP,OMIP                                                -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-CC-mips
-# drq -m CMIP,ISMIP6,PMIP                                                            -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-GrisIS-mips
-# drq -m CMIP,AerChemMIP                                                             -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-AerChem-mips
-# drq -m CMIP,CDRMIP,LUMIP,LS3MIP,ScenarioMIP                                        -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-Veg-mips
-# drq -m CMIP,PMIP,ScenarioMIP                                                       -e CMIP -t 1 -p 1 --xls --xlsDir xls-e=CMIP-t=1-p=1-m=all-ece-Veg-LR-mips
+# drq -m CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -e CMIP -t 1 -p 1
+# drq -m CMIP,DCPP,HighResMIP                                                        -e CMIP -t 1 -p 1
+# drq -m CMIP,PMIP                                                                   -e CMIP -t 1 -p 1
+# drq -m CMIP,CDRMIP,C4MIP,LUMIP,OMIP                                                -e CMIP -t 1 -p 1
+# drq -m CMIP,ISMIP6,PMIP                                                            -e CMIP -t 1 -p 1
+# drq -m CMIP,AerChemMIP                                                             -e CMIP -t 1 -p 1
+# drq -m CMIP,CDRMIP,LUMIP,LS3MIP,ScenarioMIP                                        -e CMIP -t 1 -p 1
+# drq -m CMIP,PMIP,ScenarioMIP                                                       -e CMIP -t 1 -p 1
 
 import sys
 import os
@@ -41,9 +41,23 @@ experiment_tiers_included = [1]
 ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
 #ec_earth_mips = ['CMIP', 'DCPP']
-#ec_earth_mips = ['CMIP'] # for basic test
+ec_earth_mips = ['CMIP'] # for basic test
 experiment_counter = 0
 
+
+# The list of MIPs for each of the eight EC-Earth3 model configurations. This lists are needed to request the joint CMIP6 data requests for each of the EC-Earth3 model configurations:
+just_cmip         = 'CMIP'
+EC_EARTH_AOGCM    = 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB'
+EC_EARTH_HR       = 'CMIP,DCPP,HighResMIP'
+EC_EARTH_LR       = 'CMIP,PMIP'
+EC_EARTH_CC       = 'CDRMIP,CMIP,C4MIP,LUMIP,OMIP'
+EC_EARTH_GrisIS   = 'CMIP,ISMIP6,PMIP'
+EC_EARTH_AerChem  = 'AerChemMIP,CMIP'
+EC_EARTH_Veg      = 'CDRMIP,CMIP,LUMIP,LS3MIP,ScenarioMIP'
+EC_EARTH_Veg_LR   = 'CMIP,PMIP,ScenarioMIP'
+
+# The eight EC-Earth3 model configurations in an iteratable list:
+ec_earth_model_configurations = ['just_cmip', 'EC_EARTH_AOGCM', 'EC_EARTH_HR', 'EC_EARTH_LR', 'EC_EARTH_CC', 'EC_EARTH_GrisIS', 'EC_EARTH_AerChem', 'EC_EARTH_Veg', 'EC_EARTH_Veg_LR']
 
 command_0 = 'rm -rf cmip6-output-control-files'
 os.system(command_0)
@@ -53,7 +67,16 @@ for mip in dq.coll['mip'].items:
   # Loop over experiments:
   for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
     ex = dq.inx.uid[u]
-    mip_label = mip.label
+    mip_name = mip.label
+    if mip_name == 'CMIP':
+    #mip_list  = EC_EARTH_AOGCM
+    #mip_label = EC_EARTH_AOGCM.replace(",", ".") # Convert the comma separated list into a dot separated list because this is what comes out from genecec-per-mip-experiment.sh
+     mip_list  = just_cmip
+     mip_label = just_cmip.replace(",", ".") # Convert the comma separated list into a dot separated list because this is what comes out from genecec-per-mip-experiment.sh
+    else:
+     mip_list  = mip_name
+     mip_label = mip_name
+
     if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
      print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
     else:
@@ -61,7 +84,7 @@ for mip in dq.coll['mip'].items:
        omit_setup_argument = ''
      else:
        omit_setup_argument = ' omit-setup'
-     command   = './genecec-per-mip-experiment.sh ' + mip_label + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
+     command   = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
      command_2 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
      command_3 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
      command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
@@ -69,21 +92,25 @@ for mip in dq.coll['mip'].items:
     #command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
     #command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=1/file_def_nemo-opa.xml'
      command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+   ##command_7 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
+   ##command_8 = '      mv cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + ec_earth_model_configurations[1] + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + ec_earth_model_configurations[1] + '.txt'
     #print print '{}'.format(command)
-     if mip_label in ec_earth_mips:
-       #if ex.tier[0] in experiment_tiers_included and mip_label in ec_earth_mips and ex.label == 'piControl':  # for basic test
-        if ex.tier[0] in experiment_tiers_included and mip_label in ec_earth_mips:
+     if mip_name in ec_earth_mips:
+       #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':  # for basic test
+        if ex.tier[0] in experiment_tiers_included:
            os.system(command)
            os.system(command_2) # Remove the file_def-compact subdirectory with the compact file_def files
            os.system(command_3) # Remove the cmip6-file_def_nemo.xml file
           #os.system(command_4) # Just set the toce fields false again because we still face troubles with them
           #os.system(command_5) # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
            os.system(command_6) # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+         ##os.system(command_7) # Rename directry names for joint MIPs
+         ##os.system(command_8) # Rename volume-estimate file for joint MIPs
            experiment_counter = experiment_counter + 1
         else:
            print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command)
      else:
-        print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_label, command)
+        print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command)
 
 
 print ' There are {} experiments included. '.format(experiment_counter)
