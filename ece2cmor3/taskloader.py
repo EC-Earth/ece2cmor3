@@ -43,7 +43,7 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-def load_targets(varlist, active_components=None, silent=False):
+def load_targets(varlist, active_components=None, silent=False, target_filters=[]):
     global log
     targetlist = []
     if isinstance(varlist, basestring):
@@ -69,6 +69,8 @@ def load_targets(varlist, active_components=None, silent=False):
                 add_target(v, table, targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
+    for f in target_filters:
+        targetlist = filter(f, targetlist)
     log.info("Found %d cmor target variables in input variable list." % len(targetlist))
     return create_tasks(targetlist, active_components, silent)
 
