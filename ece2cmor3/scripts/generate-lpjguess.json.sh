@@ -173,6 +173,11 @@ declare -a arr=(
 function add_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
+ case $1 in
+     *Frac* )
+       echo '        "convert": "frac2percent",' >> ${output_file}
+	 ;;
+ esac
  echo '        "target": "'$1'"'  >> ${output_file}
  echo '    },'                    >> ${output_file}
 }
@@ -180,6 +185,11 @@ function add_item {
 function add_last_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
+ case $1 in
+     *Frac* )
+       echo '        "convert": "frac2percent",' >> ${output_file}
+	 ;;
+ esac
  echo '        "target": "'$1'"'  >> ${output_file}
  echo '    }'                     >> ${output_file}
 }
