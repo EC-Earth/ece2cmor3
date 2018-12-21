@@ -64,15 +64,15 @@
         "target": "clivi"
     },
     {
-        "source": "95.128",
+        "source": "95.126",
         "target": "tntr"
     },
     {
-        "source": "105.128",
+        "source": "105.126",
         "target": "tntc"
     },
     {
-        "source": "106.128",
+        "source": "106.126",
         "target": "tnhusc"
     },
     {
@@ -541,12 +541,12 @@
     {
         "source": "124.129",
         "target": "tnhus",
-        "expr": "var94+var99+var106+var110"
+        "expr": "var126094+var126099+var126106+var126110"
     },
     {
         "source": "125.129",
         "target": "tnhusmp",
-        "expr": "var99+var106+var110"
+        "expr": "var126099+var126106+var126110"
     },
     {
         "source": "126.129",
