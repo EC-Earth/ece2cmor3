@@ -75,8 +75,8 @@ def get_output_freq(task):
         return getattr(task,  cmor_task.output_frequency_key)
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
-        raise Exception("Cannot determine post-processing frequency for IFS output, please provide it by setting the "
-                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)")
+        raise Exception("Cannot determine post-processing frequency for %s, please provide it by setting the "
+                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)" % (task.target.variable))
 #        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
 
 
