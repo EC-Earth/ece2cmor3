@@ -152,6 +152,7 @@ def execute(tasks, nthreads=1):
 
     for mask_task in mask_tasks:
         setattr(mask_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+        setattr(mask_task, cmor_task.output_frequency_key, 0)
 
     if auto_filter_:
         tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
