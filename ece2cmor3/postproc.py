@@ -33,7 +33,10 @@ def post_process(task, path, do_postprocess):
     output_file_name = task.target.variable + "_" + task.target.table + ".nc"
     output_path = os.path.join(path, output_file_name) if path else None
     if do_postprocess:
-        filepath = apply_command(command, task, output_path)
+        if task.status != cmor_task.status_failed:
+            filepath = apply_command(command, task, output_path)
+        else:
+            filepath = None
     else:
         filepath = 1
     if filepath is not None and task.status != cmor_task.status_failed:
@@ -149,6 +152,7 @@ def add_expr_operators(cdo, task):
 
 # Adds grid remapping operators to the cdo commands for the given task
 def add_grid_operators(cdo, task):
+    if task.status == 
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
