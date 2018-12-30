@@ -75,8 +75,8 @@ def get_output_freq(task):
         return getattr(task,  cmor_task.output_frequency_key)
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
-        raise Exception("Cannot determine post-processing frequency for IFS output, please provide it by setting the "
-                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)")
+        raise Exception("Cannot determine post-processing frequency for %s, please provide it by setting the "
+                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)" % (task.target.variable))
 #        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
 
 
@@ -149,16 +149,23 @@ def execute(tasks, nthreads=1):
     mask_tasks = get_mask_tasks(supported_tasks)
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
-    tasks_todo = mask_tasks + surf_pressure_tasks + regular_tasks
+
+    for mask_task in mask_tasks:
+        setattr(mask_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+        setattr(mask_task, cmor_task.output_frequency_key, 0)
 
     if auto_filter_:
-        tasks_todo = grib_filter.execute(tasks_todo, filter_files=do_post_process(), multi_threaded=(nthreads > 1))
+        tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
+                                                      filter_files=do_post_process(), multi_threaded=(nthreads > 1))
     else:
-        for task in tasks_todo:
+        tasks_todo = mask_tasks
+        for task in surf_pressure_tasks + regular_tasks:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+                tasks_todo.append(task)
             elif task.source.grid_id() == cmor_source.ifs_grid.spec:
                 setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+                tasks_todo.append(task)
             else:
                 log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
                                                                                    task.target.table))
@@ -227,7 +234,6 @@ def get_mask_tasks(tasks):
         setattr(target, cmor_target.freq_key, 0)
         setattr(target, "time_operator", ["point"])
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
-        setattr(result_task, cmor_task.output_path_key, ifs_gridpoint_files_)
         result.append(result_task)
     return result
 

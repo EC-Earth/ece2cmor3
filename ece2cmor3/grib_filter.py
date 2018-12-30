@@ -127,7 +127,7 @@ def get_record_key(gribfile):
         #    if codevar in [167, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
-    if codevar == 9 or (codevar == 134 and levtype == grib_file.hybrid_level_code):
+    if codevar == 9:
         level = 0
         levtype = grib_file.surface_level_code
     if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
