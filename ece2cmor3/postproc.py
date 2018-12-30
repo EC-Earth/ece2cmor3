@@ -152,7 +152,6 @@ def add_expr_operators(cdo, task):
 
 # Adds grid remapping operators to the cdo commands for the given task
 def add_grid_operators(cdo, task):
-    if task.status == 
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
