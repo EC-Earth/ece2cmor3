@@ -225,8 +225,8 @@ class cdo_command:
     @staticmethod
     def make_option(key, args):
         option = "-" + key
-        if key in [cdo_command.expression_operator, cdo_command.add_expression_operator]:
-            return (option + "," + ';'.join([str(a) for a in args])) if any(args) else option
+        if key == cdo_command.add_expression_operator and len(args) > 1:
+            return option + ",\'" + ';'.join([str(a) for a in args]) + "\'"
         return (option + "," + ",".join([str(a) for a in args])) if any(args) else option
 
     # Reshuffles operator ordering to increase performance
