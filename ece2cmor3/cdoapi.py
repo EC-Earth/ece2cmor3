@@ -225,6 +225,8 @@ class cdo_command:
     @staticmethod
     def make_option(key, args):
         option = "-" + key
+        if key in [cdo_command.expression_operator, cdo_command.add_expression_operator]:
+            return (option + "," + ';'.join([str(a) for a in args])) if any(args) else option
         return (option + "," + ",".join([str(a) for a in args])) if any(args) else option
 
     # Reshuffles operator ordering to increase performance
@@ -233,7 +235,7 @@ class cdo_command:
         i1 = operator_list.index(cdo_command.spectral_operator) if cdo_command.spectral_operator in operator_list else 0
         i2 = operator_list.index(cdo_command.gridtype_operator) if cdo_command.gridtype_operator in operator_list else 0
         nonlinear_operators = cdo_command.min_time_operators.values() + cdo_command.max_time_operators.values() + [
-            cdo_command.expression_operator]
+            cdo_command.expression_operator, cdo_command.add_expression_operator]
         i = i1 + i2
         while i > 0:
             if operator_list[i - 1] in nonlinear_operators:
