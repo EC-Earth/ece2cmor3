@@ -87,7 +87,7 @@ class grib_code:
         if len(string_pair) == 1:
             code_string = string_pair[0]
             if len(code_string) > 3:
-                vid, tid = int(code_string[3:]), int(code_string[0:3])
+                vid, tid = int(code_string[3:]), int(code_string[:3])
             else:
                 vid, tid = int(code_string), 128
         elif len(string_pair) == 2:
@@ -177,13 +177,21 @@ class ifs_source(cmor_source):
                 log.error("Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
                           % (expr, str(gc)))
             else:
-                varstrs = re.findall("var[0-9]{1,3}", expr)
-                if expr.replace(" ", "").startswith(varstrs[0] + "="):
+                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr) + re.findall("var[0-9]{6}(?![0-9])", expr)
+
+                def fix_6_digits(e):
+                    return re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), e)
+
+                sides = expr.replace(" ", "").split('=')
+                if len(sides) == 1:
+                    expr_string = '='.join(["var" + str(gc.var_id), fix_6_digits(expr)])
+                elif sides[0] in varstrs:
                     log.warning("Ignoring left-hand side assignment in expression %s" % expr)
-                    varstrs = varstrs[1:]
-                    expr_string = '='.join(["var" + str(gc.var_id), expr.split('=')[-1]])
+                    varstrs.remove(sides[0])
+                    expr_string = '='.join(["var" + str(gc.var_id), fix_6_digits(sides[-1])])
                 else:
-                    expr_string = '='.join(["var" + str(gc.var_id), expr])
+                    log.error("Could not parse diagnostic expression %s" % expr)
+                    return cls
                 root_codes = []
                 for varstr in varstrs:
                     code = grib_code.read(varstr)
@@ -193,8 +201,7 @@ class ifs_source(cmor_source):
                         root_codes.append(code)
                 num_sp_codes = len([c for c in root_codes if c in ifs_source.grib_codes_sh])
                 if num_sp_codes != 0 and num_sp_codes != len(root_codes):
-                    log.error(
-                        "Invalid combination of gridpoint and spectral variables in expression %s" % expr)
+                    log.error("Invalid combination of gridpoint and spectral variables in expression %s" % expr)
 
                 cls.grid_ = ifs_grid.spec if all(
                     [c in ifs_source.grib_codes_sh for c in root_codes]) else ifs_grid.point
@@ -222,6 +229,8 @@ class lpjg_source(cmor_source):
 
     def variable(self):
         return self.colname_
+
+
 # LTM5 source subclass
 class tm5_source(cmor_source):
 
