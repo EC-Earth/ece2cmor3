@@ -1,5 +1,81 @@
 [
     {
+        "source": "30.126",
+        "target": "sftgrf"
+    },
+    {
+        "source": "31.126",
+        "target": "sncls"
+    },
+    {
+        "source": "32.126",
+        "target": "sftgif"
+    },
+    {
+        "source": "33.126",
+        "target": "sftgrf"
+    },
+    {
+        "source": "34.126",
+        "target": "areacellg"
+    },
+    {
+        "source": "40.126",
+        "target": "cllcalipso"
+    },
+    {
+        "source": "41.126",
+        "target": "clmcalipso"
+    },
+    {
+        "source": "42.126",
+        "target": "clhcalipso"
+    },
+    {
+        "source": "43.126",
+        "target": "cltcalipso"
+    },
+    {
+        "source": "44.126",
+        "target": "cltisccp"
+    },
+    {
+        "source": "45.126",
+        "target": "pctisccp"
+    },
+    {
+        "source": "46.126",
+        "target": "albisccp"
+    },
+    {
+        "source": "72.126",
+        "target": "rlutcsaf"
+    },
+    {
+        "source": "73.126",
+        "target": "rlutaf"
+    },
+    {
+        "source": "95.126",
+        "target": "tntr"
+    },
+    {
+        "source": "105.126",
+        "target": "tntc"
+    },
+    {
+        "source": "106.126",
+        "target": "tnhusc"
+    },
+    {
+        "source": "151.126",
+        "target": "nudgincsm"
+    },
+    {
+        "source": "152.126",
+        "target": "nudgincswe"
+    },
+    {
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros",
@@ -62,18 +138,6 @@
     {
         "source": "79.128",
         "target": "clivi"
-    },
-    {
-        "source": "95.126",
-        "target": "tntr"
-    },
-    {
-        "source": "105.126",
-        "target": "tntc"
-    },
-    {
-        "source": "106.126",
-        "target": "tnhusc"
     },
     {
         "source": "129.128",
