@@ -60,13 +60,61 @@
         "target": "tntr"
     },
     {
+        "source": "106.126",
+        "target": "tnhusc"
+    },
+    {
+        "source": "120.126",
+        "target": "utendnogw"
+    },
+    {
+        "source": "121.126",
+        "target": "utendogw"
+    },
+    {
+        "source": "122.126",
+        "target": "vtendnogw"
+    },
+    {
+        "source": "123.126",
+        "target": "vtendogw"
+    },
+    {
+        "source": "124.126",
+        "target": "tntmp"
+    },
+    {
+        "source": "125.126",
+        "target": "tntrl"
+    },
+    {
+        "source": "126.126",
+        "target": "tntrs"
+    },
+    {
+        "source": "127.126",
+        "target": "tntrlcs"
+    },
+    {
+        "source": "128.126",
+        "target": "tntrscs"
+    },
+    {
         "comment": "previous source was: 105.126",
         "source": "129.126",
         "target": "tntc"
     },
     {
-        "source": "106.126",
-        "target": "tnhusc"
+        "source": "130.126",
+        "target": "tntscp"
+    },
+    {
+        "source": "131.126",
+        "target": "tntnogw"
+    },
+    {
+        "source": "132.126",
+        "target": "tntogw"
     },
     {
         "source": "151.126",
@@ -643,6 +691,16 @@
         "expr": "var44+var182",
         "convert": "cum2inst",
         "masked": "land"
+    },
+    {
+        "source": "131.129",
+        "target": "rsutaf",
+        "expr": "var128212-var126069"
+    },
+    {
+        "source": "132.129",
+        "target": "cdnc",
+        "expr": "var126020/var126022"
     },
     {
         "mask": "land",
