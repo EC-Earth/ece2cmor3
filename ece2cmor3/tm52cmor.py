@@ -106,37 +106,52 @@ def execute(tasks):
     for task in tasks:
         #print task.target.variable,task.target.frequency
         setattr(task,cmor_task.output_path_key,None)
-        for fstr in tm5_files_:
-            if task.target.frequency=='1hr':
-                freqid='hr'
-                #print freqid,fstr,freqid in fstr
-            elif task.target.frequency=='fx':
-                log.info('fx frequency has no variables from TM5')
-                task.failed()
-                continue
-            elif task.target.frequency=='CFday':
+        if task.target.frequency=='1hr':
+            freqid='hr'
+            #print freqid,fstr,freqid in fstr
+        if task.target.frequency=='6hrPt':
+            freqid='6hr'
+            #print freqid,fstr,freqid in fstr
+        if task.target.frequency=='3hrPt':
+            freqid='3hr'
+            #print freqid,fstr,freqid in fstr
+        elif task.target.frequency=='fx':
+            log.info('fx frequency has no variables from TM5')
+            task.set_failed()
+            continue
+        elif task.target.frequency=='CFday':
 
-                freqid='AERday'
-            else:
-                freqid=task.target.frequency
-            # catch variablename + '_' to prevent o3 and o3loss mixing up...
-            # also check that frequencies match
-            if os.path.basename(fstr).startswith(task.target.variable+"_") and freqid in fstr:
+            freqid='AERday'
+        else:
+            freqid=task.target.frequency
+        # catch variablename + '_' to prevent o3 and o3loss mixing up...
+        # also check that frequencies match
+        if task.target.table=='AERmonZ':
+            freqid=freqid+'Z'
+        #elif task.target.table=='Amon':
+        #    print task.target.frequency,task.source.variable
+        #    freqid='mon'
+        for fstr in tm5_files_:
+            # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
+            # and freqid has _ behing (e.g. monZ .neq. mon)
+            if os.path.basename(fstr).startswith(task.source.variable()+"_") and   freqid+'_' in fstr  :
                 fname=fstr
-                #print fname
                 if getattr(task,cmor_task.output_path_key) == None:
                     setattr(task,cmor_task.output_path_key,fstr)
                 else: 
                     log.critical('Second file with same frequency and name. Currently supporting only one year per directory.')
                     exit(' Exiting ece2cmor.')
+            if not os.path.exists(fstr):
+                log.info('No path found for variable %s from TM5'%(task.target.variable))
+                task.set_failed()
+                continue
         # save ps task for frequency
         if task.target.variable=='ps':
             if task.target.frequency not in ps_tasks:
                 ps_tasks[task.target.frequency]=task
-
-
     log.info('Creating TM5 3x2 deg lon-lat grid')
     grid = create_lonlat_grid()#xsize, xfirst, yvals)
+    
     grid_ids_['lonlat']=grid
 
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
