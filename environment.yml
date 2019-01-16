@@ -18,7 +18,6 @@
 
 name: ece2cmor3
 channels:
-- pcmdi/label/nightly
 - conda-forge
 - defaults
 dependencies:
