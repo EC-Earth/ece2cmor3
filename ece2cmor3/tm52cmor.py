@@ -382,7 +382,7 @@ def execute_netcdf_task(task,tableid):
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
     cmor.close(varid)
     if store_var:
-            cmor.close(store_var)
+        cmor.close(store_var)
     task.status = cmor_task.status_cmorized
    
 
@@ -391,11 +391,16 @@ def create_cmor_variable(task,dataset,axes):
     srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar,"units",None)
-    if unit not in getattr(task.target,"units"):
+    if unit != getattr(task.target,"units"):
         if unit=='mole mole-1':
+            # files have mole mole-1 but should be mol mol-1
             unit = getattr(task.target,"units")
         elif srcvar=='toz'or srcvar=='tropoz':
+            # unit is just different
+            if unit=='DU':
+                setattr(task,cmor_task.conversion_key,1e-5)
             unit =  getattr(task.target,"units")
+
         else:
             unit_miss_match.append(task.target.variable)
             log.error("unit miss match, variable %s" % (task.target.variable))
