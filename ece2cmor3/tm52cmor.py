@@ -198,6 +198,7 @@ def execute(tasks):
         for task in tasklist:
             #define task properties 
             #2D grid
+
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
@@ -275,12 +276,9 @@ def execute_netcdf_task(task,tableid):
                 axes=[grid_ids_['lat2']]
             #cmor.load_table(table_root_ + "_grids.json")
 
-            #print task.target
-            #print 'aermonz: ',task.target.dims,task.target.variable
             # zonal variables...
             #needs lat only, no grid....
             grid_index = axes#cmor_source.tm5_grid.index(task.grid_id)
-            print task.target.table
             if hasattr(task, "z_axis_id"):
                 axes.append(getattr(task, "z_axis_id"))
                 #print axes
