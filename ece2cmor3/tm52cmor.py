@@ -168,16 +168,28 @@ def execute(tasks):
             log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
                       % (table, ','.join([tsk.target.variable for tsk in tasklist]), e.message))
             continue
-        if table == 'AERmonZ' :
+        #     #postprocess data to zonal mean and plev39, or do it before this point
+        if table == '3hr' :
+            for task in tasklist:
+                task.set_failed()
             log.error("Table %s not implemented yet" %(table))
             log.error("Skipping variable %s not implemented yet" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
         if table== 'AERhr':
+            for task in tasklist:
+                task.set_failed()
             log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
             log.error("Skipping variable %s not implemented yet" %(task.target.variable))
             continue
-
+        if table== '6hrLev':
+            for task in tasklist:
+                task.set_failed()
+            log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
+            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
+            continue
+        if table== 'Eday':
+            print 'EDAY: ',task.target.variable
         # create or assign time axes to tasks
         log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
@@ -239,14 +251,69 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     axes = [grid_ids_['lonlat']]
+    #if task.target.table =='AERmonZ':
+    #    print 'aermonz: ',task.target.dims,task.target.variable
     if( task.target.dims == 3):
         grid_index = axes#cmor_source.tm5_grid.index(task.grid_id)
+        #grid_ids_['lat2']=create_lat()
+        #grid_ids_['lon2']=create_lon()
+        axes = [grid_ids_['lonlat']]
+        #axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+        axes = [grid_ids_['lonlat']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
-            if 'plev19' in getattr(task.target, cmor_target.dims_key).split():
-                interpolate_to_pressure=True
-            elif'plev39'  in getattr(task.target, cmor_target.dims_key).split():
-                interpolate_to_pressure=True
+    elif ( task.target.dims == 2):
+        if task.target.table=='AERmonZ':
+            '''
+            2D Zonal lat+lev
+            '''
+            #cmor.load_table(table_root_ + "_coordinate.json")
+            if hasattr(grid_ids_,'lat2'):
+                axes=[grid_ids_['lat2']]
+            else:
+                grid_ids_['lat2']=create_lat()
+                axes=[grid_ids_['lat2']]
+            #cmor.load_table(table_root_ + "_grids.json")
+
+            #print task.target
+            #print 'aermonz: ',task.target.dims,task.target.variable
+            # zonal variables...
+            #needs lat only, no grid....
+            grid_index = axes#cmor_source.tm5_grid.index(task.grid_id)
+            print task.target.table
+            if hasattr(task, "z_axis_id"):
+                axes.append(getattr(task, "z_axis_id"))
+                #print axes
+                if 'plev19' in getattr(task.target, cmor_target.dims_key).split():
+                    interpolate_to_pressure=True
+                elif'plev39'  in getattr(task.target, cmor_target.dims_key).split():
+                    interpolate_to_pressure=True
+        elif not  hasattr(task, "z_axis_id"):
+            ''' 
+            2D variables lon+lat
+
+            '''
+            if hasattr(grid_ids_,'lon2'):
+                axes=[grid_ids_['lat2']]
+                axes=[grid_ids_['lon2']]
+            else:
+                grid_ids_['lat2']=create_lat()
+                grid_ids_['lon2']=create_lon()
+                #grid_ids_['lat2']=create_lat()
+                axes=[grid_ids_['lat2'],grid_ids_['lon2']]
+            #grid_ids_['lat2']=create_lat()
+            #grid_ids_['lon2']=create_lon()
+            #axes = [grid_ids_['lonlat']]
+            axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+        else:
+            print 'unsupported 2D dimensions'
+            sadf
+
+    else:
+        print 'unsupported dimesnsions'
+        print task.target.variable
+        #dfsadfa#task.set_failed()
+        #return false
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
         axes.append(time_id)
@@ -271,12 +338,30 @@ def execute_netcdf_task(task,tableid):
         ncvar=interpolate_plev(pnew,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
-    vals=numpy.copy(ncvar[:])
-    dims = numpy.shape(vals)
-    nroll=dims[-1]/2
-    ncvar = numpy.roll(vals,nroll,len(dims)-1)
-    missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
-    vals=numpy.copy(ncvar[:,:,:])
+    if task.target.table=='AERmonZ': 
+        # assumption: data is shape [time,lat,lon] (roll longitude dimensio
+        #print numpy.shape(ncvar),interpolate_to_pressure
+        #print getattr(task.target, cmor_target.dims_key).split()
+        vals=numpy.copy(ncvar[:])
+        # zonal mean so mean over longitudes
+        vals=numpy.mean(vals,axis=-1)
+        # change shape, swap lat<->lev
+        vals=numpy.swapaxes(vals,1,2)
+
+        dims = numpy.shape(vals)
+        #print dims
+        #nroll=dims[-1]/2
+        #ncvar = numpy.roll(vals,nroll,len(dims)-1)
+        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        #vals=numpy.copy(ncvar[:,:,:])
+        ncvar=vals.copy()
+    else:# assumption: data is shape [time,lat,lon] (roll longitude dimension)
+        vals=numpy.copy(ncvar[:])
+        dims = numpy.shape(vals)
+        nroll=dims[-1]/2
+        ncvar = numpy.roll(vals,nroll,len(dims)-1)
+        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        vals=numpy.copy(ncvar[:,:,:])
     #factor 1. keep it for time being
     # Default values
     factor = 1.0
@@ -571,6 +656,21 @@ def create_hybrid_level_axis(task):
     finally:
         if ds is not None:
             ds.close()
+def create_lat():#nx, x0, yvals):
+    yvals=numpy.linspace(89,-89,90)
+    ny = len(yvals)
+    lat_bnd=numpy.linspace(90,-90,91)
+    lat_id2=cmor.axis(table_entry="latitude", units="degrees_north",
+                                    coord_vals=yvals, cell_bounds=lat_bnd)
+    return lat_id2
+
+def create_lon():#nx, x0, yvals):
+    xvals=numpy.linspace(1.5,358.5,120)
+    nx = len(xvals)
+    lon_bnd=numpy.linspace(0,360,121)
+    lon_id2=cmor.axis(table_entry="longitude", units="degrees_east",
+                                    coord_vals=xvals, cell_bounds=lon_bnd)
+    return lon_id2
 
 def create_lonlat_grid():#nx, x0, yvals):
     nx=120
