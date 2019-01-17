@@ -53,6 +53,8 @@ failed  = []
 plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
 plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
 
+#
+ignore_frequency=['subhrPt','6hrPt']
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
     global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_
@@ -109,10 +111,10 @@ def execute(tasks):
         if task.target.frequency=='1hr':
             freqid='hr'
             #print freqid,fstr,freqid in fstr
-        if task.target.frequency=='6hrPt':
+        elif task.target.frequency=='6hrPt':
             freqid='6hr'
             #print freqid,fstr,freqid in fstr
-        if task.target.frequency=='3hrPt':
+        elif task.target.frequency=='3hrPt':
             freqid='3hr'
             #print freqid,fstr,freqid in fstr
         elif task.target.frequency=='fx':
@@ -122,24 +124,45 @@ def execute(tasks):
         elif task.target.frequency=='CFday':
 
             freqid='AERday'
+        elif task.target.frequency in ignore_frequency:
+            log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
+            continue
         else:
+            print task.target.frequency
             freqid=task.target.frequency
         # catch variablename + '_' to prevent o3 and o3loss mixing up...
         # also check that frequencies match
         if task.target.table=='AERmonZ':
-            freqid=freqid+'Z'
+            freqid='AER'+freqid+'Z'
+        elif task.target.table=='AERhr':
+            freqid='AER'+freqid
+        elif task.target.table=='Amon':
+            # ps is only an auxilliary variable for creating vertical axis for variables
+            # Tables say Amon... but TM5 file has a description AERmon
+            if task.target.variable=='ps':
+                freqid='AER'+freqid
+            else:
+                freqid='A'+freqid
+        else:
+            freqid='AER'+freqid
+        
         #elif task.target.table=='Amon':
         #    print task.target.frequency,task.source.variable
         #    freqid='mon'
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
+            # if os.path.basename(fstr).startswith(task.source.variable()+"_") and task.source.variable()=='ps':
+                
+            #     print os.path.basename(fstr).startswith(task.source.variable()+"_")
+            #     print freqid+'_' in fstr, freqid+'_',fstr
             if os.path.basename(fstr).startswith(task.source.variable()+"_") and   freqid+'_' in fstr  :
                 fname=fstr
                 if getattr(task,cmor_task.output_path_key) == None:
                     setattr(task,cmor_task.output_path_key,fstr)
                 else: 
                     log.critical('Second file with same frequency and name. Currently supporting only one year per directory.')
+                    log.critical(fstr)
                     exit(' Exiting ece2cmor.')
             if not os.path.exists(fstr):
                 log.info('No path found for variable %s from TM5'%(task.target.variable))
@@ -147,6 +170,7 @@ def execute(tasks):
                 continue
         # save ps task for frequency
         if task.target.variable=='ps':
+            #print 'ps',task.target.frequency, getattr(task,cmor_task.output_path_key)
             if task.target.frequency not in ps_tasks:
                 ps_tasks[task.target.frequency]=task
     log.info('Creating TM5 3x2 deg lon-lat grid')
