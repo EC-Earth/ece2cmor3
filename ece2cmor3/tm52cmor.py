@@ -128,7 +128,6 @@ def execute(tasks):
             log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
             continue
         else:
-            print task.target.frequency
             freqid=task.target.frequency
         # also check that frequencies match
         if task.target.table=='AERmonZ':
@@ -195,12 +194,6 @@ def execute(tasks):
             log.error("Skipping variable %s not implemented yet" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
-        if table== 'AERhr':
-            for task in tasklist:
-                task.set_failed()
-            log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
-            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
-            continue
         if table== '6hrLev':
             for task in tasklist:
                 task.set_failed()
@@ -245,7 +238,14 @@ def execute(tasks):
                     log.info("Cmorizing source variable %s to target variable %s from file %s." % (task.source.variable(),task.target.variable,ncf))
                     execute_netcdf_task(task,tab_id)
                     if task.status<0:
-                        log.error("Cmorizing failed for %s" % (task.target.variable))
+                        if task.target.variable=='cdnc':
+                            log.error("Cmorizing failed for %s, but variable is produced by IFS." % (task.target.variable))
+                        elif task.target.variable=='o3Clim':
+                            log.error("Cmorizing failed for %s, check tm5par.json since source will be o3 instead of %s." % (task.target.variable, task.source.variable()))
+                        elif ask.target.variable=='ch4Clim' or task.target.variable=='ch4global' or task.target.variable=='ch4globalClim' or :
+                            log.error("Cmorizing failed for %s, check tm5par.json since source will be ch4 instead of %s." % (task.target.variable, task.source.variable()))
+                        else:
+                            log.error("Cmorizing failed for %s" % (task.target.variable))
                     else:
                         taskmask[task] = True
                 else:
@@ -500,15 +500,22 @@ def create_time_axis(freq,path,name,has_bounds):
         bnds = getattr(timvar,"bounds")
         bndvar = ds.variables[bnds]
         units = getattr(timvar,"units")
-        #print len(vals),vals[1]-vals[0]
-        tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
-        #print tm5refdate  
-        diff_days= (refdate-tm5refdate).total_seconds()/86400
-        vals=vals-diff_days
-        bndvar=bndvar[:]-diff_days
-       
     except:
         ds.close()
+    #print len(vals),vals[1]-vals[0]
+    tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
+    #print tm5refdate  
+    diff_days= (refdate-tm5refdate).total_seconds()/86400
+    vals=vals-diff_days
+    bndvar2=numpy.zeros_like(bndvar)
+    bndvar2[:,0]=bndvar[:,0]-int(diff_days)
+    bndvar2[:,1]=bndvar[:,1]-int(diff_days)
+    bndvar=bndvar2
+    # hourly bounds can have overlap by -1e-14, which is caught by cmor library as an error
+    # so just correct it always
+    for i in range(numpy.shape(bndvar2)[0]-1):
+        bndvar2[i+1,0]=bndvar2[i,1]
+
     if(len(vals) == 0 or units == None):
         log.error("No time values or units could be read from tm5 output files %s" % str(files))
         return 0
