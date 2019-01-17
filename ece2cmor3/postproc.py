@@ -33,7 +33,10 @@ def post_process(task, path, do_postprocess):
     output_file_name = task.target.variable + "_" + task.target.table + ".nc"
     output_path = os.path.join(path, output_file_name) if path else None
     if do_postprocess:
-        filepath = apply_command(command, task, output_path)
+        if task.status != cmor_task.status_failed:
+            filepath = apply_command(command, task, output_path)
+        else:
+            filepath = None
     else:
         filepath = 1
     if filepath is not None and task.status != cmor_task.status_failed:

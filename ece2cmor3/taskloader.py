@@ -43,7 +43,7 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-def load_targets(varlist, active_components=None, silent=False):
+def load_targets(varlist, active_components=None, silent=False, target_filters=None):
     global log
     targetlist = []
     if isinstance(varlist, basestring):
@@ -69,6 +69,13 @@ def load_targets(varlist, active_components=None, silent=False):
                 add_target(v, table, targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
+    if target_filters is None:
+        target_filters = {}
+    for msg, func in target_filters.items():
+        filtered_list = filter(func, targetlist)
+        for tgt in list(set(targetlist) - set(filtered_list)):
+            log.info("Dismissing %s target variable %s in table %s..." % (msg, tgt.variable, tgt.table))
+        targetlist = filtered_list
     log.info("Found %d cmor target variables in input variable list." % len(targetlist))
     return create_tasks(targetlist, active_components, silent)
 
@@ -119,7 +126,7 @@ def load_targets_excel(varlist):
     mip_list_colname = "MIPs (by experiment)"
     book = xlrd.open_workbook(varlist)
     for sheetname in book.sheet_names():
-        if sheetname.lower() in ["notes", "fx", "Ofx"]:
+        if sheetname.lower() in ["notes", "fx"]:
             continue
         sheet = book.sheet_by_name(sheetname)
         row = sheet.row_values(0)

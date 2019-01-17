@@ -65,7 +65,7 @@ def main():
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+      print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
 
       if task.target.frequency == 'yr':
        instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
@@ -73,8 +73,15 @@ def main():
        instruction_file.write('file_{}_monthly "{}_monthly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == 'day':
        instruction_file.write('file_{}_daily "{}_daily.out"{}'.format(task.target.variable, task.target.variable, '\n'))
+      elif task.target.frequency == '3hr':
+       print ' LPJ-GUESS does not provide three hourly (3hr) output: ', task.target.variable, task.target.table, task.target.frequency
+      elif task.target.frequency == '6hr':
+       print ' LPJ-GUESS does not provide six hourly (6hr) output: ', task.target.variable, task.target.table, task.target.frequency
+      elif task.target.frequency == 'yrPt':
+       print ' LPJ-GUESS does not provide yearly instantaneous (yrPt) output: ', task.target.variable, task.target.table, task.target.frequency
+     # instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == '3hrPt':
-       print ' LPJ-GUESS does not provide 3hrPt output', task.target.variable, task.target.table, task.target.frequency
+       print ' LPJ-GUESS does not provide three hourly instantaneous (3hrPt) output: ', task.target.variable, task.target.table, task.target.frequency
       elif task.target.frequency == 'fx':
       #print ' LPJ-GUESS does not provide fx output', task.target.variable, task.target.table, task.target.frequency
        instruction_file.write('file_{}_once "{}_once.out"{}'.format(task.target.variable, task.target.variable, '\n'))
@@ -82,7 +89,9 @@ def main():
       #print ' LPJ-GUESS does not provide monC output', task.target.variable, task.target.table, task.target.frequency
        instruction_file.write('file_{}_monthly_clim "{}_monthly_clim.out"{}'.format(task.target.variable, task.target.variable, '\n'))
       elif task.target.frequency == 'subhrPt':
-       print ' LPJ-GUESS does not provide subhourly output', task.target.variable, task.target.table, task.target.frequency
+       print ' LPJ-GUESS does not provide subhourly instantaneous (subhrPt) output: ', task.target.variable, task.target.table, task.target.frequency
+      else:
+       print '\n Unknown frequency in creating the LPJG instruction file for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
 
       # LPJ-GUESS Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
@@ -91,6 +100,13 @@ def main():
        layer_number_due_to_freq = 12
       elif task.target.frequency == 'day':
        layer_number_due_to_freq = 365
+      elif task.target.frequency == '3hr':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide three hourly (3hr) output
+      elif task.target.frequency == '6hr':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide six hourly (6hr) output
+      elif task.target.frequency == 'yrPt':
+       layer_number_due_to_freq = 0             # LPJ-GUESS does not provide yearly instantaneous (yrPt) output
+     # layer_number_due_to_freq = 1
       elif task.target.frequency == '3hrPt':
        layer_number_due_to_freq = 365.25 * 8.
       elif task.target.frequency == 'fx':
@@ -101,7 +117,7 @@ def main():
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
        layer_number_due_to_freq = 0             # Because there won't be any subhourly output from LPJ-GUESS.
       else:
-       print '\n Unknown frequency in LPJ-GUESS Volume estimate for: ', task.target.variable, '\n'
+       print '\n Unknown frequency in LPJG Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
        layer_number_due_to_freq = 0
 
       # LPJ-GUESS Volume estimate: estimate the number vertical layers per variable:

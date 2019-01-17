@@ -58,7 +58,7 @@ def main():
     taskloader.load_targets(args.vars, active_components=active_components)
     
     for task in ece2cmorlib.tasks:
-    	 print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+         print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
         #print task.target.__dict__
 
     print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
@@ -68,7 +68,7 @@ def main():
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print ' {:15} {:8} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+      print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
 
       # TM5 Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
@@ -87,7 +87,7 @@ def main():
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
        layer_number_due_to_freq = 0             # Because there won't be any subhourly output from TM5.
       else:
-       print '\n Unknown frequency in TM5 Volume estimate for: ', task.target.variable, '\n'
+       print '\n Unknown frequency in TM5  Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
        layer_number_due_to_freq = 0
 
       # TM5 Volume estimate: estimate the number vertical layers per variable:

@@ -11,7 +11,9 @@
 #
 #
 # Run example:
-#  ./generate-ec-earth-namelists.sh CMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -45,13 +47,33 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  tier=$3
  priority=$4
 
+ # Check whether more than one MIP is specified in the data request
+ multiplemips='no'
+ if [[ ${mip} = *","* ]];then
+  multiplemips='yes'
+  echo ' Multiple mip case = ' ${multiplemips}
+ fi
+
+ # Replace , by dot in label:
+ mip_label=$(echo ${mip} | sed 's/,/./g')
+#echo ' mip =' ${mip} '    experiment =' ${experiment} '    mip_label =' ${mip_label}
+#echo "${mip_label}" | tr '[:upper:]' '[:lower:]'
+
+ if [ "${multiplemips}" = "yes" ]; then
+  # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
+  select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
+ else
+  select_substring=${mip}
+ fi
+ echo ${select_substring}
+
  install_setup="include-setup"
  if [ "$#" -eq 5 ]; then
   if [ "$5" = "omit-setup" ]; then
    install_setup="omit-setup"
   fi
  fi
- 
+
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
 
@@ -81,22 +103,63 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo ' '$0 "$@"
   echo
   echo 'First, the CMIP6 data request is applied by:'
-  echo ' ' drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   echo
 
-  mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-  drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
+  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+
+  # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
+  # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:
+  if [ ${mip_label} = 'ScenarioMIP' ]; then
+   cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+   # However, first check whether the file is correctly present, in that case no action:
+   if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    ln -s cmvme_cm.sc_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
+    echo
+    echo 'Create for '${mip_label}' a soft link:'
+    ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+  fi
+
+  # Because in the VolMIP dcppC-forecast-addPinatubo experiment the cmvme_${mip_label}_${experiment}_1_1.xlsx file is not produced, a link
+  # with this name is created to a file cmvme_cm.vo_${experiment}_1_1.xlsx which should be most similar:
+  if [ ${mip_label} = 'VolMIP' ] && [ ${experiment} = 'dcppC-forecast-addPinatubo' ]; then
+   cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+   # However, first check whether the file is correctly present, in that case no action:
+   if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+    ln -s cmvme_cm.vo_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
+    echo
+    echo 'Create for '${mip_label}' a soft link:'
+    ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
+   fi
+  fi
+
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
-  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
- #./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+
+  # Check wheter there will be selected a unique matching data request file in the created data request directory:
+  number_of_matching_files=$(ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx|wc -l)
+  if [ ${number_of_matching_files} != 1 ]; then
+   echo 'Number of matching files: ' ${number_of_matching_files}
+   ls cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+   exit
+  fi
+
+  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
   if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing thehourly / sub hourly table variables.
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
   # Creating the file_def files for XIOS NEMO input:
-  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
@@ -106,10 +169,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
   # Estimating the Volume of the TM5 output:
-  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
-  ./drq2ins.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx
+  ./drq2ins.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
@@ -117,7 +180,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
   echo
   echo 'The produced data request excel file:'
-  ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx
+  ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   echo
   echo 'The generated ppt files are:'
@@ -140,7 +203,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
- #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+ #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
   echo
  #source deactivate
@@ -155,27 +218,27 @@ else
     echo '  '
 fi
 
-# ./generate-ec-earth-namelists.sh CMIP         1pctCO2      1 1
-# ./generate-ec-earth-namelists.sh CMIP         abrupt-4xCO2 1 1
-# ./generate-ec-earth-namelists.sh CMIP         amip         1 1
-# ./generate-ec-earth-namelists.sh CMIP         historical   1 1
-# ./generate-ec-earth-namelists.sh CMIP         piControl    1 1
+# ./genecec-per-mip-experiment.sh CMIP         1pctCO2      1 1
+# ./genecec-per-mip-experiment.sh CMIP         abrupt-4xCO2 1 1
+# ./genecec-per-mip-experiment.sh CMIP         amip         1 1
+# ./genecec-per-mip-experiment.sh CMIP         historical   1 1
+# ./genecec-per-mip-experiment.sh CMIP         piControl    1 1
 
-# ./generate-ec-earth-namelists.sh AerChemMIP   piControl 1 1
-# ./generate-ec-earth-namelists.sh CDRMIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh C4MIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh DCPP         piControl 1 1
-# ./generate-ec-earth-namelists.sh HighResMIP   piControl 1 1
-# ./generate-ec-earth-namelists.sh ISMIP6       piControl 1 1
-# ./generate-ec-earth-namelists.sh LS3MIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh LUMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh OMIP         piControl 1 1
-# ./generate-ec-earth-namelists.sh PAMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh PMIP         piControl 1 1
-# ./generate-ec-earth-namelists.sh RFMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh ScenarioMIP  piControl 1 1
-# ./generate-ec-earth-namelists.sh VolMIP       piControl 1 1
-# ./generate-ec-earth-namelists.sh CORDEX       piControl 1 1
-# ./generate-ec-earth-namelists.sh DynVar       piControl 1 1
-# ./generate-ec-earth-namelists.sh SIMIP        piControl 1 1
-# ./generate-ec-earth-namelists.sh VIACSAB      piControl 1 1
+# ./genecec-per-mip-experiment.sh AerChemMIP   piControl 1 1
+# ./genecec-per-mip-experiment.sh CDRMIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh C4MIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh DCPP         piControl 1 1
+# ./genecec-per-mip-experiment.sh HighResMIP   piControl 1 1
+# ./genecec-per-mip-experiment.sh ISMIP6       piControl 1 1
+# ./genecec-per-mip-experiment.sh LS3MIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh LUMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh OMIP         piControl 1 1
+# ./genecec-per-mip-experiment.sh PAMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh PMIP         piControl 1 1
+# ./genecec-per-mip-experiment.sh RFMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh ScenarioMIP  piControl 1 1
+# ./genecec-per-mip-experiment.sh VolMIP       piControl 1 1
+# ./genecec-per-mip-experiment.sh CORDEX       piControl 1 1
+# ./genecec-per-mip-experiment.sh DynVar       piControl 1 1
+# ./genecec-per-mip-experiment.sh SIMIP        piControl 1 1
+# ./genecec-per-mip-experiment.sh VIACSAB      piControl 1 1

@@ -33,6 +33,8 @@ def get_output_freq(task):
     if task.target.frequency == "fx":
         return 0
     if task.target.frequency.startswith("subhr"):
+        log.warning("Variable %s in table %s: sub-hourly frequencies are not supported... Skipping variable" %
+                    (task.target.variable, task.target.table))
         return -1
     regex = re.search("^[0-9]+hr*", task.target.frequency)
     if regex:
@@ -75,7 +77,8 @@ def join_namelists(nml1, nml2):
         if len(levels) > 0:
             result[key] = levels
     if "NRFP3S" in nml1.keys() or "NRFP3S" in nml2.keys():
-        result["NRFP3S"] = -99
+        # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
+        result["NRFP3S"] = -1
     return result
 
 
@@ -85,6 +88,8 @@ def write_ppt_files(tasks):
     # Fix for issue 313, make sure to always generate 6-hourly ppt:
     if freqgroups.keys() == [3]:
         freqgroups[6] = []
+    if -1 in freqgroups.keys():
+        freqgroups.pop(-1)
     freqs_to_remove = []
     for freq1 in freqgroups:
         if freq1 <= 0:
@@ -125,7 +130,7 @@ def write_ppt_files(tasks):
                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
                         mfpphy.append(code)
                     else:
-                        log.error("Unknown IFS grib code %s skipped" % str(code))
+                        log.error("Unknown 2D IFS grib code %s skipped" % str(code))
             else:
                 for code in root_codes:
                     if code in cmor_source.ifs_source.grib_codes_3D:
@@ -151,8 +156,9 @@ def write_ppt_files(tasks):
                         mfp2df.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_phy:
                         mfpphy.append(code)
+                    # case for PEXTRA tendencies is missing
                     else:
-                        log.error("Unknown IFS grib code %s skipped" % str(code))
+                        log.error("Unknown 3D IFS grib code %s skipped" % str(code))
         # Always add the geopotential, recommended by ECMWF
         if cmor_source.grib_code(129) not in mfp3dfs:
             mfp2df.append(cmor_source.grib_code(129))
@@ -186,8 +192,8 @@ def write_ppt_files(tasks):
         if any(mfp3dfs):
             namelist["NFP3DFS"] = len(mfp3dfs)
             namelist["MFP3DFS"] = mfp3dfs
-            # To include all model levels use magic number -99:
-            namelist["NRFP3S"] = -99
+            # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
+            namelist["NRFP3S"] = -1
             num_blocks_sp += nfp3dfssp
             num_blocks_gp += nfp3dfsgp
         if any(mfp3dfp):

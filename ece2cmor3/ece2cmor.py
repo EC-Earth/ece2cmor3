@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 
-from ece2cmor3 import ece2cmorlib, taskloader, components, __version__
+from ece2cmor3 import ece2cmorlib, taskloader, components, __version__, cmor_target
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -23,13 +23,13 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description="Post-processing and cmorization of EC-Earth output",
                                      formatter_class=formatter)
+    required = parser.add_argument_group("required arguments")
 
     parser.add_argument("datadir", metavar="DIR", type=str, help="EC-Earth data directory, i.e. for a given component, "
                                                                  "for a given leg")
-    parser.add_argument("--vars", metavar="FILE", type=str, default=None,
+    required.add_argument("--vars", metavar="FILE", type=str, required=True,
                         help="File (json|f90 namelist|xlsx) containing cmor variables")
-    parser.add_argument("--conf", metavar="FILE.json", type=str, default=ece2cmorlib.conf_path_default,
-                        help="Input metadata file")
+    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
@@ -60,6 +60,8 @@ def main(args=None):
     parser.add_argument("--overwritemode", metavar="MODE", type=str, default="preserve",
                         help="MODE:preserve|replace|append, CMOR netcdf overwrite mode",
                         choices=["preserve", "replace", "append"])
+    parser.add_argument("--skip_alevel_vars", action="store_true", default=False, help="Prevent loading atmospheric "
+                                                                                       "model-level variables")
     parser.add_argument("-V", "--version", action="version",
                         version="%(prog)s {version}".format(version=__version__.version))
     # Deprecated arguments, only for backward compatibility
@@ -121,7 +123,14 @@ def main(args=None):
         if attribute_value is not None:
             components.models[model][components.table_file] = attribute_value
 
-    taskloader.load_targets(args.vars, model_active_flags)
+    filters = None
+    if args.skip_alevel_vars:
+        def ifs_model_level_variable(target):
+            zaxis, levs = cmor_target.get_z_axis(target)
+            return zaxis not in ["alevel", "alevhalf"]
+        filters = {"model level": ifs_model_level_variable}
+
+    taskloader.load_targets(args.vars, model_active_flags, target_filters=filters)
 
     refdate = datetime.datetime.combine(dateutil.parser.parse(args.refd), datetime.datetime.min.time())
 

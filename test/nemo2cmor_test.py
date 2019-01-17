@@ -10,7 +10,7 @@ import numpy
 from nose.tools import eq_
 
 import test_utils
-from ece2cmor3 import nemo2cmor, cmor_source, cmor_target, cmor_task
+from ece2cmor3 import nemo2cmor, cmor_source, cmor_target, cmor_task, ece2cmorlib
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -117,7 +117,7 @@ class nemo2cmor_tests(unittest.TestCase):
 
     def test_cmor_single_task(self):
         tab_dir = get_table_path()
-        conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
+        conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
@@ -152,7 +152,7 @@ class nemo2cmor_tests(unittest.TestCase):
 
     def test_init_nemo2cmor(self):
         tab_dir = get_table_path()
-        conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
+        conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
@@ -161,7 +161,7 @@ class nemo2cmor_tests(unittest.TestCase):
 
     def test_cmor_single_task3d(self):
         tab_dir = get_table_path()
-        conf_path = os.path.join(os.path.dirname(nemo2cmor.__file__), "resources", "metadata-template.json")
+        conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))

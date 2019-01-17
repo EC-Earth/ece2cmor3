@@ -1,6 +1,7 @@
 [
     {
         "source": "baresoilFrac",
+        "convert": "frac2percent",
         "target": "baresoilFrac"
     },
     {
@@ -61,14 +62,17 @@
     },
     {
         "source": "cropFrac",
+        "convert": "frac2percent",
         "target": "cropFrac"
     },
     {
         "source": "cropFracC3",
+        "convert": "frac2percent",
         "target": "cropFracC3"
     },
     {
         "source": "cropFracC4",
+        "convert": "frac2percent",
         "target": "cropFracC4"
     },
     {
@@ -313,14 +317,17 @@
     },
     {
         "source": "grassFrac",
+        "convert": "frac2percent",
         "target": "grassFrac"
     },
     {
         "source": "grassFracC3",
+        "convert": "frac2percent",
         "target": "grassFracC3"
     },
     {
         "source": "grassFracC4",
+        "convert": "frac2percent",
         "target": "grassFracC4"
     },
     {
@@ -337,6 +344,7 @@
     },
     {
         "source": "landCoverFrac",
+        "convert": "frac2percent",
         "target": "landCoverFrac"
     },
     {
@@ -469,18 +477,22 @@
     },
     {
         "source": "nwdFracLut",
+        "convert": "frac2percent",
         "target": "nwdFracLut"
     },
     {
         "source": "pastureFrac",
+        "convert": "frac2percent",
         "target": "pastureFrac"
     },
     {
         "source": "pastureFracC3",
+        "convert": "frac2percent",
         "target": "pastureFracC3"
     },
     {
         "source": "pastureFracC4",
+        "convert": "frac2percent",
         "target": "pastureFracC4"
     },
     {
@@ -525,6 +537,7 @@
     },
     {
         "source": "residualFrac",
+        "convert": "frac2percent",
         "target": "residualFrac"
     },
     {
@@ -553,6 +566,7 @@
     },
     {
         "source": "shrubFrac",
+        "convert": "frac2percent",
         "target": "shrubFrac"
     },
     {
@@ -561,22 +575,27 @@
     },
     {
         "source": "treeFrac",
+        "convert": "frac2percent",
         "target": "treeFrac"
     },
     {
         "source": "treeFracBdlDcd",
+        "convert": "frac2percent",
         "target": "treeFracBdlDcd"
     },
     {
         "source": "treeFracBdlEvg",
+        "convert": "frac2percent",
         "target": "treeFracBdlEvg"
     },
     {
         "source": "treeFracNdlDcd",
+        "convert": "frac2percent",
         "target": "treeFracNdlDcd"
     },
     {
         "source": "treeFracNdlEvg",
+        "convert": "frac2percent",
         "target": "treeFracNdlEvg"
     },
     {
@@ -585,6 +604,7 @@
     },
     {
         "source": "vegFrac",
+        "convert": "frac2percent",
         "target": "vegFrac"
     },
     {

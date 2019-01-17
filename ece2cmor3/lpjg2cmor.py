@@ -157,7 +157,6 @@ def execute(tasks):
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
-
     for table, tasklist in taskdict.iteritems():
         try:
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
@@ -453,8 +452,12 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
-        variable[:] = df_normalised[
-            0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+        if outname == "tsl":
+            variable[:] = df_normalised[0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+        else:
+            dumvar = df_normalised[0].values.T
+            variable[:] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
+
     else:
         root.createDimension('fourthdim', N_dfs)
 
@@ -462,8 +465,11 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         variable = root.createVariable(outname, 'f4', dimensions, zlib=True,
                                        shuffle=False, complevel=5, fill_value=meta['missing'])
         for l in range(N_dfs):
-            variable[:, l, :, :] = df_normalised[
-                l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+            if outname == "tsl":
+                variable[:, l, :, :] = df_normalised[l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
+            else:
+                dumvar = df_normalised[l].values.T
+                variable[:, l, :, :] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
     root.sync()
     root.close()
