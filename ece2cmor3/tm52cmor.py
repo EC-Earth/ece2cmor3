@@ -130,7 +130,6 @@ def execute(tasks):
         else:
             print task.target.frequency
             freqid=task.target.frequency
-        # catch variablename + '_' to prevent o3 and o3loss mixing up...
         # also check that frequencies match
         if task.target.table=='AERmonZ':
             freqid='AER'+freqid+'Z'
@@ -141,21 +140,17 @@ def execute(tasks):
             # Tables say Amon... but TM5 file has a description AERmon
             if task.target.variable=='ps':
                 freqid='AER'+freqid
-            else:
-                freqid='A'+freqid
-        else:
-            freqid='AER'+freqid
+            #else:
+            #    freqid='A'+freqid
+        elif task.target.table=='AERmon':
+            # Select only by frequency to catch variables which are read from AERmon and written to Amon
+            freqid=freqid
         
-        #elif task.target.table=='Amon':
-        #    print task.target.frequency,task.source.variable
-        #    freqid='mon'
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
-            # if os.path.basename(fstr).startswith(task.source.variable()+"_") and task.source.variable()=='ps':
-                
-            #     print os.path.basename(fstr).startswith(task.source.variable()+"_")
-            #     print freqid+'_' in fstr, freqid+'_',fstr
+            
+            # catch variablename + '_' to prevent o3 and o3loss mixing up...
             if os.path.basename(fstr).startswith(task.source.variable()+"_") and   freqid+'_' in fstr  :
                 fname=fstr
                 if getattr(task,cmor_task.output_path_key) == None:
