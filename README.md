@@ -5,8 +5,8 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 ## Required python packages:
 
 * netCDF4
-* cmor3 (see cmor [dependencies](https://anaconda.org/PCMDI/cmor/files?channel=main))
-* cdo (version 1.9.3; only for atmosphere post-processing)
+* cmor-3.4.0 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
+* cdo (version 1.9.5; only for atmosphere post-processing)
 * eccodes/gribapi (for filtering IFS output GRIB files)
 * nose, testfixtures (only for testing)
 * f90nml (only for fortran namelist I/O)
@@ -20,10 +20,10 @@ The Anaconda python distribution should be installed. With anaconda all the pack
 
 ##### If Anaconda is not yet installed:
 
-Download anaconda from: https://www.anaconda.com/download/ (e.g. take the latest anaconda version for python 2.7), and
+Download [anaconda](https://www.anaconda.com/download/) (e.g. take the latest anaconda version for python 2.7) by using wget and:
  ```shell
- chmod u+x Anaconda2-5.2.0-Linux-x86_64.sh
- ./Anaconda2-5.2.0-Linux-x86_64.sh
+ wget http://repo.continuum.io/archive/Anaconda2-5.3.0-Linux-x86_64.sh
+ bash Anaconda2-5.3.0-Linux-x86_64.sh
  source ${HOME}/.bashrc
  ```
 The anaconda installation optionally adds the anaconda python to your $PATH by appending a line to your .bashrc. Commenting this appended line and resourcing the .bashrc gives the default python back.
@@ -42,8 +42,7 @@ git submodule update --init --recursive
 ##### Creating a virtual conda environment and installing ece3cmor3 therein:
 In the ece2cmor3 git checkout directory, type
 ```shell
-conda env create -f environment.yml       # for linux
-conda env create -f env-osx-64.yml        # for mac os
+conda env create -f environment.yml       # for linux & mac os
 source activate ece2cmor3
 python setup.py install
 ```
