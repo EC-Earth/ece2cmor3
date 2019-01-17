@@ -1,0 +1,68 @@
+| model configuration| The MIP list specified for the joint request for each MIP experiment        |
+|--------------------|-----------------------------------------------------------------------------|
+|  EC-EARTH-AOGCM    | CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB |
+|  EC-EARTH-HR       | CMIP,DCPP,HighResMIP                                                        |
+|  EC-EARTH-LR       | CMIP,PMIP                                                                   |
+|  EC-EARTH-CC       | CDRMIP,CMIP,C4MIP,LUMIP,OMIP                                                |
+|  EC-EARTH-GrisIS   | CMIP,ISMIP6,PMIP                                                            |
+|  EC-EARTH-AerChem  | AerChemMIP,CMIP                                                             |
+|  EC-EARTH-Veg      | CDRMIP,CMIP,LUMIP,LS3MIP,ScenarioMIP                                        |
+|  EC-EARTH-Veg-LR   | CMIP,PMIP,ScenarioMIP                                                       |
+
+
+ 'EC-EARTH-AOGCM'                    Add PAMIP
+                    "CMIP",
+                    "DCPP",
+                    "LS3MIP",
+                    "PAMIP",
+                    "RFMIP",
+                    "ScenarioMIP",
+                    "VolMIP",
+                    "CORDEX",
+                    "DynVarMIP",
+                    "SIMIP",
+                    "VIACSAB"
+
+
+ 'EC-EARTH-AerChem'                  Remove ScenarioMIP: No    
+                    "AerChemMIP",
+                    "CMIP"
+
+
+ 'EC-EARTH-CC'                       Add CDRMIP & OMIP
+                    "CDRMIP",
+                    "CMIP",
+                    "C4MIP",
+                    "LUMIP",
+                    "OMIP"
+
+
+ 'EC-EARTH-GrisIS'                   no change
+                    "CMIP",
+                    "ISMIP6",
+                    "PMIP"
+
+
+ 'EC-EARTH-HR'                       Add CMIP: yes
+                    "CMIP",
+                    "DCPP",
+                    "HighResMIP"
+
+
+ 'EC-EARTH-LR'                       no change
+                    "CMIP",
+                    "PMIP"
+
+
+ 'EC-EARTH-Veg'                      Add CDRMIP
+                    "CDRMIP",
+                    "CMIP",
+                    "LUMIP",
+                    "LS3MIP",
+                    "ScenarioMIP"
+
+
+ 'EC-EARTH-Veg-LR'                   no change
+                    "CMIP",
+                    "PMIP",
+                    "ScenarioMIP"
