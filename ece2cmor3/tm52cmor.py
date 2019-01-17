@@ -242,7 +242,7 @@ def execute(tasks):
                             log.error("Cmorizing failed for %s, but variable is produced by IFS." % (task.target.variable))
                         elif task.target.variable=='o3Clim':
                             log.error("Cmorizing failed for %s, check tm5par.json since source will be o3 instead of %s." % (task.target.variable, task.source.variable()))
-                        elif ask.target.variable=='ch4Clim' or task.target.variable=='ch4global' or task.target.variable=='ch4globalClim' or :
+                        elif task.target.variable=='ch4Clim' or task.target.variable=='ch4global' or task.target.variable=='ch4globalClim':
                             log.error("Cmorizing failed for %s, check tm5par.json since source will be ch4 instead of %s." % (task.target.variable, task.source.variable()))
                         else:
                             log.error("Cmorizing failed for %s" % (task.target.variable))
