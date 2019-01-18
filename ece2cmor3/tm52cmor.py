@@ -129,6 +129,9 @@ def execute(tasks):
         elif task.target.frequency=='CFday':
 
             freqid='AERday'
+        elif task.target.frequency=='monC':
+
+            freqid='mon'
         elif task.target.frequency in ignore_frequency:
             log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
             continue
@@ -142,8 +145,11 @@ def execute(tasks):
         elif task.target.table=='Amon':
             # ps is only an auxilliary variable for creating vertical axis for variables
             # Tables say Amon... but TM5 file has a description AERmon
-            if task.target.variable=='ps':
+            exception_for_amon=['ps','ch4','ch4global']
+            if task.target.variable in exception_for_amon:
                 freqid='AER'+freqid
+                print task.target.variable
+                print os.path.basename(fstr).startswith(task.source.variable()+"_"),  freqid+'_', fstr
             #else:
             #    freqid='A'+freqid
         elif task.target.table=='AERmon':
@@ -153,7 +159,7 @@ def execute(tasks):
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
-            
+
             # catch variablename + '_' to prevent o3 and o3loss mixing up...
             if os.path.basename(fstr).startswith(task.source.variable()+"_") and   freqid+'_' in fstr  :
                 fname=fstr
@@ -215,6 +221,10 @@ def execute(tasks):
         for task in tasklist:
             #define task properties 
             #2D grid
+            if task.target.variable=='ch4Clim' or task.target.variable=='ch4globalClim' or task.target.variable=='o3Clim':
+                log.error('Task for %s is not produced in any of the simulations with TM5.'%task.target.variable)
+                task.set_failed()
+                continue
 
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
@@ -507,16 +517,15 @@ def create_time_axis(freq,path,name,has_bounds):
         timvar = ds.variables["time"]
         tm5unit = ds.variables["time"].units
         vals = timvar[:]
-        #if 'bounds' in ds.variables:
         has_bounds=True
         bnds = getattr(timvar,"bounds")
         bndvar = ds.variables[bnds]
         units = getattr(timvar,"units")
     except:
         ds.close()
-    #print len(vals),vals[1]-vals[0]
+
     tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
-    #print tm5refdate  
+    # delta days for change of reftime
     diff_days= (refdate-tm5refdate).total_seconds()/86400
     vals=vals-diff_days
     bndvar2=numpy.zeros_like(bndvar)
