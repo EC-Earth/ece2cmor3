@@ -297,6 +297,22 @@ def execute_netcdf_task(task,tableid):
         axes = [grid_ids_['lonlat']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
+            checkaxes=getattr(task.target, cmor_target.dims_key).split()
+            if 'plev19' in checkaxes:
+                interpolate_to_pressure=True
+                #print task.target.variable,'plev19'
+            elif'plev39'  in checkaxes:
+                interpolate_to_pressure=True
+                #print task.target.variable,'plev39'
+            elif 'alevel'  in checkaxes:
+                pass
+            elif 'alevhalf'  in checkaxes:
+                pass
+            else:
+                log.error('unknown dimension in z_axis_id')
+
+        else:
+            log.error('No z_axis_id found.')
     elif ( task.target.dims == 2):
         if task.target.table=='AERmonZ':
             '''
