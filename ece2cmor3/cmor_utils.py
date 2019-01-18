@@ -189,7 +189,12 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    if varname ==None:
+        expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    elif varname!=None and freq=='fx':
+        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
+    else:
+        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
 
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
