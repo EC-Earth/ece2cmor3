@@ -49,6 +49,8 @@ ref_date_ = None
 unit_miss_match =[]
 failed  = []
 
+areacella_=0
+
 # Pressure levels
 plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
 plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
@@ -57,11 +59,13 @@ plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,1
 ignore_frequency=['subhrPt','6hrPt']
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
-    global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_
+    global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_
     exp_name_ = expname
     table_root_ =os.path.join(tabledir, prefix)
     #tm5_files_ = select_files(path,expname,start)#,length)
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
+    areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
+    areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
     cal = None
     ref_date_ = refdate
     for f in tm5_files_:
@@ -101,13 +105,14 @@ def finalize():
 
 # Executes the processing loop.
 def execute(tasks):
-    global log,time_axes_,depth_axes_,table_root_,tm5_files_
+    global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
     #Assign file to each task
     for task in tasks:
         #print task.target.variable,task.target.frequency
         setattr(task,cmor_task.output_path_key,None)
+
         if task.target.frequency=='1hr':
             freqid='hr'
             #print freqid,fstr,freqid in fstr
@@ -252,14 +257,14 @@ def execute(tasks):
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
         for task,executed in taskmask.iteritems():
             if(not executed):
-                log.error("The source variable %s of table %s failed to cmorize" % (task.source.variable(),task.target.table))
+                log.error("The source variable %s of targe %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
                 failed.append([task.target.variable,task.target.table])
 
     log.info('Unit problems: %s'% unit_miss_match)
     log.info('Cmorization failed: %s'%failed)
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
-    global log,grid_ids_,depth_axes_,time_axes_
+    global log,grid_ids_,depth_axes_,time_axes_,areacella_
     interpolate_to_pressure=False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
@@ -323,14 +328,13 @@ def execute_netcdf_task(task,tableid):
             #axes = [grid_ids_['lonlat']]
             axes = [grid_ids_['lat2'],grid_ids_['lon2']]
         else:
-            print 'unsupported 2D dimensions'
-            sadf
-
+            log.error('unsupported 2D dimensions %s'%task.target.dims)
+            exit('Exiting!')
+    elif task.target.dims==0:
+        axes=[]
     else:
-        print 'unsupported dimesnsions'
-        print task.target.variable
-        #dfsadfa#task.set_failed()
-        #return false
+        log.error('unsupported dimensions %s for variable'%(task.target.dims,task.target.variable))
+        exist()
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
         axes.append(time_id)
@@ -372,6 +376,14 @@ def execute_netcdf_task(task,tableid):
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         #vals=numpy.copy(ncvar[:,:,:])
         ncvar=vals.copy()
+    elif task.target.dims==0:
+        # global means
+        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        vals=numpy.copy(ncvar[:])
+        vals=numpy.mean(vals,axis=(1))
+
+        # calculate area-weighted mean
+        vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
     else:# assumption: data is shape [time,lat,lon] (roll longitude dimension)
         vals=numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
@@ -519,19 +531,12 @@ def create_time_axis(freq,path,name,has_bounds):
     if(len(vals) == 0 or units == None):
         log.error("No time values or units could be read from tm5 output files %s" % str(files))
         return 0
-    
     units="days since " + str(ref_date_)
-    #DEBUG for hourly output
-    if freq=='1hr':
-        print str(name),bndvar[0,0],bndvar[0,1],bndvar[1,0],bndvar[1,1]
     ####
     if has_bounds:
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals,cell_bounds = bndvar[:,:])
     else:
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals)
-    
-
-
 # Reads the calendar attribute from the time dimension.
 def read_calendar(ncfile):
     try:
