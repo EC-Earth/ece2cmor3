@@ -194,7 +194,7 @@ def execute(tasks):
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
             cmor.set_table(tab_id)
         except Exception as e:
-            log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
+            log.error("ERR -6: CMOR failed to load table %s, skipping variables %s. Reason: %s"
                       % (table, ','.join([tsk.target.variable for tsk in tasklist]), e.message))
             continue
         #     #postprocess data to zonal mean and plev39, or do it before this point
@@ -202,14 +202,14 @@ def execute(tasks):
             for task in tasklist:
                 task.set_failed()
             log.error("Table %s not implemented yet" %(table))
-            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
+            log.error("ERR -6: Skipping variable %s not implemented yet" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
         if table== '6hrLev':
             for task in tasklist:
                 task.set_failed()
             log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
-            log.error("Skipping variable %s not implemented yet" %(task.target.variable))
+            log.error("ERR -7: Skipping variable %s not implemented yet" %(task.target.variable))
             continue
         if table== 'Eday':
             print 'EDAY: ',task.target.variable
@@ -222,7 +222,7 @@ def execute(tasks):
             #define task properties 
             #2D grid
             if task.target.variable=='ch4Clim' or task.target.variable=='ch4globalClim' or task.target.variable=='o3Clim':
-                log.error('Task for %s is not produced in any of the simulations with TM5.'%task.target.variable)
+                log.error('ERR -8: Task for %s is not produced in any of the simulations with TM5.'%task.target.variable)
                 task.set_failed()
                 continue
 
@@ -254,20 +254,20 @@ def execute(tasks):
                     execute_netcdf_task(task,tab_id)
                     if task.status<0:
                         if task.target.variable=='cdnc':
-                            log.error("Cmorizing failed for %s, but variable is produced by IFS." % (task.target.variable))
+                            log.error("ERR -10: Cmorizing failed for %s, but variable is produced by IFS." % (task.target.variable))
                         elif task.target.variable=='o3Clim':
-                            log.error("Cmorizing failed for %s, check tm5par.json since source will be o3 instead of %s." % (task.target.variable, task.source.variable()))
+                            log.error("ERR -11: Cmorizing failed for %s, check tm5par.json since source will be o3 instead of %s." % (task.target.variable, task.source.variable()))
                         elif task.target.variable=='ch4Clim' or task.target.variable=='ch4global' or task.target.variable=='ch4globalClim':
-                            log.error("Cmorizing failed for %s, check tm5par.json since source will be ch4 instead of %s." % (task.target.variable, task.source.variable()))
+                            log.error("ERR -12: Cmorizing failed for %s, check tm5par.json since source will be ch4 instead of %s." % (task.target.variable, task.source.variable()))
                         else:
-                            log.error("Cmorizing failed for %s" % (task.target.variable))
+                            log.error("ERR -13: Cmorizing failed for %s" % (task.target.variable))
                     else:
                         taskmask[task] = True
                 else:
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
         for task,executed in taskmask.iteritems():
             if(not executed):
-                log.error("The source variable %s of targe %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
+                log.error("ERR -14: The source variable %s of targe %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
                 failed.append([task.target.variable,task.target.table])
 
     log.info('Unit problems: %s'% unit_miss_match)
@@ -280,7 +280,7 @@ def execute_netcdf_task(task,tableid):
     filepath = getattr(task, cmor_task.output_path_key, None)
 
     if not filepath:
-        log.error("Could not find file containing data for variable %s in table %s" % (task.target.variable,task.target.table))
+        log.error("ERR -15: Could not find file containing data for variable %s in table %s" % (task.target.variable,task.target.table))
         task.set_failed()
         return
 
@@ -309,10 +309,10 @@ def execute_netcdf_task(task,tableid):
             elif 'alevhalf'  in checkaxes:
                 pass
             else:
-                log.error('unknown dimension in z_axis_id')
+                log.error('ERR -16: unknown dimension in z_axis_id')
 
         else:
-            log.error('No z_axis_id found.')
+            log.error('ERR -17: No z_axis_id found.')
     elif ( task.target.dims == 2):
         if task.target.table=='AERmonZ':
             '''
@@ -354,12 +354,12 @@ def execute_netcdf_task(task,tableid):
             #axes = [grid_ids_['lonlat']]
             axes = [grid_ids_['lat2'],grid_ids_['lon2']]
         else:
-            log.error('unsupported 2D dimensions %s'%task.target.dims)
+            log.error('ERR -18: unsupported 2D dimensions %s'%task.target.dims)
             exit('Exiting!')
     elif task.target.dims==0:
         axes=[]
     else:
-        log.error('unsupported dimensions %s for variable'%(task.target.dims,task.target.variable))
+        log.error('ERR -19: unsupported dimensions %s for variable'%(task.target.dims,task.target.variable))
         exist()
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
@@ -370,7 +370,7 @@ def execute_netcdf_task(task,tableid):
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
-        log.error("Could not read netcdf file %s while cmorizing variable %s in table %s. Cause: %s" % (
+        log.error("ERR -20: Could not read netcdf file %s while cmorizing variable %s in table %s. Cause: %s" % (
             filepath, task.target.variable, task.target.table, e.message))
         return
     varid = create_cmor_variable(task,dataset,axes)
@@ -458,7 +458,7 @@ def create_cmor_variable(task,dataset,axes):
 
         else:
             unit_miss_match.append(task.target.variable)
-            log.error("unit miss match, variable %s" % (task.target.variable))
+            log.error("ERR -21: unit miss match, variable %s" % (task.target.variable))
             return task.set_failed()
     if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
         unit = getattr(task.target,"units")
@@ -554,7 +554,7 @@ def create_time_axis(freq,path,name,has_bounds):
         bndvar2[i+1,0]=bndvar2[i,1]
 
     if(len(vals) == 0 or units == None):
-        log.error("No time values or units could be read from tm5 output files %s" % str(files))
+        log.error("ERR -22: No time values or units could be read from tm5 output files %s" % str(files))
         return 0
     units="days since " + str(ref_date_)
     ####
@@ -586,14 +586,14 @@ def create_depth_axes(task):
     if len(zdims) == 0:
         return False
     if len(zdims) > 1:
-        log.error("Skipping variable %s in table %s with dimensions %s with multiple z-directions." % (
+        log.error("ERR -23: Skipping variable %s in table %s with dimensions %s with multiple z-directions." % (
             task.target.variable, task.target.table, tgtdims))
         task.set_failed()
         return False
     zdim=str(zdims[0])
     key = (task.target.table, zdim)
     if key not in depth_axis_ids:
-        log.info("Creating vertical axis for table %s..." % task.target.table)
+        log.info("Creating vertical axis %s for table %s..." % (zdim,task.target.table))
 
     if key in depth_axis_ids:
         #setattr(task, "z_axis_id", depth_axis_ids[zdim])
@@ -775,10 +775,10 @@ def create_lonlat_grid():#nx, x0, yvals):
 # Surface pressure variable lookup utility
 def get_ps_var(ncpath):
     if not ncpath:
-        log.error("No path defined for surface pressure (ps).")
+        log.error("ERR -2: No path defined for surface pressure (ps).")
         return None
     if not os.path.exists(ncpath):
-        log.error("Path does not exist for surface pressure (ps).")
+        log.error("ERR -3: Path does not exist for surface pressure (ps).")
         return None
     ds = None
     try:
@@ -786,9 +786,9 @@ def get_ps_var(ncpath):
         if "ps" in ds.variables:
             return ds.variables["ps"]
         else:
-            log.error("Variable ps not present in pressure file.")
+            log.error("ERR -4: Variable ps not present in pressure file.")
             return None
     except Exception as e:
-        log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
+        log.error("ERR -5: Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
 
