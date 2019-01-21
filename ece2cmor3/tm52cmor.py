@@ -132,6 +132,10 @@ def execute(tasks):
         elif task.target.frequency=='monC':
 
             freqid='mon'
+            if task.target.table=='Amon' and (task.target.variable=='pfull' or task.target.variable=='phalf'):
+                task.set_failed()
+                log.info('Variable %s in table %s will be produced by IFS'%(task.target.variable,task.target.table))
+                continue
         elif task.target.frequency in ignore_frequency:
             log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
             continue
@@ -237,9 +241,12 @@ def execute(tasks):
             #Vertical
             if "alevel" in tgtdims:
                 if task.target.frequency not in ps_tasks:
-                    log.error("ps task not available for frequency %s !!" % (task.target.frequency))
-                    continue
-                setattr(task,"ps_task",ps_tasks[task.target.frequency])
+                    if task.target.frequency=='6hrPt' and '6hr'  not in ps_tasks:
+                        print ps_tasks
+                        log.error("ERR -9: ps task not available for frequency %s !!" % (task.target.frequency))
+                        continue
+                    else:
+                        setattr(task,"ps_task",ps_tasks[task.target.frequency])
             if "site" in tgtdims:
                 log.critical('Z-dimension site not implemented ')
                 task.set_failed()
