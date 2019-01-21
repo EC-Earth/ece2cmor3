@@ -636,8 +636,7 @@ def create_depth_axes(task):
         return False
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
-        log.info("TOBE CORRECTED:  wavelength axis BOUNDS will be removed in new tables (1.00.28) for variable %s..." % task.target.variable)
-        axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0],cell_bounds=[549,551])
+        axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0])
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
         return True
