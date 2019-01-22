@@ -155,8 +155,7 @@ def execute(tasks):
             exception_for_amon=['ps','ch4','ch4global']
             if task.target.variable in exception_for_amon:
                 freqid='AER'+freqid
-                print task.target.variable
-                print os.path.basename(fstr).startswith(task.source.variable()+"_"),  freqid+'_', fstr
+                
             #else:
             #    freqid='A'+freqid
         elif task.target.table=='AERmon':
@@ -249,7 +248,6 @@ def execute(tasks):
             if "alevel" in tgtdims:
                 if task.target.frequency not in ps_tasks:
                     if task.target.frequency=='6hrPt' and '6hr'  not in ps_tasks:
-                        print ps_tasks
                         log.error("ERR -9: ps task not available for frequency %s !!" % (task.target.frequency))
                         continue
                     else:
@@ -431,7 +429,7 @@ def execute_netcdf_task(task,tableid):
         ncvar = numpy.roll(vals,nroll,len(dims)-1)
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         vals=numpy.copy(ncvar[:,:,:])
-    #factor 1. keep it for time being
+    #factor 1.
     # Default values
     factor = 1.0
     term=0.0
