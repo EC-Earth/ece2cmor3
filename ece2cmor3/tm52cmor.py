@@ -155,13 +155,11 @@ def execute(tasks):
             exception_for_amon=['ps','ch4','ch4global']
             if task.target.variable in exception_for_amon:
                 freqid='AER'+freqid
-                
             #else:
             #    freqid='A'+freqid
         elif task.target.table=='AERmon':
             # Select only by frequency to catch variables which are read from AERmon and written to Amon
             freqid=freqid
-        
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
@@ -179,6 +177,9 @@ def execute(tasks):
                 log.info('No path found for variable %s from TM5'%(task.target.variable))
                 task.set_failed()
                 continue
+            ### 6hr ps not part of the data request but needed fors
+            ### 6hr ec550aer hybrid level description
+            ### so a hack for it because there is no task available
             if freqid=='6hr':
                 if  os.path.basename(fstr).startswith("ps_") and freqid+"_" in fstr:
                     ps6hrpath_=fstr
@@ -219,7 +220,7 @@ def execute(tasks):
             for task in tasklist:
                 task.set_failed()
             log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
-            log.error("ERR -7: Skipping variable %s not implemented yet" %(task.target.variable))
+            log.error("ERR -7: Skipping variable %s, which is not implemented yet" %(task.target.variable))
             continue
         if table== 'Eday':
             print 'EDAY: ',task.target.variable
@@ -257,6 +258,8 @@ def execute(tasks):
                 task.set_failed()
                 continue
 
+            if task.status==cmor_task.status_failed:
+                continue
             create_depth_axes(task)
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
@@ -269,6 +272,8 @@ def execute(tasks):
                             log.error("ERR -10: Cmorizing failed for %s, but variable is produced by IFS." % (task.target.variable))
                         elif task.target.variable=='o3Clim':
                             log.error("ERR -11: Cmorizing failed for %s, check tm5par.json since source will be o3 instead of %s." % (task.target.variable, task.source.variable()))
+                        elif task.target.variable=='phalf':
+                            log.error("ERR -11: Cmorizing failed for %s,  but variable is produced by IFS." % (task.target.variable))
                         elif task.target.variable=='ch4Clim' or task.target.variable=='ch4global' or task.target.variable=='ch4globalClim':
                             log.error("ERR -12: Cmorizing failed for %s, check tm5par.json since source will be ch4 instead of %s." % (task.target.variable, task.source.variable()))
                         else:
@@ -437,17 +442,22 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
-        psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        if task.target.table=='6hrLev':
+            # still in development, data request is not correct.
+            psdata=get_ps_var(ps6hrpath_)
+            print psdata
+        else:
+            psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        #print psdata, task.target.variable
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, psdata,
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
-        #cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None)),
-        #                       swaplatlon=False, fliplat=True, mask=None,missval=missval)
     else:
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, None,
                                swaplatlon=False, fliplat=True, mask=None,missval=missval)
     cmor.close(varid)
+
     if store_var:
         cmor.close(store_var)
     task.status = cmor_task.status_cmorized
@@ -504,13 +514,13 @@ def interpolate_plev(pnew,dataset,psdata,varname):
     data = data[:,::-1,:,:]
 
     interpolation=1 #1 linear, 2 log, 3 loglog
-    datanew = Ngl.vinth2p(data,hyam,hybm,pnew,psdata[:,:,:],interpolation,p0mb,1,True)
-    return datanew
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pnew,psdata[:,:,:],interpolation,p0mb,1,True)
+    return interpolated_data
 
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
-    global log
+    global log,time_axes_
     time_axes = {}
     for task in tasks:
         freq=task.target.frequency
@@ -530,7 +540,7 @@ def create_time_axes(tasks):
                 time_axes[key] = tid
             setattr(task, "time_axis", tid)
             break
-
+    time_axes_=time_axes
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,path,name,has_bounds):
     global log,ref_date_
@@ -551,7 +561,9 @@ def create_time_axis(freq,path,name,has_bounds):
         units = getattr(timvar,"units")
     except:
         ds.close()
-
+    if name=='time1':
+        # for time1 no bounds are needed, because it is point value
+        has_bounds=False
     tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
     # delta days for change of reftime
     diff_days= (refdate-tm5refdate).total_seconds()/86400
