@@ -325,7 +325,6 @@ def execute_netcdf_task(task,tableid):
     if( task.target.dims == 3):
         if using_grid_:
             axes = [grid_ids_['lonlat']]
-
         else:
             if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
                 #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
@@ -335,8 +334,6 @@ def execute_netcdf_task(task,tableid):
                 grid_ids_['lon2']=create_lon()
                 #grid_ids_['lat2']=create_lat()
                 axes=[grid_ids_['lat2'],grid_ids_['lon2']]
-
-            print axes
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             checkaxes=getattr(task.target, cmor_target.dims_key).split()
@@ -351,7 +348,6 @@ def execute_netcdf_task(task,tableid):
                 pass
             else:
                 log.error('ERR -16: unknown dimension in z_axis_id')
-
         else:
             log.error('ERR -17: No z_axis_id found.')
     elif ( task.target.dims == 2):
@@ -365,7 +361,6 @@ def execute_netcdf_task(task,tableid):
             else:
                 grid_ids_['lat2']=create_lat()
                 axes=[grid_ids_['lat2']]
-
             # zonal variables...
             #needs lat only, no grid....
             if hasattr(task, "z_axis_id"):
@@ -706,7 +701,7 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
         axes=[getattr(task, "lat2"),getattr(task, "lon2"),getattr(task, "time_axis")]
         #axes=[grid_ids_["lat2"],grid_ids_["lon2"],getattr(task, "time_axis")]
 
-    # define before hybrid factors, and have the same 
+    # define before hybrid factors, and have the same
     # for 
     pref = 80000  # TODO: Move reference pressure level to model config
     path = getattr(task, cmor_task.output_path_key)
@@ -746,7 +741,7 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
             cmor.zfactor(zaxis_id=axisid, zfactor_name="b_half", units=str(bunit), axis_ids=[axisid,], zfactor_values=bi[:])
         # Use the same ps for both types of hybrid levels,
         # for some reason defining their own confuses the cmor
-        # to check in case of Half levels, for the ps from full levels    
+        # to check in case of Half levels, for the ps from full levels
         if store_with_ps_==None:
             storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
                                 axis_ids=axes, units="Pa")
