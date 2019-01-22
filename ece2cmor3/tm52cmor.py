@@ -56,7 +56,10 @@ plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,
 plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
 
 #
-ignore_frequency=['subhrPt','6hrPt']
+ignore_frequency=['subhrPt']#,'6hrPt']
+ps6hrpath_=None
+store_with_ps_=None
+
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
     global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_
@@ -177,6 +180,10 @@ def execute(tasks):
                 log.info('No path found for variable %s from TM5'%(task.target.variable))
                 task.set_failed()
                 continue
+            if freqid=='6hr':
+                if  os.path.basename(fstr).startswith("ps_") and freqid+"_" in fstr:
+                    ps6hrpath_=fstr
+                    ps_tasks[task.target.frequency]=ps6hrpath_
         # save ps task for frequency
         if task.target.variable=='ps':
             #print 'ps',task.target.frequency, getattr(task,cmor_task.output_path_key)
@@ -607,6 +614,9 @@ def create_depth_axes(task):
         if zdim == "alevel":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
+        elif zdim == "alevhalf":
+            setattr(task, "z_axis_id", depth_axis_ids[key][0])
+            setattr(task, "store_with", depth_axis_ids[key][1])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pnew", plev19_)
@@ -617,23 +627,23 @@ def create_depth_axes(task):
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
     elif zdim == 'alevel':
-        log.info("Creating model level axis for variable %s..." % task.target.variable)
+        log.info("Creating model full level axis for variable %s..." % task.target.variable)
         axisid, psid = create_hybrid_level_axis(task)
         depth_axis_ids[key] = (axisid, psid)
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
         return True
     elif zdim == 'alevhalf':
-        # if zdim not in depth_axis_ids:
-        #     log.info("Creating model level axis for variable %s..." % task.target.variable)
-        #     axisid, psid = create_hybrid_level_axis(task)
-        #     depth_axis_ids[zdim] = (axisid, psid)
-        #     setattr(task, "z_axis_id", axisid)
-        #     setattr(task, "store_with", psid)
-        #     return 
-        log.error("Vertical axis %s not implemented yet" %(zdim))
-        task.set_failed()
-        return False
+        #if zdim not in depth_axis_ids:
+        log.info("Creating model half level axis for variable %s..." % task.target.variable)
+        axisid, psid = create_hybrid_level_axis(task,'half')
+        depth_axis_ids[zdim] = (axisid, psid)
+        setattr(task, "z_axis_id", axisid)
+        setattr(task, "store_with", psid)
+        return True
+        # log.error("ERR -1: Vertical axis %s not implemented yet" %(zdim))
+        # task.set_failed()
+        # return False
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0])
@@ -661,7 +671,14 @@ def create_depth_axes(task):
 
 
 # Creates the hybrid model vertical axis in cmor.
-def create_hybrid_level_axis(task):
+def create_hybrid_level_axis(task,hybrid_type='full'):
+    global time_axes_,store_with_ps_
+    # define grid and time axis for hybrid levels
+    axes=[]
+    axes.append(getattr(task, "grid_id"))
+    axes.append( getattr(task, "time_axis"))
+    # define before hybrid factors, and have the same 
+    # for 
     pref = 80000  # TODO: Move reference pressure level to model config
     path = getattr(task, cmor_task.output_path_key)
     ds = None
@@ -673,7 +690,6 @@ def create_hybrid_level_axis(task):
         bunit = getattr(bm, "units")
         hcm = am[:] / pref + bm[:]
         n = hcm.shape[0]
-        
         if "hyai" in ds.variables: 
             ai = ds.variables["hyai"]
             abnds = numpy.empty([n, 2])
@@ -684,39 +700,29 @@ def create_hybrid_level_axis(task):
             bbnds[:, 0] = bi[0:n]
             bbnds[:, 1] = bi[1:n + 1]
             hcbnds = abnds / pref + bbnds
-        # temporary solution for current output
-        else:
-            ai=numpy.empty([n+1]    )
-            bi=numpy.empty([n+1]    )
-            ai[1:-1]=(am[1:]+am[0:-1])/2
-            
-            ai[0]=am[0]/2
-            ai[-1]=am[-1]
-            abnds = numpy.empty([n, 2])
-            abnds[:, 0] = ai[0:n]
-            abnds[:, 1] = ai[1:n + 1]
-
-            bi[1:-1]=(bm[1:]+bm[0:-1])/2
-            bi[0]=1.0
-            bi[-1]=0.0
-            bbnds = numpy.empty([n, 2])
-            bbnds[:, 0] = bi[0:n]
-            bbnds[:, 1] = bi[1:n + 1]
-            hcbnds = abnds / pref + bbnds
-            hcbnds[0,0]=1.0
-        axisid = cmor.axis(table_entry="alternate_hybrid_sigma", coord_vals=hcm, cell_bounds=hcbnds, units="1")
-        
-        cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units=str(aunit), axis_ids=[axisid], zfactor_values=am[:],
-                     zfactor_bounds=abnds)
-        cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
+            hci = ai[:] / pref + bi[:]
+            n = hci.shape[0]
+        if hybrid_type=='full':
+            axisid = cmor.axis(table_entry="alternate_hybrid_sigma", coord_vals=hcm, cell_bounds=hcbnds, units="1")
+            cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units=str(aunit), axis_ids=[axisid], zfactor_values=am[:],
+                         zfactor_bounds=abnds)
+            cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
                      zfactor_bounds=bbnds)
-        axes=[]
-        axes.append(getattr(task, "grid_id"))
-        #print axes
-        axes.append( getattr(task, "time_axis"))
-        #print axes
-        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
+        elif hybrid_type=='half':
+            axisid = cmor.axis(table_entry="alternate_hybrid_sigma_half", coord_vals=hci, units="1")
+
+            cmor.zfactor(zaxis_id=axisid, zfactor_name="ap_half", units=str(aunit), axis_ids=[axisid,], zfactor_values=ai[:])
+            cmor.zfactor(zaxis_id=axisid, zfactor_name="b_half", units=str(bunit), axis_ids=[axisid,], zfactor_values=bi[:])
+        # Use the same ps for both types of hybrid levels,
+        # for some reason defining their own confuses the cmor
+        # to check in case of Half levels, for the ps from full levels    
+        if store_with_ps_==None:
+            storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
                                 axis_ids=axes, units="Pa")
+            store_with_ps_ = storewith
+
+        else:
+            storewith=store_with_ps_
         return axisid, storewith
     finally:
         if ds is not None:
