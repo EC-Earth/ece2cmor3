@@ -81,8 +81,8 @@ def main(args=None):
     args = parser.parse_args()
 
     logfile = None
-    logformat = '%(asctime)s %(levelname)s:%(name)s: %(message)s'
-    logdateformat = '%Y-%m-%d %H:%M:%S'
+    logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+    logdateformat = "%Y-%m-%d %H:%M:%S"
     if getattr(args, "log", False):
         dirs = os.path.abspath(args.datadir).split(os.sep)
         fname = '-'.join([args.exp] + dirs[-2:] + [time.strftime("%Y%m%d%H%M%S", time.gmtime())])
