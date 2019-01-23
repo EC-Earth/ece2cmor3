@@ -147,7 +147,6 @@ def execute(tasks):
     log.info("Cmorizing tm5 tasks...")
     #Assign file to each task
     for task in tasks:
-        #print task.target.variable,task.target.frequency
         setattr(task,cmor_task.output_path_key,None)
         if task.target.frequency=='fx':
             log.info('fx frequency has no variables from TM5')
@@ -193,7 +192,6 @@ def execute(tasks):
                 task.set_failed()
                 continue
     ps_tasks=get_sp_tasks(tasks)
-    #print ps_tasks
     
     log.info('Creating TM5 3x2 deg lon-lat grid')
     
@@ -309,9 +307,6 @@ def execute_netcdf_task(task,tableid):
         return
 
     store_var = getattr(task, "store_with", None)
-    #axes = [grid_ids_['lonlat']]
-    #if task.target.table =='AERmonZ':
-    #    print 'aermonz: ',task.target.dims,task.target.variable
     if( task.target.dims == 3):
         if using_grid_:
             axes = [grid_ids_['lonlat']]
@@ -355,7 +350,6 @@ def execute_netcdf_task(task,tableid):
             #needs lat only, no grid....
             if hasattr(task, "z_axis_id"):
                 axes.append(getattr(task, "z_axis_id"))
-                #print axes
                 if 'plev19' in getattr(task.target, cmor_target.dims_key).split():
                     interpolate_to_pressure=True
                 elif'plev39'  in getattr(task.target, cmor_target.dims_key).split():
@@ -440,9 +434,7 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
-        #psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
         psdata=get_ps_var(getattr(getattr(task,'ps_task2',None),cmor_task.output_path_key,None))
-        #print psdata, task.target.variable
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, psdata,
@@ -758,14 +750,11 @@ def create_lonlat_grid():#nx, x0, yvals):
     x0=0
     yvals=numpy.linspace(89,-89,90)
     ny = len(yvals)
-    #print numpy.array(range(1, nx + 1))
     i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
     j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    #print 'axisid',i_index_id,j_index_id
     dx = 360. / nx
     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
     lon_arr = numpy.tile(x_vals, (ny, 1))
-    #lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
     lat_arr = numpy.tile(yvals[:], (nx, 1)).transpose()
     lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
     lat_mids = numpy.empty([ny + 1])
