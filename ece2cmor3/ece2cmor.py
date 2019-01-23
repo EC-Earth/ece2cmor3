@@ -81,13 +81,15 @@ def main(args=None):
     args = parser.parse_args()
 
     logfile = None
+    logformat = '%(asctime)s %(levelname)s:%(name)s: %(message)s'
+    logdateformat = '%Y-%m-%d %H:%M:%S'
     if getattr(args, "log", False):
         dirs = os.path.abspath(args.datadir).split(os.sep)
         fname = '-'.join([args.exp] + dirs[-2:] + [time.strftime("%Y%m%d%H%M%S", time.gmtime())])
         logfile = '.'.join([fname, "log"])
-        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+        logging.basicConfig(filename=logfile, level=logging.DEBUG, format=logformat, datefmt=logdateformat)
     else:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
     if not os.path.isdir(args.datadir):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
