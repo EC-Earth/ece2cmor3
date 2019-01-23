@@ -229,10 +229,11 @@ def execute(tasks):
             continue
         if table== 'Eday':
             print 'EDAY: ',task.target.variable
-        # create or assign time axes to tasks
-        log.info("Creating time axes for table %s..." % table)
+        log.info("Creating longitude and latitude axes for table %s..." % table)
         grid_ids_['lat2']=create_lat()
         grid_ids_['lon2']=create_lon()
+        # create or assign time axes to tasks
+        log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
 
         taskmask = dict([t,False] for t in tasklist)
