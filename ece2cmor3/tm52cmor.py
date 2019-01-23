@@ -60,10 +60,12 @@ ignore_frequency=['subhrPt']#,'6hrPt']
 ps6hrpath_=None
 store_with_ps_=None
 using_grid_=False
+path_=None
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
-    global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_
+    global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_,path_
     exp_name_ = expname
+    path_ = path
     table_root_ =os.path.join(tabledir, prefix)
     #tm5_files_ = select_files(path,expname,start)#,length)
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
@@ -842,4 +844,36 @@ def get_ps_var(ncpath):
     except Exception as e:
         log.error("ERR -5: Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
         return None
+
+# Creates extra tasks for surface pressure
+def get_sp_tasks(tasks):
+    global exp_name_,path_
+    tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
+    result = []
+    for freq, task_group in tasks_by_freq.iteritems():
+        print freq
+        tasks3d = [t for t in task_group if ("alevel" or "alevhalf") in getattr(t.target, cmor_target.dims_key).split()]
+        if not any(tasks3d):
+            continue
+        ps_tasks = [t for t in task_group if t.source.variable() == "ps" and
+                               getattr(t, "time_operator", "point") in ["mean", "point"]]
+        ps_task = ps_tasks[0] if any(ps_tasks) else None
+        if ps_task:
+            result.append(ps_task)
+        else:
+            source = cmor_source.tm5_source("ps")
+            ps_task = cmor_task.cmor_task(source, cmor_target.cmor_target("ps", freq))
+            setattr(ps_task.target, cmor_target.freq_key, freq)
+            setattr(ps_task.target, "time_operator", ["point"])
+            freqid=set_freqid(freq)
+            print path_,exp_name_,freq,freqid
+            print cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid) 
+            cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid)
+            result.append(ps_task)
+
+        for task3d in tasks3d:
+            print task3d.target.variable
+            setattr(task3d, "ps_task", ps_task)
+        print result
+    return result
 
