@@ -105,7 +105,37 @@ def finalize():
     time_axes_ = {}
     plev39_ = []
     plev19_ = []
-
+def set_freqid(freq):
+    if freq=='monC':
+        freqid='AERmon'
+    elif freq=='1hr':
+        freqid='AERhr'
+    elif freq=='day':
+        freqid='AERday'
+    elif freq=='6hrPt':
+        freqid='AER6hr'
+    elif freq=='mon':
+        freqid='AERmon'
+    else:
+        log.error('unknown frequency')
+        exit()
+    return freqid
+def check_freqid(task):
+    global log
+    freqid=set_freqid(task.target.frequency)
+    if task.target.frequency=='monC':
+        if task.target.table=='Amon' and (task.target.variable=='pfull' or task.target.variable=='phalf'):
+            task.set_failed()
+            log.info('Variable %s in table %s will be produced by IFS'%(task.target.variable,task.target.table))
+            return False,None
+    elif task.target.frequency in ignore_frequency:
+        log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
+        #continue
+        return False,None
+    elif task.target.table=='AERmonZ':
+        freqid=freqid+'Z'
+    print task.target.table,task.target.variable,task.target.frequency,freqid
+    return True,freqid
 # Executes the processing loop.
 def execute(tasks):
     global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_,using_grid_
@@ -115,51 +145,35 @@ def execute(tasks):
     for task in tasks:
         #print task.target.variable,task.target.frequency
         setattr(task,cmor_task.output_path_key,None)
-
-        if task.target.frequency=='1hr':
-            freqid='hr'
-            #print freqid,fstr,freqid in fstr
-        elif task.target.frequency=='6hrPt':
-            freqid='6hr'
-            #print freqid,fstr,freqid in fstr
-        elif task.target.frequency=='3hrPt':
-            freqid='3hr'
-            #print freqid,fstr,freqid in fstr
-        elif task.target.frequency=='fx':
+        if task.target.frequency=='fx':
             log.info('fx frequency has no variables from TM5')
             task.set_failed()
             continue
-        elif task.target.frequency=='CFday':
-
-            freqid='AERday'
         elif task.target.frequency=='monC':
-
-            freqid='mon'
-            if task.target.table=='Amon' and (task.target.variable=='pfull' or task.target.variable=='phalf'):
+            if 'Clim' in task.target.variable:
                 task.set_failed()
+                print 'CLIM'
+                continue
+            elif task.target.table=='Amon' and (task.target.variable=='pfull' or task.target.variable=='phalf'):
+                if 'Clim' in task.target.variable:
+                    print 'CLIM'
+                task.set_failed()
+                print task.target.variable,task.target.table,task.target.frequency
                 log.info('Variable %s in table %s will be produced by IFS'%(task.target.variable,task.target.table))
                 continue
         elif task.target.frequency in ignore_frequency:
             log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
             continue
-        else:
-            freqid=task.target.frequency
-        # also check that frequencies match
-        if task.target.table=='AERmonZ':
-            freqid='AER'+freqid+'Z'
-        elif task.target.table=='AERhr':
-            freqid='AER'+freqid
-        elif task.target.table=='Amon':
-            # ps is only an auxilliary variable for creating vertical axis for variables
-            # Tables say Amon... but TM5 file has a description AERmon
-            exception_for_amon=['ps','ch4','ch4global']
-            if task.target.variable in exception_for_amon:
-                freqid='AER'+freqid
-            #else:
-            #    freqid='A'+freqid
-        elif task.target.table=='AERmon':
-            # Select only by frequency to catch variables which are read from AERmon and written to Amon
-            freqid=freqid
+        elif 'Clim' in task.target.variable:
+            print 'CLIM'
+            task.set_failed()
+            continue
+        if task.target.variable=='ch4Clim':
+            print 'CLIM','Clim' in task.target.variable
+
+        success,freqid=check_freqid(task)
+        if not success:
+            exit()
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
