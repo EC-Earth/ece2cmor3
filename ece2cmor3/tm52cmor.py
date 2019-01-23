@@ -393,7 +393,6 @@ def execute_netcdf_task(task,tableid):
     else:
         log.error('ERR -19: unsupported dimensions %s for variable'%(task.target.dims,task.target.variable))
         exit()
-    print axes
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
         axes.append(time_id)
@@ -594,8 +593,9 @@ def create_time_axis(freq,path,name,has_bounds):
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals,cell_bounds = bndvar[:,:])
     else:
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals)
-# Reads the calendar attribute from the time dimension.
+
 def read_calendar(ncfile):
+    # Reads the calendar attribute from the time dimension.
     try:
         ds = netCDF4.Dataset(ncfile,'r')
         if(not ds):
@@ -648,7 +648,6 @@ def create_depth_axes(task):
         log.info("Creating model full level axis for variable %s..." % task.target.variable)
         axisid, psid = create_hybrid_level_axis(task)
         depth_axis_ids[key] = (axisid, psid)
-        print  axisid, psid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
         return True
@@ -752,6 +751,7 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
     finally:
         if ds is not None:
             ds.close()
+
 def create_lat():#nx, x0, yvals):
     yvals=numpy.linspace(89,-89,90)
     ny = len(yvals)
