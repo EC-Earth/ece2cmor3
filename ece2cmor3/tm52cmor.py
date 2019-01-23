@@ -414,8 +414,8 @@ def execute_netcdf_task(task,tableid):
     ## pyngl module
     if interpolate_to_pressure:
         psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
-        pnew=getattr(task,'pnew')
-        ncvar=interpolate_plev(pnew,dataset,psdata,task.source.variable())
+        pressure_levels=getattr(task,'pressure_levels')
+        ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
     if task.target.table=='AERmonZ': 
@@ -497,10 +497,10 @@ def create_cmor_variable(task,dataset,axes):
     else:
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar))
 
-def interpolate_plev(pnew,dataset,psdata,varname):
+def interpolate_plev(pressure_levels,dataset,psdata,varname):
     ####
     # Interpolate data from model levels to pressure levels
-    # pnew defines the pressure levels
+    # pressure_levels defines the pressure levels
     # Based on pyngl example: 
     # https://www.pyngl.ucar.edu/Examples/Scripts/vinth2p.py 
     ####
@@ -522,7 +522,7 @@ def interpolate_plev(pnew,dataset,psdata,varname):
     data = data[:,::-1,:,:]
 
     interpolation=1 #1 linear, 2 log, 3 loglog
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pnew,psdata[:,:,:],interpolation,p0mb,1,True)
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels,psdata[:,:,:],interpolation,p0mb,1,True)
     return interpolated_data
 
 
@@ -637,10 +637,10 @@ def create_depth_axes(task):
             setattr(task, "store_with", depth_axis_ids[key][1])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
-            setattr(task, "pnew", plev19_)
+            setattr(task, "pressure_levels", plev19_)
         elif zdim == "plev39":
             setattr(task, "z_axis_id", depth_axis_ids[key])
-            setattr(task, "pnew", plev39_)
+            setattr(task, "pressure_levels", plev39_)
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -673,13 +673,13 @@ def create_depth_axes(task):
         axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev19_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
-        setattr(task, "pnew", plev19_)
+        setattr(task, "pressure_levels", plev19_)
         return True
     elif zdim=="plev39":
         axisid=cmor.axis(table_entry = zdim,units ="Pa" ,coord_vals = plev39_)
         depth_axis_ids[key]=axisid
         setattr(task, "z_axis_id", axisid)
-        setattr(task, "pnew", plev39_)
+        setattr(task, "pressure_levels", plev39_)
         return True
     elif zdim=="site":
         log.critical('Z-dimension %s will not be implemented.'%zdim)
