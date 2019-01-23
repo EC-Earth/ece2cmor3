@@ -119,8 +119,8 @@ def set_freqid(freq):
     elif freq=='mon':
         freqid='AERmon'
     else:
-        log.error('unknown frequency')
-        exit()
+        log.error('unknown frequency %s'%freq)
+        return None
     return freqid
 def check_freqid(task):
     global log
@@ -139,7 +139,6 @@ def check_freqid(task):
     elif freqid==None:
         log.error('Frequency %s of variable %s is unkonwn'%(task.target.frequency,task.target.variable))
         return False,None
-    print task.target.table,task.target.variable,task.target.frequency,freqid
     return True,freqid
 # Executes the processing loop.
 def execute(tasks):
@@ -156,14 +155,11 @@ def execute(tasks):
             continue
         elif task.target.frequency=='monC':
             if 'Clim' in task.target.variable:
+                log.info('Variable %s in table %s is climatological variable and thus not available in TM5.'%(task.target.variable,task.target.table))
                 task.set_failed()
-                print 'CLIM'
                 continue
             elif task.target.table=='Amon' and (task.target.variable=='pfull' or task.target.variable=='phalf'):
-                if 'Clim' in task.target.variable:
-                    print 'CLIM'
                 task.set_failed()
-                print task.target.variable,task.target.table,task.target.frequency
                 log.info('Variable %s in table %s will be produced by IFS'%(task.target.variable,task.target.table))
                 continue
         elif task.target.frequency in ignore_frequency:
@@ -173,12 +169,12 @@ def execute(tasks):
             print 'CLIM'
             task.set_failed()
             continue
-        if task.target.variable=='ch4Clim':
-            print 'CLIM','Clim' in task.target.variable
 
         success,freqid=check_freqid(task)
         if not success:
-            exit()
+            task.set_failed()
+            log.info('Frequency %s for task %s not available.'(task.target.frequency,task.target.variable))
+            continue
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
             # and freqid has _ behing (e.g. monZ .neq. mon)
@@ -214,17 +210,8 @@ def execute(tasks):
         cmor.load_table(table_root_ + "_grids.json")
         grid = create_lonlat_grid()#xsize, xfirst, yvals)
         grid_ids_['lonlat']=grid
-    # else:
-    #     pass
-    #     cmor.load_table(table_root_ + "_coordinate.json")
-    #     grid_ids_['lat2']=create_lat()
-    #     grid_ids_['lon2']=create_lon()
-    #     #grid = create_lonlat_grid()#xsize, xfirst, yvals)
-    #     grid =[grid_ids_['lat2'],grid_ids_['lon2']]
-    #grid_ids_['lonlat']=grid
 
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
-    #cmor.load_table(table_root_ + "_grids.json")
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -432,7 +419,7 @@ def execute_netcdf_task(task,tableid):
     ## for pressure level variables we need to do interpolation, for which we need
     ## pyngl module
     if interpolate_to_pressure:
-        psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        psdata=get_ps_var(getattr(getattr(task,'ps_task2',None),cmor_task.output_path_key,None))
         pressure_levels=getattr(task,'pressure_levels')
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
     else:  
@@ -454,14 +441,15 @@ def execute_netcdf_task(task,tableid):
 
         # calculate area-weighted mean
         vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
-    else:# assumption: data is shape [time,lat,lon] (roll longitude dimension)
+    else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
+        #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
+        #  so by half the longitude dimension
+        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         vals=numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
         nroll=dims[-1]/2
         ncvar = numpy.roll(vals,nroll,len(dims)-1)
-        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         vals=numpy.copy(ncvar[:,:,:])
-    #factor 1.
     # Default values
     factor = 1.0
     term=0.0
@@ -589,9 +577,6 @@ def create_time_axis(freq,path,name,has_bounds):
         units = getattr(timvar,"units")
     except:
         ds.close()
-    if name=='time1':
-        # for time1 no bounds are needed, because it is point value
-        has_bounds=False
     tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
     # delta days for change of reftime
     diff_days= (refdate-tm5refdate).total_seconds()/86400
@@ -607,7 +592,7 @@ def create_time_axis(freq,path,name,has_bounds):
 
     if(len(vals) == 0 or units == None):
         log.error("ERR -22: No time values or units could be read from tm5 output files %s" % str(files))
-        return 0
+        return -1
     units="days since " + str(ref_date_)
     ####
     if has_bounds:
