@@ -136,6 +136,9 @@ def check_freqid(task):
         return False,None
     elif task.target.table=='AERmonZ':
         freqid=freqid+'Z'
+    elif freqid==None:
+        log.error('Frequency %s of variable %s is unkonwn'%(task.target.frequency,task.target.variable))
+        return False,None
     print task.target.table,task.target.variable,task.target.frequency,freqid
     return True,freqid
 # Executes the processing loop.
@@ -322,6 +325,7 @@ def execute(tasks):
 
     log.info('Unit problems: %s'% unit_miss_match)
     log.info('Cmorization failed: %s'%failed)
+
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
     global log,grid_ids_,depth_axes_,time_axes_,areacella_
@@ -359,9 +363,9 @@ def execute_netcdf_task(task,tableid):
                 interpolate_to_pressure=True
             # make explicit if just to check that all axes are there
             elif 'alevel'  in checkaxes:
-                pass
+                interpolate_to_pressure=False
             elif 'alevhalf'  in checkaxes:
-                pass
+                interpolate_to_pressure=False
             else:
                 log.error('ERR -16: unknown dimension in z_axis_id')
         else:
@@ -564,6 +568,7 @@ def create_time_axes(tasks):
             setattr(task, "time_axis", tid)
             break
     time_axes_=time_axes
+
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,path,name,has_bounds):
     global log,ref_date_
