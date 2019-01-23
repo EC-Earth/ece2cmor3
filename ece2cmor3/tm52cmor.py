@@ -142,7 +142,7 @@ def check_freqid(task):
     return True,freqid
 # Executes the processing loop.
 def execute(tasks):
-    global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_,using_grid_
+    global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_,using_grid_,ps_tasks
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
     #Assign file to each task
@@ -192,18 +192,9 @@ def execute(tasks):
                 log.info('No path found for variable %s from TM5'%(task.target.variable))
                 task.set_failed()
                 continue
-            ### 6hr ps not part of the data request but needed fors
-            ### 6hr ec550aer hybrid level description
-            ### so a hack for it because there is no task available
-            if freqid=='6hr':
-                if  os.path.basename(fstr).startswith("ps_") and freqid+"_" in fstr:
-                    ps6hrpath_=fstr
-                    ps_tasks[task.target.frequency]=ps6hrpath_
-        # save ps task for frequency
-        if task.target.variable=='ps':
-            #print 'ps',task.target.frequency, getattr(task,cmor_task.output_path_key)
-            if task.target.frequency not in ps_tasks:
-                ps_tasks[task.target.frequency]=task
+    ps_tasks=get_sp_tasks(tasks)
+    #print ps_tasks
+    
     log.info('Creating TM5 3x2 deg lon-lat grid')
     
     if using_grid_:
@@ -263,19 +254,11 @@ def execute(tasks):
                     setattr(task, "lat2", grid_ids_['lat2'])
                 else:
                     setattr(task, "grid_id", grid)
-                
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
             
-            #Vertical
-            if "alevel" in tgtdims:
-                if task.target.frequency not in ps_tasks:
-                    if task.target.frequency=='6hrPt' and '6hr'  not in ps_tasks:
-                        log.error("ERR -9: ps task not available for frequency %s !!" % (task.target.frequency))
-                        continue
-                    else:
-                        setattr(task,"ps_task",ps_tasks[task.target.frequency])
+           
             if "site" in tgtdims:
                 log.critical('Z-dimension site not implemented ')
                 task.set_failed()
@@ -457,12 +440,8 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
-        if task.target.table=='6hrLev':
-            # still in development, data request is not correct.
-            psdata=get_ps_var(ps6hrpath_)
-            print psdata
-        else:
-            psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        #psdata=get_ps_var(getattr(ps_tasks[task.target.frequency],cmor_task.output_path_key,None))
+        psdata=get_ps_var(getattr(getattr(task,'ps_task2',None),cmor_task.output_path_key,None))
         #print psdata, task.target.variable
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
@@ -839,31 +818,27 @@ def get_ps_var(ncpath):
 def get_sp_tasks(tasks):
     global exp_name_,path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
-    result = []
+    result = {}
     for freq, task_group in tasks_by_freq.iteritems():
-        print freq
-        tasks3d = [t for t in task_group if ("alevel" or "alevhalf") in getattr(t.target, cmor_target.dims_key).split()]
+        tasks3d = [t for t in task_group if ("alevel" in getattr(t.target, cmor_target.dims_key).split()  or "plev19" in getattr(t.target, cmor_target.dims_key).split() or
+            "alevhalf" in getattr(t.target, cmor_target.dims_key).split()  or "plev39"  in getattr(t.target, cmor_target.dims_key).split() )]
         if not any(tasks3d):
             continue
         ps_tasks = [t for t in task_group if t.source.variable() == "ps" and
                                getattr(t, "time_operator", "point") in ["mean", "point"]]
         ps_task = ps_tasks[0] if any(ps_tasks) else None
         if ps_task:
-            result.append(ps_task)
+            result[freq]=ps_task
         else:
             source = cmor_source.tm5_source("ps")
             ps_task = cmor_task.cmor_task(source, cmor_target.cmor_target("ps", freq))
             setattr(ps_task.target, cmor_target.freq_key, freq)
             setattr(ps_task.target, "time_operator", ["point"])
             freqid=set_freqid(freq)
-            print path_,exp_name_,freq,freqid
-            print cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid) 
-            cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid)
-            result.append(ps_task)
-
+            filepath=cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid)
+            setattr(ps_task, cmor_task.output_path_key, filepath)
+            result[freq]=ps_task
         for task3d in tasks3d:
-            print task3d.target.variable
-            setattr(task3d, "ps_task", ps_task)
-        print result
+            setattr(task3d, "ps_task2", ps_task)
     return result
 
