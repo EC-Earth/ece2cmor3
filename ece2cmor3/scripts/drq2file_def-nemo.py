@@ -33,7 +33,9 @@ file_def_lim_file_name_compact    = "./xios-nemo-file_def-files/file_def_nemo-li
 file_def_pisces_file_name_compact = "./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml"
 
 # Logging configuration
-logging.basicConfig(level=logging.DEBUG)
+logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+logdateformat = "%Y-%m-%d %H:%M:%S"
+logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
 # Logger construction
 log = logging.getLogger(__name__)
