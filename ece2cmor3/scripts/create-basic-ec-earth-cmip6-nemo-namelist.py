@@ -661,7 +661,16 @@ for i in range(0, len(dr_varname)):
     else:
      if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice', 'mean within years']:
       cmor_table_operation = 'operation="average"'
-      cmor_table_freq_op   = 'freq_op="1ts"'
+      if True:
+       cmor_table_freq_op   = 'freq_op="1ts"'                           # The previous incorrect method
+      else:
+       if total_pinglist_text[index_in_ping_list] != None:
+        if '@' in total_pinglist_text[index_in_ping_list]:
+         cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]  # Only in case the expression contains an @-operator: set freq_op equal to the output_freq
+        else:
+         cmor_table_freq_op   = 'freq_op="1ts"'
+       else:
+        cmor_table_freq_op   = 'freq_op="1ts"'
      elif getattr(t, "time_operator")[0] in ['point']:
       cmor_table_operation = 'operation="instant"'
       cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
