@@ -652,6 +652,16 @@
         "comment": "Discarding water vapour..."
     },
     {
+        "source": "124.129",
+        "target": "tnhus",
+        "expr": "var126094+var126099+var126106+var126110"
+    },
+    {
+        "source": "125.129",
+        "target": "tnhusmp",
+        "expr": "var126099+var126106+var126110"
+    },
+    {
         "source": "126.129",
         "target": "prra",
         "expr": "var142+var143-var144"
