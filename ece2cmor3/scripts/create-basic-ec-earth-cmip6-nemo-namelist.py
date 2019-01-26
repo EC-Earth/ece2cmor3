@@ -173,6 +173,9 @@ total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + 
 total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgchem_text
 total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgchem_expr
 
+# Check whether all list  have the same lenth:
+#print  '\n Consistency check whether all total ping lists are equal long: ', len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr)
+
 if exclude_dummy_fields:
  print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
 else:
@@ -180,7 +183,7 @@ else:
 
 # Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
 # in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
-# removed and only therafter both are compared:
+# removed and only thereafter both are compared:
 for i in range(len(total_pinglist_id)):
   if total_pinglist_expr[i] != 'None':
    if total_pinglist_expr[i].replace(" ", "").replace("@", "")  != total_pinglist_text[i].replace(" ", ""):
@@ -191,24 +194,24 @@ for i in range(len(total_pinglist_id)):
 if give_preference_to_pingfile_expression_attribute:
  for i in range(len(total_pinglist_id)):
    if total_pinglist_expr[i] != 'None':
-   #print ' Overwrite expression by ping file "expr"-attribute:', total_pinglist_id[i], total_pinglist_text[i], ' -> ', total_pinglist_expr[i]
+   #print ' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i])
     total_pinglist_text[i] = total_pinglist_expr[i]
 
-#print pinglistOcean_id
-#print pinglistOcean_field_ref
-#print pinglistOcean_text
+#print pinglistOcean_id       , '\n '
+#print pinglistOcean_field_ref, '\n '
+#print pinglistOcean_text     , '\n '
 
-#print rootOcean    [0][:]
-#print field_elements_Ocean
+#print rootOcean    [0][:] , '\n '
+#print field_elements_Ocean, '\n '
 
-#print rootOcean    [0].attrib["test"]          # Get an attribute of the parent element
+#print rootOcean    [0].attrib["test"]          # Get an attribute of the parent element: This example only works if one adds an attribute in the field_definition of the ping ocean file, e.g. add : test='TEST'
 #print rootOcean    [0][0].attrib["field_ref"]
 #print rootOcean    [0][1].attrib["id"]
 #print rootOcean    [0][:].attrib["id"]         # does not work, needs an explicit for loop
 
-field_example = "tomint"  # Specify a cmor field name
-field_example = "cfc11"  # Specify a cmor field name
-index_in_ping_list = pinglistOcean_id.index(field_example)
+#field_example = "tomint"  # Specify a cmor field name
+#field_example = "cfc11"   # Specify a cmor field name
+#index_in_ping_list = pinglistOcean_id.index(field_example)
 #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
 
 # Create an XML file, see http://stackabuse.com/reading-and-writing-xml-files-in-python/
@@ -589,26 +592,25 @@ cmor_table_units     = dr_varname[:]  # Take care here: a slice copy is needed.
 
 # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
 for i in range(0, len(dr_varname)):
-#print dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varname[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]
+#print ' {:18}, {:4}, {:4}, {:5}, {:3}, {:40}, {:8} {}'.format(dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i])
  if not dr_varname[i] == "":
   number_of_field_element = number_of_field_element + 1
   index_in_ping_list = total_pinglist_id.index(dr_varname[i])
- #print ' {:20} {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list])
- #if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print ' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list]
+  if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print ' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list]
+ #print ' {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list])
 
-  # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files, otherwise omit attribute definiton:
+  # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files:
   if include_grid_ref_from_field_def_files:
-   # Adding the grid_def attribute with value (or alternatively the domain_ref attribute with value):
+   # Adding the grid_ref attribute with its value (or alternatively the domain_ref attribute with its value):
    if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
     nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
-    print 'missing:   ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+    print ' A field_ref in one of the ping files is not found in any of the field_def files: ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
    else:
     nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
    #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
     index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
     grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
-   #print index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]
-
+   #print '{:5}  {}'.format(index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list])
     texts        = 'fdf_expression="'+total_texts       [index_in_field_def_list]+'"'  # fdf expression: field_def file expression
     units        = 'unit="'          +total_units       [index_in_field_def_list]+'"'
     freq_offsets = 'freq_offset="'   +total_freq_offsets[index_in_field_def_list]+'"'
@@ -616,13 +618,11 @@ for i in range(0, len(dr_varname)):
   #grid_ref = 'grid_ref="??"'
    grid_ref = ''
 
-
   # Checking the cmor table attributes:
   for t in targets:
    if t.variable == dr_varname[i] and t.table == dr_table[i]:
-    if False:
-     print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_methods: {:68} cell_measures: {:32}   type: {:8}   positive: {:8}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_methods"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive")))
-    #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_measures: {:32}   type: {:8}   positive: {:8}  valid_min: {:2} valid_max: {:2} ok_min_mean_abs: {:2} ok_max_mean_abs: {:2}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive"), getattr(t, "valid_min"), getattr(t, "valid_max"), getattr(t, "ok_min_mean_abs"), getattr(t, "ok_max_mean_abs")))
+   #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_methods: {:68} cell_measures: {:32}   type: {:8}   positive: {:8}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_methods"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive")))
+   #print(' The cmor variable {:16} {:6} realm: {:12} units: {:12} cell_measures: {:32}   type: {:8}   positive: {:8}  valid_min: {:2} valid_max: {:2} ok_min_mean_abs: {:2} ok_max_mean_abs: {:2}'.format(t.variable, t.table, getattr(t, "modeling_realm"), getattr(t, "units"), getattr(t, "cell_measures"), getattr(t, "type"), getattr(t, "positive"), getattr(t, "valid_min"), getattr(t, "valid_max"), getattr(t, "ok_min_mean_abs"), getattr(t, "ok_max_mean_abs")))
     if False:
      if not hasattr(t, 'time_operator'):
       if True:
@@ -679,9 +679,8 @@ for i in range(0, len(dr_varname)):
   if total_pinglist_text[index_in_ping_list] != None:
    if '@' in total_pinglist_text[index_in_ping_list]:
     if cmor_table_operation != 'operation="average"':
-     print(' Warning, the time averaging operators @ are removed from the expression because a non time average variable is detected: {} becomes {} for {} {} with {}'.format(total_pinglist_text[index_in_ping_list], total_pinglist_text[index_in_ping_list].replace('@',''), dr_varname[i], dr_table[i], cmor_table_operation))
+     print('\n WARNING: the time averaging operators @ are removed from the expression because a non time average variable is detected: {} becomes {} for {} {} with {}'.format(total_pinglist_text[index_in_ping_list], total_pinglist_text[index_in_ping_list].replace('@',''), dr_varname[i], dr_table[i], cmor_table_operation))
      total_pinglist_text[index_in_ping_list] = total_pinglist_text[index_in_ping_list].replace('@','')
-
 
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
   if test_var_id_in_created_file_def in var_id_in_created_file_def:
