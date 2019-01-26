@@ -661,7 +661,7 @@ for i in range(0, len(dr_varname)):
     else:
      if getattr(t, "time_operator")[0] in ['mean', 'mean where sea_ice', 'mean within years']:
       cmor_table_operation = 'operation="average"'
-      if True:
+      if False:
        cmor_table_freq_op   = 'freq_op="1ts"'                           # The previous incorrect method
       else:
        if total_pinglist_text[index_in_ping_list] != None:
