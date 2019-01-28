@@ -55,6 +55,7 @@ def get_git_hash():
 
 
 # Turns a date or datetime into a datetime
+# TODO: Shouldn't we use the netcdf utility for this?
 def date2num(times, ref_time):
     def shift_times(t):
         return (t - ref_time).total_seconds() / 3600.
