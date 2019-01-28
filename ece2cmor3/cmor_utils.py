@@ -90,9 +90,7 @@ def get_rounded_time(freq, time, offset=0):
         return datetime.datetime(year=time.year, month=time.month, day=1) + offset * interval
     if interval == dateutil.relativedelta.relativedelta(years=1):
         return datetime.datetime(year=time.year, month=1, day=1) + offset * interval
-    n = int(offset) if offset > 0 else int(offset) - 1
-    delta = ((time + n * interval) - time) / 2
-    return time + delta
+    return time + offset * interval
 
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.

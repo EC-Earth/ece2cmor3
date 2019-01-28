@@ -2,15 +2,14 @@ import datetime
 
 import cmor
 import dateutil
+import logging
+import netCDF4
 import numpy
 import os
-
-import logging
 import unittest
-import netCDF4
 from nose.tools import eq_
 
-from ece2cmor3 import ifs2cmor, ece2cmorlib, cmor_utils
+from ece2cmor3 import ifs2cmor, ece2cmorlib
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -79,6 +78,23 @@ class ifs2cmor_tests(unittest.TestCase):
         eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 366)])
         os.remove(filepath)
 
+    def test_6hr_time_axis(self):
+        ifs2cmor.temp_dir_ = self.temp_dir
+        ifs2cmor.ref_date_ = self.refdate
+        ifs2cmor.start_date_ = self.startdate
+        interval = dateutil.relativedelta.relativedelta(hours=6)
+        ncroot, numtimes = write_postproc_timestamps("bs550aer_6hr.nc", self.startdate, self.refdate, interval)
+        ncvar = ncroot.createVariable("bs550aer", "f8", dimensions=("time",))
+        ncvar[:] = numpy.full((numtimes,), -1.23)
+        filepath = ncroot.filepath()
+        ncroot.close()
+        cmor.load_table("CMIP6_6hrLev.json")
+        axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="6hr", path=filepath, name="time",
+                                                                   has_bounds=True)
+        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 4 * 365)])
+        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 4 * 365 + 1)])
+        os.remove(filepath)
+
     def test_3hr_time_axis(self):
         ifs2cmor.temp_dir_ = self.temp_dir
         ifs2cmor.ref_date_ = self.refdate
@@ -93,5 +109,22 @@ class ifs2cmor_tests(unittest.TestCase):
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="3hr", path=filepath, name="time",
                                                                    has_bounds=True)
         eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 8 * 365)])
-        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 8 * 366)])
+        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 8 * 365 + 1)])
+        os.remove(filepath)
+
+    def test_6hrPt_time_axis(self):
+        ifs2cmor.temp_dir_ = self.temp_dir
+        ifs2cmor.ref_date_ = self.refdate
+        ifs2cmor.start_date_ = self.startdate
+        interval = dateutil.relativedelta.relativedelta(hours=6)
+        ncroot, numtimes = write_postproc_timestamps("ta_6hrPlevPt.nc", self.startdate, self.refdate, interval)
+        ncvar = ncroot.createVariable("ta", "f8", dimensions=("time",))
+        ncvar[:] = numpy.full((numtimes,), 273.2)
+        filepath = ncroot.filepath()
+        ncroot.close()
+        cmor.load_table("CMIP6_6hrPlevPt.json")
+        axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="6hrPt", path=filepath, name="time1",
+                                                                   has_bounds=False)
+        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 4 * 365)])
+        eq_(upper_bnds, lower_bnds)
         os.remove(filepath)
