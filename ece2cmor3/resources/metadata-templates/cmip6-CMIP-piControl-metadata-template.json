@@ -2,7 +2,7 @@
     "activity_id":                  "CMIP",
     "experiment_id":                "piControl",
     "source_id":                    "EC-Earth3",
-    "source":                       "EC-Earth3 (2018)",
+    "source":                       "EC-Earth3 (2019)",
     "source_type":                  "AOGCM",
     "grid":                         "T511-ORCA025",
     "grid_label":                   "gr",
