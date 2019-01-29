@@ -64,18 +64,6 @@
         "target": "clivi"
     },
     {
-        "source": "95.126",
-        "target": "tntr"
-    },
-    {
-        "source": "105.126",
-        "target": "tntc"
-    },
-    {
-        "source": "106.126",
-        "target": "tnhusc"
-    },
-    {
         "source": "129.128",
         "convert": "pot2alt",
         "target": [
@@ -537,16 +525,6 @@
         "target": "wa",
         "expr": "-287.085*var130*var135/(9.81*var54)",
         "comment": "Discarding water vapour..."
-    },
-    {
-        "source": "124.129",
-        "target": "tnhus",
-        "expr": "var126094+var126099+var126106+var126110"
-    },
-    {
-        "source": "125.129",
-        "target": "tnhusmp",
-        "expr": "var126099+var126106+var126110"
     },
     {
         "source": "126.129",
