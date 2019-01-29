@@ -1,11 +1,12 @@
+import datetime
+
+import netCDF4
+import numpy
 import os
 import re
-import numpy
-import netCDF4
-import datetime
-from  dateutil import relativedelta
+from dateutil import relativedelta
+
 from ece2cmor3 import cmor_target
-from ece2cmor3 import cmor_source
 
 
 def get_table_path(tab_id=None):
@@ -78,21 +79,21 @@ class nemo_output_factory(object):
             d = d + period
         return tims
 
-    def write_variables(self, path_, prefix_, vars_={}):
+    def write_variables(self, path_, prefix_, vars_):
 
         filepath = self.get_path(path_, prefix_)
         root = netCDF4.Dataset(filepath, "w")
 
-        dimt = root.createDimension("time_counter")
-        dimi = root.createDimension("y", self.lons.shape[0])
-        dimj = root.createDimension("x", self.lons.shape[1])
-        tbnddim = root.createDimension("axis_nbounds", 2)
+        root.createDimension("time_counter")
+        root.createDimension("y", self.lons.shape[0])
+        root.createDimension("x", self.lons.shape[1])
+        root.createDimension("axis_nbounds", 2)
         tims = self.get_times()
 
         z = None
         if self.depthaxis and self.layers:
             z = "depth" + self.depthaxis
-            dimz = root.createDimension(z, self.layers)
+            root.createDimension(z, self.layers)
 
         varlat = root.createVariable("nav_lat", "f8", ("y", "x",))
         varlat.standard_name = "latitude"
@@ -170,7 +171,6 @@ class nemo_output_factory(object):
         vartimcbnd[:, 1] = bndrarray
 
         for v in vars_:
-            var = None
             atts = v.copy()
             name = atts.pop("name")
             dims = atts.pop("dims")
@@ -192,16 +192,16 @@ class nemo_output_factory(object):
                                                       (len(tims), self.lons.shape[1], self.lons.shape[0]),
                                                       dtype=numpy.float64)
                 elif dims == 3:
-                    var[:, :, :, :] = numpy.fromfunction(numpy.vectorize(func), (
-                    len(tims), self.layers, self.lons.shape[1], self.lons.shape[0]), dtype=numpy.float64)
+                    var[:, :, :, :] = numpy.fromfunction(numpy.vectorize(func),
+                                                         (len(tims), self.layers, self.lons.shape[1],
+                                                          self.lons.shape[0]), dtype=numpy.float64)
                 else:
-                    raise Exception("Variables with dimensions ", d, " are not supported")
+                    raise Exception("Variables with dimensions %d are not supported" % dims)
             else:
                 if dims == 2:
-                    var[:, :, :] = numpy.zeros(len(tims), self.lons.shape[1], self.lons.shape[0], dtype=numpy.float64)
+                    var[:, :, :] = numpy.zeros((len(tims), self.lons.shape[1], self.lons.shape[0]))
                 elif dims == 3:
-                    var[:, :, :, :] = numpy.zeros(len(tims), self.layers, self.lons.shape[1], self.lons.shape[0],
-                                                  dtype=numpy.float64)
+                    var[:, :, :, :] = numpy.zeros((len(tims), self.layers, self.lons.shape[1], self.lons.shape[0]))
                 else:
-                    raise Exception("Variables with dimensions ", d, " are not supported")
+                    raise Exception("Variables with dimensions %d are not supported" % dims)
         root.close()
