@@ -191,7 +191,7 @@ def execute(tasks):
                 log.info('No path found for variable %s from TM5'%(task.target.variable))
                 task.set_failed()
                 continue
-    ps_tasks=get_sp_tasks(tasks)
+    ps_tasks=get_ps_tasks(tasks)
     
     log.info('Creating TM5 3x2 deg lon-lat grid')
     
@@ -256,8 +256,6 @@ def execute(tasks):
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
-            
-           
             if "site" in tgtdims:
                 log.critical('Z-dimension site not implemented ')
                 task.set_failed()
@@ -397,7 +395,7 @@ def execute_netcdf_task(task,tableid):
     ## for pressure level variables we need to do interpolation, for which we need
     ## pyngl module
     if interpolate_to_pressure:
-        psdata=get_ps_var(getattr(getattr(task,'ps_task2',None),cmor_task.output_path_key,None))
+        psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         pressure_levels=getattr(task,'pressure_levels')
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
     else:  
@@ -435,7 +433,7 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
-        psdata=get_ps_var(getattr(getattr(task,'ps_task2',None),cmor_task.output_path_key,None))
+        psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, psdata,
@@ -805,7 +803,7 @@ def get_ps_var(ncpath):
         return None
 
 # Creates extra tasks for surface pressure
-def get_sp_tasks(tasks):
+def get_ps_tasks(tasks):
     global exp_name_,path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = {}
@@ -829,6 +827,6 @@ def get_sp_tasks(tasks):
             setattr(ps_task, cmor_task.output_path_key, filepath)
             result[freq]=ps_task
         for task3d in tasks3d:
-            setattr(task3d, "ps_task2", ps_task)
+            setattr(task3d, "ps_task", ps_task)
     return result
 
