@@ -768,6 +768,10 @@ if produce_varlistjson_file:
  varlistjson.write('{}{}'.format('}','\n'))
  varlistjson.close()
 
+ # Removing the variable deptho as lomg it can not be cmorized, see #249:
+ command = "sed -i '/deptho/d' " + varlistjson_file_name
+ os.system(command)
+
  print ' \n The produced', varlistjson_file_name, ' file contains', i, 'variables.'
 
 ################################################################################
