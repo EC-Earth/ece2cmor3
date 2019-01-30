@@ -266,13 +266,16 @@ def create_tasks(targets, active_components=None, silent=False):
                 matches = [p for p in model_vars.get(model, []) if matchvarpar(target.variable, p)]
                 if any(matches):
                     matchpars[model] = matches
+        key = target.variable if skip_tables else (target.table, target.variable)
+        if key in ignoredvarlist:
+            target.ecearth_comment, target.comment_author = ignoredvarlist[key]
+            ignoredtargets.append(target)
+            varword = "ignored"
+            if any(matchpars):
+                log.warning(" The %s table for the available variable %s is ignored." % (target.table, target.variable))
+                continue
         if not any(matchpars):
-            key = target.variable if skip_tables else (target.table, target.variable)
-            if key in ignoredvarlist:
-                target.ecearth_comment, target.comment_author = ignoredvarlist[key]
-                ignoredtargets.append(target)
-                varword = "ignored"
-            elif key in identifiedmissingvarlist:
+            if key in identifiedmissingvarlist:
                 if with_pingfile:
                     target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = \
                     identifiedmissingvarlist[key]
