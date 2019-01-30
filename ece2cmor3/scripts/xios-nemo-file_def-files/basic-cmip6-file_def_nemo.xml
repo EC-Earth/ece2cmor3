@@ -224,7 +224,6 @@
      <field id="id_1m_osaltpadvect"                  name="osaltpadvect"            table="Emon"          field_ref="strd_eivad_e3t"                         grid_ref="grid_T_3D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >     this * $rau0                                                       </field>
      <field id="id_1m_osaltpmdiff"                   name="osaltpmdiff"             table="Emon"          field_ref="strd_iso_e3t"                           grid_ref="grid_T_3D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >     this * $rau0                                                       </field>
      <field id="id_1m_osaltdiff"                     name="osaltdiff"               table="Emon"          field_ref="strd_zdfp_e3t"                          grid_ref="grid_T_3D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >     this * $rau0                                                       </field>
-     <field id="id_1m_zhalfo_2"                      name="zhalfo"                  table="Oclim"         field_ref="tpt_dep"                                grid_ref="grid_T_3D"                      unit="m"                  enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
 
     </file>
 
