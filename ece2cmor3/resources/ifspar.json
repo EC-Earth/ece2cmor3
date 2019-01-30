@@ -145,12 +145,6 @@
         "target": "albsn"
     },
     {
-        "source": "34.128",
-        "target": "tos",
-        "table": "none",
-        "convert": "K2degC"
-    },
-    {
         "source": "43.128",
         "target": "mrso",
         "expr": "70*var39+210*var40+720*var41+1890*var42",
