@@ -3,8 +3,8 @@
 #
 # Run examples:
 #  python genecec.py
-#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec-50 &
-#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout-50 2> log-genecec/log-genecec-stderr-50 &
+#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec-2019-v01 &
+#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout-2019-v01 2> log-genecec/log-genecec-stderr-2019-v01 &
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the

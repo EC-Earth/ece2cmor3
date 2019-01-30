@@ -263,8 +263,7 @@ def create_tasks(targets, active_components=None, silent=False):
         for model in components.models:
             is_active = True if active_components is None else active_components.get(model, True)
             if is_active:  # Only consider models that are 'enabled'
-                matches = [p for p in model_vars.get(model, []) if
-                           matchvarpar(target.variable, p) and target.table == p.get(json_table_key, target.table)]
+                matches = [p for p in model_vars.get(model, []) if matchvarpar(target.variable, p)]
                 if any(matches):
                     matchpars[model] = matches
         if not any(matchpars):
