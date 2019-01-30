@@ -21,7 +21,6 @@ declare -a arr=(
 "c2h6"
 "c3h6"
 "c3h8"
-"cdnc"
 "ch3coch3"
 "ch4"
 "ch4Clim"
