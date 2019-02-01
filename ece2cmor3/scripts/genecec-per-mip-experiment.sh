@@ -144,7 +144,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
 
-  # Check wheter there will be selected a unique matching data request file in the created data request directory:
+  # Check whether there will be selected a unique matching data request file in the created data request directory:
   number_of_matching_files=$(ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx|wc -l)
   if [ ${number_of_matching_files} != 1 ]; then
    echo 'Number of matching files: ' ${number_of_matching_files}

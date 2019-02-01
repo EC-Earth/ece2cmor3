@@ -275,7 +275,11 @@ def create_tasks(targets, active_components=None, silent=False):
                 log.warning(" The %s table for the available variable %s is ignored." % (target.table, target.variable))
                 continue
         if not any(matchpars):
-            if key in identifiedmissingvarlist:
+            if key in ignoredvarlist:
+                target.ecearth_comment, target.comment_author = ignoredvarlist[key]
+                ignoredtargets.append(target)
+                varword = "ignored"
+            elif key in identifiedmissingvarlist:
                 if with_pingfile:
                     target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = \
                     identifiedmissingvarlist[key]
