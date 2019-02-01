@@ -67,7 +67,6 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the Emon   ec550aer                                                        to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Amon   phalf                                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the  3hr   tos                                                             to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the CFsubhr cl--fco2nat block                                              to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
