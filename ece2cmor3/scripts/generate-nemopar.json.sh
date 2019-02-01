@@ -52,7 +52,6 @@ declare -a arr=(
 "hfds"
 "hfevapds"
 "hfgeou"
-"hfibthermds"
 "hfibthermds2d"
 "hflso"
 "hfrainds"
