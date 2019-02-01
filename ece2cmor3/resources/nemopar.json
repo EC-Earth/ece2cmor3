@@ -132,10 +132,6 @@
         "target": "hfgeou"
     },
     {
-        "source": "hfibthermds",
-        "target": "hfibthermds"
-    },
-    {
         "source": "hfibthermds2d",
         "target": "hfibthermds2d"
     },
