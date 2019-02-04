@@ -66,7 +66,6 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the 6hrPlevPt-Eday-E6hrZ VolMIP (step 3) block (swtoafluxaerocs--zmlwaero) to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Emon   ec550aer                                                        to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Amon   phalf                                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the  3hr   tos                                                             to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the CFsubhr cl--fco2nat block                                              to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
