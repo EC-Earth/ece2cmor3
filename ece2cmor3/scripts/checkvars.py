@@ -112,9 +112,15 @@ def main():
     parser.add_argument("--withouttablescheck", action = "store_true", default = False, help = "Ignore variable tables when performing var checking")
     parser.add_argument("--withping", action = "store_true", default = False, help = "Read and write addition ping file fields")
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
-    parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
-    parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
-    parser.add_argument("-l", "--lpj", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess variables")
+
+    parser.add_argument("--ifs",  action = "store_true", default = False, help = "Run exclusively for IFS (i.e. atmosphere) variables")
+    parser.add_argument("--nemo", action = "store_true", default = False, help = "Run exclusively for NEMO (i.e. ocean) variables")
+    parser.add_argument("--lpjg", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess (i.e. vegetation) variables")
+
+    # Add deprecated flags for backward compatibility
+    parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Deprecated! Use --ifs instead!")
+    parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Deprecated! Use --nemo instead!")
+    parser.add_argument("-l", "--lpj", action = "store_true", default = False, help = "Deprecated! Use --lpjg instead!")
 
     args = parser.parse_args()
 
@@ -123,9 +129,14 @@ def main():
 
     # Fix conflicting flags
     # TODO: Use same flags as ece2cmor3 script
-    active_components = {"ifs": args.atm, "nemo": args.oce, "lpjg": args.lpj}
+    active_components = {"ifs": args.ifs or args.atm, "nemo": args.nemo or args.oce, "lpjg": args.lpjg or args.lpj}
     if not any(active_components.values()):
         active_components = {"ifs": True, "nemo": True, "lpjg": True}
+
+    # Warn about deprecated flags
+    logging.warning("Deprecated flag '--atm' used! Use '--ifs' instead!")  if args.atm
+    logging.warning("Deprecated flag '--oce' used! Use '--nemo' instead!") if args.oce
+    logging.warning("Deprecated flag '--lpj' used! Use '--lpjg' instead!") if args.lpj
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
