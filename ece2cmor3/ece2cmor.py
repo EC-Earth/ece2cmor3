@@ -112,10 +112,10 @@ def main(args=None):
         model_active_flags[model] = getattr(args, model, False)
 
     # Correct for deprecated --atm and --oce flags
-    if getattr(args, "atm", False):
+    if args.atm:
         log.warning("Deprecated flag --atm used, use --ifs instead!")
         model_active_flags["ifs"] = True
-    if getattr(args, "oce", False):
+    if args.oce:
         log.warning("Deprecated flag --oce used, use --nemo instead!")
         model_active_flags["nemo"] = True
 
