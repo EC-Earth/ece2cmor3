@@ -133,11 +133,6 @@ def main():
     if not any(active_components.values()):
         active_components = {"ifs": True, "nemo": True, "lpjg": True}
 
-    # Warn about deprecated flags
-    logging.warning("Deprecated flag '--atm' used! Use '--ifs' instead!")  if args.atm
-    logging.warning("Deprecated flag '--oce' used! Use '--nemo' instead!") if args.oce
-    logging.warning("Deprecated flag '--lpj' used! Use '--lpjg' instead!") if args.lpj
-
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
     taskloader.with_pingfile = args.withping
