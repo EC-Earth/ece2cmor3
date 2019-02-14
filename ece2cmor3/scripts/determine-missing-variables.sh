@@ -7,7 +7,7 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
-# ${5} the fifth   argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --oce for only ocean variables
+# ${5} the fifth   argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --nemo for only ocean variables
 #
 # Run example:
 #  ./determine-missing-variables.sh CMIP CMIP 1 1
