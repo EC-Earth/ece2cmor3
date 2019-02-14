@@ -40,8 +40,9 @@ def main():
     parser.add_argument("--tabdir", metavar = "DIR",    type = str, default = ece2cmorlib.table_dir_default, help = "Cmorization table directory")
     parser.add_argument("--tabid",  metavar = "PREFIX", type = str, default = ece2cmorlib.prefix_default, help = "Cmorization table prefix string")
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
-    parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
-    parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
+    parser.add_argument("--ifs" , action = "store_true", default = False, help = "Run exclusively for IFS (i.e. atmosphere) variables")
+    parser.add_argument("--nemo", action = "store_true", default = False, help = "Run exclusively for NEMO (i.e. ocean) variables")
+   #parser.add_argument("--lpjg", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess (i.e. vegetation) variables")
 
     args = parser.parse_args()
 
@@ -49,7 +50,7 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
     # Fix conflicting flags
-    procatmos,prococean = not args.oce,not args.atm
+    procatmos,prococean = not args.nemo,not args.ifs
     if(not procatmos and not prococean):
         procatmos,prococean = True,True
     print
