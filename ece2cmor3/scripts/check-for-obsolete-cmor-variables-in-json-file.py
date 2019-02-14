@@ -42,25 +42,32 @@ def main():
     parser.add_argument("--output", metavar = "FILE",   type = str, default = None, help = "Output path to write variables to")
     parser.add_argument("--ifs" , action = "store_true", default = False, help = "Run exclusively for IFS (i.e. atmosphere) variables")
     parser.add_argument("--nemo", action = "store_true", default = False, help = "Run exclusively for NEMO (i.e. ocean) variables")
-   #parser.add_argument("--lpjg", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess (i.e. vegetation) variables")
+    parser.add_argument("--lpjg", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess (i.e. vegetation) variables")
+    parser.add_argument("--tm5" , action = "store_true", default = False, help = "Run exclusively for TM5 (i.e. atmospheric chemistry) variables")
+    parser.add_argument("--all" , action = "store_true", default = False, help = "Check all component variables")
 
     args = parser.parse_args()
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
-    # Fix conflicting flags
-    procatmos,prococean = not args.nemo,not args.ifs
-    if(not procatmos and not prococean):
-        procatmos,prococean = True,True
+    if(not args.ifs and not args.nemo and not args.lpjg and not args.tm5): args.all = True
+
     print
-    if(prococean):
+    if(args.ifs or args.all):
+        fname = "../resources/ifspar.json"
+        check_obsolete(fname)
+    print
+    if(args.nemo or args.all):
         fname = "../resources/nemopar.json"
         check_obsolete(fname)
-        
     print
-    if(procatmos):
-        fname = "../resources/ifspar.json"
+    if(args.lpjg or args.all):
+        fname = "../resources/lpjgpar.json"
+        check_obsolete(fname)
+    print
+    if(args.tm5 or args.all):
+        fname = "../resources/tm5par.json"
         check_obsolete(fname)
 
     # Finishing up
