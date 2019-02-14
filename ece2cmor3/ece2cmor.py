@@ -37,17 +37,10 @@ def main(args=None):
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for "
                                                                         "IFS cmorization")
-    model_attributes = {}
-    for c in components.models:
-            flag1, flag2 = components.get_script_options(c)
-            if flag2 is None:
-                parser.add_argument("--" + flag1, action="store_true", default=False,
-                                    help="Run ece2cmor3 exclusively for %s data" % c)
-            else:
-                parser.add_argument("--" + flag1, '-' + flag2, action="store_true", default=False,
-                                    help="Run ece2cmor3 exclusively for %s data" % c)
-            model_attributes[c] = flag1
-
+    # Add component flags
+    for model in components.models:
+        parser.add_argument("--" + model, action="store_true", default=False,
+                            help="Run ece2cmor3 exclusively for %s data" % model)
     parser.add_argument("--log", action="store_true", default=False, help="Write to log file")
     parser.add_argument("--flatdir", action="store_true", default=False, help="Do not create sub-directories in "
                                                                                     "output folder")
@@ -68,6 +61,8 @@ def main(args=None):
     parser.add_argument("--ncdo", metavar="N", type=int, default=4, help=argparse.SUPPRESS)
     parser.add_argument("--nomask", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
+    parser.add_argument("--atm", action="store_true", default=False, help="Deprecated! Use --ifs instead")
+    parser.add_argument("--oce", action="store_true", default=False, help="Deprecated! Use --nemo instead")
 
     model_tabfile_attributes = {}
     for c in components.models:
@@ -113,8 +108,18 @@ def main(args=None):
 
     # Fix exclusive run flags: if none are used, we cmorize for all components
     model_active_flags = dict.fromkeys(components.models, False)
-    for model in model_attributes:
-        model_active_flags[model] = getattr(args, model_attributes[model], False)
+    for model in components.models:
+        model_active_flags[model] = getattr(args, model, False)
+
+    # Correct for deprecated --atm and --oce flags
+    if args.atm:
+        log.warning("Deprecated flag --atm used, use --ifs instead!")
+        model_active_flags["ifs"] = True
+    if args.oce:
+        log.warning("Deprecated flag --oce used, use --nemo instead!")
+        model_active_flags["nemo"] = True
+
+    # If no flag was found, activate all components
     if not any(model_active_flags.values()):
         model_active_flags = dict.fromkeys(model_active_flags, True)
 

@@ -48,7 +48,7 @@ if [ "$#" -eq 0 ]; then
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --withping --oce -v --vars  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   ./checkvars.py --withouttablescheck --withping --nemo -v --vars  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
@@ -93,30 +93,30 @@ if [ "$#" -eq 0 ]; then
 #  From here on one can uncomment one or more of the data requests below.
 
 # Step 1: Request for CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP       CMIP          1 1 --oce
+# ./determine-missing-variables.sh CMIP       CMIP          1 1 --nemo
 
 # Step 1+2: Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1 --oce
+# ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1 --nemo
 
 # Step 3:
-# ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1 --oce
-# ./determine-missing-variables.sh CDRMIP      CDRMIP       1 1 --oce
-# ./determine-missing-variables.sh C4MIP       C4MIP        1 1 --oce
-# ./determine-missing-variables.sh DCPP        DCPP         1 1 --oce
-# ./determine-missing-variables.sh HighResMIP  HighResMIP   1 1 --oce
-# ./determine-missing-variables.sh ISMIP6      ISMIP6       1 1 --oce
-# ./determine-missing-variables.sh LS3MIP      LS3MIP       1 1 --oce
-# ./determine-missing-variables.sh LUMIP       LUMIP        1 1 --oce
-# ./determine-missing-variables.sh OMIP        OMIP         1 1 --oce
-# ./determine-missing-variables.sh PAMIP       PAMIP        1 1 --oce
-# ./determine-missing-variables.sh PMIP        PMIP         1 1 --oce
-# ./determine-missing-variables.sh RFMIP       RFMIP        1 1 --oce
-# ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1 --oce
-# ./determine-missing-variables.sh VolMIP      VolMIP       1 1 --oce
-# ./determine-missing-variables.sh CORDEX      CORDEX       1 1 --oce
-# ./determine-missing-variables.sh DynVar      DynVar       1 1 --oce
-# ./determine-missing-variables.sh SIMIP       SIMIP        1 1 --oce
-# ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1 --oce
+# ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1 --nemo
+# ./determine-missing-variables.sh CDRMIP      CDRMIP       1 1 --nemo
+# ./determine-missing-variables.sh C4MIP       C4MIP        1 1 --nemo
+# ./determine-missing-variables.sh DCPP        DCPP         1 1 --nemo
+# ./determine-missing-variables.sh HighResMIP  HighResMIP   1 1 --nemo
+# ./determine-missing-variables.sh ISMIP6      ISMIP6       1 1 --nemo
+# ./determine-missing-variables.sh LS3MIP      LS3MIP       1 1 --nemo
+# ./determine-missing-variables.sh LUMIP       LUMIP        1 1 --nemo
+# ./determine-missing-variables.sh OMIP        OMIP         1 1 --nemo
+# ./determine-missing-variables.sh PAMIP       PAMIP        1 1 --nemo
+# ./determine-missing-variables.sh PMIP        PMIP         1 1 --nemo
+# ./determine-missing-variables.sh RFMIP       RFMIP        1 1 --nemo
+# ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1 --nemo
+# ./determine-missing-variables.sh VolMIP      VolMIP       1 1 --nemo
+# ./determine-missing-variables.sh CORDEX      CORDEX       1 1 --nemo
+# ./determine-missing-variables.sh DynVar      DynVar       1 1 --nemo
+# ./determine-missing-variables.sh SIMIP       SIMIP        1 1 --nemo
+# ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1 --nemo
 
 # ll *.missing.xlsx|grep -v 5.5K
 # ll *.missing.txt|grep -v 266B
