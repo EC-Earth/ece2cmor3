@@ -50,7 +50,7 @@ def do_post_process():
 
 # Controls whether we use 2d grid for IFS, or just lat/lon axes
 def use_2d_grid():
-    return str(os.environ.get("ECE2CMOR3_IFS_GRID_2D", "True")).lower() != "false"
+    return str(os.environ.get("ECE2CMOR3_IFS_GRID_2D", "False")).lower() == "true"
 
 
 # Controls whether to clean up the IFS temporary data
