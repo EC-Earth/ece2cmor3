@@ -48,8 +48,11 @@ def main():
                 result[component][table] = [variable]
         else:
             result[component] = {table: [variable]}
+    for component in result.keys():
+        for table in result[component].keys():
+            result[component][table] = sorted(result[component][table])
     with open("varlist.json", 'w') as ofile:
-        json.dump(result, ofile, indent=4, separators=(',', ': '))
+        json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
 
 
 if __name__ == "__main__":
