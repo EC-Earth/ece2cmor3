@@ -236,11 +236,8 @@ def load_checkvars_excel(basic_ignored_excel_file):
 # Creates tasks for the given targets, using the parameter tables in the resource folder
 def create_tasks(targets, active_components=None, silent=False):
     global log, ignored_vars_file, json_table_key, skip_tables
-    active_realms, model_vars = {}, {}
+    model_vars = {}
     for m in components.models:
-        is_active = True if active_components is None else active_components.get(m, True)
-        for r in components.models[m][components.realms]:
-            active_realms[r] = is_active or active_realms.get(r, False)  # True if any model can produce the realm
         tabfile = components.models[m].get(components.table_file, "")
         if os.path.isfile(tabfile):
             with open(tabfile) as f:
@@ -259,9 +256,6 @@ def create_tasks(targets, active_components=None, silent=False):
     loadedtargets, ignoredtargets, identifiedmissingtargets, missingtargets = [], [], [], []
 
     for target in targets:
-        realms = getattr(target, cmor_target.realm_key, None).split()
-        if not any([active_realms.get(r, True) for r in realms]):
-            continue  # If all variable's realms are flagged false, skip
         matchpars = {}
         for model in components.models:
             is_active = True if active_components is None else active_components.get(model, True)
@@ -305,17 +299,10 @@ def create_tasks(targets, active_components=None, silent=False):
                 log.error("Could not find parameter table entry for %s in table %s ...skipping variable. "
                           "This variable is %s" % (target.variable, target.table, varword))
             continue
-        modelmatch = None
-        for model in matchpars:
-            modelmatch = model
-            if len(matchpars) == 1:
-                break
-            modelrealms = set(components.models.get(model, {}).get(components.realms, []))
-            shared_realms = set(realms).intersection(modelrealms)
-            if any(shared_realms):
-                log.info("Multiple models %s found for variable %s, model %s matched by shared realms %s" % (
-                    matchpars.keys(), target.variable, model, shared_realms))
-                break
+
+        if len(matchpars.keys()) > 0:
+            log.warning("Multiple models found for variable %s, table %s...choosing first but preference needed")
+        modelmatch = matchpars.keys()[0]
         pars = matchpars[modelmatch]
         table_pars = [p for p in pars if json_table_key in p]
         notable_pars = [p for p in pars if json_table_key not in p]
