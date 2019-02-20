@@ -55,6 +55,7 @@ setup(name=name,
           "ece2cmor =  ece2cmor3.ece2cmor:main",
           "checkvars =  ece2cmor3.scripts.checkvars:main",
           "drq2ppt =  ece2cmor3.scripts.drq2ppt:main",
+          "drq2varlist =  ece2cmor3.scripts.drq2varlist:main",
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},
