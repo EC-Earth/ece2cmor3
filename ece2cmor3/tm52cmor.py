@@ -287,7 +287,7 @@ def execute(tasks):
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
         for task,executed in taskmask.iteritems():
             if(not executed):
-                log.error("ERR -14: The source variable %s of targe %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
+                log.error("ERR -14: The source variable %s of target %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
                 failed.append([task.target.variable,task.target.table])
 
     log.info('Unit problems: %s'% unit_miss_match)
