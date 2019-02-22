@@ -112,20 +112,20 @@ def main():
     parser.add_argument("--withouttablescheck", action = "store_true", default = False, help = "Ignore variable tables when performing var checking")
     parser.add_argument("--withping", action = "store_true", default = False, help = "Read and write addition ping file fields")
     parser.add_argument("-v", "--verbose", action = "store_true", default = False, help = "Write xlsx and ASCII files with verbose output (suppress the related terminal messages as the content of these files contain this information)")
-    parser.add_argument("-a", "--atm", action = "store_true", default = False, help = "Run exclusively for atmosphere variables")
-    parser.add_argument("-o", "--oce", action = "store_true", default = False, help = "Run exclusively for ocean variables")
-    parser.add_argument("-l", "--lpj", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess variables")
+
+    parser.add_argument("--ifs",  action = "store_true", default = False, help = "Run exclusively for IFS (i.e. atmosphere) variables")
+    parser.add_argument("--nemo", action = "store_true", default = False, help = "Run exclusively for NEMO (i.e. ocean) variables")
+    parser.add_argument("--lpjg", action = "store_true", default = False, help = "Run exclusively for LPJ-Guess (i.e. vegetation) variables")
+    parser.add_argument("--tm5" , action = "store_true", default = False, help = "Run exclusively for TM5 (i.e. atmospheric chemistry) variables")
 
     args = parser.parse_args()
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default,mode = ece2cmorlib.PRESERVE,tabledir = args.tabdir,tableprefix = args.tabid)
 
-    # Fix conflicting flags
-    # TODO: Use same flags as ece2cmor3 script
-    active_components = {"ifs": args.atm, "nemo": args.oce, "lpjg": args.lpj}
+    active_components = {"ifs": args.ifs, "nemo": args.nemo, "lpjg": args.lpjg, "tm5":args.tm5}
     if not any(active_components.values()):
-        active_components = {"ifs": True, "nemo": True, "lpjg": True}
+        active_components = {"ifs": True, "nemo": True, "lpjg": True, "tm5": True}
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck

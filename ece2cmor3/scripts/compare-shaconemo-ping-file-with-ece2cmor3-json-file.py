@@ -13,11 +13,13 @@ import xml.etree.ElementTree as xmltree
 import json
 from os.path import expanduser
 
-ping_file_directory = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
+#ping_file_directory = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
+ping_file_directory = expanduser("~")+"/ec-earth-3.3.0/branch-r6467-control-output-files/runtime/classic/ctrl/"
+#ping_file_directory = expanduser("~")+"/ec-earth-3.3.0/trunk/runtime/classic/ctrl/"
 
-treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean.xml")
-treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce.xml")
-treeOcnBgChem = xmltree.parse(ping_file_directory + "ping_ocnBgChem.xml")
+treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean_DR1.00.27.xml"    )
+treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce_DR1.00.27.xml"   )
+treeOcnBgChem = xmltree.parse(ping_file_directory + "ping_ocnBgChem_DR1.00.27.xml")
 
 rootOcean     = treeOcean.getroot()            # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 rootSeaIce    = treeSeaIce.getroot()           # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
