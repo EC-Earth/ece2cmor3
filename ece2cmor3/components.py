@@ -19,6 +19,8 @@ models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "se
                   table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json")}
           }
 
+ece_configs = {"AOGCM": ["ifs", "nemo"]}
+
 
 def load_parameter_table(component, filename):
     if component in models:

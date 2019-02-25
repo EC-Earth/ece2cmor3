@@ -1,3 +1,4 @@
+import csv
 import json
 import logging
 import os
@@ -14,6 +15,8 @@ json_table_key = "table"
 json_mask_key = "mask"
 json_masked_key = "masked"
 json_filepath_key = "filepath"
+
+variable_prefs_file = os.path.join(os.path.dirname(__file__), "resources", "varprefs.csv")
 
 omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
                                  "list-of-omitted-variables-01.xlsx")
@@ -43,8 +46,28 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-def load_targets(varlist, active_components=None, silent=False, target_filters=None):
+def load_targets(varlist, active_components=None, target_filters=None, config=None):
     global log
+    requested_targets = read_targets(varlist)
+    if target_filters is None:
+        target_filters = {}
+    for msg, func in target_filters.items():
+        filtered_targets = filter(func, requested_targets)
+        for tgt in list(set(requested_targets) - set(filtered_targets)):
+            log.info("Dismissing %s target variable %s in table %s..." % (msg, tgt.variable, tgt.table))
+        requested_targets = filtered_targets
+    log.info("Found %d requested cmor target variables." % len(requested_targets))
+    # TODO: Check for duplicate out-names...
+    considered_targets = omit_targets(requested_targets)
+    ignored_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "ignored"]
+    identified_missing_targets = [t for t in requested_targets if
+                                  getattr(t, "load_status", None) == "identified missing"]
+    missing_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "missing"]
+    loaded_targets = create_tasks(considered_targets, config)
+    return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
+
+
+def read_targets(varlist):
     targetlist = []
     if isinstance(varlist, basestring):
         if os.path.isfile(varlist):
@@ -69,15 +92,48 @@ def load_targets(varlist, active_components=None, silent=False, target_filters=N
                 add_target(v, table, targetlist)
     else:
         log.error("Cannot create a list of cmor-targets for argument %s" % varlist)
-    if target_filters is None:
-        target_filters = {}
-    for msg, func in target_filters.items():
-        filtered_list = filter(func, targetlist)
-        for tgt in list(set(targetlist) - set(filtered_list)):
-            log.info("Dismissing %s target variable %s in table %s..." % (msg, tgt.variable, tgt.table))
-        targetlist = filtered_list
-    log.info("Found %d cmor target variables in input variable list." % len(targetlist))
-    return create_tasks(targetlist, active_components, silent)
+    return targetlist
+
+
+# Filters out ignored, identified missing and omitted targets from the input target list. Attaches attributes to the
+# omitted targets to track what happened to the variable
+def omit_targets(targetlist):
+    omitvarlist_01 = load_checkvars_excel(omit_vars_file_01)
+    omitvarlist_02 = load_checkvars_excel(omit_vars_file_02)
+    omitvarlist_03 = load_checkvars_excel(omit_vars_file_03)
+    omitvarlist_04 = load_checkvars_excel(omit_vars_file_04)
+    omitvarlist_05 = load_checkvars_excel(omit_vars_file_05)
+    omit_lists = {"omit 01": omitvarlist_01, "omit 02": omitvarlist_02, "omit 03": omitvarlist_03,
+                  "omit 04": omitvarlist_04, "omit 05": omitvarlist_05}
+    ignoredvarlist = load_checkvars_excel(ignored_vars_file)
+    identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
+    filtered_list = []
+    for target in targetlist:
+        key = target.variable if skip_tables else (target.table, target.variable)
+        if key in ignoredvarlist:
+            target.ecearth_comment, target.comment_author = ignoredvarlist[key]
+            setattr(target, "load_status", "ignored")
+        elif key in identifiedmissingvarlist:
+            setattr(target, "load_status", "identified missing")
+            if with_pingfile:
+                comment, author, model, units, pingcomment = identifiedmissingvarlist[key]
+                setattr(target, "ecearth_comment", comment)
+                setattr(target, "comment_author", author)
+                setattr(target, "model", model)
+                setattr(target, "units", units)
+                setattr(target, "pingcomment", target.pingcomment)
+            else:
+                comment, author = identifiedmissingvarlist[key]
+                setattr(target, "ecearth_comment", comment)
+                setattr(target, "comment_author", author)
+        elif any([key in omitvarlist for omitvarlist in omit_lists.values()]):
+            for status, omitvarlist in omit_lists.items():
+                if key in omitvarlist:
+                    setattr(target, "load_status", status)
+                    break
+        else:
+            filtered_list.append(target)
+    return filtered_list
 
 
 # Loads a json file containing the cmor targets.
@@ -145,7 +201,7 @@ def load_targets_excel(varlist):
             # If no "Priority" column and no "Default Priority" column are found, abort with message
             raise Exception(
                 "Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (
-                sheet, varlist))
+                    sheet, varlist))
         mip_list_index = row.index(mip_list_colname)
         varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
         vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
@@ -201,7 +257,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
             if colname not in header:
                 log.error(
                     "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (
-                    colname, sheet, varlist))
+                        colname, sheet, varlist))
                 continue
             coldict[colname] = header.index(colname)
         tablenames = [] if skip_tables else [c.value for c in
@@ -233,9 +289,95 @@ def load_checkvars_excel(basic_ignored_excel_file):
     return varlist
 
 
-# Creates tasks for the given targets, using the parameter tables in the resource folder
-def create_tasks(targets, active_components=None, silent=False):
+def match_variables(targets, model_variables):
+    matches = {}
+    # Loop over requested variables
+    for target in targets:
+        matches[target] = {}
+        # Loop over model components
+        for model, variable_mapping in model_variables.items():
+            # Loop over supported variables by the component
+            for parblock in variable_mapping:
+                if matchvarpar(target.variable, parblock):
+                    if model in matches[target]:
+                        log.warning("Multiple matching sources in component %s found for variable %s in table %s: "
+                                    "keeping %s, dismissing %s")
+                    matches[target][model] = parblock
+    return matches
+
+
+def load_prefs_file(tables, configs):
+    mapping = {}
+    with open(variable_prefs_file, 'r') as prefsfile:
+        reader = csv.reader(prefsfile, delimiter=',')
+        for row in reader:
+            if row[1].strip() == "*":
+                tabs = tables
+            else:
+                tabs = [row[1]]
+            if row[3].strip() == "*":
+                cfgs = configs
+            else:
+                cfgs = [row[3]]
+            model_list = row[2].lstrip('[').rstrip(']').split()
+            for tab in tabs:
+                for cfg in cfgs:
+                    mapping[(row[0], tab, cfg)] = model_list
+    return mapping
+
+
+# Creates tasks for the considered requested targets, using the parameter tables in the resource folder
+def create_tasks(targets, config=None):
     global log, ignored_vars_file, json_table_key, skip_tables
+
+    # Load model component parameter tables
+    model_vars = load_model_vars()
+
+    # Match model component variables with requested targets
+    matches = match_variables(targets, model_vars)
+    for t in targets:
+        if t not in matches:
+            setattr(t, "load_status", "missing")
+
+    # Check against preferences file
+    if config is not None:
+        prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
+        for target, match in matches.items():
+            prefs = prefslist.get((target.variable, target.table, config), None)
+            if prefs is not None:
+                preferred_model = None
+                for model in prefs:
+                    if model in match:
+                        preferred_model = model
+                        break
+                if preferred_model is not None:
+                    for model in match.keys():
+                        if model != preferred_model:
+                            del match[model]
+
+    # Create tasks
+    loaded_targets = []
+    for target, match in matches.items():
+        # TODO: Build better checks to see whether there is a single item...
+        model, parmatch = match.items()[0]
+        task = create_cmor_task(parmatch, target, model)
+        if task is None:
+            raise Exception()
+        comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
+        if cmor_source.expression_key in parmatch.keys():
+            comment_string += ", expression = " + parmatch[cmor_source.expression_key]
+        setattr(target, "ecearth_comment", comment_string)
+        setattr(target, "comment_author", "automatic")
+        ece2cmorlib.add_task(task)
+        loaded_targets.append(target)
+    log.info("Created %d ece2cmor tasks from input variable list." % len(loaded_targets))
+
+    # Load masks
+    load_masks(model_vars)
+    return loaded_targets
+
+
+def load_model_vars():
     model_vars = {}
     for m in components.models:
         tabfile = components.models[m].get(components.table_file, "")
@@ -245,85 +387,11 @@ def create_tasks(targets, active_components=None, silent=False):
         else:
             log.warning("Could not read variable table file %s for component %s" % (tabfile, m))
             model_vars[m] = []
+    return model_vars
 
-    omitvarlist_01 = load_checkvars_excel(omit_vars_file_01)
-    omitvarlist_02 = load_checkvars_excel(omit_vars_file_02)
-    omitvarlist_03 = load_checkvars_excel(omit_vars_file_03)
-    omitvarlist_04 = load_checkvars_excel(omit_vars_file_04)
-    omitvarlist_05 = load_checkvars_excel(omit_vars_file_05)
-    ignoredvarlist = load_checkvars_excel(ignored_vars_file)
-    identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
-    loadedtargets, ignoredtargets, identifiedmissingtargets, missingtargets = [], [], [], []
 
-    for target in targets:
-        matchpars = {}
-        for model in components.models:
-            is_active = True if active_components is None else active_components.get(model, True)
-            if is_active:  # Only consider models that are 'enabled'
-                matches = [p for p in model_vars.get(model, []) if matchvarpar(target.variable, p)]
-                if any(matches):
-                    matchpars[model] = matches
-        key = target.variable if skip_tables else (target.table, target.variable)
-        if key in ignoredvarlist:
-            target.ecearth_comment, target.comment_author = ignoredvarlist[key]
-            ignoredtargets.append(target)
-            if any(matchpars):
-                log.warning(" The %s table for the available variable %s is ignored." % (target.table, target.variable))
-                continue
-        if not any(matchpars):
-            if key in ignoredvarlist:
-                target.ecearth_comment, target.comment_author = ignoredvarlist[key]
-                ignoredtargets.append(target)
-                varword = "ignored"
-            elif key in identifiedmissingvarlist:
-                if with_pingfile:
-                    target.ecearth_comment, target.comment_author, target.model, target.units, target.pingcomment = identifiedmissingvarlist[key]
-                else:
-                    target.ecearth_comment, target.comment_author = identifiedmissingvarlist[key]
-                identifiedmissingtargets.append(target)
-                varword = "identified missing"
-            elif key in omitvarlist_01:
-                varword = "omit 01"
-            elif key in omitvarlist_02:
-                varword = "omit 02"
-            elif key in omitvarlist_03:
-                varword = "omit 03"
-            elif key in omitvarlist_04:
-                varword = "omit 04"
-            elif key in omitvarlist_05:
-                varword = "omit 05"
-            else:
-                missingtargets.append(target)
-                varword = "missing"
-            if not silent:
-                log.error("Could not find parameter table entry for %s in table %s ...skipping variable. "
-                          "This variable is %s" % (target.variable, target.table, varword))
-            continue
-
-        if len(matchpars.keys()) > 0:
-            log.warning("Multiple models found for variable %s, table %s...choosing first but preference needed")
-        modelmatch = matchpars.keys()[0]
-        pars = matchpars[modelmatch]
-        table_pars = [p for p in pars if json_table_key in p]
-        notable_pars = [p for p in pars if json_table_key not in p]
-        if len(table_pars) > 1 or len(notable_pars) > 1:
-            log.warning("Multiple entries found for variable %s, table %s in file %s...choosing first." % (
-                target.variable, target.table, components.models[modelmatch][components.table_file]))
-        parmatch = table_pars[0] if any(table_pars) else pars[0]
-        task = create_cmor_task(parmatch, target, modelmatch)
-        if task is None:
-            continue
-        ece2cmorlib.add_task(task)
-        if parmatch.get(cmor_source.expression_key, None) is None:
-            target.ecearth_comment = task.source.model_component() + ' code name = ' + parmatch.get(json_source_key,
-                                                                                                    None)
-        else:
-            target.ecearth_comment = task.source.model_component() + ' code name = ' \
-                                     + parmatch.get(json_source_key, None) + ', expression = ' \
-                                     + parmatch.get(cmor_source.expression_key, None)
-        target.comment_author = 'automatic'
-        loadedtargets.append(target)
-    log.info("Created %d ece2cmor tasks from input variable list." % len(loadedtargets))
+# TODO: Delegate to components
+def load_masks(model_vars):
     for par in model_vars["ifs"]:
         if json_mask_key in par:
             name = par[json_mask_key]
@@ -335,10 +403,10 @@ def create_tasks(targets, active_components=None, silent=False):
                 if srcstr:
                     src = create_cmor_source({json_source_key: srcstr}, "ifs")
                     ece2cmorlib.add_mask(name, src, func, val)
-    return loadedtargets, ignoredtargets, identifiedmissingtargets, missingtargets
 
 
 # Parses the input mask expression
+# TODO: Delegate to components
 def parse_maskexpr(exprstring):
     global mask_predicates
     ops = list(mask_predicates.keys())

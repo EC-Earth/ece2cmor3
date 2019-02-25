@@ -132,7 +132,7 @@ def main():
     taskloader.with_pingfile = args.withping
 
     # Load the variables as task targets:
-    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,active_components=active_components, silent = args.verbose)
+    loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars, active_components=active_components)
 
     if(args.output):
         output_dir = os.path.dirname(args.output)
