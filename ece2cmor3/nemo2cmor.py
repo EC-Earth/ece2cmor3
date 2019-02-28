@@ -240,7 +240,8 @@ def create_depth_axes(ds, tasks, table):
                 units = getattr(zvar, "units", "1")
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
-                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=zvar[:], cell_bounds=b)
+                entry = "olevhalf" if cmor_target.get_z_axis(task.target) == "olevhalf" else "depth_coord"
+                z_axis_id = cmor.axis(table_entry=entry, units=units, coord_vals=zvar[:], cell_bounds=b)
                 z_axis_ids.append(z_axis_id)
                 table_depth_axes[key] = z_axis_id
         setattr(task, "z_axes", z_axis_ids)
