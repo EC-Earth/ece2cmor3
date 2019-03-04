@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 json_source_key = "source"
 json_target_key = "target"
 json_table_key = "table"
+json_tables_key = "tables"
 json_mask_key = "mask"
 json_masked_key = "masked"
 json_filepath_key = "filepath"
@@ -46,6 +47,7 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
+# TODO: Refactor: Composition of simple task loading and dismissing intelligently
 def load_targets(varlist, active_components=None, target_filters=None, config=None):
     global log
     requested_targets = read_targets(varlist)
@@ -63,7 +65,9 @@ def load_targets(varlist, active_components=None, target_filters=None, config=No
     identified_missing_targets = [t for t in requested_targets if
                                   getattr(t, "load_status", None) == "identified missing"]
     missing_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "missing"]
-    loaded_targets = create_tasks(considered_targets, config)
+    matches = filter_targets(considered_targets, config)
+#    validate_matches(matches)
+    loaded_targets = create_tasks(matches, active_components)
     return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
 
 
@@ -290,20 +294,38 @@ def load_checkvars_excel(basic_ignored_excel_file):
 
 
 def match_variables(targets, model_variables):
-    matches = {}
+    global json_target_key
+    # Return value: dictionary of models and lists of targets
+    matches = {m: [] for m in components.models.keys()}
     # Loop over requested variables
     for target in targets:
-        matches[target] = {}
         # Loop over model components
         for model, variable_mapping in model_variables.items():
             # Loop over supported variables by the component
             for parblock in variable_mapping:
-                if matchvarpar(target.variable, parblock):
-                    if model in matches[target]:
-                        log.warning("Multiple matching sources in component %s found for variable %s in table %s: "
-                                    "keeping %s, dismissing %s")
-                    matches[target][model] = parblock
+                if matchvarpar(target, parblock):
+                    if target in matches[model]:
+                        raise Exception("Invalid model parameter file %s: multiple source found found for target %s "
+                                        "in table %s" % (components.models[model][components.table_file],
+                                                         target.variable, target.table))
+                    else:
+                        matches[model].append(target)
     return matches
+
+
+# Checks whether the variable matches the parameter table block
+def matchvarpar(target, parblock):
+    result = False
+    parvars = parblock.get(json_target_key, None)
+    if isinstance(parvars, list) and target.variable in parvars:
+        result = True
+    if isinstance(parvars, basestring) and target.variable == parvars:
+        result = True
+    if hasattr(parblock, json_table_key) and target.table != parblock[json_table_key]:
+        result = False
+    if hasattr(parblock, json_tables_key) and target.table not in parblock[json_tables_key]:
+        result = False
+    return result
 
 
 def load_prefs_file(tables, configs):
@@ -327,54 +349,64 @@ def load_prefs_file(tables, configs):
 
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
-def create_tasks(targets, config=None):
+def create_tasks(matches, active_components):
     global log, ignored_vars_file, json_table_key, skip_tables
+    loaded_targets = []
+    model_vars = load_model_vars()
+    for model, targets in matches.items():
+        if active_components is list and model not in active_components:
+            continue
+        parblocks = model_vars[model]
+        for target in targets:
+            parmatch = [b for b in parblocks if matchvarpar(target, b)][0]
+            task = create_cmor_task(parmatch, target, model)
+            comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
+            if cmor_source.expression_key in parmatch.keys():
+                comment_string += ", expression = " + parmatch[cmor_source.expression_key]
+            setattr(target, "ecearth_comment", comment_string)
+            setattr(target, "comment_author", "automatic")
+            ece2cmorlib.add_task(task)
+            loaded_targets.append(target)
+    log.info("Created %d ece2cmor tasks from input variable list." % len(loaded_targets))
+
+    # Load masks
+    load_masks(load_model_vars())
+    return loaded_targets
+
+
+# Tests the targets against the model parameter table files and preferences file
+def filter_targets(targets, config):
 
     # Load model component parameter tables
     model_vars = load_model_vars()
 
     # Match model component variables with requested targets
     matches = match_variables(targets, model_vars)
-    for t in targets:
+
+    matched_targets = [t for target_list in matches.values() for t in target_list]
+    for t in matched_targets:
         if t not in matches:
             setattr(t, "load_status", "missing")
 
     # Check against preferences file
     if config is not None:
         prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
-        for target, match in matches.items():
-            prefs = prefslist.get((target.variable, target.table, config), None)
-            if prefs is not None:
-                preferred_model = None
-                for model in prefs:
-                    if model in match:
-                        preferred_model = model
-                        break
-                if preferred_model is not None:
-                    for model in match.keys():
-                        if model != preferred_model:
-                            del match[model]
-
-    # Create tasks
-    loaded_targets = []
-    for target, match in matches.items():
-        # TODO: Build better checks to see whether there is a single item...
-        model, parmatch = match.items()[0]
-        task = create_cmor_task(parmatch, target, model)
-        if task is None:
-            raise Exception()
-        comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
-        if cmor_source.expression_key in parmatch.keys():
-            comment_string += ", expression = " + parmatch[cmor_source.expression_key]
-        setattr(target, "ecearth_comment", comment_string)
-        setattr(target, "comment_author", "automatic")
-        ece2cmorlib.add_task(task)
-        loaded_targets.append(target)
-    log.info("Created %d ece2cmor tasks from input variable list." % len(loaded_targets))
-
-    # Load masks
-    load_masks(model_vars)
-    return loaded_targets
+        for key, preferred_models in prefslist:
+            if key[2] != config:
+                continue
+            model_match = None
+            for model in preferred_models:
+                if any([t for t in matched_targets[model] if (t.variable, t.table) == (key[0], key[1])]):
+                    model_match = model
+                    break
+            for model in matches:
+                if model != model_match:
+                    for t in matches[model]:
+                        if (t.variable, t.table) == (key[0], key[1]):
+                            log.info("Removing variable %s in table %s from targets for %s for configuration %s due to "
+                                     "preference ordering..." % (t.variable, t.table, model, config))
+                            matches[model].remove(t)
+    return matches
 
 
 def load_model_vars():
@@ -426,25 +458,13 @@ def parse_maskexpr(exprstring):
     return None, None, None
 
 
-# Checks whether the variable matches the parameter table block
-def matchvarpar(variable, parblock):
-    global json_target_key
-    parvars = parblock.get(json_target_key, None)
-    if isinstance(parvars, list):
-        return variable in parvars
-    if isinstance(parvars, basestring):
-        return variable == parvars
-    return False
-
-
 # Creates a single task from the target and parameter table entry
 def create_cmor_task(pardict, target, component):
     global log, json_source_key
     source = create_cmor_source(pardict, component)
     if source is None:
-        log.error("Failed to construct a source for target variable %s in table %s...skipping task"
-                  % (target.variable, target.table))
-        return None
+        raise ValueError("Failed to construct a source for target variable %s in table %s...skipping task"
+                         % (target.variable, target.table))
     task = cmor_task.cmor_task(source, target)
     mask = pardict.get(json_masked_key, None)
     if mask:
