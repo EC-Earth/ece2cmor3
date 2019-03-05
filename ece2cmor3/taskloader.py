@@ -59,16 +59,51 @@ def load_targets(varlist, active_components=None, target_filters=None, config=No
             log.info("Dismissing %s target variable %s in table %s..." % (msg, tgt.variable, tgt.table))
         requested_targets = filtered_targets
     log.info("Found %d requested cmor target variables." % len(requested_targets))
-    # TODO: Check for duplicate out-names...
     considered_targets = omit_targets(requested_targets)
     ignored_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "ignored"]
     identified_missing_targets = [t for t in requested_targets if
                                   getattr(t, "load_status", None) == "identified missing"]
     missing_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "missing"]
     matches = filter_targets(considered_targets, config)
-#    validate_matches(matches)
+    validate_matches(matches)
     loaded_targets = create_tasks(matches, active_components)
+    load_masks(load_model_vars())
     return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
+
+
+def validate_matches(matches):
+    for model in matches.keys():
+        targetlist = matches[model]
+        n = len(targetlist)
+        for i in range(n):
+            t1 = targetlist[i]
+            key1 = '_'.join([t1.variable, t1.table])
+            okey1 = '_'.join([getattr(t1, "out_name", t1.variable), t1.table])
+            if i < n - 1:
+                for j in range(i + 1, n):
+                    t2 = targetlist[j]
+                    key2 = '_'.join([t2.variable, t2.key])
+                    okey2 = '_'.join([getattr(t1, "out_name", t2.variable), t2.table])
+                    if t1 == t2 or key1 == key2:
+                        log.error("Found duplicate target %s in table %s for model %s: dismissing duplicate hit"
+                                  % (t1.variable, t1.table, model))
+                    elif okey1 == okey2:
+                        log.error("Found duplicate output name for targets %s, %s in table %s for model %s: dismissing"
+                                  " duplicate hit" % (t1.variable, t2.variable, t1.table, model))
+            index = matches.keys().index(model) + 1
+            if index < len(matches.keys()):
+                for other_model in matches.keys()[index:]:
+                    other_targetlist = matches[other_model]
+                    for t2 in other_targetlist:
+                        key2 = '_'.join([t2.variable, t2.key])
+                        okey2 = '_'.join([getattr(t1, "out_name", t2.variable), t2.table])
+                        if t1 == t2 or key1 == key2:
+                            log.error("Found duplicate target %s in table %s for models %s and %s: dismissing "
+                                      "duplicate hit" % (t1.variable, t1.table, model, other_model))
+                        elif okey1 == okey2:
+                            log.error(
+                                "Found duplicate output name for targets %s, %s in table %s for models %s and %s: "
+                                "dismissing duplicate hit" % (t1.variable, t2.variable, t1.table, model, other_model))
 
 
 def read_targets(varlist):
@@ -368,9 +403,6 @@ def create_tasks(matches, active_components):
             ece2cmorlib.add_task(task)
             loaded_targets.append(target)
     log.info("Created %d ece2cmor tasks from input variable list." % len(loaded_targets))
-
-    # Load masks
-    load_masks(load_model_vars())
     return loaded_targets
 
 
