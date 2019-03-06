@@ -75,6 +75,7 @@ def validate_matches(matches):
     for model in matches.keys():
         targetlist = matches[model]
         n = len(targetlist)
+        duplicates = []
         for i in range(n):
             t1 = targetlist[i]
             key1 = '_'.join([t1.variable, t1.table])
@@ -87,12 +88,15 @@ def validate_matches(matches):
                     if t1 == t2 or key1 == key2:
                         log.error("Found duplicate target %s in table %s for model %s: dismissing duplicate hit"
                                   % (t1.variable, t1.table, model))
+                        duplicates.append(j)
                     elif okey1 == okey2:
                         log.error("Found duplicate output name for targets %s, %s in table %s for model %s: dismissing"
                                   " duplicate hit" % (t1.variable, t2.variable, t1.table, model))
+                        duplicates.append(j)
             index = matches.keys().index(model) + 1
             if index < len(matches.keys()):
                 for other_model in matches.keys()[index:]:
+                    other_duplicates = []
                     other_targetlist = matches[other_model]
                     for t2 in other_targetlist:
                         key2 = '_'.join([t2.variable, t2.key])
@@ -100,10 +104,16 @@ def validate_matches(matches):
                         if t1 == t2 or key1 == key2:
                             log.error("Found duplicate target %s in table %s for models %s and %s: dismissing "
                                       "duplicate hit" % (t1.variable, t1.table, model, other_model))
+                            other_duplicates.append(other_targetlist.index(t2))
                         elif okey1 == okey2:
                             log.error(
                                 "Found duplicate output name for targets %s, %s in table %s for models %s and %s: "
                                 "dismissing duplicate hit" % (t1.variable, t2.variable, t1.table, model, other_model))
+                            other_duplicates.append(other_targetlist.index(t2))
+                    for k in reversed(sorted(set(other_duplicates))):
+                        other_targetlist.pop(k)
+        for k in reversed(sorted(set(duplicates))):
+            targetlist.pop(k)
 
 
 def read_targets(varlist):
