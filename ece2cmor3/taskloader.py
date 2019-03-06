@@ -47,31 +47,81 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-# TODO: Refactor: Composition of simple task loading and dismissing intelligently
 def load_targets(varlist, active_components=None, target_filters=None, config=None):
     global log
-    requested_targets = read_targets(varlist)
-    if target_filters is None:
-        target_filters = {}
-    for msg, func in target_filters.items():
-        filtered_targets = filter(func, requested_targets)
-        for tgt in list(set(requested_targets) - set(filtered_targets)):
-            log.info("Dismissing %s target variable %s in table %s..." % (msg, tgt.variable, tgt.table))
-        requested_targets = filtered_targets
-    log.info("Found %d requested cmor target variables." % len(requested_targets))
-    considered_targets = omit_targets(requested_targets)
-    matches = filter_targets(considered_targets, config)
 
-    valid_matches = remove_duplicates(matches)
-    loaded_targets = create_tasks(valid_matches, active_components)
+    matches = load_drq(read_drq(varlist), config)
+
+    filtered_matches = apply_filters(matches, target_filters)
+    valid_matches = remove_duplicates(filtered_matches)
+    create_tasks(valid_matches, get_models(active_components))
     load_masks(load_model_vars())
 
-    alltargets = set([t for tlist in matches.values() for t in tlist])
-    ignored_targets = [t for t in alltargets if getattr(t, "load_status", None) == "ignored"]
-    identified_missing_targets = [t for t in alltargets if
-                                  getattr(t, "load_status", None) == "identified missing"]
-    missing_targets = [t for t in alltargets if getattr(t, "load_status", None) == "missing"]
-    return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
+    return split_targets(matches, get_models(active_components))
+
+
+def get_models(active_components):
+    all_models = components.models.keys()
+    if active_components is basestring:
+        return [active_components] if active_components in all_models else []
+    if active_components is list:
+        return [m for m in active_components if m in all_models]
+    if active_components is dict:
+        return [m for m in all_models if active_components.get(m, False)]
+    return all_models
+
+
+def load_drq(requested_targets, config):
+
+    targets = omit_targets(requested_targets)
+
+    # Load model component parameter tables
+    model_vars = load_model_vars()
+
+    # Match model component variables with requested targets
+    matches = match_variables(targets, model_vars)
+
+    matched_targets = [t for target_list in matches.values() for t in target_list]
+    for t in matched_targets:
+        if t not in matches:
+            setattr(t, "load_status", "missing")
+
+    # Check against preferences file
+    if config is not None:
+        prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
+        for key, preferred_models in prefslist:
+            if key[2] != config:
+                continue
+            model_match = None
+            for model in preferred_models:
+                if any([t for t in matched_targets[model] if (t.variable, t.table) == (key[0], key[1])]):
+                    model_match = model
+                    break
+            for model in matches:
+                if model != model_match:
+                    for t in matches[model]:
+                        if (t.variable, t.table) == (key[0], key[1]):
+                            log.info("Removing variable %s in table %s from targets for %s for configuration %s due to "
+                                     "preference ordering..." % (t.variable, t.table, model, config))
+                            matches[model].remove(t)
+    return matches
+
+
+def apply_filters(matches, target_filters=None):
+    if target_filters is None:
+        return matches
+    result = {}
+    for model, targetlist in matches.items():
+        requested_targets = targetlist
+        for msg, func in target_filters.items():
+            filtered_targets = filter(func, requested_targets)
+            for tgt in list(set(requested_targets) - set(filtered_targets)):
+                log.info("Dismissing %s target variable %s in table %s for component %s..." %
+                         (msg, tgt.variable, tgt.table, model))
+            requested_targets = filtered_targets
+        log.info("Found %d requested cmor target variables for %s." % (len(requested_targets), model))
+        result[model] = requested_targets
+    return result
 
 
 def remove_duplicates(matches):
@@ -120,7 +170,20 @@ def remove_duplicates(matches):
     return result
 
 
-def read_targets(varlist):
+def split_targets(vardict, active_components):
+    targetlist = set()
+    for model in active_components:
+        targetlist.update(vardict[model])
+    ignored_targets = [t for t in targetlist if getattr(t, "load_status", None) == "ignored"]
+    identified_missing_targets = [t for t in targetlist if
+                                  getattr(t, "load_status", None) == "identified missing"]
+    missing_targets = [t for t in targetlist if getattr(t, "load_status", None) == "missing"]
+    loaded_targets = list(set(targetlist) - set(ignored_targets) - set(identified_missing_targets)
+                          - set(missing_targets))
+    return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
+
+
+def read_drq(varlist):
     targetlist = []
     if isinstance(varlist, basestring):
         if os.path.isfile(varlist):
@@ -400,7 +463,7 @@ def load_prefs_file(tables, configs):
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
 def create_tasks(matches, active_components):
     global log, ignored_vars_file, json_table_key, skip_tables
-    loaded_targets = []
+    result = []
     model_vars = load_model_vars()
     for model, targets in matches.items():
         if active_components is list and model not in active_components:
@@ -414,45 +477,10 @@ def create_tasks(matches, active_components):
                 comment_string += ", expression = " + parmatch[cmor_source.expression_key]
             setattr(target, "ecearth_comment", comment_string)
             setattr(target, "comment_author", "automatic")
-            ece2cmorlib.add_task(task)
-            loaded_targets.append(target)
-    log.info("Created %d ece2cmor tasks from input variable list." % len(loaded_targets))
-    return loaded_targets
-
-
-# Tests the targets against the model parameter table files and preferences file
-def filter_targets(targets, config):
-
-    # Load model component parameter tables
-    model_vars = load_model_vars()
-
-    # Match model component variables with requested targets
-    matches = match_variables(targets, model_vars)
-
-    matched_targets = [t for target_list in matches.values() for t in target_list]
-    for t in matched_targets:
-        if t not in matches:
-            setattr(t, "load_status", "missing")
-
-    # Check against preferences file
-    if config is not None:
-        prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
-        for key, preferred_models in prefslist:
-            if key[2] != config:
-                continue
-            model_match = None
-            for model in preferred_models:
-                if any([t for t in matched_targets[model] if (t.variable, t.table) == (key[0], key[1])]):
-                    model_match = model
-                    break
-            for model in matches:
-                if model != model_match:
-                    for t in matches[model]:
-                        if (t.variable, t.table) == (key[0], key[1]):
-                            log.info("Removing variable %s in table %s from targets for %s for configuration %s due to "
-                                     "preference ordering..." % (t.variable, t.table, model, config))
-                            matches[model].remove(t)
-    return matches
+            if ece2cmorlib.add_task(task):
+                result.append(task)
+    log.info("Created %d ece2cmor tasks from input variable list." % len(result))
+    return result
 
 
 def load_model_vars():
