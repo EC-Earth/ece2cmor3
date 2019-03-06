@@ -60,18 +60,21 @@ def load_targets(varlist, active_components=None, target_filters=None, config=No
         requested_targets = filtered_targets
     log.info("Found %d requested cmor target variables." % len(requested_targets))
     considered_targets = omit_targets(requested_targets)
-    ignored_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "ignored"]
-    identified_missing_targets = [t for t in requested_targets if
-                                  getattr(t, "load_status", None) == "identified missing"]
-    missing_targets = [t for t in requested_targets if getattr(t, "load_status", None) == "missing"]
     matches = filter_targets(considered_targets, config)
-    valid_matches = validate_matches(matches)
+
+    valid_matches = remove_duplicates(matches)
     loaded_targets = create_tasks(valid_matches, active_components)
     load_masks(load_model_vars())
+
+    alltargets = set([t for tlist in matches.values() for t in tlist])
+    ignored_targets = [t for t in alltargets if getattr(t, "load_status", None) == "ignored"]
+    identified_missing_targets = [t for t in alltargets if
+                                  getattr(t, "load_status", None) == "identified missing"]
+    missing_targets = [t for t in alltargets if getattr(t, "load_status", None) == "missing"]
     return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
 
 
-def validate_matches(matches):
+def remove_duplicates(matches):
     duplicates = {m: set() for m in matches.keys()}
     for model in matches.keys():
         targetlist = matches[model]
@@ -83,8 +86,8 @@ def validate_matches(matches):
             if i < n - 1:
                 for j in range(i + 1, n):
                     t2 = targetlist[j]
-                    key2 = '_'.join([t2.variable, t2.key])
-                    okey2 = '_'.join([getattr(t1, "out_name", t2.variable), t2.table])
+                    key2 = '_'.join([t2.variable, t2.table])
+                    okey2 = '_'.join([getattr(t2, "out_name", t2.variable), t2.table])
                     if t1 == t2 or key1 == key2:
                         log.error("Found duplicate target %s in table %s for model %s: dismissing duplicate hit"
                                   % (t1.variable, t1.table, model))
@@ -98,8 +101,8 @@ def validate_matches(matches):
                 for other_model in matches.keys()[index:]:
                     other_targetlist = matches[other_model]
                     for t2 in other_targetlist:
-                        key2 = '_'.join([t2.variable, t2.key])
-                        okey2 = '_'.join([getattr(t1, "out_name", t2.variable), t2.table])
+                        key2 = '_'.join([t2.variable, t2.table])
+                        okey2 = '_'.join([getattr(t2, "out_name", t2.variable), t2.table])
                         if t1 == t2 or key1 == key2:
                             log.error("Found duplicate target %s in table %s for models %s and %s: dismissing "
                                       "duplicate hit" % (t1.variable, t1.table, model, other_model))
