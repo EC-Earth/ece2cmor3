@@ -37,7 +37,7 @@ def main():
             active_components[component] = True
         else:
             log.warning("EC-Earth component %s has not been recognized and will be ignored" % component)
-    taskloader.load_targets(args.drq, active_components=active_components)
+    taskloader.load_tasks_from_drq(args.drq, active_components=active_components)
     result = {}
     for task in ece2cmorlib.tasks:
         component, table, variable = task.source.model_component(), task.target.table, task.target.variable

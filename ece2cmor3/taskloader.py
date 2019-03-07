@@ -47,45 +47,67 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-def load_targets(varlist, active_components=None, target_filters=None, config=None):
-    global log
-
+def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None):
     matches = load_drq(read_drq(varlist), config)
+    return load_tasks(matches, active_components, target_filters)
 
+
+# Basic task loader: first argument has already partitioned variables into component groups
+def load_tasks(variables, active_components=None, target_filters=None):
+    matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
     filtered_matches = apply_filters(matches, target_filters)
     valid_matches = remove_duplicates(filtered_matches)
-    create_tasks(valid_matches, get_models(active_components))
     load_masks(load_model_vars())
-
-    return split_targets(matches, get_models(active_components))
+    return create_tasks(valid_matches, get_models(active_components))
 
 
 def get_models(active_components):
     all_models = components.models.keys()
-    if active_components is basestring:
+    if isinstance(active_components, basestring):
         return [active_components] if active_components in all_models else []
-    if active_components is list:
+    if isinstance(active_components, list):
         return [m for m in active_components if m in all_models]
-    if active_components is dict:
+    if isinstance(active_components, dict):
         return [m for m in all_models if active_components.get(m, False)]
     return all_models
 
 
+# Loads a json file or string or dictionary containing the cmor targets for multiple components
+def load_vars(variables, asfile=True):
+    modeldict = {}
+    if isinstance(variables, basestring):
+        vartext = open(variables, 'r').read() if asfile else variables
+        modeldict = json.loads(vartext)
+    elif isinstance(variables, dict):
+        modeldict = variables
+    else:
+        log.error("Cannot create cmor target list from object %s" % str(variables))
+    targets = {}
+    for model, varlist in modeldict.iteritems():
+        if model not in components.models.keys():
+            log.error("Cannot interpret %s as an EC-Earth model component" % str(model))
+            continue
+        if isinstance(varlist, list):
+            targets[model] = varlist
+        elif isinstance(varlist, dict):
+            targets[model] = load_targets_json(varlist)
+        else:
+            log.error(
+                "Expected a dictionary of CMOR tables and variables as value of %s, got %s" % (model, type(varlist)))
+            continue
+    return targets
+
+
 def load_drq(requested_targets, config=None):
-
     targets = omit_targets(requested_targets)
-
     # Load model component parameter tables
     model_vars = load_model_vars()
-
     # Match model component variables with requested targets
     matches = match_variables(targets, model_vars)
-
     matched_targets = [t for target_list in matches.values() for t in target_list]
     for t in matched_targets:
         if t not in matches:
             setattr(t, "load_status", "missing")
-
     # Check against preferences file
     if config is not None:
         prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
@@ -162,7 +184,7 @@ def remove_duplicates(matches):
                                 "Found duplicate output name for targets %s, %s in table %s for models %s and %s: "
                                 "dismissing duplicate hit" % (t1.variable, t2.variable, t1.table, model, other_model))
                             duplicates[other_model].add(other_targetlist.index(t2))
-    result = {m : [] for m in matches.keys()}
+    result = {m: [] for m in matches.keys()}
     for model, targetlist in matches.items():
         for i in range(len(targetlist)):
             if i not in duplicates[model]:
@@ -191,13 +213,16 @@ def read_drq(varlist):
             if len(fext) == 0:
                 targetlist = load_targets_f90nml(varlist)
             elif fext[1:] == "json":
-                targetlist = load_targets_json(varlist)
+                targetlist = load_targets_json(varlist, asfile=True)
             elif fext[1:] == "xlsx":
                 targetlist = load_targets_excel(varlist)
             elif fext[1:] == "nml":
                 targetlist = load_targets_f90nml(varlist)
             else:
                 log.error("Cannot create a list of cmor-targets for file %s with unknown file type" % varlist)
+        else:
+            log.info("Reading input variable list as json string...")
+            targetlist = load_targets_json(varlist, asfile=False)
     elif all(isinstance(t, cmor_target.cmor_target) for t in varlist):
         targetlist = varlist
     elif isinstance(varlist, dict):
@@ -252,17 +277,28 @@ def omit_targets(targetlist):
     return filtered_list
 
 
-# Loads a json file containing the cmor targets.
-def load_targets_json(varlist):
-    vartext = open(varlist).read()
-    varlist = json.loads(vartext)
+# Loads a json file or string or dictionary containing the cmor targets.
+def load_targets_json(variables, asfile=True):
+    vardict = {}
+    if isinstance(variables, basestring):
+        vartext = open(variables, 'r').read() if asfile else variables
+        vardict = json.loads(vartext)
+    elif isinstance(variables, dict):
+        vardict = variables
+    else:
+        log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = []
-    for tab, var in varlist.iteritems():
+    for tab, var in vardict.iteritems():
+        if not isinstance(tab, basestring):
+            log.error("Cannot interpret %s as a CMOR table identifier" % str(tab))
+            continue
         if isinstance(var, basestring):
             add_target(var, tab, targets)
-        else:
+        elif isinstance(var, list):
             for v in var:
                 add_target(v, tab, targets)
+        else:
+            log.error("Cannot create cmor target from table %s and variable(s) %s" % (tab, str(var)))
     return targets
 
 
