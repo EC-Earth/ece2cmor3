@@ -71,7 +71,7 @@ def get_models(active_components):
     return all_models
 
 
-def load_drq(requested_targets, config):
+def load_drq(requested_targets, config=None):
 
     targets = omit_targets(requested_targets)
 
