@@ -62,7 +62,7 @@ def main():
     if getattr(args, "vars", None) is not None:
         taskloader.load_tasks(args.vars, active_components=["lpjg"])
     else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["lpjg"])
+        taskloader.load_tasks_from_drq(args.drq, active_components=["lpjg"], check_prefs=False)
     
     print '\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n'
         

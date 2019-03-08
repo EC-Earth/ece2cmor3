@@ -6,6 +6,7 @@ import os
 from ece2cmor3 import components
 from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 from ece2cmor3.cmor_source import create_cmor_source
+from ece2cmor3.resources import prefs
 
 log = logging.getLogger(__name__)
 
@@ -47,8 +48,8 @@ with_pingfile = False
 
 
 # API function: loads the argument list of targets
-def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None):
-    matches = load_drq(varlist, config)
+def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None, check_prefs=True):
+    matches = load_drq(varlist, config, check_prefs)
     return load_tasks(matches, active_components, target_filters)
 
 
@@ -98,7 +99,8 @@ def load_vars(variables, asfile=True):
     return targets
 
 
-def load_drq(varlist, config=None):
+# TODO: add flag to check preferences?
+def load_drq(varlist, config=None, check_prefs=True):
     requested_targets = read_drq(varlist)
     targets = omit_targets(requested_targets)
     # Load model component parameter tables
@@ -109,24 +111,18 @@ def load_drq(varlist, config=None):
     for t in matched_targets:
         if t not in matches:
             setattr(t, "load_status", "missing")
-    # Check against preferences file
-    if config is not None:
-        prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
-        for key, preferred_models in prefslist.items():
-            if key[2] != config:
-                continue
-            model_match = None
-            for model in preferred_models:
-                if any([t for t in matched_targets[model] if (t.variable, t.table) == (key[0], key[1])]):
-                    model_match = model
-                    break
-            for model in matches:
-                if model != model_match:
-                    for t in matches[model]:
-                        if (t.variable, t.table) == (key[0], key[1]):
-                            log.info("Removing variable %s in table %s from targets for %s for configuration %s due to "
-                                     "preference ordering..." % (t.variable, t.table, model, config))
-                            matches[model].remove(t)
+    if check_prefs:
+        for model in matches:
+            targetlist = matches[model]
+            if len(targetlist) > 0:
+                enabled_targets = []
+                for t in targetlist:
+                    if prefs.keep_variable(t, model, config):
+                        enabled_targets.append(t)
+                    else:
+                        log.info("Dismissing target %s within %s configuration due to preference flagging" %
+                                 (str(t), "any" if config is None else config))
+                matches[model] = enabled_targets
     return matches
 
 
@@ -475,26 +471,6 @@ def matchvarpar(target, parblock):
     if hasattr(parblock, json_tables_key) and target.table not in parblock[json_tables_key]:
         result = False
     return result
-
-
-def load_prefs_file(tables, configs):
-    mapping = {}
-    with open(variable_prefs_file, 'r') as prefsfile:
-        reader = csv.reader(prefsfile, delimiter=',')
-        for row in reader:
-            if row[1].strip() == "*":
-                tabs = tables
-            else:
-                tabs = [row[1]]
-            if row[3].strip() == "*":
-                cfgs = configs
-            else:
-                cfgs = [row[3]]
-            model_list = row[2].lstrip('[').rstrip(']').split()
-            for tab in tabs:
-                for cfg in cfgs:
-                    mapping[(row[0], tab, cfg)] = model_list
-    return mapping
 
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder

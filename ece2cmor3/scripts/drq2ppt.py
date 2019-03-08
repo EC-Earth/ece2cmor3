@@ -293,7 +293,7 @@ def main():
     if getattr(args, "vars", None) is not None:
         taskloader.load_tasks(args.vars, active_components=["ifs"])
     else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"])
+        taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], check_prefs=False)
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

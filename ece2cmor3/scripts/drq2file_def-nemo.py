@@ -70,7 +70,7 @@ def main():
     if getattr(args, "vars", None) is not None:
         taskloader.load_tasks(args.vars, active_components=["nemo"])
     else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["nemo"])
+        taskloader.load_tasks_from_drq(args.drq, active_components=["nemo"], check_prefs=False)
     
     for task in ece2cmorlib.tasks:
          print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)

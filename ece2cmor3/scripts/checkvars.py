@@ -116,6 +116,7 @@ def main():
     parser = argparse.ArgumentParser(description="Validate input variable list against CMIP tables")
     parser.add_argument("--drq", metavar="FILE", type=str, required=True,
                         help="File (json|f90 namelist|xlsx) containing cmor variables (Required)")
+    cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "checkvars")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
@@ -128,18 +129,7 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true", default=False,
                         help="Write xlsx and ASCII files with verbose output (suppress the related terminal messages "
                              "as the content of these files contain this information)")
-    # Add component flags
-    for model in components.models:
-        parser.add_argument("--" + model, action="store_true", default=False,
-                            help="Run ece2cmor3 exclusively for %s data" % model)
-    model_tabfile_attributes = {}
-    for c in components.models:
-        tabfile = components.models[c].get(components.table_file, "")
-        if tabfile:
-            option = os.path.basename(tabfile)
-            model_tabfile_attributes[c] = option
-            parser.add_argument("--" + option, metavar="FILE.json", type=str, default=tabfile,
-                                help="%s variable table (optional)" % c)
+    cmor_utils.ScriptUtils.add_model_tabfile_options(parser)
 
     args = parser.parse_args()
 
@@ -147,16 +137,14 @@ def main():
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
-    active_components = [m for m in components.models.keys() if getattr(args, m, False)]
-    if not any(active_components):
-        active_components = [m for m in components.models.keys()]
+    active_components = cmor_utils.ScriptUtils.get_active_components(args)
 
     # Configure task loader:
     taskloader.skip_tables = args.withouttablescheck
     taskloader.with_pingfile = args.withping
 
     # Load the variables as task targets:
-    matches = taskloader.load_drq(args.drq)
+    matches = taskloader.load_drq(args.drq, check_prefs=False)
 
     loadedtargets, ignoredtargets, identifiedmissingtargets, missingtargets = \
         taskloader.split_targets(matches, taskloader.get_models(active_components))
