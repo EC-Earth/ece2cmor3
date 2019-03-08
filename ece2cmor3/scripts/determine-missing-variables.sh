@@ -68,10 +68,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   if [ "${multiplemips}" == "yes" ]; then
-   ./checkvars.py ${additional_checkvars_argument} -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   else
-   ./checkvars.py ${additional_checkvars_argument} -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-  #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  #./checkvars.py -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   fi
  #source deactivate
  fi
