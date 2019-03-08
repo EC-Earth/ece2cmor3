@@ -137,7 +137,7 @@ def main(args=None):
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
 
-    taskloader.load_targets(args.vars, model_active_flags, target_filters=filters)
+    taskloader.load_tasks_from_drq(args.vars, model_active_flags, target_filters=filters)
 
     refdate = datetime.datetime.combine(dateutil.parser.parse(args.refd), datetime.datetime.min.time())
 
