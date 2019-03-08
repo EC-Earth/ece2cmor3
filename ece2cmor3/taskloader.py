@@ -49,7 +49,7 @@ with_pingfile = False
 
 # API function: loads the argument list of targets
 def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None, check_prefs=True):
-    matches = load_drq(varlist, config, check_prefs)
+    matches, omitted_vars = load_drq(varlist, config, check_prefs)
     return load_tasks(matches, active_components, target_filters)
 
 
@@ -99,7 +99,6 @@ def load_vars(variables, asfile=True):
     return targets
 
 
-# TODO: add flag to check preferences?
 def load_drq(varlist, config=None, check_prefs=True):
     requested_targets = read_drq(varlist)
     targets = omit_targets(requested_targets)
@@ -108,8 +107,8 @@ def load_drq(varlist, config=None, check_prefs=True):
     # Match model component variables with requested targets
     matches = match_variables(targets, model_vars)
     matched_targets = [t for target_list in matches.values() for t in target_list]
-    for t in matched_targets:
-        if t not in matches:
+    for t in targets:
+        if t not in matched_targets:
             setattr(t, "load_status", "missing")
     if check_prefs:
         for model in matches:
@@ -122,8 +121,10 @@ def load_drq(varlist, config=None, check_prefs=True):
                     else:
                         log.info("Dismissing target %s within %s configuration due to preference flagging" %
                                  (str(t), "any" if config is None else config))
+                        setattr(t, "load_status", "dismissed")
                 matches[model] = enabled_targets
-    return matches
+    omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
+    return matches, list(omitted_targets)
 
 
 def apply_filters(matches, target_filters=None):
@@ -189,17 +190,13 @@ def remove_duplicates(matches):
     return result
 
 
-def split_targets(vardict, active_components):
-    targetlist = set()
-    for model in active_components:
-        targetlist.update(vardict[model])
+def split_targets(targetlist):
     ignored_targets = [t for t in targetlist if getattr(t, "load_status", None) == "ignored"]
     identified_missing_targets = [t for t in targetlist if
                                   getattr(t, "load_status", None) == "identified missing"]
     missing_targets = [t for t in targetlist if getattr(t, "load_status", None) == "missing"]
-    loaded_targets = list(set(targetlist) - set(ignored_targets) - set(identified_missing_targets)
-                          - set(missing_targets))
-    return loaded_targets, ignored_targets, identified_missing_targets, missing_targets
+    dismissed_targets = [t for t in targetlist if getattr(t, "load_status", None) == "dismissed"]
+    return ignored_targets, identified_missing_targets, missing_targets, dismissed_targets
 
 
 def read_drq(varlist):

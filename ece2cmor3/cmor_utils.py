@@ -413,7 +413,6 @@ class ScriptUtils:
         for model in components.models:
             if getattr(args, model, False):
                 result.add(model)
-
         # Correct for deprecated --atm and --oce flags
         if getattr(args, "atm", False):
             log.warning("Deprecated flag --atm used, use --ifs instead!")
@@ -426,5 +425,4 @@ class ScriptUtils:
         # If no flag was found, activate all components in configuration
         if len(result) == 0:
             return components.ece_configs.get(conf, components.models.keys())
-
         return result
