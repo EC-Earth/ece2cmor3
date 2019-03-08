@@ -17,8 +17,8 @@ def main():
     parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
     parser.add_argument("--drq", metavar="FILE", type=str, required=True,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
-    parser.add_argument("--ececonf", metavar="AOGCM|VEG|CC|CHEM", type=str, required=True,
-                        help="EC-Earth configuration")
+    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+                        help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,

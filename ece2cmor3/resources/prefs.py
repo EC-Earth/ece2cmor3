@@ -14,7 +14,7 @@ def keep_variable(target, model_component, ecearth_config):
         else:
             return model_component == "ifs"
 
-    if variable in ["cfc12", "cfc13", "c14", "sf6"] and model_component == "nemo":
-        return ecearth_config == "EC-Earth-CC"
+    if variable in ["cfc12", "cfc13", "c14", "sf6"]:
+        return model_component == "nemo" and ecearth_config == "CC"
 
     return True

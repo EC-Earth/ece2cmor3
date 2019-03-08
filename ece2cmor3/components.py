@@ -19,7 +19,10 @@ models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "se
                   table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json")}
           }
 
-ece_configs = {"AOGCM": ["ifs", "nemo"]}
+ece_configs = {"AOGCM": ["ifs", "nemo"],
+               "CC":    ["ifs", "nemo", "tm5", "lpjg"],
+               "CHEM":  ["ifs", "nemo", "tm5"],
+               "VEG":   ["ifs", "nemo", "lpjg"]}
 
 
 def load_parameter_table(component, filename):

@@ -16,7 +16,7 @@ class taskloader_test(unittest.TestCase):
 
     @staticmethod
     def setup_drq(d):
-        with open(drqpath) as drqfile:
+        with open(drqpath, 'w') as drqfile:
             json.dump(d, drqfile)
 
     @staticmethod
@@ -194,9 +194,9 @@ class taskloader_test(unittest.TestCase):
     def test_load_cfc12_Omon_prefs():
         ece2cmorlib.initialize()
         try:
-            matches = taskloader.load_drq({"Omon": ["cfc12"]}, check_prefs=False, config="EC-Earth-HR")
+            matches = taskloader.load_drq({"Omon": ["cfc12"]}, config="AOGCM")
             eq_(len(matches["nemo"]), 0)
-            matches = taskloader.load_drq({"Omon": ["cfc12"]}, check_prefs=False, config="EC-Earth-CC")
+            matches = taskloader.load_drq({"Omon": ["cfc12"]}, config="CC")
             eq_(len(matches["nemo"]), 1)
         finally:
             ece2cmorlib.finalize()

@@ -408,7 +408,7 @@ class ScriptUtils:
                                     help="%s variable table (optional)" % c)
 
     @staticmethod
-    def get_active_components(args):
+    def get_active_components(args, conf=None):
         result = set()
         for model in components.models:
             if getattr(args, model, False):
@@ -423,8 +423,8 @@ class ScriptUtils:
             result.add("nemo")
 
         result = list(result)
-        # If no flag was found, activate all components
+        # If no flag was found, activate all components in configuration
         if len(result) == 0:
-            return components.models.keys()
+            return components.ece_configs.get(conf, components.models.keys())
 
         return result
