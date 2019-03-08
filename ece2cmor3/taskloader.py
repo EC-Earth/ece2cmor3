@@ -48,7 +48,7 @@ with_pingfile = False
 
 # API function: loads the argument list of targets
 def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None):
-    matches = load_drq(read_drq(varlist), config)
+    matches = load_drq(varlist, config)
     return load_tasks(matches, active_components, target_filters)
 
 
@@ -98,7 +98,8 @@ def load_vars(variables, asfile=True):
     return targets
 
 
-def load_drq(requested_targets, config=None):
+def load_drq(varlist, config=None):
+    requested_targets = read_drq(varlist)
     targets = omit_targets(requested_targets)
     # Load model component parameter tables
     model_vars = load_model_vars()
@@ -111,7 +112,7 @@ def load_drq(requested_targets, config=None):
     # Check against preferences file
     if config is not None:
         prefslist = load_prefs_file(list(set([t.table for t in targets])), components.ece_configs)
-        for key, preferred_models in prefslist:
+        for key, preferred_models in prefslist.items():
             if key[2] != config:
                 continue
             model_match = None
@@ -502,7 +503,9 @@ def create_tasks(matches, active_components):
     result = []
     model_vars = load_model_vars()
     for model, targets in matches.items():
-        if active_components is list and model not in active_components:
+        if isinstance(active_components, list) and model not in active_components:
+            continue
+        if isinstance(active_components, basestring) and model != active_components:
             continue
         parblocks = model_vars[model]
         for target in targets:

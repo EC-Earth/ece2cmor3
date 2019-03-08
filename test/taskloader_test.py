@@ -29,14 +29,14 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize()
         try:
             clt3hr = {"3hr": ["clt"]}
-            with open("testdrq.json", 'w') as drqfile:
+            with open("test_data/testdrq.json", 'w') as drqfile:
                 json.dump(clt3hr, drqfile)
-            taskloader.load_tasks_from_drq("testdrq.json")
+            taskloader.load_tasks_from_drq("test_data/testdrq.json")
             eq_(len(ece2cmorlib.tasks), 1)
             src = ece2cmorlib.tasks[0].source
             eq_(src.get_grib_code().var_id, 164)
         finally:
-            os.remove("testdrq.json")
+            os.remove("test_data/testdrq.json")
             ece2cmorlib.finalize()
 
     @staticmethod
@@ -55,13 +55,13 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize()
         try:
             avars = {"ifs": {"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]}}
-            with open("testdrq.json", 'w') as drqfile:
+            with open("test_data/testdrq.json", 'w') as drqfile:
                 json.dump(avars, drqfile)
-            taskloader.load_tasks(avars)
+            taskloader.load_tasks("test_data/testdrq.json")
             eq_(len(ece2cmorlib.tasks), 5)
             eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
         finally:
-            os.remove("testdrq.json")
+            os.remove("test_data/testdrq.json")
             ece2cmorlib.finalize()
 
     @staticmethod
@@ -72,6 +72,20 @@ class taskloader_test(unittest.TestCase):
             eq_(len(ece2cmorlib.tasks), 5)
             eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
         finally:
+            ece2cmorlib.finalize()
+
+    @staticmethod
+    def test_load_avars_drq_json():
+        ece2cmorlib.initialize()
+        try:
+            avars = {"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]}
+            with open("test_data/testdrq.json", 'w') as drqfile:
+                json.dump(avars, drqfile)
+            taskloader.load_tasks_from_drq("test_data/testdrq.json")
+            eq_(len(ece2cmorlib.tasks), 5)
+            eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
+        finally:
+            os.remove("test_data/testdrq.json")
             ece2cmorlib.finalize()
 
     @staticmethod
@@ -87,7 +101,6 @@ class taskloader_test(unittest.TestCase):
             eq_(len([t for t in ece2cmorlib.tasks if t.target.table == "CFmon"]), 1)
         finally:
             ece2cmorlib.finalize()
-
 
     @staticmethod
     def test_load_ovars():
@@ -105,6 +118,17 @@ class taskloader_test(unittest.TestCase):
             taskloader.load_tasks_from_drq({"3hr": ["clt", "uas"], "Amon": ["vas", "tas"], "Omon": ["tossq"]})
             eq_(len(ece2cmorlib.tasks), 5)
             eq_(4, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.ifs_source)]))
+            eq_(1, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]))
+        finally:
+            ece2cmorlib.finalize()
+
+    @staticmethod
+    def test_load_oavars_ocean():
+        ece2cmorlib.initialize()
+        try:
+            taskloader.load_tasks_from_drq({"3hr": ["clt", "uas"], "Amon": ["vas", "tas"], "Omon": ["tossq"]},
+                                           active_components=["nemo"])
+            eq_(len(ece2cmorlib.tasks), 1)
             eq_(1, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]))
         finally:
             ece2cmorlib.finalize()
@@ -134,11 +158,25 @@ class taskloader_test(unittest.TestCase):
             ece2cmorlib.finalize()
 
     @staticmethod
-    def test_load_tos():
+    def test_load_tos_3hr():
         ece2cmorlib.initialize()
         try:
             taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components={"ifs": True})
+            eq_(len(ece2cmorlib.tasks), 0)
+            taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components=["nemo"])
             eq_(len(ece2cmorlib.tasks), 1)
         finally:
             ece2cmorlib.finalize()
 
+    @staticmethod
+    def test_load_ps_AERmon_prefs():
+        ece2cmorlib.initialize()
+        try:
+            matches = taskloader.load_drq({"AERmon": ["ps"]})
+            eq_(len(matches["ifs"]), 1)
+            eq_(len(matches["tm5"]), 1)
+            matches = taskloader.load_drq({"AERmon": ["ps"]}, config="EC-EARTH3-CC")
+            eq_(len(matches["ifs"]), 0)
+            eq_(len(matches["tm5"]), 1)
+        finally:
+            ece2cmorlib.finalize()
