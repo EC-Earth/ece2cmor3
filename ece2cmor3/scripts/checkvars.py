@@ -148,6 +148,11 @@ def main():
     loaded = [t for m in active_components for t in matches[m]]
     ignored, identified_missing, missing, dismissed = taskloader.split_targets(omitted_targets)
 
+    loaded_targets = sorted(loaded, key=lambda tgt: (tgt.table, tgt.variable))
+    ignored_targets = list(set(sorted(ignored, key=lambda tgt: (tgt.table, tgt.variable))))
+    identified_missing_targets = sorted(identified_missing, key=lambda tgt: (tgt.table, tgt.variable))
+    missing_targets = sorted(missing, key=lambda tgt: (tgt.table, tgt.variable))
+
     if args.output:
         output_dir = os.path.dirname(args.output)
         if not os.path.isdir(output_dir):
@@ -155,15 +160,15 @@ def main():
                 os.makedirs(output_dir)
         write_varlist(loaded, args.output + ".available.json")
         if args.verbose:
-            write_varlist_excel(loaded, args.output + ".available.xlsx", args.withping)
-            write_varlist_excel(ignored, args.output + ".ignored.xlsx", args.withping)
-            write_varlist_excel(identified_missing, args.output + ".identifiedmissing.xlsx", args.withping)
-            write_varlist_excel(missing, args.output + ".missing.xlsx", args.withping)
+            write_varlist_excel(loaded_targets, args.output + ".available.xlsx", args.withping)
+            write_varlist_excel(ignored_targets, args.output + ".ignored.xlsx", args.withping)
+            write_varlist_excel(identified_missing_targets, args.output + ".identifiedmissing.xlsx", args.withping)
+            write_varlist_excel(missing_targets, args.output + ".missing.xlsx", args.withping)
 
-            write_varlist_ascii(loaded, args.output + ".available.txt")
-            write_varlist_ascii(ignored, args.output + ".ignored.txt")
-            write_varlist_ascii(identified_missing, args.output + ".identifiedmissing.txt")
-            write_varlist_ascii(missing, args.output + ".missing.txt")
+            write_varlist_ascii(loaded_targets, args.output + ".available.txt")
+            write_varlist_ascii(ignored_targets, args.output + ".ignored.txt")
+            write_varlist_ascii(identified_missing_targets, args.output + ".identifiedmissing.txt")
+            write_varlist_ascii(missing_targets, args.output + ".missing.txt")
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()
