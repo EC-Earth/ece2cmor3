@@ -221,25 +221,28 @@ def create_depth_axes(ds, tasks, table):
         z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
         for z_axis in z_axes:
-            if z_axis in table_depth_axes:
-                z_axis_ids.append(table_depth_axes[z_axis])
+            if z_axis not in ds.variables:
+                log.error("Cannot find variable %s in %s for vertical axis construction" % (z_axis, ds.filepath()))
+                continue
+            zvar = ds.variables[z_axis]
+            key = getattr(zvar, "long_name")
+            if key in table_depth_axes:
+                z_axis_ids.append(table_depth_axes[key])
             else:
-                depth_coordinates = ds.variables[z_axis]
-                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds", None)]
+                depth_bounds = ds.variables[getattr(zvar, "bounds", None)]
                 if depth_bounds is None:
                     log.warning("No depth bounds found in file %s, taking midpoints" % (ds.filepath()))
-                    depth_bounds = numpy.zeros((len(depth_coordinates[:]), 2), dtype=numpy.float64)
-                    depth_bounds[1:, 0] = 0.5 * (depth_coordinates[0:-1] + depth_coordinates[1:])
+                    depth_bounds = numpy.zeros((len(zvar[:]), 2), dtype=numpy.float64)
+                    depth_bounds[1:, 0] = 0.5 * (zvar[0:-1] + zvar[1:])
                     depth_bounds[0:-1, 1] = depth_bounds[1:, 0]
-                    depth_bounds[0, 0] = depth_coordinates[0]
-                    depth_bounds[-1, 1] = depth_coordinates[-1]
-                units = getattr(depth_coordinates, "units", "1")
+                    depth_bounds[0, 0] = zvar[0]
+                    depth_bounds[-1, 1] = zvar[-1]
+                units = getattr(zvar, "units", "1")
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
-                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
-                                      cell_bounds=b)
+                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=zvar[:], cell_bounds=b)
                 z_axis_ids.append(z_axis_id)
-                table_depth_axes[z_axis] = z_axis_id
+                table_depth_axes[key] = z_axis_id
         setattr(task, "z_axes", z_axis_ids)
 
 
