@@ -135,7 +135,7 @@ def main():
     loadedtargets,ignoredtargets,identifiedmissingtargets,missingtargets = taskloader.load_targets(args.vars,active_components=active_components, silent = args.verbose)
 
     loadedtargets = sorted(loadedtargets, key=lambda t: (t.table, t.variable))
-    ignoredtargets = list(set(sorted(ignoredtargets, key=lambda t: (t.table, t.variable))))
+    ignoredtargets = sorted(list(set(ignoredtargets)), key=lambda t: (t.table, t.variable))
     identifiedmissingtargets = sorted(identifiedmissingtargets, key=lambda t: (t.table, t.variable))
     missingtargets = sorted(missingtargets, key=lambda t: (t.table, t.variable))
 
