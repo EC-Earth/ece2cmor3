@@ -37,9 +37,9 @@ def main():
     parser = argparse.ArgumentParser(description="Estimates the volume of the output from LPJ-GUESS for a given CMIP6 "
                                                  "data request for EC-Earth3")
     varsarg = parser.add_mutually_exclusive_group(required=True)
-    varsarg.add_argument("--vars", metavar="FILE", type=str, required=True,
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
                          help="File (json) containing cmor variables per EC-Earth component")
-    varsarg.add_argument("--drq", metavar="FILE", type=str, required=True,
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")

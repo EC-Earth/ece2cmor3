@@ -269,9 +269,9 @@ def write_ppt_files(tasks):
 def main():
     parser = argparse.ArgumentParser(description="Create IFS ppt files for given data request")
     varsarg = parser.add_mutually_exclusive_group(required=True)
-    varsarg.add_argument("--vars", metavar="FILE", type=str, required=True,
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
                          help="File (json) containing cmor variables per EC-Earth component")
-    varsarg.add_argument("--drq", metavar="FILE", type=str, required=True,
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
