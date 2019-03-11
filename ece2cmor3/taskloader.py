@@ -450,8 +450,12 @@ def match_variables(targets, model_variables):
                         raise Exception("Invalid model parameter file %s: multiple source found found for target %s "
                                         "in table %s" % (components.models[model][components.table_file],
                                                          target.variable, target.table))
-                    else:
-                        matches[model].append(target)
+                    comment_string = model + ' code name = ' + parblock.get(json_source_key, "?")
+                    if cmor_source.expression_key in parblock.keys():
+                        comment_string += ", expression = " + parblock[cmor_source.expression_key]
+                    setattr(target, "ecearth_comment", comment_string)
+                    setattr(target, "comment_author", "automatic")
+                    matches[model].append(target)
     return matches
 
 
@@ -484,11 +488,11 @@ def create_tasks(matches, active_components):
         for target in targets:
             parmatch = [b for b in parblocks if matchvarpar(target, b)][0]
             task = create_cmor_task(parmatch, target, model)
-            comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
-            if cmor_source.expression_key in parmatch.keys():
-                comment_string += ", expression = " + parmatch[cmor_source.expression_key]
-            setattr(target, "ecearth_comment", comment_string)
-            setattr(target, "comment_author", "automatic")
+#            comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
+#            if cmor_source.expression_key in parmatch.keys():
+#                comment_string += ", expression = " + parmatch[cmor_source.expression_key]
+#            setattr(target, "ecearth_comment", comment_string)
+#            setattr(target, "comment_author", "automatic")
             if ece2cmorlib.add_task(task):
                 result.append(task)
     log.info("Created %d ece2cmor tasks from input variable list." % len(result))
