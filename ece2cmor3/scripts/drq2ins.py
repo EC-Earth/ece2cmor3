@@ -49,10 +49,11 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running drq2ins.py with:"
-    print "./drq2ins.py --vars " + args.vars
-    print ""
+    if getattr(args, "drq", None) is not None:
+     print ""
+     print "Running drq2ins.py with:"
+     print "./drq2ins.py --drq " + args.drq
+     print ""
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
