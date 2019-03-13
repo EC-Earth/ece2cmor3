@@ -6,7 +6,10 @@ def keep_variable(target, model_component, ecearth_config):
     table = target.table
 
     if variable == "tos":
-        return model_component == "nemo"
+        if "areacello" in getattr(target, "area_operator", []):
+            return model_component == "nemo"
+        if "areacella" in getattr(target, "area_operator", []):
+            return model_component == "ifs"
 
     if variable in ["pfull", "zg", "ps", "tas", "ua", "va"]:
         if table.startswith("AER"):

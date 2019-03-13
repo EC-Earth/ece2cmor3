@@ -182,7 +182,7 @@ class taskloader_test(unittest.TestCase):
     def test_load_tos_3hr():
         ece2cmorlib.initialize()
         try:
-            taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components={"ifs": True})
+            taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components=["ifs"])
             eq_(len(ece2cmorlib.tasks), 0)
             taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components=["nemo"])
             eq_(len(ece2cmorlib.tasks), 1)
