@@ -109,10 +109,9 @@ def main(args=None):
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
 
-    taskloader.load_tasks_from_drq(args.vars, active_components, target_filters=filters)
-    # Load only atmosphere variables as task targets:
     if getattr(args, "vars", None) is not None:
-        taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters)
+        taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
+                              check_duplicates=True)
     else:
         taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters, check_prefs=True)
 

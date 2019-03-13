@@ -50,16 +50,17 @@ with_pingfile = False
 # API function: loads the argument list of targets
 def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None, check_prefs=True):
     matches, omitted_vars = load_drq(varlist, config, check_prefs)
-    return load_tasks(matches, active_components, target_filters)
+    return load_tasks(matches, active_components, target_filters, check_duplicates=check_prefs)
 
 
 # Basic task loader: first argument has already partitioned variables into component groups
-def load_tasks(variables, active_components=None, target_filters=None):
+def load_tasks(variables, active_components=None, target_filters=None, check_duplicates=False):
     matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
     filtered_matches = apply_filters(matches, target_filters)
-    valid_matches = remove_duplicates(filtered_matches)
+    if check_duplicates:
+        search_duplicate_tasks(filtered_matches)
     load_masks(load_model_vars())
-    return create_tasks(valid_matches, get_models(active_components))
+    return create_tasks(filtered_matches, get_models(active_components))
 
 
 def get_models(active_components):
@@ -144,8 +145,8 @@ def apply_filters(matches, target_filters=None):
     return result
 
 
-def remove_duplicates(matches):
-    duplicates = {m: set() for m in matches.keys()}
+def search_duplicate_tasks(matches):
+    status_ok = True
     for model in matches.keys():
         targetlist = matches[model]
         n = len(targetlist)
@@ -159,13 +160,13 @@ def remove_duplicates(matches):
                     key2 = '_'.join([t2.variable, t2.table])
                     okey2 = '_'.join([getattr(t2, "out_name", t2.variable), t2.table])
                     if t1 == t2 or key1 == key2:
-                        log.error("Found duplicate target %s in table %s for model %s: dismissing duplicate hit"
+                        log.error("Found duplicate target %s in table %s for model %s"
                                   % (t1.variable, t1.table, model))
-                        duplicates[model].add(j)
+                        status_ok = False
                     elif okey1 == okey2:
-                        log.error("Found duplicate output name for targets %s, %s in table %s for model %s: dismissing"
-                                  " duplicate hit" % (t1.variable, t2.variable, t1.table, model))
-                        duplicates[model].add(j)
+                        log.error("Found duplicate output name for targets %s, %s in table %s for model %s"
+                                  % (t1.variable, t2.variable, t1.table, model))
+                        status_ok = False
             index = matches.keys().index(model) + 1
             if index < len(matches.keys()):
                 for other_model in matches.keys()[index:]:
@@ -174,20 +175,15 @@ def remove_duplicates(matches):
                         key2 = '_'.join([t2.variable, t2.table])
                         okey2 = '_'.join([getattr(t2, "out_name", t2.variable), t2.table])
                         if t1 == t2 or key1 == key2:
-                            log.error("Found duplicate target %s in table %s for models %s and %s: dismissing "
-                                      "duplicate hit" % (t1.variable, t1.table, model, other_model))
-                            duplicates[other_model].add(other_targetlist.index(t2))
+                            log.error("Found duplicate target %s in table %s for models %s and %s"
+                                      % (t1.variable, t1.table, model, other_model))
+                            status_ok = False
                         elif okey1 == okey2:
                             log.error(
                                 "Found duplicate output name for targets %s, %s in table %s for models %s and %s: "
                                 "dismissing duplicate hit" % (t1.variable, t2.variable, t1.table, model, other_model))
-                            duplicates[other_model].add(other_targetlist.index(t2))
-    result = {m: [] for m in matches.keys()}
-    for model, targetlist in matches.items():
-        for i in range(len(targetlist)):
-            if i not in duplicates[model]:
-                result[model].append(targetlist[i])
-    return result
+                            status_ok = False
+    return status_ok
 
 
 def split_targets(targetlist):
