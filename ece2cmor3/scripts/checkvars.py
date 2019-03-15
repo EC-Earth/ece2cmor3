@@ -148,7 +148,7 @@ def main():
     loaded = [t for m in active_components for t in matches[m]]
     ignored, identified_missing, missing, dismissed = taskloader.split_targets(omitted_targets)
 
-    loaded_targets = sorted(loaded, key=lambda tgt: (tgt.table, tgt.variable))
+    loaded_targets = sorted(list(set(loaded)), key=lambda tgt: (tgt.table, tgt.variable))
     ignored_targets = sorted(list(set(ignored)), key=lambda tgt: (tgt.table, tgt.variable))
     identified_missing_targets = sorted(identified_missing, key=lambda tgt: (tgt.table, tgt.variable))
     missing_targets = sorted(missing, key=lambda tgt: (tgt.table, tgt.variable))

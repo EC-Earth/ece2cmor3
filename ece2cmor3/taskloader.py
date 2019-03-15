@@ -252,7 +252,7 @@ def omit_targets(targetlist):
                 setattr(target, "comment_author", author)
                 setattr(target, "model", model)
                 setattr(target, "units", units)
-                setattr(target, "pingcomment", target.pingcomment)
+                setattr(target, "pingcomment", pingcomment)
             else:
                 comment, author = identifiedmissingvarlist[key]
                 setattr(target, "ecearth_comment", comment)
@@ -449,7 +449,11 @@ def match_variables(targets, model_variables):
                     comment_string = model + ' code name = ' + parblock.get(json_source_key, "?")
                     if cmor_source.expression_key in parblock.keys():
                         comment_string += ", expression = " + parblock[cmor_source.expression_key]
-                    setattr(target, "ecearth_comment", comment_string)
+                    comment = getattr(target, "ecearth_comment", None)
+                    if comment is not None:
+                        setattr(target, "ecearth_comment", comment + '|' + comment_string)
+                    else:
+                        setattr(target, "ecearth_comment", comment_string)
                     setattr(target, "comment_author", "automatic")
                     matches[model].append(target)
     return matches
