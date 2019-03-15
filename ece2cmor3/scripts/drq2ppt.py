@@ -268,28 +268,33 @@ def write_ppt_files(tasks):
 # Main program
 def main():
     parser = argparse.ArgumentParser(description="Create IFS ppt files for given data request")
-    parser.add_argument("--vars", metavar="FILE", type=str, required=True,
-                        help="File (json|f90 namelist|xlsx) containing cmor variables (Required)")
+    varsarg = parser.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
+                         help="File (json) containing cmor variables per EC-Earth component")
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
+                         help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
 
     args = parser.parse_args()
-    
-    print ""
-    print "Running drq2ppt.py with:"
-    print " ./drq2ppt.py --vars " + args.vars
-    print ""
+
+    if getattr(args, "drq", None) is not None:
+     print ""
+     print "Running drq2ppt.py with:"
+     print " ./drq2ppt.py --drq " + args.drq
+     print ""
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
     # Load only atmosphere variables as task targets:
-    active_components = {component: False for component in components.models}
-    active_components["ifs"] = True
-    taskloader.load_targets(args.vars, active_components=active_components)
+    if getattr(args, "vars", None) is not None:
+        taskloader.load_tasks(args.vars, active_components=["ifs"])
+    else:
+        taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], check_prefs=False)
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

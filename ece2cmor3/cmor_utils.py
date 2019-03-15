@@ -16,6 +16,8 @@ import os
 import re
 
 # Log object
+from ece2cmor3 import components
+
 log = logging.getLogger(__name__)
 
 
@@ -381,3 +383,46 @@ def apply_mask(array, mask, missval_in, missval_out):
     elif missval_in != missval_out:
         array[array == missval_in] = missval_out
     return array
+
+
+class ScriptUtils:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def add_model_exclusive_options(parser, scriptname=""):
+        for model in components.models:
+            parser.add_argument("--" + model, action="store_true", default=False,
+                                help="Run %s exclusively for %s data" % (scriptname, model))
+
+    @staticmethod
+    def add_model_tabfile_options(parser):
+        model_tabfile_attributes = {}
+        for c in components.models:
+            tabfile = components.models[c].get(components.table_file, "")
+            if tabfile:
+                option = os.path.basename(tabfile)
+                model_tabfile_attributes[c] = option
+                parser.add_argument("--" + option, metavar="FILE.json", type=str, default=tabfile,
+                                    help="%s variable table (optional)" % c)
+
+    @staticmethod
+    def get_active_components(args, conf=None):
+        result = set()
+        for model in components.models:
+            if getattr(args, model, False):
+                result.add(model)
+        # Correct for deprecated --atm and --oce flags
+        if getattr(args, "atm", False):
+            log.warning("Deprecated flag --atm used, use --ifs instead!")
+            result.add("ifs")
+        if getattr(args, "oce", False):
+            log.warning("Deprecated flag --oce used, use --nemo instead!")
+            result.add("nemo")
+
+        result = list(result)
+        # If no flag was found, activate all components in configuration
+        if len(result) == 0:
+            return components.ece_configs.get(conf, components.models.keys())
+        return result

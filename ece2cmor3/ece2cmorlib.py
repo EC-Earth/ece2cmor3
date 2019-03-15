@@ -140,13 +140,16 @@ def add_task(tsk):
     if isinstance(tsk, cmor_task.cmor_task):
         if tsk.target not in targets:
             log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
-            return
+            return False
         duptasks = [t for t in tasks if t.target is tsk.target]
         if len(duptasks) != 0:
+            log.warning("Replacing task producing %s" % str(tsk.target))
             tasks.remove(duptasks[0])
         tasks.append(tsk)
     else:
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
+        return False
+    return True
 
 
 # Adds a mask
