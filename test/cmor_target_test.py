@@ -52,3 +52,11 @@ class cmor_target_tests(unittest.TestCase):
         tasmin = [t for t in targets if t.table == "day" and t.variable == "tasmin"][0]
         ok_(hasattr(tasmin, "time_operator"))
         ok_(getattr(tasmin, "time_operator"), "minimum")
+
+    @staticmethod
+    def test_zhalfo_zdims():
+        abspath = get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        zhalfo = [t for t in targets if t.variable == "zhalfo"][0]
+        eq_(cmor_target.get_z_axis(zhalfo)[0], "olevhalf")
+
