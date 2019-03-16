@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2vars.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsxv--ececonf AOGCM
+#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsxv --ececonf AOGCM
 
 import argparse
 import logging
