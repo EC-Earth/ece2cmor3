@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  ./estimate-lpj-guess-volume.py --vars cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
+#  ./estimate-lpj-guess-volume.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  ./estimate-lpj-guess-volume.py --drq cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
 #
 # This script estimates the volume of the output from LPJ-GUESS for one MIP experiment.
 #
