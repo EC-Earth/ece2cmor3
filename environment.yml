@@ -16,16 +16,16 @@
 #   pip uninstall -y dreqPy==01.00.29; pip install dreqPy==01.00.27
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
-name: ece2cmor3
+name: ece2cmor3-env-check
 channels:
 - conda-forge
 - defaults
 dependencies:
 - cmor=3.4.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
 - cdo=1.9.5
-- pyngl=1.5.0
+- pyngl=1.6.1
 - python-cdo
-- python-eccodes=2.9.0
+- python-eccodes=2.10.0
 - netcdf4
 - nose=1.3.7
 - pip
