@@ -38,10 +38,14 @@ extra_dims = {"basin", "spectband", "iceband", "landUse", "vertices", "effectRad
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
+
     def __init__(self, var_id__, tab_id__):
         self.variable = var_id__
         self.table = tab_id__
         self.dims = 2
+
+    def __str__(self):
+        return self.table + ": " + self.variable
 
 
 # Derives the table id for the given file path

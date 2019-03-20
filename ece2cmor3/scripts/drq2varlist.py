@@ -21,6 +21,8 @@ def main():
     parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
     parser.add_argument("--drq", metavar="FILE", type=str, required=True,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
+    parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="varlist.json",
+                        help="Output filepath")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
                         help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
@@ -33,8 +35,17 @@ def main():
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(tabledir=args.tabdir, tableprefix=args.tabid)
 
-    result = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
-    with open("varlist.json", 'w') as ofile:
+    matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+    result = {}
+    for model, targetlist in matches.items():
+        result[model] = {}
+        for target in targetlist:
+            table = target.table
+            if table in result[model]:
+                result[model][table].append(target.variable)
+            else:
+                result[model][table] = [target.variable]
+    with open(args.varlist, 'w') as ofile:
         json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
 
 

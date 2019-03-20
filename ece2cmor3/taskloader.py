@@ -120,8 +120,8 @@ def load_drq(varlist, config=None, check_prefs=True):
                     if prefs.keep_variable(t, model, config):
                         enabled_targets.append(t)
                     else:
-                        log.info("Dismissing target %s within %s configuration due to preference flagging" %
-                                 (str(t), "any" if config is None else config))
+                        log.info("Dismissing %s target %s within %s configuration due to preference flagging" %
+                                 (model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
                 matches[model] = enabled_targets
     omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
