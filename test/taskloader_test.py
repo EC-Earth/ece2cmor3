@@ -203,6 +203,22 @@ class taskloader_test(unittest.TestCase):
             ece2cmorlib.finalize_without_cmor()
 
     @staticmethod
+    def test_dismiss_duplicates():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            matches, omitted = taskloader.load_drq({"AERmon": ["ps"]}, check_prefs=False)
+            eq_(len(matches["ifs"]), 1)
+            eq_(len(matches["tm5"]), 1)
+            tasks = taskloader.load_tasks(matches, active_components=["ifs"], target_filters=None,
+                                          check_duplicates=True)
+            eq_(len(tasks), 0)
+            tasks = taskloader.load_tasks(matches, active_components=["ifs"], target_filters=None,
+                                          check_duplicates=False)
+            eq_(len(tasks), 1)
+        finally:
+            ece2cmorlib.finalize_without_cmor()
+
+    @staticmethod
     def test_load_cfc12_Omon_prefs():
         ece2cmorlib.initialize_without_cmor()
         try:
