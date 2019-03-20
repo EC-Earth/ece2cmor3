@@ -237,7 +237,7 @@ def create_depth_axes(ds, tasks, table):
                     depth_bounds[0:-1, 1] = depth_bounds[1:, 0]
                     depth_bounds[0, 0] = zvar[0]
                     depth_bounds[-1, 1] = zvar[-1]
-                entry = "olevhalf" if cmor_target.get_z_axis(task.target)[0] == "olevhalf" else "depth_coord"
+                entry = "depth_coord_half" if cmor_target.get_z_axis(task.target)[0] == "olevhalf" else "depth_coord"
                 units = getattr(zvar, "units", "")
                 if len(units) == 0:
                     log.warning("Assigning unit meters to depth coordinate %s without units" % entry)
