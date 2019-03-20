@@ -112,12 +112,19 @@ def main(args=None):
             zaxis, levs = cmor_target.get_z_axis(target)
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
-
-    if getattr(args, "vars", None) is not None:
-        taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
-                              check_duplicates=True)
-    else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters, check_prefs=True)
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
+                                  check_duplicates=True)
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters,
+                                           check_prefs=True)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting ece2cmor.')
 
     refdate = datetime.datetime.combine(dateutil.parser.parse(args.refd), datetime.datetime.min.time())
 

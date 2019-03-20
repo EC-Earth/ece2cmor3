@@ -47,6 +47,15 @@ skip_tables = False
 with_pingfile = False
 
 
+class SwapDrqAndVarListException(Exception):
+    def __init__(self, reverse=False):
+        self.reverse = reverse
+        if reverse:
+            self.message = "Expected a component-specific variable list, got a data request as input"
+        else:
+            self.message = "Expected a data request, got a component-specific variable list as input"
+
+
 # API function: loads the argument list of targets
 def load_tasks_from_drq(varlist, active_components=None, target_filters=None, config=None, check_prefs=True):
     matches, omitted_vars = load_drq(varlist, config, check_prefs)
@@ -87,7 +96,9 @@ def load_vars(variables, asfile=True):
     targets = {}
     for model, varlist in modeldict.iteritems():
         if model not in components.models.keys():
-            log.error("Cannot interpret %s as an EC-Earth model component" % str(model))
+            if model in set([t.table for t in ece2cmorlib.targets]):
+                raise SwapDrqAndVarListException(reverse=True)
+            log.error("Cannot interpret %s as an EC-Earth model component." % str(model))
             continue
         if isinstance(varlist, list):
             targets[model] = varlist
@@ -279,6 +290,8 @@ def load_targets_json(variables, asfile=True):
         log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = []
     for tab, var in vardict.iteritems():
+        if tab in components.models and isinstance(var, dict):
+            raise SwapDrqAndVarListException(reverse=False)
         if not isinstance(tab, basestring):
             log.error("Cannot interpret %s as a CMOR table identifier" % str(tab))
             continue
@@ -488,11 +501,6 @@ def create_tasks(matches, active_components):
         for target in targets:
             parmatch = [b for b in parblocks if matchvarpar(target, b)][0]
             task = create_cmor_task(parmatch, target, model)
-#            comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
-#            if cmor_source.expression_key in parmatch.keys():
-#                comment_string += ", expression = " + parmatch[cmor_source.expression_key]
-#            setattr(target, "ecearth_comment", comment_string)
-#            setattr(target, "comment_author", "automatic")
             if ece2cmorlib.add_task(task):
                 result.append(task)
     log.info("Created %d ece2cmor tasks from input variable list." % len(result))
