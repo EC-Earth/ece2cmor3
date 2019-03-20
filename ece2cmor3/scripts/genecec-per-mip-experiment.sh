@@ -11,8 +11,8 @@
 #
 #
 # Run example:
-#  ./genecec-per-mip-experiment.sh CMIP piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,LUMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP                                                                        piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                  piControl 1 1
 #  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
@@ -85,7 +85,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 #activateanaconda
  if ! type "drq" > /dev/null; then
   echo
-  echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:' 
+  echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
   echo '  1. drq might be not installed'
   echo '  2. drq might be not active, as the anaconda environment is not activated'
   echo ' Stop'
@@ -152,13 +152,14 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    exit
   fi
 
+  # Create the ppt files for IFS input and estimate the Volume of the IFS output:
   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing thehourly / sub hourly table variables.
+  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
-  # Creating the file_def files for XIOS NEMO input:
+  # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
   ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
@@ -203,7 +204,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
- #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+ #./checkvars.py -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
   echo
  #source deactivate
