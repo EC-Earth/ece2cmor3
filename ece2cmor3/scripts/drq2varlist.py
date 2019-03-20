@@ -3,12 +3,14 @@
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
 #  ./drq2varlist.py --drq ../resources/test-data-request/varlist-nemo-all.json                                      --ececonf EC-EARTH-AOGCM
+import os
+import sys
 
 import argparse
 import logging
 import json
 
-from ece2cmor3 import ece2cmorlib, components, taskloader
+from ece2cmor3 import ece2cmorlib, components, taskloader, cmor_utils
 
 # Logging configuration
 logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
@@ -32,10 +34,27 @@ def main():
 
     args = parser.parse_args()
 
+    print ""
+    print "Running drq2varlist.py with:"
+    print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
+    print ""
+
+    if not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting drq2varlist.')
+
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(tabledir=args.tabdir, tableprefix=args.tabid)
 
-    matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+    try:
+        matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting drq2varlist.')
+
     result = {}
     for model, targetlist in matches.items():
         result[model] = {}

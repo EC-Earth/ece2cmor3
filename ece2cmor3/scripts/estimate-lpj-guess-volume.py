@@ -48,11 +48,10 @@ def main():
 
     args = parser.parse_args()
 
-    if getattr(args, "drq", None) is not None:
-     print ""
-     print "Running estimate-lpj-guess-volume.py with:"
-     print "./estimate-lpj-guess-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-     print ""
+    print ""
+    print "Running estimate-lpj-guess-volume.py with:"
+    print "./estimate-lpj-guess-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
+    print ""
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Your variable list json file %s cannot be found." % args.vars)
