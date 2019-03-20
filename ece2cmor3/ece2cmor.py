@@ -84,8 +84,12 @@ def main(args=None):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
         sys.exit(' Exiting ece2cmor.')
 
-    if not os.path.isfile(args.vars):
-        log.fatal("Your data request file %s cannot be found." % args.vars)
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting ece2cmor.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting ece2cmor.')
 
     if not os.path.isfile(args.conf):
