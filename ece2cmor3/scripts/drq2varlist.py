@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsxv --ececonf EC-EARTH-AOGCM
-#  ./drq2varlist.py --drq ../resources/test-data-request/varlist-nemo-all.json                                       --ececonf EC-EARTH-AOGCM
+#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
+#  ./drq2varlist.py --drq ../resources/test-data-request/varlist-nemo-all.json                                      --ececonf EC-EARTH-AOGCM
 
 import argparse
 import logging
