@@ -51,18 +51,33 @@ def main():
     if getattr(args, "drq", None) is not None:
      print ""
      print "Running estimate-lpj-guess-volume.py with:"
-     print "./estimate-lpj-guess-volume.py --drq " + args.drq
+     print "./estimate-lpj-guess-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
      print ""
+
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting estimate-lpj-guess-volume.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting estimate-lpj-guess-volume.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
     # Load only LPJ-GUESS variables as task targets:
-    if getattr(args, "vars", None) is not None:
-        taskloader.load_tasks(args.vars, active_components=["lpjg"])
-    else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["lpjg"], check_prefs=False)
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=["lpjg"])
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["lpjg"], check_prefs=False)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting estimate-lpj-guess-volume.')
 
     print '\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n'
         

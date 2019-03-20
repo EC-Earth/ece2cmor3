@@ -13,11 +13,13 @@
 # Note that this script is called by the script:
 #  generate-ec-earth-namelists.sh
 #
+import os
+import sys
 
 import argparse
 import logging
 
-from ece2cmor3 import ece2cmorlib, taskloader
+from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils
 
 # Logging configuration
 logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
@@ -44,22 +46,36 @@ def main():
 
     args = parser.parse_args()
 
-    if getattr(args, "drq", None) is not None:
-     print ""
-     print "Running estimate-tm5-volume.py with:"
-     print "./estimate-tm5-volume.py --drq " + args.drq
-     print ""
+    print ""
+    print "Running estimate-tm5-volume.py with:"
+    print "./estimate-tm5-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
+    print ""
+
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting estimate-tm5-volume.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting estimate-tm5-volume.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
     # Load only TM5 variables as task targets:
-    if getattr(args, "vars", None) is not None:
-        taskloader.load_tasks(args.vars, active_components=["tm5"])
-    else:
-        taskloader.load_tasks_from_drq(args.drq, active_components=["tm5"], check_prefs=False)
-    
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=["tm5"])
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["tm5"], check_prefs=False)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting estimate-tm5-volume.')
+
     for task in ece2cmorlib.tasks:
          print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
         #print task.target.__dict__

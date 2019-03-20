@@ -426,3 +426,12 @@ class ScriptUtils:
         if len(result) == 0:
             return components.ece_configs.get(conf, components.models.keys())
         return result
+
+    @staticmethod
+    def get_drq_vars_options(args):
+        opts = []
+        if getattr(args, "drq", None) is not None:
+            opts.extend(["--drq", args.drq])
+        if getattr(args, "vars", None) is not None:
+            opts.extend(["--vars", args.vars])
+        return " ".join(opts)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 import argparse
 import json
@@ -133,6 +134,10 @@ def main():
 
     args = parser.parse_args()
 
+    if not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting checkvars.')
+
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
@@ -144,7 +149,15 @@ def main():
     taskloader.with_pingfile = args.withping
 
     # Load the variables as task targets:
-    matches, omitted_targets = taskloader.load_drq(args.drq, check_prefs=False)
+    try:
+        matches, omitted_targets = taskloader.load_drq(args.drq, check_prefs=False)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting checkvars.')
+
     loaded = [t for m in active_components for t in matches[m]]
     ignored, identified_missing, missing, dismissed = taskloader.split_targets(omitted_targets)
 
