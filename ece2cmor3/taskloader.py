@@ -67,7 +67,9 @@ def load_tasks(variables, active_components=None, target_filters=None, check_dup
     matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
     filtered_matches = apply_filters(matches, target_filters)
     if check_duplicates:
-        search_duplicate_tasks(filtered_matches)
+        if not search_duplicate_tasks(filtered_matches):
+            log.fatal("Duplicate requested variables were found, dismissing all cmorization tasks")
+            return []
     load_masks(load_model_vars())
     return create_tasks(filtered_matches, get_models(active_components))
 
@@ -191,8 +193,8 @@ def search_duplicate_tasks(matches):
                             status_ok = False
                         elif okey1 == okey2:
                             log.error(
-                                "Found duplicate output name for targets %s, %s in table %s for models %s and %s: "
-                                "dismissing duplicate hit" % (t1.variable, t2.variable, t1.table, model, other_model))
+                                "Found duplicate output name for targets %s, %s in table %s for models %s and %s"
+                                % (t1.variable, t2.variable, t1.table, model, other_model))
                             status_ok = False
     return status_ok
 
