@@ -80,8 +80,8 @@ for model_configuration in sorted(dictionary.keys()):
  print ' {:20}   {}'.format(model_configuration, dictionary[model_configuration])
 
 
-command_0 = 'rm -rf cmip6-output-control-files'
-os.system(command_0)
+command_00 = 'rm -rf cmip6-output-control-files'
+os.system(command_00)
 
 # Loop over MIPs:
 for mip in dq.coll['mip'].items:
@@ -102,39 +102,39 @@ for mip in dq.coll['mip'].items:
          omit_setup_argument = ' omit-setup'
        ex = dq.inx.uid[u]
 
-       command   = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + model_configuration + omit_setup_argument
-       command_2 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
-       command_3 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
-       command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_7 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
-       command_8 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
-       command_9 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*.json cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-       command_c = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
-      #print '{}'.format(command)
+       command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + model_configuration + omit_setup_argument
+       command_02 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
+       command_03 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
+       command_04 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_05 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_06 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_07 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
+       command_08 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
+       command_09 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*.json cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
+       command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
+      #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':  # for a fast test
           if ex.tier[0] in experiment_tiers_included:
             if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
              print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
             else:
-             os.system(command)
-             os.system(command_2)  # Remove the file_def-compact subdirectory with the compact file_def files
-             os.system(command_3)  # Remove the cmip6-file_def_nemo.xml file
-            #os.system(command_4)  # Just set the toce fields false again because we still face troubles with them
-            #os.system(command_5)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
-             os.system(command_6)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+             os.system(command_01)
+             os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
+             os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
+            #os.system(command_04)  # Just set the toce fields false again because we still face troubles with them
+            #os.system(command_05)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
+             os.system(command_06)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
              if mip_name == 'CMIP' and ',' in mip_list:
-              os.system(command_7) # Rename directry names for joint MIPs
-              os.system(command_8) # Rename volume-estimate file for joint MIPs
-              os.system(command_9) # Rename the json cmip6 data request file
-             os.system(command_c)  # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
+              os.system(command_07) # Rename directry names for joint MIPs
+              os.system(command_08) # Rename volume-estimate file for joint MIPs
+              os.system(command_09) # Rename the json cmip6 data request file
+             os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
              experiment_counter = experiment_counter + 1
           else:
-             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command)
+             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
        else:
-          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command)
+          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
 
   else:
     #print '\n Model configuration is: ', model_configuration, 'for', mip_name, ex.label, '\n'
@@ -156,16 +156,16 @@ for mip in dq.coll['mip'].items:
 
       #print 'Number of model configurations with which this MIP is run: ', len(model_configuration), model_configuration, model_configuration[0], mip_name, ex.label
 
-       command   = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + str(model_configuration[0]) + omit_setup_argument
-       command_2 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
-       command_3 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
-       command_4 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_9 = '      mv cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*-' + str(model_configuration[0]) + '.json cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
+       command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + str(model_configuration[0]) + omit_setup_argument
+       command_02 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
+       command_03 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
+       command_04 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_05 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_06 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+       command_09 = 'mv cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*-' + str(model_configuration[0]) + '.json cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
        command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + str(model_configuration[0]) + ' --varlist cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
-       command_c = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
-      #print '{}'.format(command)
+       command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
+      #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'historical':  # for a faster test
@@ -176,20 +176,20 @@ for mip in dq.coll['mip'].items:
             else:
            ##sys.exit()
             #print '{}'.format(command_10)
-             os.system(command)
-             os.system(command_2)  # Remove the file_def-compact subdirectory with the compact file_def files
-             os.system(command_3)  # Remove the cmip6-file_def_nemo.xml file
-            #os.system(command_4)  # Just set the toce fields false again because we still face troubles with them
-            #os.system(command_5)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
-             os.system(command_6)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
-             os.system(command_9)  # Rename the json cmip6 data request file
-             os.system(command_c)  # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
-             os.system(command_10) # Produce the json data request variant, the so called varlist.json
+             os.system(command_01)
+             os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
+             os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
+            #os.system(command_04)  # Just set the toce fields false again because we still face troubles with them
+            #os.system(command_05)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
+             os.system(command_06)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+             os.system(command_09)  # Rename the json cmip6 data request file
+             os.system(command_10)  # Produce the json data request variant, the so called varlist.json
+             os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
              experiment_counter = experiment_counter + 1
           else:
-             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command)
+             print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
        else:
-          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command)
+          print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
 
 print ' There are {} experiments included. '.format(experiment_counter)
 
