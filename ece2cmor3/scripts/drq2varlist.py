@@ -47,7 +47,7 @@ def main():
 
     print ""
     print "Running drq2varlist.py with:"
-    print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args) + ' --ececonf ' + args.ececonf
+    print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
     print ""
 
     if not os.path.isfile(args.drq):
