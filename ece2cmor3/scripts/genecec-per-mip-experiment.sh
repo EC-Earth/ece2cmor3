@@ -154,15 +154,10 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
    exit
   fi
 
-  # Produce the json data request variant, the so called varlist.json
-  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx --ececonf ${model_configuration}
-
-  mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  mv -f varlist.json ${path_of_created_output_control_files}/ece-cmip6-data-request-${mip_label}-${experiment}-${model_configuration}.json
-
   # Create the ppt files for IFS input and estimate the Volume of the IFS output:
   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
+  mkdir -p ${path_of_created_output_control_files}/file_def-compact
   if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
@@ -182,6 +177,9 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
   ./drq2ins.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
+
+  # Produce the json data request variant, the so called varlist.json
+  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx --ececonf ${model_configuration} --varlist ${path_of_created_output_control_files}/ece-cmip6-data-request-${mip_label}-${experiment}-${model_configuration}.json
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
