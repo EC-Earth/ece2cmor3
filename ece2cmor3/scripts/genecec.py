@@ -28,7 +28,8 @@ dq = dreq.loadDreq()
 experiment_tiers_included = [1]
 ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
-#ec_earth_mips = ['CMIP'] # for a faster test
+#ec_earth_mips = ['CMIP']        # for a faster test
+#ec_earth_mips = ['ScenarioMIP'] # for a faster test
 experiment_counter = 0
 
 
@@ -162,16 +163,19 @@ for mip in dq.coll['mip'].items:
        command_5 = "sed -i -e '/sfdsi_2/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
        command_6 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
        command_9 = '      mv cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*-' + str(model_configuration[0]) + '.json cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
+       command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + str(model_configuration[0]) + ' --varlist cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
        command_c = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
       #print '{}'.format(command)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'historical':  # for a faster test
+         #if ex.tier[0] in experiment_tiers_included and ex.label == 'ssp585':      # for a faster test
           if ex.tier[0] in experiment_tiers_included:
             if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
              print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
             else:
            ##sys.exit()
+            #print '{}'.format(command_10)
              os.system(command)
              os.system(command_2)  # Remove the file_def-compact subdirectory with the compact file_def files
              os.system(command_3)  # Remove the cmip6-file_def_nemo.xml file
@@ -180,6 +184,7 @@ for mip in dq.coll['mip'].items:
              os.system(command_6)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
              os.system(command_9)  # Rename the json cmip6 data request file
              os.system(command_c)  # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
+             os.system(command_10) # Produce the json data request variant, the so called varlist.json
              experiment_counter = experiment_counter + 1
           else:
              print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command)
