@@ -303,8 +303,8 @@ def read_times(ds, task):
             res[0, 0] = 1.5 * v[0] - 0.5 * v[1]
             res[-1, 1] = 1.5 * v[-1] - 0.5 * v[-2]
         return res
-    time_operator = getattr(task.target, "time_operator", ["point"])
-    if len(time_operator) > 0 and time_operator[0] in ["point", "instant"]:
+
+    if cmor_target.is_instantaneous(task.target):
         ncvar = ds.variables.get("time_instant", None)
         if ncvar is not None:
             return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
@@ -314,7 +314,7 @@ def read_times(ds, task):
                 log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
                 return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
         log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
-    elif len(time_operator) > 0 and time_operator[0] in ["mean", "average"]:
+    else:
         ncvar = ds.variables.get("time_centered", None)
         if ncvar is not None:
             return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
