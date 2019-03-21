@@ -34,8 +34,8 @@ def main():
     parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
     parser.add_argument("--drq", metavar="FILE", type=str, required=True,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
-    parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="varlist.json",
-                        help="Output filepath")
+    parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
+                        help="Output file name")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
                         help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
