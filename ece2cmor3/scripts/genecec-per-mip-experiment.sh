@@ -7,13 +7,14 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
-# ${5} the fifth   OPTIONAL argument will omit the install of the ece2cmor setup if equal to "omit-setup". To improve the performance when calling this script multiple times from another script.
+# ${5} the fifth   argument is the EC-Earth3 model configuration [EC-EARTH-AOGCM, EC-EARTH-HR, EC-EARTH-LR, EC-EARTH-CC, EC-EARTH-GrisIS, EC-EARTH-AerChem, EC-EARTH-Veg, EC-EARTH-Veg-LR]
+# ${6} the six     OPTIONAL argument will omit the install of the ece2cmor setup if equal to "omit-setup". To improve the performance when calling this script multiple times from another script.
 #
 #
 # Run example:
-#  ./genecec-per-mip-experiment.sh CMIP                                                                        piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                  piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP                                                                        piControl 1 1 EC-EARTH-AOGCM
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                  piControl 1 1 EC-EARTH-AOGCM
+#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1 EC-EARTH-AOGCM
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -41,11 +42,12 @@ if [ ! -d ${ece2cmor_root_directory} ]; then
  echo
 fi
 
-if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
+if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
  mip=$1
  experiment=$2
  tier=$3
  priority=$4
+ model_configuration=$5
 
  # Check whether more than one MIP is specified in the data request
  multiplemips='no'
@@ -68,8 +70,8 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  echo ${select_substring}
 
  install_setup="include-setup"
- if [ "$#" -eq 5 ]; then
-  if [ "$5" = "omit-setup" ]; then
+ if [ "$#" -eq 6 ]; then
+  if [ "$6" = "omit-setup" ]; then
    install_setup="omit-setup"
   fi
  fi
@@ -152,10 +154,15 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    exit
   fi
 
+  # Produce the json data request variant, the so called varlist.json
+  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx --ececonf ${model_configuration}
+
+  mkdir -p ${path_of_created_output_control_files}/file_def-compact
+  mv -f varlist.json ${path_of_created_output_control_files}/ece-cmip6-data-request-${mip_label}-${experiment}-${model_configuration}.json
+
   # Create the ppt files for IFS input and estimate the Volume of the IFS output:
   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
-  mkdir -p ${path_of_created_output_control_files}/file_def-compact
   if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
