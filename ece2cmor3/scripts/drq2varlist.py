@@ -3,6 +3,17 @@
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
 #  ./drq2varlist.py --drq ../resources/test-data-request/varlist-nemo-all.json                                      --ececonf EC-EARTH-AOGCM
+#
+# This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
+# the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 
+# applied based on the EC-Earth3 model configuration which is taken into consideration.
+#
+# This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
+# which is part of ece2cmor3.
+#
+# Note that this script is called by the script:
+#  genecec-per-mip-experiment.sh
+#
 import os
 import sys
 

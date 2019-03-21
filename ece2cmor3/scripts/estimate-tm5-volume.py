@@ -11,7 +11,7 @@
 # which is part of ece2cmor3.
 #
 # Note that this script is called by the script:
-#  generate-ec-earth-namelists.sh
+#  genecec-per-mip-experiment.sh
 #
 import os
 import sys
