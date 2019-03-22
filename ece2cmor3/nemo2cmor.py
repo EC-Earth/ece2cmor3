@@ -57,10 +57,11 @@ def initialize(path, expname, tableroot, refdate):
     table_root_ = tableroot
     ref_date_ = refdate
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
-    bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(path, "..", "..", "bathy_meter.nc"))
+    ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
+    bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
-        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed whenever "
-                    "encountered")
+        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
+                    "whenever encountered")
         bathy_file_ = None
     cal = None
     for f in nemo_files_:
@@ -120,6 +121,14 @@ def execute(tasks):
 def lookup_variables(tasks):
     valid_tasks = []
     for task in tasks:
+        if (task.target.table, task.target.variable) == ("Ofx", "deptho"):
+            if bathy_file_ is None:
+                log.error("Could not use bathymetry file for variable deptho in table Ofx... skipping task")
+                task.set_failed()
+            else:
+                setattr(task, cmor_task.output_path_key, bathy_file_)
+                valid_tasks.append(task)
+            continue
         file_candidates = select_freq_files(task.target.frequency)
         results = []
         for ncfile in file_candidates:
@@ -153,7 +162,7 @@ def execute_netcdf_task(dataset, task):
     # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[task.source.variable()]
+    ncvar = dataset.variables[get_nc_varname(task)]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
     time_dim, index, time_sel = -1, 0, None
     for d in ncvar.dimensions:
@@ -204,7 +213,7 @@ def get_conversion_constants(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task, dataset, axes):
-    srcvar = task.source.variable()
+    srcvar = get_nc_varname(task)
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
@@ -226,7 +235,7 @@ def create_depth_axes(ds, tasks, table):
     table_depth_axes = depth_axes_[table]
     other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
-        z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
+        z_axes = [d for d in ds.variables[get_nc_varname(task)].dimensions if d not in other_nc_axes]
         z_axis_ids = []
         for z_axis in z_axes:
             if z_axis not in ds.variables:
@@ -383,6 +392,11 @@ def create_type_axes(ds, tasks, table):
                 table_type_axes[dim] = axis_id
             setattr(task, dim + "_axis", axis_id)
     return table_type_axes
+
+
+# Helper function getting the right variable name in the nc files
+def get_nc_varname(task):
+    return task.source.variable()
 
 
 # Selects files with data with the given frequency
