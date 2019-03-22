@@ -250,7 +250,6 @@ def create_depth_axes(ds, tasks, table):
         setattr(task, "z_axes", z_axis_ids)
 
 
-# Creates a time axis for the currently loaded table
 def create_time_axes(ds, tasks, table):
     global time_axes_
     if table == "Ofx":
@@ -259,36 +258,29 @@ def create_time_axes(ds, tasks, table):
         time_axes_[table] = {}
     log.info("Creating time axis for table %s using file %s..." % (table, ds.filepath()))
     table_time_axes = time_axes_[table]
-    times, time_bounds, time_units = None, None, None
-    for varname, ncvar in ds.variables.items():
-        if getattr(ncvar, "standard_name", None) == "time" or varname == "time_counter":
-            time_bnds = ds.variables.get(getattr(ncvar, "bounds", None), None)
-            if time_bnds is None:
-                time_bnds = numpy.empty([len(ncvar[:]), 2])
-                time_bnds[1:, 0] = 0.5 * (ncvar[0:-1] + ncvar[1:])
-                time_bnds[:-1, 1] = time_bnds[1:, 0]
-                time_bnds[0, 0] = 1.5 * ncvar[0] - 0.5 * ncvar[1]
-                time_bnds[-1, 1] = 1.5 * ncvar[-1] - 0.5 * ncvar[-2]
-            dt_array = netCDF4.num2date(ncvar[:], units=getattr(ncvar, "units", None),
-                                        calendar=getattr(ds, "calendar", "gregorian"))
-            times, time_units = cmor_utils.date2num(dt_array, ref_date_)
-            dtb_array = netCDF4.num2date(time_bnds[:, :], units=getattr(ncvar, "units", None),
-                                         calendar=getattr(ds, "calendar", "gregorian"))
-            time_bounds, time_bounds_units = cmor_utils.date2num(dtb_array, ref_date_)
-            break
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key)
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             if time_dim in table_time_axes:
+                time_operator = getattr(task.target, "time_operator", ["point"])
+                nc_operator = getattr(ds.variables[task.source.variable()], "online_operation", "instant")
+                if time_operator[0] in ["point", "instant"] and nc_operator != "instant":
+                    log.warning("Cmorizing variable %s with online operation attribute %s in %s to %s with time "
+                                "operation %s" % (task.source.variable(), nc_operator, ds.filepath(), str(task.target),
+                                                  time_operator[0]))
+                if time_operator[0] in ["mean", "average"] and nc_operator != "average":
+                    log.warning("Cmorizing variable %s with online operation attribute %s in %s to %s with time "
+                                "operation %s" % (task.source.variable(), nc_operator, ds.filepath(), str(task.target),
+                                                  time_operator[0]))
                 tid = table_time_axes[time_dim]
             else:
+                times, time_bounds, time_units, calendar = read_times(ds, task)
                 if times is None:
                     log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
-                time_operator = getattr(task.target, "time_operator", ["point"])
-                if time_operator == ["point"]:
+                if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times)
                 else:
                     tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times,
@@ -296,6 +288,43 @@ def create_time_axes(ds, tasks, table):
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
+
+
+# Creates a time axis for the currently loaded table
+def read_times(ds, task):
+    def get_time_bounds(v):
+        bnd = getattr(v, "bounds", None)
+        if bnd in ds.variables:
+            res = ds.variables[bnd][:,:]
+        else:
+            res = numpy.empty([len(v[:]), 2])
+            res[1:, 0] = 0.5 * (v[0:-1] + v[1:])
+            res[:-1, 1] = res[1:, 0]
+            res[0, 0] = 1.5 * v[0] - 0.5 * v[1]
+            res[-1, 1] = 1.5 * v[-1] - 0.5 * v[-2]
+        return res
+
+    if cmor_target.is_instantaneous(task.target):
+        ncvar = ds.variables.get("time_instant", None)
+        if ncvar is not None:
+            return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
+        for varname, ncvar in ds.variables.items():
+            if getattr(ncvar, "standard_name", "").lower() == "time":
+                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    else:
+        ncvar = ds.variables.get("time_centered", None)
+        if ncvar is not None:
+            return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
+        for varname, ncvar in ds.variables.items():
+            if getattr(ncvar, "standard_name", "").lower() == "time":
+                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    return None, None, None, None
 
 
 def create_type_axes(ds, tasks, table):

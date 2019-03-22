@@ -60,3 +60,9 @@ class cmor_target_tests(unittest.TestCase):
         zhalfo = [t for t in targets if t.variable == "zhalfo"][0]
         eq_(cmor_target.get_z_axis(zhalfo)[0], "olevhalf")
 
+    @staticmethod
+    def test_siu_time_method():
+        abspath = get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        siu = [t for t in targets if t.variable == "siu" and t.table == "SIday"][0]
+        eq_(getattr(siu, "time_operator", None), ["mean where sea_ice"])

@@ -229,6 +229,11 @@ def get_freq(target):
     return -1
 
 
+def is_instantaneous(target):
+    time_operator = getattr(target, "time_operator", [])
+    return len(time_operator) == 0 or time_operator[0] in ["point", "instant"]
+
+
 # Sets the z-axis attributes for the given target
 def get_z_axis(target):
     global log
