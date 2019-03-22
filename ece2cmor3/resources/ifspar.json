@@ -555,13 +555,13 @@
         "source": "131.129",
         "convert": "cum2inst",
         "target": "rsuscs",
-        "expr": "var210*var243/(var243-1)"
+        "expr": "(var176>1e-10)*var210*(1-var169/var176)"
     },
     {
         "source": "102.129",
         "convert": "cum2inst",
         "target": "rsdscs",
-        "expr": "var210/(1-var243)"
+        "expr": "(var176<=1e-10)*var210+(var176>1e-10)*var210*var169/var176"
     },
     {
         "mask": "land",
