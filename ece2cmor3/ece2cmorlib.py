@@ -169,6 +169,8 @@ def perform_ifs_tasks(datadir, expname,
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
+    if len(ifs_tasks) == 0:
+        return
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
     if enable_masks:
