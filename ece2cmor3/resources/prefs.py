@@ -26,10 +26,11 @@ def keep_variable(target, model_component, ecearth_config):
             return model_component == "ifs"
 
     # Soil moisture etc: prefer ifs over lpjguess in all cases (?)
-    if variable in ["mrso", "mrsol", "mrsos", "mrro", "mrros"]:
+    if variable in ["mrso", "mrsol", "mrsos", "mrro", "mrros", "tsl"]:
         return model_component == "ifs"
 
+    # Carbon-cycle variables only activated in EC-EARTH-CC
     if variable in ["cfc12", "cfc13", "c14", "sf6"]:
-        return model_component == "nemo" and ecearth_config == "CC"
+        return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
 
     return True

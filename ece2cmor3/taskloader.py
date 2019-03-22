@@ -125,6 +125,12 @@ def load_drq(varlist, config=None, check_prefs=True):
         if t not in matched_targets:
             setattr(t, "load_status", "missing")
     if check_prefs:
+        if config is None:
+            log.warning("Determining preferred model components for variables without target EC-Earth configuration: "
+                        "assuming all components should be considered may result in duplicate matches")
+        if config not in components.ece_configs.keys():
+            log.warning("Determining preferred model components for variables with unknown target EC-Earth configuration "
+                        "%s: assuming all components should be considered may result in duplicate matches" % config)
         for model in matches:
             targetlist = matches[model]
             if len(targetlist) > 0:

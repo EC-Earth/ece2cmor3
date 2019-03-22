@@ -222,9 +222,9 @@ class taskloader_test(unittest.TestCase):
     def test_load_cfc12_Omon_prefs():
         ece2cmorlib.initialize_without_cmor()
         try:
-            matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="AOGCM")
+            matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="EC-EARTH-AOGCM")
             eq_(len(matches["nemo"]), 0)
-            matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="CC")
+            matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="EC-EARTH-CC")
             eq_(len(matches["nemo"]), 1)
         finally:
             ece2cmorlib.finalize_without_cmor()
