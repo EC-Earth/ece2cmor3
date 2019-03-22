@@ -170,6 +170,8 @@ def perform_ifs_tasks(datadir, expname,
     validate_run_settings(datadir, expname)
     ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
+    if len(ifs_tasks) == 0:
+        return
     tableroot = os.path.join(table_dir, prefix)
     if enable_masks:
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
