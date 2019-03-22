@@ -97,12 +97,12 @@ for mip in dq.coll['mip'].items:
      multiplemips     = "." in mip_label
      select_substring = mip_label[0:2].lower()
 
-     print ' mip = '             , mip
-     print ' mip_name = '        , mip_name
-     print ' mip_list = '        , mip_list
-     print ' mip_label = '       , mip_label
-     print ' multiplemips = '    , multiplemips
-     print ' select_substring = ', select_substring
+    #print ' mip = '             , mip
+    #print ' mip_name = '        , mip_name
+    #print ' mip_list = '        , mip_list
+    #print ' mip_label = '       , mip_label
+    #print ' multiplemips = '    , multiplemips
+    #print ' select_substring = ', select_substring
     #sys.exit()
 
      # Loop over experiments:
@@ -122,7 +122,6 @@ for mip in dq.coll['mip'].items:
        command_07 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
        command_08 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
        command_09 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/ece-cmip6-data-request-*.json cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-      #command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + str(model_configuration[0]) + ' --varlist cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + str(model_configuration[0]) + '.json'
        command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
        command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
       #print '{}'.format(command_01)
@@ -143,7 +142,6 @@ for mip in dq.coll['mip'].items:
               os.system(command_07) # Rename directry names for joint MIPs
               os.system(command_08) # Rename volume-estimate file for joint MIPs
               os.system(command_09) # Rename the json cmip6 data request file
-            #print '{}'.format(command_10)
              os.system(command_10)  # Produce the json data request variant, the so called varlist.json
              os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
              experiment_counter = experiment_counter + 1
@@ -170,8 +168,6 @@ for mip in dq.coll['mip'].items:
          omit_setup_argument = ' omit-setup'
        ex = dq.inx.uid[u]
 
-      #print 'Number of model configurations with which this MIP is run: ', len(model_configuration), model_configuration, model_configuration[0], mip_name, ex.label
-
        command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
        command_02 = 'rm -rf cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/file_def-compact'
        command_03 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
@@ -187,8 +183,6 @@ for mip in dq.coll['mip'].items:
             if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
              print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
             else:
-           ##sys.exit()
-            #print '{}'.format(command_10)
              os.system(command_01)
              os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
              os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
