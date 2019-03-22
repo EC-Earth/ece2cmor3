@@ -1,8 +1,13 @@
 {
-    "Omon": [
-        "zhalfo"
-    ],
-    "Oclim": [
-        "zhalfo"
-    ]
+    "ifs": {},
+    "lpjg": {},
+    "nemo": {
+        "Oclim": [
+            "zhalfo"
+        ],
+        "Omon": [
+            "zhalfo"
+        ]
+    },
+    "tm5": {}
 }
