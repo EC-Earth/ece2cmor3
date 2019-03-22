@@ -15,6 +15,7 @@ if [ "$#" -eq 1 ]; then
 
  file_name=$1
 
+  # Note that the --ececonf argument is omitted here to leave out the preferences:
   ../../scripts/drq2varlist.py --drq ${file_name} --varlist ${file_name}-new;
   mv -f ${file_name}-new ${file_name}
 
