@@ -116,34 +116,32 @@ def add_expr_operators(cdo, task):
     expr = getattr(task.source, cmor_source.expression_key, None)
     if not expr:
         return
-    sides = expr.split('=')
-    if len(sides) != 2:
-        log.error("Could not parse expression %s" % expr)
-        task.set_failed()
-        return
-    regex = "var[0-9]{1,3}"
-    if not re.match(regex, sides[0]):
-        log.error("Could not parse expression %s" % expr)
-        task.set_failed()
-        return
-    new_code = int(sides[0].strip()[3:])
-    if sides[1].startswith("merge(") and sides[1].endswith(")"):
-        arg = sides[1][6:-1]
+    groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
+    if groups is None:
+        lhs = "var" + task.source.get_grib_code().var_id
+        rhs = expr.replace(" ", "")
+    else:
+        lhs = groups.group(0)[:-1]
+        rhs = expr.replace(" ", "")[len(lhs) + 1:]
+    expr = '='.join([lhs, rhs])
+    new_code = int(lhs[3:-1])
+    if rhs.startswith("merge(") and rhs.endswith(")"):
+        arg = rhs[1][6:-1]
         sub_expr_list = arg.split(',')
         if not any(getattr(task.target, "z_dims", [])):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
             sub_expr = sub_expr_list[0].strip()
-            if not re.match(regex, sub_expr):
+            if not re.match("var[0-9]{1,3}", sub_expr):
                 cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(new_code) + "=" + sub_expr)
             else:
                 task.source = cmor_source.ifs_source.read(sub_expr)
-            root_codes = [int(s.strip()[3:]) for s in re.findall(regex, sub_expr)]
+            root_codes = [int(s.strip()[3:]) for s in re.findall("var[0-9]{1,3}", sub_expr)]
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
         else:
             for sub_expr in sub_expr_list:
-                if not re.match(regex, sub_expr):
-                    sub_vars = re.findall(regex, sub_expr)
+                if not re.match("var[0-9]{1,3}", sub_expr):
+                    sub_vars = re.findall("var[0-9]{1,3}", sub_expr)
                     if len(sub_vars) != 1:
                         log.error("Merging expressions of multiple variables per layer is not supported.")
                         continue

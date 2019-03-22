@@ -166,7 +166,6 @@ class ifs_source(cmor_source):
     @classmethod
     def read(cls, s, expr=None):
         global log
-        expr_string = expr
         gc = grib_code.read(s)
         cls = ifs_source(gc)
         if expr is not None:
@@ -174,12 +173,16 @@ class ifs_source(cmor_source):
                 log.error("Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
                           % (expr, str(gc)))
             else:
-                varstrs = re.findall("var[0-9]{1,3}", expr)
-                if expr.replace(" ", "").startswith(varstrs[0] + "="):
+                expr_string = expr.replace(" ", "")
+                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr_string) + re.findall("var[0-9]{6}(?![0-9])",
+                                                                                         expr_string)
+                groups = re.search("^var([0-9]{1,3}|[0-9]{6})\=(?!\=)", expr_string)
+                if groups is not None:
                     log.warning("Ignoring left-hand side assignment in expression %s" % expr)
-                    varstrs = varstrs[1:]
-                else:
-                    expr_string = '='.join(["var" + str(gc.var_id), expr])
+                    varstrs.remove(groups.group(0)[:-1])
+                    expr_string = expr_string[len(groups.group(0)):]
+                expr_string = re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), expr_string)
+                expr_string = '='.join(["var" + str(gc.var_id), expr_string])
                 root_codes = []
                 for varstr in varstrs:
                     code = grib_code.read(varstr)
