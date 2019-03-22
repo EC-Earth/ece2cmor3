@@ -31,6 +31,9 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 nemo_files_ = []
 
+# Nemo bathymetry file
+bathy_file_ = None
+
 # Dictionary of NEMO grid type with cmor grid id.
 grid_ids_ = {}
 
@@ -49,11 +52,16 @@ lat_axes_ = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate):
-    global log, nemo_files_, exp_name_, table_root_, ref_date_
+    global log, nemo_files_, bathy_file_, exp_name_, table_root_, ref_date_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
+    bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(path, "..", "..", "bathy_meter.nc"))
+    if not os.path.isfile(bathy_file_):
+        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed whenever "
+                    "encountered")
+        bathy_file_ = None
     cal = None
     for f in nemo_files_:
         cal = read_calendar(f)
