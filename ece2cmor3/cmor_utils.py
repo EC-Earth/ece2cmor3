@@ -151,6 +151,8 @@ def find_nemo_output(path, expname=None):
 def get_nemo_grid(filepath, expname):
     global log
     f = os.path.basename(filepath)
+    if f == "bathy_meter.nc":
+        return "grid_bathy"
     expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result = re.search(expr, f)
     if not result:
