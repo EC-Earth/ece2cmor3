@@ -319,7 +319,7 @@ def filter_tasks(tasks):
 # Creates extra tasks for surface pressure
 def get_sp_tasks(tasks):
     tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
-                                                          getattr(task.target, "time_operator", "point")))
+                                                          '_'.join(getattr(task.target, "time_operator", ["mean"]))))
     result = []
     for freq, task_group in tasks_by_freq.iteritems():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
@@ -331,9 +331,9 @@ def get_sp_tasks(tasks):
             result.append(surf_pressure_task)
         else:
             source = cmor_source.ifs_source(surface_pressure)
-            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].table))
+            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
-            setattr(surf_pressure_task.target, "time_operator", freq[1])
+            setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
             find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
@@ -558,7 +558,7 @@ def create_time_axes(task):
     if key in time_axis_ids:
         tid = time_axis_ids[key]
     else:
-        time_operator = getattr(task.target, "time_operator", ["point"])
+        time_operator = getattr(task.target, "time_operator", ["mean"])
         log.info("Creating time axis using variable %s..." % task.target.variable)
         tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
                                           name=time_dim, has_bounds=(time_operator != ["point"]))
