@@ -318,22 +318,22 @@ def filter_tasks(tasks):
 
 # Creates extra tasks for surface pressure
 def get_sp_tasks(tasks):
-    tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
+    tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
+                                                          getattr(task.target, "time_operator", "point")))
     result = []
     for freq, task_group in tasks_by_freq.iteritems():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
         if not any(tasks3d):
             continue
-        surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure and
-                               getattr(t, "time_operator", "point") in ["mean", "point"]]
-        surf_pressure_task = surf_pressure_tasks[0] if any(surf_pressure_tasks) else None
-        if surf_pressure_task:
+        surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure]
+        if len(surf_pressure_tasks) > 0:
+            surf_pressure_task = surf_pressure_tasks[0]
             result.append(surf_pressure_task)
         else:
             source = cmor_source.ifs_source(surface_pressure)
-            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", freq))
-            setattr(surf_pressure_task.target, cmor_target.freq_key, freq)
-            setattr(surf_pressure_task.target, "time_operator", ["point"])
+            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].table))
+            setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
+            setattr(surf_pressure_task.target, "time_operator", freq[1])
             find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
@@ -671,7 +671,12 @@ def create_hybrid_level_axis(task):
             else:
                 axes.append(task_grid_id)
         axes.append(getattr(task, "t_axis_id"))
-        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps", axis_ids=axes, units="Pa")
+        zfactor_name = "ps"
+        if "time1" in getattr(task.target, cmor_target.dims_key, []):
+            zfactor_name = "ps1"
+        elif "time2" in getattr(task.target, cmor_target.dims_key, []):
+            zfactor_name = "ps2"
+        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=zfactor_name, axis_ids=axes, units="Pa")
         return axisid, storewith
     finally:
         if ds is not None:
