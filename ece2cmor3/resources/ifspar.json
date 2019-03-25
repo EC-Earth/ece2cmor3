@@ -367,7 +367,6 @@
         "convert": "cum2inst",
         "target": [
           "rsus",
-          "rsuscs",
           "rsusIs"
         ],
         "expr": "var176-var169"
@@ -408,12 +407,6 @@
         "source": "101.129",
         "target": "vt",
         "expr": "var132*var130"
-    },
-    {
-        "source": "102.129",
-        "convert": "cum2inst",
-        "target": "rsdscs",
-        "expr": "var210-var176+var169"
     },
     {
         "source": "103.129",
@@ -543,6 +536,18 @@
         "expr": "var44+var182",
         "convert": "cum2inst",
         "masked": "land"
+    },
+    {
+        "source": "131.129",
+        "convert": "cum2inst",
+        "target": "rsuscs",
+        "expr": "(var176>1e-10)*var210*(1-var169/var176)"
+    },
+    {
+        "source": "132.129",
+        "convert": "cum2inst",
+        "target": "rsdscs",
+        "expr": "(var176<=1e-10)*var210+(var176>1e-10)*var210*var169/var176"
     },
     {
         "mask": "land",

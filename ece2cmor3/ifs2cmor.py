@@ -523,7 +523,7 @@ def get_conversion_constants(conversion, output_frequency):
     if conversion == "pot2alt":
         return 1.0 / 9.81, 0.0
     if conversion == "alt2pot":
-        return 9.81, 0.0
+        return 9.807, 0.0
     if conversion == "vol2flux":
         return 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2massl":
