@@ -9,7 +9,7 @@ from ece2cmor3 import cmor_source, cmor_target, cmor_task, postproc
 logging.basicConfig(level=logging.DEBUG)
 
 
-class ifs2cmor_tests(unittest.TestCase):
+class postproc_tests(unittest.TestCase):
 
     @staticmethod
     def test_postproc_gridmean():

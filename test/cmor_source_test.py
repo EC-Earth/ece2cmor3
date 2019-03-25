@@ -88,8 +88,25 @@ class cmor_source_tests(unittest.TestCase):
         src = ifs_source.read("var129124", "var126094 + var126099 + var126106 + var126110")
         eq_(src.get_grib_code(), grib_code(124, 129))
         eq_(src.get_root_codes(), [grib_code(94, 126), grib_code(99, 126), grib_code(106, 126), grib_code(110, 126)])
-        eq_(getattr(src, "expr"), "var124=var94 + var99 + var106 + var110")
+        eq_(getattr(src, "expr"), "var124=var94+var99+var106+var110")
         eq_(src.grid(), "point")
+        eq_(src.spatial_dims, 3)
+
+    @staticmethod
+    def test_create_from_expr5():
+        src = ifs_source.read("88", "var88=sqrt(sq(var131)+sq(var132))")
+        eq_(src.get_grib_code(), grib_code(88, 128))
+        eq_(src.get_root_codes(), [grib_code(131, 128), grib_code(132, 128)])
+        eq_(getattr(src, "expr"), "var88=sqrt(sq(var131)+sq(var132))")
+        eq_(src.grid(), "spec")
+        eq_(src.spatial_dims, 3)
+
+    @staticmethod
+    def test_create_from_expr6():
+        src = ifs_source.read("88", "(var144==0)*sqrt(sq(var131)+sq(var132))")
+        eq_(src.get_grib_code(), grib_code(88, 128))
+        eq_(src.get_root_codes(), [grib_code(144, 128), grib_code(131, 128), grib_code(132, 128)])
+        eq_(getattr(src, "expr"), "var88=(var144==0)*sqrt(sq(var131)+sq(var132))")
         eq_(src.spatial_dims, 3)
 
     @staticmethod
