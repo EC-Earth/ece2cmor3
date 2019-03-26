@@ -135,9 +135,8 @@ for mip in dq.coll['mip'].items:
              os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
              os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
              os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
-             if mip_name == 'CMIP' and ',' in mip_list:
-              os.system(command_07) # Rename directory names for joint MIPs
-              os.system(command_08) # Rename volume-estimate file for joint MIPs
+             os.system(command_07)  # Rename directory names for joint MIPs
+             os.system(command_08)  # Rename volume-estimate file for joint MIPs
              os.system(command_10)  # Produce the json data request variant, the so called varlist.json
              os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
              experiment_counter = experiment_counter + 1
