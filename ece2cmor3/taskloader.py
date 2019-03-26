@@ -129,8 +129,8 @@ def load_drq(varlist, config=None, check_prefs=True):
             log.warning("Determining preferred model components for variables without target EC-Earth configuration: "
                         "assuming all components should be considered may result in duplicate matches")
         if config not in components.ece_configs.keys():
-            log.warning("Determining preferred model components for variables with unknown target EC-Earth configuration "
-                        "%s: assuming all components should be considered may result in duplicate matches" % config)
+            log.warning("Determining preferred model components for variables with unknown target EC-Earth "
+                        "configuration %s: assuming all components should be considered may result in duplicate matches" % config)
         for model in matches:
             targetlist = matches[model]
             if len(targetlist) > 0:
@@ -161,7 +161,7 @@ def load_drq(varlist, config=None, check_prefs=True):
                     else:
                         choices = [tgts[0]]
                     enabled_targets.extend(choices)
-                matches[model] = enabled_targets
+                matches[model] = [t for t in targetlist if t in enabled_targets]
     omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
     return matches, list(omitted_targets)
 
