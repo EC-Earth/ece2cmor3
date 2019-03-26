@@ -1,6 +1,6 @@
 import logging
 
-from ece2cmor3 import components
+from ece2cmor3 import components, cmor_target
 
 
 def keep_variable(target, model_component, ecearth_config):
@@ -34,3 +34,24 @@ def keep_variable(target, model_component, ecearth_config):
         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
 
     return True
+
+
+def choose_variable(target_list, model_component, ecearth_config):
+    # For IFS, skip variables that have been covered by others
+    if model_component == "ifs":
+        result = []
+        level_sets = map(cmor_target.get_z_axis, target_list)
+        for i in range(len(level_sets)):
+            level_type, levels = level_sets[i][0], set(level_sets[i][1])
+            add_to_list = True
+            for level_type_other, levels_other in level_sets:
+                if level_type == level_type_other and levels.issubset(set(levels_other)) \
+                        and not set(levels_other).issubset(levels):
+                    add_to_list = False
+                    break
+            if add_to_list:
+                result.append(target_list[i])
+        return result
+    return target_list
+
+

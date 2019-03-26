@@ -228,3 +228,15 @@ class taskloader_test(unittest.TestCase):
             eq_(len(matches["nemo"]), 1)
         finally:
             ece2cmorlib.finalize_without_cmor()
+
+
+    @staticmethod
+    def test_use_level_preferences():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            matches, omitted = taskloader.load_drq({"6hrPlevPt": ["ua", "ua7h"]}, check_prefs=False)
+            eq_(len(matches["ifs"]), 2)
+            matches, omitted = taskloader.load_drq({"6hrPlevPt": ["ua", "ua7h"]}, check_prefs=True)
+            eq_(len(matches["ifs"]), 1)
+        finally:
+            ece2cmorlib.finalize_without_cmor()

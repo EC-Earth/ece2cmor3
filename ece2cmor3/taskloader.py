@@ -135,13 +135,32 @@ def load_drq(varlist, config=None, check_prefs=True):
             targetlist = matches[model]
             if len(targetlist) > 0:
                 enabled_targets = []
+                d = {}
                 for t in targetlist:
                     if prefs.keep_variable(t, model, config):
-                        enabled_targets.append(t)
+                        key = '_'.join([getattr(t, "out_name", t.variable), t.table])
+                        if key in d:
+                            d[key].append(t)
+                        else:
+                            d[key] = [t]
                     else:
                         log.info("Dismissing %s target %s within %s configuration due to preference flagging" %
                                  (model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
+                for key, tgts in d.items():
+                    if len(tgts) > 1:
+                        log.warning("Duplicate variables found with output name %s in table %s: %s" %
+                                    (getattr(tgts[0], "out_name", tgts[0].variable), tgts[0].table,
+                                     ','.join([tgt.variable for tgt in tgts])))
+                        choices = prefs.choose_variable(tgts, model, config)
+                        for t in tgts:
+                            if t not in choices:
+                                log.info("Dismissing %s target %s within %s configuration due to preference flagging"
+                                         % (model, str(t), "any" if config is None else config))
+                                setattr(t, "load_status", "dismissed")
+                    else:
+                        choices = [tgts[0]]
+                    enabled_targets.extend(choices)
                 matches[model] = enabled_targets
     omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
     return matches, list(omitted_targets)
