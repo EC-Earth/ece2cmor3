@@ -101,13 +101,20 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo
   echo 'Executing the following job:'
   echo ' '$0 "$@"
+
+  if [ ${experiment} = 'esm-hist' ] || [ ${experiment} = 'esm-piControl' ]; then
+   esm_label=' --esm'
+  else
+   esm_label=''
+  fi
+
   echo
   echo 'First, the CMIP6 data request is applied by:'
-  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   echo
 
   mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
   # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
   # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:

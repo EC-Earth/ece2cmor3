@@ -128,9 +128,6 @@ for mip in dq.coll['mip'].items:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'historical':  # for a faster test
           if ex.tier[0] in experiment_tiers_included:
-            if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
-             print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
-            else:
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)
@@ -179,9 +176,6 @@ for mip in dq.coll['mip'].items:
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'ssp585':      # for a faster test
           if ex.tier[0] in experiment_tiers_included:
-            if ex.label == 'esm-hist' or ex.label == 'esm-piControl':
-             print 'Skipping this esm experiment ' + ex.label + ' because its CMIP6 data request fails so far.\n'
-            else:
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)
