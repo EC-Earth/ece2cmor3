@@ -59,6 +59,15 @@ def initialize(path, expname, tableroot, refdate):
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
     bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
+   #if os.path.isfile(os.path.join("..", "ofx-data", "bathy_meter.nc")):
+   # bathy_dir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
+   #else:
+   # bathy_dir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))                   # To remain backward compatible. This one is a link.
+   #bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(bathy_dir, "bathy_meter.nc"))
+  ##if os.path.isfile("../ofx-data/bathy_meter.nc")):
+  ## bathy_file_ = "../ofx-data/bathy_meter.nc"
+  ##else:
+  ## bathy_file_ = "../../../bathy_meter.nc"   # To remain backward compatible. This one is a link.
     if not os.path.isfile(bathy_file_):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
                     "whenever encountered")
