@@ -2,7 +2,7 @@
 
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
-#  ./drq2varlist.py --drq ../resources/test-data-request/varlist-nemo-all.json                                      --ececonf EC-EARTH-AOGCM
+#  ./drq2varlist.py --drq ../resources/test-data-request/drqlist-nemo-all.json                                      --ececonf dummy
 #
 # This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
 # the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 

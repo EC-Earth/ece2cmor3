@@ -60,9 +60,7 @@
             "areacello",
             "basin",
             "hfgeou",
-            "masscello",
-            "sftof",
-            "thkcello"
+            "sftof"
         ],
         "Omon": [
             "agessc",
