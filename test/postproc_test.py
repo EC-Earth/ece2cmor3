@@ -88,3 +88,14 @@ class postproc_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source, target)
         command = postproc.create_command(task)
         nose.tools.eq_(command.create_command(), "-sp2gpl -daymean -sellevel,50000. -selzaxis,pressure -selcode,135")
+
+    @staticmethod
+    def test_postproc_mrsol():
+        source = cmor_source.ifs_source.read("118.129", "merge(70*var39,210*var40,720*var41,1890*var42)")
+        abspath = test_utils.get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        target = [t for t in targets if t.variable == "mrsol"][0]
+        task = cmor_task.cmor_task(source, target)
+        command = postproc.create_command(task)
+        print command.create_command()
+        nose.tools.ok_("-aexpr" in command.create_command())
