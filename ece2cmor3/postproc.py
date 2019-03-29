@@ -120,7 +120,7 @@ def add_expr_operators(cdo, task):
         lhs = groups.group(0)[:-1]
         rhs = expr.replace(" ", "")[len(lhs) + 1:]
     expr = '='.join([lhs, rhs])
-    new_code = int(lhs[3:-1])
+    new_code = int(lhs[3:])
     if rhs.startswith("merge(") and rhs.endswith(")"):
         arg = rhs[6:-1]
         sub_expr_list = arg.split(',')

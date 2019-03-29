@@ -155,8 +155,8 @@ def execute(tasks, nthreads=1):
         setattr(mask_task, cmor_task.output_frequency_key, 0)
 
     if auto_filter_:
-        tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
-                                                      filter_files=do_post_process(), multi_threaded=(nthreads > 1))
+        tasks_todo = grib_filter.execute(mask_tasks + surf_pressure_tasks + regular_tasks,
+                                         filter_files=do_post_process(), multi_threaded=(nthreads > 1))
     else:
         tasks_todo = mask_tasks
         for task in surf_pressure_tasks + regular_tasks:
@@ -600,6 +600,11 @@ def create_depth_axes(task):
         axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
+    elif z_dim == "sdepth1":
+        log.info("Creating soil depth axis 1 using variable %s..." % task.target.variable)
+        axisid = create_soil_depth_axis(z_dim)
+        depth_axis_ids[key] = axisid
+        setattr(task, "z_axis_id", axisid)
     elif z_dim in cmor_target.get_axis_info(task.target.table):
         axis = cmor_target.get_axis_info(task.target.table)[z_dim]
         levels = axis.get("requested", [])
@@ -686,6 +691,8 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name):
     global log
+    if name == "sdepth1":
+        return cmor.axis(table_entry=name, coord_vals=[0.05], cell_bounds=[0.0, 0.1], units="m")
     # Hard-coded because cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])

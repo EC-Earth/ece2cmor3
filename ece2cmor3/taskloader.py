@@ -486,9 +486,13 @@ def match_variables(targets, model_variables):
                         raise Exception("Invalid model parameter file %s: multiple source found found for target %s "
                                         "in table %s" % (components.models[model][components.table_file],
                                                          target.variable, target.table))
-                    comment_string = model + ' code name = ' + parblock.get(json_source_key, "?")
-                    if cmor_source.expression_key in parblock.keys():
-                        comment_string += ", expression = " + parblock[cmor_source.expression_key]
+                    if parblock.get("table_override", {}).get("table", "") == target.table:
+                        parmatch = parblock["table_override"]
+                    else:
+                        parmatch = parblock
+                    comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
+                    if cmor_source.expression_key in parmatch.keys():
+                        comment_string += ", expression = " + parmatch[cmor_source.expression_key]
                     comment = getattr(target, "ecearth_comment", None)
                     if comment is not None:
                         setattr(target, "ecearth_comment", comment + '|' + comment_string)
@@ -527,6 +531,8 @@ def create_tasks(matches, active_components):
         parblocks = model_vars[model]
         for target in targets:
             parmatch = [b for b in parblocks if matchvarpar(target, b)][0]
+            if parmatch.get("table_override", {}).get("table", "") == target.table:
+                parmatch = parmatch["table_override"]
             task = create_cmor_task(parmatch, target, model)
             if ece2cmorlib.add_task(task):
                 result.append(task)
