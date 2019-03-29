@@ -469,7 +469,13 @@
         "source": "117.129",
         "target": "tsl",
         "expr": "merge(var139,var170,var183,var236)",
-        "masked": "land"
+        "masked": "land",
+        "table_override":
+        {
+            "table": "6hrPlevPt",
+            "source": "139.128",
+            "masked": "land"
+        }
     },
     {
         "source": "118.129",
