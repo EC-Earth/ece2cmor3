@@ -155,8 +155,8 @@ def execute(tasks, nthreads=1):
         setattr(mask_task, cmor_task.output_frequency_key, 0)
 
     if auto_filter_:
-        tasks_todo = grib_filter.execute(mask_tasks + surf_pressure_tasks + regular_tasks,
-                                         filter_files=do_post_process(), multi_threaded=(nthreads > 1))
+        tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
+                                                      filter_files=do_post_process(), multi_threaded=(nthreads > 1))
     else:
         tasks_todo = mask_tasks
         for task in surf_pressure_tasks + regular_tasks:
