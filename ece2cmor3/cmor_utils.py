@@ -283,13 +283,13 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)
             elif timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval), axes=[1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :] + term, None, missval_in, missval),
                                            axes=[1, 0])
             elif timdim == 1:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.full(ncvar.shape[:-1] + (1,), missval)
                 else:
                     vals = apply_mask(factor * ncvar[:, time_slice] + term, None, missval_in, missval)
         elif ndims == 3:
@@ -298,7 +298,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                                        axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :] + term, mask,
                                                       missval_in, missval),
@@ -307,7 +308,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, time_slice] + term, None, missval_in,
                                                       missval),
@@ -318,7 +320,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         elif ndims == 4:
             if timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :] + term, mask, missval_in,
                                                       missval),
@@ -327,7 +330,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, time_slice] + term, mask, missval_in,
                                                       missval),
@@ -338,7 +342,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         elif ndims == 5:
             if timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[4, 3, 2, 1, 0] if swaplatlon else [3, 4, 2, 1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :, :] + term, mask, missval_in,
                                                       missval),
@@ -347,7 +352,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2, 3, 4] if swaplatlon else [0, 1, 2, 3, 4])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, :, time_slice] + term, mask, missval_in,
                                                       missval),

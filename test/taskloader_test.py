@@ -3,7 +3,7 @@ import os
 import json
 import logging
 import unittest
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from ece2cmor3 import taskloader, ece2cmorlib, cmor_source, cmor_task, cmor_target
 
@@ -248,5 +248,20 @@ class taskloader_test(unittest.TestCase):
             eq_(len(matches["ifs"]), 2)
             matches, omitted = taskloader.load_drq({"6hrPlevPt": ["zg7h", "zg27"]}, check_prefs=True)
             eq_(len(matches["ifs"]), 1)
+        finally:
+            ece2cmorlib.finalize_without_cmor()
+
+
+    @staticmethod
+    def test_load_mrsol_table_override():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            tasks = taskloader.load_tasks_from_drq({"6hrPlevPt": ["mrsol"], "Emon": ["mrsol"]})
+            eq_(len(tasks), 2)
+            for t in tasks:
+                if t.target.table == "6hrPlevPt":
+                    ok_("70*var39+30*var40" in getattr(t.source, "expr"))
+                else:
+                    ok_("merge" in getattr(t.source, "expr"))
         finally:
             ece2cmorlib.finalize_without_cmor()
