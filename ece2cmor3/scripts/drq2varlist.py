@@ -77,6 +77,7 @@ def main():
                 result[model][table] = [target.variable]
     with open(args.varlist, 'w') as ofile:
         json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
+        ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
 
 
 if __name__ == "__main__":
