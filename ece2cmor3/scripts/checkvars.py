@@ -23,6 +23,7 @@ def write_varlist(targets, opath):
     tgtdict = {k: [t.variable for t in tgtgroups[k]] for k in tgtgroups.keys()}
     with open(opath, 'w') as ofile:
         json.dump(tgtdict, ofile, indent=4, separators=(',', ': '))
+        ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
 
 
 def write_varlist_ascii(targets, opath):
