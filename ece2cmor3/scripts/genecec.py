@@ -34,9 +34,9 @@ ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DC
 experiment_counter = 0
 
 
-# The list of MIPs for each of the eight EC-Earth3 model configurations in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
+# The list of MIPs for each of the eight EC-Earth3 model configurations which run CMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
 # for each of the EC-Earth3 model configurations:
-dictionary = {
+cmip_ece_configurations = {
  'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB',
  'EC-EARTH-HR'      : 'CMIP,DCPP,HighResMIP',
  'EC-EARTH-LR'      : 'CMIP,PMIP',
@@ -48,8 +48,21 @@ dictionary = {
 }
 
 # Some test cases:
-##dictionary = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB'}
-##dictionary = {'dummy':'dummy'}
+##cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB'}
+##cmip_ece_configurations = {'dummy':'dummy'}
+
+# The list of MIPs for each of the four EC-Earth3 model configurations which run ScenarioMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
+# for each of the EC-Earth3 model configurations:
+scenario_ece_configurations = {
+ 'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB',
+ 'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,ScenarioMIP',
+ 'EC-EARTH-Veg'     : 'CMIP,LUMIP,LS3MIP,ScenarioMIP',
+ 'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
+}
+
+# Some test cases:
+##scenario_ece_configurations = {'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB'}
+##scenario_ece_configurations = {'dummy':'dummy'}
 
 
 # Define a dictionary which lists/maps for each MIP which EC-Earth3 model configurations are used to run the MIP:
@@ -77,8 +90,11 @@ ece_conf_mip_map = {
 
 
 # Or instead of an (alphabetic) sorted dictionary an ordered dictionary could be used.
-for model_configuration in sorted(dictionary.keys()):
- print ' {:20}   {}'.format(model_configuration, dictionary[model_configuration])
+##for model_configuration in sorted(cmip_ece_configurations.keys()):
+## print ' {:20}   {}'.format(model_configuration, cmip_ece_configurations[model_configuration])
+##for model_configuration in sorted(scenario_ece_configurations.keys()):
+## print ' {:20}   {}'.format(model_configuration, scenario_ece_configurations[model_configuration])
+##sys.exit()
 
 
 command_00 = 'rm -rf cmip6-output-control-files'
@@ -90,8 +106,8 @@ for mip in dq.coll['mip'].items:
   print '\n Starting to work on: ', mip_name, '\n'
 
   if mip_name == 'CMIP':
-   for model_configuration in sorted(dictionary.keys()):
-     mip_list         = dictionary[model_configuration]
+   for model_configuration in sorted(cmip_ece_configurations.keys()):
+     mip_list         = cmip_ece_configurations[model_configuration]
      mip_label        = mip_list.replace(",", ".")      # Convert the comma separated list into a dot separated list because this is what comes out from genecec-per-mip-experiment.sh
      multiplemips     = "." in mip_label
      select_substring = mip_label[0:2].lower()
