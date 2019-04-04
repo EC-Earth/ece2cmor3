@@ -105,9 +105,18 @@ for mip in dq.coll['mip'].items:
   mip_name  = mip.label
   print '\n Starting to work on: ', mip_name, '\n'
 
+ #if mip_name == 'CMIP' or mip_name == 'ScenarioMIP':
   if mip_name == 'CMIP':
-   for model_configuration in sorted(cmip_ece_configurations.keys()):
-     mip_list         = cmip_ece_configurations[model_configuration]
+   if mip_name == 'CMIP':
+    ece_configurations = cmip_ece_configurations
+   elif mip_name == 'ScenarioMIP':
+    ece_configurations = scenario_ece_configurations
+   else:
+    print '\n Aborting genecec: programmer error: no case for: ', mip_name, ' in joined MIP treatment.\n'
+    sys.exit()
+
+   for model_configuration in sorted(ece_configurations.keys()):
+     mip_list         = ece_configurations[model_configuration]
      mip_label        = mip_list.replace(",", ".")      # Convert the comma separated list into a dot separated list because this is what comes out from genecec-per-mip-experiment.sh
      multiplemips     = "." in mip_label
      select_substring = mip_label[0:2].lower()
