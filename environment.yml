@@ -23,7 +23,7 @@ channels:
 - defaults
 dependencies:
 - cmor=3.4.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
-- cdo=1.9.5
+- cdo=1.9.6
 - pyngl
 - python-cdo
 - python-eccodes
