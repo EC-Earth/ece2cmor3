@@ -61,7 +61,7 @@ scenario_ece_configurations = {
 }
 
 # Some test cases:
-##scenario_ece_configurations = {'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB'}
+##scenario_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB'}
 ##scenario_ece_configurations = {'dummy':'dummy'}
 
 
@@ -152,6 +152,7 @@ for mip in dq.coll['mip'].items:
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'historical':  # for a faster test
+         #if ex.tier[0] in experiment_tiers_included and ex.label == 'ssp585':      # for a faster test
           if ex.tier[0] in experiment_tiers_included:
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
