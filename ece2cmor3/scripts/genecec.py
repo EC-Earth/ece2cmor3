@@ -144,10 +144,10 @@ for mip in dq.coll['mip'].items:
        command_03 = 'rm -f  cmip6-output-control-files/' + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
        command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
        command_05 = "sed -i -e '/deptho/d' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-       command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
-       command_07 = '      mv cmip6-output-control-files/' + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
-       command_08 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-       command_09 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
+       command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo*'
+       command_07 = 'mkdir -p cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv cmip6-output-control-files/' + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + ' cmip6-output-control-files/' + mip_label
+       command_08 = '      mv cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
+       command_09 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=' + mip_label + '-e=' + ex.label + '-t=' + str(ex.tier[0]) + '-p=' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist cmip6-output-control-files/' + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
@@ -162,9 +162,9 @@ for mip in dq.coll['mip'].items:
              os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
              os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
              os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
-             os.system(command_07)  # Rename volume-estimate file for joint MIPs
-             os.system(command_08)  # Produce the json data request variant, the so called varlist.json
-             os.system(command_09)  # Rename directory names for joint MIPs
+             os.system(command_07)  # Rename directory names for joint MIPs
+             os.system(command_08)  # Rename volume-estimate file for joint MIPs
+             os.system(command_09)  # Produce the json data request variant, the so called varlist.json
              experiment_counter = experiment_counter + 1
           else:
              print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
