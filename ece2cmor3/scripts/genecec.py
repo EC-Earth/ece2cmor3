@@ -105,8 +105,7 @@ for mip in dq.coll['mip'].items:
   mip_name  = mip.label
   print '\n Starting to work on: ', mip_name, '\n'
 
- #if mip_name == 'CMIP' or mip_name == 'ScenarioMIP':
-  if mip_name == 'CMIP':
+  if mip_name == 'CMIP' or mip_name == 'ScenarioMIP':
    if mip_name == 'CMIP':
     ece_configurations = cmip_ece_configurations
    elif mip_name == 'ScenarioMIP':
@@ -199,7 +198,6 @@ for mip in dq.coll['mip'].items:
        command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
-         #if ex.tier[0] in experiment_tiers_included and ex.label == 'ssp585':      # for a faster test
           if ex.tier[0] in experiment_tiers_included:
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
