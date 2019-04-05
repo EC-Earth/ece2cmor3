@@ -58,10 +58,10 @@ from os.path import expanduser
 #ping_file_name_seaIce          = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_seaIce_DR1.00.27.xml"
 #ping_file_name_ocnBgchem       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_ocnBgChem_DR1.00.27.xml"
 #field_def_file_directory       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
-ping_file_name_ocean           = expanduser("~")+"/ec-earth-3.3.0/branch-r6467-control-output-files/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml"
-ping_file_name_seaIce          = expanduser("~")+"/ec-earth-3.3.0/branch-r6467-control-output-files/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml"
-ping_file_name_ocnBgchem       = expanduser("~")+"/ec-earth-3.3.0/branch-r6467-control-output-files/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml"
-field_def_file_directory       = expanduser("~")+"/ec-earth-3.3.0/branch-r6467-control-output-files/runtime/classic/ctrl/"
+ping_file_name_ocean           = expanduser("~")+"/ec-earth-3.3.0/branch-r6705-control-output-files/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml"
+ping_file_name_seaIce          = expanduser("~")+"/ec-earth-3.3.0/branch-r6705-control-output-files/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml"
+ping_file_name_ocnBgchem       = expanduser("~")+"/ec-earth-3.3.0/branch-r6705-control-output-files/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml"
+field_def_file_directory       = expanduser("~")+"/ec-earth-3.3.0/branch-r6705-control-output-files/runtime/classic/ctrl/"
 #ping_file_name_ocean           = expanduser("~")+"/ec-earth-3.3.0/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml"
 #ping_file_name_seaIce          = expanduser("~")+"/ec-earth-3.3.0/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml"
 #ping_file_name_ocnBgchem       = expanduser("~")+"/ec-earth-3.3.0/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml"
@@ -92,7 +92,6 @@ include_grid_ref_from_field_def_files = True
 #include_grid_ref_from_field_def_files = False
 
 produce_varlistjson_file = True
-produce_varlistjson_file = False
 
 produce_nemopar_json = True
 produce_nemopar_json = False
@@ -743,10 +742,11 @@ flat_nemo_file_def_xml_file.close()
 ###################################    6     ###################################
 ################################################################################
 if produce_varlistjson_file:
- varlistjson_file_name = 'varlist-nemo-all.json'
+ drqlistjson_file_name = '../resources/test-data-request/drqlist-nemo-all.json'
+ varlistjson_file_name = '../resources/test-data-request/varlist-nemo-all.json'
 
- varlistjson = open(varlistjson_file_name,'w')
- varlistjson.write('{}{}'.format('{','\n'))
+ drqlistjson = open(drqlistjson_file_name,'w')
+ drqlistjson.write('{}{}'.format('{','\n'))
 
  previous_table = 'no'
 
@@ -763,24 +763,27 @@ if produce_varlistjson_file:
   if not dr_varname[i] == "":
    if dr_table[i] != previous_table:
     if previous_table != 'no':
-     varlistjson.write('    ],{}'.format('\n'))
-    varlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
+     drqlistjson.write('    ],{}'.format('\n'))
+    drqlistjson.write('    {}{}'.format('"'+dr_table[i]+'": [', '\n'))
    if ending_status:
-    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
+    drqlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
    else:
-    varlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
-  #varlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
+    drqlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
+  #drqlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
    previous_table = dr_table[i]
 
- varlistjson.write('    ]{}'.format('\n'))
- varlistjson.write('{}{}'.format('}','\n'))
- varlistjson.close()
+ drqlistjson.write('    ]{}'.format('\n'))
+ drqlistjson.write('{}{}'.format('}','\n'))
+ drqlistjson.close()
 
  # Removing the variable deptho as lomg it can not be cmorized, see #249:
- command = "sed -i '/deptho/d' " + varlistjson_file_name
- os.system(command)
+ command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
+ command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name  # Note that the --ececonf argument is omitted here to leave out the preferences
+ os.system(command_1)
+ os.system(command_2)
 
- print ' \n The produced', varlistjson_file_name, ' file contains', i, 'variables.'
+ print ' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.'
+ print ' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'
 
 ################################################################################
 ###################################    7     ###################################

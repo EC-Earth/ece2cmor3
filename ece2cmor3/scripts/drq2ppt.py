@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
 #
 # With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
 # the IFS Fortran namelists (the ppt files) for one MIP experiment.
@@ -10,8 +10,10 @@
 # which is part of ece2cmor3.
 #
 # Note that this script is called by the script:
-#  generate-ec-earth-namelists.sh
+#  genecec-per-mip-experiment.sh
 #
+import sys
+import os
 
 import argparse
 import logging
@@ -264,32 +266,50 @@ def write_ppt_files(tasks):
     volume_estimate.close()
 
 
-
 # Main program
 def main():
     parser = argparse.ArgumentParser(description="Create IFS ppt files for given data request")
-    parser.add_argument("--vars", metavar="FILE", type=str, required=True,
-                        help="File (json|f90 namelist|xlsx) containing cmor variables (Required)")
+    varsarg = parser.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
+                         help="File (json) containing cmor variables per EC-Earth component")
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
+                         help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
 
     args = parser.parse_args()
-    
+
     print ""
     print "Running drq2ppt.py with:"
-    print " ./drq2ppt.py --vars " + args.vars
+    print " ./drq2ppt.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
     print ""
+
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting drq2ppt.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting drq2ppt.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
     # Load only atmosphere variables as task targets:
-    active_components = {component: False for component in components.models}
-    active_components["ifs"] = True
-    taskloader.load_targets(args.vars, active_components=active_components)
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=["ifs"])
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], check_prefs=False)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting drq2ppt.')
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

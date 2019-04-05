@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 
-from ece2cmor3 import ece2cmorlib, taskloader, components, __version__, cmor_target
+from ece2cmor3 import ece2cmorlib, taskloader, components, __version__, cmor_target, cmor_utils
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -27,20 +27,22 @@ def main(args=None):
 
     parser.add_argument("datadir", metavar="DIR", type=str, help="EC-Earth data directory, i.e. for a given component, "
                                                                  "for a given leg")
-    required.add_argument("--vars", metavar="FILE", type=str, required=True,
-                        help="File (json|f90 namelist|xlsx) containing cmor variables")
-    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
+    varsarg = required.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
+                         help="File (json) containing cmor variables grouped per table, grouped per EC-Earth component")
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
+                         help="File (json|f90 namelist|xlsx) containing cmor variables, grouped per table")
+    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
+    cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
+    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+                        help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for "
                                                                         "IFS cmorization")
-    # Add component flags
-    for model in components.models:
-        parser.add_argument("--" + model, action="store_true", default=False,
-                            help="Run ece2cmor3 exclusively for %s data" % model)
     parser.add_argument("--log", action="store_true", default=False, help="Write to log file")
     parser.add_argument("--flatdir", action="store_true", default=False, help="Do not create sub-directories in "
                                                                                     "output folder")
@@ -63,15 +65,7 @@ def main(args=None):
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--atm", action="store_true", default=False, help="Deprecated! Use --ifs instead")
     parser.add_argument("--oce", action="store_true", default=False, help="Deprecated! Use --nemo instead")
-
-    model_tabfile_attributes = {}
-    for c in components.models:
-        tabfile = components.models[c].get(components.table_file, "")
-        if tabfile:
-            option = os.path.basename(tabfile)
-            model_tabfile_attributes[c] = option
-            parser.add_argument("--" + option, metavar="FILE.json", type=str, default=tabfile,
-                                help="%s variable table (optional)" % c)
+    cmor_utils.ScriptUtils.add_model_tabfile_options(parser)
 
     args = parser.parse_args()
 
@@ -90,8 +84,12 @@ def main(args=None):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
         sys.exit(' Exiting ece2cmor.')
 
-    if not os.path.isfile(args.vars):
-        log.fatal("Your data request file %s cannot be found." % args.vars)
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting ece2cmor.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting ece2cmor.')
 
     if not os.path.isfile(args.conf):
@@ -106,29 +104,7 @@ def main(args=None):
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
 
-    # Fix exclusive run flags: if none are used, we cmorize for all components
-    model_active_flags = dict.fromkeys(components.models, False)
-    for model in components.models:
-        model_active_flags[model] = getattr(args, model, False)
-
-    # Correct for deprecated --atm and --oce flags
-    if args.atm:
-        log.warning("Deprecated flag --atm used, use --ifs instead!")
-        model_active_flags["ifs"] = True
-    if args.oce:
-        log.warning("Deprecated flag --oce used, use --nemo instead!")
-        model_active_flags["nemo"] = True
-
-    # If no flag was found, activate all components
-    if not any(model_active_flags.values()):
-        model_active_flags = dict.fromkeys(model_active_flags, True)
-
-    # Load the variables as task targets:
-    for model in model_tabfile_attributes:
-        tabfile_attribute = model_tabfile_attributes[model]
-        attribute_value = getattr(args, tabfile_attribute, None)
-        if attribute_value is not None:
-            components.models[model][components.table_file] = attribute_value
+    active_components = cmor_utils.ScriptUtils.get_active_components(args, args.ececonf)
 
     filters = None
     if args.skip_alevel_vars:
@@ -136,28 +112,38 @@ def main(args=None):
             zaxis, levs = cmor_target.get_z_axis(target)
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
-
-    taskloader.load_targets(args.vars, model_active_flags, target_filters=filters)
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
+                                  check_duplicates=True)
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters,
+                                           check_prefs=True)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting ece2cmor.')
 
     refdate = datetime.datetime.combine(dateutil.parser.parse(args.refd), datetime.datetime.min.time())
 
-    if model_active_flags["ifs"]:
-        # Execute the atmosphere cmorization:
+    if "ifs" in active_components:
         ece2cmorlib.perform_ifs_tasks(args.datadir, args.exp,
                                       refdate=refdate,
                                       tempdir=args.tmpdir,
                                       taskthreads=args.npp,
                                       cdothreads=args.ncdo)
-    if model_active_flags["nemo"]:
+    if "nemo" in active_components:
         ece2cmorlib.perform_nemo_tasks(args.datadir, args.exp, refdate)
 
-    if model_active_flags["lpjg"]:
+    if "lpjg" in active_components:
         ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, refdate)
-    if model_active_flags["tm5"]:
+    if "tm5" in active_components:
         refdate = dateutil.parser.parse(args.refd) if args.refd else None
         ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, refdate)
 
-#   if procNEWCOMPONENT:
+#   if procNEWCOMPONENT in active_components:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, refdate)
 
     ece2cmorlib.finalize()
