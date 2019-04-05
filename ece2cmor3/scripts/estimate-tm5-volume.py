@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
-#  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
+#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
+#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
 #
 # This script estimates the volume of the output from TM5 for one MIP experiment.
 #
@@ -11,18 +11,15 @@
 # which is part of ece2cmor3.
 #
 # Note that this script is called by the script:
-#  generate-ec-earth-namelists.sh
+#  genecec-per-mip-experiment.sh
 #
+import os
+import sys
 
-import xml.etree.ElementTree as xmltree
-import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
-import sys                                                    # for aborting: sys.exit
-from os.path import expanduser
 import argparse
 import logging
 
-from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
-
+from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils
 
 # Logging configuration
 logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
@@ -35,9 +32,13 @@ log = logging.getLogger(__name__)
 
 # Main program
 def main():
-    parser = argparse.ArgumentParser(description="Estimates the volume of the output from TM5 for a given CMIP6 data request for EC-Earth3")
-    parser.add_argument("--vars", metavar="FILE", type=str, required=True,
-                        help="File (json|f90 namelist|xlsx) containing cmor variables (Required)")
+    parser = argparse.ArgumentParser(description="Estimates the volume of the output from TM5 for a given CMIP6 data "
+                                                 "request for EC-Earth3")
+    varsarg = parser.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--vars", metavar="FILE", type=str,
+                         help="File (json) containing cmor variables per EC-Earth component")
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
+                         help="File (json|f90 namelist|xlsx) containing cmor variables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
@@ -47,18 +48,34 @@ def main():
 
     print ""
     print "Running estimate-tm5-volume.py with:"
-    print "./estimate-tm5-volume.py --vars " + args.vars
+    print "./estimate-tm5-volume.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
     print ""
+
+    if args.vars is not None and not os.path.isfile(args.vars):
+        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        sys.exit(' Exiting estimate-tm5-volume.')
+
+    if args.drq is not None and not os.path.isfile(args.drq):
+        log.fatal("Your data request file %s cannot be found." % args.drq)
+        sys.exit(' Exiting estimate-tm5-volume.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
                                         tableprefix=args.tabid)
 
     # Load only TM5 variables as task targets:
-    active_components = {component: False for component in components.models}
-    active_components["tm5"] = True
-    taskloader.load_targets(args.vars, active_components=active_components)
-    
+    try:
+        if getattr(args, "vars", None) is not None:
+            taskloader.load_tasks(args.vars, active_components=["tm5"])
+        else:
+            taskloader.load_tasks_from_drq(args.drq, active_components=["tm5"], check_prefs=False)
+    except taskloader.SwapDrqAndVarListException as e:
+        log.error(e.message)
+        opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
+        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
+                  % (opt1, opt2))
+        sys.exit(' Exiting estimate-tm5-volume.')
+
     for task in ece2cmorlib.tasks:
          print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
         #print task.target.__dict__

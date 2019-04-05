@@ -140,13 +140,16 @@ def add_task(tsk):
     if isinstance(tsk, cmor_task.cmor_task):
         if tsk.target not in targets:
             log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
-            return
+            return False
         duptasks = [t for t in tasks if t.target is tsk.target]
         if len(duptasks) != 0:
+            log.warning("Replacing task producing %s" % str(tsk.target))
             tasks.remove(duptasks[0])
         tasks.append(tsk)
     else:
         log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
+        return False
+    return True
 
 
 # Adds a mask
@@ -167,6 +170,8 @@ def perform_ifs_tasks(datadir, expname,
     validate_run_settings(datadir, expname)
     ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
     log.info("Selected %d IFS tasks from %d input tasks" % (len(ifs_tasks), len(tasks)))
+    if len(ifs_tasks) == 0:
+        return
     tableroot = os.path.join(table_dir, prefix)
     if enable_masks:
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}

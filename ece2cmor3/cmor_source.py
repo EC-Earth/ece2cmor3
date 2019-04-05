@@ -177,21 +177,16 @@ class ifs_source(cmor_source):
                 log.error("Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
                           % (expr, str(gc)))
             else:
-                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr) + re.findall("var[0-9]{6}(?![0-9])", expr)
-
-                def fix_6_digits(e):
-                    return re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), e)
-
-                sides = expr.replace(" ", "").split('=')
-                if len(sides) == 1:
-                    expr_string = '='.join(["var" + str(gc.var_id), fix_6_digits(expr)])
-                elif sides[0] in varstrs:
+                expr_string = expr.replace(" ", "")
+                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr_string) + re.findall("var[0-9]{6}(?![0-9])",
+                                                                                         expr_string)
+                groups = re.search("^var([0-9]{1,3}|[0-9]{6})\=(?!\=)", expr_string)
+                if groups is not None:
                     log.warning("Ignoring left-hand side assignment in expression %s" % expr)
-                    varstrs.remove(sides[0])
-                    expr_string = '='.join(["var" + str(gc.var_id), fix_6_digits(sides[-1])])
-                else:
-                    log.error("Could not parse diagnostic expression %s" % expr)
-                    return cls
+                    varstrs.remove(groups.group(0)[:-1])
+                    expr_string = expr_string[len(groups.group(0)):]
+                expr_string = re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), expr_string)
+                expr_string = '='.join(["var" + str(gc.var_id), expr_string])
                 root_codes = []
                 for varstr in varstrs:
                     code = grib_code.read(varstr)

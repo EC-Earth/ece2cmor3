@@ -16,6 +16,8 @@ import os
 import re
 
 # Log object
+from ece2cmor3 import components
+
 log = logging.getLogger(__name__)
 
 
@@ -149,6 +151,8 @@ def find_nemo_output(path, expname=None):
 def get_nemo_grid(filepath, expname):
     global log
     f = os.path.basename(filepath)
+    if f == "bathy_meter.nc":
+        return "grid_bathy"
     expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result = re.search(expr, f)
     if not result:
@@ -284,13 +288,13 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)
             elif timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval), axes=[1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :] + term, None, missval_in, missval),
                                            axes=[1, 0])
             elif timdim == 1:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.full(ncvar.shape[:-1] + (1,), missval)
                 else:
                     vals = apply_mask(factor * ncvar[:, time_slice] + term, None, missval_in, missval)
         elif ndims == 3:
@@ -299,7 +303,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                                        axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :] + term, mask,
                                                       missval_in, missval),
@@ -308,7 +313,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, time_slice] + term, None, missval_in,
                                                       missval),
@@ -319,7 +325,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         elif ndims == 4:
             if timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :] + term, mask, missval_in,
                                                       missval),
@@ -328,7 +335,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, time_slice] + term, mask, missval_in,
                                                       missval),
@@ -339,7 +347,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         elif ndims == 5:
             if timdim == 0:
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[1:], missval)
+                    vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
+                                           axes=[4, 3, 2, 1, 0] if swaplatlon else [3, 4, 2, 1, 0])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :, :] + term, mask, missval_in,
                                                       missval),
@@ -348,7 +357,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                 if mask is not None:
                     log.error("Masking column-major stored arrays is not implemented yet...ignoring mask")
                 if time_slice is None:
-                    vals = numpy.full(ncvar.shape[:-1], missval)
+                    vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
+                                           axes=[1, 0, 2, 3, 4] if swaplatlon else [0, 1, 2, 3, 4])
                 else:
                     vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, :, time_slice] + term, mask, missval_in,
                                                       missval),
@@ -386,3 +396,59 @@ def apply_mask(array, mask, missval_in, missval_out):
     elif missval_in != missval_out:
         array[array == missval_in] = missval_out
     return array
+
+
+class ScriptUtils:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def add_model_exclusive_options(parser, scriptname=""):
+        for model in components.models:
+            parser.add_argument("--" + model, action="store_true", default=False,
+                                help="Run %s exclusively for %s data" % (scriptname, model))
+
+    @staticmethod
+    def add_model_tabfile_options(parser):
+        model_tabfile_attributes = {}
+        for c in components.models:
+            tabfile = components.models[c].get(components.table_file, "")
+            if tabfile:
+                option = os.path.basename(tabfile)
+                model_tabfile_attributes[c] = option
+                parser.add_argument("--" + option, metavar="FILE.json", type=str, default=tabfile,
+                                    help="%s variable table (optional)" % c)
+
+    @staticmethod
+    def get_active_components(args, conf=None):
+        result = set()
+        for model in components.models:
+            if getattr(args, model, False):
+                result.add(model)
+        # Correct for deprecated --atm and --oce flags
+        if getattr(args, "atm", False):
+            log.warning("Deprecated flag --atm used, use --ifs instead!")
+            result.add("ifs")
+        if getattr(args, "oce", False):
+            log.warning("Deprecated flag --oce used, use --nemo instead!")
+            result.add("nemo")
+
+        result = list(result)
+        # If no flag was found, activate all components in configuration
+        if len(result) == 0:
+            return components.ece_configs.get(conf, components.models.keys())
+        return result
+
+    @staticmethod
+    def get_drq_vars_options(args):
+        opts = []
+        if getattr(args, "drq", None) is not None:
+            opts.extend(["--drq", args.drq])
+        if getattr(args, "vars", None) is not None:
+            opts.extend(["--vars", args.vars])
+        if getattr(args, "ececonf", None) is not None:
+            opts.extend(["--ececonf", args.ececonf])
+        if getattr(args, "varlist", None) is not None:
+            opts.extend(["--varlist", args.varlist])
+        return " ".join(opts)
