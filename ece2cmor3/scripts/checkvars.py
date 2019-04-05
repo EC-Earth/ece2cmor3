@@ -24,6 +24,7 @@ def write_varlist(targets, opath):
     with open(opath, 'w') as ofile:
         json.dump(tgtdict, ofile, indent=4, separators=(',', ': '))
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
+        ofile.close()
 
 
 def write_varlist_ascii(targets, opath):

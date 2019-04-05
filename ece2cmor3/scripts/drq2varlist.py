@@ -78,6 +78,7 @@ def main():
     with open(args.varlist, 'w') as ofile:
         json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
+        ofile.close()
 
 
 if __name__ == "__main__":
