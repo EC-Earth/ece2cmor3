@@ -74,27 +74,3 @@ mip_list_file.close()
 print 'Number of MIPs is: {:3} and the number of MIP experiments is: {}'.format(mip_counter, experiment_counter)
 
 print '\nThe file ', mip_list_file_name, ' has been created.\n'
-
-print 'THOMAS:'
-print dq.coll['mip'       ].__dict__.values(), '\n'
-#print dq.coll['experiment'].__dict__.values(), '\n'
-print dq.coll['mip'       ].__dict__.keys(), '\n'
-print dq.coll['experiment'].__dict__.keys(), '\n'
-print dir(dq.coll['mip']), '\n'
-print dir(dq.coll['experiment']), '\n'
-print dir(dq.coll['mip'].items), '\n'
-print dir(dq.coll['experiment'].items), '\n'
-print dir(dq.coll['mip'       ].items.index), '\n'
-print dir(dq.coll['experiment'].items.index), '\n'
-
-
-class Foo(object):
-    def __init__(self):
-        self.a = 1
-        self.b = 2
-
-print vars(Foo()) #==> {'a': 1, 'b': 2}
-print vars(Foo()).keys() #==> ['a', 'b']
-
-#print vars(dq.coll['experiment'])
-print vars(dq.coll['experiment']).keys()
