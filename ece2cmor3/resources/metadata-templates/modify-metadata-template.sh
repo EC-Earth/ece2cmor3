@@ -7,11 +7,10 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the ec-earth model configuration
 # ${4} the fourth  argument is the meta data template json file which is used as input, the file: resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
-# ${5} the fifth   argument is the component, e.g.: ifs, nemo, tm5, or lpjg.
 #
 #
 # Run example:
-#  rm -rf metadata*; ./modify-metadata-template.sh CMIP piControl EC-EARTH-HR cmip6-CMIP-piControl-metadata-template.json ifs; diff metadata-* cmip6-CMIP-piControl-metadata-template.json
+#  ./modify-metadata-template.sh CMIP piControl EC-EARTH-CC cmip6-CMIP-piControl-metadata-template.json
 #
 # With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment.
 #
@@ -21,30 +20,16 @@
 # Note that this script is called in a loop over the MIP experiments by the script:
 #  genecec.py
 
-if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
-#if [ "$#" -eq 5 ]; then
+if [ "$#" -eq 4 ]; then
  mip=$1
  experiment=$2
  ececonf=$3
  input_template=$4
- component=$5
- 
- echo
- echo ' Running ' $0 'by:'
- echo ' ' $0 ${mip} ${experiment} ${ececonf} ${input_template}
- echo
 
 
  if [ "${ececonf}" != 'EC-EARTH-AOGCM' ] && [ "${ececonf}" != 'EC-EARTH-HR' ] && [ "${ececonf}" != 'EC-EARTH-LR' ] && [ "${ececonf}" != 'EC-EARTH-CC' ] && [ "${ececonf}" != 'EC-EARTH-GrisIS' ] && [ "${ececonf}" != 'EC-EARTH-AerChem' ] && [ "${ececonf}" != 'EC-EARTH-Veg' ] && [ "${ececonf}" != 'EC-EARTH-Veg-LR' ]; then
   echo ' Error in ' $0 ': unkown ec-earth configuration: '  ${ececonf}
   exit
- fi
-
- if [ "$#" -eq 5 ]; then
-  if [ "${component}" != 'ifs' ] && [ "${component}" != 'nemo' ] && [ "${component}" != 'tm5' ] && [ "${component}" != 'lpjg' ] ]; then
-   echo ' Error in ' $0 ': unkown ec-earth component: '  ${component} '  Valid options: ifs, nemo, tm5, or lpjg'
-   exit
-  fi
  fi
 
  if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a model_components=('ifs' 'nemo'             ); fi
@@ -78,44 +63,42 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  # IFS  T511   T255   T159       ORCA1            ORCA0.25                TM5       LPJG=IFS
  #      40 km  80 km  125 km     0.67 * 111 km    0.25 * 0.67 * 111 km
 
+ echo
  for i in "${model_components[@]}"
  do
-    echo ' Running for: ' "$i"
+    component="$i"
+
+    echo ' Running ' $0 ${mip} ${experiment} ${ececonf} ${input_template} '  for ' ${component}
+
+    if [ "${component}" != 'ifs' ] && [ "${component}" != 'nemo' ] && [ "${component}" != 'tm5' ] && [ "${component}" != 'lpjg' ]; then
+     echo ' Error in ' $0 ': unkown ec-earth component: '  ${component} '  Valid options: ifs, nemo, tm5, or lpjg'
+     exit
+    fi
+
+    if [ "${component}" = 'ifs' ]; then
+     grid_label='gr'
+    elif [ "${component}" = 'nemo' ]; then
+     grid_label='gn'
+    elif [ "${component}" = 'tm5' ]; then
+     grid_label='gn'
+    elif [ "${component}" = 'lpjg' ]; then
+     grid_label='gr'
+    fi
+
+    output_template=metadata-cmip6-${mip}-${experiment}-${ececonf}-${component}-template.json
+
+    # Creating and adjusting with sed the output meta data template json file:
+    sed    's/"activity_id":                  "CMIP"/"activity_id":                  "'${mip}'"/' ${input_template} >       ${output_template}
+    sed -i 's/"experiment_id":                "piControl"/"experiment_id":                "'${experiment}'"/'               ${output_template}
+    sed -i 's/"source_id":                    "EC-Earth3"/"source_id":                    "'${ece_res[0]}'"/'               ${output_template}
+    sed -i 's/"source":                       "EC-Earth3 (2019)"/"source":                       "'${ece_res[0]}'" (2019)/' ${output_template}  # The 2019 is correct as long no P verison from 2017 is taken.
+    sed -i 's/"source_type":                  "AOGCM"/"source_type":                  "'"${ece_res[7]}"'"/'                 ${output_template}  # Note the double quote for the spaces in the variable
+    sed -i 's/"grid":                         "T255L91"/"grid":                         "'${ece_res[1]}'"/'                 ${output_template}
+    sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                      ${output_template}
+    sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[1]}"'"/'                ${output_template}
+
  done
-  
- if [ "$#" -eq 5 ]; then
-  if [ "${component}" = 'ifs' ]; then
-   grid_label='gr'
-  elif [ "${component}" = 'nemo' ]; then
-   grid_label='gn'
-  elif [ "${component}" = 'tm5' ]; then
-   grid_label='gn'
-  elif [ "${component}" = 'lpjg' ]; then
-   grid_label='gr'
-  fi
- fi
-
- output_template=metadata-cmip6-${mip}-${experiment}-${ececonf}-${component}-template.json
-
- # Creating and adjusting with sed the output meta data template json file:
- sed    's/"activity_id":                  "CMIP"/"activity_id":                  "'${mip}'"/' ${input_template} >       ${output_template}
- sed -i 's/"experiment_id":                "piControl"/"experiment_id":                "'${experiment}'"/'               ${output_template}
- sed -i 's/"source_id":                    "EC-Earth3"/"source_id":                    "'${ece_res[0]}'"/'               ${output_template}
- sed -i 's/"source":                       "EC-Earth3 (2019)"/"source":                       "'${ece_res[0]}'" (2019)/' ${output_template}  # The 2019 is correct as long no P verison from 2017 is taken.
- sed -i 's/"source_type":                  "AOGCM"/"source_type":                  "'"${ece_res[7]}"'"/'                 ${output_template}  # Note the double quote for the spaces in the variable
- sed -i 's/"grid":                         "T255L91"/"grid":                         "'${ece_res[1]}'"/'                 ${output_template}
- sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                      ${output_template}
- sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[1]}"'"/'                ${output_template}
-
-#for i in "${ece_res[@]}"
-#do
-#   echo "$i"
-#done
-
-#for i in "${nom_res[@]}"
-#do
-#   echo "$i"
-#done
+ echo
 
 else
     echo '  '
