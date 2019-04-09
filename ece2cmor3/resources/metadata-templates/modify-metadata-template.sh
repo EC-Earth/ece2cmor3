@@ -117,6 +117,11 @@ if [ "$#" -eq 4 ]; then
     sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                           ${output_template}
     sed -i 's/"grid":                         "T255L91"/"grid":                         "'"${ece_res[${res_index}]}"'"/'         ${output_template}
     sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[${res_index}]}"'"/'          ${output_template}
+    if [ "${ececonf}" = 'EC-EARTH-AOGCM' ] && [ "${mip}" = 'CMIP' ] && [ "${experiment}" = 'piControl' ]; then
+     sed -i 's/"parent_source_id":             "EC-Earth3"/"parent_source_id":             "'${ece_res[0]}'-Veg"/'               ${output_template}
+    else
+     sed -i 's/"parent_source_id":             "EC-Earth3"/"parent_source_id":             "'${ece_res[0]}'"/'                   ${output_template}
+    fi
 
  done
  echo
