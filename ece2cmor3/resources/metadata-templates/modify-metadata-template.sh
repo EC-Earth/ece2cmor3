@@ -77,12 +77,16 @@ if [ "$#" -eq 4 ]; then
 
     if [ "${component}" = 'ifs' ]; then
      grid_label='gr'
+     res_index=1
     elif [ "${component}" = 'nemo' ]; then
      grid_label='gn'
+     res_index=2
     elif [ "${component}" = 'tm5' ]; then
      grid_label='gn'
+     res_index=3
     elif [ "${component}" = 'lpjg' ]; then
      grid_label='gr'
+     res_index=4
     fi
 
     output_template=metadata-cmip6-${mip}-${experiment}-${ececonf}-${component}-template.json
@@ -93,9 +97,9 @@ if [ "$#" -eq 4 ]; then
     sed -i 's/"source_id":                    "EC-Earth3"/"source_id":                    "'${ece_res[0]}'"/'               ${output_template}
     sed -i 's/"source":                       "EC-Earth3 (2019)"/"source":                       "'${ece_res[0]}'" (2019)/' ${output_template}  # The 2019 is correct as long no P verison from 2017 is taken.
     sed -i 's/"source_type":                  "AOGCM"/"source_type":                  "'"${ece_res[7]}"'"/'                 ${output_template}  # Note the double quote for the spaces in the variable
-    sed -i 's/"grid":                         "T255L91"/"grid":                         "'${ece_res[1]}'"/'                 ${output_template}
     sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                      ${output_template}
-    sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[1]}"'"/'                ${output_template}
+    sed -i 's/"grid":                         "T255L91"/"grid":                         "'"${ece_res[${res_index}]}"'"/'    ${output_template}
+    sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[${res_index}]}"'"/'     ${output_template}
 
  done
  echo
