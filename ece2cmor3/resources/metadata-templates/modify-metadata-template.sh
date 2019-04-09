@@ -30,13 +30,8 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  component=$5
  
  echo
- echo ${mip}
- echo ${experiment}
- echo ${ececonf}
- echo ${input_template}
- if [ "$#" -eq 5 ]; then
-  echo ${component}
- fi
+ echo ' Running ' $0 'by:'
+ echo ' ' $0 ${mip} ${experiment} ${ececonf} ${input_template}
  echo
 
 
@@ -62,27 +57,31 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a model_components=('ifs' 'nemo'       'lpjg'); fi
 
  #                    NAME IN SCRIPT                                 ECE CONF NAME       IFS RES     NEMO RES      TM5 RES                                  LPJG RES   PISCES RES  PISM RES    source_type
- if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a ece_res=('EC-Earth3'          'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a ece_res=('EC-Earth3-HR'       'T511L91'  'ORCA025L75'  'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a ece_res=('EC-Earth3-LR'       'T159L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a ece_res=('EC-Earth3-CC'       'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid'  'T255L91'  'ORCA1L75'  'none'      'AOGCM BGC AER?CHEM LAND?' ); fi
- if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a ece_res=('EC-Earth3-GrIS'     'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      '5 x 5 km'  'AOGCM ISM'                ); fi
- if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a ece_res=('EC-Earth3-AerChem'  'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid'  'none'     'none'      'none'      'AOGCM AER CHEM'           ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a ece_res=('EC-Earth3-Veg'      'T255L91'  'ORCA1L75'    'none'                                    'T255L91'  'none'      'none'      'AOGCM LAND'               ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a ece_res=('EC-Earth3-Veg-LR'   'T159L91'  'ORCA1L75'    'none'                                    'T159L91'  'none'      'none'      'AOGCM LAND'               ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a ece_res=('EC-Earth3'          'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a ece_res=('EC-Earth3-HR'       'T511L91'  'ORCA025L75'  'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a ece_res=('EC-Earth3-LR'       'T159L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a ece_res=('EC-Earth3-CC'       'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid'  'T255L91'  'ORCA1L75'  'none'      'AOGCM BGC'      ); fi
+ if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a ece_res=('EC-Earth3-GrIS'     'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      '5 x 5 km'  'AOGCM ISM'      ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a ece_res=('EC-Earth3-AerChem'  'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid'  'none'     'none'      'none'      'AOGCM AER CHEM' ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a ece_res=('EC-Earth3-Veg'      'T255L91'  'ORCA1L75'    'none'                                    'T255L91'  'none'      'none'      'AOGCM'          ); fi 
+ if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a ece_res=('EC-Earth3-Veg-LR'   'T159L91'  'ORCA1L75'    'none'                                    'T159L91'  'none'      'none'      'AOGCM'          ); fi 
 
- if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a nom_res=('EC-Earth3'          '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a nom_res=('EC-Earth3-HR'       '50 km'    '10 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a nom_res=('EC-Earth3-LR'       '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a nom_res=('EC-Earth3-CC'       '100 km'   '50 km'       '250 km'                                  '100 km'   '50 km'     'none'      'AOGCM BGC AER?CHEM LAND?' ); fi
- if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a nom_res=('EC-Earth3-GrIS'     '100 km'   '50 km'       'none'                                    'none'     'none'      '5 km'      'AOGCM ISM'                ); fi
- if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a nom_res=('EC-Earth3-AerChem'  '100 km'   '50 km'       '250 km'                                  'none'     'none'      'none'      'AOGCM AER CHEM'           ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a nom_res=('EC-Earth3-Veg'      '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a nom_res=('EC-Earth3-Veg-LR'   '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a nom_res=('EC-Earth3'          '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a nom_res=('EC-Earth3-HR'       '50 km'    '10 km'       'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a nom_res=('EC-Earth3-LR'       '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a nom_res=('EC-Earth3-CC'       '100 km'   '50 km'       '250 km'                                  '100 km'   '50 km'     'none'      'AOGCM BGC'      ); fi
+ if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a nom_res=('EC-Earth3-GrIS'     '100 km'   '50 km'       'none'                                    'none'     'none'      '5 km'      'AOGCM ISM'      ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a nom_res=('EC-Earth3-AerChem'  '100 km'   '50 km'       '250 km'                                  'none'     'none'      'none'      'AOGCM AER CHEM' ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a nom_res=('EC-Earth3-Veg'      '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM'          ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a nom_res=('EC-Earth3-Veg-LR'   '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM'          ); fi
  # https://www.earthsystemcog.org/site_media/projects/wip/CMIP6_global_attributes_filenames_CVs_v6.2.6.pdf
  # IFS  T511   T255   T159       ORCA1            ORCA0.25                TM5       LPJG=IFS
  #      40 km  80 km  125 km     0.67 * 111 km    0.25 * 0.67 * 111 km
 
+ for i in "${model_components[@]}"
+ do
+    echo ' Running for: ' "$i"
+ done
   
  if [ "$#" -eq 5 ]; then
   if [ "${component}" = 'ifs' ]; then
@@ -95,7 +94,6 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    grid_label='gr'
   fi
  fi
- echo ${grid_label}
 
  output_template=metadata-cmip6-${mip}-${experiment}-${ececonf}-${component}-template.json
 
@@ -109,15 +107,15 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                      ${output_template}
  sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[1]}"'"/'                ${output_template}
 
- for i in "${ece_res[@]}"
- do
-    echo "$i"
- done
+#for i in "${ece_res[@]}"
+#do
+#   echo "$i"
+#done
 
- for i in "${nom_res[@]}"
- do
-    echo "$i"
- done
+#for i in "${nom_res[@]}"
+#do
+#   echo "$i"
+#done
 
 else
     echo '  '
