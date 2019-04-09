@@ -27,14 +27,14 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  experiment=$2
  ececonf=$3
  input_template=$4
- component=$6
+ component=$5
  
  echo
  echo ${mip}
  echo ${experiment}
  echo ${ececonf}
  echo ${input_template}
- if [ "$#" -eq 6 ]; then
+ if [ "$#" -eq 5 ]; then
   echo ${component}
  fi
  echo
@@ -45,7 +45,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   exit
  fi
 
- if [ "$#" -eq 6 ]; then
+ if [ "$#" -eq 5 ]; then
   if [ "${component}" != 'ifs' ] && [ "${component}" != 'nemo' ] && [ "${component}" != 'tm5' ] && [ "${component}" != 'lpjg' ] ]; then
    echo ' Error in ' $0 ': unkown ec-earth component: '  ${component} '  Valid options: ifs, nemo, tm5, or lpjg'
    exit
@@ -61,8 +61,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a model_components=('ifs' 'nemo'       'lpjg'); fi
  if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a model_components=('ifs' 'nemo'       'lpjg'); fi
 
- #                    name in script                                 ece conf name       ifs res     nemo res      tm5 res                                  lpjg res   pisces res  pism res    source_type
-
+ #                    NAME IN SCRIPT                                 ECE CONF NAME       IFS RES     NEMO RES      TM5 RES                                  LPJG RES   PISCES RES  PISM RES    source_type
  if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a ece_res=('EC-Earth3'          'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
  if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a ece_res=('EC-Earth3-HR'       'T511L91'  'ORCA025L75'  'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
  if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a ece_res=('EC-Earth3-LR'       'T159L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
@@ -85,7 +84,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #      40 km  80 km  125 km     0.67 * 111 km    0.25 * 0.67 * 111 km
 
   
- if [ "$#" -eq 6 ]; then
+ if [ "$#" -eq 5 ]; then
   if [ "${component}" = 'ifs' ]; then
    grid_label='gr'
   elif [ "${component}" = 'nemo' ]; then
