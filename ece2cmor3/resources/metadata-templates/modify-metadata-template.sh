@@ -32,6 +32,16 @@ if [ "$#" -eq 4 ]; then
   exit
  fi
 
+ # Some of the experiments do not use nemo as they are atmosphere-only experiments. In that case the source_type has to become AGCM instead of AOGCM:
+ declare -a agcm_exceptions=('amip' 'SST' 'piClim')
+ for j in "${agcm_exceptions[@]}"
+ do
+  if [[ "${j}" = *"${experiment}"* ]]; then
+   echo
+   echo ' The ' ${experiment} ' experiment has been identified as an AGCM experiment because it carries the substring: ' ${test_substring}
+  fi
+ done
+
  if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a model_components=('ifs' 'nemo'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
