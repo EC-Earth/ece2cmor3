@@ -7,14 +7,13 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the ec-earth model configuration
 # ${4} the fourth  argument is the meta data template json file which is used as input, the file: resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
-# ${5} the fifth   argument is the meta data template json file which is created as output by this script.
-# ${6} the first   argument is the component, e.g.: ifs, nemo, tm5, or lpjg.
+# ${5} the fifth   argument is the component, e.g.: ifs, nemo, tm5, or lpjg.
 #
 #
 # Run example:
-#  ./modify-metadata-template.sh CMIP piControl 1 1
+#  rm -rf metadata*; ./modify-metadata-template.sh CMIP piControl EC-EARTH-HR cmip6-CMIP-piControl-metadata-template.json ifs; diff metadata-* cmip6-CMIP-piControl-metadata-template.json
 #
-# With this script it is possible 
+# With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
@@ -22,13 +21,12 @@
 # Note that this script is called in a loop over the MIP experiments by the script:
 #  genecec.py
 
-if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
+if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 #if [ "$#" -eq 5 ]; then
  mip=$1
  experiment=$2
  ececonf=$3
  input_template=$4
- output_template=$5
  component=$6
  
  echo
@@ -36,7 +34,6 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
  echo ${experiment}
  echo ${ececonf}
  echo ${input_template}
- echo ${output_template}
  if [ "$#" -eq 6 ]; then
   echo ${component}
  fi
@@ -55,6 +52,15 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
   fi
  fi
 
+ if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a model_components=('ifs' 'nemo'             ); fi
+ if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
+ if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
+ if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a model_components=('ifs' 'nemo' 'tm5' 'lpjg'); fi
+ if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a model_components=('ifs' 'nemo'             ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a model_components=('ifs' 'nemo' 'tm5'       ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a model_components=('ifs' 'nemo'       'lpjg'); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a model_components=('ifs' 'nemo'       'lpjg'); fi
+
  #                    name in script                                 ece conf name       ifs res     nemo res      tm5 res                                  lpjg res   pisces res  pism res    source_type
 
  if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a ece_res=('EC-Earth3'          'T255L91'  'ORCA1L75'    'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
@@ -66,15 +72,14 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
  if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a ece_res=('EC-Earth3-Veg'      'T255L91'  'ORCA1L75'    'none'                                    'T255L91'  'none'      'none'      'AOGCM LAND'               ); fi
  if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a ece_res=('EC-Earth3-Veg-LR'   'T159L91'  'ORCA1L75'    'none'                                    'T159L91'  'none'      'none'      'AOGCM LAND'               ); fi
 
-
- if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a nom_res=('EC-Earth3'          '100 km'  '50 km'    'none'       'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a nom_res=('EC-Earth3-HR'       '50 km'   '10 km'    'none'       'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a nom_res=('EC-Earth3-LR'       '100 km'  '50 km'    'none'       'none'     'none'      'none'      'AOGCM'                    ); fi
- if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a nom_res=('EC-Earth3-CC'       '100 km'  '50 km'    '250 km'     '100 km'   '50 km'     'none'      'AOGCM BGC AER?CHEM LAND?' ); fi
- if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a nom_res=('EC-Earth3-GrIS'     '100 km'  '50 km'    'none'       'none'     'none'      '5 x 5 km'  'AOGCM ISM'                ); fi
- if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a nom_res=('EC-Earth3-AerChem'  '100 km'  '50 km'    '250 km'     'none'     'none'      'none'      'AOGCM AER CHEM'           ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a nom_res=('EC-Earth3-Veg'      '100 km'  '50 km'    'none'       '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
- if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a nom_res=('EC-Earth3-Veg-LR'   '100 km'  '50 km'    'none'       '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a nom_res=('EC-Earth3'          '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
+ if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a nom_res=('EC-Earth3-HR'       '50 km'    '10 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
+ if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a nom_res=('EC-Earth3-LR'       '100 km'   '50 km'       'none'                                    'none'     'none'      'none'      'AOGCM'                    ); fi
+ if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a nom_res=('EC-Earth3-CC'       '100 km'   '50 km'       '250 km'                                  '100 km'   '50 km'     'none'      'AOGCM BGC AER?CHEM LAND?' ); fi
+ if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a nom_res=('EC-Earth3-GrIS'     '100 km'   '50 km'       'none'                                    'none'     'none'      '5 km'      'AOGCM ISM'                ); fi
+ if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a nom_res=('EC-Earth3-AerChem'  '100 km'   '50 km'       '250 km'                                  'none'     'none'      'none'      'AOGCM AER CHEM'           ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a nom_res=('EC-Earth3-Veg'      '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
+ if [ "${ececonf}" = 'EC-EARTH-Veg-LR'  ]; then declare -a nom_res=('EC-Earth3-Veg-LR'   '100 km'   '50 km'       'none'                                    '100 km'   'none'      'none'      'AOGCM LAND'               ); fi
  # https://www.earthsystemcog.org/site_media/projects/wip/CMIP6_global_attributes_filenames_CVs_v6.2.6.pdf
  # IFS  T511   T255   T159       ORCA1            ORCA0.25                TM5       LPJG=IFS
  #      40 km  80 km  125 km     0.67 * 111 km    0.25 * 0.67 * 111 km
@@ -91,7 +96,9 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
    grid_label='gr'
   fi
  fi
+ echo ${grid_label}
 
+ output_template=metadata-cmip6-${mip}-${experiment}-${ececonf}-${component}-template.json
 
  # Creating and adjusting with sed the output meta data template json file:
  sed    's/"activity_id":                  "CMIP"/"activity_id":                  "'${mip}'"/' ${input_template} >       ${output_template}
@@ -101,9 +108,14 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
  sed -i 's/"source_type":                  "AOGCM"/"source_type":                  "'"${ece_res[7]}"'"/'                 ${output_template}  # Note the double quote for the spaces in the variable
  sed -i 's/"grid":                         "T255L91"/"grid":                         "'${ece_res[1]}'"/'                 ${output_template}
  sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                      ${output_template}
-#sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'${ece_res[1]}'"/'                  ${output_template}
+ sed -i 's/"nominal_resolution":           "100 km"/"nominal_resolution":           "'"${nom_res[1]}"'"/'                ${output_template}
 
  for i in "${ece_res[@]}"
+ do
+    echo "$i"
+ done
+
+ for i in "${nom_res[@]}"
  do
     echo "$i"
  done
@@ -111,7 +123,7 @@ if [ "$#" -eq 5 ] || [ "$#" -eq 6 ]; then
 else
     echo '  '
     echo '  This scripts requires  variable, e.g.:'
-    echo '  ' $0 CMIP piControl EC-EARTH-AOGCM cmip6-CMIP-piControl-metadata-template.json try.json
+    echo '  ' $0 CMIP piControl EC-EARTH-AOGCM cmip6-CMIP-piControl-metadata-template.json
     echo '  '
 fi
 
