@@ -12,7 +12,7 @@
 # Run example:
 #  ./modify-metadata-template.sh CMIP piControl EC-EARTH-CC cmip6-CMIP-piControl-metadata-template.json
 #
-# With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment.
+# With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment for all active components.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
@@ -130,14 +130,6 @@ fi
 
 
 
-#  "AER":"aerosol treatment in an atmospheric model where concentrations are calculated based on emissions, transformation, and removal processes (rather than being prescribed or omitted entirely)",
-#  "AGCM":"atmospheric general circulation model run with prescribed ocean surface conditions and usually a model of the land surface",
-#  "AOGCM":"coupled atmosphere-ocean global climate model, additionally including explicit representation of at least the land and sea ice",
-#  "BGC":"biogeochemistry model component that at the very least accounts for carbon reservoirs and fluxes in the atmosphere, terrestrial biosphere, and ocean",
-#  "CHEM":"chemistry treatment in an atmospheric model that calculates atmospheric oxidant concentrations (including at least ozone), rather than prescribing them",
-#  "ISM":"ice-sheet model that includes ice-flow",
-#  "LAND":"land model run uncoupled from the atmosphere",
-
 #       "source_type":{
 #           "AER":"aerosol treatment in an atmospheric model where concentrations are calculated based on emissions, transformation, and removal processes (rather than being prescribed or omitted entirely)",
 #           "AGCM":"atmospheric general circulation model run with prescribed ocean surface conditions and usually a model of the land surface",
@@ -149,24 +141,6 @@ fi
 #           "OGCM":"ocean general circulation model run uncoupled from an AGCM but, usually including a sea-ice model",
 #           "RAD":"radiation component of an atmospheric model run 'offline'",
 #           "SLAB":"slab-ocean used with an AGCM in representing the atmosphere-ocean coupled system"
-#       },
-#       "frequency":{
-#           "1hr":"sampled hourly",
-#           "1hrCM":"monthly-mean diurnal cycle resolving each day into 1-hour means",
-#           "1hrPt":"sampled hourly, at specified time point within an hour",
-#           "3hr":"sampled every 3 hours",
-#           "3hrPt":"sampled 3 hourly, at specified time point within the time period",
-#           "6hr":"sampled every 6 hours",
-#           "6hrPt":"sampled 6 hourly, at specified time point within the time period",
-#           "day":"daily mean samples",
-#           "dec":"decadal mean samples",
-#           "fx":"fixed (time invariant) field",
-#           "mon":"monthly mean samples",
-#           "monC":"monthly climatology computed from monthly mean samples",
-#           "monPt":"sampled monthly, at specified time point within the time period",
-#           "subhrPt":"sampled sub-hourly, at specified time point within an hour",
-#           "yr":"annual mean samples",
-#           "yrPt":"sampled yearly, at specified time point within the time period"
 #       },
 #       "grid_label":{
 #           "gm":"global mean data",
