@@ -24,8 +24,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  mip=$1
  experiment=$2
  ececonf=$3
-#input_template=../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
- input_template=cmip6-CMIP-piControl-metadata-template.json
+ input_template=../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
  if [ "$#" -eq 4 ]; then input_template=$4; fi
 
 
