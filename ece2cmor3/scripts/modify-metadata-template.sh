@@ -36,11 +36,12 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
 
  # Some of the experiments do not use nemo as they are atmosphere-only experiments. In that case the source_type has to become AGCM instead of AOGCM:
  declare -a agcm_exceptions=('amip' 'SST' 'piClim')
+ adjust_to_agcm=false
  for j in "${agcm_exceptions[@]}"
  do
-  if [[ "${j}" = *"${experiment}"* ]]; then
+  if [[ "${experiment}" == *"${j}"* ]]; then
    echo
-   echo ' The ' ${experiment} ' experiment has been identified as an AGCM experiment because it carries the substring: ' ${test_substring}
+   echo ' The ' ${experiment} ' experiment has been identified as an AGCM experiment because it carries the substring: ' ${j}
    adjust_to_agcm=true
   fi
  done
@@ -381,7 +382,11 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  do
     component="$i"
 
-    echo ' Running ' $0 ${mip} ${experiment} ${ececonf} ${input_template} '  for ' ${component}
+    if [ "$#" -eq 4 ]; then 
+     echo ' Running ' $0 ${mip} ${experiment} ${ececonf} ${input_template} '  for ' ${component}
+    else
+     echo ' Running ' $0 ${mip} ${experiment} ${ececonf}                   '  for ' ${component}
+    fi
 
     if [ "${component}" != 'ifs' ] && [ "${component}" != 'nemo' ] && [ "${component}" != 'tm5' ] && [ "${component}" != 'lpjg' ]; then
      echo ' Error in ' $0 ': unkown ec-earth component: '  ${component} '  Valid options: ifs, nemo, tm5, or lpjg'
