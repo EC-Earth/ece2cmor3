@@ -11,8 +11,8 @@
 #
 #
 # Run example:
-#  ./genecec-per-mip-experiment.sh CMIP piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,LUMIP piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP                                                                        piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                  piControl 1 1
 #  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
@@ -85,7 +85,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 #activateanaconda
  if ! type "drq" > /dev/null; then
   echo
-  echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:' 
+  echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
   echo '  1. drq might be not installed'
   echo '  2. drq might be not active, as the anaconda environment is not activated'
   echo ' Stop'
@@ -101,29 +101,36 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo
   echo 'Executing the following job:'
   echo ' '$0 "$@"
+
+  if [ ${experiment} = 'esm-hist' ] || [ ${experiment} = 'esm-piControl' ]; then
+   esm_label=' --esm'
+  else
+   esm_label=''
+  fi
+
   echo
   echo 'First, the CMIP6 data request is applied by:'
-  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
   echo
 
   mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
-  # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
-  # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:
-  if [ ${mip_label} = 'ScenarioMIP' ]; then
-   cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
-    rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
-   fi
-   # However, first check whether the file is correctly present, in that case no action:
-   if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
-    ln -s cmvme_cm.sc_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
-    echo
-    echo 'Create for '${mip_label}' a soft link:'
-    ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
-   fi
-  fi
+# # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
+# # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:
+# if [ ${mip_label} = 'ScenarioMIP' ]; then
+#  cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+#  if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+#   rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
+#  fi
+#  # However, first check whether the file is correctly present, in that case no action:
+#  if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
+#   ln -s cmvme_cm.sc_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
+#   echo
+#   echo 'Create for '${mip_label}' a soft link:'
+#   ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
+#  fi
+# fi
 
   # Because in the VolMIP dcppC-forecast-addPinatubo experiment the cmvme_${mip_label}_${experiment}_1_1.xlsx file is not produced, a link
   # with this name is created to a file cmvme_cm.vo_${experiment}_1_1.xlsx which should be most similar:
@@ -152,14 +159,15 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    exit
   fi
 
-  ./drq2ppt.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  # Create the ppt files for IFS input and estimate the Volume of the IFS output:
+  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing thehourly / sub hourly table variables.
+  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
 
-  # Creating the file_def files for XIOS NEMO input:
-  ./drq2file_def-nemo.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
+  ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
@@ -169,10 +177,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
   # Estimating the Volume of the TM5 output:
-  ./estimate-tm5-volume.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
-  ./drq2ins.py --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  ./drq2ins.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
   mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
@@ -203,7 +211,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
- #./checkvars.py -v --vars cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+ #./checkvars.py -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
   echo
  #source deactivate

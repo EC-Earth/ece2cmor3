@@ -50,7 +50,7 @@ def do_post_process():
 
 # Controls whether we use 2d grid for IFS, or just lat/lon axes
 def use_2d_grid():
-    return str(os.environ.get("ECE2CMOR3_IFS_GRID_2D", "True")).lower() != "false"
+    return str(os.environ.get("ECE2CMOR3_IFS_GRID_2D", "False")).lower() == "true"
 
 
 # Controls whether to clean up the IFS temporary data
@@ -318,22 +318,22 @@ def filter_tasks(tasks):
 
 # Creates extra tasks for surface pressure
 def get_sp_tasks(tasks):
-    tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
+    tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
+                                                          '_'.join(getattr(task.target, "time_operator", ["mean"]))))
     result = []
     for freq, task_group in tasks_by_freq.iteritems():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
         if not any(tasks3d):
             continue
-        surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure and
-                               getattr(t, "time_operator", "point") in ["mean", "point"]]
-        surf_pressure_task = surf_pressure_tasks[0] if any(surf_pressure_tasks) else None
-        if surf_pressure_task:
+        surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure]
+        if len(surf_pressure_tasks) > 0:
+            surf_pressure_task = surf_pressure_tasks[0]
             result.append(surf_pressure_task)
         else:
             source = cmor_source.ifs_source(surface_pressure)
-            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", freq))
-            setattr(surf_pressure_task.target, cmor_target.freq_key, freq)
-            setattr(surf_pressure_task.target, "time_operator", ["point"])
+            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
+            setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
+            setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
             find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
@@ -523,7 +523,7 @@ def get_conversion_constants(conversion, output_frequency):
     if conversion == "pot2alt":
         return 1.0 / 9.81, 0.0
     if conversion == "alt2pot":
-        return 9.81, 0.0
+        return 9.807, 0.0
     if conversion == "vol2flux":
         return 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2massl":
@@ -558,7 +558,7 @@ def create_time_axes(task):
     if key in time_axis_ids:
         tid = time_axis_ids[key]
     else:
-        time_operator = getattr(task.target, "time_operator", ["point"])
+        time_operator = getattr(task.target, "time_operator", ["mean"])
         log.info("Creating time axis using variable %s..." % task.target.variable)
         tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
                                           name=time_dim, has_bounds=(time_operator != ["point"]))
@@ -597,6 +597,11 @@ def create_depth_axes(task):
         return
     elif z_dim == "sdepth":
         log.info("Creating soil depth axis using variable %s..." % task.target.variable)
+        axisid = create_soil_depth_axis(z_dim)
+        depth_axis_ids[key] = axisid
+        setattr(task, "z_axis_id", axisid)
+    elif z_dim == "sdepth1":
+        log.info("Creating soil depth axis 1 using variable %s..." % task.target.variable)
         axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
@@ -671,7 +676,12 @@ def create_hybrid_level_axis(task):
             else:
                 axes.append(task_grid_id)
         axes.append(getattr(task, "t_axis_id"))
-        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps", axis_ids=axes, units="Pa")
+        zfactor_name = "ps"
+        if "time1" in getattr(task.target, cmor_target.dims_key, []):
+            zfactor_name = "ps1"
+        elif "time2" in getattr(task.target, cmor_target.dims_key, []):
+            zfactor_name = "ps2"
+        storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=zfactor_name, axis_ids=axes, units="Pa")
         return axisid, storewith
     finally:
         if ds is not None:
@@ -681,6 +691,8 @@ def create_hybrid_level_axis(task):
 # Creates a soil depth axis.
 def create_soil_depth_axis(name):
     global log
+    if name == "sdepth1":
+        return cmor.axis(table_entry=name, coord_vals=[0.05], cell_bounds=[0.0, 0.1], units="m")
     # Hard-coded because cdo fails to pass soil depths correctly:
     bndcm = numpy.array([0, 7, 28, 100, 289])
     values = 0.5 * (bndcm[:4] + bndcm[1:])

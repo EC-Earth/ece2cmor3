@@ -31,6 +31,9 @@ table_root_ = None
 # Files that are being processed in the current execution loop.
 nemo_files_ = []
 
+# Nemo bathymetry file
+bathy_file_ = None
+
 # Dictionary of NEMO grid type with cmor grid id.
 grid_ids_ = {}
 
@@ -49,11 +52,20 @@ lat_axes_ = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate):
-    global log, nemo_files_, exp_name_, table_root_, ref_date_
+    global log, nemo_files_, bathy_file_, exp_name_, table_root_, ref_date_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
+    ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
+    # In order to remain backward compatible:
+    if not os.path.isfile(ecedir + "/bathy_meter.nc"):
+     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
+    bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
+    if not os.path.isfile(bathy_file_):
+        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
+                    "whenever encountered")
+        bathy_file_ = None
     cal = None
     for f in nemo_files_:
         cal = read_calendar(f)
@@ -112,6 +124,14 @@ def execute(tasks):
 def lookup_variables(tasks):
     valid_tasks = []
     for task in tasks:
+        if (task.target.table, task.target.variable) == ("Ofx", "deptho"):
+            if bathy_file_ is None:
+                log.error("Could not use bathymetry file for variable deptho in table Ofx... skipping task")
+                task.set_failed()
+            else:
+                setattr(task, cmor_task.output_path_key, bathy_file_)
+                valid_tasks.append(task)
+            continue
         file_candidates = select_freq_files(task.target.frequency)
         results = []
         for ncfile in file_candidates:
@@ -145,7 +165,7 @@ def execute_netcdf_task(dataset, task):
     # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[task.source.variable()]
+    ncvar = dataset.variables[get_nc_varname(task)]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
     time_dim, index, time_sel = -1, 0, None
     for d in ncvar.dimensions:
@@ -196,7 +216,7 @@ def get_conversion_constants(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task, dataset, axes):
-    srcvar = task.source.variable()
+    srcvar = get_nc_varname(task)
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
@@ -218,32 +238,38 @@ def create_depth_axes(ds, tasks, table):
     table_depth_axes = depth_axes_[table]
     other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
-        z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
+        z_axes = [d for d in ds.variables[get_nc_varname(task)].dimensions if d not in other_nc_axes]
         z_axis_ids = []
         for z_axis in z_axes:
-            if z_axis in table_depth_axes:
-                z_axis_ids.append(table_depth_axes[z_axis])
+            if z_axis not in ds.variables:
+                log.error("Cannot find variable %s in %s for vertical axis construction" % (z_axis, ds.filepath()))
+                continue
+            zvar = ds.variables[z_axis]
+            key = getattr(zvar, "long_name")
+            if key in table_depth_axes:
+                z_axis_ids.append(table_depth_axes[key])
             else:
-                depth_coordinates = ds.variables[z_axis]
-                depth_bounds = ds.variables[getattr(depth_coordinates, "bounds", None)]
+                depth_bounds = ds.variables[getattr(zvar, "bounds", None)]
                 if depth_bounds is None:
                     log.warning("No depth bounds found in file %s, taking midpoints" % (ds.filepath()))
-                    depth_bounds = numpy.zeros((len(depth_coordinates[:]), 2), dtype=numpy.float64)
-                    depth_bounds[1:, 0] = 0.5 * (depth_coordinates[0:-1] + depth_coordinates[1:])
+                    depth_bounds = numpy.zeros((len(zvar[:]), 2), dtype=numpy.float64)
+                    depth_bounds[1:, 0] = 0.5 * (zvar[0:-1] + zvar[1:])
                     depth_bounds[0:-1, 1] = depth_bounds[1:, 0]
-                    depth_bounds[0, 0] = depth_coordinates[0]
-                    depth_bounds[-1, 1] = depth_coordinates[-1]
-                units = getattr(depth_coordinates, "units", "1")
+                    depth_bounds[0, 0] = zvar[0]
+                    depth_bounds[-1, 1] = zvar[-1]
+                entry = "depth_coord_half" if cmor_target.get_z_axis(task.target)[0] == "olevhalf" else "depth_coord"
+                units = getattr(zvar, "units", "")
+                if len(units) == 0:
+                    log.warning("Assigning unit meters to depth coordinate %s without units" % entry)
+                    units = "m"
                 b = depth_bounds[:, :]
                 b[b < 0] = 0
-                z_axis_id = cmor.axis(table_entry="depth_coord", units=units, coord_vals=depth_coordinates[:],
-                                      cell_bounds=b)
+                z_axis_id = cmor.axis(table_entry=entry, units=units, coord_vals=zvar[:], cell_bounds=b)
                 z_axis_ids.append(z_axis_id)
-                table_depth_axes[z_axis] = z_axis_id
+                table_depth_axes[key] = z_axis_id
         setattr(task, "z_axes", z_axis_ids)
 
 
-# Creates a time axis for the currently loaded table
 def create_time_axes(ds, tasks, table):
     global time_axes_
     if table == "Ofx":
@@ -252,36 +278,29 @@ def create_time_axes(ds, tasks, table):
         time_axes_[table] = {}
     log.info("Creating time axis for table %s using file %s..." % (table, ds.filepath()))
     table_time_axes = time_axes_[table]
-    times, time_bounds, time_units = None, None, None
-    for varname, ncvar in ds.variables.items():
-        if getattr(ncvar, "standard_name", None) == "time" or varname == "time_counter":
-            time_bnds = ds.variables.get(getattr(ncvar, "bounds", None), None)
-            if time_bnds is None:
-                time_bnds = numpy.empty([len(ncvar[:]), 2])
-                time_bnds[1:, 0] = 0.5 * (ncvar[0:-1] + ncvar[1:])
-                time_bnds[:-1, 1] = time_bnds[1:, 0]
-                time_bnds[0, 0] = 1.5 * ncvar[0] - 0.5 * ncvar[1]
-                time_bnds[-1, 1] = 1.5 * ncvar[-1] - 0.5 * ncvar[-2]
-            dt_array = netCDF4.num2date(ncvar[:], units=getattr(ncvar, "units", None),
-                                        calendar=getattr(ds, "calendar", "gregorian"))
-            times, time_units = cmor_utils.date2num(dt_array, ref_date_)
-            dtb_array = netCDF4.num2date(time_bnds[:, :], units=getattr(ncvar, "units", None),
-                                         calendar=getattr(ds, "calendar", "gregorian"))
-            time_bounds, time_bounds_units = cmor_utils.date2num(dtb_array, ref_date_)
-            break
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key)
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             if time_dim in table_time_axes:
+                time_operator = getattr(task.target, "time_operator", ["point"])
+                nc_operator = getattr(ds.variables[task.source.variable()], "online_operation", "instant")
+                if time_operator[0] in ["point", "instant"] and nc_operator != "instant":
+                    log.warning("Cmorizing variable %s with online operation attribute %s in %s to %s with time "
+                                "operation %s" % (task.source.variable(), nc_operator, ds.filepath(), str(task.target),
+                                                  time_operator[0]))
+                if time_operator[0] in ["mean", "average"] and nc_operator != "average":
+                    log.warning("Cmorizing variable %s with online operation attribute %s in %s to %s with time "
+                                "operation %s" % (task.source.variable(), nc_operator, ds.filepath(), str(task.target),
+                                                  time_operator[0]))
                 tid = table_time_axes[time_dim]
             else:
+                times, time_bounds, time_units, calendar = read_times(ds, task)
                 if times is None:
                     log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
-                time_operator = getattr(task.target, "time_operator", ["point"])
-                if time_operator == ["point"]:
+                if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times)
                 else:
                     tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times,
@@ -289,6 +308,43 @@ def create_time_axes(ds, tasks, table):
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
+
+
+# Creates a time axis for the currently loaded table
+def read_times(ds, task):
+    def get_time_bounds(v):
+        bnd = getattr(v, "bounds", None)
+        if bnd in ds.variables:
+            res = ds.variables[bnd][:,:]
+        else:
+            res = numpy.empty([len(v[:]), 2])
+            res[1:, 0] = 0.5 * (v[0:-1] + v[1:])
+            res[:-1, 1] = res[1:, 0]
+            res[0, 0] = 1.5 * v[0] - 0.5 * v[1]
+            res[-1, 1] = 1.5 * v[-1] - 0.5 * v[-2]
+        return res
+
+    if cmor_target.is_instantaneous(task.target):
+        ncvar = ds.variables.get("time_instant", None)
+        if ncvar is not None:
+            return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
+        for varname, ncvar in ds.variables.items():
+            if getattr(ncvar, "standard_name", "").lower() == "time":
+                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    else:
+        ncvar = ds.variables.get("time_centered", None)
+        if ncvar is not None:
+            return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
+        for varname, ncvar in ds.variables.items():
+            if getattr(ncvar, "standard_name", "").lower() == "time":
+                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    return None, None, None, None
 
 
 def create_type_axes(ds, tasks, table):
@@ -339,6 +395,11 @@ def create_type_axes(ds, tasks, table):
                 table_type_axes[dim] = axis_id
             setattr(task, dim + "_axis", axis_id)
     return table_type_axes
+
+
+# Helper function getting the right variable name in the nc files
+def get_nc_varname(task):
+    return task.source.variable()
 
 
 # Selects files with data with the given frequency
