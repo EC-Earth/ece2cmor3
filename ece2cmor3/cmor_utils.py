@@ -192,7 +192,12 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    if varname ==None:
+        expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    elif varname!=None and freq=='fx':
+        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
+    else:
+        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
 
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
@@ -208,7 +213,7 @@ def get_tm5_frequency(filepath, expname):
         return None
 
     fstr = f.split("_")[1]
-    expr = re.compile("(AERhr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
+    expr = re.compile("(AERhr|AER6hr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
     # expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)

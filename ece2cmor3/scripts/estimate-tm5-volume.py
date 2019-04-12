@@ -43,7 +43,8 @@ def main():
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
-
+    parser.add_argument("--short", action="store_true", default=False, help="Leave out the tasklist")
+    
     args = parser.parse_args()
 
     print ""
@@ -83,60 +84,86 @@ def main():
     print ' Number of activated data request tasks is', len(ece2cmorlib.tasks)
         
 
-    total_layer_equivalent= 0
+    total_layer_equivalent = 0
     count = 0
+    per_freq = {}
+    task_per_freq = {}
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+      if not getattr(args,'short',False):
+        print ' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency)
+
+      if task.target.table not in task_per_freq.keys():
+        task_per_freq[task.target.table] = 0
+      if task.target.table not in per_freq.keys():
+        per_freq[task.target.table] = 0
 
       # TM5 Volume estimate: estimate the number of 2D layers per variable in output due to the number of time steps per year:
       if task.target.frequency == 'yr':
-       layer_number_due_to_freq = 1
+       layer_number_due_to_freq = 1.
       elif task.target.frequency == 'mon':
-       layer_number_due_to_freq = 12
+       layer_number_due_to_freq = 12.
       elif task.target.frequency == 'day':
-       layer_number_due_to_freq = 365
+       layer_number_due_to_freq = 365.
       elif task.target.frequency == '3hrPt':
-       layer_number_due_to_freq = 365.25 * 8.
+       layer_number_due_to_freq = 0.
+      elif task.target.frequency == '6hrPt':
+       layer_number_due_to_freq = 365.25 * 4.
+      elif task.target.frequency == '1hr':
+       layer_number_due_to_freq = 365.25 * 24.
       elif task.target.frequency == 'fx':
-       layer_number_due_to_freq = 0
+       layer_number_due_to_freq = 0.
       elif task.target.frequency == 'monC':
-       layer_number_due_to_freq = 1./30.        # Number of climate points: 1 per 30 year?
+       layer_number_due_to_freq = 1.0 / 30.0    # Number of climate points: 1 per 30 year?
       elif task.target.frequency == 'subhrPt':
       #layer_number_due_to_freq = 365.25 * 12.  # At least hourly, thus sofar under limit (Actually there should't be (sub) houry variables available?).
-       layer_number_due_to_freq = 0             # Because there won't be any subhourly output from TM5.
+       layer_number_due_to_freq = 0.            # Because there won't be any subhourly output from TM5.
       else:
        print '\n Unknown frequency in TM5  Volume estimate for: {:15} at table: {:9} with frequency: {}\n'.format(task.target.variable, task.target.table, task.target.frequency)
-       layer_number_due_to_freq = 0
+       layer_number_due_to_freq = 0.
+
+      if task.target.table == 'Emon':
+       layer_number_due_to_freq = 0.
 
       # TM5 Volume estimate: estimate the number vertical layers per variable:
       zdim=getattr(task.target, "z_dims", [])
       if len(zdim) == 0:
-       vertical_dim = 1
+       vertical_dim = 1.
       else:
        if zdim[0] == 'alevel':
-        vertical_dim = 34
+        vertical_dim = 35. #34 + 1 for ps
        elif zdim[0] == 'alevhalf':
-        vertical_dim = 35
+        vertical_dim = 36. # 34 + 1 for ps
        elif zdim[0] == 'plev39':
-        vertical_dim = 39
+        vertical_dim = 39.
        elif zdim[0] == 'plev19':
-        vertical_dim = 19
+        vertical_dim = 19.
        else:
-        vertical_dim = 1
+        vertical_dim = 1.
 
+      task_per_freq[task.target.table] = task_per_freq[task.target.table]+1
       # TM5 Volume estimate: calculate the number of 2D layers in output due to the number of time steps & the number of vertical layers per year per variable:
       layers_per_var_per_yr = layer_number_due_to_freq * vertical_dim
-      # TM5 Volume estimate: and for all variables together:
-      total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
-     #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
+      if task.target.table =='AERmonZ':
+        per_freq[task.target.table] = per_freq[task.target.table] + layers_per_var_per_yr / 120.0
+        # TM5 Volume estimate: and for all variables together:
+        total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr / 120.0
+      else:
+        per_freq[task.target.table] = per_freq[task.target.table] + layers_per_var_per_yr
+        # TM5 Volume estimate: and for all variables together:
+        total_layer_equivalent = total_layer_equivalent + layers_per_var_per_yr
+    #print(' {:3} varname: {:15} freq: {:5} table: {:7} zdim: {:30} vertical dim: {:3} {:2} {:8} layers per var per yr: {:8}'.format(count, task.target.variable, task.target.frequency, task.target.table, getattr(task.target, "z_dims", []), vertical_dim, len(zdim), layer_number_due_to_freq, layers_per_var_per_yr ))
 
-    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.1 / 1000.0, ' GB per year\n'
+    print '\n With a 2D layer equivalent of ', total_layer_equivalent, ' the TM5 Volume estimate for this CMIP6 data request is ', total_layer_equivalent * 0.04 / 1000.0, ' GB per year\n'
     print ' The number of variables which is available from TM5 in EC-Erth3 for this experiment is', count
-
+    for i in per_freq:
+      #if i =='AERmonZ':
+      #  print 'Table: {} \tsize: {} GB/yr'.format(i,per_freq[i]*0.04/1000/120)
+      #else:
+      print 'Table: {} \t tasks {} \tsize: {} GB/yr'.format(i,task_per_freq[i], per_freq[i] * 0.04 / 1024.0)
     volume_estimate = open('volume-estimate-tm5.txt','w')
     volume_estimate.write(' \nEC-Earth3 TM5 Volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.1 / 1000.0, '\n'))
+    volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.04 / 1000.0, '\n'))
     volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
     volume_estimate.close()
 
