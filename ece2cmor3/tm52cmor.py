@@ -69,6 +69,7 @@ def initialize(path,expname,tabledir, prefix,refdate):
     table_root_ =os.path.join(tabledir, prefix)
     #tm5_files_ = select_files(path,expname,start)#,length)
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
+
     areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
     areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
     cal = None
@@ -541,27 +542,27 @@ def create_time_axis(freq,path,name,has_bounds):
         timvar = ds.variables["time"]
         tm5unit = ds.variables["time"].units
         vals = timvar[:]
-        has_bounds=True
-        bnds = getattr(timvar,"bounds")
-        bndvar = ds.variables[bnds]
         units = getattr(timvar,"units")
+        if has_bounds:
+            bnds = getattr(timvar,"bounds")
+            bndvar = ds.variables[bnds]
     except:
         ds.close()
     tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
     # delta days for change of reftime
     diff_days= (refdate-tm5refdate).total_seconds()/86400
     vals=vals-diff_days
-    bndvar2=numpy.zeros_like(bndvar)
-    bndvar2[:,0]=bndvar[:,0]-int(diff_days)
-    bndvar2[:,1]=bndvar[:,1]-int(diff_days)
-    bndvar=bndvar2
-    # hourly bounds can have overlap by -1e-14, which is caught by cmor library as an error
-    # so just correct it always
-    for i in range(numpy.shape(bndvar2)[0]-1):
-        bndvar2[i+1,0]=bndvar2[i,1]
-
+    if has_bounds:
+        bndvar2=numpy.zeros_like(bndvar)
+        bndvar2[:,0]=bndvar[:,0]-int(diff_days)
+        bndvar2[:,1]=bndvar[:,1]-int(diff_days)
+        bndvar=bndvar2
+        # hourly bounds can have overlap by -1e-14, which is caught by cmor library as an error
+        # so just correct it always
+        for i in range(numpy.shape(bndvar2)[0]-1):
+            bndvar2[i+1,0]=bndvar2[i,1]
     if(len(vals) == 0 or units == None):
-        log.error("ERR -22: No time values or units could be read from tm5 output files %s" % str(files))
+        log.error("ERR -22: No time values or units could be read from tm5 output files %s" % str(path))
         return -1
     units="days since " + str(ref_date_)
     ####
@@ -717,8 +718,12 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
         # Use the same ps for both types of hybrid levels,
         # for some reason defining their own confuses the cmor
         # to check in case of Half levels, for the ps from full levels
+        if task.target.variable=='ec550aer':
+            psvarname='ps1'
+        else:
+            psvarname='ps'
         if store_with_ps_==None:
-            storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name="ps",
+            storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=psvarname,
                                 axis_ids=axes, units="Pa")
             store_with_ps_ = storewith
         else:
