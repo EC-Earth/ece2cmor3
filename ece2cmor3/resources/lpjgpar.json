@@ -188,10 +188,6 @@
         "target": "fHarvestToAtmos"
     },
     {
-        "source": "fHarvestToProduct",
-        "target": "fHarvestToProduct"
-    },
-    {
         "source": "fLitterFire",
         "target": "fLitterFire"
     },
