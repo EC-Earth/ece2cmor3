@@ -65,7 +65,6 @@ declare -a arr=(
 "fGrazing"
 "fHarvest"
 "fHarvestToAtmos"
-"fHarvestToProduct"
 "fLitterFire"
 "fLitterSoil"
 "fLuc"
