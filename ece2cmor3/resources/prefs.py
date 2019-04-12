@@ -19,7 +19,7 @@ def keep_variable(target, model_component, ecearth_config):
             return model_component == "ifs"
 
     # For these basic meteorological variables, let them be produced by tm5 for the AER* tables and otherwise ifs
-    if variable in ["pfull", "zg", "ps", "tas", "ua", "va"]:
+    if variable in ["pfull", "zg", "ps", "tas", "ua", "va", "o3"]:
         if table.startswith("AER"):
             return model_component == "tm5"
         else:
