@@ -49,8 +49,7 @@ def get_output_freq(task):
 # Determines the ifs output frequency for daily/monthly variables. By default
 # 2D variables are requested on 3-hourly basis and 3D variables on 6-hourly basis.
 def get_sample_freq(task):
-    axis, levs = cmor_target.get_z_axis(task.target)
-    if axis in cmor_target.model_axes + cmor_target.pressure_axes + cmor_target.height_axes:
+    if any(c in cmor_source.ifs_source.grib_codes_3D for c in task.source.get_root_codes()):
         return 6
     else:
         return 3
