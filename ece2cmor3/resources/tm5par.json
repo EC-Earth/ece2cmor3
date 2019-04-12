@@ -32,15 +32,15 @@
         "target": "ch4"
     },
     {
-        "source": "ch4Clim",
+        "source": "ch4",
         "target": "ch4Clim"
     },
     {
-        "source": "ch4global",
+        "source": "ch4",
         "target": "ch4global"
     },
     {
-        "source": "ch4globalClim",
+        "source": "ch4",
         "target": "ch4globalClim"
     },
     {
