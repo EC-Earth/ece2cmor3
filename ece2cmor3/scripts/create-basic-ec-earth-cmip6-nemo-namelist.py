@@ -778,7 +778,7 @@ if produce_varlistjson_file:
 
  # Removing the variable deptho as lomg it can not be cmorized, see #249:
  command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
- command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name  # Note that the --ececonf argument is omitted here to leave out the preferences
+ command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name + " --ececonf EC-EARTH-AOGCM "
  os.system(command_1)
  os.system(command_2)
 
