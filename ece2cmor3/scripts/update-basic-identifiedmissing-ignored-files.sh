@@ -61,16 +61,24 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the IyrGre ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd                    to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno)     to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the 6hrPlevPt-Eday-E6hrZ VolMIP (step 3) block (swtoafluxaerocs--zmlwaero) to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the 6hrPlevPt VolMIP (step 3) block (swtoafluxaerocs-lwtoafluxaerocs)      to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   VolMIP (step 3) aod550volso4                                    to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Emon   ec550aer                                                        to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the E6hrZ  VolMIP (step 3) block (szmswaero--zmlwaero)                     to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   LS3MIP (step 3) block of ignored variables (hfdsnb--agesno)     to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Amon   phalf                                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
-#  -Add manually the CFsubhr cl--fco2nat block                                              to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the CFsubhr cl--fco2nat--latitude block                                    to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the E3hr   gpp, ra, rh variables                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Efx    thkcello and masscello                                          to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Eday   mrros                                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the E3hrPt o3                                                              to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Amon   o3Clim, ch4Clim, ch4globalClim                                  to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the CFmon  tnt                                                             to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Esubhr tnt                                                             to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Esubhr tnhus                                                           to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Emon   fHarvestToProduct                                               to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the E3hr   prrc                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the Eday   prrc                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Omon   prra                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
