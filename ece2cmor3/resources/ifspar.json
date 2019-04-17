@@ -472,6 +472,16 @@
         "convert": "frac2percent"
     },
     {
+        "source": "23.129",
+        "target": "cdnc",
+        "expr": "var126020/var126022"
+    },
+    {
+        "source": "74.129",
+        "target": "rsutaf",
+        "expr": "var128212-var126069"
+    },
+    {
         "source": "80.129",
         "target": [
             "hurs",
