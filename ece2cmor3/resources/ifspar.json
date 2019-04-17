@@ -1,5 +1,130 @@
 [
     {
+        "source": "30.126",
+        "target": "sftgrf"
+    },
+    {
+        "source": "31.126",
+        "target": "sncls"
+    },
+    {
+        "source": "32.126",
+        "target": "sftgif"
+    },
+    {
+        "source": "33.126",
+        "target": "sftgrf"
+    },
+    {
+        "source": "34.126",
+        "target": "areacellg"
+    },
+    {
+        "source": "40.126",
+        "target": "cllcalipso"
+    },
+    {
+        "source": "41.126",
+        "target": "clmcalipso"
+    },
+    {
+        "source": "42.126",
+        "target": "clhcalipso"
+    },
+    {
+        "source": "43.126",
+        "target": "cltcalipso"
+    },
+    {
+        "source": "44.126",
+        "target": "cltisccp"
+    },
+    {
+        "source": "45.126",
+        "target": "pctisccp"
+    },
+    {
+        "source": "46.126",
+        "target": "albisccp"
+    },
+    {
+        "source": "72.126",
+        "target": "rlutcsaf"
+    },
+    {
+        "source": "73.126",
+        "target": "rlutaf"
+    },
+    {
+        "source": "95.126",
+        "target": "tntr"
+    },
+    {
+        "source": "106.126",
+        "target": "tnhusc"
+    },
+    {
+        "source": "120.126",
+        "target": "utendnogw"
+    },
+    {
+        "source": "121.126",
+        "target": "utendogw"
+    },
+    {
+        "source": "122.126",
+        "target": "vtendnogw"
+    },
+    {
+        "source": "123.126",
+        "target": "vtendogw"
+    },
+    {
+        "source": "124.126",
+        "target": "tntmp"
+    },
+    {
+        "source": "125.126",
+        "target": "tntrl"
+    },
+    {
+        "source": "126.126",
+        "target": "tntrs"
+    },
+    {
+        "source": "127.126",
+        "target": "tntrlcs"
+    },
+    {
+        "source": "128.126",
+        "target": "tntrscs"
+    },
+    {
+        "comment": "previous source was: 105.126",
+        "source": "129.126",
+        "target": "tntc"
+    },
+    {
+        "source": "130.126",
+        "target": "tntscp"
+    },
+    {
+        "source": "131.126",
+        "target": "tntnogw"
+    },
+    {
+        "source": "132.126",
+        "target": "tntogw"
+    },
+    {
+        "source": "151.126",
+        "target": "nudgincsm"
+    },
+    {
+        "source": "152.126",
+        "target": "nudgincswe"
+    },
+    {
         "source": "8.128",
         "convert": "vol2flux",
         "target": "mrros",
@@ -347,6 +472,16 @@
         "convert": "frac2percent"
     },
     {
+        "source": "23.129",
+        "target": "cdnc",
+        "expr": "var126020/var126022"
+    },
+    {
+        "source": "74.129",
+        "target": "rsutaf",
+        "expr": "var128212-var126069"
+    },
+    {
         "source": "80.129",
         "target": [
             "hurs",
@@ -522,6 +657,16 @@
         "target": "wa",
         "expr": "-287.085*var130*var135/(9.81*var54)",
         "comment": "Discarding water vapour..."
+    },
+    {
+        "source": "124.129",
+        "target": "tnhus",
+        "expr": "var126094+var126099+var126106+var126110"
+    },
+    {
+        "source": "125.129",
+        "target": "tnhusmp",
+        "expr": "var126099+var126106+var126110"
     },
     {
         "source": "126.129",
