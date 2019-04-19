@@ -1,11 +1,12 @@
+import datetime
 import json
 import logging
-import datetime
 import os
 import resource
 import threading
-from dateutil import relativedelta
+
 import numpy
+
 from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
 
 # Log object.
@@ -222,7 +223,7 @@ def cluster_files(valid_tasks):
         inst_file = '_'.join([codes[k] for k in codes if k not in accum_codes])
         task2files[task] = filter(None, [cum_file, inst_file])
     for task, freqset in task2freqs.iteritems():
-        maxfreq = max(freqset)
+        maxfreq = max(freqset) if len(freqset) > 0 else 0
         if any([f for f in freqset if maxfreq % f != 0]):
             log.error("Task depends on input fields with incompatible time steps")
             task.status = cmor_task.status_failed

@@ -224,7 +224,7 @@ def get_freq(target):
         return 3
     if freq in ["1hr", "1hrPt"]:
         return 1
-    if freq in ["subhr", "subhrPt"]:
+    if freq in ["subhr", "subhrPt", "fx"]:
         return 0
     return -1
 

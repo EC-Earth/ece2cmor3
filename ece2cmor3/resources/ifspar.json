@@ -563,6 +563,12 @@
         "expr": "(var176<=1e-10)*var210+(var176>1e-10)*var210*var169/var176"
     },
     {
+        "source": "133.129",
+        "target": "slthick",
+        "expr": "merge((var139>0)*0.07,(var170>0)*0.21,(var183>0)*0.72,(var236>0)*1.89)",
+        "masked": "land"
+    },
+    {
         "mask": "land",
         "expr": "var172>0.5"
     },
