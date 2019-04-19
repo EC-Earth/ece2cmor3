@@ -413,7 +413,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
     sed    's/"activity_id":                  "CMIP"/"activity_id":                  "'${mip}'"/' ${input_template} >            ${output_template}
     sed -i 's/"experiment_id":                "piControl"/"experiment_id":                "'${experiment}'"/'                    ${output_template}
     sed -i 's/"source_id":                    "EC-Earth3"/"source_id":                    "'${ece_res[0]}'"/'                    ${output_template}
-    sed -i 's/"source":                       "EC-Earth3 (2019)"/"source":                       "'${ece_res[0]}'" (2019)/'      ${output_template}  # The 2019 is correct as long no P verison from 2017 is taken.
+    sed -i 's/"source":                       "EC-Earth3 (2019)"/"source":                       "'${ece_res[0]}' (2019)"/'      ${output_template}  # The 2019 is correct as long no P verison from 2017 is taken.
     sed -i 's/"source_type":                  "AOGCM"/"source_type":                  "'"${ece_res[${source_type_index}]}"'"/'   ${output_template}  # Note the double quote for the spaces in the variable
     sed -i 's/"grid_label":                   "gr"/"grid_label":                   "'${grid_label}'"/'                           ${output_template}
     sed -i 's/"grid":                         "T255L91"/"grid":                         "'"${ece_res[${res_index}]}"'"/'         ${output_template}
@@ -421,7 +421,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
     if [ "${ececonf}" = 'EC-EARTH-AOGCM' ] && [ "${mip}" = 'CMIP' ] && [ "${experiment}" = 'piControl' ]; then
      sed -i 's/"parent_source_id":             "EC-Earth3"/"parent_source_id":             "'${ece_res[0]}'-Veg"/'               ${output_template}
     else
-     sed -i 's/"parent_source_id":             "EC-Earth3"/"parent_source_id":             "'${ece_res[0]}'"/'                   ${output_template}
+     sed -i 's/"parent_source_id":             "EC-Earth3-Veg"/"parent_source_id":             "'${ece_res[0]}'"/'               ${output_template}
     fi
     sed -i 's/"parent_activity_id":           "CMIP"/"parent_activity_id":           "'"${parent_info[2]}"'"/'                   ${output_template}
     sed -i 's/"parent_experiment_id":         "piControl-spinup"/"parent_experiment_id":         "'"${parent_info[3]}"'"/'       ${output_template}
