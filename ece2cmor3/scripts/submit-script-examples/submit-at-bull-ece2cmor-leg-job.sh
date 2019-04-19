@@ -50,8 +50,8 @@
    if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
 
    mkdir -p $ODIR
-   if [ -d $TMPDIR ]; then rm -rf $TMPDIR; fi
-   mkdir -p $TMPDIR
+   if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+   mkdir -p $TEMPDIR
 
    export PATH="${HOME}/anaconda2/bin:$PATH"
    source activate ece2cmor3
