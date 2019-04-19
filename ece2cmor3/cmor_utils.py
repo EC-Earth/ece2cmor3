@@ -253,7 +253,7 @@ def get_tm5_interval(filepath):
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,
-                fliplat=False, mask=None, missval=1.e+20, time_selection=None):
+                fliplat=False, mask=None, missval=1.e+20, time_selection=None, force_fx=False):
     global log
     ndims = len(ncvar.shape)
     if timdim < 0:
@@ -373,7 +373,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             vals = numpy.flipud(vals)
         if timdim < 0 and ntimes > 1:
             vals = numpy.repeat(vals, repeats=(imax - i), axis=ndims - 1)
-        cmor.write(varid, vals, ntimes_passed=(0 if (timdim < 0 and ntimes == 1) else (imax - i)))
+        ntimes_passed = 0 if ((timdim < 0 and ntimes == 1) or force_fx) else (imax - i)
+        cmor.write(varid, vals, ntimes_passed=ntimes_passed)
         del vals
         if psvarid is not None and ncpsvar is not None:
             spvals = None
@@ -385,7 +386,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             if spvals is not None:
                 if fliplat:
                     spvals = numpy.flipud(spvals)
-                cmor.write(psvarid, spvals, ntimes_passed=(0 if timdim < 0 else (imax - i)), store_with=varid)
+                cmor.write(psvarid, spvals, ntimes_passed=ntimes_passed, store_with=varid)
                 del spvals
 
 

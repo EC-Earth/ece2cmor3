@@ -483,7 +483,7 @@ def execute_netcdf_task(task):
 
         time_selection = None
         time_stamps = cmor_utils.read_time_stamps(filepath)
-        if any(time_stamps):
+        if any(time_stamps) and len(t_bnds) > 0:
             time_slice_map = []
             for bnd in t_bnds:
                 candidates = [t for t in time_stamps if bnd[0] <= t <= bnd[1]]
@@ -502,7 +502,7 @@ def execute_netcdf_task(task):
             missval = -missval
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
                                swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
-                               time_selection=time_selection)
+                               time_selection=time_selection, force_fx=(cmor_target.get_freq(task.target) == 0))
         cmor.close(var_id)
         task.next_state()
         if store_var:
