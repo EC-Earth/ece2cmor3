@@ -38,7 +38,7 @@
    COMPONENT=$1
    LEG=$2
 
-   EXP=t013
+   EXP=t014
    ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3.3.0/branch-r6705-control-output-files/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
   #METADATA=/nfs/home/users/reerink/cmorize/ece2cmor3/ece2cmor3/resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
@@ -69,7 +69,7 @@
                     --npp         28        \
                     --log
 
-   mv $EXP-*.log $ODIR
+   mv $EXP-$COMPONENT-$LEG-*.log $ODIR
 
  else
   echo
@@ -77,7 +77,7 @@
   echo '   1st argument: model component'
   echo '   2nd argument: leg'
   echo '  For instance:'
-  echo '   sbatch' $0 ifs 001
+  echo '   sbatch submit-at-bull-ece2cmor-leg-job.sh ifs 001'
   echo '  Or use:'
   echo '   for i in {nemo,ifs}; do for j in {001..010}; do echo sbatch submit-at-bull-ece2cmor-leg-job.sh "$i $j"; done; done'
   echo '   for i in {nemo,ifs}; do for j in {001..010}; do      sbatch submit-at-bull-ece2cmor-leg-job.sh "$i $j"; done; done'
