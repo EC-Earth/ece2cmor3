@@ -124,9 +124,9 @@ def add_expr_operators(cdo, task):
         lhs = groups.group(0)[:-1]
         rhs = expr.replace(" ", "")[len(lhs) + 1:]
     expr = '='.join([lhs, rhs])
-    new_code = int(lhs[3:-1])
+    new_code = int(lhs[3:])
     if rhs.startswith("merge(") and rhs.endswith(")"):
-        arg = rhs[1][6:-1]
+        arg = rhs[6:-1]
         sub_expr_list = arg.split(',')
         if not any(getattr(task.target, "z_dims", [])):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
