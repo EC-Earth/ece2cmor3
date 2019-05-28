@@ -42,6 +42,6 @@ dependencies:
   - testfixtures==5.3.1
   - xlrd==1.1.0
   - xlsxwriter==1.0.2
-  - dreqPy==01.00.29
+  - dreqPy==01.00.30
   - cython                                        # Unlisted dependency dreq 
   - xarray                                        # Unlisted dependency dreq and/or drq
