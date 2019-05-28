@@ -60,7 +60,7 @@ def initialize(path, expname, tableroot, refdate):
     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
     # In order to remain backward compatible:
     if not os.path.isfile(ecedir + "/bathy_meter.nc"):
-     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
+        ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
     bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
@@ -295,17 +295,20 @@ def create_time_axes(ds, tasks, table):
                                                   time_operator[0]))
                 tid = table_time_axes[time_dim]
             else:
-                times, time_bounds, time_units, calendar = read_times(ds, task)
+                times, time_bounds = read_times(ds, task)
                 if times is None:
                     log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
+
+                tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
                 if time_bounds is None:
-                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times)
+                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
-                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times,
-                                    cell_bounds=time_bounds)
+                    tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
+                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
+                                    cell_bounds=tbounds)
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
@@ -316,7 +319,7 @@ def read_times(ds, task):
     def get_time_bounds(v):
         bnd = getattr(v, "bounds", None)
         if bnd in ds.variables:
-            res = ds.variables[bnd][:,:]
+            res = ds.variables[bnd][:, :]
         else:
             res = numpy.empty([len(v[:]), 2])
             res[1:, 0] = 0.5 * (v[0:-1] + v[1:])
@@ -325,27 +328,40 @@ def read_times(ds, task):
             res[-1, 1] = 1.5 * v[-1] - 0.5 * v[-2]
         return res
 
+    vals, bndvals, units, calendar = None, None, None, None
     if cmor_target.is_instantaneous(task.target):
         ncvar = ds.variables.get("time_instant", None)
         if ncvar is not None:
-            return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
-        for varname, ncvar in ds.variables.items():
-            if getattr(ncvar, "standard_name", "").lower() == "time":
-                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
-                return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+            vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        else:
+            log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
+            for varname, ncvar in ds.variables.items():
+                if getattr(ncvar, "standard_name", "").lower() == "time":
+                    log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                    vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+                    break
+            if vals is None:
+                log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
     else:
         ncvar = ds.variables.get("time_centered", None)
         if ncvar is not None:
-            return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
-        for varname, ncvar in ds.variables.items():
-            if getattr(ncvar, "standard_name", "").lower() == "time":
-                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
-                return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
-    return None, None, None, None
+            vals, bndvals, units, calendar = ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), \
+                                             getattr(ncvar, "calendar", None)
+        else:
+            log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
+            for varname, ncvar in ds.variables.items():
+                if getattr(ncvar, "standard_name", "").lower() == "time":
+                    log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                    vals, bndvals, units, calendar = ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), \
+                                                     getattr(ncvar, "calendar", None)
+                    break
+            if vals is None:
+                log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    times = None if vals is None else netCDF4.num2date(vals, units=units,
+                                                       calendar="standard" if calendar is None else calendar)
+    tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units,
+                                                          calendar="standard" if calendar is None else calendar)
+    return times, tbnds
 
 
 def create_type_axes(ds, tasks, table):
