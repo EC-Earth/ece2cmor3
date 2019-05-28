@@ -245,7 +245,8 @@ def create_depth_axes(ds, tasks, table):
                 log.error("Cannot find variable %s in %s for vertical axis construction" % (z_axis, ds.filepath()))
                 continue
             zvar = ds.variables[z_axis]
-            key = getattr(zvar, "long_name")
+            axis_type = "half" if cmor_target.get_z_axis(task.target)[0] == "olevhalf" else "full"
+            key = "-".join([getattr(zvar, "long_name"), axis_type])
             if key in table_depth_axes:
                 z_axis_ids.append(table_depth_axes[key])
             else:
