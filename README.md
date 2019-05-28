@@ -17,6 +17,8 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Installation:
 
+More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v110). The basic ece2cmor3 installation description follows below.
+
 #### Installation & running with anaconda (strongly recommended):
 The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems where one is not allowed to install complementary python packages to the default python distribution.
 
