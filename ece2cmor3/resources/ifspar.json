@@ -145,12 +145,6 @@
         "target": "albsn"
     },
     {
-        "source": "43.128",
-        "target": "mrso",
-        "expr": "70*var39+210*var40+720*var41+1890*var42",
-        "masked": "land"
-    },
-    {
         "source": "44.128",
         "convert": "vol2flux",
         "target": "sbl"
@@ -430,14 +424,6 @@
         ]
     },
     {
-        "source": "214.128",
-        "target": [
-            "sfcWind",
-            "sfcWindmax"
-        ],
-        "expr": "sqrt(sqr(var165)+sqr(var166))"
-    },
-    {
         "source": "228.128",
         "convert": "vol2flux",
         "target": "pr"
@@ -475,6 +461,12 @@
         "source": "23.129",
         "target": "cdnc",
         "expr": "var126020/var126022"
+    },
+    {
+        "source": "43.129",
+        "target": "mrso",
+        "expr": "70*var39+210*var40+720*var41+1890*var42",
+        "masked": "land"
     },
     {
         "source": "74.129",
@@ -716,6 +708,14 @@
         "target": "slthick",
         "expr": "merge((var139>0)*0.07,(var170>0)*0.21,(var183>0)*0.72,(var236>0)*1.89)",
         "masked": "land"
+    },
+    {
+        "source": "214.129",
+        "target": [
+            "sfcWind",
+            "sfcWindmax"
+        ],
+        "expr": "sqrt(sqr(var165)+sqr(var166))"
     },
     {
         "mask": "land",
