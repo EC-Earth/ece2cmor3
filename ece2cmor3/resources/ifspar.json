@@ -469,6 +469,24 @@
         "masked": "land"
     },
     {
+        "source": "50.129",
+        "target": "clayfrac",
+        "expr": "(var43==1)*0.0+(var43==2)*0.0+(var43==3)*0.2+(var43==4)*0.8+(var43==5)*1.0+(var43==6)*0.4+(var43==7)*1.0/3.0",
+        "masked": "land"
+    },
+    {
+        "source": "51.129",
+        "target": "siltfrac",
+        "expr": "(var43==1)*0.0+(var43==2)*0.4+(var43==3)*0.6+(var43==4)*0.2+(var43==5)*0.0+(var43==6)*0.4+(var43==7)*1.0/3.0",
+        "masked": "land"
+    },
+    {
+        "source": "52.129",
+        "target": "sandfrac",
+        "expr": "(var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0",
+        "masked": "land"
+    },
+    {
         "source": "74.129",
         "target": "rsutaf",
         "expr": "var128212-var126069"
