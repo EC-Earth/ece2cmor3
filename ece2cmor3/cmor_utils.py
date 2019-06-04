@@ -453,3 +453,15 @@ class ScriptUtils:
         if getattr(args, "varlist", None) is not None:
             opts.extend(["--varlist", args.varlist])
         return " ".join(opts)
+
+    @staticmethod
+    def set_custom_tabfiles(args):
+        for c in components.models:
+            tabfile = components.models[c].get(components.table_file, "")
+            if tabfile:
+                option = os.path.basename(tabfile)
+                value = getattr(args, option, None)
+                if value is not None:
+                    components.models[c][components.table_file] = value
+                log.info("Initializing for %s with variables from %s" %
+                         (c, components.models[c][components.table_file]))
