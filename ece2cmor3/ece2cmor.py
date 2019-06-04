@@ -69,6 +69,8 @@ def main(args=None):
 
     args = parser.parse_args()
 
+    cmor_utils.ScriptUtils.set_custom_tabfiles(args)
+
     logfile = None
     logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
     logdateformat = "%Y-%m-%d %H:%M:%S"
@@ -99,8 +101,9 @@ def main(args=None):
     modedict = {"preserve": ece2cmorlib.PRESERVE, "append": ece2cmorlib.APPEND, "replace": ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf, mode=modedict[args.overwritemode], tabledir=args.tabledir, tableprefix=args.tableprefix,
-                           outputdir=args.odir, logfile=logfile, create_subdirs=(not args.flatdir))
+    ece2cmorlib.initialize(args.conf, mode=modedict[args.overwritemode], tabledir=args.tabledir,
+                           tableprefix=args.tableprefix, outputdir=args.odir, logfile=logfile,
+                           create_subdirs=(not args.flatdir))
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
 
