@@ -45,7 +45,8 @@
             "dispkevfo",
             "dispkexyfo2d",
             "tnkebto2d",
-            "tnpeo"
+            "tnpeo",
+            "zhalfo"
         ],
         "Oday": [
             "chlos",
@@ -218,6 +219,7 @@
             "wfonocorr",
             "wmo",
             "wo",
+            "zhalfo",
             "zmeso",
             "zmesoos",
             "zmicro",
