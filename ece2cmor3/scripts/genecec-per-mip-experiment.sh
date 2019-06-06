@@ -11,9 +11,9 @@
 #
 #
 # Run example:
-#  ./genecec-per-mip-experiment.sh CMIP                                                                        piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                  piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP                                                                           piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                     piControl 1 1
+#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB piControl 1 1
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -247,6 +247,6 @@ fi
 # ./genecec-per-mip-experiment.sh ScenarioMIP  piControl 1 1
 # ./genecec-per-mip-experiment.sh VolMIP       piControl 1 1
 # ./genecec-per-mip-experiment.sh CORDEX       piControl 1 1
-# ./genecec-per-mip-experiment.sh DynVar       piControl 1 1
+# ./genecec-per-mip-experiment.sh DynVarMIP    piControl 1 1
 # ./genecec-per-mip-experiment.sh SIMIP        piControl 1 1
 # ./genecec-per-mip-experiment.sh VIACSAB      piControl 1 1
