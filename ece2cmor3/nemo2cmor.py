@@ -64,7 +64,7 @@ def initialize(path, expname, tableroot, refdate):
     bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
-                    "whenever encountered")
+                    "whenever encountered" % bathy_file_)
         bathy_file_ = None
     cal = None
     for f in nemo_files_:
@@ -422,7 +422,6 @@ def get_nc_varname(task):
 # Selects files with data with the given frequency
 def select_freq_files(freq):
     global exp_name_, nemo_files_
-    nemo_freq = None
     if freq == "fx":
         nemo_freq = "1y"
     elif freq == "monClim":
@@ -436,6 +435,12 @@ def select_freq_files(freq):
     elif freq.endswith("hr"):
         n = 1 if freq == "hr" else int(freq[:-2])
         nemo_freq = str(n) + "h"
+    elif freq.endswith("hrPt"):
+        n = 1 if freq == "hrPt" else int(freq[:-4])
+        nemo_freq = str(n) + "h"
+    else:
+        log.error("Could not associate cmor frequency %s with a nemo output frequency" % freq)
+        return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
 
 
