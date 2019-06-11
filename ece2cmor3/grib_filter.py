@@ -290,6 +290,12 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
         matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code]
         if any(matches):
             return matches[0]
+    # Fix for spectral fields at height levels being written as model level fields in GG file
+    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
+        matches = [k for k in keys if k == (varid, tabid, grib_file.hybrid_level_code, level,
+                                            cmor_source.ifs_grid.point)]
+        if any(matches):
+            return matches[0]
     return None
 
 
@@ -333,7 +339,7 @@ def validate_tasks(tasks):
                                     (task.target.variable, task.target.table))
                 matched_keys.append(match_key)
         if task.status != cmor_task.status_failed:
-            # Fix for zg and ps on gridpoints:
+            # Fix for zg and ps on gridpoints and spectral fields on height levels:
             task.source.grid_ = matched_grid
             for key in matched_keys:
                 if key in varstasks:
