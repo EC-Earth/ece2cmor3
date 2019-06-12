@@ -66,13 +66,6 @@ def initialize(path, expname, tableroot, refdate):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
                     "whenever encountered" % bathy_file_)
         bathy_file_ = None
-    cal = None
-    for f in nemo_files_:
-        cal = read_calendar(f)
-        if cal is not None:
-            break
-    if cal:
-        cmor.set_cur_dataset_attribute("calendar", cal)
     return True
 
 
@@ -357,10 +350,11 @@ def read_times(ds, task):
                     break
             if vals is None:
                 log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
-    times = None if vals is None else netCDF4.num2date(vals, units=units,
-                                                       calendar="standard" if calendar is None else calendar)
-    tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units,
-                                                          calendar="standard" if calendar is None else calendar)
+    # Fix for proleptic gregorian in XIOS output as gregorian
+    if calendar is None or calendar == "gregorian":
+        calendar = "proleptic_gregorian"
+    times = None if vals is None else netCDF4.num2date(vals, units=units, calendar=calendar)
+    tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units, calendar=calendar)
     return times, tbnds
 
 
@@ -442,23 +436,6 @@ def select_freq_files(freq):
         log.error("Could not associate cmor frequency %s with a nemo output frequency" % freq)
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
-
-
-# Reads the calendar attribute from the time dimension.
-def read_calendar(ncfile):
-    ds = None
-    try:
-        ds = netCDF4.Dataset(ncfile, 'r')
-        if not ds:
-            return None
-        timvar = ds.variables.get("time_centered", None)
-        if timvar is not None:
-            return getattr(timvar, "calendar", None)
-        else:
-            return None
-    finally:
-        if ds is not None:
-            ds.close()
 
 
 # Reads all the NEMO grid data from the input files.

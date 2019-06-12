@@ -27,7 +27,6 @@ table_root_ = None
 
 # Reference date i.e. the start date given by user as a command line parameter
 ref_date_ = None
-cmor_calendar_ = None
 
 # lpjg_path_ is the directory where the data files (LPJG .out-files) are located
 lpjg_path_ = None
@@ -128,7 +127,6 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
     if not os.path.exists(ncpath_) and not ncpath_created_:
         os.makedirs(ncpath_)
         ncpath_created_ = True
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
 
     coordfile = os.path.join(tabledir, prefix + "_coordinate.json")
