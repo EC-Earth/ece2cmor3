@@ -79,6 +79,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     targets = cmor_target.create_targets(table_dir, prefix)
     tmp_file.close()
     os.remove(tmp_file.name)
