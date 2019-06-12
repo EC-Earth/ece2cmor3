@@ -30,11 +30,13 @@ def keep_variable(target, model_component, ecearth_config):
         return model_component == "ifs"
 
     # Carbon-cycle variables only activated in EC-EARTH-CC
-    if variable in ["cfc12", "cfc13", "c14", "sf6"]:
+    if variable in ["cfc12", "cfc13", "c14", "sf6", \
+                    "dissicos", "talkos", "phos", "o2os", "no3os", "po4os", "chlos", "intpp", "epc100", \
+                    "epsi100", "epcalc100", "spco2", "dpco2", "fgco2", "fgo2", "froc", "o2min", "talk", \
+                    "o2", "chl", "dissic", "talk", "ph", "o2", "no3", "po4", "dfe", "si", "chl", "fgco2"]:
         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
 
     return True
-
 
 def choose_variable(target_list, model_component, ecearth_config):
     # For IFS, skip 3D variables on small level subsets in favor of extended level sets
