@@ -96,14 +96,14 @@ def main(args=None):
         log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting ece2cmor.')
 
-    if not os.path.isfile(args.conf):
-        log.fatal("Your metadata file %s cannot be found." % args.conf)
+    if not os.path.isfile(args.meta):
+        log.fatal("Your metadata file %s cannot be found." % args.meta)
         sys.exit(' Exiting ece2cmor.')
 
     modedict = {"preserve": ece2cmorlib.PRESERVE, "append": ece2cmorlib.APPEND, "replace": ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf, mode=modedict[args.overwritemode], tabledir=args.tabledir,
+    ece2cmorlib.initialize(args.meta, mode=modedict[args.overwritemode], tabledir=args.tabledir,
                            tableprefix=args.tableprefix, outputdir=args.odir, logfile=logfile,
                            create_subdirs=(not args.flatdir))
     ece2cmorlib.enable_masks = not args.nomask
