@@ -777,10 +777,12 @@ if produce_varlistjson_file:
  drqlistjson.close()
 
  # Removing the variable deptho as lomg it can not be cmorized, see #249:
- command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
- command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name + " --ececonf EC-EARTH-CC "
+#command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
+ command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-cc"   ) + " --ececonf EC-EARTH-CC "
+ command_3 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-aogcm") + " --ececonf EC-EARTH-AOGCM "
 #os.system(command_1)
  os.system(command_2)
+ os.system(command_3)
 
  print ' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.'
  print ' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'
