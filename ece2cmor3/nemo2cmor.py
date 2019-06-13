@@ -437,7 +437,7 @@ def select_freq_files(freq, varname):
         n = 1 if freq == "hrPt" else int(freq[:-4])
         nemo_freq = str(n) + "h"
     else:
-        log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname)
+        log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
        #log.error("Could not associate cmor frequency %s with a nemo output frequency" % freq)
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
