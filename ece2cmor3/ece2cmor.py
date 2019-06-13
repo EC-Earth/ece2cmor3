@@ -29,11 +29,11 @@ def main(args=None):
                                                                  "for a given leg")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
     varsarg = required.add_mutually_exclusive_group(required=True)
-    varsarg.add_argument("--vars", metavar="FILE", type=str,
+    varsarg.add_argument("--varlist", metavar="FILE", type=str,
                          help="File (json) containing cmor variables grouped per table, grouped per EC-Earth component")
     varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables, grouped per table")
-    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
+    required.add_argument("--meta", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
     cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
@@ -65,6 +65,8 @@ def main(args=None):
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--atm", action="store_true", default=False, help="Deprecated! Use --ifs instead")
     parser.add_argument("--oce", action="store_true", default=False, help="Deprecated! Use --nemo instead")
+    parser.add_argument("--conf", action="store_true", help="Deprecated! Use --meta instead")
+    parser.add_argument("--vars", action="store_true", help="Deprecated! Use --varlist instead")
     cmor_utils.ScriptUtils.add_model_tabfile_options(parser)
 
     args = parser.parse_args()
