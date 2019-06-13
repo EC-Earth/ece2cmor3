@@ -422,6 +422,12 @@ def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
+    elif freq == "yr":
+        nemo_freq = "1y"
+    elif freq == "monPt":
+        nemo_freq = "1m"   # check
+    elif freq == "monC":
+        nemo_freq = "1m"   # check
     elif freq == "monClim":
         nemo_freq = "1m"
     elif freq.endswith("mon"):
