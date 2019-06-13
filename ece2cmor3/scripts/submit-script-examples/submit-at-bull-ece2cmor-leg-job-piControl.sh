@@ -61,8 +61,8 @@
    ece2cmor $ECEDIR --exp         $EXP      \
                     --ececonf     $ECEMODEL \
                     --$COMPONENT            \
-                    --conf        $METADATA \
-                    --vars        $VARLIST  \
+                    --meta        $METADATA \
+                    --varlist     $VARLIST  \
                     --tmpdir      $TEMPDIR  \
                     --odir        $ODIR     \
                     --npp         28        \
