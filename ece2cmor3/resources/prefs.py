@@ -31,9 +31,21 @@ def keep_variable(target, model_component, ecearth_config):
 
     # Carbon-cycle variables only activated in EC-EARTH-CC
     if variable in ["cfc12", "cfc13", "c14", "sf6", \
-                    "dissicos", "talkos", "phos", "o2os", "no3os", "po4os", "chlos", "intpp", "epc100", \
-                    "epsi100", "epcalc100", "spco2", "dpco2", "fgco2", "fgo2", "froc", "o2min", "talk", \
-                    "o2", "chl", "dissic", "talk", "ph", "o2", "no3", "po4", "dfe", "si", "chl", "fgco2"]:
+                    "bfe", "bfeos", "bsi", "bsios", "calc", "calcos", "chl", "chldiat", "chldiatos", \
+                    "chlmisc", \"chlmiscos", "chlos", "co3", "co3os", "co3satcalc", "co3satcalcos", \
+                    "dcalc", "detoc", "detocos", "dfe", "dfeos", "dissic", "dissicnatos", "dissicos", \
+                    "dissoc", "dissocos", "dpco2", "dpo2", "epc100", "epcalc100", "epfe100", "epsi100", \
+                    "expc", "expcalc", "expfe", "expn", "expp", "expsi", "fbddtalk", "fbddtdic", "fbddtdife", \
+                    "fbddtdin", "fbddtdip", "fbddtdisi", "fgco2", "fgo2", "fric", "frn", "froc", "fsfe", \
+                    "fsn", "graz", "intdic", "intdoc", "intpbfe", "intpbsi", "intpcalcite", "intpn2", \
+                    "intpp", "intppcalc", "intppdiat", "intppmisc", "intppnitrate", "limfediat", "limfemisc", \
+                    "limirrdiat", "limirrmisc", "limndiaz", "limnmisc", "nh4", "nh4os", "no3", "no3os", "o2", \
+                    "o2min", "o2os", "pbfe", "pbsi", "pcalc", "ph", "phos", "phyc", "phycos", "phydiat", \
+                    "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
+                    "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
+                    "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
+                    # The list from the second line is created by using:
+                    #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' |sort |uniq > pisces-vars.txt
         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
 
     return True
