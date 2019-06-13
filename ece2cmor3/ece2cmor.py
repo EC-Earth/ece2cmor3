@@ -88,8 +88,8 @@ def main(args=None):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
         sys.exit(' Exiting ece2cmor.')
 
-    if args.vars is not None and not os.path.isfile(args.vars):
-        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+    if args.varlist is not None and not os.path.isfile(args.varlist):
+        log.fatal("Your variable list json file %s cannot be found." % args.varlist)
         sys.exit(' Exiting ece2cmor.')
 
     if args.drq is not None and not os.path.isfile(args.drq):
@@ -118,8 +118,8 @@ def main(args=None):
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
     try:
-        if getattr(args, "vars", None) is not None:
-            taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
+        if getattr(args, "varlist", None) is not None:
+            taskloader.load_tasks(args.varlist, active_components=active_components, target_filters=filters,
                                   check_duplicates=True)
         else:
             taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters,

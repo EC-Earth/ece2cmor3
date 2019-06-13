@@ -446,8 +446,6 @@ class ScriptUtils:
         opts = []
         if getattr(args, "drq", None) is not None:
             opts.extend(["--drq", args.drq])
-        if getattr(args, "vars", None) is not None:
-            opts.extend(["--vars", args.vars])
         if getattr(args, "ececonf", None) is not None:
             opts.extend(["--ececonf", args.ececonf])
         if getattr(args, "varlist", None) is not None:
