@@ -135,8 +135,6 @@ def lookup_variables(tasks):
         if len(results) == 0:
             log.error('Variable {:20} in table {:10} was not found in the NEMO output files: task skipped.'
                       .format(task.source.variable(), task.target.table))
-           #log.error("Variable %s needed for %s in table %s was not found in NEMO output files... skipping task" %
-           #          (task.source.variable(), task.target.variable, task.target.table))
             task.set_failed()
             continue
         if len(results) > 1:
@@ -180,9 +178,6 @@ def execute_netcdf_task(dataset, task):
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
     log.info('Cmorizing variable {:20} in table {:7} in file {}'
              .format(task.source.variable(), task.target.table, getattr(task, cmor_task.output_path_key)))
-   #log.info("cmorizing variable %s in table %s from %s in "
-   #         "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
-   #                         getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
@@ -444,7 +439,6 @@ def select_freq_files(freq, varname):
         nemo_freq = str(n) + "h"
     else:
         log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
-       #log.error("Could not associate cmor frequency %s with a nemo output frequency" % freq)
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
 

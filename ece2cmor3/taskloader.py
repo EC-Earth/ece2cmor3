@@ -146,8 +146,6 @@ def load_drq(varlist, config=None, check_prefs=True):
                     else:
                         log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
                                  .format(model, str(t), "any" if config is None else config))
-                       #log.info("Dismissing %s target %s within %s configuration due to preference flagging" %
-                       #         (model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
                 for key, tgts in d.items():
                     if len(tgts) > 1:
@@ -159,8 +157,6 @@ def load_drq(varlist, config=None, check_prefs=True):
                             if t not in choices:
                                 log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
                                          .format(model, str(t), "any" if config is None else config))
-                               #log.info("Dismissing %s target %s within %s configuration due to preference flagging"
-                               #         % (model, str(t), "any" if config is None else config))
                                 setattr(t, "load_status", "dismissed")
                     else:
                         choices = [tgts[0]]
