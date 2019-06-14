@@ -58,14 +58,15 @@
    export HDF5_USE_FILE_LOCKING=FALSE
    export UVCDAT_ANONYMOUS_LOG=false
 
-   ece2cmor $ECEDIR --exp         $EXP      \
-                    --ececonf     $ECEMODEL \
-                    --$COMPONENT            \
-                    --conf        $METADATA \
-                    --vars        $VARLIST  \
-                    --tmpdir      $TEMPDIR  \
-                    --odir        $ODIR     \
-                    --npp         28        \
+   ece2cmor $ECEDIR --exp               $EXP      \
+                    --ececonf           $ECEMODEL \
+                    --$COMPONENT                  \
+                    --meta              $METADATA \
+                    --varlist           $VARLIST  \
+                    --tmpdir            $TEMPDIR  \
+                    --odir              $ODIR     \
+                    --npp               28        \
+                    --skip_alevel_vars            \
                     --log
 
    mv $EXP-$COMPONENT-$LEG-*.log $ODIR
