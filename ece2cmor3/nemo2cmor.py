@@ -426,9 +426,9 @@ def select_freq_files(freq, varname):
         nemo_freq = "1y"
     elif freq == "monPt":
         nemo_freq = "1m"   # check
-    elif freq == "monC":
-        nemo_freq = "1m"   # check
-    elif freq == "monClim":
+   #elif freq == "monC":
+   #    nemo_freq = "1m"   # check
+    elif freq == "monClim":  # Is this one ever used, probably replaced by monC ?
         nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
