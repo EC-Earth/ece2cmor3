@@ -3,11 +3,7 @@
 # Run this script by:
 #  sbatch submit-at-bull-ece2cmor-leg-job.sh
 #  for i in {001..010}; do sbatch submit-at-bull-ece2cmor-leg-job.sh ifs $i; done
-#  for i in {nemo,ifs}; do for j in {001..010}; do sbatch submit-at-bull-ece2cmor-leg-job.sh "$i $j"; done; done
-#
-# Just show the equivalent when echoing:
-#  for i in {001..010}; do echo sbatch submit-at-bull-ece2cmor-leg-job.sh ifs $i; done
-#  for i in {nemo,ifs}; do for j in {001..010}; do echo sbatch submit-at-bull-ece2cmor-leg-job.sh "$i $j"; done; done
+#  for i in {nemo,ifs}; do for j in {001..010}; do sbatch submit-at-bull-ece2cmor-leg-job.sh $i $j; done; done
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
@@ -79,7 +75,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {001..010}; do echo sbatch ' $0 ' "$i $j"; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..010}; do      sbatch ' $0 ' "$i $j"; done; done'
+  echo '   for i in {nemo,ifs}; do for j in {001..003}; do echo sbatch ' $0 ' $i $j; done; done'
+  echo '   for i in {nemo,ifs}; do for j in {001..003}; do      sbatch ' $0 ' $i $j; done; done'
   echo
  fi
