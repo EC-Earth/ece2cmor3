@@ -185,8 +185,31 @@ def main():
             write_varlist_ascii(identified_missing_targets, args.output + ".identifiedmissing.txt")
             write_varlist_ascii(missing_targets, args.output + ".missing.txt")
 
-    # Finishing up
-    ece2cmorlib.finalize_without_cmor()
+
+    if False:
+     # Add writting of a json data request formatted file which includes all available variables in order to provide a 
+     # single test which covers all identified & available variables. If this block is activated and the following is run:
+     # ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1
+     # At least an equivalent json data request which covers all Core MIP requests is produced. However this does not 
+     # necessarily include all specific MIP requests. In fact it would be better to create a json data request equivalent
+     # based on the ifspar.json.
+     result = {}
+     for model, targetlist in matches.items():
+         result[model] = {}
+         for target in targetlist:
+             table = target.table
+             if table in result[model]:
+                 result[model][table].append(target.variable)
+             else:
+                 result[model][table] = [target.variable]
+    #with open(args.output + "-varlist-all-available.json", 'w') as ofile:
+     with open("varlist-all.json", 'w') as ofile:
+         json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
+         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
+         ofile.close()
+
+     # Finishing up
+     ece2cmorlib.finalize_without_cmor()
 
 
 if __name__ == "__main__":
