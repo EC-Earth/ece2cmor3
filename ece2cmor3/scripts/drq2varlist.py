@@ -70,11 +70,13 @@ def main():
     for model, targetlist in matches.items():
         result[model] = {}
         for target in targetlist:
-            table = target.table
-            if table in result[model]:
-                result[model][table].append(target.variable)
-            else:
-                result[model][table] = [target.variable]
+            # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
+            if target.variable is not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
+             table = target.table
+             if table in result[model]:
+                 result[model][table].append(target.variable)
+             else:
+                 result[model][table] = [target.variable]
     with open(args.varlist, 'w') as ofile:
         json.dump(result, ofile, indent=4, separators=(',', ': '), sort_keys=True)
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
