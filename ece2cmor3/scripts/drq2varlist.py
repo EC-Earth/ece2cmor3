@@ -71,7 +71,7 @@ def main():
         result[model] = {}
         for target in targetlist:
             # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
-            if target.variable is not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
+            if target.variable not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
              table = target.table
              if table in result[model]:
                  result[model][table].append(target.variable)
