@@ -578,7 +578,7 @@ nr_of_missing_fields_in_field_def = 0
 nr_of_available_fields_in_field_def = 0
 
 
-# Load the ece2cmor targetsinorder to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
+# Load the ece2cmor targets in order to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
 targets = cmor_target.create_targets("../resources/tables/", "CMIP6")
 view_counter = 0
 
