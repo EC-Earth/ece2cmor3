@@ -120,6 +120,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
+        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         src = cmor_source.netcdf_source("tos", "nemo")
         tgt = cmor_target.cmor_target("tos", "Omon")
@@ -155,6 +156,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
+        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         nemo2cmor.finalize()
         cmor.close()
@@ -164,6 +166,7 @@ class nemo2cmor_tests(unittest.TestCase):
         conf_path = ece2cmorlib.conf_path_default
         cmor.setup(tab_dir)
         cmor.dataset_json(conf_path)
+        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
         nemo2cmor.initialize(self.data_dir, "exp", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         src = cmor_source.netcdf_source("to", "nemo")
         tgt = cmor_target.cmor_target("thetao", "Omon")

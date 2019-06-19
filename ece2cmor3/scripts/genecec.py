@@ -31,6 +31,7 @@ ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DC
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
 #ec_earth_mips = ['CMIP']        # for a faster test
 #ec_earth_mips = ['ScenarioMIP'] # for a faster test
+#ec_earth_mips = ['AerChemMIP']  # for a faster test
 experiment_counter = 0
 
 
@@ -200,7 +201,8 @@ for mip in dq.coll['mip'].items:
        command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
-          if ex.tier[0] in experiment_tiers_included:
+         #if ex.tier[0] in experiment_tiers_included:
+          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust'):  # Add also the tier 2 experiment: AerChemMIP piClim-2xdust
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)

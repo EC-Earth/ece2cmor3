@@ -578,7 +578,7 @@ nr_of_missing_fields_in_field_def = 0
 nr_of_available_fields_in_field_def = 0
 
 
-# Load the ece2cmor targetsinorder to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
+# Load the ece2cmor targets in order to have the content of the cmor tables available. The purpose is to derive the correct time operation from the tables directly.
 targets = cmor_target.create_targets("../resources/tables/", "CMIP6")
 view_counter = 0
 
@@ -777,10 +777,12 @@ if produce_varlistjson_file:
  drqlistjson.close()
 
  # Removing the variable deptho as lomg it can not be cmorized, see #249:
- command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
- command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name + " --ececonf EC-EARTH-AOGCM "
+#command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
+ command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-cc"   ) + " --ececonf EC-EARTH-CC "
+ command_3 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-aogcm") + " --ececonf EC-EARTH-AOGCM "
 #os.system(command_1)
  os.system(command_2)
+ os.system(command_3)
 
  print ' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.'
  print ' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'

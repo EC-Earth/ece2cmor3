@@ -34,13 +34,13 @@
    COMPONENT=$1
    LEG=$2
 
-   EXP=t001
-   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r6874-control-output-files/$EXP/output/$COMPONENT/$LEG
+   EXP=h002
+   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r6485-historical-setup/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=/nfs/home/users/reerink/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
-   TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=/nfs/home/users/reerink/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-piControl/$EXP/$COMPONENT/$LEG
+   METADATA=/nfs/home/users/reerink/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json
+   TEMPDIR=/lustre2/projects/model_testing/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
+   VARLIST=/nfs/home/users/reerink/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
+   ODIR=/lustre2/projects/model_testing/reerink/cmorised-results/cmor-cmip-historical/$EXP/$COMPONENT/$LEG
 
    if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
 

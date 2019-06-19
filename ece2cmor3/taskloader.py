@@ -156,8 +156,8 @@ def load_drq(varlist, config=None, check_prefs=True):
                         else:
                             d[key] = [t]
                     else:
-                        log.info("Dismissing %s target %s within %s configuration due to preference flagging" %
-                                 (model, str(t), "any" if config is None else config))
+                        log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
+                                 .format(model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
                 for key, tgts in d.items():
                     if len(tgts) > 1:
@@ -167,8 +167,8 @@ def load_drq(varlist, config=None, check_prefs=True):
                         choices = prefs.choose_variable(tgts, model, config)
                         for t in tgts:
                             if t not in choices:
-                                log.info("Dismissing %s target %s within %s configuration due to preference flagging"
-                                         % (model, str(t), "any" if config is None else config))
+                                log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
+                                         .format(model, str(t), "any" if config is None else config))
                                 setattr(t, "load_status", "dismissed")
                     else:
                         choices = [tgts[0]]
@@ -606,7 +606,7 @@ def create_cmor_task(pardict, target, component):
     global log, json_source_key
     source = create_cmor_source(pardict, component)
     if source is None:
-        raise ValueError("Failed to construct a source for target variable %s in table %s...skipping task"
+        raise ValueError("Failed to construct a source for target variable %s in table %s: task skipped."
                          % (target.variable, target.table))
     task = cmor_task.cmor_task(source, target)
     mask = pardict.get(json_masked_key, None)

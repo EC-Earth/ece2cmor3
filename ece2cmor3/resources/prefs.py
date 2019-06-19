@@ -30,11 +30,25 @@ def keep_variable(target, model_component, ecearth_config):
         return model_component == "ifs"
 
     # Carbon-cycle variables only activated in EC-EARTH-CC
-    if variable in ["cfc12", "cfc13", "c14", "sf6"]:
+    if variable in ["cfc12", "cfc13", "c14", "sf6", \
+                    "bfe", "bfeos", "bsi", "bsios", "calc", "calcos", "chl", "chldiat", "chldiatos", \
+                    "chlmisc", "chlmiscos", "chlos", "co3", "co3os", "co3satcalc", "co3satcalcos", \
+                    "dcalc", "detoc", "detocos", "dfe", "dfeos", "dissic", "dissicnatos", "dissicos", \
+                    "dissoc", "dissocos", "dpco2", "dpo2", "epc100", "epcalc100", "epfe100", "epsi100", \
+                    "expc", "expcalc", "expfe", "expn", "expp", "expsi", "fbddtalk", "fbddtdic", "fbddtdife", \
+                    "fbddtdin", "fbddtdip", "fbddtdisi", "fgco2", "fgo2", "fric", "frn", "froc", "fsfe", \
+                    "fsn", "graz", "intdic", "intdoc", "intpbfe", "intpbsi", "intpcalcite", "intpn2", \
+                    "intpp", "intppcalc", "intppdiat", "intppmisc", "intppnitrate", "limfediat", "limfemisc", \
+                    "limirrdiat", "limirrmisc", "limndiaz", "limnmisc", "nh4", "nh4os", "no3", "no3os", "o2", \
+                    "o2min", "o2os", "pbfe", "pbsi", "pcalc", "ph", "phos", "phyc", "phycos", "phydiat", \
+                    "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
+                    "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
+                    "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
+        # The list above from the second line on is created by using:
+        #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' |sort |uniq > pisces-vars.txt
 
     return True
-
 
 def choose_variable(target_list, model_component, ecearth_config):
     # For IFS, skip 3D variables on small level subsets in favor of extended level sets

@@ -180,7 +180,6 @@ def execute(tasks, nthreads=1):
     for task in mask_tasks:
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     tasks = list(set(tasks_todo).intersection(regular_tasks))
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     if nthreads == 1:
         for task in tasks:
             cmor_worker(task)

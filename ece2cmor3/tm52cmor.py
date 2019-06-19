@@ -74,12 +74,6 @@ def initialize(path,expname,tabledir, prefix,refdate):
     areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
     cal = None
     ref_date_ = refdate
-    for f in tm5_files_:
-        cal = read_calendar(f)
-        if(cal):
-            break
-    if(cal):
-        cmor.set_cur_dataset_attribute("calendar",cal)
 
     # read pressure level definitions from CMIP6_coordante file
     # and save globally
@@ -200,8 +194,6 @@ def execute(tasks):
         cmor.load_table(table_root_ + "_grids.json")
         grid = create_lonlat_grid()#xsize, xfirst, yvals)
         grid_ids_['lonlat']=grid
-
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -571,20 +563,6 @@ def create_time_axis(freq,path,name,has_bounds):
     else:
         return cmor.axis(table_entry = str(name), units=units, coord_vals = vals)
 
-def read_calendar(ncfile):
-    # Reads the calendar attribute from the time dimension.
-    try:
-        ds = netCDF4.Dataset(ncfile,'r')
-        if(not ds):
-            return None
-        timvar = ds.variables["time"]
-        if(timvar):
-            result = getattr(timvar,"calendar")
-            return result
-        else:
-            return None
-    finally:
-        ds.close()
 
 def create_depth_axes(task):
     global log_depth_axis_ids

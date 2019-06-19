@@ -71,7 +71,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     if "outpath" not in metadata:
         metadata["outpath"] = os.path.join(os.getcwd(), "cmor")
     hist = metadata.get("history", "")
-    newline = "processed by ece2cmor v{version}, git rev. " \
+    newline = "processed by ece2cmor {version}, git rev. " \
               "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
     metadata["history"] = newline + hist if len(hist) != 0 else newline
     for key, val in metadata.items():
@@ -79,6 +79,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     targets = cmor_target.create_targets(table_dir, prefix)
     tmp_file.close()
     os.remove(tmp_file.name)
