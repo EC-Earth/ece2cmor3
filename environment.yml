@@ -14,7 +14,7 @@
 #   conda list
 #   conda update --all
 #  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active): 
-#   pip uninstall -y dreqPy==01.00.29; pip install dreqPy==01.00.27
+#   pip uninstall -y dreqPy==01.00.30; pip install dreqPy==01.00.29
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3
