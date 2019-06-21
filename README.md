@@ -47,14 +47,14 @@ git submodule update --init --recursive
 In the ece2cmor3 git checkout directory, type
 ```shell
 conda env create -f environment.yml       # for linux & mac os
-source activate ece2cmor3
+conda activate ece2cmor3
 python setup.py install
 ```
 
 ##### Running ece2cmor3 inside the conda environment:
 
 ```shell
- source activate ece2cmor3
+ conda activate ece2cmor3
  ece2cmor -h
  checkvars -h
  etc.
