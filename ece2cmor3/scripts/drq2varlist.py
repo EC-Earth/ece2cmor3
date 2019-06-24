@@ -32,8 +32,12 @@ log = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
-    parser.add_argument("--drq", metavar="FILE", type=str, required=True,
+    required = parser.add_argument_group("required arguments")
+    varsarg = required.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
+    varsarg.add_argument("--allvars", action="store_true", default=False, help="Read all possible variables from CMOR "
+                                                                               "tables")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
@@ -50,7 +54,7 @@ def main():
     print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
     print ""
 
-    if not os.path.isfile(args.drq):
+    if not args.allvars and not os.path.isfile(args.drq):
         log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting drq2varlist.')
 
@@ -58,7 +62,10 @@ def main():
     ece2cmorlib.initialize_without_cmor(tabledir=args.tabdir, tableprefix=args.tabid)
 
     try:
-        matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+        if getattr(args, "allvars", False):
+            matches, omitted = taskloader.load_drq("allvars", config=args.ececonf, check_prefs=True)
+        else:
+            matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"

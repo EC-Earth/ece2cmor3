@@ -33,12 +33,14 @@ def main(args=None):
                          help="File (json) containing cmor variables grouped per table, grouped per EC-Earth component")
     varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables, grouped per table")
+    varsarg.add_argument("--allvars", action="store_true", default=False, help="Read all possible variables from CMOR "
+                                                                           "tables")
     required.add_argument("--meta", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
     cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
-                        help="EC-Earth configuration (only used with --drq option)")
+                        help="EC-Earth configuration (only used with --drq option)", default="EC-EARTH-AOGCM")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
     parser.add_argument("--npp", metavar="N", type=int, default=8, help="Number of parallel tasks (only relevant for "
@@ -121,8 +123,11 @@ def main(args=None):
         if getattr(args, "varlist", None) is not None:
             taskloader.load_tasks(args.varlist, active_components=active_components, target_filters=filters,
                                   check_duplicates=True)
+        elif getattr(args, "allvars", False):
+            taskloader.load_tasks("allvars", active_components=active_components, target_filters=filters,
+                                  check_duplicates=True)
         else:
-            taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters,
+            taskloader.load_tasks_from_drq(args.drq, active_components=active_components, target_filters=filters,
                                            check_prefs=True)
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
