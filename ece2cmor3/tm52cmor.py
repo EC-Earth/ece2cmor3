@@ -41,7 +41,9 @@ type_axes_ = {}
 ps_tasks = {}
 
 time_axis_ids = {}
+type_axis_ids = {}
 depth_axis_ids = {}
+zfactor_ids = {}
 
 # Reference date, times will be converted to hours since refdate
 ref_date_ = None
@@ -55,10 +57,14 @@ areacella_=0
 plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
 plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
 
+extra_axes = {"lambda550nm":  {"ncdim": "lambda550nm",
+                          "ncunits": "nm",
+                          "ncvals": [550.0]}}
+
+
 #
 ignore_frequency=['subhrPt','3hrPt']
 ps6hrpath_=None
-store_with_ps_=None
 using_grid_=False
 path_=None
 # Initializes the processing loop.
@@ -72,6 +78,7 @@ def initialize(path,expname,tabledir, prefix,refdate):
 
     areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
     areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
+    
     cal = None
     ref_date_ = refdate
     for f in tm5_files_:
@@ -193,7 +200,6 @@ def execute(tasks):
                 task.set_failed()
                 continue
     ps_tasks=get_ps_tasks(tasks)
-    
     log.info('Creating TM5 3x2 deg lon-lat grid')
     
     if using_grid_:
@@ -222,12 +228,12 @@ def execute(tasks):
             log.error("ERR -6: Skipping variable %s not implemented yet" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
-        if table== '6hrLev':
-            for task in tasklist:
-                task.set_failed()
-            log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
-            log.error("ERR -7: Skipping variable %s, which is not implemented yet" %(task.target.variable))
-            continue
+        # if table== '6hrLev':
+        #     for task in tasklist:
+        #         task.set_failed()
+        #     log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
+        #     log.error("ERR -7: Skipping variable %s, which is not implemented yet" %(task.target.variable))
+        #     continue
         if table== 'Eday':
             print 'EDAY: ',task.target.variable
         log.info("Creating longitude and latitude axes for table %s..." % table)
@@ -265,6 +271,9 @@ def execute(tasks):
             if task.status==cmor_task.status_failed:
                 continue
             create_depth_axes(task)
+            if 'lambda550nm' in tgtdims :
+                print 'lambda',task.target.variable
+                create_type_axes(task)
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
             else:
@@ -307,7 +316,8 @@ def execute_netcdf_task(task,tableid):
         return
 
     store_var = getattr(task, "store_with", None)
-    if( task.target.dims == 3):
+    print 'sore with',store_var
+    if( task.target.dims >= 3):
         if using_grid_:
             axes = [grid_ids_['lonlat']]
         else:
@@ -380,9 +390,10 @@ def execute_netcdf_task(task,tableid):
     time_id = getattr(task, "time_axis", 0)
     if time_id != 0:
         axes.append(time_id)
-    for type in type_axes_:
-        if type in getattr(task.target, cmor_target.dims_key):
-            axes.append(type_axes_[type])
+    for key in type_axes_:
+        
+        if key[0]==task.target.table and key[1] in getattr(task.target, cmor_target.dims_key):
+            axes.append(type_axes_[key])
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
@@ -434,6 +445,7 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
+        print getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None)
         psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
@@ -468,6 +480,7 @@ def create_cmor_variable(task,dataset,axes):
             unit_miss_match.append(task.target.variable)
             log.error("ERR -21: unit miss match, variable %s" % (task.target.variable))
             return task.set_failed()
+
     if((not unit) or hasattr(task,cmor_task.conversion_key)): # Explicit unit conversion
         unit = getattr(task.target,"units")
     if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
@@ -586,8 +599,37 @@ def read_calendar(ncfile):
     finally:
         ds.close()
 
+def create_type_axes(task):
+    global type_axes
+    table=task.target.table
+    key = (table,'lambda550nm')
+    if key not in type_axes_:
+        type_axes_[key] = {}
+    filepath= getattr(task,cmor_task.output_path_key)
+    log.info("Creating extra axes for table %s using file %s..." % (table, filepath))
+    table_type_axes = type_axes_[key]
+    tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
+    for dim in tgtdims:
+    #     if dim in tgtdims:
+    #         if dim in type_axes_[task.table]:
+    #             axis_id=type_axes_[task.table]
+    #         else:
+    #             axisinfo=extra_axes[dim]
+    #             nc_dim_name=axisinfo["ncdim"]
+        if dim == 'lambda550nm':
+            ncunits=extra_axes['lambda550nm']['ncunits']
+            ncvals=extra_axes['lambda550nm']['ncvals']
+            ax_id = cmor.axis(table_entry="lambda550nm", units=ncunits, coord_vals=ncvals)
+            setattr(task, "lambda_axis", ax_id)
+            type_axes_[key]=ax_id
+        else:
+            print dim
+    return
+
+
 def create_depth_axes(task):
-    global log_depth_axis_ids
+    global log_depth_axis_ids,zfactor_ids
+
     #depth_axes = {}
     #for task in tasks:
     tgtdims = getattr(task.target, cmor_target.dims_key)
@@ -609,15 +651,19 @@ def create_depth_axes(task):
         if zdim == "alevel":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
+            #setattr(task, "store_with", key[0])
         elif zdim == "alevhalf":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
+            #setattr(task, "store_with", key[0])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev19_)
+            #setattr(task, "store_with", key[0])
         elif zdim == "plev39":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev39_)
+            #setattr(task, "store_with", key[0])
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -625,16 +671,25 @@ def create_depth_axes(task):
         log.info("Creating model full level axis for variable %s..." % task.target.variable)
         axisid, psid = create_hybrid_level_axis(task)
         depth_axis_ids[key] = (axisid, psid)
+        if key[0] not in zfactor_ids:
+            zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
+        #setattr(task, "store_with", key[0])
         return True
     elif zdim == 'alevhalf':
         #if zdim not in depth_axis_ids:
         log.info("Creating model half level axis for variable %s..." % task.target.variable)
-        axisid, psid = create_hybrid_level_axis(task,'half')
-        depth_axis_ids[zdim] = (axisid, psid)
+        axisid, psid = create_hybrid_level_axis(task,'alevhalf')
+        depth_axis_ids[key] = (axisid, psid)
+        if key[0] not in zfactor_ids:
+            zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
+        print depth_axis_ids
+        #(a,p)=depth_axis_ids[('AERmon','alevel')]
         setattr(task, "store_with", psid)
+        #setattr(task, "store_with", p)
+        print psid
         return True
         # log.error("ERR -1: Vertical axis %s not implemented yet" %(zdim))
         # task.set_failed()
@@ -666,8 +721,8 @@ def create_depth_axes(task):
 
 
 # Creates the hybrid model vertical axis in cmor.
-def create_hybrid_level_axis(task,hybrid_type='full'):
-    global time_axes_,store_with_ps_,grid_ids_
+def create_hybrid_level_axis(task,leveltype='alevel'):
+    global time_axes_,store_with_ps_,grid_ids_,zfactor_ids
     # define grid and time axis for hybrid levels
     if using_grid_:
         axes=[]
@@ -704,13 +759,13 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
             n = hci.shape[0]
         else:
             log.critical("Interface values for hybrid levels not present!")
-        if hybrid_type=='full':
+        if leveltype=='alevel':
             axisid = cmor.axis(table_entry="alternate_hybrid_sigma", coord_vals=hcm, cell_bounds=hcbnds, units="1")
             cmor.zfactor(zaxis_id=axisid, zfactor_name="ap", units=str(aunit), axis_ids=[axisid], zfactor_values=am[:],
                          zfactor_bounds=abnds)
             cmor.zfactor(zaxis_id=axisid, zfactor_name="b", units=str(bunit), axis_ids=[axisid], zfactor_values=bm[:],
                      zfactor_bounds=bbnds)
-        elif hybrid_type=='half':
+        elif leveltype=='alevhalf':
             axisid = cmor.axis(table_entry="alternate_hybrid_sigma_half", coord_vals=hci, units="1")
 
             cmor.zfactor(zaxis_id=axisid, zfactor_name="ap_half", units=str(aunit), axis_ids=[axisid,], zfactor_values=ai[:])
@@ -722,12 +777,20 @@ def create_hybrid_level_axis(task,hybrid_type='full'):
             psvarname='ps1'
         else:
             psvarname='ps'
-        if store_with_ps_==None:
+        #if depth_axis_ids[('task.table',leveltype)]!=None:
+
+        #    setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
+        if task.target.table not in zfactor_ids:
+        #if getattr(task,'store_with',None)==None:
+            #if task.target.table
             storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=psvarname,
                                 axis_ids=axes, units="Pa")
-            store_with_ps_ = storewith
+            setattr(task,'store_with',storewith)
+            #store_with_ps_ = storewith
         else:
-            storewith=store_with_ps_
+            #setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
+            storewith=zfactor_ids[task.target.table]
+            #getattr(task,'store_with',None)#store_with_ps_
         return axisid, storewith
     finally:
         if ds is not None:
@@ -792,6 +855,8 @@ def get_ps_var(ncpath):
     if not ncpath:
         log.error("ERR -2: No path defined for surface pressure (ps).")
         return None
+    #if len(ncpath)==1:
+    #    ncpath=ncpath[0]
     if not os.path.exists(ncpath):
         log.error("ERR -3: Path does not exist for surface pressure (ps).")
         return None
@@ -829,9 +894,11 @@ def get_ps_tasks(tasks):
             setattr(ps_task.target, "time_operator", ["point"])
             freqid=set_freqid(freq)
             filepath=cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid)
-            setattr(ps_task, cmor_task.output_path_key, filepath)
+            setattr(ps_task, cmor_task.output_path_key, filepath[0])
+            print filepath
             result[freq]=ps_task
         for task3d in tasks3d:
+
             setattr(task3d, "ps_task", ps_task)
     return result
 
