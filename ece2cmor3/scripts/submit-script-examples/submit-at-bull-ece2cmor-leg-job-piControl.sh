@@ -48,8 +48,8 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
    mkdir -p $TEMPDIR
 
-   export PATH="${HOME}/anaconda2/bin:$PATH"
-   source activate ece2cmor3
+   export PATH="${HOME}/miniconda2/bin:$PATH"
+   conda activate ece2cmor3
 
    export HDF5_USE_FILE_LOCKING=FALSE
    export UVCDAT_ANONYMOUS_LOG=false
@@ -66,6 +66,21 @@
                     --log
 
    mv $EXP-$COMPONENT-$LEG-*.log $ODIR
+   if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+
+   # Launching the next job for the next leg:
+   arg0=submit-at-bull-ece2cmor-leg-job-piControl.sh
+   arg1=$1
+   arg2previous=$2
+   arg2next=$((${arg2previous}+8))  # Note this 8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
+   arg2=$(printf %.3d ${arg2next} )
+   if [ ${arg2next} -lt 601 ] ; then
+    echo ' A next job is launched:'
+    echo ' ' sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+   else
+    echo ' No next job is launched.'
+   fi
 
  else
   echo
@@ -75,9 +90,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {001..003}; do echo sbatch ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..003}; do      sbatch ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..003}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..003}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
+  echo '   for i in {nemo,ifs}; do for j in {100..107}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
+  echo '   for i in {nemo,ifs}; do for j in {100..107}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
   echo
  fi
