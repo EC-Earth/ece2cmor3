@@ -12,10 +12,6 @@
         "target": "sftgif"
     },
     {
-        "source": "33.126",
-        "target": "sftgrf"
-    },
-    {
         "source": "34.126",
         "target": "areacellg"
     },
@@ -143,12 +139,6 @@
     {
         "source": "32.128",
         "target": "albsn"
-    },
-    {
-        "source": "43.128",
-        "target": "mrso",
-        "expr": "70*var39+210*var40+720*var41+1890*var42",
-        "masked": "land"
     },
     {
         "source": "44.128",
@@ -430,14 +420,6 @@
         ]
     },
     {
-        "source": "214.128",
-        "target": [
-            "sfcWind",
-            "sfcWindmax"
-        ],
-        "expr": "sqrt(sqr(var165)+sqr(var166))"
-    },
-    {
         "source": "228.128",
         "convert": "vol2flux",
         "target": "pr"
@@ -475,6 +457,30 @@
         "source": "23.129",
         "target": "cdnc",
         "expr": "var126020/var126022"
+    },
+    {
+        "source": "43.129",
+        "target": "mrso",
+        "expr": "70*var39+210*var40+720*var41+1890*var42",
+        "masked": "land"
+    },
+    {
+        "source": "50.129",
+        "target": "clayfrac",
+        "expr": "(var43==1)*0.0+(var43==2)*0.0+(var43==3)*0.2+(var43==4)*0.8+(var43==5)*1.0+(var43==6)*0.4+(var43==7)*1.0/3.0",
+        "masked": "land"
+    },
+    {
+        "source": "51.129",
+        "target": "siltfrac",
+        "expr": "(var43==1)*0.0+(var43==2)*0.4+(var43==3)*0.6+(var43==4)*0.2+(var43==5)*0.0+(var43==6)*0.4+(var43==7)*1.0/3.0",
+        "masked": "land"
+    },
+    {
+        "source": "52.129",
+        "target": "sandfrac",
+        "expr": "(var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0",
+        "masked": "land"
     },
     {
         "source": "74.129",
@@ -716,6 +722,14 @@
         "target": "slthick",
         "expr": "merge((var139>0)*0.07,(var170>0)*0.21,(var183>0)*0.72,(var236>0)*1.89)",
         "masked": "land"
+    },
+    {
+        "source": "214.129",
+        "target": [
+            "sfcWind",
+            "sfcWindmax"
+        ],
+        "expr": "sqrt(sqr(var165)+sqr(var166))"
     },
     {
         "mask": "land",

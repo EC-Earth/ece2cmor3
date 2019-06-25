@@ -176,9 +176,8 @@ def get_levels(task, code):
 # Searches the file system for the previous month file, necessary for the 0-hour
 # fields.
 def get_prev_file(grb_file):
-    log.info("Searching for previous month file of %s" % grb_file)
     fname = os.path.basename(grb_file)
-    exp, year, mon = fname[5:10], int(fname[10:14]), int(fname[14:16])
+    exp, year, mon = fname[5:9], int(fname[10:14]), int(fname[14:16])
     if mon == 1:
         prev_year, prev_mon = year - 1, 12
     else:
@@ -188,12 +187,13 @@ def get_prev_file(grb_file):
     ini_path = None
     for output_path in output_files:
         output_name = os.path.basename(output_path)
-        if output_name[:10] == fname[:10] + "+000000":
-            ini_path = output_name
-        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and int(
-                output_name[14:]) == prev_mon:
-            log.info("Found previous month file %s" % output_path)
+        if output_name == fname[:9] + "+000000":
+            ini_path = output_path
+        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and \
+                int(output_name[14:]) == prev_mon:
+            log.info("Found previous month file for %s: %s" % (grib_file, output_path))
             return output_path
+    log.info("Assumed previous month file for %s: %s" % (grib_file, ini_path))
     return ini_path
 
 
@@ -290,6 +290,12 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
         matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code]
         if any(matches):
             return matches[0]
+    # Fix for spectral fields at height levels being written as model level fields in GG file
+    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
+        matches = [k for k in keys if k == (varid, tabid, grib_file.hybrid_level_code, level,
+                                            cmor_source.ifs_grid.point)]
+        if any(matches):
+            return matches[0]
     return None
 
 
@@ -333,7 +339,7 @@ def validate_tasks(tasks):
                                     (task.target.variable, task.target.table))
                 matched_keys.append(match_key)
         if task.status != cmor_task.status_failed:
-            # Fix for zg and ps on gridpoints:
+            # Fix for zg and ps on gridpoints and spectral fields on height levels:
             task.source.grid_ = matched_grid
             for key in matched_keys:
                 if key in varstasks:

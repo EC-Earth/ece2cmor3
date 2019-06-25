@@ -70,8 +70,8 @@ def main():
     for model, targetlist in matches.items():
         result[model] = {}
         for target in targetlist:
-            # Taking off zhalfo form the json data request files as long issue #388 is not solved
-            if target.variable != 'zhalfo':
+            # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
+            if target.variable not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
              table = target.table
              if table in result[model]:
                  result[model][table].append(target.variable)

@@ -1,6 +1,6 @@
 # For developers only:
 #  Remove the ece2cmor environment and clean the downloaded conda cache:
-#   source deactivate ece2cmor3
+#   conda deactivate ece2cmor3
 #   conda-env remove -y -n ece2cmor3
 #   conda clean --all -y
 #  Create the ece2cmor3 environment:
@@ -14,7 +14,7 @@
 #   conda list
 #   conda update --all
 #  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active): 
-#   pip uninstall -y dreqPy==01.00.29; pip install dreqPy==01.00.27
+#   pip uninstall -y dreqPy==01.00.30; pip install dreqPy==01.00.29
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3
@@ -42,6 +42,6 @@ dependencies:
   - testfixtures==5.3.1
   - xlrd==1.1.0
   - xlsxwriter==1.0.2
-  - dreqPy==01.00.29
+  - dreqPy==01.00.30
   - cython                                        # Unlisted dependency dreq 
   - xarray                                        # Unlisted dependency dreq and/or drq

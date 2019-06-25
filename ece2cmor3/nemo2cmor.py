@@ -60,19 +60,12 @@ def initialize(path, expname, tableroot, refdate):
     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
     # In order to remain backward compatible:
     if not os.path.isfile(ecedir + "/bathy_meter.nc"):
-     ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
+        ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
     bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
-                    "whenever encountered")
+                    "whenever encountered" % bathy_file_)
         bathy_file_ = None
-    cal = None
-    for f in nemo_files_:
-        cal = read_calendar(f)
-        if cal is not None:
-            break
-    if cal:
-        cmor.set_cur_dataset_attribute("calendar", cal)
     return True
 
 
@@ -126,13 +119,13 @@ def lookup_variables(tasks):
     for task in tasks:
         if (task.target.table, task.target.variable) == ("Ofx", "deptho"):
             if bathy_file_ is None:
-                log.error("Could not use bathymetry file for variable deptho in table Ofx... skipping task")
+                log.error("Could not use bathymetry file for variable deptho in table Ofx: task skipped.")
                 task.set_failed()
             else:
                 setattr(task, cmor_task.output_path_key, bathy_file_)
                 valid_tasks.append(task)
             continue
-        file_candidates = select_freq_files(task.target.frequency)
+        file_candidates = select_freq_files(task.target.frequency, task.target.variable)
         results = []
         for ncfile in file_candidates:
             ds = netCDF4.Dataset(ncfile)
@@ -140,8 +133,8 @@ def lookup_variables(tasks):
                 results.append(ncfile)
             ds.close()
         if len(results) == 0:
-            log.error("Variable %s needed for %s in table %s was not found in NEMO output files... skipping task" %
-                      (task.source.variable(), task.target.variable, task.target.table))
+            log.error('Variable {:20} in table {:10} was not found in the NEMO output files: task skipped.'
+                      .format(task.source.variable(), task.target.table))
             task.set_failed()
             continue
         if len(results) > 1:
@@ -183,9 +176,8 @@ def execute_netcdf_task(dataset, task):
         vals = numpy.ma.masked_equal(ncvar[...], missval)
         ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
-    log.info("cmorizing variable %s in table %s from %s in "
-             "file %s..." % (task.target.variable, task.target.table, task.source.variable(),
-                             getattr(task, cmor_task.output_path_key)))
+    log.info('Cmorizing variable {:20} in table {:7} in file {}'
+             .format(task.source.variable(), task.target.table, getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
                            time_selection=time_sel)
@@ -245,7 +237,8 @@ def create_depth_axes(ds, tasks, table):
                 log.error("Cannot find variable %s in %s for vertical axis construction" % (z_axis, ds.filepath()))
                 continue
             zvar = ds.variables[z_axis]
-            key = getattr(zvar, "long_name")
+            axis_type = "half" if cmor_target.get_z_axis(task.target)[0] == "olevhalf" else "full"
+            key = "-".join([getattr(zvar, "long_name"), axis_type])
             if key in table_depth_axes:
                 z_axis_ids.append(table_depth_axes[key])
             else:
@@ -294,17 +287,20 @@ def create_time_axes(ds, tasks, table):
                                                   time_operator[0]))
                 tid = table_time_axes[time_dim]
             else:
-                times, time_bounds, time_units, calendar = read_times(ds, task)
+                times, time_bounds = read_times(ds, task)
                 if times is None:
                     log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
+
+                tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
                 if time_bounds is None:
-                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times)
+                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
-                    tid = cmor.axis(table_entry=str(time_dim), units=time_units, coord_vals=times,
-                                    cell_bounds=time_bounds)
+                    tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
+                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
+                                    cell_bounds=tbounds)
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
@@ -315,7 +311,7 @@ def read_times(ds, task):
     def get_time_bounds(v):
         bnd = getattr(v, "bounds", None)
         if bnd in ds.variables:
-            res = ds.variables[bnd][:,:]
+            res = ds.variables[bnd][:, :]
         else:
             res = numpy.empty([len(v[:]), 2])
             res[1:, 0] = 0.5 * (v[0:-1] + v[1:])
@@ -324,27 +320,41 @@ def read_times(ds, task):
             res[-1, 1] = 1.5 * v[-1] - 0.5 * v[-2]
         return res
 
+    vals, bndvals, units, calendar = None, None, None, None
     if cmor_target.is_instantaneous(task.target):
         ncvar = ds.variables.get("time_instant", None)
         if ncvar is not None:
-            return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
-        for varname, ncvar in ds.variables.items():
-            if getattr(ncvar, "standard_name", "").lower() == "time":
-                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
-                return ncvar[:], None, getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+            vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+        else:
+            log.warning("Could not find time_instant variable in %s, looking for generic time..." % ds.filepath())
+            for varname, ncvar in ds.variables.items():
+                if getattr(ncvar, "standard_name", "").lower() == "time":
+                    log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                    vals, units, calendar = ncvar[:], getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
+                    break
+            if vals is None:
+                log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
     else:
         ncvar = ds.variables.get("time_centered", None)
         if ncvar is not None:
-            return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
-        for varname, ncvar in ds.variables.items():
-            if getattr(ncvar, "standard_name", "").lower() == "time":
-                log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
-                return ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), getattr(ncvar, "calendar", None)
-        log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
-    return None, None, None, None
+            vals, bndvals, units, calendar = ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), \
+                                             getattr(ncvar, "calendar", None)
+        else:
+            log.warning("Could not find time_centered variable in %s, looking for generic time..." % ds.filepath())
+            for varname, ncvar in ds.variables.items():
+                if getattr(ncvar, "standard_name", "").lower() == "time":
+                    log.warning("Found variable %s for instant time variable in file %s" % (varname, ds.filepath()))
+                    vals, bndvals, units, calendar = ncvar[:], get_time_bounds(ncvar), getattr(ncvar, "units", None), \
+                                                     getattr(ncvar, "calendar", None)
+                    break
+            if vals is None:
+                log.error("Could not find time variable in %s for %s... giving up" % (ds.filepath(), str(task.target)))
+    # Fix for proleptic gregorian in XIOS output as gregorian
+    if calendar is None or calendar == "gregorian":
+        calendar = "proleptic_gregorian"
+    times = None if vals is None else netCDF4.num2date(vals, units=units, calendar=calendar)
+    tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units, calendar=calendar)
+    return times, tbnds
 
 
 def create_type_axes(ds, tasks, table):
@@ -403,12 +413,17 @@ def get_nc_varname(task):
 
 
 # Selects files with data with the given frequency
-def select_freq_files(freq):
+def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
-    nemo_freq = None
     if freq == "fx":
         nemo_freq = "1y"
-    elif freq == "monClim":
+    elif freq == "yr":
+        nemo_freq = "1y"
+    elif freq == "monPt":
+        nemo_freq = "1m"   # check
+   #elif freq == "monC":
+   #    nemo_freq = "1m"   # check
+    elif freq == "monClim":  # Is this one ever used, probably replaced by monC ?
         nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
@@ -419,24 +434,13 @@ def select_freq_files(freq):
     elif freq.endswith("hr"):
         n = 1 if freq == "hr" else int(freq[:-2])
         nemo_freq = str(n) + "h"
+    elif freq.endswith("hrPt"):
+        n = 1 if freq == "hrPt" else int(freq[:-4])
+        nemo_freq = str(n) + "h"
+    else:
+        log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
+        return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
-
-
-# Reads the calendar attribute from the time dimension.
-def read_calendar(ncfile):
-    ds = None
-    try:
-        ds = netCDF4.Dataset(ncfile, 'r')
-        if not ds:
-            return None
-        timvar = ds.variables.get("time_centered", None)
-        if timvar is not None:
-            return getattr(timvar, "calendar", None)
-        else:
-            return None
-    finally:
-        if ds is not None:
-            ds.close()
 
 
 # Reads all the NEMO grid data from the input files.

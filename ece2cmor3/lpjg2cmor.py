@@ -8,6 +8,10 @@ import numpy as np
 import pandas as pd
 from cdo import *
 
+# for compressed files
+import gzip
+import shutil
+
 from ece2cmor3 import cmor_utils, cmor_target, cmor_task
 
 # from cmor.Test.test_python_open_close_cmor_multiple import path
@@ -23,7 +27,6 @@ table_root_ = None
 
 # Reference date i.e. the start date given by user as a command line parameter
 ref_date_ = None
-cmor_calendar_ = None
 
 # lpjg_path_ is the directory where the data files (LPJG .out-files) are located
 lpjg_path_ = None
@@ -124,7 +127,6 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
     if not os.path.exists(ncpath_) and not ncpath_created_:
         os.makedirs(ncpath_)
         ncpath_created_ = True
-    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
     cmor.load_table(table_root_ + "_grids.json")
 
     coordfile = os.path.join(tabledir, prefix + "_coordinate.json")
@@ -176,7 +178,16 @@ def execute(tasks):
                           (task.target.frequency, task.target.variable, task.target.table))
                 task.set_failed()
                 continue
-            lpjgfile = os.path.join(lpjg_path_, task.source.variable() + "_" + freqstr + ".out")
+
+            # if compressed file .out.gz file exists, uncompress it to temporary .out file
+            gzfile = os.path.join(lpjg_path_, task.source.variable() + "_" + freqstr + ".out.gz")
+            if os.path.exists(gzfile):
+                lpjgfile = os.path.join(ncpath_, task.source.variable() + "_" + freqstr + ".out")
+                log.info("Uncompressing file "+gzfile+" to temporary file "+lpjgfile)
+                with gzip.open(gzfile, 'rb') as f_in, open(lpjgfile, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            else:
+                lpjgfile = os.path.join(lpjg_path_, task.source.variable() + "_" + freqstr + ".out")
 
             if not os.path.exists(lpjgfile):
                 log.error("The file %s does not exist. Skipping CMORization of variable %s."
@@ -267,6 +278,12 @@ def execute(tasks):
                 # remove the regular (non-cmorized) netCDF file and the temporary .out file for current year
                 os.remove(ncfile)
                 os.remove(yearfile)
+
+            # end yearfile loop
+
+            # if compressed file .out.gz file exists, remove temporary .out file
+            if os.path.exists(gzfile):
+                os.remove(lpjgfile)
 
     return
 
@@ -405,12 +422,13 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         df_list = [df]
 
     if freq.startswith("yr"):
-        log.info("Creating lpjg netcdf file for variable " + outname + " for year " + str(int(df_list[0].columns[0])))
+        str_year=str(int(df_list[0].columns[0]))
     else:
-        log.info(
-            "Creating lpjg netcdf file for variable " + outname + " for year " + str(int(df_list[0].columns[0][1])))
+        str_year=str(int(df_list[0].columns[0][1]))
 
-    ncfile = os.path.join(ncpath_, outname + "_" + freq + ".nc")
+    log.info( "Creating lpjg netcdf file for variable " + outname + " for year " + str_year )
+
+    ncfile = os.path.join(ncpath_, outname + "_" + freq + "_" + str_year + ".nc")
     # Note that ncfile could be named anything, it will be deleted later and the cmorization takes care of proper
     # naming conventions for the final file
 

@@ -29,11 +29,11 @@ def main(args=None):
                                                                  "for a given leg")
     parser.add_argument("--exp", metavar="EXPID", type=str, default="ECE3", help="Experiment prefix")
     varsarg = required.add_mutually_exclusive_group(required=True)
-    varsarg.add_argument("--vars", metavar="FILE", type=str,
+    varsarg.add_argument("--varlist", metavar="FILE", type=str,
                          help="File (json) containing cmor variables grouped per table, grouped per EC-Earth component")
     varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables, grouped per table")
-    required.add_argument("--conf", metavar="FILE.json", type=str, required=True, help="Input metadata file")
+    required.add_argument("--meta", metavar="FILE.json", type=str, required=True, help="Input metadata file")
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
     cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
@@ -65,9 +65,13 @@ def main(args=None):
     parser.add_argument("--nofilter", action="store_true", default=False, help=argparse.SUPPRESS)
     parser.add_argument("--atm", action="store_true", default=False, help="Deprecated! Use --ifs instead")
     parser.add_argument("--oce", action="store_true", default=False, help="Deprecated! Use --nemo instead")
+    parser.add_argument("--conf", action="store_true", help="Deprecated! Use --meta instead")
+    parser.add_argument("--vars", action="store_true", help="Deprecated! Use --varlist instead")
     cmor_utils.ScriptUtils.add_model_tabfile_options(parser)
 
     args = parser.parse_args()
+
+    cmor_utils.ScriptUtils.set_custom_tabfiles(args)
 
     logfile = None
     logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
@@ -84,23 +88,24 @@ def main(args=None):
         log.fatal("Your data directory argument %s cannot be found." % args.datadir)
         sys.exit(' Exiting ece2cmor.')
 
-    if args.vars is not None and not os.path.isfile(args.vars):
-        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+    if args.varlist is not None and not os.path.isfile(args.varlist):
+        log.fatal("Your variable list json file %s cannot be found." % args.varlist)
         sys.exit(' Exiting ece2cmor.')
 
     if args.drq is not None and not os.path.isfile(args.drq):
         log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting ece2cmor.')
 
-    if not os.path.isfile(args.conf):
-        log.fatal("Your metadata file %s cannot be found." % args.conf)
+    if not os.path.isfile(args.meta):
+        log.fatal("Your metadata file %s cannot be found." % args.meta)
         sys.exit(' Exiting ece2cmor.')
 
     modedict = {"preserve": ece2cmorlib.PRESERVE, "append": ece2cmorlib.APPEND, "replace": ece2cmorlib.REPLACE}
 
     # Initialize ece2cmor:
-    ece2cmorlib.initialize(args.conf, mode=modedict[args.overwritemode], tabledir=args.tabledir, tableprefix=args.tableprefix,
-                           outputdir=args.odir, logfile=logfile, create_subdirs=(not args.flatdir))
+    ece2cmorlib.initialize(args.meta, mode=modedict[args.overwritemode], tabledir=args.tabledir,
+                           tableprefix=args.tableprefix, outputdir=args.odir, logfile=logfile,
+                           create_subdirs=(not args.flatdir))
     ece2cmorlib.enable_masks = not args.nomask
     ece2cmorlib.auto_filter = not args.nofilter
 
@@ -113,8 +118,8 @@ def main(args=None):
             return zaxis not in ["alevel", "alevhalf"]
         filters = {"model level": ifs_model_level_variable}
     try:
-        if getattr(args, "vars", None) is not None:
-            taskloader.load_tasks(args.vars, active_components=active_components, target_filters=filters,
+        if getattr(args, "varlist", None) is not None:
+            taskloader.load_tasks(args.varlist, active_components=active_components, target_filters=filters,
                                   check_duplicates=True)
         else:
             taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], target_filters=filters,

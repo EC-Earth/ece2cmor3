@@ -27,17 +27,18 @@ dq = dreq.loadDreq()
 # Specify in the list below which tier experiments should be included. For
 # instance [1,2] means tier 1 and tier 2 experiments are included:
 experiment_tiers_included = [1]
-ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
-#ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVar', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
+ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
+#ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
 #ec_earth_mips = ['CMIP']        # for a faster test
 #ec_earth_mips = ['ScenarioMIP'] # for a faster test
+#ec_earth_mips = ['AerChemMIP']  # for a faster test
 experiment_counter = 0
 
 
 # The list of MIPs for each of the eight EC-Earth3 model configurations which run CMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
 # for each of the EC-Earth3 model configurations:
 cmip_ece_configurations = {
- 'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB',
+ 'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB',
  'EC-EARTH-HR'      : 'CMIP,DCPP,HighResMIP',
  'EC-EARTH-LR'      : 'CMIP,PMIP',
  'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP',
@@ -48,20 +49,20 @@ cmip_ece_configurations = {
 }
 
 # Some test cases:
-##cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB'}
+##cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB'}
 ##cmip_ece_configurations = {'dummy':'dummy'}
 
 # The list of MIPs for each of the four EC-Earth3 model configurations which run ScenarioMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
 # for each of the EC-Earth3 model configurations:
 scenario_ece_configurations = {
- 'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB',
+ 'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB',
  'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,ScenarioMIP',
  'EC-EARTH-Veg'     : 'CMIP,LUMIP,LS3MIP,ScenarioMIP',
  'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
 }
 
 # Some test cases:
-##scenario_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVar,VIACSAB'}
+##scenario_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB'}
 ##scenario_ece_configurations = {'dummy':'dummy'}
 
 
@@ -75,7 +76,7 @@ ece_conf_mip_map = {
  'ScenarioMIP' : ['EC-EARTH-AOGCM','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
  'VolMIP'      : ['EC-EARTH-AOGCM'],
  'CORDEX'      : ['EC-EARTH-AOGCM'],
- 'DynVar'      : ['EC-EARTH-AOGCM'],
+ 'DynVarMIP'   : ['EC-EARTH-AOGCM'],
  'SIMIP'       : ['EC-EARTH-AOGCM'],
  'VIACSAB'     : ['EC-EARTH-AOGCM'],
  'HighResMIP'  : ['EC-EARTH-HR'],
@@ -200,7 +201,8 @@ for mip in dq.coll['mip'].items:
        command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/" + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
-          if ex.tier[0] in experiment_tiers_included:
+         #if ex.tier[0] in experiment_tiers_included:
+          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust'):  # Add also the tier 2 experiment: AerChemMIP piClim-2xdust
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)

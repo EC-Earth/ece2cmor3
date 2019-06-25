@@ -19,7 +19,7 @@ if [ "$#" -eq 0 ]; then
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-  drq -m CMIP,AerChemMIP,CDRMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB -e CMIP -t 3 -p 3 --xls --xlsDir xls-m=all-cmip6-mips-e=CMIP-t=3-p=3
+  drq -m CMIP,AerChemMIP,CDRMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e CMIP -t 3 -p 3 --xls --xlsDir xls-m=all-cmip6-mips-e=CMIP-t=3-p=3
 
 # Step 2: update the Shaconemo repository and thus the ping files:
 # cd ${HOME}/cmorize/shaconemo/ping-files/
@@ -96,7 +96,7 @@ if [ "$#" -eq 0 ]; then
 # ./determine-missing-variables.sh CMIP       CMIP          1 1 --nemo
 
 # Step 1+2: Request for all EC-EARTH3 MIPs of the CMIP experiments for tier=1 and priority=1:
-# ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVar,SIMIP,VIACSAB CMIP 1 1 --nemo
+# ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1 --nemo
 
 # Step 3:
 # ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1 --nemo
@@ -114,7 +114,7 @@ if [ "$#" -eq 0 ]; then
 # ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1 --nemo
 # ./determine-missing-variables.sh VolMIP      VolMIP       1 1 --nemo
 # ./determine-missing-variables.sh CORDEX      CORDEX       1 1 --nemo
-# ./determine-missing-variables.sh DynVar      DynVar       1 1 --nemo
+# ./determine-missing-variables.sh DynVarMIP   DynVarMIP    1 1 --nemo
 # ./determine-missing-variables.sh SIMIP       SIMIP        1 1 --nemo
 # ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1 --nemo
 
