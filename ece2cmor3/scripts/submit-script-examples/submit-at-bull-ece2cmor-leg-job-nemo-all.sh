@@ -69,7 +69,7 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
    # Launching the next job for the next leg:
-   arg0=submit-at-bull-ece2cmor-leg-job-piControl.sh
+   arg0=$0
    arg1=$1
    arg2previous=$2
    arg2next=$((${arg2previous}+8))  # Note this 8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
