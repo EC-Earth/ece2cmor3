@@ -40,7 +40,7 @@
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre2/projects/model_testing/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
    VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json
-   ODIR=/lustre2/projects/model_testing/reerink/cmorised-results/cmor-cmip-piControl/$EXP/$COMPONENT/$LEG
+   ODIR=/lustre2/projects/model_testing/reerink/cmorised-results/cmor-cmip-piControl/$EXP/$LEG
 
    if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
 
