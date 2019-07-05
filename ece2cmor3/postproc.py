@@ -161,24 +161,49 @@ def add_grid_operators(cdo, task):
 def add_time_operators(cdo, task):
     freq = getattr(task.target, cmor_target.freq_key, None)
     operators = getattr(task.target, "time_operator", ["point"])
+    if freq == "yr":
+        if operators == ["mean"]:
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["maximum"]:
+            cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["minimum"]:
+            cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["sum"]:
+            cdo.add_operator(cdoapi.cdo_command.sum_time_operators[cdoapi.cdo_command.year])
+        else:
+            log.error(
+                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+            task.set_failed()
+    if freq == "yrPt":
+        # End-of-year values:
+        if operators == ["point"]:
+            cdo.add_operator(cdoapi.cdo_command.select_month_operator, 12)
+            cdo.add_operator(cdoapi.cdo_command.select_day_operator, 31)
+            cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 21)
+        else:
+            log.error(
+                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+            task.set_failed()
     if freq == "mon":
         if operators == ["point"]:
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 12)
             cdo.add_operator(cdoapi.cdo_command.select_day_operator, 15)
         elif operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        elif operators == ["mean within years", "mean over years"]:
-            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
         elif operators == ["maximum"]:
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
         elif operators == ["minimum"]:
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
-        elif operators == ["maximum within days", "mean over days"]:
-            cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
-            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        elif operators == ["minimum within days", "mean over days"]:
-            cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
-            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+        elif operators == ["sum"]:
+            cdo.add_operator(cdoapi.cdo_command.sum_time_operators[cdoapi.cdo_command.month])
+        else:
+            log.error(
+                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+            task.set_failed()
+    if freq == "monPt":
+        if operators == ["point"]:
+            cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 12)
+            cdo.add_operator(cdoapi.cdo_command.select_day_operator, 15)
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
@@ -188,12 +213,12 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select_hour_operator, 12)
         elif operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
-        elif operators == ["mean within years", "mean over years"]:
-            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.day])
         elif operators == ["maximum"]:
             cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
         elif operators == ["minimum"]:
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
+        elif operators == ["sum"]:
+            cdo.add_operator(cdoapi.cdo_command.sum_time_operators[cdoapi.cdo_command.day])
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))

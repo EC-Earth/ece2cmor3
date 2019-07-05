@@ -26,6 +26,7 @@ class cdo_command:
     min_time_operators = {"day": "daymin", "mon": "monmin", "year": "yearmin"}
     max_time_operators = {"day": "daymax", "mon": "monmax", "year": "yearmin"}
     mean_time_operators = {"day": "daymean", "mon": "monmean", "year": "yearmean"}
+    sum_time_operators = {"day": "daysum", "mon": "monsum", "year": "yearsum"}
     select_hour_operator = "selhour"
     select_day_operator = "selday"
     select_month_operator = "selmon"
