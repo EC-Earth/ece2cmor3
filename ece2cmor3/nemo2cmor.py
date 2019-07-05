@@ -417,14 +417,13 @@ def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
-    elif freq == "yr":
+    elif freq in ["yr", "yrPt"]:
         nemo_freq = "1y"
     elif freq == "monPt":
-        nemo_freq = "1m"   # check
+        nemo_freq = "1m"
+    #TODO: Support climatological variables
    #elif freq == "monC":
    #    nemo_freq = "1m"   # check
-    elif freq == "monClim":  # Is this one ever used, probably replaced by monC ?
-        nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"

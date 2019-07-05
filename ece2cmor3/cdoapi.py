@@ -23,9 +23,10 @@ class cdo_command:
     gridtype_operator = "setgridtype"
     select_z_operator = "selzaxis"
     select_lev_operator = "sellevel"
-    min_time_operators = {"day": "daymin", "mon": "monmin"}
-    max_time_operators = {"day": "daymax", "mon": "monmax"}
-    mean_time_operators = {"day": "daymean", "mon": "monmean"}
+    min_time_operators = {"day": "daymin", "mon": "monmin", "year": "yearmin"}
+    max_time_operators = {"day": "daymax", "mon": "monmax", "year": "yearmin"}
+    mean_time_operators = {"day": "daymean", "mon": "monmean", "year": "yearmean"}
+    sum_time_operators = {"day": "daysum", "mon": "monsum", "year": "yearsum"}
     select_hour_operator = "selhour"
     select_day_operator = "selday"
     select_month_operator = "selmon"
@@ -47,7 +48,8 @@ class cdo_command:
     surf_level = "surface"
 
     # Optimized operator ordering for CDO:
-    operator_ordering = [set_code_operator, mean_time_operators[month], min_time_operators[month],
+    operator_ordering = [set_code_operator, mean_time_operators[year], min_time_operators[year],
+                         max_time_operators[year], mean_time_operators[month], min_time_operators[month],
                          max_time_operators[month], mean_time_operators[day], min_time_operators[day],
                          max_time_operators[day], timselmean_operator, gridtype_operator, ml2pl_operator,
                          ml2hl_operator, add_expression_operator, expression_operator, spectral_operator,
