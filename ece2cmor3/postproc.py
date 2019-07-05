@@ -170,6 +170,18 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.year])
         elif operators == ["sum"]:
             cdo.add_operator(cdoapi.cdo_command.sum_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["maximum within months", "mean over months"]:
+            cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["minimum within months", "mean over months"]:
+            cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["maximum within days", "mean over days"]:
+            cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
+        elif operators == ["minimum within days", "mean over days"]:
+            cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
@@ -196,6 +208,12 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.month])
         elif operators == ["sum"]:
             cdo.add_operator(cdoapi.cdo_command.sum_time_operators[cdoapi.cdo_command.month])
+        elif operators == ["maximum within days", "mean over days"]:
+            cdo.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+        elif operators == ["minimum within days", "mean over days"]:
+            cdo.add_operator(cdoapi.cdo_command.min_time_operators[cdoapi.cdo_command.day])
+            cdo.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
