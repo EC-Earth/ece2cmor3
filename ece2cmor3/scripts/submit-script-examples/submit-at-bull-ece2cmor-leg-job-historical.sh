@@ -94,7 +94,7 @@
   echo '  Or use:'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for j in {001..015}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
-  echo '   for j in {001..015}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
+  echo '   for j in {001..016}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {001..016}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
   echo
  fi
