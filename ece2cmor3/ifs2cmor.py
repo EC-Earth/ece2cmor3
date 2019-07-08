@@ -9,6 +9,9 @@ import os
 from datetime import datetime, timedelta
 from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
+timeshift  = datetime(1850,1,1) - datetime(1850,1,1)   # This is the correct default: timeshift = 0
+#timeshift = datetime(2260,1,1) - datetime(1850,1,1)   # Apply timeshift for instance in case you want manually to add a shift for the piControl
+
 # Logger construction
 log = logging.getLogger(__name__)
 
@@ -121,7 +124,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
             return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time())
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time()) - timeshift     # Apply timeshift
     dirname = '-'.join([exp_name_, "ifs", start_date_.isoformat().split('-')[0]])
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
@@ -702,7 +705,7 @@ def create_soil_depth_axis(name):
 # Makes a time axis for the given table
 def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
-    date_times = cmor_utils.read_time_stamps(path)
+    date_times = cmor_utils.read_time_stamps(path) - timeshift                                            # Apply timeshift
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return 0

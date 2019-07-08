@@ -8,6 +8,11 @@ import cmor_target
 import cmor_task
 import cmor_utils
 
+from datetime import datetime, timedelta
+
+timeshift  = datetime(1850,1,1) - datetime(1850,1,1)   # This is the correct default: timeshift = 0
+#timeshift = datetime(2260,1,1) - datetime(1850,1,1)   # Apply timeshift for instance in case you want manually to add a shift for the piControl
+
 # Logger object
 log = logging.getLogger(__name__)
 
@@ -294,10 +299,12 @@ def create_time_axes(ds, tasks, table):
                     task.set_failed()
                     continue
 
+                times = times - timeshift                                                                 # Apply timeshift
                 tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
                 if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
+                    time_bounds = time_bounds - timeshift                                                 # Apply timeshift
                     tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
                                     cell_bounds=tbounds)
