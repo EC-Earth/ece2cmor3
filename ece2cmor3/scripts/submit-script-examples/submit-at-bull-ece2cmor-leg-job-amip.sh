@@ -92,7 +92,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for j in {01..16}; do echo sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
-  echo '   for j in {01..16}; do      sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {001..016}; do echo sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
+  echo '   for j in {001..016}; do      sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
   echo
  fi
