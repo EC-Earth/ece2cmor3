@@ -34,13 +34,13 @@
    COMPONENT=$1
    LEG=$2
 
-   EXP=s370
-   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
+   EXP=ami1
+   ECEDIR=/lustre3/projects/CMIP6/sager/rundirs/ami1/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/ScenarioMIP/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AOGCM-$COMPONENT-template.json
+   METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/ScenarioMIP/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370/cmip6-data-request-varlist-ScenarioMIP-ssp370-EC-EARTH-AOGCM.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-scenario-ssp3-7.0/$EXP
+   VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-amip/cmip6-data-request-varlist-CMIP-amip-EC-EARTH-AOGCM.json
+   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-amip/$EXP
 
    if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
 
@@ -92,9 +92,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {166..173}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {166..173}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for j in {166..181}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
-  echo '   for j in {166..181}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
+  echo '   for j in {01..16}; do echo sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {01..16}; do      sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
   echo
  fi

@@ -8,6 +8,12 @@ import cmor_target
 import cmor_task
 import cmor_utils
 
+from datetime import datetime, timedelta
+
+timeshift = timedelta(0)
+# Apply timeshift for instance in case you want manually to add a shift for the piControl:
+#timeshift = datetime(2260,1,1) - datetime(1850,1,1)
+
 # Logger object
 log = logging.getLogger(__name__)
 
@@ -294,10 +300,12 @@ def create_time_axes(ds, tasks, table):
                     task.set_failed()
                     continue
 
+                times = times - timeshift                                                                 # Apply timeshift
                 tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
                 if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
+                    time_bounds = time_bounds - timeshift                                                 # Apply timeshift
                     tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
                                     cell_bounds=tbounds)
@@ -417,14 +425,13 @@ def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
-    elif freq == "yr":
+    elif freq in ["yr", "yrPt"]:
         nemo_freq = "1y"
     elif freq == "monPt":
-        nemo_freq = "1m"   # check
+        nemo_freq = "1m"
+    #TODO: Support climatological variables
    #elif freq == "monC":
    #    nemo_freq = "1m"   # check
-    elif freq == "monClim":  # Is this one ever used, probably replaced by monC ?
-        nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"

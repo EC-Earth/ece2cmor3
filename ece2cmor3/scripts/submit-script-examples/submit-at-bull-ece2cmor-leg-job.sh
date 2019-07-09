@@ -63,17 +63,19 @@
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
                     --npp               28        \
+                    --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
 
-   mv $EXP-$COMPONENT-$LEG-*.log $ODIR
+   mkdir -p $ODIR/logs
+   mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
    # Launching the next job for the next leg:
    arg0=$0
    arg1=$1
    arg2previous=$2
-   arg2next=$((${arg2previous}+8))  # Note this 8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
+   arg2next=$((${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
    arg2=$(printf %.3d ${arg2next} )
    if [ ${arg2next} -lt 30 ] ; then
     echo ' A next job is launched:'
@@ -93,5 +95,7 @@
   echo '  Or use:'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
+  echo '   for j in {001..015}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {001..015}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
   echo
  fi
