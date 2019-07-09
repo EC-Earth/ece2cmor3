@@ -245,7 +245,7 @@ def add_time_operators(cdo, task):
         add_high_freq_operator(cdo, 6, operators[0], task)
     elif freq in ["3hr", "3hrPt"] and len(operators) == 1:
         add_high_freq_operator(cdo, 3, operators[0], task)
-    elif freq in [0, "fx"] and operators == ["point"] or operators == ["mean"]:
+    elif freq == "fx" and operators == ["point"] or operators == ["mean"]:
         cdo.add_operator(cdoapi.cdo_command.select_step_operator, 1)
     else:
         log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))

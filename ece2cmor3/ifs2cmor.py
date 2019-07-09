@@ -236,7 +236,7 @@ def get_mask_tasks(tasks):
     result = []
     for m in set(selected_masks):
         target = cmor_target.cmor_target(m, "fx")
-        setattr(target, cmor_target.freq_key, 0)
+        setattr(target, cmor_target.freq_key, "fx")
         setattr(target, "time_operator", ["point"])
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
         result.append(result_task)
