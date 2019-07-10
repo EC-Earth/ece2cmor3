@@ -10,8 +10,9 @@ import cmor_utils
 
 from datetime import datetime, timedelta
 
-timeshift  = datetime(1850,1,1) - datetime(1850,1,1)   # This is the correct default: timeshift = 0
-#timeshift = datetime(2260,1,1) - datetime(1850,1,1)   # Apply timeshift for instance in case you want manually to add a shift for the piControl
+timeshift = timedelta(0)
+# Apply timeshift for instance in case you want manually to add a shift for the piControl:
+#timeshift = datetime(2260,1,1) - datetime(1850,1,1)
 
 # Logger object
 log = logging.getLogger(__name__)
