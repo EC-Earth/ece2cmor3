@@ -78,8 +78,8 @@
    arg2=$(printf %.3d ${arg2next} )
    if [ ${arg2next} -lt 601 ] ; then
     echo ' A next job is launched:'
-    echo ' ' sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
-    sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    echo ' ' sbatch --job-name=cmorise-piCon-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    sbatch --job-name=cmorise-piCon-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
    else
     echo ' No next job is launched.'
    fi
@@ -92,9 +92,9 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {100..107}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {100..107}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for j in {100..115}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
-  echo '   for j in {100..115}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
+  echo '   for i in {nemo,ifs}; do for j in {100..107}; do echo sbatch --job-name=cmorise-piCon-$i-$j ' $0 ' $i $j; done; done'
+  echo '   for i in {nemo,ifs}; do for j in {100..107}; do      sbatch --job-name=cmorise-piCon-$i-$j ' $0 ' $i $j; done; done'
+  echo '   for j in {100..115}; do sbatch --job-name=cmorise-piCon-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {100..115}; do sbatch --job-name=cmorise-piCon-nemo-$j ' $0 ' nemo $j; done'
   echo
  fi
