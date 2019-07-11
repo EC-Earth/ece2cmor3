@@ -75,7 +75,7 @@
    arg0=$0
    arg1=$1
    arg2previous=$2
-   arg2next=$((${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
+   arg2next=$((10#${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
    arg2=$(printf %.3d ${arg2next} )
    if [ ${arg2next} -lt 30 ] ; then
     echo ' A next job is launched:'

@@ -78,7 +78,8 @@ def main():
         result[model] = {}
         for target in targetlist:
             # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
-            if target.variable not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
+            # Also hfibthermds2d ficeberg2d fgcfc12 are added to the omit list, see ece-portal #609-36 & #609-37:
+            if target.variable not in ['rlntds', 'hfibthermds', 'hfibthermds2d', 'hflso', 'agessc', 'ficeberg', 'ficeberg2d', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut', 'fgcfc12']:
              table = target.table
              if table in result[model]:
                  result[model][table].append(target.variable)

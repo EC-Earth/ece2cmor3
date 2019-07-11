@@ -708,7 +708,7 @@ def create_soil_depth_axis(name):
 # Makes a time axis for the given table
 def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
-    date_times = [t - timeshift for t in cmor_utils.read_time_stamps(path)]
+    date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
         return 0
@@ -717,8 +717,8 @@ def create_time_axis(freq, path, name, has_bounds):
         rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
         dt_low = rounded_times
         dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
-        bounds[:, 0], units = cmor_utils.date2num(dt_low, ref_date_)
-        bounds[:, 1], units = cmor_utils.date2num(dt_up, ref_date_)
+        bounds[:, 0], units = cmor_utils.date2num([t - timeshift for t in dt_low], ref_date_)
+        bounds[:, 1], units = cmor_utils.date2num([t - timeshift for t in dt_up], ref_date_)
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
         return cmor.axis(table_entry=str(name), units=units, coord_vals=times, cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
@@ -735,7 +735,7 @@ def create_time_axis(freq, path, name, has_bounds):
         date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
                     "removed" % (path, len([t for t in date_times if t >= start_date_])))
-    times, units = cmor_utils.date2num(date_times, ref_date_)
+    times, units = cmor_utils.date2num([t - timeshift for t in date_times], ref_date_)
     return cmor.axis(table_entry=str(name), units=units, coord_vals=times), date_times, date_times
 
 
