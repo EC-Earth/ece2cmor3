@@ -76,10 +76,10 @@
    arg2previous=$2
    arg2next=$((10#${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
    arg2=$(printf %.3d ${arg2next} )
-   if [ ${arg2next} -lt 252 ] ; then
+   if [ ${arg2next} -lt 49 ] ; then
     echo ' A next job is launched:'
-    echo ' ' sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
-    sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    echo ' ' sbatch --job-name=cmorise-amip-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    sbatch --job-name=cmorise-amip-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
    else
     echo ' No next job is launched.'
    fi
@@ -92,7 +92,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for j in {001..016}; do echo sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
-  echo '   for j in {001..016}; do      sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
+  echo '   for j in {010..025}; do echo sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
+  echo '   for j in {010..025}; do      sbatch --job-name=cmorise-amip-$j ' $0 ' ifs $j; done'
   echo
  fi
