@@ -2,6 +2,8 @@
 
 # Call this script e.g. by:
 #  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+# or for the special "test all" case by:
+#  ./drq2ppt.py --allvars
 #
 # With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
 # the IFS Fortran namelists (the ppt files) for one MIP experiment.

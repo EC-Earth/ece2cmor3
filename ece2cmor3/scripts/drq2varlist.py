@@ -3,6 +3,9 @@
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
 #  ./drq2varlist.py --drq ../resources/test-data-request/drqlist-nemo-all.json                                      --ececonf dummy
+# or for the special "test all" case by:
+#  ./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+#  ./drq2varlist.py --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
 #
 # This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
 # the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 
@@ -36,8 +39,8 @@ def main():
     varsarg = required.add_mutually_exclusive_group(required=True)
     varsarg.add_argument("--drq", metavar="FILE", type=str,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
-    varsarg.add_argument("--allvars", action="store_true", default=False, help="Read all possible variables from CMOR "
-                                                                               "tables")
+    varsarg.add_argument("--allvars", action="store_true", default=False,
+                        help="Read all possible variables from CMOR tables")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
