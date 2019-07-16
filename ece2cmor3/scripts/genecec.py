@@ -29,7 +29,7 @@ dq = dreq.loadDreq()
 experiment_tiers_included = [1]
 ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
 #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
-#ec_earth_mips = ['CMIP']        # for a faster test
+ec_earth_mips = ['CMIP']        # for a faster test
 #ec_earth_mips = ['ScenarioMIP'] # for a faster test
 #ec_earth_mips = ['AerChemMIP']  # for a faster test
 experiment_counter = 0
@@ -49,7 +49,7 @@ cmip_ece_configurations = {
 }
 
 # Some test cases:
-##cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB'}
+cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB'}
 ##cmip_ece_configurations = {'dummy':'dummy'}
 
 # The list of MIPs for each of the four EC-Earth3 model configurations which run ScenarioMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
@@ -231,13 +231,28 @@ print ' There are {} experiments included. '.format(experiment_counter)
 # Add a test case with which all available variables over all EC-Earth MIP experiments are switched on,
 # i.e. are enabled in the file_def files:
 if os.path.isdir("cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/"):
- command_a = "cp -r cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-nemo-mip-variables/"
+ command_a = "cp -r cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-ece-mip-variables/"
 else:
- command_a = "cp -r cmip6-output-control-files/CMIP/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-nemo-mip-variables/"
-command_b  = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' cmip6-output-control-files/test-all-nemo-mip-variables/file_def_nemo-*"
-command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/test-all-nemo-mip-variables/file_def_nemo-*"
-command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. For the rest the control output files in this directory equal the CMIP piControl experiment.' > cmip6-output-control-files/test-all-nemo-mip-variables/README"
+ command_a = "cp -r cmip6-output-control-files/CMIP/cmip6-experiment-CMIP-piControl/ cmip6-output-control-files/test-all-ece-mip-variables/"
+command_b  = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' cmip6-output-control-files/test-all-ece-mip-variables/file_def_nemo-*"
+command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' cmip6-output-control-files/test-all-ece-mip-variables/file_def_nemo-*"
+command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. And in order to be able to test all IFS output by running one experiment, all available IFS fields are enabled in the ppt files.' > cmip6-output-control-files/test-all-ece-mip-variables/README"
+command_e  = "rm -f cmip6-output-control-files/test-all-ece-mip-variables/ppt* cmip6-output-control-files/test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json cmip6-output-control-files/test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt"
+command_f  = "./drq2ppt.py --allvars"
+command_g  = "mv -f ppt0000000000 pptdddddd* cmip6-output-control-files/test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
+command_h  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM   --varlist cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
+command_i  = "./drq2varlist.py --allvars --ececonf EC-EARTH-CC      --varlist cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
+command_j  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AerChem --varlist cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
+command_k  = "rm -f cmip6-output-control-files/test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins cmip6-output-control-files/test-all-ece-mip-variables/"
+
 os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files
 os.system(command_b) # Switch on all available variables in the file_def files
 os.system(command_c) # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
-os.system(command_d) # Add a README to the test-all-nemo-mip-variables directory
+os.system(command_d) # Add a README to the test-all-ece-mip-variables directory
+os.system(command_e) # Remove the piControl ppt, json data request and volume estimate files from the test-all-ece-mip-variables directory
+os.system(command_f) # Create the ppt files which include all IFS available variables
+os.system(command_g) # Move the ppt files which include all IFS available variables to the test-all-ece-mip-variables directory and remove the volume estimate file.
+os.system(command_h) # Create the json data request file which includes all available variables for EC-Earth3-AOGCM
+os.system(command_i) # Create the json data request file which includes all available variables for EC-Earth3-CC
+os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
+os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
