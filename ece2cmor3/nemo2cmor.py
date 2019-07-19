@@ -306,6 +306,8 @@ def create_time_axes(ds, tasks, table):
                     if timeshift.total_seconds() > 0:
                         log.error("Cannot apply time shift for NEMO time axis in calendar %s" % calendar)
                     tstamps, tunits = cmor_utils.num2num(times, ref_date_, units, calendar)
+                    if calendar != "proleptic_gregorian":
+                        cmor.set_cur_dataset_attribute("calendar", calendar)
                 if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
