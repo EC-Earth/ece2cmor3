@@ -158,7 +158,7 @@ class grib_filter_test(unittest.TestCase):
             if not os.path.exists(os.path.join(path2, fname)):
                 os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
         inifile = grib_filter.get_prev_file(os.path.join(path2, "ICMGG" + exp + "+185001"))
-        eq_(inifile, os.path.join(path2, "ICMGG" + exp + "+184912"))
+        ok_(inifile in [os.path.join(path2, "ICMGG" + exp + "+184912"), os.path.join(path1, "ICMGG" + exp + "+184912")])
         for fname in fnames:
             os.unlink(os.path.join(path2, fname))
             os.remove(os.path.join(path1, fname))
