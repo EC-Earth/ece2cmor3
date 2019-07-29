@@ -2,10 +2,13 @@ import logging
 import unittest
 import os
 import datetime
+
+import netCDF4
+import numpy
 from dateutil.relativedelta import relativedelta
 from nose.tools import eq_, ok_, raises
 from ece2cmor3.cmor_utils import make_time_intervals, find_ifs_output, get_ifs_date, find_nemo_output, get_nemo_grid, \
-    group
+    group, num2num
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -94,3 +97,53 @@ class utils_tests(unittest.TestCase):
         filepath = os.path.join(os.path.dirname(__file__), "my_exp_3h_19992131_20000102_grid_T.nc")
         fstr = get_nemo_grid(filepath, "exp")
         eq_(fstr, "grid_T")
+
+    @staticmethod
+    def test_num2num_gregorian():
+        times = numpy.array([datetime.datetime(1849, 12, 15, 12, 30, 30), datetime.datetime(1850, 1, 1, 0, 0, 0),
+                             datetime.datetime(1850, 2, 1, 15, 12, 0)])
+        units = "days since " + str(datetime.datetime(1830, 6, 6, 12, 0, 0))
+        calender = "gregorian"
+        ref = datetime.datetime(1850, 1, 1, 0, 0, 0)
+        nums = netCDF4.date2num(times, units, calender)
+        new_times, new_units = num2num(nums, ref, units, calender)
+        eq_(new_times[1], 0.)
+        eq_(new_units, "days since " + str(ref))
+
+    @staticmethod
+    def test_num2num_proleptic_gregorian():
+        times = numpy.array([datetime.datetime(1849, 12, 15, 12, 30, 30), datetime.datetime(1850, 1, 1, 0, 0, 0),
+                             datetime.datetime(1850, 2, 1, 15, 12, 0)])
+        units = "hours since " + str(datetime.datetime(1830, 6, 6, 12, 0, 0))
+        calender = "gregorian"
+        ref = datetime.datetime(1850, 1, 1, 0, 0, 0)
+        nums = netCDF4.date2num(times, units, calender)
+        new_times, new_units = num2num(nums, ref, units, calender)
+        eq_(new_times[1], 0.)
+        eq_(new_units, "hours since " + str(ref))
+
+    @staticmethod
+    def test_num2num_noleap():
+        times = numpy.array([datetime.datetime(1849, 12, 15, 12, 30, 30), datetime.datetime(1850, 1, 1, 0, 0, 0),
+                             datetime.datetime(1850, 2, 1, 15, 12, 0)])
+        units = "days since " + str(datetime.datetime(1830, 6, 6, 12, 0, 0))
+        calender = "noleap"
+        ref = datetime.datetime(1850, 1, 1, 0, 0, 0)
+        nums = netCDF4.date2num(times, units, calender)
+        new_times, new_units = num2num(nums, ref, units, calender)
+        eq_(new_times[1], 0.)
+        eq_(new_units, "days since " + str(ref))
+
+    @staticmethod
+    def test_date2num_types():
+        times = numpy.array([datetime.datetime(1849, 12, 15, 12, 30, 30), datetime.datetime(1850, 1, 1, 0, 0, 0),
+                             datetime.datetime(1850, 2, 1, 15, 12, 0)])
+        units = "days since " + str(datetime.datetime(1830, 6, 6, 12, 0, 0))
+        calender = "gregorian"
+        nums = netCDF4.date2num(times, units, calender)
+        dates = netCDF4.num2date(nums, units, calender)
+        ok_(isinstance(dates[0], datetime.datetime))
+        calender = "noleap"
+        nums = netCDF4.date2num(times, units, calender)
+        dates = netCDF4.num2date(nums, units, calender)
+        ok_(not isinstance(dates[0], datetime.datetime))

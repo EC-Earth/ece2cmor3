@@ -8,6 +8,12 @@ import cmor_target
 import cmor_task
 import cmor_utils
 
+from datetime import datetime, timedelta
+
+timeshift = timedelta(0)
+# Apply timeshift for instance in case you want manually to add a shift for the piControl:
+#timeshift = datetime(2260,1,1) - datetime(1850,1,1)
+
 # Logger object
 log = logging.getLogger(__name__)
 
@@ -287,20 +293,37 @@ def create_time_axes(ds, tasks, table):
                                                   time_operator[0]))
                 tid = table_time_axes[time_dim]
             else:
-                times, time_bounds = read_times(ds, task)
+                times, time_bounds, units, calendar = read_times(ds, task)
                 if times is None:
                     log.error("Failed to read time axis information from file %s, skipping variable %s in table %s" %
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
-
-                tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
+                if calendar is None:
+                    # Apply timeshift
+                    times = times - timeshift
+                    tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
+                else:
+                    if timeshift.total_seconds() > 0:
+                        log.error("Cannot apply time shift for NEMO time axis in calendar %s" % calendar)
+                    tstamps, tunits = cmor_utils.num2num(times, ref_date_, units, calendar)
+                    if calendar != "proleptic_gregorian":
+                        cmor.set_cur_dataset_attribute("calendar", calendar)
                 if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
-                    tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
-                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
-                                    cell_bounds=tbounds)
+                    if calendar is None:
+                        # Apply timeshift
+                        time_bounds = time_bounds - timeshift
+                        tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
+                        tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
+                                        cell_bounds=tbounds)
+                    else:
+                        if timeshift.total_seconds() > 0:
+                            log.error("Cannot apply time shift for NEMO time bounds in calendar %s" % calendar)
+                        tbounds, tbndunits = cmor_utils.num2num(time_bounds, ref_date_, units, calendar)
+                        tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
+                                        cell_bounds=tbounds)
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
@@ -354,7 +377,10 @@ def read_times(ds, task):
         calendar = "proleptic_gregorian"
     times = None if vals is None else netCDF4.num2date(vals, units=units, calendar=calendar)
     tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units, calendar=calendar)
-    return times, tbnds
+    if isinstance(times[0], datetime):
+        return times, tbnds, None, None
+    else:
+        return vals, bndvals, units, calendar
 
 
 def create_type_axes(ds, tasks, table):
@@ -417,14 +443,13 @@ def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
-    elif freq == "yr":
+    elif freq in ["yr", "yrPt"]:
         nemo_freq = "1y"
     elif freq == "monPt":
-        nemo_freq = "1m"   # check
+        nemo_freq = "1m"
+    #TODO: Support climatological variables
    #elif freq == "monC":
    #    nemo_freq = "1m"   # check
-    elif freq == "monClim":  # Is this one ever used, probably replaced by monC ?
-        nemo_freq = "1m"
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"

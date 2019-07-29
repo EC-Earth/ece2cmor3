@@ -9,6 +9,10 @@ import os
 from datetime import datetime, timedelta
 from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
+timeshift = timedelta(0)
+# Apply timeshift for instance in case you want manually to add a shift for the piControl:
+# timeshift = datetime(2260, 1, 1) - datetime(1850, 1, 1)
+
 # Logger construction
 log = logging.getLogger(__name__)
 
@@ -76,7 +80,8 @@ def get_output_freq(task):
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
         raise Exception("Cannot determine post-processing frequency for %s, please provide it by setting the "
-                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)" % (task.target.variable))
+                        "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)" %
+                        task.target.variable)
 #        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
 
 
@@ -121,7 +126,8 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
             return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time())
+    # Apply timeshift
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time()) - timeshift
     dirname = '-'.join([exp_name_, "ifs", start_date_.isoformat().split('-')[0]])
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
@@ -230,7 +236,7 @@ def get_mask_tasks(tasks):
     result = []
     for m in set(selected_masks):
         target = cmor_target.cmor_target(m, "fx")
-        setattr(target, cmor_target.freq_key, 0)
+        setattr(target, cmor_target.freq_key, "fx")
         setattr(target, "time_operator", ["point"])
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
         result.append(result_task)
@@ -711,8 +717,8 @@ def create_time_axis(freq, path, name, has_bounds):
         rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
         dt_low = rounded_times
         dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
-        bounds[:, 0], units = cmor_utils.date2num(dt_low, ref_date_)
-        bounds[:, 1], units = cmor_utils.date2num(dt_up, ref_date_)
+        bounds[:, 0], units = cmor_utils.date2num([t - timeshift for t in dt_low], ref_date_)
+        bounds[:, 1], units = cmor_utils.date2num([t - timeshift for t in dt_up], ref_date_)
         times = bounds[:, 0] + (bounds[:, 1] - bounds[:, 0]) / 2
         return cmor.axis(table_entry=str(name), units=units, coord_vals=times, cell_bounds=bounds), dt_low, dt_up
     step = cmor_utils.make_cmor_frequency(freq)
@@ -729,7 +735,7 @@ def create_time_axis(freq, path, name, has_bounds):
         date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
                     "removed" % (path, len([t for t in date_times if t >= start_date_])))
-    times, units = cmor_utils.date2num(date_times, ref_date_)
+    times, units = cmor_utils.date2num([t - timeshift for t in date_times], ref_date_)
     return cmor.axis(table_entry=str(name), units=units, coord_vals=times), date_times, date_times
 
 

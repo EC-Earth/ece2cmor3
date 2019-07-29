@@ -3,6 +3,9 @@
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
 #  ./drq2varlist.py --drq ../resources/test-data-request/drqlist-nemo-all.json                                      --ececonf dummy
+# or for the special "test all" case by:
+#  ./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+#  ./drq2varlist.py --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
 #
 # This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
 # the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 
@@ -32,8 +35,12 @@ log = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
-    parser.add_argument("--drq", metavar="FILE", type=str, required=True,
+    required = parser.add_argument_group("required arguments")
+    varsarg = required.add_mutually_exclusive_group(required=True)
+    varsarg.add_argument("--drq", metavar="FILE", type=str,
                         help="File (xlsx|json) containing requested cmor variables (Required)")
+    varsarg.add_argument("--allvars", action="store_true", default=False,
+                        help="Read all possible variables from CMOR tables")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
     parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
@@ -50,7 +57,7 @@ def main():
     print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
     print ""
 
-    if not os.path.isfile(args.drq):
+    if not args.allvars and not os.path.isfile(args.drq):
         log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting drq2varlist.')
 
@@ -58,7 +65,10 @@ def main():
     ece2cmorlib.initialize_without_cmor(tabledir=args.tabdir, tableprefix=args.tabid)
 
     try:
-        matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+        if getattr(args, "allvars", False):
+            matches, omitted = taskloader.load_drq("allvars", config=args.ececonf, check_prefs=True)
+        else:
+            matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
@@ -71,7 +81,8 @@ def main():
         result[model] = {}
         for target in targetlist:
             # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
-            if target.variable not in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
+            # Also hfibthermds2d ficeberg2d fgcfc12 are added to the omit list, see ece-portal #609-36 & #609-37:
+            if target.variable not in ['rlntds', 'hfibthermds', 'hfibthermds2d', 'hflso', 'agessc', 'ficeberg', 'ficeberg2d', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut', 'fgcfc12']:
              table = target.table
              if table in result[model]:
                  result[model][table].append(target.variable)

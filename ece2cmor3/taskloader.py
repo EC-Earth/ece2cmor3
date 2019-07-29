@@ -62,18 +62,6 @@ def load_tasks_from_drq(varlist, active_components=None, target_filters=None, co
     return load_tasks(matches, active_components, target_filters, check_duplicates=check_prefs)
 
 
-# API function: loads all possible targets
-def load_all_possible_tasks(active_components=None, target_filters=None, config=None, check_prefs=True):
-    varlist = {}
-    for target in ece2cmorlib.targets:
-        if target.table in varlist:
-            varlist[target.table].append(target.variable)
-        else:
-            varlist[target.table] = target.variable
-    matches, omitted_vars = load_drq(varlist, config, check_prefs)
-    return load_tasks(matches, active_components, target_filters, check_duplicates=check_prefs)
-
-
 # Basic task loader: first argument has already partitioned variables into component groups
 def load_tasks(variables, active_components=None, target_filters=None, check_duplicates=False):
     matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
@@ -126,7 +114,10 @@ def load_vars(variables, asfile=True):
 
 
 def load_drq(varlist, config=None, check_prefs=True):
-    requested_targets = read_drq(varlist)
+    if varlist == "allvars":
+        requested_targets = ece2cmorlib.targets
+    else:
+        requested_targets = read_drq(varlist)
     targets = omit_targets(requested_targets)
     # Load model component parameter tables
     model_vars = load_model_vars()
