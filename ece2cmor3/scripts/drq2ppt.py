@@ -2,6 +2,8 @@
 
 # Call this script e.g. by:
 #  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+# or for the special "test all" case by:
+#  ./drq2ppt.py --allvars
 #
 # With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
 # the IFS Fortran namelists (the ppt files) for one MIP experiment.
@@ -273,6 +275,8 @@ def main():
                          help="File (json) containing cmor variables per EC-Earth component")
     varsarg.add_argument("--drq", metavar="FILE", type=str,
                          help="File (json|f90 namelist|xlsx) containing cmor variables")
+    varsarg.add_argument("--allvars", action="store_true", default=False,
+                         help="Read all possible variables from CMOR tables")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
@@ -301,6 +305,8 @@ def main():
     try:
         if getattr(args, "vars", None) is not None:
             taskloader.load_tasks(args.vars, active_components=["ifs"])
+        elif getattr(args, "allvars", False):
+            taskloader.load_tasks_from_drq("allvars", active_components=["ifs"], check_prefs=False)
         else:
             taskloader.load_tasks_from_drq(args.drq, active_components=["ifs"], check_prefs=False)
     except taskloader.SwapDrqAndVarListException as e:

@@ -140,3 +140,55 @@ class grib_filter_test(unittest.TestCase):
                     eq_(newtime, (time + 600) % 2400)
                     time = newtime
         os.remove(filepath)
+
+    @staticmethod
+    @with_setup(setup)
+    def test_prev_month_find():
+        exp = "pmt1"
+        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001", "184912"]]
+        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
+        if not os.path.exists(path1):
+            os.makedirs(path1)
+        for fname in fnames:
+            open(os.path.join(path1, fname), 'a').close()
+        path2 = os.path.join(tmp_path, "prev_mon_test_dst")
+        if not os.path.exists(path2):
+            os.makedirs(path2)
+        for fname in fnames:
+            if not os.path.exists(os.path.join(path2, fname)):
+                os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
+        inifile = grib_filter.get_prev_file(os.path.join(path2, "ICMGG" + exp + "+185001"))
+        ok_(inifile in [os.path.join(path2, "ICMGG" + exp + "+184912"), os.path.join(path1, "ICMGG" + exp + "+184912")])
+        for fname in fnames:
+            os.unlink(os.path.join(path2, fname))
+            os.remove(os.path.join(path1, fname))
+        os.rmdir(path1)
+        os.rmdir(os.path.join(tmp_path, "prev_mon_test_src"))
+        os.rmdir(path2)
+
+    @staticmethod
+    @with_setup(setup)
+    def test_ini_month_find():
+        exp = "pmt2"
+        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001"]]
+        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
+        if not os.path.exists(path1):
+            os.makedirs(path1)
+        for fname in fnames:
+            open(os.path.join(path1, fname), 'a').close()
+        path2 = os.path.join(tmp_path, "prev_mon_test_dst", "001")
+        if not os.path.exists(path2):
+            os.makedirs(path2)
+        for fname in fnames:
+            if not os.path.exists(os.path.join(path2, fname)):
+                os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
+        inifile = grib_filter.get_prev_file(os.path.join(path2, "ICMGG" + exp + "+185001"))
+        eq_(inifile, os.path.join(path2, "ICMGG" + exp + "+000000"))
+        for fname in fnames:
+            os.unlink(os.path.join(path2, fname))
+            os.remove(os.path.join(path1, fname))
+        os.rmdir(path1)
+        os.rmdir(os.path.join(tmp_path, "prev_mon_test_src"))
+        os.rmdir(path2)
+        os.rmdir(os.path.join(tmp_path, "prev_mon_test_dst"))
+

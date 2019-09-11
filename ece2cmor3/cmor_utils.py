@@ -11,6 +11,8 @@ import csv
 # lpjg end
 
 import logging
+
+import netCDF4
 import numpy
 import os
 import re
@@ -63,6 +65,12 @@ def date2num(times, ref_time):
         return (t - ref_time).total_seconds() / 3600.
 
     return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
+
+
+# Shifts the input times to the requested ref_time
+def num2num(times, ref_time, units, calendar):
+    n = units.find(" since")
+    return times - netCDF4.date2num(ref_time, units, calendar), ' '.join([units[:n], "since", str(ref_time)])
 
 
 # Creates a time interval from the input string, assuming ec-earth conventions
@@ -192,12 +200,12 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    if varname ==None:
+    if varname == None:
         expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
-    elif varname!=None and freq=='fx':
-        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
+    elif varname != None and freq == 'fx':
+        expr = re.compile(".*" + varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
     else:
-        expr = re.compile(".*" + varname + "_.*"+freq+".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(".*" + varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
 
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 

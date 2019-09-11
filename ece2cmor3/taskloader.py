@@ -114,7 +114,10 @@ def load_vars(variables, asfile=True):
 
 
 def load_drq(varlist, config=None, check_prefs=True):
-    requested_targets = read_drq(varlist)
+    if varlist == "allvars":
+        requested_targets = ece2cmorlib.targets
+    else:
+        requested_targets = read_drq(varlist)
     targets = omit_targets(requested_targets)
     # Load model component parameter tables
     model_vars = load_model_vars()
