@@ -264,7 +264,6 @@ def execute(tasks):
                 continue
             create_depth_axes(task)
             if 'lambda550nm' in tgtdims :
-                print 'lambda',task.target.variable
                 create_type_axes(task)
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
@@ -292,8 +291,11 @@ def execute(tasks):
                 log.error("ERR -14: The source variable %s of target %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
                 failed.append([task.target.variable,task.target.table])
 
-    log.info('Unit problems: %s'% unit_miss_match)
-    log.info('Cmorization failed: %s'%failed)
+    if len(unit_miss_match)>0:
+        log.info('Unit problems: %s'% unit_miss_match)
+    if len(failed)>0:
+        for ifail in failed:
+            log.info('Cmorization failed for : %s'%ifail)
 
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
@@ -308,7 +310,6 @@ def execute_netcdf_task(task,tableid):
         return
 
     store_var = getattr(task, "store_with", None)
-    print 'sore with',store_var
     if( task.target.dims >= 3):
         if using_grid_:
             axes = [grid_ids_['lonlat']]
@@ -611,6 +612,8 @@ def create_depth_axes(task):
     #depth_axes = {}
     #for task in tasks:
     tgtdims = getattr(task.target, cmor_target.dims_key)
+    # zdims all other than xy
+    # including lambda550nm...
     zdims = getattr(task.target, "z_dims", [])
     if len(zdims) == 0:
         return False
@@ -873,7 +876,6 @@ def get_ps_tasks(tasks):
             freqid=set_freqid(freq)
             filepath=cmor_utils.find_tm5_output(path_,exp_name_,"ps",freqid)
             setattr(ps_task, cmor_task.output_path_key, filepath[0])
-            print filepath
             result[freq]=ps_task
         for task3d in tasks3d:
 
