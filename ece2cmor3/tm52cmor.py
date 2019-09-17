@@ -216,16 +216,10 @@ def execute(tasks):
         if table == '3hr' :
             for task in tasklist:
                 task.set_failed()
-            log.error("Table %s not implemented yet" %(table))
-            log.error("ERR -6: Skipping variable %s not implemented yet" %(task.target.variable))
+            log.error("Table %s will not be implemented for TM5" %(table))
+            log.error("ERR -6: Skipping variable %s not implemented" %(task.target.variable))
             continue
             #postprocess data to zonal mean and plev39, or do it before this point
-        # if table== '6hrLev':
-        #     for task in tasklist:
-        #         task.set_failed()
-        #     log.error("Table %s not implemented yet  due to error in CMIP6 tables." %(table))
-        #     log.error("ERR -7: Skipping variable %s, which is not implemented yet" %(task.target.variable))
-        #     continue
         if table== 'Eday':
             log.info("Table Eday not supported for variable %s "%(task.target.variable))
         log.info("Creating longitude and latitude axes for table %s..." % table)
@@ -827,8 +821,6 @@ def get_ps_var(ncpath):
     if not ncpath:
         log.error("ERR -2: No path defined for surface pressure (ps).")
         return None
-    #if len(ncpath)==1:
-    #    ncpath=ncpath[0]
     if not os.path.exists(ncpath):
         log.error("ERR -3: Path does not exist for surface pressure (ps).")
         return None
