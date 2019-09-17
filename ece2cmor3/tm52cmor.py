@@ -167,7 +167,7 @@ def execute(tasks):
             log.info('frequency %s ignored, no data prduced at this frequency'%task.target.frequency)
             continue
         elif 'Clim' in task.target.variable:
-            print 'CLIM'
+            log.infor("Climatological variables not supported")
             task.set_failed()
             continue
 
@@ -227,7 +227,7 @@ def execute(tasks):
         #     log.error("ERR -7: Skipping variable %s, which is not implemented yet" %(task.target.variable))
         #     continue
         if table== 'Eday':
-            print 'EDAY: ',task.target.variable
+            log.info("Table Eday not supported for variable %s "%(task.target.variable))
         log.info("Creating longitude and latitude axes for table %s..." % table)
         grid_ids_['lat2']=create_lat()
         grid_ids_['lon2']=create_lon()
@@ -438,7 +438,6 @@ def execute_netcdf_task(task,tableid):
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
-        print getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None)
         psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
@@ -589,12 +588,6 @@ def create_type_axes(task):
     table_type_axes = type_axes_[key]
     tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
     for dim in tgtdims:
-    #     if dim in tgtdims:
-    #         if dim in type_axes_[task.table]:
-    #             axis_id=type_axes_[task.table]
-    #         else:
-    #             axisinfo=extra_axes[dim]
-    #             nc_dim_name=axisinfo["ncdim"]
         if dim == 'lambda550nm':
             ncunits=extra_axes['lambda550nm']['ncunits']
             ncvals=extra_axes['lambda550nm']['ncvals']
@@ -602,7 +595,7 @@ def create_type_axes(task):
             setattr(task, "lambda_axis", ax_id)
             type_axes_[key]=ax_id
         else:
-            print dim
+            log.info("Unknown dimenstion %s in table %s." %(dim,table))
     return
 
 
@@ -666,11 +659,9 @@ def create_depth_axes(task):
         if key[0] not in zfactor_ids:
             zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
-        print depth_axis_ids
         #(a,p)=depth_axis_ids[('AERmon','alevel')]
         setattr(task, "store_with", psid)
         #setattr(task, "store_with", p)
-        print psid
         return True
         # log.error("ERR -1: Vertical axis %s not implemented yet" %(zdim))
         # task.set_failed()
