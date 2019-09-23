@@ -354,6 +354,8 @@ if [ "$#" -eq 1 ]; then
 
  echo ']'                         >> ${output_file}
 
+ # For this Ofx variable the NEMO bathy_meter.nc file which contains a non-cmor source name:
+ sed -i 's/"source": "deptho"/"source": "Bathymetry"/' ${output_file}
 
  echo ' The file ' ${output_file} ' is created.'
 
