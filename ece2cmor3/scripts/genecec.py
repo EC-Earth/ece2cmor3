@@ -256,3 +256,6 @@ os.system(command_h) # Create the json data request file which includes all avai
 os.system(command_i) # Create the json data request file which includes all available variables for EC-Earth3-CC
 os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
 os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
+
+command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh cmip6-output-control-files"
+os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.
