@@ -77,22 +77,19 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  # Replace , by dot in label:
  mip_label=$(echo ${mip} | sed 's/,/./g')
 
-#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}-p=${priority}
-#path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-m=${mip_label}-e=${experiment}
  path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
 
-#activateanaconda
+#activateminiconda
  if ! type "drq" > /dev/null; then
   echo
   echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
   echo '  1. drq might be not installed'
-  echo '  2. drq might be not active, as the anaconda environment is not activated'
+  echo '  2. drq might be not active, as the miniconda environment is not activated'
   echo ' Stop'
   echo
   exit
  else
- #source activate ece2cmor3
+ #conda activate ece2cmor3
   if [ "${install_setup}" = "include-setup" ]; then
    cd ${ece2cmor_root_directory}; python setup.py install; cd -;
   else
@@ -115,22 +112,6 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
 
   mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-
-# # Because in ScenarioMIP none of the cmvme_${mip_label}_${experiment}_1_1.xlsx files seem to be produced, a link
-# # with this name is created to a file cmvme_cm.sc_${experiment}_1_1.xlsx which should be most similar:
-# if [ ${mip_label} = 'ScenarioMIP' ]; then
-#  cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-#  if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
-#   rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
-#  fi
-#  # However, first check whether the file is correctly present, in that case no action:
-#  if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
-#   ln -s cmvme_cm.sc_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
-#   echo
-#   echo 'Create for '${mip_label}' a soft link:'
-#   ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
-#  fi
-# fi
 
   # Because in the VolMIP dcppC-forecast-addPinatubo experiment the cmvme_${mip_label}_${experiment}_1_1.xlsx file is not produced, a link
   # with this name is created to a file cmvme_cm.vo_${experiment}_1_1.xlsx which should be most similar:
@@ -214,7 +195,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #./checkvars.py -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
 
   echo
- #source deactivate
+ #conda deactivate
  fi
 
 else
