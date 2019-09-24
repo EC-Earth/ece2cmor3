@@ -2,9 +2,9 @@
 # Thomas Reerink
 #
 # Run examples:
-#  python genecec.py
-#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec-2019-v01 &
-#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout-2019-v01 2> log-genecec/log-genecec-stderr-2019-v01 &
+#  mkdir -p control-output-files/log-genecec;
+#  ./genecec.py >& control-output-files/log-genecec/log-genecec-v01 &
+#  ./genecec.py 1> control-output-files/log-genecec/log-genecec-stdout-v01 2> log-genecec/log-genecec-stderr-v01 &
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
