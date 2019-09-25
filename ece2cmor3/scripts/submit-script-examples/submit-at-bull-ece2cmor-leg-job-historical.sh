@@ -34,7 +34,7 @@
    COMPONENT=$1
    LEG=$2
 
-   EXP=h002
+   EXP=h003
    ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r6485-historical-setup/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json

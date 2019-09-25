@@ -35,7 +35,7 @@
    LEG=$2
 
    EXP=s585
-   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r6874-control-output-files/$EXP/output/$COMPONENT/$LEG
+   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/ScenarioMIP/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585/metadata-cmip6-ScenarioMIP-ssp585-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
