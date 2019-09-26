@@ -4,7 +4,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Required python packages:
 
-* cmor-3.4.0 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
+* cmor-3.5.0 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
 * eccodes/gribapi (for filtering IFS output GRIB files)
 * dreq (the CMIP6 data request tool drq)
 * netCDF4
@@ -17,20 +17,24 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Installation:
 
-More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v110). The basic ece2cmor3 installation description follows below.
+More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
 
-#### Installation & running with anaconda (strongly recommended):
-The Anaconda python distribution should be installed. With anaconda all the packages can be installed within one go by the package manager conda. This applies also to systems where one is not allowed to install complementary python packages to the default python distribution.
+#### Installation & running with miniconda (strongly recommended):
+The Miniconda python distribution should be installed. With miniconda all the packages can be installed within one go by the package manager `conda`. This applies also to systems where one is not allowed to install complementary python packages to the default python distribution.
 
-##### If Anaconda is not yet installed:
+##### If Miniconda is not yet installed:
 
-Download [anaconda](https://www.anaconda.com/download/) (e.g. take the latest anaconda version for python 2.7) by using wget and:
+Download [miniconda](https://repo.continuum.io/miniconda/) (e.g. take the latest miniconda version for python 2.7) by using `wget` and install with `bash`:
  ```shell
- wget http://repo.continuum.io/archive/Anaconda2-5.3.0-Linux-x86_64.sh
- bash Anaconda2-5.3.0-Linux-x86_64.sh
- source ${HOME}/.bashrc
+ wget https://repo.continuum.io/miniconda/Miniconda2-4.7.10-Linux-x86_64.sh
+ bash Miniconda2-4.7.10-Linux-x86_64.sh -b -u -p /$HOME/miniconda2
  ```
-The anaconda installation optionally adds the anaconda python to your $PATH by appending a line to your .bashrc. Commenting this appended line and resourcing the .bashrc gives the default python back.
+One could consider to add the following aliases in the `.bashrc` file:
+ ```shell
+ mincondapath=${HOME}/miniconda2/
+ alias activateminiconda='source ${mincondapath}/etc/profile.d/conda.sh; export PATH="${mincondapath}/bin:$PATH"'
+ alias activateece2cmor3='activateminiconda; conda activate ece2cmor3;'
+ ```
 
 
 ##### Download ece3cmor3 by a git checkout
@@ -46,6 +50,8 @@ git submodule update --init --recursive
 ##### Creating a virtual conda environment and installing ece3cmor3 therein:
 In the ece2cmor3 git checkout directory, type
 ```shell
+activateminiconda                         # The alias as defined above
+conda update -n base -c defaults conda    # for updating conda itself
 conda env create -f environment.yml       # for linux & mac os
 conda activate ece2cmor3
 python setup.py install
@@ -58,6 +64,7 @@ python setup.py install
  ece2cmor -h
  checkvars -h
  etc.
+ conda deactivate
 ```
 
 #### Note that the nested CMOR tables require an update once in a while: 
@@ -86,19 +93,6 @@ cd ../; git add cmip6-cmor-tables
 git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'
 git push
 ```
-
-#### Installation with pip:
-Alternatively create a virtual python environment with virtualenv. Download the CMOR3 source (https://github.com/PCMDI/cmor/releases) and follow instructions (configure,make,make install). Inside the CMOR source directory run
-```shell
-python setup.py install
-```
-to install the python wrapper in your python environment.
-Finally run
-```shell
-pip install requirements.txt
-```
-to install the remaining dependencies
-
 
 ## Design:
 
