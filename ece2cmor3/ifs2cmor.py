@@ -154,17 +154,17 @@ def execute(tasks, nthreads=1):
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
-    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
-
-    for mask_task in mask_tasks:
-        setattr(mask_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
-        setattr(mask_task, cmor_task.output_frequency_key, 0)
-
+    fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
+    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and cmor_target.get_freq(t.target) != 0]
+    for fx_task in fx_tasks + mask_tasks:
+        setattr(fx_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+        setattr(fx_task, cmor_task.output_frequency_key, 0)
     if auto_filter_:
-        tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
-                                                      filter_files=do_post_process(), multi_threaded=(nthreads > 1))
+        tasks_todo = fx_tasks + mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
+                                                                 filter_files=do_post_process(),
+                                                                 multi_threaded=(nthreads > 1))
     else:
-        tasks_todo = mask_tasks
+        tasks_todo = fx_tasks + mask_tasks
         for task in surf_pressure_tasks + regular_tasks:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
