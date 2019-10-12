@@ -1,0 +1,13 @@
+{
+    "ifs": {
+        "Efx": [
+            "clayfrac",
+            "siltfrac",
+            "sandfrac",
+            "slthick"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {},
+    "tm5": {}
+}
