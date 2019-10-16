@@ -2,9 +2,9 @@
 # Thomas Reerink
 #
 # Run examples:
-#  python genecec.py
-#  mkdir -p log-genecec; ./genecec.py >& log-genecec/log-genecec-2019-v01 &
-#  mkdir -p log-genecec; ./genecec.py 1> log-genecec/log-genecec-stdout-2019-v01 2> log-genecec/log-genecec-stderr-2019-v01 &
+#  mkdir -p control-output-files/log-genecec;
+#  ./genecec.py >& control-output-files/log-genecec/log-genecec-v01 &
+#  ./genecec.py 1> control-output-files/log-genecec/log-genecec-stdout-v01 2> log-genecec/log-genecec-stderr-v01 &
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
@@ -256,3 +256,6 @@ os.system(command_h) # Create the json data request file which includes all avai
 os.system(command_i) # Create the json data request file which includes all available variables for EC-Earth3-CC
 os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
 os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
+
+command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh cmip6-output-control-files"
+os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.

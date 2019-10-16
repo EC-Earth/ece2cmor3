@@ -34,7 +34,7 @@
    COMPONENT=$1
    LEG=$2
 
-   EXP=h002
+   EXP=h003
    ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r6485-historical-setup/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json
@@ -74,12 +74,12 @@
    arg0=$0
    arg1=$1
    arg2previous=$2
-   arg2next=$((10#${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
+   arg2next=$((10#${arg2previous}+16))
    arg2=$(printf %.3d ${arg2next} )
    if [ ${arg2next} -lt 166 ] ; then
     echo ' A next job is launched:'
-    echo ' ' sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
-    sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    echo ' ' sbatch --job-name=cmorise-historical-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
+    sbatch --job-name=cmorise-historical-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
    else
     echo ' No next job is launched.'
    fi
@@ -92,9 +92,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..008}; do      sbatch --job-name=cmorise-$i-$j ' $0 ' $i $j; done; done'
-  echo '   for j in {001..016}; do sbatch --job-name=cmorise-ifs-$j ' $0 ' ifs $j; done'
-  echo '   for j in {001..016}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
+  echo '   for j in {001..016}; do sbatch --job-name=cmorise-historical-ifs-$j ' $0 ' ifs $j; done'
+  echo '   for j in {001..016}; do sbatch --job-name=cmorise-historical-nemo-$j ' $0 ' nemo $j; done'
   echo
  fi

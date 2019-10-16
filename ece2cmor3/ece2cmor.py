@@ -145,7 +145,6 @@ def main(args=None):
     if "lpjg" in active_components:
         ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, refdate)
     if "tm5" in active_components:
-        refdate = dateutil.parser.parse(args.refd) if args.refd else None
         ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, refdate)
 
 #   if procNEWCOMPONENT in active_components:

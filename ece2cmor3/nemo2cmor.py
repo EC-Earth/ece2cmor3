@@ -144,9 +144,11 @@ def lookup_variables(tasks):
             task.set_failed()
             continue
         if len(results) > 1:
-            log.warning("Variable %s needed for %s in table %s was found in multiple NEMO output files %s... choosing "
-                        "the first match %s " % (task.source.variable(), task.target.table, task.target.variable,
-                                                 task.target.table, ','.join(results)))
+            log.error("Variable %s needed for %s in table %s was found in multiple NEMO output files %s... "
+                      "dismissing task" % (task.source.variable(), task.target.variable, task.target.table,
+                                           ','.join(results)))
+            task.set_failed()
+            continue
         setattr(task, cmor_task.output_path_key, results[0])
         valid_tasks.append(task)
     return valid_tasks
