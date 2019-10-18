@@ -89,7 +89,7 @@ def inspect_day(gribfile, grid):
             inidate = date
         if initime < 0:
             initime = time
-        key = get_record_key(gribfile, grid) + (grid,)
+        key = get_record_key(gribfile) + (grid,)
         if key in records:
             if time not in records[key]:
                 records[key].append(time)
