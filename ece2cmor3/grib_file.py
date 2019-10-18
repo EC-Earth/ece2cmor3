@@ -18,7 +18,7 @@ time_key = "dataTime"
 param_key = "paramId"
 levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
-
+grid_key = "gridType"
 
 test_mode = False
 

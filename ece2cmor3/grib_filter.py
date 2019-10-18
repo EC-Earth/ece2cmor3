@@ -89,7 +89,7 @@ def inspect_day(gribfile, grid):
             inidate = date
         if initime < 0:
             initime = time
-        key = get_record_key(gribfile) + (grid,)
+        key = get_record_key(gribfile, grid) + (grid,)
         if key in records:
             if time not in records[key]:
                 records[key].append(time)
@@ -120,6 +120,7 @@ def inspect_day(gribfile, grid):
 def get_record_key(gribfile):
     codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
+    gridtype = gribfile.get_field(grib_file.grid_key)
     if levtype == grib_file.pressure_level_hPa_code:
         level *= 100
         levtype = grib_file.pressure_level_Pa_code
@@ -130,7 +131,6 @@ def get_record_key(gribfile):
         level = 10
         levtype = grib_file.height_level_code
     if codevar in [167, 168, 201, 202]:
-        #    if codevar in [167, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
     if codevar == 9:
@@ -139,7 +139,42 @@ def get_record_key(gribfile):
     if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
+    # Fix for spectral height level fields in gridpoint file:
+    if codevar in cmor_source.ifs_source.grib_codes_sh and \
+            gridtype != "sh" and levtype == grib_file.hybrid_level_code:
+        levtype = gribfile.height_level_code
     return codevar, codetab, levtype, level
+
+
+# Used to distribute keys created above over cmor tasks
+def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
+    if (varid, tabid, levtype, level, gridtype) in keys:
+        return varid, tabid, levtype, level, gridtype
+    # Fix for orog and ps: find them in either GG or SH file
+    if varid in [134, 129] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.surface_level_code]
+        if any(matches):
+            return matches[0]
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[3] == 0]
+        if any(matches):
+            return matches[0]
+    # Fix for depth levels variables
+    if levtype == grib_file.depth_level_code:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
+        if any(matches):
+            return matches[0]
+    if levtype == grib_file.hybrid_level_code and level == -1:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[4] == gridtype]
+        if any(matches):
+            return matches[0]
+    # Fix for spectral fields at height levels being written as model level fields in GG file
+    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
+        matches = [k for k in keys if k[:4] == (varid, tabid, grib_file.height_level_code, level)]
+        if any(matches):
+            return matches[0]
+    return None
 
 
 # Converts cmor-levels to grib levels code
@@ -267,37 +302,6 @@ def execute(tasks, filter_files=True, multi_threaded=False):
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
     return valid_tasks
-
-
-def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
-    if (varid, tabid, levtype, level, gridtype) in keys:
-        return varid, tabid, levtype, level, gridtype
-    # Fix for orog and ps: find them in either GG or SH file
-    if varid in [134, 129] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.surface_level_code]
-        if any(matches):
-            return matches[0]
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
-                   k[3] == 0]
-        if any(matches):
-            return matches[0]
-    # Fix for depth levels variables
-    if levtype == grib_file.depth_level_code:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
-        if any(matches):
-            return matches[0]
-    if levtype == grib_file.hybrid_level_code and level == -1:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
-                   k[4] == gridtype]
-        if any(matches):
-            return matches[0]
-    # Fix for spectral fields at height levels being written as model level fields in GG file
-    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
-        matches = [k for k in keys if k == (varid, tabid, grib_file.hybrid_level_code, level,
-                                            cmor_source.ifs_grid.point)]
-        if any(matches):
-            return matches[0]
-    return None
 
 
 # Checks tasks that are compatible with the variables listed in grib_vars and
