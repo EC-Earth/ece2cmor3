@@ -287,7 +287,8 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
         if any(matches):
             return matches[0]
     if levtype == grib_file.hybrid_level_code and level == -1:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code]
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[4] == gridtype]
         if any(matches):
             return matches[0]
     # Fix for spectral fields at height levels being written as model level fields in GG file

@@ -45,4 +45,3 @@ dependencies:
   - dreqPy==01.00.31.post3
   - cython                                        # Unlisted dependency dreq 
   - xarray                                        # Unlisted dependency dreq and/or drq
-  - nctime
