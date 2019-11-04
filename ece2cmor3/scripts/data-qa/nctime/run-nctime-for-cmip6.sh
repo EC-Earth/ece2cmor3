@@ -21,6 +21,9 @@ if [ "$#" -eq 1 ]; then
   echo
  fi
 
+ # Install nctcck which is part of nctime with pip:
+ pip install nctime --upgrade
+
  # Checking with the nctime command nctcck the conitinuity of the produced time records:
  nctcck -i esgini-dir -l log-nctcck $1
 
