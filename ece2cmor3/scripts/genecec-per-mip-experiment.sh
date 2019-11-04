@@ -63,7 +63,14 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
   select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
  else
-  select_substring=${mip}
+  if [ "${mip}" = "AerChemMIP" ]; then
+   # For AerChemMIP the joined data request including the Core MIP request is prefered instead of only the specific AerChemMIP experiment specific request:
+   # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
+   select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
+   print 'YES', ${mip}
+  else
+   select_substring=${mip}
+  fi
  fi
  echo ${select_substring}
 
