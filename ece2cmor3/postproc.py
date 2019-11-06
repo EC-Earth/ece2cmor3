@@ -30,8 +30,7 @@ mode = 3
 # Post-processes a task
 def post_process(task, path, do_postprocess):
     command = create_command(task)
-    output_file_name = task.target.variable + "_" + task.target.table + ".nc"
-    output_path = os.path.join(path, output_file_name) if path else None
+    output_path = get_output_path(task, path)
     if do_postprocess:
         if task.status != cmor_task.status_failed:
             filepath = apply_command(command, task, output_path)
@@ -41,6 +40,10 @@ def post_process(task, path, do_postprocess):
         filepath = 1
     if filepath is not None and task.status != cmor_task.status_failed:
         setattr(task, cmor_task.output_path_key, output_path)
+
+
+def get_output_path(task, tmp_path):
+    return os.path.join(tmp_path, task.target.variable + "_" + task.target.table + ".nc") if tmp_path else None
 
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.

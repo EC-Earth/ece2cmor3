@@ -153,19 +153,26 @@ def execute(tasks, nthreads=1):
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
-    surf_pressure_tasks = get_sp_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
+    surf_pressure_tasks = get_sp_tasks(supported_tasks)
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and cmor_target.get_freq(t.target) != 0]
-    for fx_task in fx_tasks + mask_tasks:
-        setattr(fx_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
-        setattr(fx_task, cmor_task.output_frequency_key, 0)
-    if auto_filter_:
-        tasks_todo = fx_tasks + mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
-                                                                 filter_files=do_post_process(),
-                                                                 multi_threaded=(nthreads > 1))
+
+    if ifs_init_gridpoint_file_.endswith("+000000"): # No fx filtering needed, cdo can handle this file
+        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
+        tasks_no_filter = fx_tasks + mask_tasks
+        for fx_task in tasks_no_filter:
+            setattr(fx_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+            setattr(fx_task, cmor_task.output_frequency_key, 0)
     else:
-        tasks_todo = fx_tasks + mask_tasks
-        for task in surf_pressure_tasks + regular_tasks:
+        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
+        tasks_no_filter = []
+
+    if auto_filter_:
+        tasks_todo = tasks_no_filter + grib_filter.execute(tasks_to_filter, filter_files=do_post_process(),
+                                                           multi_threaded=(nthreads > 1))
+    else:
+        tasks_todo = tasks_no_filter
+        for task in tasks_to_filter:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
                 tasks_todo.append(task)
@@ -185,15 +192,17 @@ def execute(tasks, nthreads=1):
         postproc.post_process(t, temp_dir_, do_post_process())
     for task in mask_tasks:
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-    tasks = list(set(tasks_todo).intersection(regular_tasks))
+    proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
     if nthreads == 1:
-        for task in tasks:
+        for task in proctasks:
             cmor_worker(task)
     else:
         pool = multiprocessing.Pool(processes=nthreads)
-        pool.map(cmor_worker, tasks)
+        pool.map(cmor_worker, proctasks)
+        for task in proctasks:
+            setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_))
     if cleanup_tmpdir():
-        clean_tmp_data(tasks)
+        clean_tmp_data(tasks_todo)
 
 
 # Worker function for parallel cmorization (not working at the present...)
@@ -282,17 +291,18 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
-    tmp_files = [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]
+    tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
             if data_path is None:
                 continue
-            if data_path is list:
+            if isinstance(data_path, list):
                 data_paths = data_path
             else:
                 data_paths = [data_path]
-            for dp in data_paths:
+            for dpath in data_paths:
+                dp = str(dpath)
                 if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
                     os.remove(dp)
     if not any(os.listdir(temp_dir_)):
