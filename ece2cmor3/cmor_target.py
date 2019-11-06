@@ -23,6 +23,7 @@ var_key = "variable_entry"
 freq_key = "frequency"
 realm_key = "modeling_realm"
 missval_key = "missing_value"
+int_missval_key = "int_missing_value"
 dims_key = "dimensions"
 levs_key = "generic_levels"
 cell_measures_key = "cell_measures"
@@ -89,10 +90,12 @@ def create_targets_for_file(filepath, prefix):
     header = get_lowercase(data, head_key, None)
     modlevs = None
     missval = None
+    missvalint = None
     if header:
         freq = get_lowercase(header, freq_key, None)
         realm = get_lowercase(header, realm_key, None)
         missval = get_lowercase(header, missval_key, None)
+        missvalint = get_lowercase(header, int_missval_key, None)
         modlevs = get_lowercase(header, levs_key, None)
     axes_entries = get_lowercase(data, axis_key, {})
     if modlevs:
@@ -106,6 +109,8 @@ def create_targets_for_file(filepath, prefix):
         target.realm = realm
         if missval:
             setattr(target, missval_key, float(missval))
+        if missvalint:
+            setattr(target, int_missval_key, int(missvalint))
         for k2, v2 in v.iteritems():
             key = k2.lower()
             setattr(target, key, v2)
