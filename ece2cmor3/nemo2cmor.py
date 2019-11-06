@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
-#timeshift = datetime(2260,1,1) - datetime(1850,1,1)
+# timeshift = datetime(2260,1,1) - datetime(1850,1,1)
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -56,7 +56,8 @@ type_axes_ = {}
 lat_axes_ = {}
 
 # Dictionary of masks
-nemo_masks_= {}
+nemo_masks_ = {}
+
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate):
@@ -97,10 +98,10 @@ def execute(tasks):
     create_masks(tasks)
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
-    task_groups = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
+    task_groups = cmor_utils.group(tasks, lambda tsk1: getattr(tsk1, cmor_task.output_path_key, None))
     for filename, task_group in task_groups.iteritems():
         dataset = netCDF4.Dataset(filename, 'r')
-        task_sub_groups = cmor_utils.group(task_group, lambda tsk: tsk.target.table)
+        task_sub_groups = cmor_utils.group(task_group, lambda tsk2: tsk2.target.table)
         for table, task_list in task_sub_groups.iteritems():
             log.info("Start cmorization of %s in table %s" % (','.join([t.target.variable for t in task_list]), table))
             try:
@@ -108,7 +109,7 @@ def execute(tasks):
                 cmor.set_table(tab_id)
             except Exception as e:
                 log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
-                          % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
+                          % (table, ','.join([tsk3.target.variable for tsk3 in task_list]), e.message))
                 continue
             if table not in time_axes_:
                 log.info("Creating time axes for table %s from data in %s..." % (table, filename))
@@ -452,9 +453,9 @@ def select_freq_files(freq, varname):
         nemo_freq = "1y"
     elif freq == "monPt":
         nemo_freq = "1m"
-    #TODO: Support climatological variables
-   #elif freq == "monC":
-   #    nemo_freq = "1m"   # check
+    # TODO: Support climatological variables
+    # elif freq == "monC":
+    #    nemo_freq = "1m"   # check
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"
@@ -468,7 +469,8 @@ def select_freq_files(freq, varname):
         n = 1 if freq == "hrPt" else int(freq[:-4])
         nemo_freq = str(n) + "h"
     else:
-        log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
+        log.error('Could not associate cmor frequency {:7} with a '
+                  'nemo output frequency for variable {}'.format(freq, varname))
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
 
