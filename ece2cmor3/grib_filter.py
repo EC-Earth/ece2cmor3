@@ -139,10 +139,10 @@ def get_record_key(gribfile, gridtype):
         level = 0
         levtype = grib_file.surface_level_code
     # Fix for spectral height level fields in gridpoint file:
-    if cmor_source.grib_code(codevar, codevar) in cmor_source.ifs_source.grib_codes_sh and \
+    if cmor_source.grib_code(codevar) in cmor_source.ifs_source.grib_codes_sh and \
             gridtype != cmor_source.ifs_grid.spec and \
             levtype == grib_file.hybrid_level_code:
-        levtype = gribfile.height_level_code
+        levtype = grib_file.height_level_code
     return codevar, codetab, levtype, level
 
 
@@ -461,6 +461,8 @@ def proc_final_month(month, gribfile, gridtype, handles):
 
 # Writes the grib messages
 def write_record(gribfile, key, shift=0, handles=None):
+    if key[2] == grib_file.hybrid_level_code and key[3] > 91:
+        print "My key is: ", key
     if key[2] == grib_file.hybrid_level_code:
         matches = [varsfiles[k] for k in varsfiles if k[:3] == key[:3]]
     else:
