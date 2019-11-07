@@ -461,8 +461,6 @@ def proc_final_month(month, gribfile, gridtype, handles):
 
 # Writes the grib messages
 def write_record(gribfile, key, shift=0, handles=None):
-    if key[2] == grib_file.hybrid_level_code and key[3] > 91:
-        print "My key is: ", key
     if key[2] == grib_file.hybrid_level_code:
         matches = [varsfiles[k] for k in varsfiles if k[:3] == key[:3]]
     else:
