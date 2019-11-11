@@ -138,13 +138,10 @@ def add_expr_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
         else:
+            i = 0
             for sub_expr in sub_expr_list:
-                if not re.match("var[0-9]{1,3}", sub_expr):
-                    sub_vars = re.findall("var[0-9]{1,3}", sub_expr)
-                    if len(sub_vars) != 1:
-                        log.error("Merging expressions of multiple variables per layer is not supported.")
-                        continue
-                    cdo.add_operator(cdoapi.cdo_command.add_expression_operator, sub_vars[0] + "=" + sub_expr)
+                i += 1
+                cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(i) + "=" + sub_expr)
             cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
     else:
         cdo.add_operator(cdoapi.cdo_command.expression_operator, expr)

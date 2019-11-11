@@ -67,11 +67,10 @@ class cdo_command:
     def add_operator(self, operator, *args):
         global log
         if operator in cdo_command.operator_ordering:
-            added_args = ["'" + a + "'" for a in args] if operator == cdo_command.expression_operator else list(args)
             if operator not in self.operators:
-                self.operators[operator] = added_args
+                self.operators[operator] = list(args)
             else:
-                self.operators[operator].extend(added_args)
+                self.operators[operator].extend(list(args))
         else:
             log.error("Unknown operator was rejected: ", operator)
 
@@ -227,7 +226,7 @@ class cdo_command:
     @staticmethod
     def make_option(key, args):
         option = "-" + key
-        if key == cdo_command.add_expression_operator and len(args) > 1:
+        if key in [cdo_command.add_expression_operator, cdo_command.expression_operator]:
             return option + ",\'" + ';'.join([str(a) for a in args]) + "\'"
         return (option + "," + ",".join([str(a) for a in args])) if any(args) else option
 
