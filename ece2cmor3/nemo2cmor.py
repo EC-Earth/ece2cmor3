@@ -55,6 +55,8 @@ type_axes_ = {}
 # Dictionary of latitude axes ids for meridional variables.
 lat_axes_ = {}
 
+# Dictionary of masks
+nemo_masks_= {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate):
@@ -91,6 +93,8 @@ def execute(tasks):
     tasks = lookup_variables(tasks)
     log.info("Creating NEMO grids in CMOR...")
     create_grids(tasks)
+    log.info("Creating NEMO masks...")
+    create_masks(tasks)
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
     task_groups = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
@@ -166,7 +170,7 @@ def execute_netcdf_task(dataset, task):
     # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
     varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[get_nc_varname(task)]
+    ncvar = dataset.variables[task.source.variable()]
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
     time_dim, index, time_sel = -1, 0, None
     for d in ncvar.dimensions:
@@ -186,9 +190,13 @@ def execute_netcdf_task(dataset, task):
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
     log.info('Cmorizing variable {:20} in table {:7} in file {}'
              .format(task.source.variable(), task.target.table, getattr(task, cmor_task.output_path_key)))
+    mask = getattr(task.target, cmor_target.mask_key, None)
+    if mask is not None:
+        mask = nemo_masks_.get(mask, None)
     cmor_utils.netcdf2cmor(varid, ncvar, time_dim, factor, term,
                            missval=getattr(task.target, cmor_target.missval_key, missval),
-                           time_selection=time_sel)
+                           time_selection=time_sel,
+                           mask=mask)
     cmor.close(varid, file_name=True)
     task.status = cmor_task.status_cmorized
 
@@ -216,7 +224,7 @@ def get_conversion_constants(conversion):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task, dataset, axes):
-    srcvar = get_nc_varname(task)
+    srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
@@ -238,7 +246,7 @@ def create_depth_axes(ds, tasks, table):
     table_depth_axes = depth_axes_[table]
     other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
-        z_axes = [d for d in ds.variables[get_nc_varname(task)].dimensions if d not in other_nc_axes]
+        z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
         for z_axis in z_axes:
             if z_axis not in ds.variables:
@@ -435,11 +443,6 @@ def create_type_axes(ds, tasks, table):
     return table_type_axes
 
 
-# Helper function getting the right variable name in the nc files
-def get_nc_varname(task):
-    return task.source.variable()
-
-
 # Selects files with data with the given frequency
 def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
@@ -468,6 +471,24 @@ def select_freq_files(freq, varname):
         log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
+
+
+def create_masks(tasks):
+    global nemo_masks_
+    for task in tasks:
+        mask = getattr(task.target, cmor_target.mask_key, None)
+        if mask is not None and mask not in nemo_masks_.keys():
+            for nemo_file in nemo_files_:
+                ds = netCDF4.Dataset(nemo_file, 'r')
+                maskvar = ds.variables.get(mask, None)
+                if maskvar is not None:
+                    dims = maskvar.dimensions
+                    if len(dims) == 2:
+                        nemo_masks_[mask] = numpy.logical_not(numpy.ma.getmask(maskvar[...]))
+                    elif len(dims) == 3:
+                        nemo_masks_[mask] = numpy.logical_not(numpy.ma.getmask(maskvar[0, ...]))
+                    else:
+                        log.error("Could not create mask %s from nc variable with %d dimensions" % (mask, len(dims)))
 
 
 # Reads all the NEMO grid data from the input files.
