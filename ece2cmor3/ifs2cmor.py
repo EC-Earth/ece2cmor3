@@ -95,7 +95,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     ref_date_ = refdate
     auto_filter_ = autofilter
 
-    ifs_init_gridpoint_file_ = find_init_file(path, expname)
+    ifs_init_spectral_file_, ifs_init_gridpoint_file_ = find_init_files(path, expname)
     file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
     gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern)
                if not f.endswith("+000000")}
@@ -137,13 +137,13 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     return True
 
 
-def find_init_file(path, exp):
-    odir = os.path.abspath(os.path.join(path, ".."))
-    search_str = "ICMGG" + exp + "+000000"
-    for root, dirs, files in os.walk(odir):
-        if search_str in files:
-            return os.path.join(root, search_str)
-    return None
+def find_init_files(path, exp):
+    def find_file(f):
+        for root, dirs, files in os.walk(os.path.abspath(os.path.join(path, ".."))):
+            if f in files:
+                return os.path.join(root, f)
+        return None
+    return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
 
 
 # Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
@@ -153,19 +153,30 @@ def execute(tasks, nthreads=1):
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
+    fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
-    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks]
+    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and cmor_target.get_freq(t.target) != 0]
 
-    for mask_task in mask_tasks:
-        setattr(mask_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
-        setattr(mask_task, cmor_task.output_frequency_key, 0)
+    # No fx filtering needed, cdo can handle this file
+    if ifs_init_gridpoint_file_.endswith("+000000"):
+        tasks_to_filter = surf_pressure_tasks + regular_tasks
+        tasks_no_filter = fx_tasks + mask_tasks
+        for fx_task in tasks_no_filter:
+            if fx_task.source.grid_id() == cmor_source.ifs_grid.spec:
+                setattr(fx_task, cmor_task.filter_output_key, ifs_init_spectral_file_)
+            else:
+                setattr(fx_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+            setattr(fx_task, cmor_task.output_frequency_key, 0)
+    else:
+        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
+        tasks_no_filter = []
 
     if auto_filter_:
-        tasks_todo = mask_tasks + grib_filter.execute(surf_pressure_tasks + regular_tasks,
-                                                      filter_files=do_post_process(), multi_threaded=(nthreads > 1))
+        tasks_todo = tasks_no_filter + grib_filter.execute(tasks_to_filter, filter_files=do_post_process(),
+                                                           multi_threaded=(nthreads > 1))
     else:
-        tasks_todo = mask_tasks
-        for task in surf_pressure_tasks + regular_tasks:
+        tasks_todo = tasks_no_filter
+        for task in tasks_to_filter:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
                 setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
                 tasks_todo.append(task)
@@ -181,19 +192,21 @@ def execute(tasks, nthreads=1):
         setattr(task, cmor_task.output_frequency_key, get_output_freq(task))
 
     # First post-process surface pressure and mask tasks
-    for t in mask_tasks + surf_pressure_tasks:
-        postproc.post_process(t, temp_dir_, do_post_process())
-    for task in mask_tasks:
+    for task in list(set(tasks_todo).intersection(mask_tasks + surf_pressure_tasks)):
+        postproc.post_process(task, temp_dir_, do_post_process())
+    for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
-    tasks = list(set(tasks_todo).intersection(regular_tasks))
+    proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
     if nthreads == 1:
-        for task in tasks:
+        for task in proctasks:
             cmor_worker(task)
     else:
         pool = multiprocessing.Pool(processes=nthreads)
-        pool.map(cmor_worker, tasks)
+        pool.map(cmor_worker, proctasks)
+        for task in proctasks:
+            setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_))
     if cleanup_tmpdir():
-        clean_tmp_data(tasks)
+        clean_tmp_data(tasks_todo)
 
 
 # Worker function for parallel cmorization (not working at the present...)
@@ -282,17 +295,18 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
-    tmp_files = [os.path.join(temp_dir_, f) for f in os.listdir(temp_dir_)]
+    tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
             data_path = getattr(task, key, None)
             if data_path is None:
                 continue
-            if data_path is list:
+            if isinstance(data_path, list):
                 data_paths = data_path
             else:
                 data_paths = [data_path]
-            for dp in data_paths:
+            for dpath in data_paths:
+                dp = str(dpath)
                 if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
                     os.remove(dp)
     if not any(os.listdir(temp_dir_)):
