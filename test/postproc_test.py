@@ -98,4 +98,6 @@ class postproc_tests(unittest.TestCase):
         task = cmor_task.cmor_task(source, target)
         command = postproc.create_command(task)
         print command.create_command()
-        nose.tools.ok_("-aexpr" in command.create_command())
+        nose.tools.eq_(command.create_command(), "-setgridtype,regular -setcode,118 -daymean -expr,"
+                                                 "'var1=70*var39;var2=210*var40;var3=720*var41;var4=1890*var42' "
+                                                 "-selcode,39,40,41,42")
