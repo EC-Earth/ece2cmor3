@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
-#timeshift = datetime(2260,1,1) - datetime(1850,1,1)
+# timeshift = datetime(2260,1,1) - datetime(1850,1,1)
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -40,6 +40,9 @@ nemo_files_ = []
 # Nemo bathymetry file
 bathy_file_ = None
 
+# Nemo basin file
+basin_file_ = None
+
 # Dictionary of NEMO grid type with cmor grid id.
 grid_ids_ = {}
 
@@ -56,24 +59,34 @@ type_axes_ = {}
 lat_axes_ = {}
 
 # Dictionary of masks
-nemo_masks_= {}
+nemo_masks_ = {}
+
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate):
-    global log, nemo_files_, bathy_file_, exp_name_, table_root_, ref_date_
+    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
-    ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
-    # In order to remain backward compatible:
-    if not os.path.isfile(ecedir + "/bathy_meter.nc"):
-        ecedir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
-    bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(ecedir, "bathy_meter.nc"))
+    expdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
+    ofxdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
+    bathy_file_ = os.path.join(ofxdir, "bathy_meter.nc")
+    if not os.path.isfile(bathy_file_):
+        # Look in env or ec-earth run directory
+        bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(expdir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
         log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
                     "whenever encountered" % bathy_file_)
         bathy_file_ = None
+    basin_file_ = os.path.join(ofxdir, "subbasins.nc")
+    if not os.path.isfile(basin_file_):
+        # Look in env or ec-earth run directory
+        basin_file_ = os.environ.get("ECE2CMOR3_NEMO_SUBBASINS", os.path.join(expdir, "subbasins.nc"))
+    if not os.path.isfile(basin_file_):
+        log.warning("Nemo subbasin file %s does not exist...variable basin in Ofx will be dismissed "
+                    "whenever encountered" % basin_file_)
+        basin_file_ = None
     return True
 
 
@@ -97,10 +110,10 @@ def execute(tasks):
     create_masks(tasks)
     log.info("Executing %d NEMO tasks..." % len(tasks))
     log.info("Cmorizing NEMO tasks...")
-    task_groups = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
+    task_groups = cmor_utils.group(tasks, lambda tsk1: getattr(tsk1, cmor_task.output_path_key, None))
     for filename, task_group in task_groups.iteritems():
         dataset = netCDF4.Dataset(filename, 'r')
-        task_sub_groups = cmor_utils.group(task_group, lambda tsk: tsk.target.table)
+        task_sub_groups = cmor_utils.group(task_group, lambda tsk2: tsk2.target.table)
         for table, task_list in task_sub_groups.iteritems():
             log.info("Start cmorization of %s in table %s" % (','.join([t.target.variable for t in task_list]), table))
             try:
@@ -108,7 +121,7 @@ def execute(tasks):
                 cmor.set_table(tab_id)
             except Exception as e:
                 log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
-                          % (table, ','.join([tsk.target.variable for tsk in task_list]), e.message))
+                          % (table, ','.join([tsk3.target.variable for tsk3 in task_list]), e.message))
                 continue
             if table not in time_axes_:
                 log.info("Creating time axes for table %s from data in %s..." % (table, filename))
@@ -135,6 +148,14 @@ def lookup_variables(tasks):
                 setattr(task, cmor_task.output_path_key, bathy_file_)
                 valid_tasks.append(task)
             continue
+        if (task.target.table, task.target.variable) == ("Ofx", "basin"):
+            if basin_file_ is None:
+                log.error("Could not use subbasin file for variable basin in table Ofx: task skipped.")
+                task.set_failed()
+            else:
+                setattr(task, cmor_task.output_path_key, basin_file_)
+                valid_tasks.append(task)
+            continue
         file_candidates = select_freq_files(task.target.frequency, task.target.variable)
         results = []
         for ncfile in file_candidates:
@@ -158,6 +179,21 @@ def lookup_variables(tasks):
     return valid_tasks
 
 
+def create_basins(target, dataset):
+    meanings = {"atlmsk": "atlantic_ocean", "indmsk": "indian_ocean", "pacmsk": "pacific_ocean"}
+    flagvals = [int(s) for s in getattr(target, "flag_values", "").split()]
+    basins = getattr(target, "flag_meanings", "").split()
+    data = numpy.copy(dataset.variables["glomsk"][...])
+    missval = int(getattr(target, cmor_target.int_missval_key))
+    data[data > 0] = missval
+    for var, basin in meanings.iteritems():
+        if var in dataset.variables.keys() and basin in basins:
+            flagval = flagvals[basins.index(basin)]
+            arr = dataset.variables[var][...]
+            data[arr > 0] = flagval
+    return data, dataset.variables["glomsk"].dimensions, missval
+
+
 # Performs a single task.
 def execute_netcdf_task(dataset, task):
     global log
@@ -169,11 +205,16 @@ def execute_netcdf_task(dataset, task):
                  hasattr(task, dim + "_axis")]
     # TODO: Read axes order from netcdf file!
     axes = grid_axes + z_axes + type_axes + t_axes
-    varid = create_cmor_variable(task, dataset, axes)
-    ncvar = dataset.variables[task.source.variable()]
-    missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
+    srcvar = task.source.variable()
+    if task.target.variable == "basin":
+        ncvar, dimensions, missval = create_basins(task.target, dataset)
+    else:
+        ncvar = dataset.variables[srcvar]
+        dimensions = ncvar.dimensions
+        missval = getattr(ncvar, "missing_value", getattr(ncvar, "_FillValue", numpy.nan))
+    varid = create_cmor_variable(task, srcvar, ncvar, axes)
     time_dim, index, time_sel = -1, 0, None
-    for d in ncvar.dimensions:
+    for d in dimensions:
         if d.startswith("time"):
             time_dim = index
             break
@@ -189,7 +230,7 @@ def execute_netcdf_task(dataset, task):
         ncvar = numpy.mean(vals, axis=(1, 2))
     factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None))
     log.info('Cmorizing variable {:20} in table {:7} in file {}'
-             .format(task.source.variable(), task.target.table, getattr(task, cmor_task.output_path_key)))
+             .format(srcvar, task.target.table, getattr(task, cmor_task.output_path_key)))
     mask = getattr(task.target, cmor_target.mask_key, None)
     if mask is not None:
         mask = nemo_masks_.get(mask, None)
@@ -223,9 +264,7 @@ def get_conversion_constants(conversion):
 
 
 # Creates a variable in the cmor package
-def create_cmor_variable(task, dataset, axes):
-    srcvar = task.source.variable()
-    ncvar = dataset.variables[srcvar]
+def create_cmor_variable(task, srcvar, ncvar, axes):
     unit = getattr(ncvar, "units", None)
     if (not unit) or hasattr(task, cmor_task.conversion_key):  # Explicit unit conversion
         unit = getattr(task.target, "units")
@@ -246,7 +285,9 @@ def create_depth_axes(ds, tasks, table):
     table_depth_axes = depth_axes_[table]
     other_nc_axes = ["time_counter", "x", "y"] + [extra_axes[k]["ncdim"] for k in extra_axes.keys()]
     for task in tasks:
-        z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
+        z_axes = []
+        if task.source.variable() in ds.variables:
+            z_axes = [d for d in ds.variables[task.source.variable()].dimensions if d not in other_nc_axes]
         z_axis_ids = []
         for z_axis in z_axes:
             if z_axis not in ds.variables:
@@ -452,9 +493,9 @@ def select_freq_files(freq, varname):
         nemo_freq = "1y"
     elif freq == "monPt":
         nemo_freq = "1m"
-    #TODO: Support climatological variables
-   #elif freq == "monC":
-   #    nemo_freq = "1m"   # check
+    # TODO: Support climatological variables
+    # elif freq == "monC":
+    #    nemo_freq = "1m"   # check
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"
@@ -468,7 +509,8 @@ def select_freq_files(freq, varname):
         n = 1 if freq == "hrPt" else int(freq[:-4])
         nemo_freq = str(n) + "h"
     else:
-        log.error('Could not associate cmor frequency {:7} with a nemo output frequency for variable {}'.format(freq, varname))
+        log.error('Could not associate cmor frequency {:7} with a '
+                  'nemo output frequency for variable {}'.format(freq, varname))
         return []
     return [f for f in nemo_files_ if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
 
