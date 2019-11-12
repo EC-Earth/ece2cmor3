@@ -26,6 +26,7 @@ table_root_ = None
 ifs_gridpoint_files_ = None
 ifs_spectral_files_ = None
 ifs_init_gridpoint_file_ = None
+ifs_init_spectral_file_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -87,8 +88,8 @@ def get_output_freq(task):
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_gridpoint_file_, \
-        temp_dir_, ref_date_, start_date_, auto_filter_
+    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_,\
+        ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
