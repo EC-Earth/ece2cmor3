@@ -162,12 +162,15 @@ def execute(tasks, nthreads=1):
     if ifs_init_gridpoint_file_.endswith("+000000"):
         tasks_to_filter = surf_pressure_tasks + regular_tasks
         tasks_no_filter = fx_tasks + mask_tasks
-        for fx_task in tasks_no_filter:
-            if fx_task.source.grid_id() == cmor_source.ifs_grid.spec:
-                setattr(fx_task, cmor_task.filter_output_key, ifs_init_spectral_file_)
+        for task in tasks_no_filter:
+            # dirty hack for orography being in ICMGG+000000 file...
+            if task.target.variable == "orog":
+                task.source.grid_ = cmor_source.ifs_grid.point
+            if task.source.grid_id() == cmor_source.ifs_grid.spec:
+                setattr(task, cmor_task.filter_output_key, ifs_init_spectral_file_)
             else:
-                setattr(fx_task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
-            setattr(fx_task, cmor_task.output_frequency_key, 0)
+                setattr(task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+            setattr(task, cmor_task.output_frequency_key, 0)
     else:
         tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
         tasks_no_filter = []
@@ -296,6 +299,8 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
+    print "DISMISS CLEANUP"
+    return
     tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
@@ -520,6 +525,8 @@ def execute_netcdf_task(task):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
+        if task.target.variable == "orog":
+            print "MY SHAPE IS", ncvar.shape
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
                                swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
                                time_selection=time_selection, force_fx=(cmor_target.get_freq(task.target) == 0))
