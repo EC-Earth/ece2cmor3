@@ -24,7 +24,6 @@
     "parent_time_units":            "days since 1850-01-01",
 
     "branch_method":                "standard",
-    "branch_time":                  "0.0D",
     "branch_time_in_child":         "0.0D",
     "branch_time_in_parent":        "0.0D",
 
