@@ -251,7 +251,6 @@ class taskloader_test(unittest.TestCase):
         finally:
             ece2cmorlib.finalize_without_cmor()
 
-
     @staticmethod
     def test_load_tsl_table_override():
         ece2cmorlib.initialize_without_cmor()
