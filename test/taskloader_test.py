@@ -253,14 +253,15 @@ class taskloader_test(unittest.TestCase):
 
 
     @staticmethod
-    def test_load_mrsol_table_override():
+    def test_load_tsl_table_override():
         ece2cmorlib.initialize_without_cmor()
         try:
-            tasks = taskloader.load_tasks_from_drq({"6hrPlevPt": ["mrsol"], "Emon": ["mrsol"]})
+            tasks = taskloader.load_tasks_from_drq({"6hrPlevPt": ["tsl"], "Lmon": ["tsl"]})
             eq_(len(tasks), 2)
             for t in tasks:
                 if t.target.table == "6hrPlevPt":
-                    ok_("70*var39+30*var40" in getattr(t.source, "expr"))
+                    ok_(not hasattr(t.source, "expr"))
+                    ok_(t.source.get_grib_code() == cmor_source.grib_code(139))
                 else:
                     ok_("merge" in getattr(t.source, "expr"))
         finally:
