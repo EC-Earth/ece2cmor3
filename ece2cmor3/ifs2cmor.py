@@ -299,7 +299,6 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
-    print "DISMISS CLEANUP"
     return
     tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
@@ -525,8 +524,6 @@ def execute_netcdf_task(task):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
             missval = -missval
-        if task.target.variable == "orog":
-            print "MY SHAPE IS", ncvar.shape
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
                                swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
                                time_selection=time_selection, force_fx=(cmor_target.get_freq(task.target) == 0))
