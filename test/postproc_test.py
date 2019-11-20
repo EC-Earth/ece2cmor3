@@ -94,7 +94,7 @@ class postproc_tests(unittest.TestCase):
         source = cmor_source.ifs_source.read("118.129", "merge(70*var39,210*var40,720*var41,1890*var42)")
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
-        target = [t for t in targets if t.variable == "mrsol"][0]
+        target = [t for t in targets if t.variable == "mrsol" and t.table == "Eday"][0]
         task = cmor_task.cmor_task(source, target)
         command = postproc.create_command(task)
         print command.create_command()
