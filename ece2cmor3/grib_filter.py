@@ -89,7 +89,7 @@ def inspect_day(gribfile, grid):
             inidate = date
         if initime < 0:
             initime = time
-        key = get_record_key(gribfile) + (grid,)
+        key = get_record_key(gribfile, grid) + (grid,)
         if key in records:
             if time not in records[key]:
                 records[key].append(time)
@@ -117,7 +117,7 @@ def inspect_day(gribfile, grid):
 # TODO: Merge the 2 functions below into one matching function:
 
 # Creates a key (code + table + level type + level) for a grib message iterator
-def get_record_key(gribfile):
+def get_record_key(gribfile, gridtype):
     codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
     if levtype == grib_file.pressure_level_hPa_code:
@@ -130,7 +130,6 @@ def get_record_key(gribfile):
         level = 10
         levtype = grib_file.height_level_code
     if codevar in [167, 168, 201, 202]:
-        #    if codevar in [167, 201, 202]:
         level = 2
         levtype = grib_file.height_level_code
     if codevar == 9:
@@ -139,7 +138,43 @@ def get_record_key(gribfile):
     if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
+    # Fix for spectral height level fields in gridpoint file:
+    if cmor_source.grib_code(codevar) in cmor_source.ifs_source.grib_codes_sh and \
+            gridtype != cmor_source.ifs_grid.spec and \
+            levtype == grib_file.hybrid_level_code:
+        levtype = grib_file.height_level_code
     return codevar, codetab, levtype, level
+
+
+# Used to distribute keys created above over cmor tasks
+def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
+    if (varid, tabid, levtype, level, gridtype) in keys:
+        return varid, tabid, levtype, level, gridtype
+    # Fix for orog and ps: find them in either GG or SH file
+    if varid in [134, 129] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.surface_level_code]
+        if any(matches):
+            return matches[0]
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[3] == 0]
+        if any(matches):
+            return matches[0]
+    # Fix for depth levels variables
+    if levtype == grib_file.depth_level_code:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
+        if any(matches):
+            return matches[0]
+    if levtype == grib_file.hybrid_level_code and level == -1:
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
+                   k[4] == gridtype]
+        if any(matches):
+            return matches[0]
+    # Fix for spectral fields at height levels being written as model level fields in GG file
+    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
+        matches = [k for k in keys if k[:4] == (varid, tabid, grib_file.height_level_code, level)]
+        if any(matches):
+            return matches[0]
+    return None
 
 
 # Converts cmor-levels to grib levels code
@@ -251,20 +286,21 @@ def execute(tasks, filter_files=True, multi_threaded=False):
 def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     valid_tasks, varstasks = validate_tasks(tasks)
     task2files, task2freqs, keys2files = cluster_files(valid_tasks, varstasks)
+    grids = [cmor_source.ifs_grid.point, cmor_source.ifs_grid.spec]
     if filter_files:
         filehandles = open_files(keys2files)
         if multi_threaded:
             threads = []
-            for file_list in [gridpoint_files, spectral_files]:
-                thread = threading.Thread(target=filter_grib_files,
-                                          args=(file_list, keys2files, filehandles, 0, 0, once))
+            for file_list, grid in zip([gridpoint_files, spectral_files], grids):
+                thread = threading.Thread(target=filter_grib_files, 
+                                          args=(file_list, keys2files, grid, filehandles, 0, 0, once))
                 threads.append(thread)
                 thread.start()
             threads[0].join()
             threads[1].join()
         else:
-            for file_list in [gridpoint_files, spectral_files]:
-                filter_grib_files(file_list, keys2files, filehandles, month=0, year=0, once=once)
+            for file_list, grid in zip([gridpoint_files, spectral_files], grids):
+                filter_grib_files(file_list, keys2files, grid, filehandles, month=0, year=0, once=once)
         for handle in filehandles.values():
             handle.close()
     for task in task2files:
@@ -274,37 +310,6 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
         if not task.status == cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
     return valid_tasks
-
-
-def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
-    if (varid, tabid, levtype, level, gridtype) in keys:
-        return varid, tabid, levtype, level, gridtype
-    # Fix for orog and ps: find them in either GG or SH file
-    if varid in [134, 129] and tabid == 128 and levtype == grib_file.surface_level_code and level == 0:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.surface_level_code]
-        if any(matches):
-            return matches[0]
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
-                   k[3] == 0]
-        if any(matches):
-            return matches[0]
-    # Fix for depth levels variables
-    if levtype == grib_file.depth_level_code:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
-        if any(matches):
-            return matches[0]
-    if levtype == grib_file.hybrid_level_code and level == -1:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
-                   k[4] == gridtype]
-        if any(matches):
-            return matches[0]
-    # Fix for spectral fields at height levels being written as model level fields in GG file
-    if levtype == grib_file.height_level_code and gridtype == cmor_source.ifs_grid.spec:
-        matches = [k for k in keys if k == (varid, tabid, grib_file.hybrid_level_code, level,
-                                            cmor_source.ifs_grid.point)]
-        if any(matches):
-            return matches[0]
-    return None
 
 
 # Checks tasks that are compatible with the variables listed in grib_vars and
@@ -372,7 +377,7 @@ def open_files(vars2files):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def filter_grib_files(file_list, keys2files, handles=None, month=0, year=0, once=False):
+def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False):
     dates = sorted(file_list.keys())
     for i in range(len(dates)):
         date = dates[i]
@@ -382,25 +387,25 @@ def filter_grib_files(file_list, keys2files, handles=None, month=0, year=0, once
         prev_chained = i > 0 and (prev_grib_file == file_list[dates[i - 1]][1])
         if prev_grib_file is not None and not prev_chained:
             with open(prev_grib_file, 'r') as fin:
-                proc_initial_month(date.month, grib_file.create_grib_file(fin), keys2files, handles, once)
+                proc_initial_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
         next_chained = i < len(dates) - 1 and (cur_grib_file == file_list[dates[i + 1]][0])
         with open(cur_grib_file, 'r') as fin:
             log.info("Filtering grib file %s..." % cur_grib_file)
             if next_chained:
-                proc_grib_file(grib_file.create_grib_file(fin), keys2files, handles, once)
+                proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, once)
             else:
-                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, handles, once)
+                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_initial_month(month, gribfile, keys2files, handles, once=False):
+def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=False):
     timestamp = -1
     keys = set()
     while gribfile.read_next() and (handles is None or any(handles.keys())):
         date = gribfile.get_field(grib_file.date_key)
         if (date % 10 ** 4) / 10 ** 2 == month:
             t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
+            key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
                 continue  # Prevent double grib messages
             if t != timestamp:
@@ -413,12 +418,12 @@ def proc_initial_month(month, gribfile, keys2files, handles, once=False):
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_grib_file(gribfile, keys2files, handles, once=False):
+def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
     timestamp = -1
     keys = set()
     while gribfile.read_next() and (handles is None or any(handles.keys())):
         t = gribfile.get_field(grib_file.time_key)
-        key = get_record_key(gribfile)
+        key = get_record_key(gribfile, gridtype)
         if t == timestamp and key in keys:
             continue  # Prevent double grib messages
         if t != timestamp:
@@ -431,7 +436,7 @@ def proc_grib_file(gribfile, keys2files, handles, once=False):
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_final_month(month, gribfile, keys2files, handles, once=False):
+def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False):
     timestamp = -1
     keys = set()
     while gribfile.read_next() and (handles is None or any(handles.keys())):
@@ -439,7 +444,7 @@ def proc_final_month(month, gribfile, keys2files, handles, once=False):
         mon = (date % 10 ** 4) / 10 ** 2
         if mon == month:
             t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
+            key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
                 continue  # Prevent double grib messages
             if t != timestamp:
@@ -450,7 +455,7 @@ def proc_final_month(month, gribfile, keys2files, handles, once=False):
                          handles=handles, once=once)
         elif mon == month % 12 + 1:
             t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile)
+            key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
                 continue  # Prevent double grib messages
             if t != timestamp:

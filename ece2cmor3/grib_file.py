@@ -19,7 +19,6 @@ param_key = "paramId"
 levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
 
-
 test_mode = False
 
 
