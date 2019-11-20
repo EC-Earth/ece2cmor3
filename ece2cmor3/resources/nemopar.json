@@ -29,7 +29,8 @@
     },
     {
         "source": "Bathymetry",
-        "target": "deptho"
+        "target": "deptho",
+        "masked": "sftof"
     },
     {
         "source": "diftrblo2d",

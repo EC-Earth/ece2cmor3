@@ -30,8 +30,7 @@ mode = 3
 # Post-processes a task
 def post_process(task, path, do_postprocess):
     command = create_command(task)
-    output_file_name = task.target.variable + "_" + task.target.table + ".nc"
-    output_path = os.path.join(path, output_file_name) if path else None
+    output_path = get_output_path(task, path)
     if do_postprocess:
         if task.status != cmor_task.status_failed:
             filepath = apply_command(command, task, output_path)
@@ -41,6 +40,10 @@ def post_process(task, path, do_postprocess):
         filepath = 1
     if filepath is not None and task.status != cmor_task.status_failed:
         setattr(task, cmor_task.output_path_key, output_path)
+
+
+def get_output_path(task, tmp_path):
+    return os.path.join(tmp_path, task.target.variable + "_" + task.target.table + ".nc") if tmp_path else None
 
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
@@ -135,13 +138,10 @@ def add_expr_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
         else:
+            i = 0
             for sub_expr in sub_expr_list:
-                if not re.match("var[0-9]{1,3}", sub_expr):
-                    sub_vars = re.findall("var[0-9]{1,3}", sub_expr)
-                    if len(sub_vars) != 1:
-                        log.error("Merging expressions of multiple variables per layer is not supported.")
-                        continue
-                    cdo.add_operator(cdoapi.cdo_command.add_expression_operator, sub_vars[0] + "=" + sub_expr)
+                i += 1
+                cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(i) + "=" + sub_expr)
             cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
     else:
         cdo.add_operator(cdoapi.cdo_command.expression_operator, expr)
