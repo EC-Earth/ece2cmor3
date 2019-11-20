@@ -80,10 +80,36 @@ def main():
     for model, targetlist in matches.items():
         result[model] = {}
         for target in targetlist:
-            # Taking off rlntds, hfibthermds, hflso, agessc, ficeberg, hfsso, hfcorr, wfcorr, nwdFracLut form the json data request files, see issue #498 & #469:
-            # Also hfibthermds2d ficeberg2d fgcfc12 are added to the omit list, see ece-portal #609-36 & #609-37:
-            if target.variable not in ['rlntds', 'hfibthermds', 'hfibthermds2d', 'hflso', 'agessc', 'ficeberg', 'ficeberg2d', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut', 'fgcfc12']:
-             table = target.table
+            table = target.table
+
+            # Taking off several variables from the json data request files:
+            skip_case = False
+            # See issue #498 & #469:
+            if target.variable in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
+             skip_case = True
+            # See issue #609-36 & #609-37 at ece-portal:
+            if target.variable in ['hfibthermds2d', 'ficeberg2d', 'fgcfc12']:
+             skip_case = True
+            # See issue #504:
+            if target.variable in ['cfc11', 'fgsf6']:
+             skip_case = True
+            # See issue #493 & #542:
+            if table in ['Oyr'] and target.variable in ['cfc11', 'ocontempdiff', 'ocontemppadvect', 'ocontemppmdiff', 'ocontemprmadvect', 'ocontemptend', 'osaltdiff', 'osaltpadvect', 'osaltpmdiff', 'osaltrmadvect', 'osalttend']:
+             skip_case = True
+            # See issue #542:
+            if getattr(args, "allvars", True):
+             # Conflicting combinations (skip the 2nd one, an arbitrary choice):
+             # 6hrPlevPt:  ta7h,  ta27
+             # 6hrPlevPt: hus7h, hus27
+             # Emon:        hus, hus27
+             # Emon:         va,  va27
+             # Emon:         ua,  ua27
+             if table in ['6hrPlevPt'] and target.variable in ['ta27', 'hus27']:
+              skip_case = True
+             if table in ['Emon'] and target.variable in ['hus27', 'va27', 'ua27']:
+              skip_case = True
+
+            if skip_case is False:
              if table in result[model]:
                  result[model][table].append(target.variable)
              else:
