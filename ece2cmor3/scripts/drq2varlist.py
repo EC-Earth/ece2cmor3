@@ -93,9 +93,9 @@ def main():
             # See issue #504:
             if target.variable in ['cfc11', 'fgsf6']:
              skip_case = True
-          # # See issue #493 & #542:
-          # if table in ['Oyr'] and target.variable in ['cfc11', 'ocontempdiff', 'ocontemppadvect', 'ocontemppmdiff', 'ocontemprmadvect', 'ocontemptend', 'osaltdiff', 'osaltpadvect', 'osaltpmdiff', 'osaltrmadvect', 'osalttend']:
-          #  skip_case = True
+            # See issue #493 & #542:
+            if table in ['Oyr'] and target.variable in ['cfc11', 'ocontempdiff', 'ocontemppadvect', 'ocontemppmdiff', 'ocontemprmadvect', 'ocontemptend', 'osaltdiff', 'osaltpadvect', 'osaltpmdiff', 'osaltrmadvect', 'osalttend']:
+             skip_case = True
             # See issue #542:
             if getattr(args, "allvars", True):
              # Conflicting combinations (skip the 2nd one, an arbitrary choice):
