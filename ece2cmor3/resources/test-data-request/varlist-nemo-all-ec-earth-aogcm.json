@@ -63,10 +63,8 @@
         "Omon": [
             "bigthetao",
             "bigthetaoga",
-            "cfc11",
             "evs",
             "fgcfc11",
-            "fgsf6",
             "friver",
             "fsitherm",
             "hfbasin",
@@ -127,19 +125,8 @@
             "zostoga"
         ],
         "Oyr": [
-            "cfc11",
             "difvho",
             "difvso",
-            "ocontempdiff",
-            "ocontemppadvect",
-            "ocontemppmdiff",
-            "ocontemprmadvect",
-            "ocontemptend",
-            "osaltdiff",
-            "osaltpadvect",
-            "osaltpmdiff",
-            "osaltrmadvect",
-            "osalttend",
             "somint",
             "tnpeo"
         ],
