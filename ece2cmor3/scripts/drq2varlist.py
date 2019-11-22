@@ -3,6 +3,7 @@
 # Call this script e.g. by:
 #  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx --ececonf EC-EARTH-AOGCM
 #  ./drq2varlist.py --drq ../resources/test-data-request/drqlist-nemo-all.json                                      --ececonf dummy
+#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-m\=C4MIP.CDRMIP.CMIP.LUMIP.OMIP-e\=historical-t\=1-p\=1/cmvme_c4.cd.cm.lu.om_historical_1_1.xlsx --ececonf EC-EARTH-CC
 # or for the special "test all" case by:
 #  ./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
 #  ./drq2varlist.py --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
@@ -69,6 +70,16 @@ def main():
             matches, omitted = taskloader.load_drq("allvars", config=args.ececonf, check_prefs=True)
         else:
             matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
+          ### Here we load extra permanent tasks for LPJ-GUESS because the LPJ_GUESS community likes to output these variables at any time independent wheter they are requested by the data request:
+          ##if args.ececonf in ["EC-EARTH-CC", "EC-EARTH-Veg", "EC-EARTH-Veg-LR"]:
+          ##   matches_permanent, omitted_permanent = taskloader.load_drq(os.path.join(os.path.dirname(__file__), "..", "resources", "permanent-tasks.json"), config=args.ececonf, check_prefs=True)
+          ##   for model, targetlist in matches_permanent.items():
+          ##       if model in matches:
+          ##          for target in targetlist:
+          ##             if target not in matches[model]:
+          ##                matches[model].append(target)
+          ##       else:
+          ##          matches[model] = targetlist
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
