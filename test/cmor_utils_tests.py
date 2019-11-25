@@ -82,20 +82,26 @@ class utils_tests(unittest.TestCase):
 
     @staticmethod
     def test_get_nemo_grid():
-        filepath = os.path.join(os.path.dirname(__file__), "my_exp_3h_19992131_20000102_icemod.nc")
-        fstr = get_nemo_grid(filepath, "my_exp")
+        filepath = os.path.join(os.path.dirname(__file__), "exp1_3h_19992131_20000102_icemod.nc")
+        fstr = get_nemo_grid(filepath)
         eq_(fstr, "icemod")
 
     @staticmethod
     def test_get_nemo_grid2():
-        filepath = os.path.join(os.path.dirname(__file__), "my_exp_3h_19992131_20000102_grid_T.nc")
-        fstr = get_nemo_grid(filepath, "my_exp")
+        filepath = os.path.join(os.path.dirname(__file__), "exp2_3h_19992131_20000102_grid_T.nc")
+        fstr = get_nemo_grid(filepath)
         eq_(fstr, "grid_T")
+
+    @staticmethod
+    def test_get_nemo_grid2():
+        filepath = os.path.join(os.path.dirname(__file__), "t015_1m_19900101_19901231_opa_grid_W_3D.nc")
+        fstr = get_nemo_grid(filepath)
+        eq_(fstr, "opa_grid_W_3D")
 
     @raises(Exception)
     def test_bad_nemo_grid(self):
         filepath = os.path.join(os.path.dirname(__file__), "my_exp_3h_19992131_20000102_grid_T.nc")
-        fstr = get_nemo_grid(filepath, "exp")
+        fstr = get_nemo_grid(filepath)
         eq_(fstr, "grid_T")
 
     @staticmethod

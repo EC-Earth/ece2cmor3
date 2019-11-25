@@ -40,6 +40,9 @@ nemo_files_ = []
 # Nemo bathymetry file
 bathy_file_ = None
 
+# Nemo bathymetry grid
+bathy_grid_ = "opa_grid_T_2D"
+
 # Nemo basin file
 basin_file_ = None
 
@@ -535,11 +538,22 @@ def create_masks(tasks):
 
 # Reads all the NEMO grid data from the input files.
 def create_grids(tasks):
-    task_groups = cmor_utils.group(tasks, lambda t: getattr(t, cmor_task.output_path_key, None))
-    for filename, task_list in task_groups.iteritems():
-        if filename is not None:
-            grid = read_grid(filename)
-            write_grid(grid, task_list)
+    task_by_file = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
+    file_by_grid = cmor_utils.group(task_by_file.keys(),
+                                    lambda fp: bathy_grid_ if fp == bathy_file_ else cmor_utils.get_nemo_grid(fp))
+    for grid_name, file_paths in file_by_grid.iteritems():
+        filename = file_paths[0]
+        if bathy_file_ is not None and os.path.basename(filename) == os.path.basename(bathy_file_):
+            if len(file_paths) > 1:
+                filename = file_paths[1]
+            else:
+                for fp in nemo_files_:
+                    if cmor_utils.get_nemo_grid(fp) == nemo_grid:
+                        filename = fp
+        if bathy_file_ is not None and os.path.basename(filename) == os.path.basename(bathy_file_):
+            log.warning("Using the bathymetry file of EC-Earth to build T-grid, this may be corrupted")
+        grid = read_grid(filename)
+        write_grid(grid, [t for fname in file_paths for t in task_by_file[fname]])
 
 
 # Reads a particular NEMO grid from the given input file.
@@ -547,7 +561,7 @@ def read_grid(ncfile):
     ds = None
     try:
         ds = netCDF4.Dataset(ncfile, 'r')
-        name = getattr(ds.variables["nav_lon"], "nav_model", cmor_utils.get_nemo_grid(ncfile, exp_name_))
+        name = getattr(ds.variables["nav_lon"], "nav_model", cmor_utils.get_nemo_grid(ncfile))
         if name == "scalar":
             return None
         lons = ds.variables["nav_lon"][:, :] if "nav_lon" in ds.variables else []
