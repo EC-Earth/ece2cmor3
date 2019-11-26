@@ -5,6 +5,11 @@
         "target": "baresoilFrac"
     },
     {
+        "source": "burntFractionAll",
+        "convert": "frac2percent",
+        "target": "burntFractionAll"
+    },
+    {
         "source": "cCwd",
         "target": "cCwd"
     },

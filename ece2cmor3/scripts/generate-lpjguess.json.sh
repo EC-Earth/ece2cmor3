@@ -20,6 +20,7 @@
 # Declare an array variable with all the lpjg cmor variable names:
 declare -a arr=(
 "baresoilFrac"
+"burntFractionAll"
 "cCwd"
 "cLand"
 "cLeaf"

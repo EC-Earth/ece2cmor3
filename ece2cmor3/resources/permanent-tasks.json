@@ -38,6 +38,7 @@
         "cSoil"
     ],
     "Lmon": [
+        "burntFractionAll",
         "nbp",
         "cProduct",
         "cLeaf",
