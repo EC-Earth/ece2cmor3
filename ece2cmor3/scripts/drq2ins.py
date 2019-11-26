@@ -72,8 +72,8 @@ def main():
             taskloader.load_tasks(args.vars, active_components=["lpjg"])
         else:
             taskloader.load_tasks_from_drq(args.drq, active_components=["lpjg"], check_prefs=False)
-          ### Here we load extra permanent tasks for LPJ-GUESS because the LPJ_GUESS community likes to output these variables at any time independent wheter they are requested by the data request:
-          ##taskloader.load_tasks_from_drq(os.path.join(os.path.dirname(__file__), "..", "resources", "permanent-tasks.json"), active_components=["lpjg"], check_prefs=False)
+            # Here we load extra permanent tasks for LPJ-GUESS because the LPJ_GUESS community likes to output these variables at any time independent wheter they are requested by the data request:
+            taskloader.load_tasks_from_drq(os.path.join(os.path.dirname(__file__), "..", "resources", "permanent-tasks.json"), active_components=["lpjg"], check_prefs=False)
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
