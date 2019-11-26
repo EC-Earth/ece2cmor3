@@ -299,7 +299,6 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
-    return
     tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
@@ -800,10 +799,10 @@ def create_grid_from_file(filepath):
 def create_gauss_grid(nx, x0, yvals):
     ny = len(yvals)
     dx = 360. / nx
-    x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
+    x_vals = numpy.array([x0 + i * dx for i in range(nx)])
     lon_arr = numpy.tile(x_vals, (ny, 1))
     lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
-    lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
+    lon_mids = numpy.array([x0 + (i - 0.5) * dx for i in range(nx + 1)])
     lat_mids = numpy.empty([ny + 1])
     lat_mids[0] = 90.
     lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])
