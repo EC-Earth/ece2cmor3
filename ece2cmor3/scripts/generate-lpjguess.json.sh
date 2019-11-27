@@ -174,6 +174,9 @@ function add_item {
  echo '    {'                     >> ${output_file}
  echo '        "source": "'$1'",' >> ${output_file}
  case $1 in
+     burntFractionAll )                                              # In contrast to other fractions in LPJ-GIESS this one
+      #echo '        "convert": "frac2percent",' >> ${output_file}   # is alreay in percentage, therefore omitting for the
+	 ;;                                                          # variable burntFractionAll the conversion (see#546).
      *Frac* )
        echo '        "convert": "frac2percent",' >> ${output_file}
 	 ;;

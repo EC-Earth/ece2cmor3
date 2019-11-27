@@ -6,7 +6,6 @@
     },
     {
         "source": "burntFractionAll",
-        "convert": "frac2percent",
         "target": "burntFractionAll"
     },
     {
