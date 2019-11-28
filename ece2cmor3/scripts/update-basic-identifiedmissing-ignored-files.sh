@@ -21,11 +21,11 @@ if [ "$#" -eq -2 ]; then
   cd ${HOME}/cmorize/shaconemo/ping-files/
   ./extract-info-from-ping-files.csh
 
-# Step 3: Manually select the entire column of variables in the first file and the entire comment from the second file:
-  nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
-# and copy them manually into the variable and comment column respectively (and update the comment author column) in the file:
-  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
-# After updating the pre* files it is most convenient to commit them first.
+# # Step 3: Manually select the entire column of variables in the first file and the entire comment from the second file:
+#   nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
+# # and copy them manually into the variable and comment column respectively (and update the comment author column) in the file:
+#   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+# # After updating the pre* files it is most convenient to commit them first.
 
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
   nedit generate-nemopar.json.sh ../resources/nemopar.json &
