@@ -541,6 +541,10 @@
         "target": "dissic"
     },
     {
+        "source": "dissicnat",
+        "target": "dissicnat"
+    },
+    {
         "source": "dissicnatos",
         "target": "dissicnatos"
     },
@@ -863,6 +867,10 @@
     {
         "source": "talk",
         "target": "talk"
+    },
+    {
+        "source": "talknat",
+        "target": "talknat"
     },
     {
         "source": "talknatos",
