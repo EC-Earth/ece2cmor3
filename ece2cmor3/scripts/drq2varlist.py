@@ -95,6 +95,9 @@ def main():
 
             # Taking off several variables from the json data request files:
             skip_case = False
+            # See issue #521:
+            if target.variable in ['intdoc']:
+             skip_case = True
             # See issue #498 & #469:
             if target.variable in ['rlntds', 'hfibthermds', 'hflso', 'agessc', 'ficeberg', 'hfsso', 'hfcorr', 'wfcorr', 'nwdFracLut']:
              skip_case = True
