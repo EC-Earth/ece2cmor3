@@ -83,6 +83,7 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the E3hr   prrc                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Eday   prrc                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Omon   prra                                                            to the list-of-ignored-cmpi6-requested-variables.xlsx
+#  -Add manually the E3hrPt rsutcsaf  #556                                                  to the list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
