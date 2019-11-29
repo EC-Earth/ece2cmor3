@@ -42,7 +42,7 @@ if [ "$#" -eq -2 ]; then
   cpf ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmpi6-requested-variables.xlsx                        ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmpi6-requested-variables.xlsx
 
 # Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
-   cd ${HOME}/cmorize/ece2cmor3/; python setup.py install; cd -;
+   cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    ./checkvars.py --withouttablescheck -v --drq  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
@@ -60,7 +60,6 @@ if [ "$#" -eq -2 ]; then
 #  -Move CFsubhr AerChemMIP variables (one block of variables) from list-of-identified-missing-cmpi6-requested-variables.xlsx manually to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the IyrGre ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the Eday   LS3MIP nudgincsm, nudgincswe                                    to the list-of-identified-missing-cmpi6-requested-variables.xlsx
-#  -Add manually the Eday   LS3MIP (step 3) mrsow, tsland                                   to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the Emon    vtendogw,vtendnogw       (table 126)                           to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the EmonZ   vtendnogw,tntogw,tntnogw (table 126)                           to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-ignored-cmpi6-requested-variables.xlsx
