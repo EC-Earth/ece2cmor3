@@ -4,16 +4,16 @@
 #   conda-env remove -y -n ece2cmor3
 #   conda clean --all -y
 #  Create the ece2cmor3 environment:
-#   conda update -n base -c defaults conda        # For updating conda itself if you like
+#   conda update -y -n base -c defaults conda     # For updating conda itself if you like
 #   conda env create -f environment.yml
-#  Basic tests: 
+#  Basic tests:
 #   cdo -V
 #   nosetests
 #  Miscelaneous relevant help commands:
 #   conda-env list
 #   conda list
 #   conda update --all
-#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active): 
+#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
 #   pip uninstall -y dreqPy==01.00.31.post3; pip install dreqPy==01.0.30
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
