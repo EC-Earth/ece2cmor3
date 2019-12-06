@@ -299,7 +299,6 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
-    return
     tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
@@ -313,7 +312,10 @@ def clean_tmp_data(tasks):
             for dpath in data_paths:
                 dp = str(dpath)
                 if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
-                    os.remove(dp)
+                    try:
+                        os.remove(dp)
+                    except OSError:
+                        pass
     if not any(os.listdir(temp_dir_)):
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
