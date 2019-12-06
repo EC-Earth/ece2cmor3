@@ -299,6 +299,7 @@ def read_mask(name, filepath):
 # Deletes all temporary paths and removes temp directory
 def clean_tmp_data(tasks):
     global temp_dir_, ifs_gridpoint_files_, ifs_spectral_files_
+    return
     tmp_files = [str(os.path.join(temp_dir_, f)) for f in os.listdir(temp_dir_)]
     for task in tasks:
         for key in [cmor_task.filter_output_key, cmor_task.output_path_key]:
@@ -478,6 +479,7 @@ def execute_netcdf_task(task):
         return
     try:
         ncvars = dataset.variables
+        dataset.set_auto_mask(False)
         codestr = str(task.source.get_grib_code().var_id)
         varlist = [v for v in ncvars if str(getattr(ncvars[v], "code", None)) == codestr]
         if len(varlist) == 0:
