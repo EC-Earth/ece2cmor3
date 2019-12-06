@@ -1,0 +1,20 @@
+{
+    "ifs": {},
+    "lpjg": {
+        "Amon": [
+            "fco2nat"
+        ],
+        "Emon": [
+            "mrsosLut",
+            "fLulccAtmLut",
+            "mrsll",
+            "cLand"
+        ],
+        "Lmon": [
+            "baresoilFrac",
+            "cLitter"
+        ]
+    },
+    "nemo": {},
+    "tm5": {}
+}
