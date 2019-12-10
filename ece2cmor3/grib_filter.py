@@ -200,9 +200,9 @@ def get_levels(task, code):
     if zaxis in ["alevel", "alevhalf"]:
         return grib_file.hybrid_level_code, [-1]
     if zaxis == "air_pressure":
-        return grib_file.pressure_level_Pa_code, [int(float(l)) for l in levels]
+        return grib_file.pressure_level_Pa_code, [int(float(level)) for level in levels]
     if zaxis in ["height", "altitude"]:
-        return grib_file.height_level_code, [int(float(l)) for l in levels]  # TODO: What about decimal places?
+        return grib_file.height_level_code, [int(float(level)) for level in levels]  # TODO: What about decimal places?
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
@@ -278,8 +278,8 @@ def cluster_files(valid_tasks, varstasks):
 def execute(tasks, filter_files=True, multi_threaded=False):
     valid_fx_tasks = execute_tasks([t for t in tasks if cmor_target.get_freq(t.target) == 0], filter_files,
                                    multi_threaded=False, once=True)
-    valid_other_tasks = execute_tasks([t for t in tasks if cmor_target.get_freq(t.target) != 0], filter_files
-                                      , multi_threaded=multi_threaded, once=False)
+    valid_other_tasks = execute_tasks([t for t in tasks if cmor_target.get_freq(t.target) != 0], filter_files,
+                                      multi_threaded=multi_threaded, once=False)
     return valid_fx_tasks + valid_other_tasks
 
 
@@ -326,20 +326,20 @@ def validate_tasks(tasks):
         matched_grid = None
         for c in codes:
             levtype, levels = get_levels(task, c)
-            for l in levels:
+            for level in levels:
                 if task.status == cmor_task.status_failed:
                     break
-                match_key = soft_match_key(c.var_id, c.tab_id, levtype, l, task.source.grid_, varsfreq.keys())
+                match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, varsfreq.keys())
                 if match_key is None:
                     log.error("Field missing in the first day of file: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (c.var_id, c.tab_id, levtype, l, task.target.variable, task.target.table))
+                              (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
                     task.set_failed()
                     break
                 if 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (task.target.variable, c.var_id, c.tab_id, levtype, l, task.target.variable,
+                              (task.target.variable, c.var_id, c.tab_id, levtype, level, task.target.variable,
                                task.target.table))
                     task.set_failed()
                     break
