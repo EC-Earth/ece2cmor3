@@ -265,3 +265,13 @@ class taskloader_test(unittest.TestCase):
                     ok_("merge" in getattr(t.source, "expr"))
         finally:
             ece2cmorlib.finalize_without_cmor()
+
+    @staticmethod
+    def test_load_oclim_variable():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            matches, omitted = taskloader.load_drq({"Oclim": ["difvho"]}, check_prefs=False)
+            eq_(len(matches["nemo"]), 1)
+            ok_(not any(omitted))
+        finally:
+            ece2cmorlib.finalize_without_cmor()
