@@ -182,9 +182,9 @@ def main():
 
 
     # See #546: Add the variable fVegOther which is not part of the data request and has no cmor name, to the LPJ-GUESS instruction file:
-    fVegOther_rule = 'file_fVegOther_monthly  "fVegOther_monthly.out"'
-    command = 'echo ' + fVegOther_rule + ' >> lpjg_cmip6_output.ins'
-    os.system(command)  # Always add the variable fVegOther which is not part of the data request
+    with open("lpjg_cmip6_output.ins", "a") as instruction_file:
+         instruction_file.write('file_fVegOther_monthly "fVegOther_monthly.out"\n')
+    instruction_file.close()
 
 if __name__ == "__main__":
     main()
