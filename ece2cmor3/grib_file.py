@@ -1,5 +1,6 @@
 import os
 import csv
+import subprocess
 
 import gribapi
 
@@ -20,6 +21,7 @@ levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
 
 test_mode = False
+grib_def_path = None
 
 
 # Factory method
@@ -28,6 +30,15 @@ def create_grib_file(file_object_):
         return csv_grib_mock(file_object_)
     else:
         return ecmwf_grib_api(file_object_)
+
+
+def initialize_grib_definitions():
+    global grib_def_path
+    if grib_def_path is None:
+        orig_path = subprocess.check_output(["codes_info", "-d"])
+        ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
+        grib_def_path = ":".join([orig_path, ece_path])
+        os.environ["ECCODES_DEFINITION_PATH"] = grib_def_path
 
 
 # Interface for grib file object
