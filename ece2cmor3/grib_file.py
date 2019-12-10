@@ -35,7 +35,7 @@ def create_grib_file(file_object_):
 def initialize_grib_definitions():
     global grib_def_path
     if grib_def_path is None:
-        orig_path = subprocess.check_output(["codes_info", "-d"])
+        orig_path = str(subprocess.check_output(["codes_info", "-d"]))
         ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
         grib_def_path = ":".join([orig_path, ece_path])
         os.environ["ECCODES_DEFINITION_PATH"] = grib_def_path
