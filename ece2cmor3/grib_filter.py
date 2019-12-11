@@ -39,6 +39,7 @@ def update_sp_key(fname):
 
 def initialize(gpfiles, shfiles, tmpdir):
     global gridpoint_files, spectral_files, temp_dir, varsfreq, accum_codes
+    grib_file.initialize()
     gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
     spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
     temp_dir = tmpdir

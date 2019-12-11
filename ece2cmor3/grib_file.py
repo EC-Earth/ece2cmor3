@@ -21,7 +21,16 @@ levtype_key = "indicatorOfTypeOfLevel"
 level_key = "level"
 
 test_mode = False
-grib_def_path = None
+
+
+# Module initializer function
+def initialize():
+    if not test_mode:
+        orig_path = str(subprocess.check_output(["codes_info", "-d"]))
+        ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
+        prepended_path = ":".join([ece_path, orig_path])
+        os.environ["ECCODES_DEFINITION_PATH"] = prepended_path
+        os.environ["GRIB_API_PYTHON_NO_TYPE_CHECKS"] = "1"
 
 
 # Factory method
@@ -30,15 +39,6 @@ def create_grib_file(file_object_):
         return csv_grib_mock(file_object_)
     else:
         return ecmwf_grib_api(file_object_)
-
-
-def initialize_grib_definitions():
-    global grib_def_path
-    if grib_def_path is None:
-        orig_path = str(subprocess.check_output(["codes_info", "-d"]))
-        ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
-        grib_def_path = ":".join([orig_path, ece_path])
-        os.environ["ECCODES_DEFINITION_PATH"] = grib_def_path
 
 
 # Interface for grib file object
@@ -72,7 +72,6 @@ class ecmwf_grib_api(grib_file):
     def __init__(self, file_object_):
         super(ecmwf_grib_api, self).__init__(file_object_)
         self.record = 0
-        os.environ["GRIB_API_PYTHON_NO_TYPE_CHECKS"] = "1"
 
     def read_next(self, headers_only=False):
         self.record = gribapi.grib_new_from_file(self.file_object, headers_only=headers_only)
