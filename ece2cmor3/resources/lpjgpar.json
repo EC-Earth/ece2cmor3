@@ -120,14 +120,6 @@
         "target": "cWood"
     },
     {
-        "source": "dec",
-        "target": "dec"
-    },
-    {
-        "source": "det",
-        "target": "det"
-    },
-    {
         "source": "evspsblpot",
         "target": "evspsblpot"
     },

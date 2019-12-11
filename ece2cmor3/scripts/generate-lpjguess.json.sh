@@ -48,8 +48,6 @@ declare -a arr=(
 "cVeg"
 "cVegLut"
 "cWood"
-"dec"
-"det"
 "evspsblpot"
 "evspsblsoi"
 "evspsblveg"
