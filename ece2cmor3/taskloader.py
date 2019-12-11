@@ -20,15 +20,15 @@ json_filepath_key = "filepath"
 
 variable_prefs_file = os.path.join(os.path.dirname(__file__), "resources", "varprefs.csv")
 
-omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
+omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-01.xlsx")
-omit_vars_file_02 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
+omit_vars_file_02 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-02.xlsx")
-omit_vars_file_03 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
+omit_vars_file_03 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-03.xlsx")
-omit_vars_file_04 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
+omit_vars_file_04 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-04.xlsx")
-omit_vars_file_05 = os.path.join(os.path.dirname(__file__), "resources/lists-of-omitted-variables",
+omit_vars_file_05 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-05.xlsx")
 ignored_vars_file = os.path.join(os.path.dirname(__file__), "resources",
                                  "list-of-ignored-cmpi6-requested-variables.xlsx")
