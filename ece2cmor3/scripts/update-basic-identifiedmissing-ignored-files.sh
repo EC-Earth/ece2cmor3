@@ -62,6 +62,8 @@ if [ "$#" -eq -2 ]; then
 #  -Add manually the Eday   LS3MIP nudgincsm, nudgincswe                                    to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the Emon    vtendogw,vtendnogw       (table 126)                           to the list-of-identified-missing-cmpi6-requested-variables.xlsx
 #  -Add manually the EmonZ   vtendnogw,tntogw,tntnogw (table 126)                           to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Add manually the Emon, CF3hr & Esubhr reffclws combinations                             to the list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  -Add manually the       CF3hr & Esubhr reffclws combinations                             to the list-of-identified-missing-cmpi6-requested-variables-enable-pextra.xlsx
 #  -Add manually the IyrAnt ISMIP6 (step 3) variables modelCellAreai, sftgif and sftgrf     to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the Efx    RFMIP  (step 3) variables rlu, rsu, rld, rsd                    to the list-of-ignored-cmpi6-requested-variables.xlsx
 #  -Add manually the 6hrPlevPt VolMIP (step 3) block (swtoafluxaerocs-lwtoafluxaerocs)      to the list-of-ignored-cmpi6-requested-variables.xlsx
