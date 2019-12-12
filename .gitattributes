@@ -1,3 +1,13 @@
 test/test_data/ifsdata/3hr/ICM* filter=lfs diff=lfs merge=lfs -text
 test/test_data/ifsdata/6hr/ICM* filter=lfs diff=lfs merge=lfs -text
 test/test_data/lpjg/*.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/baresoilFrac_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/cLitter_yearly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/mrsos_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/nwdFracLut_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/tsl_daily.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/cLand_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/fco2nat_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/fLulccAtmLut_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/mrsll_monthly.out filter=lfs diff=lfs merge=lfs -text
+test/test_data/lpjg/mrsosLut_monthly.out filter=lfs diff=lfs merge=lfs -text
