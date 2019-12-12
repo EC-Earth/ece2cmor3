@@ -32,7 +32,7 @@ def create_cmor_source(attributes, component):
             log.error(
                 "Could not find an IFS source or expression entry within attributes %s" % (str(attributes.__dict__)))
             return None
-        result = ifs_source.read(src, expr)
+        result = ifs_source.read(src, expr, expr_order=attributes.get("expr_order", 0))
     if component == "nemo":
         if src is None:
             log.error("Could not find a NEMO source variable within attributes %s" % (str(attributes.__dict__)))
@@ -110,6 +110,7 @@ def read_grib_codes_group(file, key):
 
 ifs_grid = cmor_utils.cmor_enum(["point", "spec"])
 expression_key = "expr"
+expression_order_key = "expr_order"
 
 
 # IFS source subclass, constructed from a given grib code.
@@ -168,7 +169,7 @@ class ifs_source(cmor_source):
 
     # Creates an instance from the input string s.
     @classmethod
-    def read(cls, s, expr=None):
+    def read(cls, s, expr=None, expr_order=0):
         global log
         gc = grib_code.read(s)
         cls = ifs_source(gc)
@@ -203,6 +204,7 @@ class ifs_source(cmor_source):
                 cls.spatial_dims = 3 if any([c in ifs_source.grib_codes_3D for c in root_codes]) else 2
                 setattr(cls, "root_codes", root_codes)
                 setattr(cls, expression_key, expr_string)
+                setattr(cls, "expr_order", expr_order)
         return cls
 
     # Creates in instance from the input codes.
