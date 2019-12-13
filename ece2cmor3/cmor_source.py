@@ -32,7 +32,7 @@ def create_cmor_source(attributes, component):
             log.error(
                 "Could not find an IFS source or expression entry within attributes %s" % (str(attributes.__dict__)))
             return None
-        result = ifs_source.read(src, expr, expr_order=attributes.get("expr_order", 0))
+        result = ifs_source.read(src, expr, expr_order=int(attributes.get("expr_order", "0")))
     if component == "nemo":
         if src is None:
             log.error("Could not find a NEMO source variable within attributes %s" % (str(attributes.__dict__)))
