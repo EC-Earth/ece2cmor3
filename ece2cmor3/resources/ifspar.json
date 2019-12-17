@@ -471,7 +471,8 @@
     {
         "source": "23.129",
         "target": "cdnc",
-        "expr": " 1e+6 * (var126022 != 0) * var126020 / var126022"
+        "expr": " var126022 ? 1e+6*var126020/var126022 : 0",
+        "expr_order": "1"
     },
     {
         "source": "43.129",

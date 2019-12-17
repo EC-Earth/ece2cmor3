@@ -47,8 +47,12 @@ class cdo_command:
     model_level = "hybrid"
     surf_level = "surface"
 
+    post_expr_operator = "post_expr"
+    post_addexpr_operator = "post_aexpr"
+
     # Optimized operator ordering for CDO:
-    operator_ordering = [set_code_operator, mean_time_operators[year], min_time_operators[year],
+    operator_ordering = [set_code_operator, post_expr_operator, post_addexpr_operator,
+                         mean_time_operators[year], min_time_operators[year],
                          max_time_operators[year], mean_time_operators[month], min_time_operators[month],
                          max_time_operators[month], mean_time_operators[day], min_time_operators[day],
                          max_time_operators[day], timselmean_operator, gridtype_operator, ml2pl_operator,
@@ -226,7 +230,12 @@ class cdo_command:
     @staticmethod
     def make_option(key, args):
         option = "-" + key
-        if key in [cdo_command.add_expression_operator, cdo_command.expression_operator]:
+        if key == cdo_command.post_expr_operator:
+            option = "-" + cdo_command.expression_operator
+        if key == cdo_command.post_addexpr_operator:
+            option = "-" + cdo_command.add_expression_operator
+        if key in [cdo_command.expression_operator, cdo_command.add_expression_operator, cdo_command.post_expr_operator,
+                   cdo_command.post_addexpr_operator]:
             return option + ",\'" + ';'.join([str(a) for a in args]) + "\'"
         return (option + "," + ",".join([str(a) for a in args])) if any(args) else option
 

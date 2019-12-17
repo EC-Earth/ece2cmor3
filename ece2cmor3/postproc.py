@@ -124,6 +124,8 @@ def add_expr_operators(cdo, task):
         rhs = expr.replace(" ", "")[len(lhs) + 1:]
     expr = '='.join([lhs, rhs])
     new_code = int(lhs[3:])
+    order = getattr(task.source, cmor_source.expression_order_key, 0)
+    expr_operator = cdoapi.cdo_command.post_expr_operator if order == 1 else cdoapi.cdo_command.expression_operator
     if rhs.startswith("merge(") and rhs.endswith(")"):
         arg = rhs[6:-1]
         sub_expr_list = arg.split(',')
@@ -131,7 +133,7 @@ def add_expr_operators(cdo, task):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
             sub_expr = sub_expr_list[0].strip()
             if not re.match("var[0-9]{1,3}", sub_expr):
-                cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(new_code) + "=" + sub_expr)
+                cdo.add_operator(expr_operator, "var" + str(new_code) + "=" + sub_expr)
             else:
                 task.source = cmor_source.ifs_source.read(sub_expr)
             root_codes = [int(s.strip()[3:]) for s in re.findall("var[0-9]{1,3}", sub_expr)]
@@ -141,10 +143,10 @@ def add_expr_operators(cdo, task):
             i = 0
             for sub_expr in sub_expr_list:
                 i += 1
-                cdo.add_operator(cdoapi.cdo_command.expression_operator, "var" + str(i) + "=" + sub_expr)
+                cdo.add_operator(expr_operator, "var" + str(i) + "=" + sub_expr)
             cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
     else:
-        cdo.add_operator(cdoapi.cdo_command.expression_operator, expr)
+        cdo.add_operator(expr_operator, expr)
     cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[c.var_id for c in task.source.get_root_codes()])
 
 
