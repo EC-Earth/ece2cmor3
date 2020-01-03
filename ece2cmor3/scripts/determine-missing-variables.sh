@@ -121,6 +121,11 @@ fi
 # ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1
 
 # Step 3:
+
+# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx              ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
+# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m\=all-ece-mips-step-1+2-e\=CMIP-t\=1-p\=1.identifiedmissing.xlsx  ../resources/lists-of-omitted-variables/list-of-omitted-variables-02.xlsx
+# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m\=all-ece-mips-step-1+2-e\=CMIP-t\=1-p\=1.ignored.xlsx            ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
+#
 # ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1
 # ./determine-missing-variables.sh CDRMIP      CDRMIP       1 1
 # ./determine-missing-variables.sh C4MIP       C4MIP        1 1
@@ -134,10 +139,12 @@ fi
 # ./determine-missing-variables.sh PMIP        PMIP         1 1
 # ./determine-missing-variables.sh RFMIP       RFMIP        1 1
 # ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1
+#
+# The request: drq -m VolMIP -e VolMIP -p 1 -t 1  gives an error (see #573) with: -e VolMIP
 # ./determine-missing-variables.sh VolMIP      VolMIP       1 1
-# ./determine-missing-variables.sh CORDEX      CORDEX       1 1
-# ./determine-missing-variables.sh DynVarMIP   DynVarMIP    1 1
-# ./determine-missing-variables.sh SIMIP       SIMIP        1 1
-# ./determine-missing-variables.sh VIACSAB     VIACSAB      1 1
+#
+# git checkout ../resources/lists-of-omitted-variables/list-of-omitted-variables-*.xlsx
+
+# The Diagnostic MIPs (CORDEX,DynVarMI, SIMIP & VIACSAB) have no self defined experiments
 
 # ll *.missing.xlsx|grep -v 5.5K
