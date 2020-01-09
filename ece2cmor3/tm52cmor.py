@@ -194,12 +194,12 @@ def execute(tasks):
                 task.set_failed()
                 continue
     ps_tasks=get_ps_tasks(tasks)
-    log.info('Creating TM5 3x2 deg lon-lat grid')
+    #log.info('Creating TM5 3x2 deg lon-lat grid')
     
-    if using_grid_:
-        cmor.load_table(table_root_ + "_grids.json")
-        grid = create_lonlat_grid()#xsize, xfirst, yvals)
-        grid_ids_['lonlat']=grid
+    # if using_grid_:
+    #     cmor.load_table(table_root_ + "_grids.json")
+    #     grid = create_lonlat_grid()#xsize, xfirst, yvals)
+    #     grid_ids_['lonlat']=grid
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -241,11 +241,11 @@ def execute(tasks):
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
-                if not using_grid_:
-                    setattr(task, "lon2", grid_ids_['lon2'])
-                    setattr(task, "lat2", grid_ids_['lat2'])
-                else:
-                    setattr(task, "grid_id", grid)
+                #if not using_grid_:
+                setattr(task, "lon2", grid_ids_['lon2'])
+                setattr(task, "lat2", grid_ids_['lat2'])
+                #else:
+                #    setattr(task, "grid_id", grid)
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
@@ -305,17 +305,17 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
-        if using_grid_:
-            axes = [grid_ids_['lonlat']]
+        #if using_grid_:
+        #    axes = [grid_ids_['lonlat']]
+        #else:
+        if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
+            #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
+            axes = [grid_ids_['lat2'],grid_ids_['lon2']]
         else:
-            if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-                #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
-                axes = [grid_ids_['lat2'],grid_ids_['lon2']]
-            else:
-                grid_ids_['lat2']=create_lat()
-                grid_ids_['lon2']=create_lon()
-                #grid_ids_['lat2']=create_lat()
-                axes=[grid_ids_['lat2'],grid_ids_['lon2']]
+            grid_ids_['lat2']=create_lat()
+            grid_ids_['lon2']=create_lon()
+            #grid_ids_['lat2']=create_lat()
+            axes=[grid_ids_['lat2'],grid_ids_['lon2']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             checkaxes=getattr(task.target, cmor_target.dims_key).split()
@@ -356,16 +356,16 @@ def execute_netcdf_task(task,tableid):
             2D variables lon+lat
 
             '''
-            if using_grid_:
-                axes = [grid_ids_['lonlat']]
+            #if using_grid_:
+            #    axes = [grid_ids_['lonlat']]
+            #else:
+            if not ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
+                grid_ids_['lat2']=create_lat()
+                grid_ids_['lon2']=create_lon()
+                #grid_ids_['lat2']=create_lat()
+                axes=[grid_ids_['lat2'],grid_ids_['lon2']]
             else:
-                if not ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-                    grid_ids_['lat2']=create_lat()
-                    grid_ids_['lon2']=create_lon()
-                    #grid_ids_['lat2']=create_lat()
-                    axes=[grid_ids_['lat2'],grid_ids_['lon2']]
-                else:
-                    axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+                axes = [grid_ids_['lat2'],grid_ids_['lon2']]
         else:
             log.error('ERR -18: unsupported 2D dimensions %s'%task.target.dims)
             exit('Exiting!')
@@ -399,6 +399,7 @@ def execute_netcdf_task(task,tableid):
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
+    # handle zonal vars
     if task.target.table=='AERmonZ': 
         # assumption: data is shape [time,lat,lon] (roll longitude dimensio
         vals=numpy.copy(ncvar[:])
@@ -408,6 +409,7 @@ def execute_netcdf_task(task,tableid):
         vals=numpy.swapaxes(vals,1,2)
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         ncvar=vals.copy()
+    #handle global means
     elif task.target.dims==0:
         # global means
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
@@ -416,6 +418,7 @@ def execute_netcdf_task(task,tableid):
 
         # calculate area-weighted mean
         vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+    #handle normal case
     else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
         #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
         #  so by half the longitude dimension
@@ -690,12 +693,12 @@ def create_depth_axes(task):
 def create_hybrid_level_axis(task,leveltype='alevel'):
     global time_axes_,store_with_ps_,grid_ids_,zfactor_ids
     # define grid and time axis for hybrid levels
-    if using_grid_:
-        axes=[]
-        axes.append(getattr(task, "grid_id"))
-        axes.append( getattr(task, "time_axis"))
-    else:
-        axes=[getattr(task, "lat2"),getattr(task, "lon2"),getattr(task, "time_axis")]
+    #if using_grid_:
+    #    axes=[]
+    #    axes.append(getattr(task, "grid_id"))
+    #    axes.append( getattr(task, "time_axis"))
+    #else:
+    axes=[getattr(task, "lat2"),getattr(task, "lon2"),getattr(task, "time_axis")]
         #axes=[grid_ids_["lat2"],grid_ids_["lon2"],getattr(task, "time_axis")]
 
     # define before hybrid factors, and have the same
@@ -778,43 +781,43 @@ def create_lon():#nx, x0, yvals):
                                     coord_vals=xvals, cell_bounds=lon_bnd)
     return lon_id2
 
-def create_lonlat_grid():#nx, x0, yvals):
-    nx=120
-    x0=0
-    yvals=numpy.linspace(89,-89,90)
-    ny = len(yvals)
-    i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-    j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    dx = 360. / nx
-    x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
-    lon_arr = numpy.tile(x_vals, (ny, 1))
-    lat_arr = numpy.tile(yvals[:], (nx, 1)).transpose()
-    lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
-    lat_mids = numpy.empty([ny + 1])
-    lat_mids[0] = 90.
-    lat_mids[1:ny] = 0.5 * (yvals[0:ny-1] + yvals[1:ny])
-    lat_mids[ny] = -90.
-    vert_lats = numpy.empty([ny, nx, 4])
-    vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
-    vert_lats[:, :, 1] = vert_lats[:, :, 0]
-    vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
-    vert_lats[:, :, 3] = vert_lats[:, :, 2]
-    vert_lons = numpy.empty([ny, nx, 4])
-    vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
-    vert_lons[:, :, 3] = vert_lons[:, :, 0]
-    vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
-    vert_lons[:, :, 2] = vert_lons[:, :, 1]
+# def create_lonlat_grid():#nx, x0, yvals):
+#     nx=120
+#     x0=0
+#     yvals=numpy.linspace(89,-89,90)
+#     ny = len(yvals)
+#     i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
+#     j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+#     dx = 360. / nx
+#     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
+#     lon_arr = numpy.tile(x_vals, (ny, 1))
+#     lat_arr = numpy.tile(yvals[:], (nx, 1)).transpose()
+#     lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
+#     lat_mids = numpy.empty([ny + 1])
+#     lat_mids[0] = 90.
+#     lat_mids[1:ny] = 0.5 * (yvals[0:ny-1] + yvals[1:ny])
+#     lat_mids[ny] = -90.
+#     vert_lats = numpy.empty([ny, nx, 4])
+#     vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
+#     vert_lats[:, :, 1] = vert_lats[:, :, 0]
+#     vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
+#     vert_lats[:, :, 3] = vert_lats[:, :, 2]
+#     vert_lons = numpy.empty([ny, nx, 4])
+#     vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
+#     vert_lons[:, :, 3] = vert_lons[:, :, 0]
+#     vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
+#     vert_lons[:, :, 2] = vert_lons[:, :, 1]
 
-    lon_bnd=numpy.stack((lon_mids[:-1],lon_mids[1:]),axis=-1)
-    lat_bnd=numpy.stack((lat_mids[:-1],lat_mids[1:]),axis=-1)
-    lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
-                                    coord_vals=x_vals, cell_bounds=lon_bnd)
-    lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
-                                    coord_vals=yvals, cell_bounds=lat_bnd)
-    #return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)#,
-    #return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-    return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-    #return [lon_id,lat_id]
+#     lon_bnd=numpy.stack((lon_mids[:-1],lon_mids[1:]),axis=-1)
+#     lat_bnd=numpy.stack((lat_mids[:-1],lat_mids[1:]),axis=-1)
+#     lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
+#                                     coord_vals=x_vals, cell_bounds=lon_bnd)
+#     lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
+#                                     coord_vals=yvals, cell_bounds=lat_bnd)
+#     #return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)#,
+#     #return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
+#     return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
+#     #return [lon_id,lat_id]
     
 # Surface pressure variable lookup utility
 def get_ps_var(ncpath):
