@@ -75,13 +75,13 @@ def initialize(path,expname,tabledir, prefix,refdate):
     table_root_ =os.path.join(tabledir, prefix)
     #tm5_files_ = select_files(path,expname,start)#,length)
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
-    if tm5_files_ == None:
+    if len(tm5_files_) == 0:
         log.error('no TM5 varibles found, exiting!')
         exit()
     areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
-    
-    if areacella_file == None:
-        log.warning('Areacella not found, global means not correct!')
+    if len(areacella_file) == 0:
+        log.error('Areacella not found!')
+        exit()
     else:
         areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
     
