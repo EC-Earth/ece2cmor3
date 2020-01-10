@@ -211,7 +211,7 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
         subexpr = expname
     if varname == None:
         #
-        #select alphanumeric variable name followed by _AER*+_expname_+*+dates.nc
+        #select alphanumeric variable name followed by _AER + * + _expname_ + * + dates.nc
         # 
         # matches like this:
         #first quotation marks:
@@ -225,9 +225,6 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
         expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
     else:
         expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
-    #for f in os.listdir(path):
-    #    print path,f
-    #    print re.match(expr,f)
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
