@@ -332,7 +332,8 @@ def filter_tasks(tasks):
         tgtdims = getattr(task.target, cmor_target.dims_key, []).split()
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
-        if (haslat and haslon) or (not haslat and not haslon):
+        # 2D horizontal variables, zonal means and global means
+        if (haslat and haslon) or (haslat and not haslon) or (not haslat and not haslon):
             result.append(task)
         else:
             # TODO: Support zonal variables

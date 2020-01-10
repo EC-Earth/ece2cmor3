@@ -35,6 +35,9 @@ class cdo_command:
     ml2pl_operator = "ml2plx"
     ml2hl_operator = "ml2hl"
     merge_operator = "merge"
+    zonal_mean_operator = "zonmean"
+    meridional_mean_operator = "mermean"
+    global_mean_operator = "fldmean"
 
     # CDO operator argument strings
     regular_grid_type = "regular"
@@ -51,7 +54,8 @@ class cdo_command:
     operator_ordering = [set_code_operator, mean_time_operators[year], min_time_operators[year],
                          max_time_operators[year], mean_time_operators[month], min_time_operators[month],
                          max_time_operators[month], mean_time_operators[day], min_time_operators[day],
-                         max_time_operators[day], timselmean_operator, gridtype_operator, ml2pl_operator,
+                         max_time_operators[day], timselmean_operator, zonal_mean_operator, meridional_mean_operator,
+                         global_mean_operator, gridtype_operator, ml2pl_operator,
                          ml2hl_operator, add_expression_operator, expression_operator, spectral_operator,
                          select_lev_operator, select_z_operator, select_hour_operator, select_day_operator,
                          select_month_operator, shift_time_operator, select_step_operator, select_code_operator]

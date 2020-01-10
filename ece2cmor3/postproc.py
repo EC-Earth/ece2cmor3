@@ -155,6 +155,14 @@ def add_grid_operators(cdo, task):
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
         cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+    tgtdims = getattr(task.target, cmor_target.dims_key, []).split()
+    if "longitude" not in tgtdims:
+        if "latitude" in tgtdims:
+            cdo.add_operator(cdoapi.cdo_command.zonal_mean_operator)
+        else:
+            cdo.add_operator(cdoapi.cdo_command.global_mean_operator)
+    elif "latitude" not in tgtdims:
+        cdo.add_operator(cdoapi.cdo_command.meridional_mean_operator)
 
 
 # Adds time averaging operators to the cdo command for the given task
