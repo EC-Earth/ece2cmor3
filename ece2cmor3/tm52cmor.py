@@ -27,7 +27,7 @@ table_root_ = None
 tm5_files_ = []
 
 # Dictionary of tm5 grid type with cmor grid id.
-grid_ids_ = {}
+dim_ids_ = {}
 
 # List of depth axis ids with cmor grid id.
 depth_axes_ = {}
@@ -106,10 +106,10 @@ def initialize(path,expname,tabledir, prefix,refdate):
 
 # Resets the module globals.
 def finalize():
-    global tm5_files_,grid_ids_,depth_axes_,time_axes_,plev19_,plev39_
+    global tm5_files_,dim_ids_,depth_axes_,time_axes_,plev19_,plev39_
     log.info( 'Unit miss match variables %s '%(unit_miss_match))
     tm5_files_ = []
-    grid_ids_ = {}
+    dim_ids_ = {}
     depth_axes_ = {}
     time_axes_ = {}
     plev39_ = []
@@ -222,8 +222,8 @@ def execute(tasks):
         if table== 'Eday':
             log.info("Table Eday not supported for variable %s "%(task.target.variable))
         log.info("Creating longitude and latitude axes for table %s..." % table)
-        grid_ids_['lat']=create_lat()
-        grid_ids_['lon']=create_lon()
+        dim_ids_['lat']=create_lat()
+        dim_ids_['lon']=create_lon()
         # create or assign time axes to tasks
         log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
@@ -240,8 +240,8 @@ def execute(tasks):
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
-                setattr(task, 'lon', grid_ids_['lon'])
-                setattr(task, 'lat', grid_ids_['lat'])
+                setattr(task, 'lon', dim_ids_['lon'])
+                setattr(task, 'lat', dim_ids_['lat'])
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
@@ -288,7 +288,7 @@ def execute(tasks):
 
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
-    global log,grid_ids_,depth_axes_,time_axes_,areacella_
+    global log,dim_ids_,depth_axes_,time_axes_,areacella_
     interpolate_to_pressure=False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
@@ -300,12 +300,12 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
-        if  ('lon' in grid_ids_ and 'lat' in grid_ids_):
-            axes = [grid_ids_['lat'],grid_ids_['lon']]
+        if  ('lon' in dim_ids_ and 'lat' in dim_ids_):
+            axes = [dim_ids_['lat'],dim_ids_['lon']]
         else:
-            grid_ids_['lat']=create_lat()
-            grid_ids_['lon']=create_lon()
-            axes=[grid_ids_['lat'],grid_ids_['lon']]
+            dim_ids_['lat']=create_lat()
+            dim_ids_['lon']=create_lon()
+            axes=[dim_ids_['lat'],dim_ids_['lon']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             checkaxes=getattr(task.target, cmor_target.dims_key).split()
@@ -328,11 +328,11 @@ def execute_netcdf_task(task,tableid):
             2D Zonal lat+lev
             '''
             #cmor.load_table(table_root_ + "_coordinate.json")
-            if 'lat' in grid_ids_:
-                axes=[grid_ids_['lat']]
+            if 'lat' in dim_ids_:
+                axes=[dim_ids_['lat']]
             else:
-                grid_ids_['lat']=create_lat()
-                axes=[grid_ids_['lat']]
+                dim_ids_['lat']=create_lat()
+                axes=[dim_ids_['lat']]
             # zonal variables...
             #needs lat only, no grid....
             if hasattr(task, "z_axis_id"):
@@ -346,12 +346,12 @@ def execute_netcdf_task(task,tableid):
             2D variables lon+lat
 
             '''
-            if not ('lon' in grid_ids_ and 'lat' in grid_ids_):
-                grid_ids_['lat']=create_lat()
-                grid_ids_['lon']=create_lon()
-                axes=[grid_ids_['lat'],grid_ids_['lon']]
+            if not ('lon' in dim_ids_ and 'lat' in dim_ids_):
+                dim_ids_['lat']=create_lat()
+                dim_ids_['lon']=create_lon()
+                axes=[dim_ids_['lat'],dim_ids_['lon']]
             else:
-                axes = [grid_ids_['lat'],grid_ids_['lon']]
+                axes = [dim_ids_['lat'],dim_ids_['lon']]
         else:
             log.error('ERR -18: unsupported 2D dimensions %s'%task.target.dims)
             exit('Exiting!')
@@ -665,7 +665,7 @@ def create_depth_axes(task):
 
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task,leveltype='alevel'):
-    global time_axes_,store_with_ps_,grid_ids_,zfactor_ids
+    global time_axes_,store_with_ps_,dim_ids_,zfactor_ids
     # define grid axes and time axis for hybrid levels
     axes=[getattr(task, 'lat'), getattr(task, 'lon'), getattr(task, "time_axis")]
 
