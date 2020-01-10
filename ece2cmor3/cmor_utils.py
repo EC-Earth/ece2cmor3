@@ -196,16 +196,38 @@ def read_time_stamps(path):
 
 
 def find_tm5_output(path, expname=None, varname=None, freq=None):
+    """
+    Finds TM5 outputfiles, which consist of varname + "_" + "AER"[freq] + * + dates + ".nc"
+    inputs:
+    Path (mandatory)
+    experiment name (optional)
+    varname (optional)
+    frequency (optional)
+    output:
+    list of full paths to files
+    """
     subexpr = ".*"
     if expname:
         subexpr = expname
     if varname == None:
-        expr = re.compile(".*_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+        #
+        #select alphanumeric variable name followed by _AER*+_expname_+*+dates.nc
+        # 
+        # matches like this:
+        #first quotation marks:
+        #emioa_AER*_
+        #subexpr:
+        #aspi
+        #second quotation marks:
+        #_*_185001-185012.nc to _*_185001010000-185012312300 [6-12 numbers in date] 
+        expr = re.compile("(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
     elif varname != None and freq == 'fx':
-        expr = re.compile(".*" + varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
     else:
-        expr = re.compile(".*" + varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
-
+        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+    #for f in os.listdir(path):
+    #    print path,f
+    #    print re.match(expr,f)
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
