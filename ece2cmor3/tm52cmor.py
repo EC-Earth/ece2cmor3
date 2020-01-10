@@ -306,7 +306,6 @@ def execute_netcdf_task(task,tableid):
         else:
             grid_ids_['lat']=create_lat()
             grid_ids_['lon']=create_lon()
-            #grid_ids_['lat']=create_lat()
             axes=[grid_ids_['lat'],grid_ids_['lon']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
@@ -354,7 +353,6 @@ def execute_netcdf_task(task,tableid):
             if not ('lon' in grid_ids_ and 'lat' in grid_ids_):
                 grid_ids_['lat']=create_lat()
                 grid_ids_['lon']=create_lon()
-                #grid_ids_['lat']=create_lat()
                 axes=[grid_ids_['lat'],grid_ids_['lon']]
             else:
                 axes = [grid_ids_['lat'],grid_ids_['lon']]
@@ -648,13 +646,8 @@ def create_depth_axes(task):
         if key[0] not in zfactor_ids:
             zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
-        #(a,p)=depth_axis_ids[('AERmon','alevel')]
         setattr(task, "store_with", psid)
-        #setattr(task, "store_with", p)
         return True
-        # log.error("ERR -1: Vertical axis %s not implemented yet" %(zdim))
-        # task.set_failed()
-        # return False
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0])
