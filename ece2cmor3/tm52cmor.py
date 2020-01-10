@@ -73,7 +73,7 @@ def initialize(path,expname,tabledir, prefix,refdate):
     exp_name_ = expname
     path_ = path
     table_root_ =os.path.join(tabledir, prefix)
-    #tm5_files_ = select_files(path,expname,start)#,length)
+    # select all TM5 files with expname from path
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
     if len(tm5_files_) == 0:
         log.error('no TM5 varibles found, exiting!')
@@ -84,7 +84,6 @@ def initialize(path,expname,tabledir, prefix,refdate):
         exit()
     else:
         areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
-    
     cal = None
     ref_date_ = refdate
 
@@ -250,7 +249,6 @@ def execute(tasks):
                 log.critical('Z-dimension site not implemented ')
                 task.set_failed()
                 continue
-
             if task.status==cmor_task.status_failed:
                 continue
             create_depth_axes(task)
