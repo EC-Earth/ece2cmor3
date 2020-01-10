@@ -65,7 +65,7 @@ extra_axes = {"lambda550nm":  {"ncdim": "lambda550nm",
 #
 ignore_frequency=['subhrPt','3hrPt']
 ps6hrpath_=None
-using_grid_=False
+#using_grid_=False
 path_=None
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
@@ -200,12 +200,6 @@ def execute(tasks):
                 task.set_failed()
                 continue
     ps_tasks=get_ps_tasks(tasks)
-    #log.info('Creating TM5 3x2 deg lon-lat grid')
-    
-    # if using_grid_:
-    #     cmor.load_table(table_root_ + "_grids.json")
-    #     grid = create_lonlat_grid()#xsize, xfirst, yvals)
-    #     grid_ids_['lonlat']=grid
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -311,9 +305,6 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
-        #if using_grid_:
-        #    axes = [grid_ids_['lonlat']]
-        #else:
         if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
             #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
             axes = [grid_ids_['lat2'],grid_ids_['lon2']]
