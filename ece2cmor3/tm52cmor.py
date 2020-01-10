@@ -301,7 +301,6 @@ def execute_netcdf_task(task,tableid):
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
         if  ('lon' in grid_ids_ and 'lat' in grid_ids_):
-            #if hasattr(grid_ids_,'lon')and hasattr(grid_ids_,'lat'):
             axes = [grid_ids_['lat'],grid_ids_['lon']]
         else:
             grid_ids_['lat']=create_lat()
@@ -347,9 +346,6 @@ def execute_netcdf_task(task,tableid):
             2D variables lon+lat
 
             '''
-            #if using_grid_:
-            #    axes = [grid_ids_['lonlat']]
-            #else:
             if not ('lon' in grid_ids_ and 'lat' in grid_ids_):
                 grid_ids_['lat']=create_lat()
                 grid_ids_['lon']=create_lon()
@@ -589,8 +585,6 @@ def create_type_axes(task):
 def create_depth_axes(task):
     global log_depth_axis_ids,zfactor_ids
 
-    #depth_axes = {}
-    #for task in tasks:
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # zdims all other than xy
     # including lambda550nm...
@@ -612,19 +606,15 @@ def create_depth_axes(task):
         if zdim == "alevel":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
-            #setattr(task, "store_with", key[0])
         elif zdim == "alevhalf":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
-            #setattr(task, "store_with", key[0])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev19_)
-            #setattr(task, "store_with", key[0])
         elif zdim == "plev39":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev39_)
-            #setattr(task, "store_with", key[0])
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -636,7 +626,6 @@ def create_depth_axes(task):
             zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
-        #setattr(task, "store_with", key[0])
         return True
     elif zdim == 'alevhalf':
         #if zdim not in depth_axis_ids:
@@ -677,14 +666,8 @@ def create_depth_axes(task):
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task,leveltype='alevel'):
     global time_axes_,store_with_ps_,grid_ids_,zfactor_ids
-    # define grid and time axis for hybrid levels
-    #if using_grid_:
-    #    axes=[]
-    #    axes.append(getattr(task, "grid_id"))
-    #    axes.append( getattr(task, "time_axis"))
-    #else:
-    axes=[getattr(task, 'lat'),getattr(task, 'lon'),getattr(task, "time_axis")]
-        #axes=[grid_ids_['lat'],grid_ids_['lon'],getattr(task, "time_axis")]
+    # define grid axes and time axis for hybrid levels
+    axes=[getattr(task, 'lat'), getattr(task, 'lon'), getattr(task, "time_axis")]
 
     # define before hybrid factors, and have the same
     # for 
@@ -735,74 +718,31 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
 
         #    setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
         if task.target.table not in zfactor_ids:
-        #if getattr(task,'store_with',None)==None:
-            #if task.target.table
             storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=psvarname,
                                 axis_ids=axes, units="Pa")
             setattr(task,'store_with',storewith)
-            #store_with_ps_ = storewith
         else:
-            #setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
             storewith=zfactor_ids[task.target.table]
-            #getattr(task,'store_with',None)#store_with_ps_
         return axisid, storewith
     finally:
         if ds is not None:
             ds.close()
 
-def create_lat():#nx, x0, yvals):
+def create_lat():
     yvals=numpy.linspace(89,-89,90)
     ny = len(yvals)
     lat_bnd=numpy.linspace(90,-90,91)
-    lat_id2=cmor.axis(table_entry="latitude", units="degrees_north",
+    lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
                                     coord_vals=yvals, cell_bounds=lat_bnd)
-    return lat_id2
+    return lat_id
 
-def create_lon():#nx, x0, yvals):
+def create_lon():
     xvals=numpy.linspace(1.5,358.5,120)
     nx = len(xvals)
     lon_bnd=numpy.linspace(0,360,121)
-    lon_id2=cmor.axis(table_entry="longitude", units="degrees_east",
+    lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
                                     coord_vals=xvals, cell_bounds=lon_bnd)
-    return lon_id2
-
-# def create_lonlat_grid():#nx, x0, yvals):
-#     nx=120
-#     x0=0
-#     yvals=numpy.linspace(89,-89,90)
-#     ny = len(yvals)
-#     i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-#     j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-#     dx = 360. / nx
-#     x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
-#     lon_arr = numpy.tile(x_vals, (ny, 1))
-#     lat_arr = numpy.tile(yvals[:], (nx, 1)).transpose()
-#     lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
-#     lat_mids = numpy.empty([ny + 1])
-#     lat_mids[0] = 90.
-#     lat_mids[1:ny] = 0.5 * (yvals[0:ny-1] + yvals[1:ny])
-#     lat_mids[ny] = -90.
-#     vert_lats = numpy.empty([ny, nx, 4])
-#     vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
-#     vert_lats[:, :, 1] = vert_lats[:, :, 0]
-#     vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
-#     vert_lats[:, :, 3] = vert_lats[:, :, 2]
-#     vert_lons = numpy.empty([ny, nx, 4])
-#     vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
-#     vert_lons[:, :, 3] = vert_lons[:, :, 0]
-#     vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
-#     vert_lons[:, :, 2] = vert_lons[:, :, 1]
-
-#     lon_bnd=numpy.stack((lon_mids[:-1],lon_mids[1:]),axis=-1)
-#     lat_bnd=numpy.stack((lat_mids[:-1],lat_mids[1:]),axis=-1)
-#     lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
-#                                     coord_vals=x_vals, cell_bounds=lon_bnd)
-#     lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
-#                                     coord_vals=yvals, cell_bounds=lat_bnd)
-#     #return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)#,
-#     #return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-#     return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-#     #return [lon_id,lat_id]
+    return lon_id
     
 # Surface pressure variable lookup utility
 def get_ps_var(ncpath):
