@@ -223,8 +223,8 @@ def execute(tasks):
         if table== 'Eday':
             log.info("Table Eday not supported for variable %s "%(task.target.variable))
         log.info("Creating longitude and latitude axes for table %s..." % table)
-        grid_ids_['lat2']=create_lat()
-        grid_ids_['lon2']=create_lon()
+        grid_ids_['lat']=create_lat()
+        grid_ids_['lon']=create_lon()
         # create or assign time axes to tasks
         log.info("Creating time axes for table %s..." % table)
         create_time_axes(tasklist)
@@ -241,11 +241,8 @@ def execute(tasks):
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
-                #if not using_grid_:
-                setattr(task, "lon2", grid_ids_['lon2'])
-                setattr(task, "lat2", grid_ids_['lat2'])
-                #else:
-                #    setattr(task, "grid_id", grid)
+                setattr(task, 'lon', grid_ids_['lon'])
+                setattr(task, 'lat', grid_ids_['lat'])
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
@@ -305,14 +302,14 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
-        if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-            #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
-            axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+        if  ('lon' in grid_ids_ and 'lat' in grid_ids_):
+            #if hasattr(grid_ids_,'lon')and hasattr(grid_ids_,'lat'):
+            axes = [grid_ids_['lat'],grid_ids_['lon']]
         else:
-            grid_ids_['lat2']=create_lat()
-            grid_ids_['lon2']=create_lon()
-            #grid_ids_['lat2']=create_lat()
-            axes=[grid_ids_['lat2'],grid_ids_['lon2']]
+            grid_ids_['lat']=create_lat()
+            grid_ids_['lon']=create_lon()
+            #grid_ids_['lat']=create_lat()
+            axes=[grid_ids_['lat'],grid_ids_['lon']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             checkaxes=getattr(task.target, cmor_target.dims_key).split()
@@ -335,11 +332,11 @@ def execute_netcdf_task(task,tableid):
             2D Zonal lat+lev
             '''
             #cmor.load_table(table_root_ + "_coordinate.json")
-            if 'lat2' in grid_ids_:
-                axes=[grid_ids_['lat2']]
+            if 'lat' in grid_ids_:
+                axes=[grid_ids_['lat']]
             else:
-                grid_ids_['lat2']=create_lat()
-                axes=[grid_ids_['lat2']]
+                grid_ids_['lat']=create_lat()
+                axes=[grid_ids_['lat']]
             # zonal variables...
             #needs lat only, no grid....
             if hasattr(task, "z_axis_id"):
@@ -356,13 +353,13 @@ def execute_netcdf_task(task,tableid):
             #if using_grid_:
             #    axes = [grid_ids_['lonlat']]
             #else:
-            if not ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-                grid_ids_['lat2']=create_lat()
-                grid_ids_['lon2']=create_lon()
-                #grid_ids_['lat2']=create_lat()
-                axes=[grid_ids_['lat2'],grid_ids_['lon2']]
+            if not ('lon' in grid_ids_ and 'lat' in grid_ids_):
+                grid_ids_['lat']=create_lat()
+                grid_ids_['lon']=create_lon()
+                #grid_ids_['lat']=create_lat()
+                axes=[grid_ids_['lat'],grid_ids_['lon']]
             else:
-                axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+                axes = [grid_ids_['lat'],grid_ids_['lon']]
         else:
             log.error('ERR -18: unsupported 2D dimensions %s'%task.target.dims)
             exit('Exiting!')
@@ -695,8 +692,8 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
     #    axes.append(getattr(task, "grid_id"))
     #    axes.append( getattr(task, "time_axis"))
     #else:
-    axes=[getattr(task, "lat2"),getattr(task, "lon2"),getattr(task, "time_axis")]
-        #axes=[grid_ids_["lat2"],grid_ids_["lon2"],getattr(task, "time_axis")]
+    axes=[getattr(task, 'lat'),getattr(task, 'lon'),getattr(task, "time_axis")]
+        #axes=[grid_ids_['lat'],grid_ids_['lon'],getattr(task, "time_axis")]
 
     # define before hybrid factors, and have the same
     # for 
