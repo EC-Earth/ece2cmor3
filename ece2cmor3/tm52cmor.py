@@ -69,6 +69,17 @@ ps6hrpath_=None
 path_=None
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
+    """initialize the cmorization for TM5
+    Description:
+        
+    Input variables:
+        path, String: path to TM5 files
+        expname, string: name of the experiment
+        tabledir, string: path to tables
+        prefix, string: table prefix
+    Output:
+        boolean: success
+    """
     global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_,path_
     exp_name_ = expname
     path_ = path
@@ -106,6 +117,12 @@ def initialize(path,expname,tabledir, prefix,refdate):
 
 # Resets the module globals.
 def finalize():
+    """finalize, clear variables
+    input
+    none
+    outpu
+    none
+    """
     global tm5_files_,dim_ids_,depth_axes_,time_axes_,plev19_,plev39_
     log.info( 'Unit miss match variables %s '%(unit_miss_match))
     tm5_files_ = []
@@ -115,6 +132,12 @@ def finalize():
     plev39_ = []
     plev19_ = []
 def set_freqid(freq):
+    """set freqid for filenames
+    input:
+    freq, string: set freqid depending on the table frequency
+    ouput:
+    freqid, string: Freqid for AERchemMIP data
+    """
     if freq=='monC':
         freqid='AERmon'
     elif freq=='1hr':
@@ -130,6 +153,13 @@ def set_freqid(freq):
         return None
     return freqid
 def check_freqid(task):
+    """ Check if we freqid will be cmorized and fix teh freqid for special cases
+    input:
+    task, cmor.task: task for which we are checking
+    outpiut:
+    boolean: True if task will be cmorized
+    freqid,String: name of frequency in files 
+    """
     global log
     freqid=set_freqid(task.target.frequency)
     if task.target.frequency=='monC':
@@ -149,6 +179,14 @@ def check_freqid(task):
     return True,freqid
 # Executes the processing loop.
 def execute(tasks):
+    """execute the cmorization tasks for TM5
+    Description:
+        
+    Input variables:
+        tasks, list: list of tasks 
+    Output:
+        boolean: success
+    """
     global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_,using_grid_,ps_tasks
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
@@ -288,6 +326,13 @@ def execute(tasks):
 
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
+    """excute task for netcdf data
+    inptu:
+    task, cmor.task: task which will be handled
+    tableid, cmor.table: table which will have this task
+    output:
+    boolean: success?
+    """
     global log,dim_ids_,depth_axes_,time_axes_,areacella_
     interpolate_to_pressure=False
     task.status = cmor_task.status_cmorizing
@@ -438,6 +483,15 @@ def execute_netcdf_task(task,tableid):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task,dataset,axes):
+    """ Create cmor variable object
+    input:
+    task, cmor.task: task for which we are creating a variable object
+    dataset, netcdf-dataset: netcdf dataset containing the data for TM5 for this variable
+    axes, list: list of axes ids for creation of cmor.variable object
+    output:
+    cmor.variable object: object identifier of created variable
+    
+    """
     srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar,"units",None)
@@ -464,6 +518,14 @@ def create_cmor_variable(task,dataset,axes):
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar))
 
 def interpolate_plev(pressure_levels,dataset,psdata,varname):
+    """interpolate pressure levels
+    input:
+    pressure_levels,list of pressures: output pressure levels
+    dataset,netcdf-dataset: input data for variable
+    psdata, numpy-array: data for pressure at surface
+    varname, string: name of variable for reading in the data
+    
+    """
     ####
     # Interpolate data from model levels to pressure levels
     # pressure_levels defines the pressure levels
@@ -494,6 +556,14 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
+    """ Create all relevant time axes for tasks
+    input:
+    tasks, list: list of task for which time axes need to be created
+    output:
+    None (uses globa variable)
+    
+    """
+
     global log,time_axes_
     time_axes = {}
     for task in tasks:
@@ -518,6 +588,15 @@ def create_time_axes(tasks):
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,path,name,has_bounds):
+    """ creage time axis for a give frequency
+    input:
+    freq, string: not used...
+    path, string: full path to netcdf file with this freq
+    name, string: tablename
+    has_bounds, boolean: true if it has bounds
+    output:
+    cmor.axis-object: time axis object with given freq
+    """
     global log,ref_date_
     vals = None
     units = None
@@ -561,6 +640,12 @@ def create_time_axis(freq,path,name,has_bounds):
 
 
 def create_type_axes(task):
+    """ create type axes(lambda 550nm only)
+    input:
+    task, cmor.task-object: task for which type axes will be created
+    output:
+    none (set into task.ax_id)
+    """
     global type_axes
     table=task.target.table
     key = (table,'lambda550nm')
@@ -583,6 +668,12 @@ def create_type_axes(task):
 
 
 def create_depth_axes(task):
+    """ create depth axes 
+    input:
+    task, cmor.task-object: task for which the depth axes are created
+    output:
+    boolean-value: is creation successful or not
+    """
     global log_depth_axis_ids,zfactor_ids
 
     tgtdims = getattr(task.target, cmor_target.dims_key)
@@ -665,6 +756,14 @@ def create_depth_axes(task):
 
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task,leveltype='alevel'):
+    """Create hybrud levels
+    input:
+    task, cmor.task-object: task for which levels are created
+    leveltype, string: which kind (alevel, alevhalf)
+    output:
+    axisid, cmor.axis-object: axis id for levels
+    storewith, cmor.zfactor-object: surface pressure field for saving into same file. needed for calculation of pressure on model levels.
+    """
     global time_axes_,store_with_ps_,dim_ids_,zfactor_ids
     # define grid axes and time axis for hybrid levels
     axes=[getattr(task, 'lat'), getattr(task, 'lon'), getattr(task, "time_axis")]
@@ -729,6 +828,12 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
             ds.close()
 
 def create_lat():
+    """Create latitude dimension
+    input:
+    none
+    output:
+    lat_id, cmor_axis: cmor.axis-object 
+    """
     yvals=numpy.linspace(89,-89,90)
     ny = len(yvals)
     lat_bnd=numpy.linspace(90,-90,91)
@@ -737,6 +842,12 @@ def create_lat():
     return lat_id
 
 def create_lon():
+    """Create longitude dimension
+    input:
+    none
+    output:
+    lon_id, cmor_axis: cmor.axis-object 
+    """
     xvals=numpy.linspace(1.5,358.5,120)
     nx = len(xvals)
     lon_bnd=numpy.linspace(0,360,121)
@@ -746,6 +857,13 @@ def create_lon():
     
 # Surface pressure variable lookup utility
 def get_ps_var(ncpath):
+    """ read surface pressure variable for 3D output
+    input:
+    ncpath, string: full path to ps_*.nc file
+    output:
+    numpy array [lon,lat,time]: array containing surface pressure values  
+    """
+
     if not ncpath:
         log.error("ERR -2: No path defined for surface pressure (ps).")
         return None
@@ -766,6 +884,13 @@ def get_ps_var(ncpath):
 
 # Creates extra tasks for surface pressure
 def get_ps_tasks(tasks):
+    """ find ps (surface preseure) tasks for different tables
+    input:
+    tasks, list: list of tasks
+    output:
+    result,dictionary: dictionary based on the frequencies of different tasks with corresponding ps-tasks as values.
+
+    """
     global exp_name_,path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = {}
