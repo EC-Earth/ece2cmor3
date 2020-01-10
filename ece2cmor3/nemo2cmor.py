@@ -46,6 +46,9 @@ bathy_grid_ = "opa_grid_T_2D"
 # Nemo basin file
 basin_file_ = None
 
+# Nemo subbasin grid
+basin_grid_ = "opa_grid_T_2D"
+
 # Dictionary of NEMO grid type with cmor grid id.
 grid_ids_ = {}
 
@@ -539,19 +542,22 @@ def create_masks(tasks):
 # Reads all the NEMO grid data from the input files.
 def create_grids(tasks):
     task_by_file = cmor_utils.group(tasks, lambda tsk: getattr(tsk, cmor_task.output_path_key, None))
-    file_by_grid = cmor_utils.group(task_by_file.keys(),
-                                    lambda fp: bathy_grid_ if fp == bathy_file_ else cmor_utils.get_nemo_grid(fp))
+
+    def get_nemo_grid(f):
+        if f == bathy_file_:
+            return bathy_grid_
+        if f == basin_file_:
+            return basin_grid_
+        return cmor_utils.get_nemo_grid(f)
+
+    file_by_grid = cmor_utils.group(task_by_file.keys(), get_nemo_grid)
     for grid_name, file_paths in file_by_grid.iteritems():
-        filename = file_paths[0]
-        if bathy_file_ is not None and os.path.basename(filename) == os.path.basename(bathy_file_):
-            if len(file_paths) > 1:
-                filename = file_paths[1]
-            else:
-                for fp in nemo_files_:
-                    if cmor_utils.get_nemo_grid(fp) == nemo_grid:
-                        filename = fp
-        if bathy_file_ is not None and os.path.basename(filename) == os.path.basename(bathy_file_):
-            log.warning("Using the bathymetry file of EC-Earth to build T-grid, this may be corrupted")
+        output_files = set(file_paths) - {bathy_file_, basin_file_, None}
+        if any(output_files):
+            filename = list(output_files)[0]
+        else:
+            filename = file_paths[0]
+            log.warning("Using the file %s of EC-Earth to build %s due to lack of other output" % (filename, grid_name))
         grid = read_grid(filename)
         write_grid(grid, [t for fname in file_paths for t in task_by_file[fname]])
 
