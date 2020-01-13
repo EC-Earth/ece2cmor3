@@ -264,7 +264,8 @@ def execute(tasks):
         dim_ids_['lon']=create_lon()
         # create or assign time axes to tasks
         log.info("Creating time axes for table %s..." % table)
-        create_time_axes(tasklist)
+        #create_time_axes(tasklist)
+        time_axes_=create_time_axes(tasklist)#time_axes
 
         taskmask = dict([t,False] for t in tasklist)
         for task in tasklist:
@@ -561,11 +562,11 @@ def create_time_axes(tasks):
     Args:
         tasks (list): list of task for which time axes need to be created
     Returns:
-    None (uses global variable)
+        time_axes (dictionary): dictionary of time axes, with table+dimension combination as key
     
     """
 
-    global log,time_axes_
+    global log#,time_axes_
     time_axes = {}
     for task in tasks:
         freq=task.target.frequency
@@ -585,7 +586,7 @@ def create_time_axes(tasks):
                 time_axes[key] = tid
             setattr(task, "time_axis", tid)
             break
-    time_axes_=time_axes
+    return time_axes
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
 def create_time_axis(freq,path,name,has_bounds):
