@@ -292,7 +292,11 @@ def execute(tasks):
                 continue
             create_depth_axes(task)
             if 'lambda550nm' in tgtdims :
-                create_type_axes(task)
+                success=create_type_axes(task)
+                if not success:
+                    log.error('Lambda 550nm could not be created, setting task failed')
+                    task.set_failed()
+                    continue
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
             else:
@@ -644,7 +648,7 @@ def create_type_axes(task):
     Args:
         task (cmor.task-object): task for which type axes will be created
     Returns:
-        None (set into task.ax_id)
+        Boolean: if succesful creation
     """
     global type_axes
     table=task.target.table
@@ -664,7 +668,8 @@ def create_type_axes(task):
             type_axes_[key]=ax_id
         else:
             log.info("Unknown dimenstion %s in table %s." %(dim,table))
-    return
+            return False
+    return True
 
 
 def create_depth_axes(task):
@@ -826,6 +831,7 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
     finally:
         if ds is not None:
             ds.close()
+        return None,None
 
 def create_lat():
     """Create latitude dimension
