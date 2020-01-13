@@ -558,9 +558,9 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
-    """ Create all relevant time axes for tasks
+    """ Create  time axes for all tasks
     Args:
-        tasks (list): list of task for which time axes need to be created
+        tasks (list): list of tasks for which time axes need to be created
     Returns:
         time_axes (dictionary): dictionary of time axes, with table+dimension combination as key
     
@@ -573,7 +573,6 @@ def create_time_axes(tasks):
         tgtdims = getattr(task.target, cmor_target.dims_key)
         if getattr(task, cmor_task.output_path_key)==None:
             continue
-        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             key=(task.target.table,time_dim)
             if key in time_axes:
