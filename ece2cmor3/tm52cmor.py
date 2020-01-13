@@ -520,7 +520,6 @@ def create_cmor_variable(task,dataset,axes):
     if(hasattr(task.target,"positive") and len(task.target.positive) != 0):
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar),positive = "down")
     else:
-        print  str(task.target.variable),str(unit),axes,str(srcvar)
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar))
 
 def interpolate_plev(pressure_levels,dataset,psdata,varname):
@@ -832,8 +831,7 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
     finally:
         if ds is not None:
             ds.close()
-        #return None,None
-
+        
 def create_lat():
     """Create latitude dimension
     Args:
