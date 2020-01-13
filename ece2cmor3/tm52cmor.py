@@ -580,7 +580,7 @@ def create_time_axes(tasks):
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 log.info("Creating time axis using variable %s..." % task.target.variable)
-                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                tid = create_time_axis(path=getattr(task, cmor_task.output_path_key),
                                        name=time_dim, has_bounds=(time_operator != ["point"]))
                 time_axes[key] = tid
             setattr(task, "time_axis", tid)
@@ -588,10 +588,9 @@ def create_time_axes(tasks):
     return time_axes
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
-def create_time_axis(freq,path,name,has_bounds):
+def create_time_axis(path,name,has_bounds):
     """ creage time axis for a give frequency
     Args:
-        freq (string): not used...
         path (string): full path to netcdf file with this freq
         name (string): tablename
         has_bounds (boolean): true if it has bounds
