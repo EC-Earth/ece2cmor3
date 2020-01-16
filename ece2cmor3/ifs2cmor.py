@@ -255,6 +255,7 @@ def get_mask_tasks(tasks):
         target = cmor_target.cmor_target(m, "fx")
         setattr(target, cmor_target.freq_key, "fx")
         setattr(target, "time_operator", ["point"])
+        setattr(target, cmor_target.dims_key, "latitude longitude")
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
         result.append(result_task)
     return result
@@ -329,7 +330,7 @@ def filter_tasks(tasks):
     log.info("Inspecting %d tasks." % len(tasks))
     result = []
     for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key, []).split()
+        tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
         # 2D horizontal variables, zonal means and global means
@@ -361,6 +362,7 @@ def get_sp_tasks(tasks):
             surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
             setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
+            setattr(surf_pressure_task.target, cmor_target.dims_key, "latitude longitude")
             find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
@@ -432,10 +434,10 @@ def define_cmor_axes(task):
             if has_lats:
                 grid_id = grid_ids
             else:
-                grid_id = grid_ids[0]
+                grid_id = grid_ids[1]
         else:
             if has_lats:
-                grid_id = grid_ids[1]
+                grid_id = grid_ids[0]
     setattr(task, "grid_id", grid_id)
     log.info("Loading CMOR table %s..." % task.target.table)
     try:
@@ -475,7 +477,7 @@ def execute_netcdf_task(task):
     if hasattr(task, "grid_id"):
         task_grid_id = getattr(task, "grid_id")
         if isinstance(task_grid_id, tuple):
-            axes.extend(task_grid_id)
+            axes.extend([a for a in task_grid_id if a is not None])
         else:
             axes.append(task_grid_id)
     if hasattr(task, "z_axis_id"):
@@ -815,7 +817,7 @@ def read_coordinate_vals(grid_descr, xydir, ndegrees):
     att_first, att_size = xydir + "first", xydir + "size"
     if att_first in grid_descr and att_first in grid_descr:
         x0, n = float(grid_descr[att_first]), int(grid_descr[att_size])
-        dx = ndegrees / n
+        dx = float(ndegrees) / n
         return numpy.array([x0 + i * dx for i in range(n)])
     log.error("Could not retrieve %s-coordinate values from %s" % (xydir, str(grid_descr)))
     return None
@@ -823,8 +825,8 @@ def read_coordinate_vals(grid_descr, xydir, ndegrees):
 
 # Creates the regular gaussian grid from its arguments.
 def create_gauss_grid(xvals, yvals):
-    if use_2d_grid() and xvals is not None and yvals is not None:
-        nx, ny = len(xvals), len(yvals)
+    nx, ny = len(xvals), len(yvals)
+    if use_2d_grid() and nx > 1 and ny > 1:
         lon_mids, lat_mids = get_lon_mids(xvals), get_lat_mids(yvals)
         vert_lats = numpy.empty([ny, nx, 4])
         vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
@@ -844,14 +846,16 @@ def create_gauss_grid(xvals, yvals):
                          latitude_vertices=vert_lats, longitude_vertices=vert_lons)
     else:
         lats = cmor.axis(table_entry="latitude", coord_vals=yvals[::-1], cell_bounds=get_lat_mids(yvals)[::-1],
-                         units="degrees_north") if yvals is not None else None
+                         units="degrees_north") if (ny > 1) else None
         lons = cmor.axis(table_entry="longitude", coord_vals=xvals, cell_bounds=get_lon_mids(xvals),
-                         units="degrees_east") if xvals is not None else None
+                         units="degrees_east") if (nx > 1) else None
         return lats, lons
 
 
 def get_lon_mids(xvals):
     nx = len(xvals)
+    if nx < 2:
+        return None
     lon_mids = numpy.empty([nx + 1])
     lon_mids[0] = xvals[0] - 0.5 * (xvals[1] - xvals[0])
     lon_mids[1:nx] = 0.5 * (xvals[0:nx - 1] + xvals[1:nx])
@@ -861,6 +865,8 @@ def get_lon_mids(xvals):
 
 def get_lat_mids(yvals):
     ny = len(yvals)
+    if ny < 2:
+        return None
     lat_mids = numpy.empty([ny + 1])
     lat_mids[0] = 90.
     lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])

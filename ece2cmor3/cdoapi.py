@@ -23,42 +23,46 @@ class cdo_command:
     gridtype_operator = "setgridtype"
     select_z_operator = "selzaxis"
     select_lev_operator = "sellevel"
-    min_time_operators = {"day": "daymin", "mon": "monmin", "year": "yearmin"}
-    max_time_operators = {"day": "daymax", "mon": "monmax", "year": "yearmin"}
-    mean_time_operators = {"day": "daymean", "mon": "monmean", "year": "yearmean"}
-    sum_time_operators = {"day": "daysum", "mon": "monsum", "year": "yearsum"}
-    select_hour_operator = "selhour"
-    select_day_operator = "selday"
-    select_month_operator = "selmon"
     select_step_operator = "seltimestep"
     shift_time_operator = "shifttime"
     ml2pl_operator = "ml2plx"
     ml2hl_operator = "ml2hl"
     merge_operator = "merge"
-    zonal_mean_operator = "zonmean"
-    meridional_mean_operator = "mermean"
-    global_mean_operator = "fldmean"
 
-    # CDO operator argument strings
-    regular_grid_type = "regular"
-    hour = "hr"
+    # CDO operators
+    min = "min"
+    max = "max"
+    mean = "mean"
+    sum = "sum"
+    select = "sel"
+
+    # CDO time intervals
+    hour = "hour"
     day = "day"
     month = "mon"
     year = "year"
+
+    # CDO spatial keywords
+    zonal = "zon"
+    meridional = "mer"
+    field = "fld"
+
+    # CDO level/grid keywords
+    regular_grid_type = "regular"
     height = "height"
     pressure = "pressure"
     model_level = "hybrid"
     surf_level = "surface"
 
     # Optimized operator ordering for CDO:
-    operator_ordering = [set_code_operator, mean_time_operators[year], min_time_operators[year],
-                         max_time_operators[year], mean_time_operators[month], min_time_operators[month],
-                         max_time_operators[month], mean_time_operators[day], min_time_operators[day],
-                         max_time_operators[day], timselmean_operator, zonal_mean_operator, meridional_mean_operator,
-                         global_mean_operator, gridtype_operator, ml2pl_operator,
-                         ml2hl_operator, add_expression_operator, expression_operator, spectral_operator,
-                         select_lev_operator, select_z_operator, select_hour_operator, select_day_operator,
-                         select_month_operator, shift_time_operator, select_step_operator, select_code_operator]
+    operator_ordering = [set_code_operator, year + sum, year + mean, year + min, year + max, month + sum, month + mean,
+                         month + min, month + max, day + sum, day + mean, day + min, day + max, timselmean_operator,
+                         zonal + sum, zonal + mean, zonal + min, zonal + max, meridional + sum,
+                         meridional + mean, meridional + min, meridional + max, field + sum, field + mean, field + min,
+                         field + max, gridtype_operator, ml2pl_operator, ml2hl_operator, add_expression_operator,
+                         expression_operator, spectral_operator, select_lev_operator, select_z_operator,
+                         select + hour, select + day, select + month, shift_time_operator,
+                         select_step_operator, select_code_operator]
 
     # Constructor
     def __init__(self, code=0):
@@ -239,8 +243,12 @@ class cdo_command:
     def optimize_order(operator_list):
         i1 = operator_list.index(cdo_command.spectral_operator) if cdo_command.spectral_operator in operator_list else 0
         i2 = operator_list.index(cdo_command.gridtype_operator) if cdo_command.gridtype_operator in operator_list else 0
-        nonlinear_operators = cdo_command.min_time_operators.values() + cdo_command.max_time_operators.values() + [
-            cdo_command.expression_operator, cdo_command.add_expression_operator]
+        times = [cdo_command.year, cdo_command.month, cdo_command.day]
+        ops = [cdo_command.mean, cdo_command.min, cdo_command.max, cdo_command.sum]
+        zones = [cdo_command.zonal, cdo_command.meridional, cdo_command.field]
+        nonlinear_operators = [t + cdo_command.min for t in times] + [t + cdo_command.max for t in times] + \
+                              [z + o for o in ops for z in zones] + \
+                              [cdo_command.expression_operator, cdo_command.add_expression_operator]
         i = i1 + i2
         while i > 0:
             if operator_list[i - 1] in nonlinear_operators:
