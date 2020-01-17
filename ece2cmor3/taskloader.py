@@ -533,7 +533,16 @@ def create_tasks(matches, active_components):
             continue
         parblocks = model_vars[model]
         for target in targets:
-            parmatch = [b for b in parblocks if matchvarpar(target, b)][0]
+            parmatches = [b for b in parblocks if matchvarpar(target, b)]
+            if not any(parmatches):
+                log.error("Variable %s in table %s is not supported by %s in ece2cmor3; if you do expect an ec-earth "
+                          "output variable here, please create an issue or pull request on our github page"
+                          % (target.variable, target.table, model))
+                continue
+            parmatch = parmatches[0]
+            if len(parmatches) > 1:
+                log.warning("Multiple matching parameters for %s found for variable %s in table %s: proceeding with "
+                            "first match %s" % (model, target.variable, target.table, parmatch.get("source", None)))
             if parmatch.get("table_override", {}).get("table", "") == target.table:
                 parmatch = parmatch["table_override"]
             task = create_cmor_task(parmatch, target, model)

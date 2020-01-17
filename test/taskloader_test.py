@@ -275,3 +275,15 @@ class taskloader_test(unittest.TestCase):
             ok_(not any(omitted))
         finally:
             ece2cmorlib.finalize_without_cmor()
+
+    @staticmethod
+    def test_load_cdnc_variable():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            tasks = taskloader.load_tasks({"ifs": {"AERmon": ["cdnc"]}})
+            eq_(len(tasks), 1)
+            src = tasks[0].source
+            ok_(isinstance(src, cmor_source.ifs_source))
+            eq_(getattr(src, "expr_order", 0), 1)
+        finally:
+            ece2cmorlib.finalize_without_cmor()

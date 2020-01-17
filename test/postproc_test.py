@@ -69,6 +69,17 @@ class postproc_tests(unittest.TestCase):
                        "165,166")
 
     @staticmethod
+    def test_postproc_post_expr():
+        abspath = test_utils.get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        source = cmor_source.ifs_source.read("var23", "var20/var22", expr_order=1)
+        target = [t for t in targets if t.variable == "cdnc" and t.table == "AERmon"][0]
+        task = cmor_task.cmor_task(source, target)
+        command = postproc.create_command(task)
+        nose.tools.eq_(command.create_command(),
+                       "-setgridtype,regular -expr,'var23=var20/var22' -monmean -selcode,20,22")
+
+    @staticmethod
     def test_postproc_maxwindspeed():
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
