@@ -256,8 +256,7 @@ class cdo_command:
         zones = [cdo_command.zonal, cdo_command.meridional, cdo_command.field]
         nonlinear_operators = [t + cdo_command.min for t in times] + [t + cdo_command.max for t in times] + \
                               [z + o for o in ops for z in zones] + \
-                              [cdo_command.expression_operator, cdo_command.add_expression_operator,
-                               cdo_command.post_expr_operator, cdo_command.post_addexpr_operator]
+                              [cdo_command.expression_operator, cdo_command.add_expression_operator]
         i = i1 + i2
         while i > 0:
             if operator_list[i - 1] in nonlinear_operators:
