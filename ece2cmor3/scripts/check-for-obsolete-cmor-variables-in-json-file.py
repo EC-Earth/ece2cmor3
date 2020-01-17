@@ -30,7 +30,10 @@ def check_obsolete(fname):
             tgtlist = tgt
         for tvar in tgtlist:
             if tvar not in [t.variable for t in ece2cmorlib.targets]:
-                log.info("Obsolete target found in %s: %s" % (fname, tvar))
+                if tvar in ["rsscsaf", "rssaf", "rlscsaf", "rlsaf"]:
+                 log.info("Non-cmor target found (see #575) in %s: %s" % (fname, tvar))
+                else:
+                 log.info("Obsolete target found in %s: %s" % (fname, tvar))
     log.info("\n")
 
 
