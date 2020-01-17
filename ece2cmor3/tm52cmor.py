@@ -27,7 +27,7 @@ table_root_ = None
 tm5_files_ = []
 
 # Dictionary of tm5 grid type with cmor grid id.
-grid_ids_ = {}
+dim_ids_ = {}
 
 # List of depth axis ids with cmor grid id.
 depth_axes_ = {}
@@ -65,20 +65,36 @@ extra_axes = {"lambda550nm":  {"ncdim": "lambda550nm",
 #
 ignore_frequency=['subhrPt','3hrPt']
 ps6hrpath_=None
-using_grid_=False
+#using_grid_=False
 path_=None
 # Initializes the processing loop.
 def initialize(path,expname,tabledir, prefix,refdate):
+    """initialize the cmorization for TM5
+    Description:
+        
+    Input variables:
+        path, String: path to TM5 files
+        expname, string: name of the experiment
+        tabledir, string: path to tables
+        prefix, string: table prefix
+    Returns:
+        boolean: success
+    """
     global log,tm5_files_,exp_name_,table_root_,ref_date_,plev39_,plev19_,areacella_,path_
     exp_name_ = expname
     path_ = path
     table_root_ =os.path.join(tabledir, prefix)
-    #tm5_files_ = select_files(path,expname,start)#,length)
+    # select all TM5 files with expname from path
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
-
+    if len(tm5_files_) == 0:
+        log.error('no TM5 varibles found, exiting!')
+        exit()
     areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
-    areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
-    
+    if len(areacella_file) == 0:
+        log.error('Areacella not found!')
+        exit()
+    else:
+        areacella_=netCDF4.Dataset(areacella_file[0],'r').variables['areacella'][:]
     cal = None
     ref_date_ = refdate
 
@@ -101,15 +117,27 @@ def initialize(path,expname,tabledir, prefix,refdate):
 
 # Resets the module globals.
 def finalize():
-    global tm5_files_,grid_ids_,depth_axes_,time_axes_,plev19_,plev39_
+    """finalize, clear variables
+    Args:
+        none
+    Retruns:
+        none
+    """
+    global tm5_files_,dim_ids_,depth_axes_,time_axes_,plev19_,plev39_
     log.info( 'Unit miss match variables %s '%(unit_miss_match))
     tm5_files_ = []
-    grid_ids_ = {}
+    dim_ids_ = {}
     depth_axes_ = {}
     time_axes_ = {}
     plev39_ = []
     plev19_ = []
 def set_freqid(freq):
+    """set freqid for filenames
+    Args:
+        freq (string): set freqid depending on the table frequency
+    Returns:
+        freqid (string): Freqid for AERchemMIP data
+    """
     if freq=='monC':
         freqid='AERmon'
     elif freq=='1hr':
@@ -125,6 +153,13 @@ def set_freqid(freq):
         return None
     return freqid
 def check_freqid(task):
+    """ Check if we freqid will be cmorized and fix teh freqid for special cases
+    Args:
+        task (cmor.task): task for which we are checking
+    Returns:
+        boolean: True if task will be cmorized
+        freqid (string): name of frequency in files 
+    """
     global log
     freqid=set_freqid(task.target.frequency)
     if task.target.frequency=='monC':
@@ -144,6 +179,14 @@ def check_freqid(task):
     return True,freqid
 # Executes the processing loop.
 def execute(tasks):
+    """execute the cmorization tasks for TM5
+    Description:
+        
+    Args:
+        tasks (list): list of tasks 
+    Returns:
+        boolean: success
+    """
     global log,time_axes_,depth_axes_,table_root_,tm5_files_,areacella_,using_grid_,ps_tasks
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
@@ -194,12 +237,6 @@ def execute(tasks):
                 task.set_failed()
                 continue
     ps_tasks=get_ps_tasks(tasks)
-    log.info('Creating TM5 3x2 deg lon-lat grid')
-    
-    if using_grid_:
-        cmor.load_table(table_root_ + "_grids.json")
-        grid = create_lonlat_grid()#xsize, xfirst, yvals)
-        grid_ids_['lonlat']=grid
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
@@ -223,11 +260,12 @@ def execute(tasks):
         if table== 'Eday':
             log.info("Table Eday not supported for variable %s "%(task.target.variable))
         log.info("Creating longitude and latitude axes for table %s..." % table)
-        grid_ids_['lat2']=create_lat()
-        grid_ids_['lon2']=create_lon()
+        dim_ids_['lat']=create_lat()
+        dim_ids_['lon']=create_lon()
         # create or assign time axes to tasks
         log.info("Creating time axes for table %s..." % table)
-        create_time_axes(tasklist)
+        #create_time_axes(tasklist)
+        time_axes_=create_time_axes(tasklist)#time_axes
 
         taskmask = dict([t,False] for t in tasklist)
         for task in tasklist:
@@ -241,11 +279,8 @@ def execute(tasks):
             ncf=getattr(task,cmor_task.output_path_key)
             tgtdims = getattr(task.target, cmor_target.dims_key).split()
             if "latitude" in tgtdims and "longitude" in tgtdims:
-                if not using_grid_:
-                    setattr(task, "lon2", grid_ids_['lon2'])
-                    setattr(task, "lat2", grid_ids_['lat2'])
-                else:
-                    setattr(task, "grid_id", grid)
+                setattr(task, 'lon', dim_ids_['lon'])
+                setattr(task, 'lat', dim_ids_['lat'])
             #ZONAL
             if "latitude" in tgtdims and not "longitude" in tgtdims:
                 setattr(task, "zonal", True)
@@ -253,12 +288,15 @@ def execute(tasks):
                 log.critical('Z-dimension site not implemented ')
                 task.set_failed()
                 continue
-
             if task.status==cmor_task.status_failed:
                 continue
             create_depth_axes(task)
             if 'lambda550nm' in tgtdims :
-                create_type_axes(task)
+                success=create_type_axes(task)
+                if not success:
+                    log.error('Lambda 550nm could not be created, setting task failed')
+                    task.set_failed()
+                    continue
             if(taskmask[task] ):
                 log.warning("Ignoring source variable in nc file %s, since it has already been cmorized." % ncf)
             else:
@@ -293,7 +331,14 @@ def execute(tasks):
 
 # Performs a single task.
 def execute_netcdf_task(task,tableid):
-    global log,grid_ids_,depth_axes_,time_axes_,areacella_
+    """excute task for netcdf data
+    Args:
+        task (cmor.task): task which will be handled
+        tableid (cmor.table): table which will have this task
+    Returns:
+        boolean: success of writing a variable
+    """
+    global log,dim_ids_,depth_axes_,time_axes_,areacella_
     interpolate_to_pressure=False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
@@ -305,17 +350,12 @@ def execute_netcdf_task(task,tableid):
 
     store_var = getattr(task, "store_with", None)
     if( task.target.dims >= 3):
-        if using_grid_:
-            axes = [grid_ids_['lonlat']]
+        if  ('lon' in dim_ids_ and 'lat' in dim_ids_):
+            axes = [dim_ids_['lat'],dim_ids_['lon']]
         else:
-            if  ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-                #if hasattr(grid_ids_,'lon2')and hasattr(grid_ids_,'lat2'):
-                axes = [grid_ids_['lat2'],grid_ids_['lon2']]
-            else:
-                grid_ids_['lat2']=create_lat()
-                grid_ids_['lon2']=create_lon()
-                #grid_ids_['lat2']=create_lat()
-                axes=[grid_ids_['lat2'],grid_ids_['lon2']]
+            dim_ids_['lat']=create_lat()
+            dim_ids_['lon']=create_lon()
+            axes=[dim_ids_['lat'],dim_ids_['lon']]
         if hasattr(task, "z_axis_id"):
             axes.append(getattr(task, "z_axis_id"))
             checkaxes=getattr(task.target, cmor_target.dims_key).split()
@@ -338,11 +378,11 @@ def execute_netcdf_task(task,tableid):
             2D Zonal lat+lev
             '''
             #cmor.load_table(table_root_ + "_coordinate.json")
-            if 'lat2' in grid_ids_:
-                axes=[grid_ids_['lat2']]
+            if 'lat' in dim_ids_:
+                axes=[dim_ids_['lat']]
             else:
-                grid_ids_['lat2']=create_lat()
-                axes=[grid_ids_['lat2']]
+                dim_ids_['lat']=create_lat()
+                axes=[dim_ids_['lat']]
             # zonal variables...
             #needs lat only, no grid....
             if hasattr(task, "z_axis_id"):
@@ -356,16 +396,12 @@ def execute_netcdf_task(task,tableid):
             2D variables lon+lat
 
             '''
-            if using_grid_:
-                axes = [grid_ids_['lonlat']]
+            if not ('lon' in dim_ids_ and 'lat' in dim_ids_):
+                dim_ids_['lat']=create_lat()
+                dim_ids_['lon']=create_lon()
+                axes=[dim_ids_['lat'],dim_ids_['lon']]
             else:
-                if not ("lon2" in grid_ids_ and 'lat2' in grid_ids_):
-                    grid_ids_['lat2']=create_lat()
-                    grid_ids_['lon2']=create_lon()
-                    #grid_ids_['lat2']=create_lat()
-                    axes=[grid_ids_['lat2'],grid_ids_['lon2']]
-                else:
-                    axes = [grid_ids_['lat2'],grid_ids_['lon2']]
+                axes = [dim_ids_['lat'],dim_ids_['lon']]
         else:
             log.error('ERR -18: unsupported 2D dimensions %s'%task.target.dims)
             exit('Exiting!')
@@ -399,6 +435,7 @@ def execute_netcdf_task(task,tableid):
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
     else:  
         ncvar = dataset.variables[task.source.variable()]
+    # handle zonal vars
     if task.target.table=='AERmonZ': 
         # assumption: data is shape [time,lat,lon] (roll longitude dimensio
         vals=numpy.copy(ncvar[:])
@@ -408,6 +445,7 @@ def execute_netcdf_task(task,tableid):
         vals=numpy.swapaxes(vals,1,2)
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         ncvar=vals.copy()
+    #handle global means
     elif task.target.dims==0:
         # global means
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
@@ -416,6 +454,7 @@ def execute_netcdf_task(task,tableid):
 
         # calculate area-weighted mean
         vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+    #handle normal case
     else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
         #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
         #  so by half the longitude dimension
@@ -449,6 +488,15 @@ def execute_netcdf_task(task,tableid):
 
 # Creates a variable in the cmor package
 def create_cmor_variable(task,dataset,axes):
+    """ Create cmor variable object
+    Args:
+        task (cmor.task): task for which we are creating a variable object
+        dataset (netcdf-dataset): netcdf dataset containing the data for TM5 for this variable
+        axes (list): list of axes ids for creation of cmor.variable object
+    Returns:
+        cmor.variable object: object identifier of created variable
+    
+    """
     srcvar = task.source.variable()
     ncvar = dataset.variables[srcvar]
     unit = getattr(ncvar,"units",None)
@@ -475,6 +523,15 @@ def create_cmor_variable(task,dataset,axes):
         return cmor.variable(table_entry = str(task.target.variable),units = str(unit),axis_ids = axes,original_name = str(srcvar))
 
 def interpolate_plev(pressure_levels,dataset,psdata,varname):
+    """interpolate pressure levels
+    args:
+        pressure_levels (numpy array): output pressure levels
+        dataset(netcdf-dataset): input data for variable
+        psdata (numpy-array): data for pressure at surface
+        varname (string): name of variable for reading in the data
+    Returns:
+        interpolated_data (numpy-array): intepolated data in give pressure levels
+    """
     ####
     # Interpolate data from model levels to pressure levels
     # pressure_levels defines the pressure levels
@@ -505,14 +562,21 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(tasks):
-    global log,time_axes_
+    """ Create  time axes for all tasks
+    Args:
+        tasks (list): list of tasks for which time axes need to be created
+    Returns:
+        time_axes (dictionary): dictionary of time axes, with table+dimension combination as key
+    
+    """
+
+    global log#,time_axes_
     time_axes = {}
     for task in tasks:
         freq=task.target.frequency
         tgtdims = getattr(task.target, cmor_target.dims_key)
         if getattr(task, cmor_task.output_path_key)==None:
             continue
-        # TODO: better to check in the table axes if the standard name of the dimension equals "time"
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             key=(task.target.table,time_dim)
             if key in time_axes:
@@ -520,15 +584,23 @@ def create_time_axes(tasks):
             else:
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 log.info("Creating time axis using variable %s..." % task.target.variable)
-                tid = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
+                tid = create_time_axis(path=getattr(task, cmor_task.output_path_key),
                                        name=time_dim, has_bounds=(time_operator != ["point"]))
                 time_axes[key] = tid
             setattr(task, "time_axis", tid)
             break
-    time_axes_=time_axes
+    return time_axes
 
 # Creates a tie axis for the corresponding table (which is suppoed to be loaded)
-def create_time_axis(freq,path,name,has_bounds):
+def create_time_axis(path,name,has_bounds):
+    """ creage time axis for a give frequency
+    Args:
+        path (string): full path to netcdf file with this freq
+        name (string): tablename
+        has_bounds (boolean): true if it has bounds
+    Returns:
+        cmor.axis-object: time axis object with given freq
+    """
     global log,ref_date_
     vals = None
     units = None
@@ -572,6 +644,12 @@ def create_time_axis(freq,path,name,has_bounds):
 
 
 def create_type_axes(task):
+    """ create type axes(lambda 550nm only for the moment)
+    Args:
+        task (cmor.task-object): task for which type axes will be created
+    Returns:
+        Boolean: if succesful creation
+    """
     global type_axes
     table=task.target.table
     key = (table,'lambda550nm')
@@ -590,14 +668,19 @@ def create_type_axes(task):
             type_axes_[key]=ax_id
         else:
             log.info("Unknown dimenstion %s in table %s." %(dim,table))
-    return
+            return False
+    return True
 
 
 def create_depth_axes(task):
+    """ create depth axes 
+    Args:
+        task (cmor.task-object): task for which the depth axes are created
+    Returns:
+        boolean: is creation successful or not
+    """
     global log_depth_axis_ids,zfactor_ids
 
-    #depth_axes = {}
-    #for task in tasks:
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # zdims all other than xy
     # including lambda550nm...
@@ -619,19 +702,15 @@ def create_depth_axes(task):
         if zdim == "alevel":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
-            #setattr(task, "store_with", key[0])
         elif zdim == "alevhalf":
             setattr(task, "z_axis_id", depth_axis_ids[key][0])
             setattr(task, "store_with", depth_axis_ids[key][1])
-            #setattr(task, "store_with", key[0])
         elif zdim == "plev19":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev19_)
-            #setattr(task, "store_with", key[0])
         elif zdim == "plev39":
             setattr(task, "z_axis_id", depth_axis_ids[key])
             setattr(task, "pressure_levels", plev39_)
-            #setattr(task, "store_with", key[0])
         else:
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return True
@@ -643,7 +722,6 @@ def create_depth_axes(task):
             zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
-        #setattr(task, "store_with", key[0])
         return True
     elif zdim == 'alevhalf':
         #if zdim not in depth_axis_ids:
@@ -653,13 +731,8 @@ def create_depth_axes(task):
         if key[0] not in zfactor_ids:
             zfactor_ids[key[0]] =psid
         setattr(task, "z_axis_id", axisid)
-        #(a,p)=depth_axis_ids[('AERmon','alevel')]
         setattr(task, "store_with", psid)
-        #setattr(task, "store_with", p)
         return True
-        # log.error("ERR -1: Vertical axis %s not implemented yet" %(zdim))
-        # task.set_failed()
-        # return False
     elif zdim=="lambda550nm":
         log.info("Creating wavelength axis for variable %s..." % task.target.variable)
         axisid=cmor.axis(table_entry = zdim,units ="nm" ,coord_vals = [550.0])
@@ -688,15 +761,17 @@ def create_depth_axes(task):
 
 # Creates the hybrid model vertical axis in cmor.
 def create_hybrid_level_axis(task,leveltype='alevel'):
-    global time_axes_,store_with_ps_,grid_ids_,zfactor_ids
-    # define grid and time axis for hybrid levels
-    if using_grid_:
-        axes=[]
-        axes.append(getattr(task, "grid_id"))
-        axes.append( getattr(task, "time_axis"))
-    else:
-        axes=[getattr(task, "lat2"),getattr(task, "lon2"),getattr(task, "time_axis")]
-        #axes=[grid_ids_["lat2"],grid_ids_["lon2"],getattr(task, "time_axis")]
+    """Create hybrud levels
+    Args:
+        task (cmor.task-object): task for which levels are created
+        leveltype (string): which kind (alevel, alevhalf)
+    Returns:
+        axisid (cmor.axis-object): axis id for levels
+        storewith (cmor.zfactor-object): surface pressure field for saving into same file. needed for calculation of pressure on model levels.
+    """
+    global time_axes_,store_with_ps_,dim_ids_,zfactor_ids
+    # define grid axes and time axis for hybrid levels
+    axes=[getattr(task, 'lat'), getattr(task, 'lon'), getattr(task, "time_axis")]
 
     # define before hybrid factors, and have the same
     # for 
@@ -747,77 +822,53 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
 
         #    setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
         if task.target.table not in zfactor_ids:
-        #if getattr(task,'store_with',None)==None:
-            #if task.target.table
             storewith = cmor.zfactor(zaxis_id=axisid, zfactor_name=psvarname,
                                 axis_ids=axes, units="Pa")
             setattr(task,'store_with',storewith)
-            #store_with_ps_ = storewith
         else:
-            #setattr(task,'store_with',depth_axis_ids[('task.table',leveltype)])
             storewith=zfactor_ids[task.target.table]
-            #getattr(task,'store_with',None)#store_with_ps_
         return axisid, storewith
     finally:
         if ds is not None:
             ds.close()
-
-def create_lat():#nx, x0, yvals):
+        
+def create_lat():
+    """Create latitude dimension
+    Args:
+        none
+    Returns:
+        lat_id (cmor.axis): cmor.axis-object 
+    """
     yvals=numpy.linspace(89,-89,90)
     ny = len(yvals)
     lat_bnd=numpy.linspace(90,-90,91)
-    lat_id2=cmor.axis(table_entry="latitude", units="degrees_north",
+    lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
                                     coord_vals=yvals, cell_bounds=lat_bnd)
-    return lat_id2
+    return lat_id
 
-def create_lon():#nx, x0, yvals):
+def create_lon():
+    """Create longitude dimension
+    Args:
+        none
+    Returns:
+        lon_id (cmor_axis): cmor.axis-object 
+    """
     xvals=numpy.linspace(1.5,358.5,120)
     nx = len(xvals)
     lon_bnd=numpy.linspace(0,360,121)
-    lon_id2=cmor.axis(table_entry="longitude", units="degrees_east",
-                                    coord_vals=xvals, cell_bounds=lon_bnd)
-    return lon_id2
-
-def create_lonlat_grid():#nx, x0, yvals):
-    nx=120
-    x0=0
-    yvals=numpy.linspace(89,-89,90)
-    ny = len(yvals)
-    i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-    j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
-    dx = 360. / nx
-    x_vals = numpy.array([x0 + (i + 0.5) * dx for i in range(nx)])
-    lon_arr = numpy.tile(x_vals, (ny, 1))
-    lat_arr = numpy.tile(yvals[:], (nx, 1)).transpose()
-    lon_mids = numpy.array([x0 + i * dx for i in range(nx + 1)])
-    lat_mids = numpy.empty([ny + 1])
-    lat_mids[0] = 90.
-    lat_mids[1:ny] = 0.5 * (yvals[0:ny-1] + yvals[1:ny])
-    lat_mids[ny] = -90.
-    vert_lats = numpy.empty([ny, nx, 4])
-    vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
-    vert_lats[:, :, 1] = vert_lats[:, :, 0]
-    vert_lats[:, :, 2] = numpy.tile(lat_mids[1:ny + 1], (nx, 1)).transpose()
-    vert_lats[:, :, 3] = vert_lats[:, :, 2]
-    vert_lons = numpy.empty([ny, nx, 4])
-    vert_lons[:, :, 0] = numpy.tile(lon_mids[0:nx], (ny, 1))
-    vert_lons[:, :, 3] = vert_lons[:, :, 0]
-    vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
-    vert_lons[:, :, 2] = vert_lons[:, :, 1]
-
-    lon_bnd=numpy.stack((lon_mids[:-1],lon_mids[1:]),axis=-1)
-    lat_bnd=numpy.stack((lat_mids[:-1],lat_mids[1:]),axis=-1)
     lon_id=cmor.axis(table_entry="longitude", units="degrees_east",
-                                    coord_vals=x_vals, cell_bounds=lon_bnd)
-    lat_id=cmor.axis(table_entry="latitude", units="degrees_north",
-                                    coord_vals=yvals, cell_bounds=lat_bnd)
-    #return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)#,
-    #return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-    return cmor.grid(axis_ids=[lat_id, lon_id], latitude=lat_arr, longitude=lon_arr,latitude_vertices=vert_lats, longitude_vertices=vert_lons)
-    #return [lon_id,lat_id]
+                                    coord_vals=xvals, cell_bounds=lon_bnd)
+    return lon_id
     
 # Surface pressure variable lookup utility
 def get_ps_var(ncpath):
+    """ read surface pressure variable for 3D output
+    Args:
+        ncpath (string): full path to ps_*.nc file
+    Returns:
+        numpy-array: [lon,lat,time]-array containing surface pressure values  
+    """
+
     if not ncpath:
         log.error("ERR -2: No path defined for surface pressure (ps).")
         return None
@@ -838,6 +889,13 @@ def get_ps_var(ncpath):
 
 # Creates extra tasks for surface pressure
 def get_ps_tasks(tasks):
+    """ find ps (surface preseure) tasks for different tables
+    Args:
+        tasks (list): list of tasks
+    Returns:
+        result (dictionary): dictionary based on the frequencies of different tasks with corresponding ps-tasks as values.
+
+    """
     global exp_name_,path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = {}

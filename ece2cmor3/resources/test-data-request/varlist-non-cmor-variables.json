@@ -1,0 +1,13 @@
+{
+    "ifs": {
+        "AERmon": [
+            "rsscsaf",
+            "rssaf",
+            "rlscsaf",
+            "rlsaf"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {},
+    "tm5": {}
+}

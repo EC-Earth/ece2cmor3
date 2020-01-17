@@ -41,7 +41,7 @@ class cdoapi_tests(unittest.TestCase):
 
     def test_add_monmean(self):
         command = cdoapi.cdo_command(130)
-        command.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
+        command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         command.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.pressure)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
@@ -50,8 +50,8 @@ class cdoapi_tests(unittest.TestCase):
 
     def test_add_daymax(self):
         command = cdoapi.cdo_command(130)
-        command.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.month])
-        command.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
+        command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
+        command.add_operator(cdoapi.cdo_command.day + cdoapi.cdo_command.max)
         command.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.pressure)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
@@ -61,8 +61,8 @@ class cdoapi_tests(unittest.TestCase):
 
     def test_add_daymin(self):
         command = cdoapi.cdo_command(130)
-        command.add_operator(cdoapi.cdo_command.mean_time_operators[cdoapi.cdo_command.year])
-        command.add_operator(cdoapi.cdo_command.max_time_operators[cdoapi.cdo_command.day])
+        command.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
+        command.add_operator(cdoapi.cdo_command.day + cdoapi.cdo_command.max)
         command.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.pressure)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
@@ -76,3 +76,17 @@ class cdoapi_tests(unittest.TestCase):
         command.add_operator(cdoapi.cdo_command.expression_operator, "var91=sq(var130)")
         commstr = command.create_command()
         nose.tools.eq_("-expr,'var91=sq(var130)' -sp2gpl -selcode,130", commstr)
+
+    def test_monmean_expr(self):
+        command = cdoapi.cdo_command(130)
+        command.add_operator(cdoapi.cdo_command.expression_operator, "var91=sq(var130)")
+        command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
+        commstr = command.create_command()
+        nose.tools.eq_("-monmean -expr,'var91=sq(var130)' -selcode,130", commstr)
+
+    def test_expr_monmean(self):
+        command = cdoapi.cdo_command(130)
+        command.add_operator(cdoapi.cdo_command.post_expr_operator, "var91=sq(var130)")
+        command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
+        commstr = command.create_command()
+        nose.tools.eq_("-expr,'var91=sq(var130)' -monmean -selcode,130", commstr)
