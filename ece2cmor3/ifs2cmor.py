@@ -255,6 +255,7 @@ def get_mask_tasks(tasks):
         target = cmor_target.cmor_target(m, "fx")
         setattr(target, cmor_target.freq_key, "fx")
         setattr(target, "time_operator", ["point"])
+        setattr(target, cmor_target.dims_key, "latitude longitude")
         result_task = cmor_task.cmor_task(masks[m]["source"], target)
         result.append(result_task)
     return result
@@ -329,10 +330,11 @@ def filter_tasks(tasks):
     log.info("Inspecting %d tasks." % len(tasks))
     result = []
     for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key, []).split()
+        tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
-        if (haslat and haslon) or (not haslat and not haslon):
+        # 2D horizontal variables, zonal means and global means
+        if (haslat and haslon) or (haslat and not haslon) or (not haslat and not haslon):
             result.append(task)
         else:
             # TODO: Support zonal variables
@@ -360,6 +362,7 @@ def get_sp_tasks(tasks):
             surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
             setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
+            setattr(surf_pressure_task.target, cmor_target.dims_key, "latitude longitude")
             find_sp_variable(surf_pressure_task)
             result.append(surf_pressure_task)
         for task3d in tasks3d:
@@ -414,19 +417,28 @@ def define_cmor_axes(task):
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized]:
         return
     tgtdims = getattr(task.target, cmor_target.dims_key).split()
-    if "latitude" in tgtdims and "longitude" in tgtdims:
-        if use_2d_grid():
-            if global_grid_id == -1:
-                cmor.load_table(table_root_ + "_grids.json")
-                global_grid_id = create_grid_from_file(getattr(task, cmor_task.output_path_key))
-            grid_id = global_grid_id
+    grid_id = -1
+    has_lats, has_lons = "latitude" in tgtdims, "longitude" in tgtdims
+    if use_2d_grid() and has_lats and has_lons:
+        if global_grid_id == -1:
+            cmor.load_table(table_root_ + "_grids.json")
+            global_grid_id = create_grid_from_file(getattr(task, cmor_task.output_path_key))
+        grid_id = global_grid_id
+    else:
+        grid_ids = local_grid_ids.get(task.target.table, None)
+        if grid_ids is None or (has_lons and grid_ids[0] is None) or (has_lats and grid_ids[1] is None):
+            cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
+            grid_ids = create_grid_from_file(getattr(task, cmor_task.output_path_key))
+            local_grid_ids[task.target.table] = grid_ids
+        if has_lons:
+            if has_lats:
+                grid_id = grid_ids
+            else:
+                grid_id = grid_ids[1]
         else:
-            grid_id = local_grid_ids.get(task.target.table, None)
-            if grid_id is None:
-                cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
-                grid_id = create_grid_from_file(getattr(task, cmor_task.output_path_key))
-                local_grid_ids[task.target.table] = grid_id
-        setattr(task, "grid_id", grid_id)
+            if has_lats:
+                grid_id = grid_ids[0]
+    setattr(task, "grid_id", grid_id)
     log.info("Loading CMOR table %s..." % task.target.table)
     try:
         tab_id = cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
@@ -465,7 +477,7 @@ def execute_netcdf_task(task):
     if hasattr(task, "grid_id"):
         task_grid_id = getattr(task, "grid_id")
         if isinstance(task_grid_id, tuple):
-            axes.extend(task_grid_id)
+            axes.extend([a for a in task_grid_id if a is not None])
         else:
             axes.append(task_grid_id)
     if hasattr(task, "z_axis_id"):
@@ -790,28 +802,32 @@ def create_grid_from_file(filepath):
         log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s" % (
             filepath, gridtype))
         return None
-    xsize = grid_descr.get("xsize", 0)
-    xfirst = grid_descr.get("xfirst", 0)
-    yvals = grid_descr.get("yvals", numpy.array([]))
-    if not (xsize > 0 and len(yvals) > 0):
+    xvals = read_coordinate_vals(grid_descr, 'x', 360)
+    yvals = read_coordinate_vals(grid_descr, 'y', 180)
+    if xvals is None or yvals is None:
         log.error("Invalid grid detected in post-processed data: %s" % str(grid_descr))
         return None
-    return create_gauss_grid(xsize, xfirst, yvals)
+    return create_gauss_grid(xvals, yvals)
+
+
+def read_coordinate_vals(grid_descr, xydir, ndegrees):
+    att_vals = xydir + "vals"
+    if att_vals in grid_descr:
+        return grid_descr[att_vals]
+    att_first, att_size = xydir + "first", xydir + "size"
+    if att_first in grid_descr and att_first in grid_descr:
+        x0, n = float(grid_descr[att_first]), int(grid_descr[att_size])
+        dx = float(ndegrees) / n
+        return numpy.array([x0 + i * dx for i in range(n)])
+    log.error("Could not retrieve %s-coordinate values from %s" % (xydir, str(grid_descr)))
+    return None
 
 
 # Creates the regular gaussian grid from its arguments.
-def create_gauss_grid(nx, x0, yvals):
-    ny = len(yvals)
-    dx = 360. / nx
-    x_vals = numpy.array([x0 + i * dx for i in range(nx)])
-    lon_arr = numpy.tile(x_vals, (ny, 1))
-    lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
-    lon_mids = numpy.array([x0 + (i - 0.5) * dx for i in range(nx + 1)])
-    lat_mids = numpy.empty([ny + 1])
-    lat_mids[0] = 90.
-    lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])
-    lat_mids[ny] = -90.
-    if use_2d_grid():
+def create_gauss_grid(xvals, yvals):
+    nx, ny = len(xvals), len(yvals)
+    if use_2d_grid() and nx > 1 and ny > 1:
+        lon_mids, lat_mids = get_lon_mids(xvals), get_lat_mids(yvals)
         vert_lats = numpy.empty([ny, nx, 4])
         vert_lats[:, :, 0] = numpy.tile(lat_mids[0:ny], (nx, 1)).transpose()
         vert_lats[:, :, 1] = vert_lats[:, :, 0]
@@ -824,11 +840,35 @@ def create_gauss_grid(nx, x0, yvals):
         vert_lons[:, :, 2] = vert_lons[:, :, 1]
         i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
         j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+        lon_arr = numpy.tile(xvals, (ny, 1))
+        lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
         return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,
                          latitude_vertices=vert_lats, longitude_vertices=vert_lons)
     else:
-        lats = cmor.axis(table_entry="latitude", coord_vals=lat_arr[:, 0], cell_bounds=lat_mids[::-1],
-                         units="degrees_north")
-        lons = cmor.axis(table_entry="longitude", coord_vals=lon_arr[0, :], cell_bounds=lon_mids,
-                         units="degrees_east")
+        lats = cmor.axis(table_entry="latitude", coord_vals=yvals[::-1], cell_bounds=get_lat_mids(yvals)[::-1],
+                         units="degrees_north") if (ny > 1) else None
+        lons = cmor.axis(table_entry="longitude", coord_vals=xvals, cell_bounds=get_lon_mids(xvals),
+                         units="degrees_east") if (nx > 1) else None
         return lats, lons
+
+
+def get_lon_mids(xvals):
+    nx = len(xvals)
+    if nx < 2:
+        return None
+    lon_mids = numpy.empty([nx + 1])
+    lon_mids[0] = xvals[0] - 0.5 * (xvals[1] - xvals[0])
+    lon_mids[1:nx] = 0.5 * (xvals[0:nx - 1] + xvals[1:nx])
+    lon_mids[nx] = lon_mids[0] % 360.
+    return lon_mids
+
+
+def get_lat_mids(yvals):
+    ny = len(yvals)
+    if ny < 2:
+        return None
+    lat_mids = numpy.empty([ny + 1])
+    lat_mids[0] = 90.
+    lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])
+    lat_mids[ny] = -90.
+    return lat_mids
