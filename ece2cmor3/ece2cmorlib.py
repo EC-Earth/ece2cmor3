@@ -211,7 +211,7 @@ def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
     lpjg2cmor.execute(lpjg_tasks)
 
 
-# Performs a LPJG cmorization processing:
+# Performs a TM5 cmorization processing:
 def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
     global log, tasks, table_dir, prefix
     validate_setup_settings()
