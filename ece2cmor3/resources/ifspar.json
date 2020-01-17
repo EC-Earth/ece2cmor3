@@ -52,12 +52,28 @@
         "target": "rsutcsaf"
     },
     {
+        "source": "70.126",
+        "target": "rsscsaf"
+    },
+    {
+        "source": "71.126",
+        "target": "rssaf"
+    },
+    {
         "source": "72.126",
         "target": "rlutcsaf"
     },
     {
         "source": "73.126",
         "target": "rlutaf"
+    },
+    {
+        "source": "74.126",
+        "target": "rlscsaf"
+    },
+    {
+        "source": "75.126",
+        "target": "rlsaf"
     },
     {
         "source": "95.126",
