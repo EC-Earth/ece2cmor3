@@ -21,88 +21,88 @@ if [ "$#" -eq 0 ]; then
   # rlscsaf  126074  CVEXTR2(15)='clear LW surf', grib 126.74 clear LW surf rlscsaf
   # rlsaf    126075  CVEXTR2(16)='total LW surf', grib 126.75 total LW surf rlsaf
 
-  head --lines=-3 ../resources/tables/CMIP6_AERmon.json                                                                                  >  extended-CMIP6_AERmon.json
+  head --lines=-3 ../resources/tables/CMIP6_AERmon.json                                                                                                     >  extended-CMIP6_AERmon.json
 
-  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
-  echo '        "rsscsaf": {                                                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
-  echo '            "standard_name": "surface_net_shortwave_flux_aerosol_free_clear_sky",                                              ' >> extended-CMIP6_AERmon.json
-  echo '            "units": "W m-2",                                                                                                  ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_methods": "area: time: mean",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_measures": "area: areacella",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "long_name": "Surface Net Aerosol-Free Clear-Sky Shortwave Radiation",                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' >> extended-CMIP6_AERmon.json 
-  echo '            "dimensions": "longitude latitude time",                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "out_name": "rsscsaf",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "type": "real",                                                                                                    ' >> extended-CMIP6_AERmon.json
-  echo '            "positive": "down",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_min": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_max": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '        "rsscsaf": {                                                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "frequency": "mon",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "modeling_realm": "aerosol",                                                                                       ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "standard_name": "surface_net_shortwave_flux_aerosol_free_clear_sky",                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "units": "W m-2",                                                                                                  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_methods": "area: time: mean",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_measures": "area: areacella",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "long_name": "Surface Net Aerosol-Free Clear-Sky Shortwave Radiation",                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json 
+  echo '            "dimensions": "longitude latitude time",                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "out_name": "rsscsaf",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "type": "real",                                                                                                    ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "positive": "down",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_min": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_max": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_min_mean_abs": "",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_max_mean_abs": ""                                                                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
 
-  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
-  echo '        "rssaf": {                                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
-  echo '            "standard_name": "surface_net_shortwave_flux_aerosol_free",                                                        ' >> extended-CMIP6_AERmon.json
-  echo '            "units": "W m-2",                                                                                                  ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_methods": "area: time: mean",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_measures": "area: areacella",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "long_name": "Surface Net Aerosol-Free Shortwave Radiation",                                                       ' >> extended-CMIP6_AERmon.json
-  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' >> extended-CMIP6_AERmon.json 
-  echo '            "dimensions": "longitude latitude time",                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "out_name": "rssaf",                                                                                               ' >> extended-CMIP6_AERmon.json
-  echo '            "type": "real",                                                                                                    ' >> extended-CMIP6_AERmon.json
-  echo '            "positive": "down",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_min": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_max": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
-  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '        "rssaf": {                                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "frequency": "mon",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "modeling_realm": "aerosol",                                                                                       ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "standard_name": "surface_net_shortwave_flux_aerosol_free",                                                        ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "units": "W m-2",                                                                                                  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_methods": "area: time: mean",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_measures": "area: areacella",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "long_name": "Surface Net Aerosol-Free Shortwave Radiation",                                                       ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json 
+  echo '            "dimensions": "longitude latitude time",                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "out_name": "rssaf",                                                                                               ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "type": "real",                                                                                                    ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "positive": "down",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_min": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_max": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_min_mean_abs": "",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_max_mean_abs": ""                                                                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
 
 
-  echo '        "rlscsaf": {                                                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
-  echo '            "standard_name": "surface_net_longwave_flux_aerosol_free_clear_sky",                                               ' >> extended-CMIP6_AERmon.json
-  echo '            "units": "W m-2",                                                                                                  ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_methods": "area: time: mean",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_measures": "area: areacella",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "long_name": "Surface Net Aerosol-Free Clear-Sky Longwave Radiation",                                              ' >> extended-CMIP6_AERmon.json
-  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' >> extended-CMIP6_AERmon.json 
-  echo '            "dimensions": "longitude latitude time",                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "out_name": "rlscsaf",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "type": "real",                                                                                                    ' >> extended-CMIP6_AERmon.json
-  echo '            "positive": "down",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_min": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_max": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
+  echo '        "rlscsaf": {                                                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "frequency": "mon",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "modeling_realm": "aerosol",                                                                                       ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "standard_name": "surface_net_longwave_flux_aerosol_free_clear_sky",                                               ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "units": "W m-2",                                                                                                  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_methods": "area: time: mean",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_measures": "area: areacella",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "long_name": "Surface Net Aerosol-Free Clear-Sky Longwave Radiation",                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json 
+  echo '            "dimensions": "longitude latitude time",                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "out_name": "rlscsaf",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "type": "real",                                                                                                    ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "positive": "down",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_min": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_max": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_min_mean_abs": "",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_max_mean_abs": ""                                                                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
 
-  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
-  echo '        "rlsaf": {                                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
-  echo '            "standard_name": "surface_net_longwave_flux_aerosol_free",                                                         ' >> extended-CMIP6_AERmon.json
-  echo '            "units": "W m-2",                                                                                                  ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_methods": "area: time: mean",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "cell_measures": "area: areacella",                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "long_name": "Surface Net Aerosol-Free Longwave Radiation",                                                        ' >> extended-CMIP6_AERmon.json
-  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' >> extended-CMIP6_AERmon.json 
-  echo '            "dimensions": "longitude latitude time",                                                                           ' >> extended-CMIP6_AERmon.json
-  echo '            "out_name": "rlsaf",                                                                                               ' >> extended-CMIP6_AERmon.json
-  echo '            "type": "real",                                                                                                    ' >> extended-CMIP6_AERmon.json
-  echo '            "positive": "down",                                                                                                ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_min": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "valid_max": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
-  echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '        "rlsaf": {                                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "frequency": "mon",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "modeling_realm": "aerosol",                                                                                       ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "standard_name": "surface_net_longwave_flux_aerosol_free",                                                         ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "units": "W m-2",                                                                                                  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_methods": "area: time: mean",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "cell_measures": "area: areacella",                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "long_name": "Surface Net Aerosol-Free Longwave Radiation",                                                        ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",  ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json 
+  echo '            "dimensions": "longitude latitude time",                                                                           ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "out_name": "rlsaf",                                                                                               ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "type": "real",                                                                                                    ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "positive": "down",                                                                                                ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_min": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "valid_max": "",                                                                                                   ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_min_mean_abs": "",                                                                                             ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
+  echo '            "ok_max_mean_abs": ""                                                                                              ' | sed 's/\s*$//g' >> extended-CMIP6_AERmon.json
 
-  echo '        }'                                                                                                                       >> extended-CMIP6_AERmon.json
-  echo '    }'                                                                                                                           >> extended-CMIP6_AERmon.json
-  echo '}'                                                                                                                               >> extended-CMIP6_AERmon.json
+  echo '        }'                                                                                                                                         >> extended-CMIP6_AERmon.json
+  echo '    }'                                                                                                                                             >> extended-CMIP6_AERmon.json
+  echo '}'                                                                                                                                                 >> extended-CMIP6_AERmon.json
 
   mv -f extended-CMIP6_AERmon.json ../resources/tables/CMIP6_AERmon.json
 
