@@ -23,7 +23,7 @@ if [ "$#" -eq 0 ]; then
 
   head --lines=-3 ../resources/tables/CMIP6_AERmon.json                                                                                  >  extended-CMIP6_AERmon.json
 
-  echo '        }, '                                                                                                                     >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
   echo '        "rsscsaf": {                                                                                                           ' >> extended-CMIP6_AERmon.json
   echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
   echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
@@ -42,7 +42,7 @@ if [ "$#" -eq 0 ]; then
   echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
   echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
 
-  echo '        }, '                                                                                                                     >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
   echo '        "rssaf": {                                                                                                             ' >> extended-CMIP6_AERmon.json
   echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
   echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
@@ -60,7 +60,7 @@ if [ "$#" -eq 0 ]; then
   echo '            "valid_max": "",                                                                                                   ' >> extended-CMIP6_AERmon.json
   echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
   echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
-  echo '        }, '                                                                                                                     >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
 
 
   echo '        "rlscsaf": {                                                                                                           ' >> extended-CMIP6_AERmon.json
@@ -81,7 +81,7 @@ if [ "$#" -eq 0 ]; then
   echo '            "ok_min_mean_abs": "",                                                                                             ' >> extended-CMIP6_AERmon.json
   echo '            "ok_max_mean_abs": ""                                                                                              ' >> extended-CMIP6_AERmon.json
 
-  echo '        }, '                                                                                                                     >> extended-CMIP6_AERmon.json
+  echo '        },                                                                                                                     ' >> extended-CMIP6_AERmon.json
   echo '        "rlsaf": {                                                                                                             ' >> extended-CMIP6_AERmon.json
   echo '            "frequency": "mon",                                                                                                ' >> extended-CMIP6_AERmon.json
   echo '            "modeling_realm": "aerosol",                                                                                       ' >> extended-CMIP6_AERmon.json
