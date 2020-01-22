@@ -184,6 +184,10 @@ def add_grid_operators(cdo, task):
 def add_time_operators(cdo, task):
     freq = str(getattr(task.target, cmor_target.freq_key, None))
     operators = [str(o) for o in getattr(task.target, "time_operator", ["point"])]
+    for i in range(len(operators)):
+        operator_words = operators[i].split(" ")
+        if len(operator_words) > 2 and operator_words[1] == "where":
+            operators[i] = operator_words[0]
     if freq == "yr":
         if operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
