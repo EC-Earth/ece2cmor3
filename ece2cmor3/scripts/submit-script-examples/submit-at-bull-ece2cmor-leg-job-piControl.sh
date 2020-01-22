@@ -48,11 +48,12 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
    mkdir -p $TEMPDIR
 
-   export PATH="${HOME}/miniconda2/bin:$PATH"
+   source /lustre2/projects/model_testing/reerink/miniconda2/etc/profile.d/conda.sh
    conda activate ece2cmor3
 
    export HDF5_USE_FILE_LOCKING=FALSE
    export UVCDAT_ANONYMOUS_LOG=false
+  #export ECE2CMOR3_IFS_CLEANUP=FALSE
 
    ece2cmor $ECEDIR --exp               $EXP      \
                     --ececonf           $ECEMODEL \
@@ -68,7 +69,8 @@
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
-   if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+  #if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+
 
    # Launching the next job for the next leg:
    arg0=$0
