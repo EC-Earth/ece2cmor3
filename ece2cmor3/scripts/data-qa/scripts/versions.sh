@@ -2,8 +2,6 @@
 
 set -eu
 
-this_year=$(date +%Y)
-
 usage() {
     cat << EOT >&2
 $(basename $0): Get/set version ("vYYYYMMDD" string) for CMORised data by
@@ -19,8 +17,7 @@ Usage: $(basename $0) -l | -v <version> [-m] DIR
 
        -l            List versions present in DIR
        -v <version>  Set version to be used for all files
-                     <version> must match 'vYYYY[01][0-9]{3}$' where YYYY is
-                     the current year.
+                     <version> must match: v20[0-9][0-9][01][0-9][0-9][0-9]
        -m            Safety switch: actually move files (dry-run if not set)
 
 EOT
@@ -71,7 +68,7 @@ fi
 
 if [ ! -z ${list+x} ]
 then
-    for d in $(find $directory -type d -name "v${this_year}[01][0-9][0-9][0-9]")
+    for d in $(find $directory -type d -name "v20[0-9][0-9][01][0-9][0-9][0-9]")
     do
         basename $d
     done | sort -u
@@ -82,9 +79,9 @@ if [ ! -z ${version+x} ]
 then
     [ -z ${move+x} ] && warning "Not moving any files (dry-run mode)"
 
-    [[ $version =~ v$this_year[01][0-9]{3}$ ]] || error "Invalid version string '$version'" 5
+    [[ $version =~ v20[0-9][0-9][01][0-9]{3}$ ]] || error "Invalid version string '$version'" 5
 
-    for d in $(find $directory -type d -name "v${this_year}[01][0-9][0-9][0-9]")
+    for d in $(find $directory -type d -name "v20[0-9][0-9][01][0-9][0-9][0-9]")
     do
         this_version=$(basename $d)
         if [[ ! $this_version =~ $version ]]
