@@ -39,9 +39,8 @@
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json
-  #VARLIST=/nfs/home/users/reerink/cmorize/ece2cmor3/ece2cmor3/resources/test-data-request/varlist-nemo-all-ec-earth-aogcm-without-cfc11-group.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-piControl/$EXP/$COMPONENT/$LEG
+   VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-test-all/$EXP/$COMPONENT/$LEG
 
    if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
 
@@ -49,11 +48,12 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
    mkdir -p $TEMPDIR
 
-   export PATH="${HOME}/miniconda2/bin:$PATH"
+   source /lustre2/projects/model_testing/reerink/miniconda2/etc/profile.d/conda.sh
    conda activate ece2cmor3
 
    export HDF5_USE_FILE_LOCKING=FALSE
    export UVCDAT_ANONYMOUS_LOG=false
+  #export ECE2CMOR3_IFS_CLEANUP=FALSE
 
    ece2cmor $ECEDIR --exp               $EXP      \
                     --ececonf           $ECEMODEL \
@@ -69,7 +69,7 @@
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
-   if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+  #if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
    # Launching the next job for the next leg:
    arg0=$0
