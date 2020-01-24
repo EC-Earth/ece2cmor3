@@ -42,7 +42,8 @@
    VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/ScenarioMIP/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM.json
    ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-scenario-ssp2-4.5/$EXP
 
-   if [ -z "$ECEDIR" ]; then echo "Error: Empty EC-Earth3 data output directory: " $ECEDIR ", aborting" $0 >&2; exit 1; fi
+   if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
+   if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " is empty. Aborting job:" $0 >&2; exit 1; fi
 
    mkdir -p $ODIR
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
