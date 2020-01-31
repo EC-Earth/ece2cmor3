@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 import os
+import re
 import resource
 import threading
 
@@ -229,7 +230,11 @@ def get_prev_file(grb_file):
                 int(output_name[14:]) == prev_mon:
             log.info("Found previous month file for %s: %s" % (grb_file, output_path))
             return output_path
-    log.info("Assumed previous month file for %s: %s" % (grb_file, ini_path))
+    ece_leg = os.path.split(os.path.dirname(grb_file))[-1]
+    if re.match(r"^0*\d1$", ece_leg):
+        log.info("Assumed previous month file for %s: %s" % (grb_file, ini_path))
+    else:
+        log.error("Assumed previous month file for %s: %s, this is probably not correct!" % (grb_file, ini_path))
     return ini_path
 
 
