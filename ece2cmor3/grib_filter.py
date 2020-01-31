@@ -231,10 +231,17 @@ def get_prev_file(grb_file):
             log.info("Found previous month file for %s: %s" % (grb_file, output_path))
             return output_path
     ece_leg = os.path.split(os.path.dirname(grb_file))[-1]
-    if re.match(r"^0*\d1$", ece_leg):
-        log.info("Assumed previous month file for %s: %s" % (grb_file, ini_path))
+    if re.match(r"^0*\d1$", ece_leg): # First leg
+        if ini_path is None:
+            log.error("Previous month file for %s could not be found because the initial state file hasn't been found"
+                      % grb_file)
+        else:
+            log.info("Assumed previous month file for %s: %s" % (grb_file, ini_path))
     else:
-        log.error("Assumed previous month file for %s: %s, this is probably not correct!" % (grb_file, ini_path))
+        if ini_path is None:
+            log.error("Previous month file for %s could not be found" % grb_file)
+        else:
+            log.error("Assumed previous month file for %s: %s, this is probably not correct!" % (grb_file, ini_path))
     return ini_path
 
 
