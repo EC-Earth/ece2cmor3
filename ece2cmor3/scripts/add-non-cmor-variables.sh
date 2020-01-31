@@ -114,7 +114,7 @@ if [ "$#" -eq 0 ]; then
 
 else
     echo '  '
-    echo '  This scripts requires n argument:'
+    echo '  This scripts requires no argument:'
     echo '  ' $0
     echo '  '
 fi
