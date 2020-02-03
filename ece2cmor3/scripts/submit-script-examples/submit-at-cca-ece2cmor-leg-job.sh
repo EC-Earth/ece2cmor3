@@ -22,36 +22,54 @@
 
 if [ "$#" -eq 2 ]; then
 
- PERM=/perm/ms/nl/nktr      # For testing outside cca
+#PERM=/perm/ms/nl/nktr      # For testing outside cca
 
- wall_clock_time=4:00:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
- nodes=1                    # Possibilities: serial: 1, parallel: many
- cores=36                   # Possibilities: only 16 core nodes are available at lisa (November 2015)
- processes_per_node=36      # Possibilities: processes_per_node <= cores, it is recommended to set this at maximum
-                            # to processes_per_node = ${cores} - 1 in order to reserve one core for overhead.
-                            # For a serial job use: processes_per_node = 1, or use multiple-batch-run-on-lisa.csh
+ wall_clock_time=0:30:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
+ cores_per_node=18          # The number of cores used per node, recommended at cca is to use one thread, i.e 18 cores per node
 
+ COMPONENT=$1
+ LEG=$2
 
  EXP=onep
-
- # This block of variables need to be checked and adjusted:
- definition_of_script_variables='
- COMPONENT='$1'
- LEG='$2'
-
- EXP='${EXP}'
  ECEDIR=/scratch/ms/nl/nm6/ECEARTH-RUNS/$EXP/output/$COMPONENT/$LEG
  ECEMODEL=EC-EARTH-AOGCM
  METADATA=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
  TEMPDIR=/scratch/ms/nl/nktr/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
  VARLIST=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
  ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP/$COMPONENT/$LEG
- '
 
 
  #===============================================================================
  # Below this line the normal end user doesn not have to change anything
  #===============================================================================
+
+ pbs_header='
+#PBS -N cmor-'${COMPONENT}'-'${LEG}'-'${EXP}'
+#PBS -q nf
+#PBS -j oe
+#PBS -o cmor-'${EXP}'-'${COMPONENT}'-'${LEG}'.out
+#PBS -l walltime='${wall_clock_time}'
+#PBS -l EC_hyperthreads=1
+#PBS -l EC_total_tasks=1
+#PBS -l EC_threads_per_task='${cores_per_node}'
+'
+
+ # This block of variables need to be checked and adjusted:
+ definition_of_script_variables='
+ COMPONENT='${COMPONENT}'
+ LEG='${LEG}'
+
+ EXP='${EXP}'
+ ECEDIR='${ECEDIR}'
+ ECEMODEL='${ECEMODEL}'
+ METADATA='${METADATA}'
+ TEMPDIR='${TEMPDIR}'
+ VARLIST='${VARLIST}'
+ ODIR='${ODIR}'
+ '
+
+ running_directory=/scratch/ms/nl/nktr/cmorisation/
+#running_directory='$SCRATCH'/cmorisation/
 
  job_name=cmorise-${EXP}-$1-$2.sh
 
@@ -63,20 +81,13 @@ if [ "$#" -eq 2 ]; then
                   --varlist           $VARLIST  \
                   --tmpdir            $TEMPDIR  \
                   --odir              $ODIR     \
-                  --npp               36        \
+                  --npp               18        \
                   --overwritemode     replace   \
                   --skip_alevel_vars            \
                   --log
  '
  one_line_command=$(echo ${ece2cmor_call} | sed -e 's/\\//g')
 #echo ' ' ${one_line_command}
-
- running_directory=/scratch/ms/nl/nktr/cmorisation/
-#running_directory='$SCRATCH'/cmorisation/
-
- check_existence_run_directory='
- if [ ! -d '${running_directory}' ]; then echo; echo -e "\e[1;31m Error:\e[0m"" the directory " '${running_directory}' " does not exist."; echo; exit 1;  fi
- '
 
  check_data_directory='
  if [ ! -d "$ECEDIR"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
@@ -94,7 +105,7 @@ if [ "$#" -eq 2 ]; then
  '
 
  ece2cmor_version_log='
- git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version
+#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version
 #git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no
 #git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff
  '
@@ -111,14 +122,8 @@ if [ "$#" -eq 2 ]; then
  # Creating the job submit script which will be submitted by qsub:
 
  echo "#! /bin/bash                                                                                " | sed 's/\s*$//g' >  ${job_name}
- echo "# Thomas Reerink                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo "#PBS -lwalltime=${wall_clock_time} -lnodes=${nodes}:cores${cores}:ppn=${processes_per_node} " | sed 's/\s*$//g' >> ${job_name}
- echo "#PBS -S /bin/bash                                                                           " | sed 's/\s*$//g' >> ${job_name}
- echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " mkdir -p ${running_directory}                                                              " | sed 's/\s*$//g' >> ${job_name}
- echo " ${check_existence_run_directory}                                                           " | sed 's/\s*$//g' >> ${job_name}
- echo " cd ${running_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${pbs_header}                                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
@@ -139,10 +144,15 @@ if [ "$#" -eq 2 ]; then
 
  chmod uog+x ${job_name}
 
+ 
+ mkdir -p ${running_directory}
+ if [ ! -d ${running_directory} ]; then echo; echo -e "\e[1;31m Error:\e[0m"" the directory " '${running_directory}' " does not exist."; echo; exit 1;  fi
+ mv -f ${job_name} ${running_directory}
+ cd ${running_directory}
+
  echo
  echo ' The ' ${job_name} ' submit script is created.'
  echo
-
 
 
  # Submitting the job with qsub:
@@ -150,16 +160,12 @@ if [ "$#" -eq 2 ]; then
 
  # Printing some status info of the job and the used node:
  echo
- echo ' Using' ${processes_per_node} 'cores at' ${nodes} 'node which has' ${cores} 'cores.'
+ echo ' Using 1 thread with' ${cores_per_node} 'cores at 1 node which has 36 cores.'
  echo
  qstat -u ${USER}
  echo 'qstat -u ' ${USER}
  echo 'cd '${running_directory}
  echo
-#echo 'Job can be cancelled by:'
-#set job_number = `qstat -u ${USER} | grep ${USER} | sed -e 's/.batch.*$//'`
-#echo 'qdel' ${job_number}
-#echo
 
 
  else
@@ -168,7 +174,7 @@ if [ "$#" -eq 2 ]; then
   echo '   1st argument: model component'
   echo '   2nd argument: leg'
   echo '  For instance:'
-  echo '   ' $0 ' ifs 004'
+  echo '   ' $0 ' nemo 001'
   echo '  Or use:'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo ' $0 ' $i $j; done; done'
   echo '   for i in {nemo,ifs}; do for j in {001..008}; do      ' $0 ' $i $j; done; done'
