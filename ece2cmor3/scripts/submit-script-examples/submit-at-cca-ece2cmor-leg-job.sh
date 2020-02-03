@@ -4,13 +4,11 @@
 # Run this script by:
 #  submit-at-cca-ece2cmor-leg-job.sh ifs 001
 #
-# Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
+# Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for one leg
 #
 # This scripts requires two arguments:
 #  1st argument: model component
 #  2nd argument: leg
-
-# Two account options:  proj-cmip6  &  model-testing
 
 # ECEDIR    is the directory with the raw ec-earth output results, for instance: t001/output/nemo/001
 # EXP       is the 4-digit ec-earth experiment ID or label, for instance: t001
@@ -34,12 +32,14 @@ if [ "$#" -eq 2 ]; then
                             # For a serial job use: processes_per_node = 1, or use multiple-batch-run-on-lisa.csh
 
 
+ EXP=onep
+
  # This block of variables need to be checked and adjusted:
  definition_of_script_variables='
  COMPONENT='$1'
  LEG='$2'
 
- EXP=onep
+ EXP='${EXP}'
  ECEDIR=/scratch/ms/nl/nm6/ECEARTH-RUNS/$EXP/output/$COMPONENT/$LEG
  ECEMODEL=EC-EARTH-AOGCM
  METADATA=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
@@ -48,14 +48,12 @@ if [ "$#" -eq 2 ]; then
  ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP/$COMPONENT/$LEG
  '
 
+
  #===============================================================================
  # Below this line the normal end user doesn not have to change anything
  #===============================================================================
 
-
-#job_name=cmorise-${EXP}-$1-$2.sh
- job_name=cmorise-$1-$2.sh
-
+ job_name=cmorise-${EXP}-$1-$2.sh
 
  ece2cmor_call='
  ece2cmor $ECEDIR --exp               $EXP      \
@@ -101,16 +99,14 @@ if [ "$#" -eq 2 ]; then
 #git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff
  '
 
-
  move_log_files='
  mkdir -p $ODIR/logs
  mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
  '
 
  remove_temp_directory='
- if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+#if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
  '
-
 
  # Creating the job submit script which will be submitted by qsub:
 
@@ -129,17 +125,14 @@ if [ "$#" -eq 2 ]; then
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_whether_ece2cmor_is_activated}                                                     " | sed 's/\s*$//g' >> ${job_name}
  echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
- echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo "${definition_of_script_variables}                                                           " | sed 's/\s*$//g' >> ${job_name}
- echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " ${create_temp_and_output_directories}                                                      " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo "${ece2cmor_call}                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${ece2cmor_call}                                                                           " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo "${move_log_files}                                                                           " | sed 's/\s*$//g' >> ${job_name}
- echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
-#echo "${remove_temp_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${move_log_files}                                                                          " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${remove_temp_directory}                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo " echo ' ${job_name} finished.'                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
@@ -156,7 +149,6 @@ if [ "$#" -eq 2 ]; then
  qsub ${job_name}
 
  # Printing some status info of the job and the used node:
- # See also https://userinfo.surfsara.nl/systems/lisa/usage/batch-usage
  echo
  echo ' Using' ${processes_per_node} 'cores at' ${nodes} 'node which has' ${cores} 'cores.'
  echo
