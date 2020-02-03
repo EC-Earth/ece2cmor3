@@ -48,11 +48,16 @@ if [ "$#" -eq 2 ]; then
  ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP/$COMPONENT/$LEG
  '
 
+ #===============================================================================
+ # Below this line the normal end user doesn not have to change anything
+ #===============================================================================
 
+
+#job_name=cmorise-${EXP}-$1-$2.sh
  job_name=cmorise-$1-$2.sh
 
 
- program_call='
+ ece2cmor_call='
  ece2cmor $ECEDIR --exp               $EXP      \
                   --ececonf           $ECEMODEL \
                   --$COMPONENT                  \
@@ -65,24 +70,8 @@ if [ "$#" -eq 2 ]; then
                   --skip_alevel_vars            \
                   --log
  '
- one_line_command=$(echo ${program_call} | sed -e 's/\\//g')
+ one_line_command=$(echo ${ece2cmor_call} | sed -e 's/\\//g')
 #echo ' ' ${one_line_command}
-
-
-# set svn_revision = '-r'`svn info | grep Revision | sed -e 's/Revision: //'`
-# if($#argv == 3) set svn_revision = ${svn_revision}'-'${3}
-#
-# if(-e src/${program_name}) then
-# else
-#  echo ' The program ' ${program_name} ' is not found. Compile it with:  make' ${program_name}
-#  exit
-# endif
-
-# # Copy the svn differences relative to the current revision:
-# svn diff ./src/*.f90 > ${running_directory_trunk}/svn-diff-of-source-files.txt
-# mkdir -p ${running_directory_trunk}/src-copy/
-# rsync -a ./src/*.f90 ${running_directory_trunk}/src-copy/
-
 
  running_directory=/scratch/ms/nl/nktr/cmorisation/
 #running_directory='$SCRATCH'/cmorisation/
@@ -102,6 +91,17 @@ if [ "$#" -eq 2 ]; then
  mkdir -p $TEMPDIR
  '
 
+ check_whether_ece2cmor_is_activated='
+ if ! type ece2cmor > /dev/null; then echo -e "\e[1;31m Error:\e[0m"" ece2cmor is not activated." ;fi
+ '
+
+ ece2cmor_version_log='
+ git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version
+#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no
+#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff
+ '
+
+
  move_log_files='
  mkdir -p $ODIR/logs
  mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
@@ -114,38 +114,35 @@ if [ "$#" -eq 2 ]; then
 
  # Creating the job submit script which will be submitted by qsub:
 
- echo "#! /bin/bash                                                                                " >  ${job_name}
- echo "# Thomas Reerink                                                                            " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo "#PBS -lwalltime=${wall_clock_time} -lnodes=${nodes}:cores${cores}:ppn=${processes_per_node} " >> ${job_name}
- echo "#PBS -S /bin/bash                                                                           " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo " mkdir -p ${running_directory}                                                              " >> ${job_name}
- echo " ${check_existence_run_directory}                                                           " >> ${job_name}
- echo " cd ${running_directory}                                                                    " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " >> ${job_name}
- echo " conda activate ece2cmor3                                                                   " >> ${job_name}
- echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo "${definition_of_script_variables}                                                           " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo " ${check_data_directory}                                                                    " >> ${job_name}
- echo " ${create_temp_and_output_directories}                                                      " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo "${program_call}                                                                             " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
- echo "${move_log_files}                                                                           " >> ${job_name}
- echo "                                                                                            " >> ${job_name}
-#echo "${remove_temp_directory}                                                                    " >> ${job_name}
-#echo "                                                                                            " >> ${job_name}
-#echo "if [ -e gmon.out ]; then                                                                    " >> ${job_name}
-#echo " gprof ${program_call} gmon.out > time_measurements.txt                                     " >> ${job_name}
-#echo "fi                                                                                          " >> ${job_name}
-#echo "mv -f CMIP6 log ${local_path}/${running_directory}                                          " >> ${job_name}
- echo " echo ''                                                                                    " >> ${job_name}
- echo " echo '  FINISHED '                                                                         " >> ${job_name}
- echo " echo ''                                                                                    " >> ${job_name}
+ echo "#! /bin/bash                                                                                " | sed 's/\s*$//g' >  ${job_name}
+ echo "# Thomas Reerink                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "#PBS -lwalltime=${wall_clock_time} -lnodes=${nodes}:cores${cores}:ppn=${processes_per_node} " | sed 's/\s*$//g' >> ${job_name}
+ echo "#PBS -S /bin/bash                                                                           " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo " mkdir -p ${running_directory}                                                              " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${check_existence_run_directory}                                                           " | sed 's/\s*$//g' >> ${job_name}
+ echo " cd ${running_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${check_whether_ece2cmor_is_activated}                                                     " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "${definition_of_script_variables}                                                           " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${create_temp_and_output_directories}                                                      " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "${ece2cmor_call}                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+ echo "${move_log_files}                                                                           " | sed 's/\s*$//g' >> ${job_name}
+ echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
+#echo "${remove_temp_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ' ${job_name} finished.'                                                              " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
 
  chmod uog+x ${job_name}
 
