@@ -22,7 +22,7 @@
 
 if [ "$#" -eq 2 ]; then
 
-#PERM=/perm/ms/nl/nktr      # For testing outside cca
+ # Modify the times & the paths in this first block of about 15 lines:
 
  wall_clock_time=0:30:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
  cores_per_node=18          # The number of cores used per node, recommended at cca is to use one thread, i.e 18 cores per node
@@ -36,22 +36,29 @@ if [ "$#" -eq 2 ]; then
  METADATA=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
  TEMPDIR=/scratch/ms/nl/nktr/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
  VARLIST=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
- ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP/$COMPONENT/$LEG
+ ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP
+
+ # The directoy (at scratch) from where the submit scripts will be launched by qsub:
+ running_directory=${SCRATCH}/cmorisation/
+
 
 
  #===============================================================================
- # Below this line the normal end user doesn not have to change anything
+ # Below this line the normal end user doesn't have to change anything
  #===============================================================================
+
 
  pbs_header='
 #PBS -N cmor-'${COMPONENT}'-'${LEG}'-'${EXP}'
 #PBS -q nf
 #PBS -j oe
-#PBS -o cmor-'${EXP}'-'${COMPONENT}'-'${LEG}'.out
+#PBS -o pbs-log-for-cmorising-'${EXP}'-'${COMPONENT}'-'${LEG}'.out
 #PBS -l walltime='${wall_clock_time}'
 #PBS -l EC_hyperthreads=1
 #PBS -l EC_total_tasks=1
 #PBS -l EC_threads_per_task='${cores_per_node}'
+##PBS -l EC_billing_account=${EC_billing_account}
+##PBS -W depend=afterok:<JOB_ID_OF_PREVIOUS_DEPENDENCY_JOB>
 '
 
  # This block of variables need to be checked and adjusted:
@@ -67,9 +74,6 @@ if [ "$#" -eq 2 ]; then
  VARLIST='${VARLIST}'
  ODIR='${ODIR}'
  '
-
- running_directory=/scratch/ms/nl/nktr/cmorisation/
-#running_directory='$SCRATCH'/cmorisation/
 
  job_name=cmorise-${EXP}-$1-$2.sh
 
@@ -87,7 +91,6 @@ if [ "$#" -eq 2 ]; then
                   --log
  '
  one_line_command=$(echo ${ece2cmor_call} | sed -e 's/\\//g')
-#echo ' ' ${one_line_command}
 
  check_data_directory='
  if [ ! -d "$ECEDIR"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
@@ -104,11 +107,17 @@ if [ "$#" -eq 2 ]; then
  if ! type ece2cmor > /dev/null; then echo -e "\e[1;31m Error:\e[0m"" ece2cmor is not activated." ;fi
  '
 
+if [ -d ${PERM}/cmorize/ece2cmor3/ ]; then
  ece2cmor_version_log='
-#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version
-#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no
-#git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff
+ cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
  '
+else
+ ece2cmor_version_log='
+ echo; echo "Using version:"; ece2cmor --version
+ '
+fi
 
  move_log_files='
  mkdir -p $ODIR/logs
@@ -133,13 +142,17 @@ if [ "$#" -eq 2 ]; then
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " ${create_temp_and_output_directories}                                                      " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ${one_line_command}                                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${ece2cmor_call}                                                                           " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${move_log_files}                                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${remove_temp_directory}                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo ' ${job_name} finished.'                                                              " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo 'The ${job_name} job has finished.'                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
 
  chmod uog+x ${job_name}
@@ -150,22 +163,17 @@ if [ "$#" -eq 2 ]; then
  mv -f ${job_name} ${running_directory}
  cd ${running_directory}
 
- echo
- echo ' The ' ${job_name} ' submit script is created.'
- echo
-
-
  # Submitting the job with qsub:
  qsub ${job_name}
 
- # Printing some status info of the job and the used node:
+ # Printing some status info of the job:
  echo
- echo ' Using 1 thread with' ${cores_per_node} 'cores at 1 node which has 36 cores.'
+ echo ' The ' ${running_directory}${job_name} ' submit script is created and submitted. Monitor your job by:'
+ echo '  qstat -u ' ${USER}
+ echo '  cd '${running_directory}
  echo
- qstat -u ${USER}
- echo 'qstat -u ' ${USER}
- echo 'cd '${running_directory}
- echo
+ #qstat -u ${USER} | grep -v -e 'ccapar:' -e '-----' -e '^$'
+ #echo
 
 
  else
@@ -176,9 +184,9 @@ if [ "$#" -eq 2 ]; then
   echo '  For instance:'
   echo '   ' $0 ' nemo 001'
   echo '  Or use:'
-  echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo ' $0 ' $i $j; done; done'
-  echo '   for i in {nemo,ifs}; do for j in {001..008}; do      ' $0 ' $i $j; done; done'
-  echo '   for j in {001..015}; do' $0 ' ifs  $j; done'
-  echo '   for j in {001..015}; do' $0 ' nemo $j; done'
+  echo '   for i in {nemo,ifs}; do for j in {001..008}; do echo ' $0 ' $i $(printf "%03d" $j); done; done'
+  echo '   for i in {nemo,ifs}; do for j in {001..008}; do      ' $0 ' $i $(printf "%03d" $j); done; done'
+  echo '   for j in {001..015}; do' $0 ' ifs  $(printf "%03d" $j); done'
+  echo '   for j in {001..015}; do' $0 ' nemo $(printf "%03d" $j); done'
   echo
  fi
