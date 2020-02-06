@@ -174,6 +174,8 @@ fi
  echo
  #qstat -u ${USER} | grep -v -e 'ccapar:' -e '-----' -e '^$'
  #echo
+ #echo "qstat -u  ${USER} |grep ${USER} |sed -e 's/^/qdel /' -e 's/.'${USER}'.*//'"  # Cancelling jobs
+ #echo
 
 
  else
