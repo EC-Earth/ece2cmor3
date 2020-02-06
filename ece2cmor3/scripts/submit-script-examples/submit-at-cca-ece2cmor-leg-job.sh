@@ -24,7 +24,7 @@ if [ "$#" -eq 2 ]; then
 
  # Modify the times & the paths in this first block of about 15 lines:
 
- wall_clock_time=0:30:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
+ wall_clock_time=2:00:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
  cores_per_node=18          # The number of cores used per node, recommended at cca is to use one thread, i.e 18 cores per node
 
  COMPONENT=$1
@@ -33,10 +33,10 @@ if [ "$#" -eq 2 ]; then
  EXP=onep
  ECEDIR=/scratch/ms/nl/nm6/ECEARTH-RUNS/$EXP/output/$COMPONENT/$LEG
  ECEMODEL=EC-EARTH-AOGCM
- METADATA=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
- TEMPDIR=/scratch/ms/nl/nktr/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
- VARLIST=/perm/ms/nl/nktr/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
- ODIR=/scratch/ms/nl/nktr/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP
+ METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json
+ TEMPDIR=${SCRATCH}/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
+ VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
+ ODIR=${SCRATCH}/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP
 
  # The directoy (at scratch) from where the submit scripts will be launched by qsub:
  running_directory=${SCRATCH}/cmorisation/
