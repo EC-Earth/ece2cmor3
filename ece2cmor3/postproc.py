@@ -184,6 +184,10 @@ def add_grid_operators(cdo, task):
 def add_time_operators(cdo, task):
     freq = str(getattr(task.target, cmor_target.freq_key, None))
     operators = [str(o) for o in getattr(task.target, "time_operator", ["point"])]
+    for i in range(len(operators)):
+        operator_words = operators[i].split(" ")
+        if len(operator_words) > 2 and operator_words[1] == "where":
+            operators[i] = operator_words[0]
     if freq == "yr":
         if operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
@@ -207,7 +211,8 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
         else:
             log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
             task.set_failed()
     elif freq == "yrPt":
         # End-of-year values:
@@ -217,7 +222,8 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.hour, 21)
         else:
             log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
             task.set_failed()
     elif freq == "mon":
         if operators == ["point"]:
@@ -239,7 +245,8 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         else:
             log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
             task.set_failed()
     elif freq == "monPt":
         if operators == ["point"]:
@@ -247,7 +254,8 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.hour, 12)
         else:
             log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
             task.set_failed()
     elif freq == "day":
         if operators == ["point"]:
@@ -262,7 +270,8 @@ def add_time_operators(cdo, task):
             cdo.add_operator(cdoapi.cdo_command.day + cdoapi.cdo_command.sum)
         else:
             log.error(
-                "Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
             task.set_failed()
     elif freq in ["6hr", "6hrPt"] and len(operators) == 1:
         add_high_freq_operator(cdo, 6, operators[0], task)
@@ -271,7 +280,9 @@ def add_time_operators(cdo, task):
     elif freq == "fx" and operators == ["point"] or operators == ["mean"]:
         cdo.add_operator(cdoapi.cdo_command.select_step_operator, 1)
     else:
-        log.error("Unsupported combination of frequency %s with time operators %s encountered" % (freq, str(operators)))
+        log.error(
+            "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+            % (freq, str(operators), task.target.variable, task.target.table))
         task.set_failed()
 
 
