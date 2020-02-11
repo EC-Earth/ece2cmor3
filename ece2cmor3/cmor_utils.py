@@ -209,19 +209,19 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    if varname == None:
+    if varname is None:
         #
-        #select alphanumeric variable name followed by _AER + * + _expname_ + * + dates.nc
+        # select alphanumeric variable name followed by _AER + * + _expname_ + * + dates.nc
         # 
         # matches like this:
-        #first quotation marks:
-        #emioa_AER*_
-        #subexpr:
-        #aspi
-        #second quotation marks:
-        #_*_185001-185012.nc to _*_185001010000-185012312300 [6-12 numbers in date] 
+        # first quotation marks:
+        # emioa_AER*_
+        # subexpr:
+        # aspi
+        # second quotation marks:
+        # _*_185001-185012.nc to _*_185001010000-185012312300 [6-12 numbers in date]
         expr = re.compile("(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
-    elif varname != None and freq == 'fx':
+    elif varname is not None and freq == 'fx':
         expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
     else:
         expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
@@ -290,7 +290,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
     chunk = int(math.floor(4.0E+9 / (8 * size)))  # Use max 4 GB of memory
     if time_selection is not None and numpy.any(time_selection < 0):
         chunk = 1
-    missval_in = float(getattr(ncvar, "missing_value", missval))
+    missval_in = getattr(ncvar, "missing_value", None)
     for i in range(0, ntimes, chunk):
         imax = min(i + chunk, ntimes)
         time_slice = slice(i, imax, 1)
@@ -304,35 +304,36 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         vals = None
         if ndims == 1:
             if timdim < 0:
-                vals = factor * ncvar[:] + term
+                vals = apply_mask(ncvar[:], factor, term, None, missval_in, missval)
             elif timdim == 0:
-                vals = factor * ncvar[i:imax] + term
+                vals = apply_mask(ncvar[i:imax], factor, term, None, missval_in, missval)
         elif ndims == 2:
             if timdim < 0:
-                vals = (
-                    apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)).transpose() if swaplatlon else \
-                    apply_mask(factor * ncvar[:, :] + term, mask, missval_in, missval)
+                if swaplatlon:
+                    vals = (apply_mask(ncvar[:, :], factor, term, mask, missval_in, missval)).transpose()
+                else:
+                    vals = apply_mask(ncvar[:, :], factor, term, mask, missval_in, missval)
             elif timdim == 0:
                 if time_slice is None:
                     vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval), axes=[1, 0])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :] + term, None, missval_in, missval),
-                                           axes=[1, 0])
+                    vals = numpy.transpose(apply_mask(ncvar[time_slice, :], factor, term, None, missval_in,
+                                                      missval), axes=[1, 0])
             elif timdim == 1:
                 if time_slice is None:
                     vals = numpy.full(ncvar.shape[:-1] + (1,), missval)
                 else:
-                    vals = apply_mask(factor * ncvar[:, time_slice] + term, None, missval_in, missval)
+                    vals = apply_mask(ncvar[:, time_slice], factor, term, None, missval_in, missval)
         elif ndims == 3:
             if timdim < 0:
-                vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :] + term, mask, missval_in, missval),
+                vals = numpy.transpose(apply_mask(ncvar[:, :, :], factor, term, mask, missval_in, missval),
                                        axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 0:
                 if time_slice is None:
                     vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
                                            axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :] + term, mask,
+                    vals = numpy.transpose(apply_mask(ncvar[time_slice, :, :], factor, term, mask,
                                                       missval_in, missval),
                                            axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif timdim == 2:
@@ -342,7 +343,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
                                            axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, time_slice] + term, None, missval_in,
+                    vals = numpy.transpose(apply_mask(ncvar[:, :, time_slice], factor, term, None, missval_in,
                                                       missval),
                                            axes=[1, 0, 2] if swaplatlon else [0, 1, 2])
             else:
@@ -354,7 +355,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
                                            axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :] + term, mask, missval_in,
+                    vals = numpy.transpose(apply_mask(ncvar[time_slice, :, :, :], factor, term, mask, missval_in,
                                                       missval),
                                            axes=[3, 2, 1, 0] if swaplatlon else [2, 3, 1, 0])
             elif timdim == 3:
@@ -364,7 +365,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
                                            axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, time_slice] + term, mask, missval_in,
+                    vals = numpy.transpose(apply_mask(ncvar[:, :, :, time_slice], factor, term, mask, missval_in,
                                                       missval),
                                            axes=[1, 0, 2, 3] if swaplatlon else [0, 1, 2, 3])
             else:
@@ -376,7 +377,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     vals = numpy.transpose(numpy.full((1,) + ncvar.shape[1:], missval),
                                            axes=[4, 3, 2, 1, 0] if swaplatlon else [3, 4, 2, 1, 0])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[time_slice, :, :, :, :] + term, mask, missval_in,
+                    vals = numpy.transpose(apply_mask(ncvar[time_slice, :, :, :, :], factor, term, mask, missval_in,
                                                       missval),
                                            axes=[4, 3, 2, 1, 0] if swaplatlon else [3, 4, 2, 1, 0])
             elif timdim == 4:
@@ -386,7 +387,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
                     vals = numpy.transpose(numpy.full(ncvar.shape[:-1] + (1,), missval),
                                            axes=[1, 0, 2, 3, 4] if swaplatlon else [0, 1, 2, 3, 4])
                 else:
-                    vals = numpy.transpose(apply_mask(factor * ncvar[:, :, :, :, time_slice] + term, mask, missval_in,
+                    vals = numpy.transpose(apply_mask(ncvar[:, :, :, :, time_slice], factor, term, mask, missval_in,
                                                       missval),
                                            axes=[1, 0, 2, 3, 4] if swaplatlon else [0, 1, 2, 3, 4])
             else:
@@ -417,11 +418,15 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
 
 
 # Replaces missing values and applies the mask to the 2 trailing dimensions of the input array
-def apply_mask(array, mask, missval_in, missval_out):
-    if missval_in != missval_out:
-        array[array == missval_in] = missval_out
+def apply_mask(array, factor, term, mask, missval_in, missval_out):
+    new_miss_val = array.dtype.type(missval_out)
+    print missval_in, new_miss_val, type(missval_in), numpy.min(array)
+    if missval_in is not None:
+        array[array == missval_in] = new_miss_val
     if mask is not None:
-        numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask), array.shape), missval_out)
+        numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask), array.shape), new_miss_val)
+    if factor != 1.0 and term != 0.0:
+        numpy.putmask(array, array != new_miss_val, factor * array + term)
     return array
 
 
