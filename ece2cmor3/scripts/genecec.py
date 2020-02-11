@@ -97,6 +97,8 @@ ece_conf_mip_map = {
 ## print ' {:20}   {}'.format(model_configuration, scenario_ece_configurations[model_configuration])
 ##sys.exit()
 
+command_show_version = 'git describe --tags | sed "s/^/ Using ece2cmor git revision: /"; echo;'
+os.system(command_show_version)
 
 command_00 = 'rm -rf cmip6-output-control-files'
 os.system(command_00)
