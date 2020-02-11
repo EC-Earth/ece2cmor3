@@ -46,13 +46,18 @@ def initialize(gpfiles, shfiles, tmpdir):
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
-    gpdate, shdate = sorted(gridpoint_files.keys())[0], sorted(spectral_files.keys())[0]
-    gpfile, shfile = gridpoint_files[gpdate][1], spectral_files[shdate][1]
-    with open(gpfile) as gpf, open(shfile) as shf:
-        varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
-        update_sp_key(gpfile)
-        varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
-        update_sp_key(shfile)
+    gpdate = sorted(gridpoint_files.keys())[0] if any(gridpoint_files) else None
+    shdate = sorted(spectral_files.keys())[0] if any(spectral_files) else None
+    gpfile = gridpoint_files[gpdate][1] if any(gridpoint_files) else None
+    shfile = spectral_files[shdate][1] if any(spectral_files) else None
+    if gpfile is not None:
+        with open(gpfile) as gpf:
+            varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
+            update_sp_key(gpfile)
+    if shfile is not None:
+        with open(shfile) as shf:
+            varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
+            update_sp_key(shfile)
 
 
 # Function reading the file with grib-codes of accumulated fields

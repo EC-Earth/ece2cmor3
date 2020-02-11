@@ -103,7 +103,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern)
                if not f.endswith("+000000")}
 
-    if set(gpfiles.keys()) != set(shfiles.keys()):
+    if any(shfiles) and any(gpfiles) and set(shfiles.keys()) != set(gpfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
         if not any(intersection):
             log.error("Gridpoint files %s and spectral files %s correspond to different months, no overlap found..." %
