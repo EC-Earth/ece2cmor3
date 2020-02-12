@@ -204,7 +204,8 @@ for mip in dq.coll['mip'].items:
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included:
-          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust'):  # Add also the tier 2 experiment: AerChemMIP piClim-2xdust
+         #if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust'):  # Add also the tier 2 experiment: AerChemMIP piClim-2xdust
+          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust') or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-pdLC') or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-rmLC'):  # Add also the tier 2 experiments: AerChemMIP piClim-2xdust and LS3MIP amip-lfmip-pdLC & amip-lfmip-rmLC
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)
