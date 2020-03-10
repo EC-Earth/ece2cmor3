@@ -420,12 +420,11 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
 # Replaces missing values and applies the mask to the 2 trailing dimensions of the input array
 def apply_mask(array, factor, term, mask, missval_in, missval_out):
     new_miss_val = array.dtype.type(missval_out)
-    print missval_in, new_miss_val, type(missval_in), numpy.min(array)
     if missval_in is not None:
         array[array == missval_in] = new_miss_val
     if mask is not None:
         numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask), array.shape), new_miss_val)
-    if factor != 1.0 and term != 0.0:
+    if factor != 1.0 or term != 0.0:
         numpy.putmask(array, array != new_miss_val, factor * array + term)
     return array
 
