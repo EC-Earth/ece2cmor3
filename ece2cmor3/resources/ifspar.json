@@ -48,11 +48,6 @@
         "target": "albisccp"
     },
     {
-        "source": "68.126",
-        "convert": "cum2inst",
-        "target": "rsutcsaf"
-    },
-    {
         "source": "70.126",
         "convert": "cum2inst",
         "target": "rsscsaf"
@@ -546,7 +541,13 @@
         "source": "74.129",
         "target": "rsutaf",
         "convert": "cum2inst",
-        "expr": "var128212-var126069"
+        "expr": "var126069-var128212"
+    },
+    {
+        "source": "75.129",
+        "target": "rsutcsaf",
+        "convert": "cum2inst",
+        "expr": "var126068-var128212"
     },
     {
         "source": "80.129",
