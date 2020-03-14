@@ -15,13 +15,16 @@ log = logging.getLogger(__name__)
 
 gridpoint_files = {}
 spectral_files = {}
+ini_gridpoint_file = None
+ini_spectral_file = None
 temp_dir = None
 accum_key = "ACCUMFLD"
 accum_codes = []
 varsfreq = {}
-# varstasks = {}
-# varsfiles = {}
 spvar = None
+fxvars = []
+
+starttimes = {}
 
 
 # Initializes the module, looks up previous month files and inspects the first
@@ -38,11 +41,12 @@ def update_sp_key(fname):
                 spvar = (134, freq, fname)
 
 
-def initialize(gpfiles, shfiles, tmpdir):
-    global gridpoint_files, spectral_files, temp_dir, varsfreq, accum_codes
+def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
+    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes
     grib_file.initialize()
     gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
     spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
+    ini_gridpoint_file, ini_spectral_file = ini_gpfile, ini_shfile
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
@@ -58,6 +62,12 @@ def initialize(gpfiles, shfiles, tmpdir):
         with open(shfile) as shf:
             varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
             update_sp_key(shfile)
+    if ini_gpfile is not None:
+        with open(ini_gpfile) as gpf:
+            fxvars.extend(inspect_hr(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
+    if ini_shfile is not None:
+        with open(ini_shfile) as shf:
+            fxvars.extend(inspect_hr(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -81,6 +91,14 @@ def grib_tuple_from_int(i):
     if i < 256:
         return i, 128
     return i % 10 ** 3, i / 10 ** 3
+
+
+# Inspects a single time point in the initial file
+def inspect_hr(gribfile, grid):
+    result = []
+    while gribfile.read_next(headers_only=True):
+        result.append(get_record_key(gribfile, grid) + (grid,))
+    return result
 
 
 # Inspects the first 24 hours in the input gridpoint and spectral files.
@@ -258,9 +276,11 @@ def mkfname(key):
 # Construct files for keys and tasks
 def cluster_files(valid_tasks, varstasks):
     task2files, task2freqs = {}, {}
+    varsfx = set()
     for task in valid_tasks:
         task2files[task] = set()
         task2freqs[task] = set()
+#        task2fx[task] = set()
         for key, tsklist in varstasks.iteritems():
             if task in tsklist:
                 task2files[task].add(mkfname(key))
@@ -268,7 +288,10 @@ def cluster_files(valid_tasks, varstasks):
                     task2freqs[task].update([varsfreq[k] for k in varsfreq.keys() if
                                              (k[0], k[1], k[2]) == (key[0], key[1], key[2])])
                 else:
-                    task2freqs[task].add(varsfreq[key])
+                    if key in varsfreq:
+                        task2freqs[task].add(varsfreq[key])
+                    elif key in fxvars:
+                        varsfx.add(key)
     for task, fnames in task2files.iteritems():
         codes = {(int(f.split('.')[0]), int(f.split('.')[1])): f for f in sorted(list(fnames))}
         cum_file = '_'.join([codes[k] for k in codes if k in accum_codes])
@@ -289,7 +312,7 @@ def cluster_files(valid_tasks, varstasks):
             if len(task2files[t]) == 2 and (key[0], key[1]) not in accum_codes:
                 f = task2files[t][1]
             varsfiles[key].add((f, task2freqs[t]))
-    return task2files, task2freqs, varsfiles
+    return task2files, task2freqs, varsfx, varsfiles
 
 
 # Main execution loop
@@ -301,12 +324,38 @@ def execute(tasks, filter_files=True, multi_threaded=False):
     return valid_fx_tasks + valid_other_tasks
 
 
+def filter_fx_variables(gribfile, keys2files, gridtype, handles=None):
+    timestamp = -1
+    keys = set()
+    while gribfile.read_next() and (handles is None or any(handles.keys())):
+        t = gribfile.get_field(grib_file.time_key)
+        key = get_record_key(gribfile, gridtype)
+        if t == timestamp and key in keys:
+            continue  # Prevent double grib messages
+        if t != timestamp:
+            keys = set()
+            timestamp = t
+        keys.add(key)
+        write_record(gribfile, key, keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
+                     handles=handles, once=True)
+        gribfile.release()
+
+
 def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     valid_tasks, varstasks = validate_tasks(tasks)
-    task2files, task2freqs, keys2files = cluster_files(valid_tasks, varstasks)
+    task2files, task2freqs, fxkeys, keys2files = cluster_files(valid_tasks, varstasks)
     grids = [cmor_source.ifs_grid.point, cmor_source.ifs_grid.spec]
     if filter_files:
         filehandles = open_files(keys2files)
+        fxkeys2files = {k: keys2files[k] for k in fxkeys}
+        first_gridpoint_file = gridpoint_files[gridpoint_files.keys()[0]][0]
+        if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
+            with open(str(ini_gridpoint_file), 'r') as fin:
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], filehandles)
+        first_spectral_file = spectral_files[spectral_files.keys()[0]][0]
+        if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
+            with open(str(ini_spectral_file), 'r') as fin:
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], filehandles)
         if multi_threaded:
             threads = []
             for file_list, grid in zip([gridpoint_files, spectral_files], grids):
@@ -349,12 +398,15 @@ def validate_tasks(tasks):
                     break
                 match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, varsfreq.keys())
                 if match_key is None:
-                    log.error("Field missing in the first day of file: "
-                              "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
-                              (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
-                    task.set_failed()
-                    break
-                if 0 < target_freq < varsfreq[match_key]:
+                    if 0 < target_freq and c in cmor_source.ifs_source.grib_codes_fx:
+                        match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, fxvars)
+                    else:
+                        log.error("Field missing in the first day of file: "
+                                  "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
+                                  (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
+                        task.set_failed()
+                        break
+                elif 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
                               (task.target.variable, c.var_id, c.tab_id, levtype, level, task.target.variable,
@@ -483,9 +535,6 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
             if (key[0], key[1]) in accum_codes:
                 write_record(gribfile, key, keys2files, shift=-1, handles=handles, once=once)
         gribfile.release()
-
-
-starttimes = {}
 
 
 # Writes the grib messages
