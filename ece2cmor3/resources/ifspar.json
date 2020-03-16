@@ -48,92 +48,109 @@
         "target": "albisccp"
     },
     {
-        "source": "68.126",
-        "target": "rsutcsaf"
-    },
-    {
         "source": "70.126",
+        "convert": "cum2inst",
         "target": "rsscsaf"
     },
     {
         "source": "71.126",
+        "convert": "cum2inst",
         "target": "rssaf"
     },
     {
         "source": "72.126",
+        "convert": "cum2inst",
         "target": "rlutcsaf"
     },
     {
         "source": "73.126",
+        "convert": "cum2inst",
         "target": "rlutaf"
     },
     {
         "source": "74.126",
+        "convert": "cum2inst",
         "target": "rlscsaf"
     },
     {
         "source": "75.126",
+        "convert": "cum2inst",
         "target": "rlsaf"
     },
     {
         "source": "95.126",
+        "convert": "cum2inst",
         "target": "tntr"
     },
     {
         "source": "106.126",
+        "convert": "cum2inst",
         "target": "tnhusc"
     },
     {
         "source": "120.126",
+        "convert": "cum2inst",
         "target": "utendnogw"
     },
     {
         "source": "121.126",
+        "convert": "cum2inst",
         "target": "utendogw"
     },
     {
         "source": "122.126",
+        "convert": "cum2inst",
         "target": "vtendnogw"
     },
     {
         "source": "123.126",
+        "convert": "cum2inst",
         "target": "vtendogw"
     },
     {
         "source": "124.126",
+        "convert": "cum2inst",
         "target": "tntmp"
     },
     {
         "source": "125.126",
+        "convert": "cum2inst",
         "target": "tntrl"
     },
     {
         "source": "126.126",
+        "convert": "cum2inst",
         "target": "tntrs"
     },
     {
         "source": "127.126",
+        "convert": "cum2inst",
         "target": "tntrlcs"
     },
     {
         "source": "128.126",
+        "convert": "cum2inst",
         "target": "tntrscs"
     },
     {
         "comment": "previous source was: 105.126",
         "source": "129.126",
+        "convert": "cum2inst",
         "target": "tntc"
     },
     {
         "source": "130.126",
+        "convert": "cum2inst",
         "target": "tntscp"
     },
     {
         "source": "131.126",
+        "convert": "cum2inst",
         "target": "tntnogw"
     },
     {
         "source": "132.126",
+        "convert": "cum2inst",
         "target": "tntogw"
     },
     {
@@ -519,7 +536,14 @@
     {
         "source": "74.129",
         "target": "rsutaf",
-        "expr": "var128212-var126069"
+        "convert": "cum2inst",
+        "expr": "var126069-var128212"
+    },
+    {
+        "source": "75.129",
+        "target": "rsutcsaf",
+        "convert": "cum2inst",
+        "expr": "var126068-var128212"
     },
     {
         "source": "80.129",
