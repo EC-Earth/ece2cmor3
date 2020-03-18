@@ -159,6 +159,8 @@ operator_mapping = {"mean": cdoapi.cdo_command.mean, "maximum": cdoapi.cdo_comma
 
 # Adds grid remapping operators to the cdo commands for the given task
 def add_grid_operators(cdo, task):
+    if task.target.variable.startswith("areacell"):
+        cdo.add_operator(cdoapi.cdo_command.area_operator)
     grid = task.source.grid_id()
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
