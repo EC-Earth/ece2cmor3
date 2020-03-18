@@ -167,6 +167,11 @@ if [ "$#" -eq 1 ]; then
 
  echo ']'                         >> ${output_file}
 
+ # Adjust source for ch4Clim & ch4global & ch4globalClim:
+ sed -i -e 's/"source": "ch4Clim"/"source": "ch4"/' ${output_file}
+ sed -i -e 's/"source": "ch4global"/"source": "ch4"/' ${output_file}
+ sed -i -e 's/"source": "ch4globalClim"/"source": "ch4"/' ${output_file}
+
 
  echo ' The file ' ${output_file} ' is created.'
 
