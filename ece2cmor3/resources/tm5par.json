@@ -60,6 +60,14 @@
         "target": "co"
     },
     {
+        "source": "co2",
+        "target": "co2"
+    },
+    {
+        "source": "co2mass",
+        "target": "co2mass"
+    },
+    {
         "source": "concdust",
         "target": "concdust"
     },
