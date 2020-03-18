@@ -556,7 +556,8 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
     data = data[:,::-1,:,:]
 
     interpolation=1 #1 linear, 2 log, 3 loglog
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels,psdata[:,:,:],interpolation,p0mb,1,True)
+    # divide pressure_levels by 100 to get in mb
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,True)
     return interpolated_data
 
 
