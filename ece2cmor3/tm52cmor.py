@@ -450,10 +450,14 @@ def execute_netcdf_task(task,tableid):
         # global means
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         vals=numpy.copy(ncvar[:])
-        vals=numpy.mean(vals,axis=(1))
-
-        # calculate area-weighted mean
-        vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+        if task.target.variable=='co2mass':
+            # calculate area-weighted sum
+            vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))
+        else:
+            # calculate area-weighted mean
+            vals=numpy.mean(vals,axis=(1))
+            vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+        ncvar=vals.copy()
     #handle normal case
     else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
         #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
@@ -509,7 +513,9 @@ def create_cmor_variable(task,dataset,axes):
             if unit=='DU':
                 setattr(task,cmor_task.conversion_key,1e-5)
             unit =  getattr(task.target,"units")
-
+        elif srcvar=='co2mass':
+            # co2mass gets converted to area sum
+            unit = getattr(task.target,"units")
         else:
             unit_miss_match.append(task.target.variable)
             log.error("ERR -21: unit miss match, variable %s" % (task.target.variable))
