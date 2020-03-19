@@ -147,7 +147,6 @@ def find_init_files(path, exp):
     return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
 
 
-# Execute the postprocessing+cmorization tasks. First masks, then surface pressures, then regular tasks.
 def execute(tasks, nthreads=1):
     global log, start_date_, auto_filter_
 
@@ -164,7 +163,7 @@ def execute(tasks, nthreads=1):
         tasks_no_filter = fx_tasks + mask_tasks
         for task in tasks_no_filter:
             # dirty hack for orography being in ICMGG+000000 file...
-            if task.target.variable == "orog":
+            if task.target.variable in ["orog", "areacella"]:
                 task.source.grid_ = cmor_source.ifs_grid.point
             if task.source.grid_id() == cmor_source.ifs_grid.spec:
                 setattr(task, cmor_task.filter_output_key, ifs_init_spectral_file_)
@@ -498,6 +497,13 @@ def execute_netcdf_task(task):
         varlist = [v for v in ncvars if str(getattr(ncvars[v], "code", None)) == codestr]
         if len(varlist) == 0:
             varlist = [v for v in ncvars if str(v) == "var" + codestr]
+        if task.target.variable == "areacella":
+            varlist = ["cell_area"]
+        if len(varlist) == 0:
+            log.error("No suitable variable found in cdo-produced file %s fro cmorizing variable %s in table %s... "
+                      "dismissing task" % (filepath, task.target.variable, task.target.table))
+            task.set_failed()
+            return
         if len(varlist) > 1:
             log.warning(
                 "CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
