@@ -53,9 +53,14 @@ failed  = []
 
 areacella_=0
 
-# Pressure levels
-plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
-plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
+# Default pressure levels if not provided (Pa)
+plev19_ = numpy.array([100000., 92500., 85000., 70000., 60000., 50000., 40000., 30000., 25000., 20000., 15000., 10000.,  7000.,  5000., 3000., 2000., 1000., 500., 100.])
+plev39_ = numpy.array([100000., 92500., 85000., 70000., 60000., 50000., 40000.,
+                        30000., 25000., 20000., 17000., 15000., 13000., 11500.,
+                        10000.,  9000.,  8000.,  7000.,  5000.,  3000.,  2000.,
+                         1500.,  1000.,   700.,   500.,   300.,   200.,   150.,
+                          100.,    70.,    50.,    40.,    30.,    20.,    15.,
+                           10.,     7.,     5.,     3.])
 
 extra_axes = {"lambda550nm":  {"ncdim": "lambda550nm",
                           "ncunits": "nm",
@@ -110,6 +115,8 @@ def initialize(path,expname,tabledir, prefix,refdate):
         plev19_=plev19
         plev39=numpy.array([numpy.float(value) for value in  axis_entries['plev39']['requested']])
         plev39_=plev39
+    else:
+        log.warning('Using default pressure level definitions')
 
     cmor.load_table(table_root_ + "_grids.json")
     return True
