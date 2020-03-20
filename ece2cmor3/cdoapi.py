@@ -22,6 +22,7 @@ class cdo_command:
     add_expression_operator = "aexpr"
     spectral_operator = "sp2gpl"
     gridtype_operator = "setgridtype"
+    area_operator = "gridarea"
     select_z_operator = "selzaxis"
     select_lev_operator = "sellevel"
     select_step_operator = "seltimestep"
@@ -63,7 +64,7 @@ class cdo_command:
                          year + min, year + max, month + sum, month + mean, month + min, month + max, day + sum,
                          day + mean, day + min, day + max, timselmean_operator, zonal + sum, zonal + mean, zonal + min,
                          zonal + max, meridional + sum, meridional + mean, meridional + min, meridional + max,
-                         field + sum, field + mean, field + min, field + max, gridtype_operator, ml2pl_operator,
+                         field + sum, field + mean, field + min, field + max, area_operator, gridtype_operator, ml2pl_operator,
                          ml2hl_operator, set_missval_operator, add_expression_operator, expression_operator,
                          spectral_operator, select_lev_operator, select_z_operator, select + hour, select + day,
                          select + month, shift_time_operator, select_step_operator, select_code_operator]
@@ -257,7 +258,8 @@ class cdo_command:
         zones = [cdo_command.zonal, cdo_command.meridional, cdo_command.field]
         nonlinear_operators = [t + cdo_command.min for t in times] + [t + cdo_command.max for t in times] + \
                               [z + o for o in ops for z in zones] + \
-                              [cdo_command.expression_operator, cdo_command.add_expression_operator]
+                              [cdo_command.expression_operator, cdo_command.add_expression_operator] + \
+                              [cdo_command.area_operator]
         i = i1 + i2
         while i > 0:
             if operator_list[i - 1] in nonlinear_operators:
