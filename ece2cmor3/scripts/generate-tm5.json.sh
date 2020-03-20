@@ -30,6 +30,8 @@ declare -a arr=(
 "chegpso4"
 "chepsoa"
 "co"
+"co2"
+"co2mass"
 "concdust"
 "depdust"
 "dms"
