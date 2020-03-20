@@ -64,7 +64,11 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #source activate ece2cmor3
   cd ${ece2cmor_root_directory}; python setup.py install; cd -;
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-  drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  if [ ${mip} = 'VolMIP' ]; then
+   drq -m ${mip} -t ${tier} -p ${priority}                  --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  else
+   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  fi
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
   if [ "${multiplemips}" == "yes" ]; then
@@ -139,9 +143,7 @@ fi
 # ./determine-missing-variables.sh PMIP        PMIP         1 1
 # ./determine-missing-variables.sh RFMIP       RFMIP        1 1
 # ./determine-missing-variables.sh ScenarioMIP ScenarioMIP  1 1
-#
-# The request: drq -m VolMIP -e VolMIP -p 1 -t 1  gives an error (see #573) with: -e VolMIP
-# ./determine-missing-variables.sh VolMIP      VolMIP       1 1
+# ./determine-missing-variables.sh VolMIP      VolMIP       1 1   # The request: drq -m VolMIP -e VolMIP -p 1 -t 1  gives an error (see #573) with: -e VolMIP after drq version 01.00.29
 #
 # git checkout ../resources/lists-of-omitted-variables/list-of-omitted-variables-*.xlsx
 
