@@ -126,14 +126,15 @@ def inspect_day(gribfile, grid):
         hrs = numpy.array(val)
         if len(hrs) == 1:
             log.warning("Variable %d.%d on level %d of type %d has been detected once in first day "
-                        "of file %s... Assuming daily frequency" % (key[0], key[1], key[3], key[2], gribfile))
+                        "of file %s... Assuming daily frequency" % (key[0], key[1], key[3], key[2],
+                                                                    gribfile.file_object.name))
             frqs = numpy.array([24])
         else:
             frqs = numpy.mod(hrs[1:] - hrs[:-1], numpy.repeat(24, len(hrs) - 1))
         frq = frqs[0]
         if any(frqs != frq):
             log.error("Variable %d.%d on level %d of type %d is not output on regular "
-                      "intervals in first day in file %s" % (key[0], key[1], key[3], key[2], gribfile))
+                      "intervals in first day in file %s" % (key[0], key[1], key[3], key[2], gribfile.file_object.name))
         else:
             result[key] = frq
     return result
