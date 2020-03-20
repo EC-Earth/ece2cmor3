@@ -53,9 +53,14 @@ failed  = []
 
 areacella_=0
 
-# Pressure levels
-plev19_ = numpy.array([100000.,92500.,85000.,70000.,60000.,50000.,40000.,30000.,25000.,20000.,15000.,10000.,7000.,5000.,3000.,2000.,1000.,500.,100.])
-plev39_ = numpy.array([1000.,925.,850.,700.,600.,500.,400.,300.,250.,200.,170.,150.,130.,115.,100.,90.,80.,70.,50.,30.,20.,15.,10.,7.,5.,3.,2.,1.5,1.,0.7,0.5,0.4,0.3,0.2,0.15,0.1,0.07,0.05,0.03])
+# Default pressure levels if not provided (Pa)
+plev19_ = numpy.array([100000., 92500., 85000., 70000., 60000., 50000., 40000., 30000., 25000., 20000., 15000., 10000.,  7000.,  5000., 3000., 2000., 1000., 500., 100.])
+plev39_ = numpy.array([100000., 92500., 85000., 70000., 60000., 50000., 40000.,
+                        30000., 25000., 20000., 17000., 15000., 13000., 11500.,
+                        10000.,  9000.,  8000.,  7000.,  5000.,  3000.,  2000.,
+                         1500.,  1000.,   700.,   500.,   300.,   200.,   150.,
+                          100.,    70.,    50.,    40.,    30.,    20.,    15.,
+                           10.,     7.,     5.,     3.])
 
 extra_axes = {"lambda550nm":  {"ncdim": "lambda550nm",
                           "ncunits": "nm",
@@ -110,6 +115,8 @@ def initialize(path,expname,tabledir, prefix,refdate):
         plev19_=plev19
         plev39=numpy.array([numpy.float(value) for value in  axis_entries['plev39']['requested']])
         plev39_=plev39
+    else:
+        log.warning('Using default pressure level definitions')
 
     cmor.load_table(table_root_ + "_grids.json")
     return True
@@ -450,10 +457,14 @@ def execute_netcdf_task(task,tableid):
         # global means
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
         vals=numpy.copy(ncvar[:])
-        vals=numpy.mean(vals,axis=(1))
-
-        # calculate area-weighted mean
-        vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+        if task.target.variable=='co2mass':
+            # calculate area-weighted sum
+            vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))
+        else:
+            # calculate area-weighted mean
+            vals=numpy.mean(vals,axis=(1))
+            vals=numpy.sum((vals*areacella_[numpy.newaxis,:,:]),axis=(1,2))/numpy.sum(areacella_)
+        ncvar=vals.copy()
     #handle normal case
     else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
         #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
@@ -509,7 +520,9 @@ def create_cmor_variable(task,dataset,axes):
             if unit=='DU':
                 setattr(task,cmor_task.conversion_key,1e-5)
             unit =  getattr(task.target,"units")
-
+        elif srcvar=='co2mass':
+            # co2mass gets converted to area sum
+            unit = getattr(task.target,"units")
         else:
             unit_miss_match.append(task.target.variable)
             log.error("ERR -21: unit miss match, variable %s" % (task.target.variable))
@@ -556,7 +569,8 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
     data = data[:,::-1,:,:]
 
     interpolation=1 #1 linear, 2 log, 3 loglog
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels,psdata[:,:,:],interpolation,p0mb,1,True)
+    # divide pressure_levels by 100 to get in mb
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,True)
     return interpolated_data
 
 
