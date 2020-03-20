@@ -68,9 +68,9 @@ def date2num(times, ref_time):
 
 
 # Shifts the input times to the requested ref_time
-def num2num(times, ref_time, units, calendar):
+def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
     n = units.find(" since")
-    return times - netCDF4.date2num(ref_time, units, calendar), ' '.join([units[:n], "since", str(ref_time)])
+    return times - netCDF4.date2num(ref_time + shift, units, calendar), ' '.join([units[:n], "since", str(ref_time)])
 
 
 # Creates a time interval from the input string, assuming ec-earth conventions

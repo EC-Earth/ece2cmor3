@@ -141,15 +141,14 @@ class utils_tests(unittest.TestCase):
         eq_(new_units, "days since " + str(ref))
 
     @staticmethod
-    def test_date2num_types():
+    def test_noleap_timeshift():
         times = numpy.array([datetime.datetime(1849, 12, 15, 12, 30, 30), datetime.datetime(1850, 1, 1, 0, 0, 0),
-                             datetime.datetime(1850, 2, 1, 15, 12, 0)])
+                             datetime.datetime(1850, 2, 1, 15, 12, 0), datetime.datetime(1850, 4, 1, 0, 0, 0)])
         units = "days since " + str(datetime.datetime(1830, 6, 6, 12, 0, 0))
-        calender = "gregorian"
-        nums = netCDF4.date2num(times, units, calender)
-        dates = netCDF4.num2date(nums, units, calender)
-        ok_(isinstance(dates[0], datetime.datetime))
         calender = "noleap"
+        ref = datetime.datetime(1850, 1, 1, 0, 0, 0)
+        shift = datetime.timedelta(days=30)
         nums = netCDF4.date2num(times, units, calender)
-        dates = netCDF4.num2date(nums, units, calender)
-        ok_(not isinstance(dates[0], datetime.datetime))
+        new_times, new_units = num2num(nums, ref, units, calender, shift)
+        eq_(new_times[3], 60)
+        eq_(new_units, "days since " + str(ref))
