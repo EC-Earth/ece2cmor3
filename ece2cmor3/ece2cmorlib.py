@@ -71,7 +71,6 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
         metadata["outpath"] = outputdir
     if "outpath" not in metadata:
         metadata["outpath"] = os.path.join(os.getcwd(), "cmor")
-    clim_dir = os.path.join(metadata["outpath"], "clim")
     hist = metadata.get("history", "")
     newline = "processed by ece2cmor {version}, git rev. " \
               "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
@@ -82,6 +81,9 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    ripflist = ["realization_index", "initialization_index", "physics_index", "forcing_index"]
+    ripf = "".join([s[0] + cmor.get_cur_dataset_attribute(s) for s in ripflist])
+    clim_dir = os.path.join(metadata["outpath"], "clim", cmor.get_cur_dataset_attribute("experiment_id"), ripf)
     targets = cmor_target.create_targets(table_dir, prefix)
     tmp_file.close()
     os.remove(tmp_file.name)
@@ -181,7 +183,7 @@ def perform_ifs_tasks(datadir, expname,
     else:
         ifs2cmor.masks = {}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
-                                tempdir=tempdir, climdir = clim_dir, autofilter=auto_filter)):
+                                tempdir=tempdir, climdir=clim_dir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
@@ -198,7 +200,7 @@ def perform_nemo_tasks(datadir, expname, refdate):
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
-    if not nemo2cmor.initialize(datadir, expname, tableroot, refdate):
+    if not nemo2cmor.initialize(datadir, expname, tableroot, refdate, climdir=clim_dir):
         return
     nemo2cmor.execute(nemo_tasks)
 

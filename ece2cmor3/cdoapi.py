@@ -64,17 +64,20 @@ class cdo_command:
                          year + min, year + max, month + sum, month + mean, month + min, month + max, day + sum,
                          day + mean, day + min, day + max, timselmean_operator, zonal + sum, zonal + mean, zonal + min,
                          zonal + max, meridional + sum, meridional + mean, meridional + min, meridional + max,
-                         field + sum, field + mean, field + min, field + max, area_operator, gridtype_operator, ml2pl_operator,
-                         ml2hl_operator, set_missval_operator, add_expression_operator, expression_operator,
-                         spectral_operator, select_lev_operator, select_z_operator, select + hour, select + day,
-                         select + month, shift_time_operator, select_step_operator, select_code_operator]
+                         field + sum, field + mean, field + min, field + max, area_operator, gridtype_operator,
+                         ml2pl_operator, ml2hl_operator, set_missval_operator, add_expression_operator,
+                         expression_operator, spectral_operator, select_lev_operator, select_z_operator, select + hour,
+                         select + day, select + month, shift_time_operator, select_step_operator, select_code_operator,
+                         select_var_operator]
 
     # Constructor
-    def __init__(self, code=0):
+    def __init__(self, code=0, var=None):
         self.operators = {}
         self.app = cdo.Cdo()
         if code > 0:
             self.add_operator(cdo_command.select_code_operator, code)
+        if var is not None:
+            self.add_operator(cdo_command.select_var_operator, var)
 
     # Adds an operator
     def add_operator(self, operator, *args):

@@ -91,7 +91,8 @@ def make_cmor_frequency(s):
     raise Exception("Could not convert argument", s, "to a relative time interval")
 
 
-def climatology(target):
+# Determines whether the task should be first cmorized in the climatology cache
+def multi_year_target(target):
     return target.frequency in ["dec", "monC"]
 
 
@@ -197,6 +198,18 @@ def read_time_stamps(path):
     command = cdo.Cdo()
     times = command.showtimestamp(input=path)[0].split()
     return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
+
+
+def append_time_range(path):
+    command = cdo.Cdo()
+    times = command.showtimestamp(input=path)[0].split()
+    first, last = datetime.datetime.strptime(times[0], "%Y-%m-%dT%H:%M:%S"), \
+                  datetime.datetime.strptime(times[-1], "%Y-%m-%dT%H:%M:%S")
+    fname, fext = os.path.splitext(path)
+
+    def time_format(t):
+        return t.isoformat().split('T')[0].replace('-', "")
+    return '_'.join([fname, time_format(first), time_format(last)]) + fext
 
 
 def find_tm5_output(path, expname=None, varname=None, freq=None):

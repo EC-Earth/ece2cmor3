@@ -10,6 +10,8 @@ import cmor_utils
 
 from datetime import datetime, timedelta
 
+from ece2cmor3 import cdoapi
+
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
 # timeshift = datetime(2260,1,1) - datetime(1850,1,1)
@@ -67,13 +69,17 @@ lat_axes_ = {}
 # Dictionary of masks
 nemo_masks_ = {}
 
+# Climatology cache directory
+clim_dir_ = None
+
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate):
-    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_
+def initialize(path, expname, tableroot, refdate, climdir=None):
+    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_, clim_dir_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
+    clim_dir_ = climdir
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
     expdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
     ofxdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
@@ -105,7 +111,24 @@ def finalize():
     time_axes_ = {}
 
 
-# Executes the processing loop.
+# Executes a climatology task
+def execute_cdo_task(task, ncfile):
+    global clim_dir_
+    if clim_dir_ is None:
+        log.error("Trying to post-process variable %s in table %s to climatology folder, but this directory path has "
+                  "not been set" % (task.target.variable, task.target.table))
+    if not os.path.isdir(clim_dir_):
+        log.info("Climatology cache %s does not exist, creating directory..." % clim_dir_)
+        os.makedirs(str(clim_dir_))
+    cmd = cdoapi.cdo_command(var=task.source.variable())
+    ofile = os.path.join(clim_dir_, '_'.join([task.target.variable, task.target.table]) + ".nc")
+    cmd.apply(ncfile, ofile=ofile)
+    new_name = cmor_utils.append_time_range(ofile)
+    os.rename(ofile, new_name)
+    setattr(task, cmor_task.output_path_key, new_name)
+
+
+# Executes this processing loop
 def execute(tasks):
     global log, time_axes_, depth_axes_, table_root_
     log.info("Looking up variables in files...")
@@ -129,16 +152,20 @@ def execute(tasks):
                 log.error("CMOR failed to load table %s, skipping variables %s. Reason: %s"
                           % (table, ','.join([tsk3.target.variable for tsk3 in task_list]), e.message))
                 continue
+            for task in task_list:
+                if cmor_utils.multi_year_target(task.target):
+                    execute_cdo_task(task, filename)
+            nonclim_tasks = [t for t in task_list if not cmor_utils.multi_year_target(t.target)]
             if table not in time_axes_:
                 log.info("Creating time axes for table %s from data in %s..." % (table, filename))
-            create_time_axes(dataset, task_list, table)
+            create_time_axes(dataset, nonclim_tasks, table)
             if table not in depth_axes_:
                 log.info("Creating depth axes for table %s from data in %s ..." % (table, filename))
-            create_depth_axes(dataset, task_list, table)
+            create_depth_axes(dataset, nonclim_tasks, table)
             if table not in type_axes_:
                 log.info("Creating extra axes for table %s from data in %s ..." % (table, filename))
-            create_type_axes(dataset, task_list, table)
-            for task in task_list:
+            create_type_axes(dataset, nonclim_tasks, table)
+            for task in nonclim_tasks:
                 execute_netcdf_task(dataset, task)
         dataset.close()
 
@@ -474,13 +501,12 @@ def select_freq_files(freq, varname):
     global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
-    elif freq in ["yr", "yrPt"]:
+    elif freq in ["yr", "yrPt", "dec"]:
         nemo_freq = "1y"
     elif freq == "monPt":
         nemo_freq = "1m"
-    # TODO: Support climatological variables
-    # elif freq == "monC":
-    #    nemo_freq = "1m"   # check
+    elif freq == "monC":
+        nemo_freq = "1m"   # check
     elif freq.endswith("mon"):
         n = 1 if freq == "mon" else int(freq[:-3])
         nemo_freq = str(n) + "m"

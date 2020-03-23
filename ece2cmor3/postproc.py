@@ -43,7 +43,7 @@ def post_process(task, path, clim_path, do_postprocess):
 
 
 def get_output_path(task, tmp_path, clim_path):
-    if cmor_utils.climatology(task.target):
+    if cmor_utils.multi_year_target(task.target):
         return os.path.join(clim_path, task.target.variable + "_" + task.target.table + ".nc")
     return os.path.join(tmp_path, task.target.variable + "_" + task.target.table + ".nc") if tmp_path else None
 

@@ -144,6 +144,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, climdir=None, au
     return True
 
 
+# Initial state file finding method
 def find_init_files(path, exp):
     def find_file(f):
         for root, dirs, files in os.walk(os.path.abspath(os.path.join(path, ".."))):
@@ -153,6 +154,7 @@ def find_init_files(path, exp):
     return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
 
 
+# Main processing function, what this module is about
 def execute(tasks, nthreads=1):
     global log, start_date_, auto_filter_
 
@@ -202,18 +204,20 @@ def execute(tasks, nthreads=1):
 
     # First post-process surface pressure and mask tasks
     for task in list(set(tasks_todo).intersection(mask_tasks + surf_pressure_tasks)):
+        # TODO: Copy this one to the climatology cache?
         postproc.post_process(task, temp_dir_, clim_dir_, do_post_process())
     for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
     if nthreads == 1:
         for task in proctasks:
-            cmor_worker(task)
+            filepath = cmor_worker(task)
+            setattr(task, cmor_task.output_path_key, filepath)
     else:
         pool = multiprocessing.Pool(processes=nthreads)
-        pool.map(cmor_worker, proctasks)
-        for task in proctasks:
-            setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_, clim_dir_))
+        filepaths = pool.map(cmor_worker, proctasks)
+        for task, filepath in zip(proctasks, filepaths):
+            setattr(task, cmor_task.output_path_key, filepath)
     if cleanup_tmpdir():
         clean_tmp_data(tasks_todo)
 
@@ -223,16 +227,21 @@ def cmor_worker(task):
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     postproc.post_process(task, temp_dir_, clim_dir_, do_post_process())
-    if cmor_utils.climatology(task.target):
-        return
+    if cmor_utils.multi_year_target(task.target):
+        ofile = getattr(task, cmor_task.output_path_key, None)
+        new_name = cmor_utils.append_time_range(ofile)
+        os.rename(ofile, new_name)
+        setattr(task, cmor_task.output_path_key, new_name)
+        return new_name
     if task.status == cmor_task.status_failed:
-        return
+        return None
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     define_cmor_axes(task)
     if task.status == cmor_task.status_failed:
-        return
+        return None
     execute_netcdf_task(task)
+    return getattr(task, cmor_task.output_path_key, None)
 
 
 # Converts the masks that are needed into a set of tasks
