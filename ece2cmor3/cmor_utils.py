@@ -91,6 +91,10 @@ def make_cmor_frequency(s):
     raise Exception("Could not convert argument", s, "to a relative time interval")
 
 
+def climatology(target):
+    return target.frequency in ["dec", "monC"]
+
+
 # Creates a time interval from the input string, assuming ec-earth conventions
 def get_rounded_time(freq, time, offset=0):
     interval = make_cmor_frequency(freq)

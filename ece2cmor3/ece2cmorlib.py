@@ -29,6 +29,7 @@ targets = []
 masks = {}
 enable_masks = True
 auto_filter = True
+clim_dir = None
 
 # CMOR modes
 APPEND = cmor.CMOR_APPEND
@@ -55,7 +56,7 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
 # Initialization function, must be called before starting
 def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
                tableprefix=prefix_default, outputdir=None, logfile=None, create_subdirs=True):
-    global prefix, table_dir, targets, metadata, cmor_mode
+    global prefix, table_dir, targets, metadata, cmor_mode, clim_dir
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
     cmor_mode = mode
@@ -70,6 +71,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
         metadata["outpath"] = outputdir
     if "outpath" not in metadata:
         metadata["outpath"] = os.path.join(os.getcwd(), "cmor")
+    clim_dir = os.path.join(metadata["outpath"], "clim")
     hist = metadata.get("history", "")
     newline = "processed by ece2cmor {version}, git rev. " \
               "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
@@ -179,7 +181,7 @@ def perform_ifs_tasks(datadir, expname,
     else:
         ifs2cmor.masks = {}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
-                                tempdir=tempdir, autofilter=auto_filter)):
+                                tempdir=tempdir, climdir = clim_dir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads

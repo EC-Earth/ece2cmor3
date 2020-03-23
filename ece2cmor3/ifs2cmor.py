@@ -38,6 +38,9 @@ start_date_ = None
 # Fast storage temporary path
 temp_dir_ = None
 
+# Pah for intermediate climatology files
+clim_dir_ = None
+
 # Reference date, times will be converted to hours since refdate
 ref_date_ = None
 
@@ -87,9 +90,9 @@ def get_output_freq(task):
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
+def initialize(path, expname, tableroot, refdate, tempdir=None, climdir=None, autofilter=True):
     global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_,\
-        ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
+        ifs_init_gridpoint_file_, temp_dir_, clim_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -133,6 +136,9 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     temp_dir_ = os.path.join(tmpdir_parent, dirname)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
+    clim_dir_ = climdir
+    if not os.path.exists(clim_dir_):
+        os.makedirs(clim_dir_)
     if auto_filter_:
         grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_)
     return True
@@ -196,7 +202,7 @@ def execute(tasks, nthreads=1):
 
     # First post-process surface pressure and mask tasks
     for task in list(set(tasks_todo).intersection(mask_tasks + surf_pressure_tasks)):
-        postproc.post_process(task, temp_dir_, do_post_process())
+        postproc.post_process(task, temp_dir_, clim_dir_, do_post_process())
     for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
@@ -207,7 +213,7 @@ def execute(tasks, nthreads=1):
         pool = multiprocessing.Pool(processes=nthreads)
         pool.map(cmor_worker, proctasks)
         for task in proctasks:
-            setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_))
+            setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_, clim_dir_))
     if cleanup_tmpdir():
         clean_tmp_data(tasks_todo)
 
@@ -216,7 +222,9 @@ def execute(tasks, nthreads=1):
 def cmor_worker(task):
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
-    postproc.post_process(task, temp_dir_, do_post_process())
+    postproc.post_process(task, temp_dir_, clim_dir_, do_post_process())
+    if cmor_utils.climatology(task.target):
+        return
     if task.status == cmor_task.status_failed:
         return
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,

@@ -4,7 +4,7 @@ import re
 import Queue
 import os
 
-from ece2cmor3 import cmor_task
+from ece2cmor3 import cmor_task, cmor_utils
 
 import grib_file
 import cdoapi
@@ -28,9 +28,9 @@ mode = 3
 
 
 # Post-processes a task
-def post_process(task, path, do_postprocess):
+def post_process(task, path, clim_path, do_postprocess):
     command = create_command(task)
-    output_path = get_output_path(task, path)
+    output_path = get_output_path(task, path, clim_path)
     if do_postprocess:
         if task.status != cmor_task.status_failed:
             filepath = apply_command(command, task, output_path)
@@ -42,7 +42,9 @@ def post_process(task, path, do_postprocess):
         setattr(task, cmor_task.output_path_key, output_path)
 
 
-def get_output_path(task, tmp_path):
+def get_output_path(task, tmp_path, clim_path):
+    if cmor_utils.climatology(task.target):
+        return os.path.join(clim_path, task.target.variable + "_" + task.target.table + ".nc")
     return os.path.join(tmp_path, task.target.variable + "_" + task.target.table + ".nc") if tmp_path else None
 
 
@@ -193,6 +195,13 @@ def add_time_operators(cdo, task):
         operator_words = operators[i].split(" ")
         if len(operator_words) > 2 and operator_words[1] == "where":
             operators[i] = operator_words[0]
+    if freq == "dec":
+        if operators == ["mean"]:
+            cdo.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
+        else:
+            log.error(
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
     if freq == "yr":
         if operators == ["mean"]:
             cdo.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
@@ -257,6 +266,14 @@ def add_time_operators(cdo, task):
         if operators == ["point"]:
             cdo.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.day, 15)
             cdo.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.hour, 12)
+        else:
+            log.error(
+                "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
+                % (freq, str(operators), task.target.variable, task.target.table))
+            task.set_failed()
+    elif freq == "monC":
+        if operators == ["mean within years", "mean over years"]:
+            cdo.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         else:
             log.error(
                 "Unsupported combination of frequency %s with time operators %s encountered for variable %s in table %s"
