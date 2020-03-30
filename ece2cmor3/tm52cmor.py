@@ -440,14 +440,18 @@ def execute_netcdf_task(task,tableid):
         psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         pressure_levels=getattr(task,'pressure_levels')
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
+        ncvar[ncvar>1e20]=numpy.nan
     else:  
         ncvar = dataset.variables[task.source.variable()]
+
+
     # handle zonal vars
     if task.target.table=='AERmonZ': 
         # assumption: data is shape [time,lat,lon] (roll longitude dimensio
         vals=numpy.copy(ncvar[:])
         # zonal mean so mean over longitudes
-        vals=numpy.mean(vals,axis=-1)
+
+        vals=numpy.nanmean(vals,axis=-1)
         # change shape, swap lat<->lev
         vals=numpy.swapaxes(vals,1,2)
         missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
@@ -570,7 +574,7 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
     interpolation=1 #1 linear, 2 log, 3 loglog
     # divide pressure_levels by 100 to get in mb
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,True)
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,False)
     return interpolated_data
 
 
