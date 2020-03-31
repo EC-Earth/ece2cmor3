@@ -281,7 +281,6 @@ def cluster_files(valid_tasks, varstasks):
     for task in valid_tasks:
         task2files[task] = set()
         task2freqs[task] = set()
-#        task2fx[task] = set()
         for key, tsklist in varstasks.iteritems():
             if task in tsklist:
                 task2files[task].add(mkfname(key))
@@ -325,7 +324,7 @@ def execute(tasks, filter_files=True, multi_threaded=False):
     return valid_fx_tasks + valid_other_tasks
 
 
-def filter_fx_variables(gribfile, keys2files, gridtype, handles=None):
+def filter_fx_variables(gribfile, keys2files, gridtype, startdate, handles=None):
     timestamp = -1
     keys = set()
     while gribfile.read_next() and (handles is None or any(handles.keys())):
@@ -337,8 +336,7 @@ def filter_fx_variables(gribfile, keys2files, gridtype, handles=None):
             keys = set()
             timestamp = t
         keys.add(key)
-        write_record(gribfile, key, keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
-                     handles=handles, once=True)
+        write_record(gribfile, key, keys2files, shift=0, handles=handles, once=True, setdate=startdate)
         gribfile.release()
 
 
@@ -349,14 +347,18 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     if filter_files:
         filehandles = open_files(keys2files)
         fxkeys2files = {k: keys2files[k] for k in fxkeys}
-        first_gridpoint_file = gridpoint_files[gridpoint_files.keys()[0]][0]
+        gridpoint_start_date = sorted(gridpoint_files.keys())[0]
+        first_gridpoint_file = gridpoint_files[gridpoint_start_date][0]
         if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
             with open(str(ini_gridpoint_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], filehandles)
-        first_spectral_file = spectral_files[spectral_files.keys()[0]][0]
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
+                                    filehandles)
+        spectral_start_date = sorted(spectral_files.keys())[0]
+        first_spectral_file = spectral_files[spectral_start_date][0]
         if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
             with open(str(ini_spectral_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], filehandles)
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
+                                    filehandles)
         if multi_threaded:
             threads = []
             for file_list, grid in zip([gridpoint_files, spectral_files], grids):
@@ -539,7 +541,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
 
 
 # Writes the grib messages
-def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False):
+def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, setdate=None):
     global starttimes
     if key[2] == grib_file.hybrid_level_code:
         matches = [keys2files[k] for k in keys2files if k[:3] == key[:3]]
@@ -550,8 +552,11 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False):
         var_infos.update(match)
     if not any(var_infos):
         return
+    if setdate is not None:
+        gribfile.set_field(grib_file.date_key, int(setdate.strftime("%Y%m%d")))
+        gribfile.set_field(grib_file.time_key, 0)
     timestamp = gribfile.get_field(grib_file.time_key)
-    if shift:
+    if shift != 0 and setdate is not None:
         matches = [k for k in varsfreq.keys() if k[:-1] == key]
         freq = varsfreq[matches[0]] if any(matches) else 0
         shifttime = timestamp + shift * freq * 100
