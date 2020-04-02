@@ -356,31 +356,15 @@ def create_time_axes(ds, tasks, table):
                               (ds.filepath(), task.target.variable, task.target.table))
                     task.set_failed()
                     continue
-                if calendar is None:
-                    # Apply timeshift
-                    times = times - timeshift
-                    tstamps, tunits = cmor_utils.date2num(times, ref_time=ref_date_)
-                else:
-                    if timeshift.total_seconds() > 0:
-                        log.error("Cannot apply time shift for NEMO time axis in calendar %s" % calendar)
-                    tstamps, tunits = cmor_utils.num2num(times, ref_date_, units, calendar)
-                    if calendar != "proleptic_gregorian":
-                        cmor.set_cur_dataset_attribute("calendar", calendar)
+                tstamps, tunits = cmor_utils.num2num(times, ref_date_, units, calendar, timeshift)
+                if calendar != "proleptic_gregorian":
+                    cmor.set_cur_dataset_attribute("calendar", calendar)
                 if time_bounds is None:
                     tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps)
                 else:
-                    if calendar is None:
-                        # Apply timeshift
-                        time_bounds = time_bounds - timeshift
-                        tbounds, tbndunits = cmor_utils.date2num(time_bounds, ref_time=ref_date_)
-                        tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
-                                        cell_bounds=tbounds)
-                    else:
-                        if timeshift.total_seconds() > 0:
-                            log.error("Cannot apply time shift for NEMO time bounds in calendar %s" % calendar)
-                        tbounds, tbndunits = cmor_utils.num2num(time_bounds, ref_date_, units, calendar)
-                        tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
-                                        cell_bounds=tbounds)
+                    tbounds, tbndunits = cmor_utils.num2num(time_bounds, ref_date_, units, calendar, timeshift)
+                    tid = cmor.axis(table_entry=str(time_dim), units=tunits, coord_vals=tstamps,
+                                    cell_bounds=tbounds)
                 table_time_axes[time_dim] = tid
             setattr(task, "time_axis", tid)
     return table_time_axes
@@ -432,12 +416,7 @@ def read_times(ds, task):
     # Fix for proleptic gregorian in XIOS output as gregorian
     if calendar is None or calendar == "gregorian":
         calendar = "proleptic_gregorian"
-    times = None if vals is None else netCDF4.num2date(vals, units=units, calendar=calendar)
-    tbnds = None if bndvals is None else netCDF4.num2date(bndvals, units=units, calendar=calendar)
-    if isinstance(times[0], datetime):
-        return times, tbnds, None, None
-    else:
-        return vals, bndvals, units, calendar
+    return vals, bndvals, units, calendar
 
 
 def create_type_axes(ds, tasks, table):
