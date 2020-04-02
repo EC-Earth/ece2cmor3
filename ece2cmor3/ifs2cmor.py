@@ -753,7 +753,7 @@ def create_time_axis(freq, path, name, has_bounds):
     date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
         log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
-        return 0
+        return 0, [], []
     if has_bounds:
         bounds = numpy.empty([len(date_times), 2])
         rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
