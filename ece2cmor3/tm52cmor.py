@@ -440,22 +440,24 @@ def execute_netcdf_task(task,tableid):
         psdata=get_ps_var(getattr(getattr(task,'ps_task',None),cmor_task.output_path_key,None))
         pressure_levels=getattr(task,'pressure_levels')
         ncvar=interpolate_plev(pressure_levels,dataset,psdata,task.source.variable())
+        ncvar[ncvar>1e20]=numpy.nan
     else:  
         ncvar = dataset.variables[task.source.variable()]
+
     # handle zonal vars
     if task.target.table=='AERmonZ': 
-        # assumption: data is shape [time,lat,lon] (roll longitude dimensio
+        # assumption: data is shape [time,lat,lon] (roll longitude dimension
         vals=numpy.copy(ncvar[:])
         # zonal mean so mean over longitudes
-        vals=numpy.mean(vals,axis=-1)
+        vals=numpy.nanmean(vals,axis=-1)
         # change shape, swap lat<->lev
         vals=numpy.swapaxes(vals,1,2)
-        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         ncvar=vals.copy()
     #handle global means
     elif task.target.dims==0:
         # global means
-        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         vals=numpy.copy(ncvar[:])
         if task.target.variable=='co2mass':
             # calculate area-weighted sum
@@ -469,7 +471,7 @@ def execute_netcdf_task(task,tableid):
     else:# assumption: data is shape [time,lat,lon] (we need to roll longitude dimension so that 
         #  the data corresponds to the dimension definition of tables (from [-180 , 180] to [0,360] deg).)
         #  so by half the longitude dimension
-        missval = getattr(ncvar,"missing_value",getattr(ncvar,"_FillValue",numpy.nan))
+        missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         vals=numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
         nroll=dims[-1]/2
@@ -479,6 +481,11 @@ def execute_netcdf_task(task,tableid):
     factor = 1.0
     term=0.0
     timdim=0
+    #check for missing values
+    if numpy.isnan(ncvar).any():
+        nanmask=~numpy.isnan(ncvar)
+    else:
+        nanmask=None
     # 3D variables need the surface pressure for calculating the pressure at model levels
     if store_var:
         #get the ps-data associated with this data
@@ -486,10 +493,10 @@ def execute_netcdf_task(task,tableid):
         # roll psdata like the original
         psdata=numpy.roll(psdata[:],nroll,len(numpy.shape(psdata[:]))-1)
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, psdata,
-                               swaplatlon=False, fliplat=True, mask=None,missval=missval)
+                               swaplatlon=False, fliplat=True, mask=nanmask,missval=missval)
     else:
         cmor_utils.netcdf2cmor(varid, ncvar, timdim, factor, term, store_var, None,
-                               swaplatlon=False, fliplat=True, mask=None,missval=missval)
+                               swaplatlon=False, fliplat=True, mask=nanmask,missval=missval)
     cmor.close(varid)
 
     if store_var:
@@ -570,7 +577,7 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
     interpolation=1 #1 linear, 2 log, 3 loglog
     # divide pressure_levels by 100 to get in mb
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,True)
+    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,False)
     return interpolated_data
 
 
