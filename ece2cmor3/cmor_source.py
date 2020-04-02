@@ -125,6 +125,7 @@ class ifs_source(cmor_source):
     grib_codes_accum = read_grib_codes_group(grib_codes_file, "ACCUMFLD")
     grib_codes_min = read_grib_codes_group(grib_codes_file, "MINFLD")
     grib_codes_max = read_grib_codes_group(grib_codes_file, "MAXFLD")
+    grib_codes_fx = read_grib_codes_group(grib_codes_file, "FXFLD")
     grib_codes = grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
 
     # Constructor.

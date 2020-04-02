@@ -134,7 +134,9 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
     if auto_filter_:
-        grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_)
+        ini_gpf = None if ifs_init_gridpoint_file_ == ifs_gridpoint_files_.values()[0] else ifs_init_gridpoint_file_
+        grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_, ini_gpfile=ini_gpf,
+                               ini_shfile=ifs_init_spectral_file_)
     return True
 
 
