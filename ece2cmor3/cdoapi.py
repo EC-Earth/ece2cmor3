@@ -121,7 +121,7 @@ class cdo_command:
         if ofile and grib_first:
             output_file = ofile[:-3] + ".grib"
         ntries = 0
-        max_tries = int(os.environ.get("ECE2CMOR3_CDO_RETRIES", 1))
+        max_tries = int(os.environ.get("ECE2CMOR3_CDO_TRIALS", 1))
         f = None
         while ntries < max_tries:
             ntries += 1
