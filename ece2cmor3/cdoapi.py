@@ -120,22 +120,43 @@ class cdo_command:
         output_file = ofile
         if ofile and grib_first:
             output_file = ofile[:-3] + ".grib"
-        try:
-            if app_args and ofile:
-                f = func(app_args, input=input_string, output=output_file, options=option_string)
-            elif app_args:
-                f = func(app_args, input=input_string, options=option_string)
-            elif ofile:
-                f = func(input=input_string, output=output_file, options=option_string)
-            else:
-                f = func(input=input_string, options=option_string)
-            if grib_first:
-                option_string = "-f nc"
-                self.app.copy(input=output_file, output=ofile, options=option_string)
-                os.remove(output_file)
-        except cdo.CDOException as e:
-            log.error(str(e))
-            return None
+        ntries = 0
+        max_tries = int(os.environ.get("ECE2CMOR3_CDO_RETRIES", 1))
+        f = None
+        while ntries < max_tries:
+            ntries += 1
+            try:
+                if app_args and ofile:
+                    f = func(app_args, input=input_string, output=output_file, options=option_string)
+                elif app_args:
+                    f = func(app_args, input=input_string, options=option_string)
+                elif ofile:
+                    f = func(input=input_string, output=output_file, options=option_string)
+                else:
+                    f = func(input=input_string, options=option_string)
+                if grib_first:
+                    option_string = "-f nc"
+                    f = self.app.copy(input=output_file, output=ofile, options=option_string)
+                    try:
+                        os.remove(output_file)
+                    except OSError as eos:
+                        log.error(str(eos))
+                return f
+            except cdo.CDOException as e:
+                if ntries == max_tries:
+                    log.error(str(e))
+                else:
+                    if os.path.isfile(output_file):
+                        try:
+                            os.remove(output_file)
+                        except OSError as eos:
+                            log.error(str(eos))
+                    if os.path.isfile(ofile):
+                        try:
+                            os.remove(ofile)
+                        except OSError as eos:
+                            log.error(str(eos))
+                f = None
         return f
 
     # Applies the current set of operators and returns the netcdf variables in memory:
