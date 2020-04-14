@@ -121,7 +121,7 @@ class cdo_command:
         if ofile and grib_first:
             output_file = ofile[:-3] + ".grib"
         ntries = 0
-        max_tries = int(os.environ.get("ECE2CMOR3_CDO_TRIALS", 1))
+        max_tries = int(os.environ.get("ECE2CMOR3_CDO_TRIALS", 4))
         f = None
         while ntries < max_tries:
             ntries += 1
@@ -144,8 +144,12 @@ class cdo_command:
                 return f
             except cdo.CDOException as e:
                 if ntries == max_tries:
+                    log.error("Attempt %d/%d to apply cdo %s %s %s failed:" %
+                              (ntries, max_tries, option_string, input_string, output_file))
                     log.error(str(e))
                 else:
+                    log.warning("Attempt %d/%d to apply cdo %s %s %s failed, retrying..." %
+                                (ntries, max_tries, option_string, input_string, output_file))
                     if os.path.isfile(output_file):
                         try:
                             os.remove(output_file)
