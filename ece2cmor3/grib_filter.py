@@ -381,7 +381,7 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
                 filter_output = os.path.join(temp_dir, '_'.join(file_list))
                 if not os.path.isfile(filter_output):
                     cdoapi.cdo_command().merge([os.path.join(temp_dir, f) for f in file_list], filter_output)
-            setattr(task, cmor_task.filter_output_key, filter_output)
+            setattr(task, cmor_task.filter_output_key, [filter_output])
     for task in task2freqs:
         if task.status != cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
