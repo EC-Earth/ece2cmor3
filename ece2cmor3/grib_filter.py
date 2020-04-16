@@ -8,7 +8,7 @@ import threading
 
 import numpy
 
-from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file
+from ece2cmor3 import cmor_target, cmor_source, cmor_task, cmor_utils, grib_file, cdoapi
 
 # Log object.
 log = logging.getLogger(__name__)
@@ -283,7 +283,7 @@ def cluster_files(valid_tasks, varstasks):
         task2freqs[task] = set()
         for key, tsklist in varstasks.iteritems():
             if task in tsklist:
-                task2files[task].add(mkfname(key))
+                task2files[task].add('.'.join([str(key[0]), str(key[1]), str(key[2])]))
                 if key[3] == -1:
                     task2freqs[task].update([varsfreq[k] for k in varsfreq.keys() if
                                              (k[0], k[1], k[2]) == (key[0], key[1], key[2])])
@@ -374,10 +374,16 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
         for handle in filehandles.values():
             handle.close()
     for task in task2files:
-        if not task.status == cmor_task.status_failed:
-            setattr(task, cmor_task.filter_output_key, [os.path.join(temp_dir, p) for p in task2files[task]])
+        if task.status != cmor_task.status_failed:
+            file_list = task2files[task]
+            filter_output = os.path.join(temp_dir, file_list[0])
+            if len(file_list) > 1:
+                filter_output = os.path.join(temp_dir, '_'.join(file_list))
+                if not os.path.isfile(filter_output):
+                    cdoapi.cdo_command().merge([os.path.join(temp_dir, f) for f in file_list], filter_output)
+            setattr(task, cmor_task.filter_output_key, filter_output)
     for task in task2freqs:
-        if not task.status == cmor_task.status_failed:
+        if task.status != cmor_task.status_failed:
             setattr(task, cmor_task.output_frequency_key, task2freqs[task])
     return valid_tasks
 
