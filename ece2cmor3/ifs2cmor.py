@@ -168,9 +168,9 @@ def execute(tasks, nthreads=1):
             if task.target.variable in ["orog", "areacella"]:
                 task.source.grid_ = cmor_source.ifs_grid.point
             if task.source.grid_id() == cmor_source.ifs_grid.spec:
-                setattr(task, cmor_task.filter_output_key, ifs_init_spectral_file_)
+                setattr(task, cmor_task.filter_output_key, [ifs_init_spectral_file_])
             else:
-                setattr(task, cmor_task.filter_output_key, ifs_init_gridpoint_file_)
+                setattr(task, cmor_task.filter_output_key, [ifs_init_gridpoint_file_])
             setattr(task, cmor_task.output_frequency_key, 0)
     else:
         tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
