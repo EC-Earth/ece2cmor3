@@ -13,6 +13,7 @@ import cmor_task
 import cdo
 from ece2cmor3 import cdoapi
 import Ngl
+import warnings
 
 # Logger object
 log = logging.getLogger(__name__)
@@ -449,7 +450,9 @@ def execute_netcdf_task(task,tableid):
         # assumption: data is shape [time,lat,lon] (roll longitude dimension
         vals=numpy.copy(ncvar[:])
         # zonal mean so mean over longitudes
-        vals=numpy.nanmean(vals,axis=-1)
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', '.*Mean of empty slice.*',)
+            vals=numpy.nanmean(vals,axis=-1)
         # change shape, swap lat<->lev
         vals=numpy.swapaxes(vals,1,2)
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)

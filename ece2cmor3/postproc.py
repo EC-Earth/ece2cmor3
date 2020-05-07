@@ -81,17 +81,14 @@ def apply_command(command, task, output_path=None):
         log.warning(
             "Executing post-processing in skip/append mode without path given: this will skip the entire task.")
     input_files = getattr(task, cmor_task.filter_output_key, [])
-    if isinstance(input_files, str):
-        input_files = [input_files]
     if not any(input_files):
         log.error("Cannot execute cdo command %s for given task because it has no model "
                   "output attribute" % command.create_command())
         return None
-    input_file = input_files[0]
     if len(input_files) > 1:
-        directory = os.path.dirname(input_file)
-        input_file = os.path.join(directory, '_'.join([os.path.basename(f) for f in input_files]))
-        command.merge(input_files, input_file)
+        log.warning("Task %s in table %s appears to have multiple filtered output files, taking first file %s" %
+                    (task.target.variable, task.target.table, input_files[0]))
+    input_file = input_files[0]
     comm_string = command.create_command()
     log.info("Post-processing target %s in table %s from file %s with cdo command %s" % (
         task.target.variable, task.target.table, input_file, comm_string))
