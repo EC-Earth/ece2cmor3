@@ -175,7 +175,8 @@
     },
     {
         "source": "31.128",
-        "target": "siconca"
+        "target": "siconca",
+        "convert": "frac2percent"
     },
     {
         "source": "44.128",
