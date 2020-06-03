@@ -244,6 +244,12 @@ def execute(tasks):
                             % (getattr(task, cmor_task.output_path_key), task.source.variable()))
                     break
 
+                # special treatment of fco2nat=fco2nat_lpjg+fgco2_nemo
+                if outname=="fco2nat" and freq=="mon" and table=="Amon":
+                    if not add_nemo_variable(task, ncfile, "fgco2", "1m"):
+                        task.set_failed()
+                        continue
+
                 dataset = netCDF4.Dataset(ncfile, 'r')
                 # Create the grid, need to do only once as all LPJG variables will be on same grid
                 # Currently create_grid just creates latitude and longitude axis since that should be all that is needed
@@ -517,6 +523,74 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     return ncfile
 
+
+# finds the nemo output containing varname at nemo_freq
+# this uses code in nemo2cmor.py, which could be moved to cmor_utils
+def find_nemo_file(varname, nemo_freq):
+    # find the nemo output folder for this leg (assumes it is in the runtime/output/nemo/??? folder)
+    path_output_lpjg, leg_no = os.path.split(lpjg_path_)
+    path_output = os.path.split(path_output_lpjg)
+    nemo_path = os.path.join(path_output[0],'nemo',leg_no)
+    # get the file which contains fgco2
+    nemo_files = cmor_utils.find_nemo_output(nemo_path, exp_name_)
+    file_candidates = [f for f in nemo_files if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
+    results = []
+    for ncfile in file_candidates:
+        ds = netCDF4.Dataset(ncfile)
+        if varname in ds.variables:
+            results.append(ncfile)
+        ds.close()
+    # simplified error reporting
+    if len(results) !=1:
+        return ""
+    return results[0]
+
+# this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael
+#  Mischurow
+def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
+    # find nemo raw output file
+    nemo_ifile = find_nemo_file(nemo_var_name, nemo_var_freq)
+    if nemo_ifile == "":
+        log.error("NEMO variable %s needed for target %s in table %s was not found in nemo output... "
+                  "dismissing task" % (nemo_var_name, task.target.variable, task.target.table))
+        return False
+
+    # define auxiliary and temp. files
+    nemo_maskfile = os.path.join(os.path.dirname(__file__), "resources", "nemo-mask-ece.nc")
+    nemo_ofile = os.path.join(ncpath_, "tmp_nemo.nc")
+    interm_file = os.path.join(ncpath_, "intermediate.nc")
+    if os.path.exists(nemo_ofile):
+        os.remove(nemo_ofile)
+    if os.path.exists(interm_file):
+        os.remove(interm_file)
+
+    # perform the conservative remapping
+    cdo = Cdo()
+    #cdo -L selvar,${varname} ${ifile} tmp1.nc
+    #CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul tmp1.nc $mask $ofile
+    os.system("cdo -L selvar,"+nemo_var_name+" "+nemo_ifile+" "+interm_file)
+    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
+
+    if not os.path.exists(nemo_ofile):
+        log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
+                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+        return False
+
+    # add the nemo output to the lpjg output
+    shutil.copy(ncfile,"/tmp/tmp.nc")
+    if os.path.exists(interm_file):
+        os.remove(interm_file)
+    os.system("cdo -L add -selvar,"+task.target.variable+" "+ncfile+" "+nemo_ofile+" "+interm_file)
+    if not os.path.exists(interm_file):
+        log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
+                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+        return False
+
+    # overwrite final ncfile and cleanup
+    os.remove(nemo_ofile)
+    shutil.move(interm_file, ncfile)
+
+    return True
 
 # Extracts single column from the .out-file
 def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
