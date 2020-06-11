@@ -35,7 +35,7 @@ lpjg_path_ = None
 ncpath_ = None
 ncpath_created_ = False
 
-gridfile_ = os.path.join(os.path.dirname(__file__), "resources", "ingrid_T255_unstructured.txt")
+gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T255_unstructured.txt")
 
 # list of requested entries for the land use axis
 landuse_requested_ = []
