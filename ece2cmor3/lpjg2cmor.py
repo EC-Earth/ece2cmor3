@@ -611,8 +611,8 @@ def create_grid(ds, task):
     # create the cell bounds since they are required: we have a 512x256 grid with longitude from 0 to 360 and
     # latitude from -90 to 90, i.e. resolution ~0.7 longitude values start from 0 so the cell lower bounds are the
     # same as lons (have to be: cmor requires monotonically increasing values so 359.X to 0.X is not allowed)
-    lon_bnd_upper = np.append(lons[1:], 360.0)
-    lon_bnd = np.stack((lons, lon_bnd_upper), axis=-1)
+    lon_half_dists = np.insert(0.5 * (lons[1:] - lons[:-1]), 0, [0.5 * (lons[1] - lons[0])])
+    lon_bnd = np.stack((lons[:] - lon_half_dists, lons[:] + lon_half_dists), axis=-1)
 
     # creating latitude bounds so that latitude values are the (approximate) mid-points of the cell lower and upper
     # bounds
