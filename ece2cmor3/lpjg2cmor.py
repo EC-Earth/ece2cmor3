@@ -532,7 +532,10 @@ def find_nemo_file(varname, nemo_freq):
     path_output = os.path.split(path_output_lpjg)
     nemo_path = os.path.join(path_output[0],'nemo',leg_no)
     # get the file which contains fgco2
-    nemo_files = cmor_utils.find_nemo_output(nemo_path, exp_name_)
+    try:
+        nemo_files = cmor_utils.find_nemo_output(nemo_path, exp_name_)
+    except OSError:
+        return ""
     file_candidates = [f for f in nemo_files if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
     results = []
     for ncfile in file_candidates:
@@ -552,8 +555,8 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     nemo_ifile = find_nemo_file(nemo_var_name, nemo_var_freq)
     if nemo_ifile == "":
         log.error("NEMO variable %s needed for target %s in table %s was not found in nemo output... "
-                  "dismissing task" % (nemo_var_name, task.target.variable, task.target.table))
-        return False
+                  "continuing task regardless" % (nemo_var_name, task.target.variable, task.target.table))
+        return True
 
     # define auxiliary and temp. files
     nemo_maskfile = os.path.join(os.path.dirname(__file__), "resources", "nemo-mask-ece.nc")
@@ -577,7 +580,6 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
         return False
 
     # add the nemo output to the lpjg output
-    shutil.copy(ncfile,"/tmp/tmp.nc")
     if os.path.exists(interm_file):
         os.remove(interm_file)
     os.system("cdo -L add -selvar,"+task.target.variable+" "+ncfile+" "+nemo_ofile+" "+interm_file)
