@@ -26,8 +26,8 @@ The Miniconda python distribution should be installed. With miniconda all the pa
 
 Download [miniconda](https://repo.continuum.io/miniconda/) (e.g. take the latest miniconda version for python 2.7) by using `wget` and install with `bash`:
  ```shell
- wget https://repo.continuum.io/miniconda/Miniconda2-4.7.10-Linux-x86_64.sh
- bash Miniconda2-4.7.10-Linux-x86_64.sh -b -u -p /$HOME/miniconda2
+ wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
+ bash Miniconda2-latest-Linux-x86_64.sh -b -u -p /$HOME/miniconda2
  ```
 One could consider to add the following aliases in the `.bashrc` file:
  ```shell
