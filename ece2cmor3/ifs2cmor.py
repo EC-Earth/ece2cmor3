@@ -515,7 +515,7 @@ def execute_netcdf_task(task):
             unit = getattr(task.target, "units")
         if len(getattr(task.target, "positive", "")) > 0:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                                   positive="down")
+                                    positive="up" if getattr(task, cmor_task.conversion_key, None) == "vol2fluxup" else "down")
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
@@ -573,6 +573,8 @@ def get_conversion_constants(conversion, output_frequency):
         return 9.807, 0.0
     if conversion == "vol2flux":
         return 1000.0 / (3600 * output_frequency), 0.0
+    if conversion == "vol2fluxup":
+        return - 1000.0 / (3600 * output_frequency), 0.0
     if conversion == "vol2massl":
         return 1000.0, 0.0
     if conversion == "frac2percent":
