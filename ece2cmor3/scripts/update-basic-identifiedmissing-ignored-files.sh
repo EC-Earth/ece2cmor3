@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This script can not be executed, because a few manual editting steps are required.
 #
