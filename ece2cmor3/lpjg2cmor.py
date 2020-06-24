@@ -35,7 +35,8 @@ lpjg_path_ = None
 ncpath_ = None
 ncpath_created_ = False
 
-gridfile_ = os.path.join(os.path.dirname(__file__), "resources", "ingrid_T255_unstructured.txt")
+target_grid_ = "T255"
+gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T255_unstructured.txt")
 
 # list of requested entries for the land use axis
 landuse_requested_ = []
@@ -68,6 +69,7 @@ def rnd(x, digits=3):
 
 
 def coords(df, root, meta):
+    global gridfile_, target_grid_
     # deg is 128 in N128
     # common deg: 32, 48, 80, 128, 160, 200, 256, 320, 400, 512, 640
     # correspondence to spectral truncation:
@@ -76,6 +78,15 @@ def coords(df, root, meta):
     # number of longitudes in the regular grid: deg * 4
     # At deg >= 319 polar correction might have to be applied (see Courtier and Naughton, 1994)
     deg = 128
+    grid_size = len(df)
+    if grid_size == 10407:
+        target_grid_ = "T159"
+        deg = 80
+        gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T159_unstructured.txt")
+    elif grid_size != 25799:
+        log.error("Current grid with %i cells is not supported!", grid_size)
+        exit(-1)
+
     lons = [lon for num in grids[deg] for lon in np.linspace(0, 360, num, False)]
     x, w = np.polynomial.legendre.leggauss(deg * 2)
     lats = np.arcsin(x) * 180 / -np.pi
@@ -494,11 +505,14 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     # do the remapping
     cdo = Cdo()
-    interm_file = os.path.join(ncpath_, 'intermediate.nc')
-    cdo.remapycon('n128', input="-setgrid," + gridfile_ + " " + temp_ncfile,
-                  output=interm_file)  # TODO: add remapping for possible other grids
-    cdo.invertlat(input=interm_file, output=ncfile)
-    os.remove(interm_file)
+
+    if target_grid_ == "T159":
+        cdo.remapycon('n80', input="-setgrid," + gridfile_ + " " + temp_ncfile,
+                      output=ncfile)
+    else:
+        cdo.remapycon('n128',input="-setgrid," + gridfile_ + " " + temp_ncfile,
+                      output=ncfile)  # TODO: add remapping for possible other grids
+
     os.remove(temp_ncfile)
 
     return ncfile
@@ -602,9 +616,16 @@ def create_grid(ds, task):
 
     # creating latitude bounds so that latitude values are the (approximate) mid-points of the cell lower and upper
     # bounds
-    lat_bnd_lower = np.array([-90.0, -89.12264116])
-    for i in range(1, 255):
-        lat_bnd_lower = np.append(lat_bnd_lower, lat_bnd_lower[i] + 0.70175308)
+    if target_grid_ == "T159":
+        lat_bnd_lower = np.array([-90.0, -88.47338107])
+        nsteps = 159
+        step_length = 1.11991622
+    elif target_grid_ == "T255":
+        lat_bnd_lower = np.array([-90.0, -89.12264116])
+        nsteps = 255
+        step_length = 0.70175308
+    for i in range(1, nsteps):
+        lat_bnd_lower = np.append(lat_bnd_lower, lat_bnd_lower[i] + step_length)
     lat_bnd_upper = np.append(lat_bnd_lower[1:], 90.0)
     lat_bnd = np.stack((lat_bnd_lower, lat_bnd_upper), axis=-1)
 

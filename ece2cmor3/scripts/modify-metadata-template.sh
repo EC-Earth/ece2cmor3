@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thomas Reerink
 #
 # This scripts needs four or five arguments

@@ -204,8 +204,30 @@ for mip in dq.coll['mip'].items:
       #print '{}'.format(command_01)
        if mip_name in ec_earth_mips:
          #if ex.tier[0] in experiment_tiers_included:
-         #if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust'):  # Add also the tier 2 experiment: AerChemMIP piClim-2xdust
-          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'piClim-2xdust') or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-pdLC') or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-rmLC'):  # Add also the tier 2 experiments: AerChemMIP piClim-2xdust and LS3MIP amip-lfmip-pdLC & amip-lfmip-rmLC
+          # Add also the LS3MIP tier 2 experiments: amip-lfmip-pdLC & amip-lfmip-rmLC
+          # Add also the AerChemMIP tier 2 & 3 experiments (see #631):
+          #  hist-piAer            tier-2  historical forcing, but with pre-industrial aerosol emissions
+          #  histSST-piAer         tier-2  historical SSTs and historical forcing, but with pre-industrial aerosol emissions
+          #  piClim-2xdust         tier-2  pre-industrial climatological SSTs and forcing, but with doubled emissions of dust
+          #  piClim-2xss           tier-2  pre-industrial climatological SSTs and forcing, but with doubled emissions of sea salt
+          #  piClim-BC             tier-2  pre-industrial climatological SSTs and forcing, but with 2014 black carbon emissions
+          #  ssp370-lowNTCFCH4     tier-3  SSP3-7.0, with low NTCF emissions and methane concentrations
+          #  ssp370pdSST           tier-2  SSP3-7.0, with SSTs prescribed as present day
+          #  ssp370SST-lowAer      tier-2  SSP3-7.0, prescribed SSTs, with low aerosol emissions
+          #  ssp370SST-lowBC       tier-2  SSP3-7.0, prescribed SSTs, with low black carbon emissions
+          #  ssp370SST-lowNTCFCH4  tier-3  SSP3-7.0, prescribed SSTs, with low NTCF emissions and methane concentrations
+          if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-pdLC')      or \
+                                                        (ex.tier[0] == 2 and ex.label == 'amip-lfmip-rmLC')      or \
+                                                        (ex.tier[0] == 2 and ex.label == 'hist-piAer')           or \
+                                                        (ex.tier[0] == 2 and ex.label == 'histSST-piAer')        or \
+                                                        (ex.tier[0] == 2 and ex.label == 'piClim-2xdust')        or \
+                                                        (ex.tier[0] == 2 and ex.label == 'piClim-2xss')          or \
+                                                        (ex.tier[0] == 2 and ex.label == 'piClim-BC')            or \
+                                                        (ex.tier[0] == 3 and ex.label == 'ssp370-lowNTCFCH4')    or \
+                                                        (ex.tier[0] == 2 and ex.label == 'ssp370pdSST')          or \
+                                                        (ex.tier[0] == 2 and ex.label == 'ssp370SST-lowAer')     or \
+                                                        (ex.tier[0] == 2 and ex.label == 'ssp370SST-lowBC')      or \
+                                                        (ex.tier[0] == 3 and ex.label == 'ssp370SST-lowNTCFCH4'):
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)
