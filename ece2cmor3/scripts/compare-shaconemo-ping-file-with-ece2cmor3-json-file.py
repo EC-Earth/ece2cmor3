@@ -14,8 +14,8 @@ import json
 from os.path import expanduser
 
 #ping_file_directory = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
-ping_file_directory = expanduser("~")+"/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/"
-#ping_file_directory = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/"
+#ping_file_directory = expanduser("~")+"/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/"
+ping_file_directory = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/"
 
 treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean_DR1.00.27.xml"    )
 treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce_DR1.00.27.xml"   )
@@ -75,7 +75,7 @@ targets = []
 for d in data:
     targets.append(str(d["target"]))
 #print targets
-print '\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in the ece2cmor3 json file but not in the ping file:\n ', set(targets) - set(total_pinglist)
+print '\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist)
 print '\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets)
 print '\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file'
 print '\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n'

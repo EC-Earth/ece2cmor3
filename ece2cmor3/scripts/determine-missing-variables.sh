@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thomas Reerink
 #
 # This scripts requires four arguments (a fifth argument is OPTIONAL):
@@ -62,7 +62,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   exit
  else
  #source activate ece2cmor3
-  cd ${ece2cmor_root_directory}; python setup.py install; cd -;
+  cd ${ece2cmor_root_directory}; python setup.py develop; cd -;
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   if [ ${mip} = 'VolMIP' ]; then
    drq -m ${mip} -t ${tier} -p ${priority}                  --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
@@ -94,7 +94,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  fi
 
  # Some benchmark diffing, which can be activated by the developer:
- benchmark_step_1_and_2='benchmark-step-1+2-v40'
+ benchmark_step_1_and_2='benchmark-step-1+2-v43'
 
  if [ -d benchmark/${benchmark_step_1_and_2} ] && [ ${mip} == 'CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB' ] && [ ${experiment} == 'CMIP' ]; then
   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;

@@ -14,7 +14,7 @@
 # And pasting the result here in the arr array.
 
 # The current list is in the arr array is produced by running:
-#  more ${HOME}/cmorize/shaconemo/ping-files/r270/cmor-varlist-based-on-ping-r270-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
+#  more ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
 # And pasting the result here.
 
 # Declare an array variable with all the nemo cmor variable names:
