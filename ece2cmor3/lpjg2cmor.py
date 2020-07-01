@@ -572,21 +572,25 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     #cdo -L selvar,${varname} ${ifile} tmp1.nc
     #CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul tmp1.nc $mask $ofile
     os.system("cdo -L selvar,"+nemo_var_name+" "+nemo_ifile+" "+interm_file)
-    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
+    if target_grid_ == "T159":
+        remap_grid='n80'
+    else:
+        remap_grid='n128'
+    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,"+remap_grid+" -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
 
     if not os.path.exists(nemo_ofile):
         log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
-                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
-        return False
+                  "exiting ece2cmor3" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+        exit(-1)
 
     # add the nemo output to the lpjg output
     if os.path.exists(interm_file):
         os.remove(interm_file)
     os.system("cdo -L add -selvar,"+task.target.variable+" "+ncfile+" "+nemo_ofile+" "+interm_file)
     if not os.path.exists(interm_file):
-        log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
-                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
-        return False
+        log.error("There was a problem adding remapped %s variable from nemo output file %s to %s in table %s... "
+                  "exiting ece2cmor3" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+        exit(-1)
 
     # overwrite final ncfile and cleanup
     os.remove(nemo_ofile)
