@@ -245,10 +245,11 @@ def execute(tasks):
                     break
 
                 # special treatment of fco2nat=fco2nat_lpjg+fgco2_nemo
-                if outname=="fco2nat" and freq=="mon" and table=="Amon":
+                if outname=="fco2nat" and freq=="mon" and table=="Amon" and (cmor.get_cur_dataset_attribute("source_id") == "EC-Earth3-CC"):
                     if not add_nemo_variable(task, ncfile, "fgco2", "1m"):
-                        task.set_failed()
-                        continue
+                        log.error("There was a problem adding nemo variable %s to %s in table %s... "
+                                  "exiting ece2cmor3" % ("fgco2", task.target.variable, task.target.table))
+                        exit(-1)
 
                 dataset = netCDF4.Dataset(ncfile, 'r')
                 # Create the grid, need to do only once as all LPJG variables will be on same grid
@@ -555,8 +556,8 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     nemo_ifile = find_nemo_file(nemo_var_name, nemo_var_freq)
     if nemo_ifile == "":
         log.error("NEMO variable %s needed for target %s in table %s was not found in nemo output... "
-                  "continuing task regardless" % (nemo_var_name, task.target.variable, task.target.table))
-        return True
+                  % (nemo_var_name, task.target.variable, task.target.table))
+        return False
 
     # define auxiliary and temp. files
     nemo_maskfile = os.path.join(os.path.dirname(__file__), "resources", "nemo-mask-ece.nc")
@@ -567,16 +568,36 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
     if os.path.exists(interm_file):
         os.remove(interm_file)
 
-    # perform the conservative remapping
-    cdo = Cdo()
+    # make sure the mask and input file have same dimensions
+    ds_maskfile = netCDF4.Dataset(nemo_maskfile, 'r')
+    ds_ifile = netCDF4.Dataset(nemo_ifile, 'r')
+    dims_maskfile = ds_maskfile.dimensions
+    dims_ofile = ds_ifile.dimensions
+    if dims_maskfile['x'].size != dims_ofile['x'].size or dims_maskfile['y'].size != dims_ofile['y'].size:
+            log.error("NEMO mask and output file, required for NEMO variable %s needed for target %s in table %s do not have same dimensions... "
+                      % (nemo_var_name, task.target.variable, task.target.table))
+            return False
+    ds_maskfile.close()
+    ds_ifile.close()
+
+    # perform the conservative remapping using cdo
     #cdo -L selvar,${varname} ${ifile} tmp1.nc
     #CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul tmp1.nc $mask $ofile
+    log.info("Using the following cdo version for conservative remapping")
+    os.system("cdo -V")
     os.system("cdo -L selvar,"+nemo_var_name+" "+nemo_ifile+" "+interm_file)
-    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,n128 -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
+    if target_grid_ == "T159":
+        remap_grid='n80'
+    elif target_grid_ == "T255":
+        remap_grid='n128'
+    else:
+        log.error("WRONG GRID %s in function add_nemo_variable in lpjg2cmor.py!" % target_grid_)
+        exit(-1)
+    os.system("CDO_REMAP_NORM=destarea cdo -L invertlat -setmisstoc,0 -remapycon,"+remap_grid+" -selindexbox,2,361,2,292 -mul "+interm_file+" "+nemo_maskfile+" "+nemo_ofile)
 
     if not os.path.exists(nemo_ofile):
         log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
-                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+                  % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
         return False
 
     # add the nemo output to the lpjg output
@@ -584,8 +605,8 @@ def add_nemo_variable(task, ncfile, nemo_var_name, nemo_var_freq):
         os.remove(interm_file)
     os.system("cdo -L add -selvar,"+task.target.variable+" "+ncfile+" "+nemo_ofile+" "+interm_file)
     if not os.path.exists(interm_file):
-        log.error("There was a problem remapping %s variable in nemo output file %s needed for %s in table %s... "
-                  "dismissing task" % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
+        log.error("There was a problem adding remapped %s variable from nemo output file %s to %s in table %s... "
+                  % (nemo_var_name, nemo_ifile, task.target.variable, task.target.table))
         return False
 
     # overwrite final ncfile and cleanup
