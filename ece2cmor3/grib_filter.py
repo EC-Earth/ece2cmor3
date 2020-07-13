@@ -402,13 +402,15 @@ def validate_tasks(tasks):
     varstasks = {}
     valid_tasks = []
     for task in tasks:
-        if not isinstance(task.source, cmor_source.ifs_source):
+        if task.status == cmor_task.status_failed or not isinstance(task.source, cmor_source.ifs_source):
             continue
         codes = task.source.get_root_codes()
         target_freq = cmor_target.get_freq(task.target)
         matched_keys = []
         matched_grid = None
         for c in codes:
+            if task.status == cmor_task.status_failed:
+                break
             levtype, levels = get_levels(task, c)
             for level in levels:
                 if task.status == cmor_task.status_failed:
