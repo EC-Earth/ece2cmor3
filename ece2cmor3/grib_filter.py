@@ -417,6 +417,12 @@ def validate_tasks(tasks):
                 if match_key is None:
                     if 0 < target_freq and c in cmor_source.ifs_source.grib_codes_fx:
                         match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, fxvars)
+                        if match_key is None:
+                            log.error("Field missing in the initial state files: "
+                                      "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
+                                      (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
+                            task.set_failed()
+                            break
                     else:
                         log.error("Field missing in the first day of file: "
                                   "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
