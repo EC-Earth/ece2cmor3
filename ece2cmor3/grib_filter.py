@@ -512,13 +512,28 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=Fals
         gribfile.release()
 
 
+model_level_cache = {}
+
+
 # Function writing data from previous monthly file, writing the 0-hour fields
 def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
+    for key in keys2files.keys():
+        if key[2] == grib_file.hybrid_level_code:
+            model_level_cache[key] = 0
     timestamp = -1
     keys = set()
-    while gribfile.read_next() and (handles is None or any(handles.keys())):
-        t = gribfile.get_field(grib_file.time_key)
+    fast_forward_count = 0
+    while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
+        if fast_forward_count > 0:
+            fast_forward_count -= 1
+            continue
         key = get_record_key(gribfile, gridtype)
+        if key[2] == grib_file.hybrid_level_code:
+            fast_forward_count = model_level_cache.get((key[0], key[1]), 91)
+        if fast_forward_count > 0:
+            fast_forward_count -= 1
+            continue
+        t = gribfile.get_field(grib_file.time_key)
         if t == timestamp and key in keys:
             continue  # Prevent double grib messages
         if t != timestamp:
