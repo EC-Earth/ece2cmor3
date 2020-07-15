@@ -592,7 +592,7 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
             if k[:3] == key[:3]:
                 var_infos.update(v)
     else:
-        f = keys2files.get(key[:4], None)
+        f = keys2files.get(key, None)
         if f is not None:
             var_infos.update(f)
     if not any(var_infos):
