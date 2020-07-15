@@ -508,7 +508,7 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=Fals
                 timestamp = t
             keys.add(key)
             if (key[0], key[1]) not in accum_codes:
-                write_record(gribfile, key, keys2files, handles=handles, once=once, setdate=None)
+                write_record(gribfile, key + (gridtype,), keys2files, handles=handles, once=once, setdate=None)
         gribfile.release()
 
 
@@ -540,7 +540,7 @@ def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
             keys = set()
             timestamp = t
         keys.add(key)
-        write_record(gribfile, key, keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
+        write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                      handles=handles, once=once, setdate=None)
         gribfile.release()
 
@@ -561,7 +561,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
                 keys = set()
                 timestamp = t
             keys.add(key)
-            write_record(gribfile, key, keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
+            write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                          handles=handles, once=once, setdate=None)
         elif mon == month % 12 + 1:
             t = gribfile.get_field(grib_file.time_key)
@@ -573,7 +573,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
                 timestamp = t
             keys.add(key)
             if (key[0], key[1]) in accum_codes:
-                write_record(gribfile, key, keys2files, shift=-1, handles=handles, once=once, setdate=None)
+                write_record(gribfile, key + (gridtype,), keys2files, shift=-1, handles=handles, once=once, setdate=None)
         gribfile.release()
 
 
@@ -594,8 +594,7 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
         gribfile.set_field(grib_file.time_key, 0)
     timestamp = gribfile.get_field(grib_file.time_key)
     if shift != 0 and setdate is None:
-        matches = [k for k in varsfreq.keys() if k[:-1] == key]
-        freq = varsfreq[matches[0]] if any(matches) else 0
+        freq = varsfreq.get(key, 0)
         shifttime = timestamp + shift * freq * 100
         if shifttime < 0 or shifttime >= 2400:
             newdate, hours = fix_date_time(gribfile.get_field(grib_file.date_key), shifttime / 100)
