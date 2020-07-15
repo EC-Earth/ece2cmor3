@@ -336,7 +336,7 @@ def filter_fx_variables(gribfile, keys2files, gridtype, startdate, handles=None)
             keys = set()
             timestamp = t
         keys.add(key)
-        write_record(gribfile, key, keys2files, shift=0, handles=handles, once=True, setdate=startdate)
+        write_record(gribfile, key + (gridtype,), keys2files, shift=0, handles=handles, once=True, setdate=startdate)
         gribfile.release()
 
 
@@ -502,6 +502,7 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=Fals
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
+                gribfile.release()
                 continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
@@ -519,22 +520,25 @@ model_level_cache = {}
 def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
     for key in keys2files.keys():
         if key[2] == grib_file.hybrid_level_code:
-            model_level_cache[key] = 0
+            model_level_cache[(key[0], key[1])] = 0
     timestamp = -1
     keys = set()
     fast_forward_count = 0
     while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
         if fast_forward_count > 0:
             fast_forward_count -= 1
+            gribfile.release()
             continue
         key = get_record_key(gribfile, gridtype)
         if key[2] == grib_file.hybrid_level_code:
             fast_forward_count = model_level_cache.get((key[0], key[1]), 91)
         if fast_forward_count > 0:
             fast_forward_count -= 1
+            gribfile.release()
             continue
         t = gribfile.get_field(grib_file.time_key)
         if t == timestamp and key in keys:
+            gribfile.release()
             continue  # Prevent double grib messages
         if t != timestamp:
             keys = set()
@@ -556,6 +560,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
+                gribfile.release()
                 continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
@@ -567,6 +572,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
             t = gribfile.get_field(grib_file.time_key)
             key = get_record_key(gribfile, gridtype)
             if t == timestamp and key in keys:
+                gribfile.release()
                 continue  # Prevent double grib messages
             if t != timestamp:
                 keys = set()
