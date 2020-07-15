@@ -580,13 +580,15 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False)
 # Writes the grib messages
 def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, setdate=None):
     global starttimes
-    if key[2] == grib_file.hybrid_level_code:
-        matches = [keys2files[k] for k in keys2files if k[:3] == key[:3]]
-    else:
-        matches = [keys2files[k] for k in keys2files if k[:4] == key[:4]]
     var_infos = set()
-    for match in matches:
-        var_infos.update(match)
+    if key[2] == grib_file.hybrid_level_code:
+        for k, v in keys2files.items():
+            if k[:3] == key[:3]:
+                var_infos.update(v)
+    else:
+        f = keys2files.get(key[:4], None)
+        if f is not None:
+            var_infos.update(f)
     if not any(var_infos):
         return
     if setdate is not None:
