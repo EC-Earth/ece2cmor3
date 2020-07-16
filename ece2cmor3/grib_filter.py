@@ -353,6 +353,8 @@ def filter_fx_variables(gribfile, keys2files, gridtype, startdate, handles=None)
 
 def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     valid_tasks, varstasks = validate_tasks(tasks)
+    if not any(valid_tasks):
+        return []
     task2files, task2freqs, fxkeys, keys2files = cluster_files(valid_tasks, varstasks)
     grids = [cmor_source.ifs_grid.point, cmor_source.ifs_grid.spec]
     if filter_files:
@@ -481,7 +483,6 @@ def open_files(vars2files):
             return {}
     return {f: open(os.path.join(temp_dir, f), 'w') for f in files}
 
-import sys
 
 def build_fast_forward_cache(keys2files, grid):
     result = {}
@@ -497,24 +498,17 @@ def build_fast_forward_cache(keys2files, grid):
             comp_key = key[1:4] + (-1, grid,)
         else:
             comp_key = key[1:] + (grid,)
-        if comp_key[0] == 0:
-            log.info("Unexpected 0 param id in comparison key for %s" % str(key))
         if comp_key not in keys2files:
-            log.info("Following key was not found: %s" % str(comp_key))
             i += 1
         else:
-            log.info("Following key was wel found: %s" % str(comp_key))
             i = 0
-    log.info("The fast-forward list for grid %s is: %s" % (grid, result))
-    sys.exit(0)
     return result
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
 def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False):
-    log.info("The keys2files are %s" % str(keys2files))
     dates = sorted(file_list.keys())
-    cache = build_fast_forward_cache(keys2files, grid)
+    cache = None if once else build_fast_forward_cache(keys2files, grid)
     for i in range(len(dates)):
         date = dates[i]
         if month != 0 and year != 0 and (date.month, date.year) != (month, year):
