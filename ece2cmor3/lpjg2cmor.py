@@ -536,7 +536,10 @@ def find_nemo_file(varname, nemo_freq):
     try:
         nemo_files = cmor_utils.find_nemo_output(nemo_path, exp_name_)
     except OSError:
+        log.error("Cannot find any nemo output files in %s"
+                  % (nemo_path))
         return ""
+    print(str(nemo_files))
     file_candidates = [f for f in nemo_files if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
     results = []
     for ncfile in file_candidates:
@@ -546,6 +549,8 @@ def find_nemo_file(varname, nemo_freq):
         ds.close()
     # simplified error reporting
     if len(results) !=1:
+        log.error("Cannot find any suitable nemo output files in %s"
+                  % (nemo_path))
         return ""
     return results[0]
 
