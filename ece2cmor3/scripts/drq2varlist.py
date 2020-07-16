@@ -35,17 +35,18 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request")
+    formatter = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog, max_help_position=37)
+    parser = argparse.ArgumentParser(description="Create component-specified varlist json for given data request", formatter_class=formatter)
     required = parser.add_argument_group("required arguments")
     varsarg = required.add_mutually_exclusive_group(required=True)
     varsarg.add_argument("--drq", metavar="FILE", type=str,
-                        help="File (xlsx|json) containing requested cmor variables (Required)")
+                        help="File (xlsx|json) containing requested cmor variables (Required, unless --allvars is used)")
     varsarg.add_argument("--allvars", action="store_true", default=False,
-                        help="Read all possible variables from CMOR tables")
+                        help="Read all possible variables from CMOR tables (Required, unless --drq is used)")
+    varsarg.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+                        help="EC-Earth configuration")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
-    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
-                        help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--tabdir", metavar="DIR", type=str, default=ece2cmorlib.table_dir_default,
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,

@@ -41,9 +41,9 @@ cmip_ece_configurations = {
  'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB',
  'EC-EARTH-HR'      : 'CMIP,DCPP,HighResMIP',
  'EC-EARTH-LR'      : 'CMIP,PMIP',
- 'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP',
+ 'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
  'EC-EARTH-GrisIS'  : 'CMIP,ISMIP6,PMIP',
- 'EC-EARTH-AerChem' : 'AerChemMIP,CMIP',
+ 'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,RFMIP',
  'EC-EARTH-Veg'     : 'CDRMIP,CMIP,LUMIP,LS3MIP,ScenarioMIP',
  'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
 }
@@ -56,7 +56,8 @@ cmip_ece_configurations = {
 # for each of the EC-Earth3 model configurations:
 scenario_ece_configurations = {
  'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB',
- 'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,ScenarioMIP',
+ 'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
+ 'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,RFMIP,ScenarioMIP',
  'EC-EARTH-Veg'     : 'CMIP,LUMIP,LS3MIP,ScenarioMIP',
  'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
 }
@@ -72,8 +73,8 @@ ece_conf_mip_map = {
  'DCPP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR'],
  'LS3MIP'      : ['EC-EARTH-AOGCM','EC-EARTH-Veg'],
  'PAMIP'       : ['EC-EARTH-AOGCM'],
- 'RFMIP'       : ['EC-EARTH-AOGCM'],
- 'ScenarioMIP' : ['EC-EARTH-AOGCM','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
+ 'RFMIP'       : ['EC-EARTH-AOGCM','EC-EARTH-AerChem'],
+ 'ScenarioMIP' : ['EC-EARTH-AOGCM','EC-EARTH-CC','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
  'VolMIP'      : ['EC-EARTH-AOGCM'],
  'CORDEX'      : ['EC-EARTH-AOGCM'],
  'DynVarMIP'   : ['EC-EARTH-AOGCM'],

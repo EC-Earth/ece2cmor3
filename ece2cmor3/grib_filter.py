@@ -347,18 +347,26 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     if filter_files:
         filehandles = open_files(keys2files)
         fxkeys2files = {k: keys2files[k] for k in fxkeys}
-        gridpoint_start_date = sorted(gridpoint_files.keys())[0]
-        first_gridpoint_file = gridpoint_files[gridpoint_start_date][0]
-        if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
+        if any(gridpoint_files):
+            gridpoint_start_date = sorted(gridpoint_files.keys())[0]
+            first_gridpoint_file = gridpoint_files[gridpoint_start_date][0]
+            if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
+                with open(str(ini_gridpoint_file), 'r') as fin:
+                    filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
+                                        filehandles)
+        elif ini_gridpoint_file is not None:
             with open(str(ini_gridpoint_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
-                                    filehandles)
-        spectral_start_date = sorted(spectral_files.keys())[0]
-        first_spectral_file = spectral_files[spectral_start_date][0]
-        if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], None, filehandles)
+        if any(spectral_files):
+            spectral_start_date = sorted(spectral_files.keys())[0]
+            first_spectral_file = spectral_files[spectral_start_date][0]
+            if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
+                with open(str(ini_spectral_file), 'r') as fin:
+                    filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
+                                        filehandles)
+        elif ini_spectral_file is not None:
             with open(str(ini_spectral_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
-                                    filehandles)
+                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], None, filehandles)
         if multi_threaded:
             threads = []
             for file_list, grid in zip([gridpoint_files, spectral_files], grids):
@@ -394,13 +402,15 @@ def validate_tasks(tasks):
     varstasks = {}
     valid_tasks = []
     for task in tasks:
-        if not isinstance(task.source, cmor_source.ifs_source):
+        if task.status == cmor_task.status_failed or not isinstance(task.source, cmor_source.ifs_source):
             continue
         codes = task.source.get_root_codes()
         target_freq = cmor_target.get_freq(task.target)
         matched_keys = []
         matched_grid = None
         for c in codes:
+            if task.status == cmor_task.status_failed:
+                break
             levtype, levels = get_levels(task, c)
             for level in levels:
                 if task.status == cmor_task.status_failed:
@@ -409,6 +419,12 @@ def validate_tasks(tasks):
                 if match_key is None:
                     if 0 < target_freq and c in cmor_source.ifs_source.grib_codes_fx:
                         match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, fxvars)
+                        if match_key is None:
+                            log.error("Field missing in the initial state files: "
+                                      "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
+                                      (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
+                            task.set_failed()
+                            break
                     else:
                         log.error("Field missing in the first day of file: "
                                   "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
