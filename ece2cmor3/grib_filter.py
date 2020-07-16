@@ -487,7 +487,7 @@ def build_fast_forward_cache(keys2files, grid):
     for key in record_keys[grid]:
         if key[:4] != prev_key[:4]: # flush
             if i > 0:
-                result[grid][prev_key] = i
+                result[prev_key] = i
             prev_key = key
             i = 0
         if key[3] == grib_file.hybrid_level_code:
