@@ -123,6 +123,8 @@ def inspect_day(gribfile, grid):
         if initime < 0:
             initime = time
         short_key = get_record_key(gribfile, grid)
+        if short_key[1] == 0:
+            log.error("Invalid key at first day inspection: %s" % short_key)
         keylist.append((time,) + short_key)
         key = short_key + (grid,)
         if key in records:
@@ -482,7 +484,6 @@ def open_files(vars2files):
 import sys
 
 def build_fast_forward_cache(keys2files, grid):
-    log.info("The keys2files are %s" % str(keys2files.keys()))
     result = {}
     i = 0
     prev_key = (-1, -1, -1, -1, -1)
@@ -511,6 +512,7 @@ def build_fast_forward_cache(keys2files, grid):
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
 def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False):
+    log.info("The keys2files are %s" % str(keys2files))
     dates = sorted(file_list.keys())
     cache = build_fast_forward_cache(keys2files, grid)
     for i in range(len(dates)):
