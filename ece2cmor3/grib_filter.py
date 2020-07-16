@@ -479,8 +479,10 @@ def open_files(vars2files):
             return {}
     return {f: open(os.path.join(temp_dir, f), 'w') for f in files}
 
+import sys
 
 def build_fast_forward_cache(keys2files, grid):
+    log.info("The keys2files are %s" % str(keys2files.keys()))
     result = {}
     i = 0
     prev_key = (-1, -1, -1, -1, -1)
@@ -494,13 +496,16 @@ def build_fast_forward_cache(keys2files, grid):
             comp_key = key[1:4] + (-1, grid,)
         else:
             comp_key = key[1:] + (grid,)
+        if comp_key[0] == 0:
+            log.info("Unexpected 0 param id in comparison key for %s" % str(key))
         if comp_key not in keys2files:
-            log.info("Following key was not found: %s" % comp_key)
+            log.info("Following key was not found: %s" % str(comp_key))
             i += 1
         else:
-            log.info("Following key was wel found: %s" % comp_key)
+            log.info("Following key was wel found: %s" % str(comp_key))
             i = 0
     log.info("The fast-forward list for grid %s is: %s" % (grid, result))
+    sys.exit(0)
     return result
 
 
