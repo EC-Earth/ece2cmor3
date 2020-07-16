@@ -23,26 +23,15 @@ accum_codes = []
 varsfreq = {}
 spvar = None
 fxvars = []
-
+record_keys = {}
 starttimes = {}
 
 
 # Initializes the module, looks up previous month files and inspects the first
 # day in the input files to set up an administration of the fields.
-def update_sp_key(fname):
-    global spvar
-    for key in varsfreq:
-        freq = varsfreq[key]
-        if key[0] == 154:
-            if spvar is None or spvar[1] >= freq:
-                spvar = (154, freq, fname)
-        if key[0] == 134:
-            if spvar is None or spvar[1] > freq:
-                spvar = (134, freq, fname)
-
-
 def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
-    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes
+    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes, \
+        record_keys
     grib_file.initialize()
     gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
     spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
@@ -56,11 +45,15 @@ def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
     shfile = spectral_files[shdate][1] if any(spectral_files) else None
     if gpfile is not None:
         with open(gpfile) as gpf:
-            varsfreq.update(inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point))
+            freqs, records = inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point)
+            varsfreq.update(freqs)
+            record_keys[cmor_source.ifs_grid.point] = records
             update_sp_key(gpfile)
     if shfile is not None:
         with open(shfile) as shf:
-            varsfreq.update(inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
+            freqs, records = inspect_day(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec)
+            varsfreq.update(freqs)
+            record_keys[cmor_source.ifs_grid.spec] = records
             update_sp_key(shfile)
     if ini_gpfile is not None:
         with open(ini_gpfile) as gpf:
@@ -68,6 +61,19 @@ def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
     if ini_shfile is not None:
         with open(ini_shfile) as shf:
             fxvars.extend(inspect_hr(grib_file.create_grib_file(shf), grid=cmor_source.ifs_grid.spec))
+
+
+# Fix for finding the surface pressure, necessary to store 3d model level fields
+def update_sp_key(fname):
+    global spvar
+    for key in varsfreq:
+        freq = varsfreq[key]
+        if key[0] == 154:
+            if spvar is None or spvar[1] >= freq:
+                spvar = (154, freq, fname)
+        if key[0] == 134:
+            if spvar is None or spvar[1] > freq:
+                spvar = (134, freq, fname)
 
 
 # Function reading the file with grib-codes of accumulated fields
@@ -105,16 +111,20 @@ def inspect_hr(gribfile, grid):
 def inspect_day(gribfile, grid):
     inidate, initime = -99, -1
     records = {}
+    keylist = []
     while gribfile.read_next(headers_only=True):
         date = gribfile.get_field(grib_file.date_key)
         time = gribfile.get_field(grib_file.time_key) / 100
         if date == inidate + 1 and time == initime:
+            gribfile.release()
             break
         if inidate < 0:
             inidate = date
         if initime < 0:
             initime = time
-        key = get_record_key(gribfile, grid) + (grid,)
+        short_key = get_record_key(gribfile, grid)
+        keylist.append((time,) + short_key)
+        key = short_key + (grid,)
         if key in records:
             if time not in records[key]:
                 records[key].append(time)
@@ -137,7 +147,7 @@ def inspect_day(gribfile, grid):
                       "intervals in first day in file %s" % (key[0], key[1], key[3], key[2], gribfile.file_object.name))
         else:
             result[key] = frq
-    return result
+    return result, keylist
 
 
 # TODO: Merge the 2 functions below into one matching function:
@@ -166,8 +176,7 @@ def get_record_key(gribfile, gridtype):
         levtype = grib_file.surface_level_code
     # Fix for spectral height level fields in gridpoint file:
     if cmor_source.grib_code(codevar) in cmor_source.ifs_source.grib_codes_sh and \
-            gridtype != cmor_source.ifs_grid.spec and \
-            levtype == grib_file.hybrid_level_code:
+            gridtype != cmor_source.ifs_grid.spec and levtype == grib_file.hybrid_level_code:
         levtype = grib_file.height_level_code
     return codevar, codetab, levtype, level
 
@@ -471,9 +480,32 @@ def open_files(vars2files):
     return {f: open(os.path.join(temp_dir, f), 'w') for f in files}
 
 
+def build_fast_forward_cache(keys2files, grid):
+    result = {}
+    i = 0
+    prev_key = (-1, -1, -1, -1, -1)
+    for key in record_keys[grid]:
+        if key[:4] != prev_key[:4]: # flush
+            if i > 0:
+                result[grid][prev_key] = i
+            prev_key = key
+            i = 0
+        if key[3] == grib_file.hybrid_level_code:
+            comp_key = key[1:4] + (-1, grid,)
+        else:
+            comp_key = key[1:] + (grid,)
+        if comp_key not in keys2files:
+            i += 1
+        else:
+            i = 0
+        log.info("The fast-forward list for grid %s is: %s" % (grid, result))
+    return result
+
+
 # Processes month of grib data, including 0-hour fields in the previous month file.
 def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False):
     dates = sorted(file_list.keys())
+    cache = build_fast_forward_cache(keys2files, grid)
     for i in range(len(dates)):
         date = dates[i]
         if month != 0 and year != 0 and (date.month, date.year) != (month, year):
@@ -487,7 +519,7 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
         with open(cur_grib_file, 'r') as fin:
             log.info("Filtering grib file %s..." % cur_grib_file)
             if next_chained:
-                proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, once)
+                proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, once, cache)
             else:
                 proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
 
@@ -513,14 +545,8 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=Fals
         gribfile.release()
 
 
-model_level_cache = {}
-
-
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
-    for key in keys2files.keys():
-        if key[2] == grib_file.hybrid_level_code:
-            model_level_cache[(key[0], key[1])] = 0
+def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
     timestamp = -1
     keys = set()
     fast_forward_count = 0
@@ -530,13 +556,12 @@ def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False):
             gribfile.release()
             continue
         key = get_record_key(gribfile, gridtype)
-        if key[2] == grib_file.hybrid_level_code:
-            fast_forward_count = model_level_cache.get((key[0], key[1]), 91)
+        t = gribfile.get_field(grib_file.time_key)
+        fast_forward_count = ff_cache.get((t,) + key, 0) if ff_cache is not None else 0
         if fast_forward_count > 0:
             fast_forward_count -= 1
             gribfile.release()
             continue
-        t = gribfile.get_field(grib_file.time_key)
         if t == timestamp and key in keys:
             gribfile.release()
             continue  # Prevent double grib messages
