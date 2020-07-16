@@ -486,7 +486,7 @@ def build_fast_forward_cache(keys2files, grid):
     prev_key = (-1, -1, -1, -1, -1)
     for key in record_keys[grid]:
         if key[:4] != prev_key[:4]: # flush
-            if i > 0:
+            if i > 1:
                 result[prev_key] = i
             prev_key = key
             i = 0
@@ -495,10 +495,12 @@ def build_fast_forward_cache(keys2files, grid):
         else:
             comp_key = key[1:] + (grid,)
         if comp_key not in keys2files:
+            log.info("Following key was not found: %s" % comp_key)
             i += 1
         else:
+            log.info("Following key was wel found: %s" % comp_key)
             i = 0
-        log.info("The fast-forward list for grid %s is: %s" % (grid, result))
+    log.info("The fast-forward list for grid %s is: %s" % (grid, result))
     return result
 
 
