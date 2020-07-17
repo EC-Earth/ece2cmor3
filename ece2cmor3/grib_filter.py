@@ -93,9 +93,9 @@ def grib_tuple_from_string(s):
 
 
 # Utility to make grib tuple of codes from string
-def grib_tuple_from_int(i):
-    if i < 256:
-        return i, 128
+def grib_tuple_from_ints(i, j):
+    if i < 10 ** 3:
+        return i, j
     return i % 10 ** 3, i / 10 ** 3
 
 
@@ -156,7 +156,8 @@ def inspect_day(gribfile, grid):
 
 # Creates a key (code + table + level type + level) for a grib message iterator
 def get_record_key(gribfile, gridtype):
-    codevar, codetab = grib_tuple_from_int(gribfile.get_field(grib_file.param_key))
+    codevar, codetab = grib_tuple_from_ints(gribfile.get_field(grib_file.param_key),
+                                            gribfile.get_field(grib_file.table_key))
     levtype, level = gribfile.get_field(grib_file.levtype_key), gribfile.get_field(grib_file.level_key)
     if levtype == grib_file.pressure_level_hPa_code:
         level *= 100

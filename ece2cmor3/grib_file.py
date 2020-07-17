@@ -16,8 +16,9 @@ pv_level_code = 117
 # Key names
 date_key = "dataDate"
 time_key = "dataTime"
-param_key = "paramId"
+param_key = "indicatorOfParameter"
 levtype_key = "indicatorOfTypeOfLevel"
+table_key = "table2Version"
 level_key = "level"
 
 test_mode = False
