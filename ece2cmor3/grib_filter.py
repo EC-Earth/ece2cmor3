@@ -423,19 +423,18 @@ def validate_tasks(tasks):
                             log.error("Field missing in the initial state files: "
                                       "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
                                       (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
-                            task.set_failed()
-                            break
                     else:
                         log.error("Field missing in the first day of file: "
                                   "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
                                   (c.var_id, c.tab_id, levtype, level, task.target.variable, task.target.table))
-                        task.set_failed()
-                        break
                 elif 0 < target_freq < varsfreq[match_key]:
                     log.error("Field has too low frequency for target %s: "
                               "code %d.%d, level type %d, level %d. Dismissing task %s in table %s" %
                               (task.target.variable, c.var_id, c.tab_id, levtype, level, task.target.variable,
                                task.target.table))
+                    task.set_failed()
+                    break
+                if match_key is None:
                     task.set_failed()
                     break
                 if matched_grid is None:
