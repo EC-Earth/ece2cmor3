@@ -124,7 +124,7 @@ def inspect_day(gribfile, grid):
             initime = time
         short_key = get_record_key(gribfile, grid)
         if short_key[1] == 0:
-            log.error("Invalid key at first day inspection: %s" % short_key)
+            log.error("Invalid key at first day inspection: %s" % str(short_key))
         keylist.append((time,) + short_key)
         key = short_key + (grid,)
         if key in records:
@@ -496,10 +496,10 @@ def build_fast_forward_cache(keys2files, grid):
             i = 0
         if key[3] == grib_file.hybrid_level_code:
             comp_key = key[1:4] + (-1, grid,)
-        else:
-            comp_key = key[1:] + (grid,)
-        if comp_key not in keys2files:
-            i += 1
+            if comp_key not in keys2files:
+                i += 1
+            else:
+                i = 0
         else:
             i = 0
     return result
