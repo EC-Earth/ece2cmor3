@@ -1,13 +1,19 @@
+import logging
 import sys
 import os
 import netCDF4
 import numpy as np
 
+# Logger object
+log = logging.getLogger(__name__)
+
 def load_vertices(vertices_file_name):
     # Loading once at the start the NEMO longitude and latitude vertices from a netcdf file:
     nemo_vertices_file_name=os.path.join("ece2cmor3/resources/nemo-vertices/", vertices_file_name)
-   #if os.path.isfile(nemo_vertices_file_name) == False: log.error(" The file %s does not exist. " % vertices_file_name); sys.exit()
-    if os.path.isfile(nemo_vertices_file_name) == False: log.error('The file {} does not exist. Note that the vertices files are available in the cmor-fixer repository: cmor-fixer/nemo-vertices. So you might need to make links in your ece2cmor3/ece2cmor3/resources/nemo-vertices directory.\n'.format(vertices_file_name)); sys.exit()
+    # Using log I get an error: No handlers could be found for logger "ece2cmor3.__load_nemo_vertices__"
+   #if os.path.isfile(nemo_vertices_file_name) == False: log.error('The file {} does not exist. These vertices files are available in the cmor-fixer repository, follow the instructions from: ece2cmor3/resources/nemo-vertices/this-directory.txt\n'.format(vertices_file_name)); sys.exit()
+   #if os.path.isfile(nemo_vertices_file_name) == False: log.fatal('The file {} does not exist. These vertices files are available in the cmor-fixer repository, follow the instructions from: ece2cmor3/resources/nemo-vertices/this-directory.txt\n'.format(vertices_file_name)); sys.exit()
+    if os.path.isfile(nemo_vertices_file_name) == False: print('\nThe file {} does not exist. These vertices files are available in the cmor-fixer repository, follow the instructions from: ece2cmor3/resources/nemo-vertices/this-directory.txt\n'.format(vertices_file_name)); sys.exit()
     nemo_vertices_netcdf_file = netCDF4.Dataset(nemo_vertices_file_name, 'r')
     lon_vertices_from_nemo_tmp = nemo_vertices_netcdf_file.variables["vertices_longitude"]
     lat_vertices_from_nemo_tmp = nemo_vertices_netcdf_file.variables["vertices_latitude"]
