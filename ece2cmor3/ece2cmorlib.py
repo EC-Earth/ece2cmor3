@@ -75,6 +75,9 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     newline = "processed by ece2cmor {version}, git rev. " \
               "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
     metadata["history"] = newline + hist if len(hist) != 0 else newline
+    metadata["latest_ece2cmor_version"] = __version__.version
+    metadata["ece2cmor_git_revision"] = cmor_utils.get_git_hash()
+    metadata["latest_applied_cmor_fixer_version"] = 'None'
     for key, val in metadata.items():
         log.info("Metadata attribute %s: %s", key, val)
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
