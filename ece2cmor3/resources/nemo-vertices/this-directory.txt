@@ -1,0 +1,16 @@
+This directory need to contain the following files:
+
+ nemo-vertices-ORCA1-t-grid.nc      ( 47M)
+ nemo-vertices-ORCA1-u-grid.nc      ( 47M)
+ nemo-vertices-ORCA1-v-grid.nc      ( 47M)
+ nemo-vertices-ORCA025-t-grid.nc    (3,3M)
+ nemo-vertices-ORCA025-u-grid.nc    (3,3M)
+ nemo-vertices-ORCA025-v-grid.nc    (3,3M)
+
+With a clone of the cmor-fixer one can download these files:
+ git clone git@github.com:EC-Earth/cmor-fixer.git
+
+The files can be found in the cmor-fixer repository in this directory:
+ cmor-fixer/nemo-vertices
+
+Now make links or copy these files from the cmor-fixer repository into this directory of ece2cmor.
