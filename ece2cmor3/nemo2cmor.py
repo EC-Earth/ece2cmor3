@@ -9,6 +9,14 @@ import cmor_task
 import cmor_utils
 
 from datetime import datetime, timedelta
+from __load_nemo_vertices__ import lon_vertices_from_nemo_orca1_t_grid, lon_vertices_from_nemo_orca1_u_grid, lon_vertices_from_nemo_orca1_v_grid, \
+                                   lat_vertices_from_nemo_orca1_t_grid, lat_vertices_from_nemo_orca1_u_grid, lat_vertices_from_nemo_orca1_v_grid, \
+                                   lon_vertices_from_nemo_orca025_t_grid, lon_vertices_from_nemo_orca025_u_grid, lon_vertices_from_nemo_orca025_v_grid, \
+                                   lat_vertices_from_nemo_orca025_t_grid, lat_vertices_from_nemo_orca025_u_grid, lat_vertices_from_nemo_orca025_v_grid
+
+# The ORCA1 & ORCA025 grid have the following dimension sizes (used to check whether the considered grid is ORCA1 or ORCA025):
+orca1_grid_shape   = ( 292,  362)
+orca025_grid_shape = (1050, 1442)
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
@@ -634,49 +642,39 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
-        self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
-
-    @staticmethod
-    def create_vertex_lons(a):
-        ny = a.shape[0]
-        nx = a.shape[1]
-        f = numpy.vectorize(lambda x: x % 360)
-        if nx == 1:  # Longitudes were integrated out
-            if ny == 1:
-                return f(numpy.array([a[0, 0]]))
-            return numpy.zeros([ny, 2])
-        b = numpy.zeros([ny, nx, 4])
-        b[:, 1:nx, 0] = f(0.5 * (a[:, 0:nx - 1] + a[:, 1:nx]))
-        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
-        b[:, 0:nx - 1, 1] = b[:, 1:nx, 0]
-        b[:, nx - 1, 1] = f(1.5 * a[:, nx - 1] - 0.5 * a[:, nx - 2])
-        b[:, :, 2] = b[:, :, 1]
-        b[:, :, 3] = b[:, :, 0]
-        return b
-
-    @staticmethod
-    def create_vertex_lats(a):
-        ny = a.shape[0]
-        nx = a.shape[1]
-        f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
-        if nx == 1:  # Longitudes were integrated out
-            if ny == 1:
-                return f(numpy.array([a[0, 0]]))
-            b = numpy.zeros([ny, 2])
-            b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
-            b[0, 0] = f(2 * a[0, 0] - b[1, 0])
-            b[0:ny - 1, 1] = b[1:ny, 0]
-            b[ny - 1, 1] = f(1.5 * a[ny - 1, 0] - 0.5 * a[ny - 2, 0])
-            return b
-        b = numpy.zeros([ny, nx, 4])
-        b[1:ny, :, 0] = f(0.5 * (a[0:ny - 1, :] + a[1:ny, :]))
-        b[0, :, 0] = f(2 * a[0, :] - b[1, :, 0])
-        b[:, :, 1] = b[:, :, 0]
-        b[0:ny - 1, :, 2] = b[1:ny, :, 0]
-        b[ny - 1, :, 2] = f(1.5 * a[ny - 1, :] - 0.5 * a[ny - 2, :])
-        b[:, :, 3] = b[:, :, 2]
-        return b
+        # Testing if all vertices are loaded and available here (YES they ARE):
+        if False:
+         print(lon_vertices_from_nemo_orca1_t_grid)
+         print(lat_vertices_from_nemo_orca1_t_grid)
+         print(lon_vertices_from_nemo_orca1_u_grid)
+         print(lat_vertices_from_nemo_orca1_u_grid)
+         print(lon_vertices_from_nemo_orca1_v_grid)
+         print(lat_vertices_from_nemo_orca1_v_grid)
+         print(lon_vertices_from_nemo_orca025_t_grid)
+         print(lat_vertices_from_nemo_orca025_t_grid)
+         print(lon_vertices_from_nemo_orca025_u_grid)
+         print(lat_vertices_from_nemo_orca025_u_grid)
+         print(lon_vertices_from_nemo_orca025_v_grid)
+         print(lat_vertices_from_nemo_orca025_v_grid)
+        # TO DO: distinguish between the t, u, v staggered grid case (in both ORCA1 & ORCA025 case):
+        # In principle this could be derived from the NEMO file name
+        if input_lats.shape == orca1_grid_shape:
+         self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
+         self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
+        #self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
+        #self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
+        #self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
+        #self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
+        elif input_lats.shape == orca025_grid_shape:
+         self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
+         self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
+        #self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
+        #self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
+        #self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
+        #self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
+        else:
+         import sys
+         log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape)); sys.exit(input_lats.shape)
 
     @staticmethod
     def modlon2(x, a):
