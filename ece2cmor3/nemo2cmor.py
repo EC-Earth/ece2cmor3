@@ -643,38 +643,14 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        # Testing if all vertices are loaded and available here (YES they ARE):
-        if False:
-         print(lon_vertices_from_nemo_orca1_t_grid)
-         print(lat_vertices_from_nemo_orca1_t_grid)
-         print(lon_vertices_from_nemo_orca1_u_grid)
-         print(lat_vertices_from_nemo_orca1_u_grid)
-         print(lon_vertices_from_nemo_orca1_v_grid)
-         print(lat_vertices_from_nemo_orca1_v_grid)
-         print(lon_vertices_from_nemo_orca025_t_grid)
-         print(lat_vertices_from_nemo_orca025_t_grid)
-         print(lon_vertices_from_nemo_orca025_u_grid)
-         print(lat_vertices_from_nemo_orca025_u_grid)
-         print(lon_vertices_from_nemo_orca025_v_grid)
-         print(lat_vertices_from_nemo_orca025_v_grid)
-       #from pprint import pprint
-       #print('Object properties of self:')
-       #pprint(vars(self))
-       #print(self.name[-4:])
-       #print(self.name)
-       #print('Object properties of name_:')
-       #pprint(dir(name_))
         if input_lats.shape == orca1_grid_shape:
          if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
-         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
           self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
           self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
          elif self.name[-4:] in ['U_2D', 'U_3D']:
-         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
           self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
           self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
          elif self.name[-4:] in ['V_2D', 'V_3D']:
-         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
           self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
           self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
          else:
