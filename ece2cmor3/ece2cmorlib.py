@@ -190,12 +190,48 @@ def perform_ifs_tasks(datadir, expname,
                                     get_cmor_target("areacella", "fx"))
     ifs2cmor.execute(ifs_tasks + [area_task], nthreads=taskthreads)
 
+def load_nemo_vertices():
+     import sys
+     import netCDF4
+     import numpy as np
+     def load_vertices(vertices_file_name):
+         # Loading once at the start the NEMO longitude and latitude vertices from a netcdf file:
+         nemo_vertices_file_name=os.path.join("ece2cmor3/resources/nemo-vertices/", vertices_file_name)
+        #if os.path.isfile(nemo_vertices_file_name) == False: log.error(" The file %s does not exist. " % vertices_file_name); sys.exit()
+         if os.path.isfile(nemo_vertices_file_name) == False: log.error('The file {} does not exist. Note that the vertices files are available in the cmor-fixer repository: cmor-fixer/nemo-vertices. So you might need to make links in your ece2cmor3/ece2cmor3/resources/nemo-vertices directory.\n'.format(vertices_file_name)); sys.exit()
+         nemo_vertices_netcdf_file = netCDF4.Dataset(nemo_vertices_file_name, 'r')
+         lon_vertices_from_nemo_tmp = nemo_vertices_netcdf_file.variables["vertices_longitude"]
+         lat_vertices_from_nemo_tmp = nemo_vertices_netcdf_file.variables["vertices_latitude"]
+         lon_vertices_from_nemo = np.array(lon_vertices_from_nemo_tmp[...], copy=True)
+         lat_vertices_from_nemo = np.array(lat_vertices_from_nemo_tmp[...], copy=True)
+         nemo_vertices_netcdf_file.close()
+         return lon_vertices_from_nemo, lat_vertices_from_nemo
+
+     # Load the vertices fields (Note these are global variables which otherwise have to be given as arguments via the function process_file to the function fix_file):
+     lon_vertices_from_nemo_orca1_t_grid, lat_vertices_from_nemo_orca1_t_grid = load_vertices("nemo-vertices-ORCA1-t-grid.nc")
+     lon_vertices_from_nemo_orca1_u_grid, lat_vertices_from_nemo_orca1_u_grid = load_vertices("nemo-vertices-ORCA1-u-grid.nc")
+     lon_vertices_from_nemo_orca1_v_grid, lat_vertices_from_nemo_orca1_v_grid = load_vertices("nemo-vertices-ORCA1-v-grid.nc")
+     # Convert the vertices_longitude to the 0-360 degree interval:
+     lon_vertices_from_nemo_orca1_t_grid = np.where(lon_vertices_from_nemo_orca1_t_grid < 0, lon_vertices_from_nemo_orca1_t_grid + 360.0, lon_vertices_from_nemo_orca1_t_grid)
+     lon_vertices_from_nemo_orca1_u_grid = np.where(lon_vertices_from_nemo_orca1_u_grid < 0, lon_vertices_from_nemo_orca1_u_grid + 360.0, lon_vertices_from_nemo_orca1_u_grid)
+     lon_vertices_from_nemo_orca1_v_grid = np.where(lon_vertices_from_nemo_orca1_v_grid < 0, lon_vertices_from_nemo_orca1_v_grid + 360.0, lon_vertices_from_nemo_orca1_v_grid)
+
+     # Load the vertices fields (Note these are global variables which otherwise have to be given as arguments via the function process_file to the function fix_file):
+     lon_vertices_from_nemo_orca025_t_grid, lat_vertices_from_nemo_orca025_t_grid = load_vertices("nemo-vertices-ORCA025-t-grid.nc")
+     lon_vertices_from_nemo_orca025_u_grid, lat_vertices_from_nemo_orca025_u_grid = load_vertices("nemo-vertices-ORCA025-u-grid.nc")
+     lon_vertices_from_nemo_orca025_v_grid, lat_vertices_from_nemo_orca025_v_grid = load_vertices("nemo-vertices-ORCA025-v-grid.nc")
+     # Convert the vertices_longitude to the 0-360 degree interval:
+     lon_vertices_from_nemo_orca025_t_grid = np.where(lon_vertices_from_nemo_orca025_t_grid < 0, lon_vertices_from_nemo_orca025_t_grid + 360.0, lon_vertices_from_nemo_orca025_t_grid)
+     lon_vertices_from_nemo_orca025_u_grid = np.where(lon_vertices_from_nemo_orca025_u_grid < 0, lon_vertices_from_nemo_orca025_u_grid + 360.0, lon_vertices_from_nemo_orca025_u_grid)
+     lon_vertices_from_nemo_orca025_v_grid = np.where(lon_vertices_from_nemo_orca025_v_grid < 0, lon_vertices_from_nemo_orca025_v_grid + 360.0, lon_vertices_from_nemo_orca025_v_grid)
+
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):
     global log, tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
+    load_nemo_vertices()
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
     log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks)))
     tableroot = os.path.join(table_dir, prefix)
