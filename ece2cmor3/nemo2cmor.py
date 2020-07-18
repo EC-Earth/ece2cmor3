@@ -3,6 +3,7 @@ import logging
 import netCDF4
 import numpy
 import os
+import sys
 
 import cmor_target
 import cmor_task
@@ -656,24 +657,43 @@ class nemo_grid(object):
          print(lat_vertices_from_nemo_orca025_u_grid)
          print(lon_vertices_from_nemo_orca025_v_grid)
          print(lat_vertices_from_nemo_orca025_v_grid)
-        # TO DO: distinguish between the t, u, v staggered grid case (in both ORCA1 & ORCA025 case):
-        # In principle this could be derived from the NEMO file name
+       #from pprint import pprint
+       #print('Object properties of self:')
+       #pprint(vars(self))
+       #print(self.name[-4:])
+       #print(self.name)
+       #print('Object properties of name_:')
+       #pprint(dir(name_))
         if input_lats.shape == orca1_grid_shape:
-         self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
-         self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
-        #self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
-        #self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
-        #self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
-        #self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
+         if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
+         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
+          self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
+         elif self.name[-4:] in ['U_2D', 'U_3D']:
+         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
+          self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
+         elif self.name[-4:] in ['V_2D', 'V_3D']:
+         #print('The grid type: {} has been detected.'.format(self.name[-4:]))
+          self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
+         else:
+          log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
+          sys.exit(' Exiting ece2cmor.')
         elif input_lats.shape == orca025_grid_shape:
-         self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
-         self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
-        #self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
-        #self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
-        #self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
-        #self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
+         if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
+          self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
+         elif self.name[-4:] in ['U_2D', 'U_3D']:
+          self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
+         elif self.name[-4:] in ['V_2D', 'V_3D']:
+          self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
+          self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
+         else:
+          log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
+          sys.exit(' Exiting ece2cmor.')
         else:
-         import sys
          log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape)); sys.exit(input_lats.shape)
 
     @staticmethod
