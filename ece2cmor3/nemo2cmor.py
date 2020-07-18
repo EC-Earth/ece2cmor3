@@ -670,7 +670,8 @@ class nemo_grid(object):
           log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
           sys.exit(' Exiting ece2cmor.')
         else:
-         log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape)); sys.exit(input_lats.shape)
+         log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
+         sys.exit(' Exiting ece2cmor.')
 
     @staticmethod
     def modlon2(x, a):
