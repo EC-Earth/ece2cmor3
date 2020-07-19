@@ -645,9 +645,9 @@ class nemo_grid(object):
         self.lats = flat(input_lats)
         if input_lats.shape[0] == 1 or input_lats.shape[1] == 1:
          # In the case of 1D horizontal case we keep the old method:
-         # To DO: insert old method here again
-         log.error('The file has 1D horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
-         sys.exit(' Exiting ece2cmor.')
+         log.info('The file has 1D horizonatal grid dimensions: {}. The earlier ece2cmor3 NEMO vertices calculation is used.\n'.format(input_lats.shape))
+         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
+         self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
         else:
          if input_lats.shape == orca1_grid_shape:
           if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
@@ -679,6 +679,46 @@ class nemo_grid(object):
           log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
           sys.exit(' Exiting ece2cmor.')
 
+    @staticmethod
+    def create_vertex_lons(a):
+        ny = a.shape[0]
+        nx = a.shape[1]
+        f = numpy.vectorize(lambda x: x % 360)
+        if nx == 1:  # Longitudes were integrated out
+            if ny == 1:
+                return f(numpy.array([a[0, 0]]))
+            return numpy.zeros([ny, 2])
+        b = numpy.zeros([ny, nx, 4])
+        b[:, 1:nx, 0] = f(0.5 * (a[:, 0:nx - 1] + a[:, 1:nx]))
+        b[:, 0, 0] = f(1.5 * a[:, 0] - 0.5 * a[:, 1])
+        b[:, 0:nx - 1, 1] = b[:, 1:nx, 0]
+        b[:, nx - 1, 1] = f(1.5 * a[:, nx - 1] - 0.5 * a[:, nx - 2])
+        b[:, :, 2] = b[:, :, 1]
+        b[:, :, 3] = b[:, :, 0]
+        return b
+
+    @staticmethod
+    def create_vertex_lats(a):
+        ny = a.shape[0]
+        nx = a.shape[1]
+        f = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
+        if nx == 1:  # Longitudes were integrated out
+            if ny == 1:
+                return f(numpy.array([a[0, 0]]))
+            b = numpy.zeros([ny, 2])
+            b[1:ny, 0] = f(0.5 * (a[0:ny - 1, 0] + a[1:ny, 0]))
+            b[0, 0] = f(2 * a[0, 0] - b[1, 0])
+            b[0:ny - 1, 1] = b[1:ny, 0]
+            b[ny - 1, 1] = f(1.5 * a[ny - 1, 0] - 0.5 * a[ny - 2, 0])
+            return b
+        b = numpy.zeros([ny, nx, 4])
+        b[1:ny, :, 0] = f(0.5 * (a[0:ny - 1, :] + a[1:ny, :]))
+        b[0, :, 0] = f(2 * a[0, :] - b[1, :, 0])
+        b[:, :, 1] = b[:, :, 0]
+        b[0:ny - 1, :, 2] = b[1:ny, :, 0]
+        b[ny - 1, :, 2] = f(1.5 * a[ny - 1, :] - 0.5 * a[ny - 2, :])
+        b[:, :, 3] = b[:, :, 2]
+        return b
 
     @staticmethod
     def modlon2(x, a):
