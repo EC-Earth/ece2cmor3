@@ -643,7 +643,7 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1:
+        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or self.name[-4:] == '_sum' or self.name[-4:] == 'tice':
          # In the case of 1D horizontal case we keep the old method:
          log.info('The file has 1D horizonatal grid dimensions: {}. The earlier ece2cmor3 NEMO vertices calculation is used.\n'.format(input_lats.shape))
          self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
