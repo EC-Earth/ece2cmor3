@@ -643,35 +643,42 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        if input_lats.shape == orca1_grid_shape:
-         if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
-         elif self.name[-4:] in ['U_2D', 'U_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
-         elif self.name[-4:] in ['V_2D', 'V_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
-         else:
-          log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
-          sys.exit(' Exiting ece2cmor.')
-        elif input_lats.shape == orca025_grid_shape:
-         if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
-         elif self.name[-4:] in ['U_2D', 'U_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
-         elif self.name[-4:] in ['V_2D', 'V_3D']:
-          self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
-          self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
-         else:
-          log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
-          sys.exit(' Exiting ece2cmor.')
-        else:
-         log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
+        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1:
+         # In the case of 1D horizontal case we keep the old method:
+         # To DO: insert old method here again
+         log.error('The file has 1D horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
          sys.exit(' Exiting ece2cmor.')
+        else:
+         if input_lats.shape == orca1_grid_shape:
+          if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
+          elif self.name[-4:] in ['U_2D', 'U_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
+          elif self.name[-4:] in ['V_2D', 'V_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
+          else:
+           log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
+           sys.exit(' Exiting ece2cmor.')
+         elif input_lats.shape == orca025_grid_shape:
+          if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
+          elif self.name[-4:] in ['U_2D', 'U_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
+          elif self.name[-4:] in ['V_2D', 'V_3D']:
+           self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
+           self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
+          else:
+           log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
+           sys.exit(' Exiting ece2cmor.')
+         else:
+          log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
+          sys.exit(' Exiting ece2cmor.')
+
 
     @staticmethod
     def modlon2(x, a):
