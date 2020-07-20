@@ -10,14 +10,7 @@ import cmor_task
 import cmor_utils
 
 from datetime import datetime, timedelta
-from __load_nemo_vertices__ import lon_vertices_from_nemo_orca1_t_grid, lon_vertices_from_nemo_orca1_u_grid, lon_vertices_from_nemo_orca1_v_grid, \
-                                   lat_vertices_from_nemo_orca1_t_grid, lat_vertices_from_nemo_orca1_u_grid, lat_vertices_from_nemo_orca1_v_grid, \
-                                   lon_vertices_from_nemo_orca025_t_grid, lon_vertices_from_nemo_orca025_u_grid, lon_vertices_from_nemo_orca025_v_grid, \
-                                   lat_vertices_from_nemo_orca025_t_grid, lat_vertices_from_nemo_orca025_u_grid, lat_vertices_from_nemo_orca025_v_grid
-
-# The ORCA1 & ORCA025 grid have the following dimension sizes (used to check whether the considered grid is ORCA1 or ORCA025):
-orca1_grid_shape   = ( 292,  362)
-orca025_grid_shape = (1050, 1442)
+from __load_nemo_vertices__ import load_vertices_from_file
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
@@ -644,40 +637,15 @@ class nemo_grid(object):
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
         if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or self.name[-4:] == '_sum' or self.name[-4:] == 'tice':
-         # In the case of 1D horizontal case we keep the old method:
-         log.info('The file has 1D horizonatal grid dimensions: {}. The earlier ece2cmor3 NEMO vertices calculation is used.\n'.format(input_lats.shape))
-         self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
-         self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
+            # In the case of 1D horizontal case we keep the old method:
+            log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
+                     (input_lats.shape, self.name))
+            self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
+            self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
         else:
-         if input_lats.shape == orca1_grid_shape:
-          if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca1_t_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca1_t_grid
-          elif self.name[-4:] in ['U_2D', 'U_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca1_u_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca1_u_grid
-          elif self.name[-4:] in ['V_2D', 'V_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca1_v_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca1_v_grid
-          else:
-           log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
-           sys.exit(' Exiting ece2cmor.')
-         elif input_lats.shape == orca025_grid_shape:
-          if self.name[-4:] in ['T_2D', 'T_3D', 'W_2D', 'W_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca025_t_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca025_t_grid
-          elif self.name[-4:] in ['U_2D', 'U_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca025_u_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca025_u_grid
-          elif self.name[-4:] in ['V_2D', 'V_3D']:
-           self.vertex_lons = lon_vertices_from_nemo_orca025_v_grid
-           self.vertex_lats = lat_vertices_from_nemo_orca025_v_grid
-          else:
-           log.fatal('The grid type {} has not been implemented yet.'.format(self.name[-4:]))
-           sys.exit(' Exiting ece2cmor.')
-         else:
-          log.error('The file has horizonatal grid dimensions: {} which are not supported because they differ from ORCA1 or ORCA025.\n'.format(input_lats.shape))
-          sys.exit(' Exiting ece2cmor.')
+            self.vertex_lons, self.vertex_lats = load_vertices_from_file(self.name[-4:], input_lats.shape)
+            if self.vertex_lons is None or self.vertex_lats is None:
+                raise Exception("Vertices could not be loaded from ece2cmor3 nc files")
 
     @staticmethod
     def create_vertex_lons(a):
