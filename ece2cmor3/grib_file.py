@@ -16,8 +16,9 @@ pv_level_code = 117
 # Key names
 date_key = "dataDate"
 time_key = "dataTime"
-param_key = "paramId"
+param_key = "indicatorOfParameter"
 levtype_key = "indicatorOfTypeOfLevel"
+table_key = "table2Version"
 level_key = "level"
 
 test_mode = False
@@ -111,9 +112,13 @@ class csv_grib_mock(grib_file):
         writer.writerow(self.row)
 
     def set_field(self, name, value):
+        if name == table_key:
+            pass
         self.row[csv_grib_mock.columns.index(name)] = value
 
     def get_field(self, name):
+        if name == table_key:
+            return 128
         return int(self.row[csv_grib_mock.columns.index(name)])
 
     def release(self):
