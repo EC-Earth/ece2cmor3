@@ -3,12 +3,14 @@ import logging
 import netCDF4
 import numpy
 import os
+import re
 
 import cmor_target
 import cmor_task
 import cmor_utils
 
 from datetime import datetime, timedelta
+from __load_nemo_vertices__ import load_vertices_from_file
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
@@ -16,6 +18,9 @@ timeshift = timedelta(0)
 
 # Logger object
 log = logging.getLogger(__name__)
+
+# Test mode: accept oddly-sized test grids etc.
+test_mode_ = False
 
 extra_axes = {"basin": {"ncdim": "3basin",
                         "ncvals": ["global_ocean", "atlantic_arctic_ocean", "indian_pacific_ocean"]},
@@ -69,11 +74,12 @@ nemo_masks_ = {}
 
 
 # Initializes the processing loop.
-def initialize(path, expname, tableroot, refdate):
-    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_
+def initialize(path, expname, tableroot, refdate, testmode=False):
+    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_, test_mode_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
+    test_mode_ = testmode
     nemo_files_ = cmor_utils.find_nemo_output(path, expname)
     expdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "..", ".."))
     ofxdir = os.path.abspath(os.path.join(os.path.realpath(path), "..", "ofx-data"))
@@ -620,6 +626,21 @@ def write_grid(grid, tasks):
                 task.set_failed()
 
 
+# Get the NEMO grid type utility:
+def get_grid_type(grid_name):
+    if grid_name == "icemod":
+        return 't'
+    expr = re.compile("(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
+    result = re.search(expr, grid_name)
+    if not result:
+        return None
+    match = result.group(1)
+    if match is None:
+        match = result.group(0)
+    result = match[0].lower()
+    return 't' if result == 'w' else result
+
+
 # Class holding a NEMO grid, including bounds arrays
 class nemo_grid(object):
 
@@ -634,8 +655,23 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
-        self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
+        gridtype = get_grid_type(name_)
+        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or gridtype == None:
+            # In the case of 1D horizontal case we keep the old method:
+            log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
+                     (input_lats.shape, self.name))
+            self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
+            self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
+        else:
+            self.vertex_lons, self.vertex_lats = load_vertices_from_file(gridtype, input_lats.shape)
+            if self.vertex_lons is None or self.vertex_lats is None:
+                if test_mode_:
+                    log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
+                             (input_lats.shape, self.name))
+                    self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
+                    self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
+                else:
+                    raise Exception("Vertices could not be loaded from ece2cmor3 nc files")
 
     @staticmethod
     def create_vertex_lons(a):
