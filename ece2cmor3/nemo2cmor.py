@@ -3,7 +3,7 @@ import logging
 import netCDF4
 import numpy
 import os
-import sys
+import re
 
 import cmor_target
 import cmor_task
@@ -626,15 +626,26 @@ def write_grid(grid, tasks):
                 task.set_failed()
 
 
+# Get the NEMO grid type utility:
+def get_grid_type(grid_name):
+    if grid_name == "icemod":
+        return 't'
+    expr = re.compile("(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
+    result = re.search(expr, grid_name)
+    if not result:
+        return None
+    match = result.group(1)
+    if match is None:
+        match = result.group(0)
+    result = match[0].lower()
+    return 't' if result == 'w' else result
+
+
 # Class holding a NEMO grid, including bounds arrays
 class nemo_grid(object):
 
     def __init__(self, name_, lons_, lats_):
         self.name = name_
-        if name_.startswith("grid_"):
-            self.id = name_[5:]
-        else:
-            self.id = self.name
         flon = numpy.vectorize(lambda x: x % 360)
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))
@@ -644,14 +655,15 @@ class nemo_grid(object):
             if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
-        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or self.id == 'sum' or self.id == 'tice':
+        gridtype = get_grid_type(name_)
+        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or gridtype == None:
             # In the case of 1D horizontal case we keep the old method:
             log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
                      (input_lats.shape, self.name))
             self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
             self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
         else:
-            self.vertex_lons, self.vertex_lats = load_vertices_from_file(self.id, input_lats.shape)
+            self.vertex_lons, self.vertex_lats = load_vertices_from_file(gridtype, input_lats.shape)
             if self.vertex_lons is None or self.vertex_lats is None:
                 if test_mode_:
                     log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %

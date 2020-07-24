@@ -14,14 +14,9 @@ orca025_grid_shape = (1050, 1442)
 cached_vertices = {}
 
 
-def load_vertices_from_file(grid, shape):
+def load_vertices_from_file(gridtype, shape):
     global cached_vertices
-    gridchar = grid.lower()[0]
-    if grid in ["w", "w_2d", "w_3d", "icemod"]:
-        gridchar = 't'
-    if gridchar not in ['t', 'u', 'v']:
-        log.fatal("Unsupported grid identifier for NEMO: %s" % str(grid))
-        return None, None
+    gridchar = gridtype
     if shape == orca1_grid_shape:
         mesh = "ORCA1"
     elif shape == orca025_grid_shape:

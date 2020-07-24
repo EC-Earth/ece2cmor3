@@ -180,3 +180,14 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.execute([tsk])
         nemo2cmor.finalize()
         cmor.close()
+
+
+    def test_grid_types(self):
+        eq_(nemo2cmor.get_grid_type("lim_grid_T_2D"), 't')
+        eq_(nemo2cmor.get_grid_type("lim_grid_U_3D"), 'u')
+        eq_(nemo2cmor.get_grid_type("lim_grid_V_2D"), 'v')
+        eq_(nemo2cmor.get_grid_type("lim_grid_W_3D"), 't')
+        eq_(nemo2cmor.get_grid_type("grid_U"), 'u')
+        eq_(nemo2cmor.get_grid_type("opa_grid_ptr_T_3basin_2D"), None)
+        eq_(nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice"), 't')
+
