@@ -16,14 +16,11 @@ cached_vertices = {}
 
 def load_vertices_from_file(grid, shape):
     global cached_vertices
-    if grid in ["T_2D", "T_3D", "W_2D", "W_3D"]:
+    gridchar = grid.lower()[0]
+    if grid in ["w", "w_2d", "w_3d", "icemod"]:
         gridchar = 't'
-    elif grid in ["U_2D", "U_3D"]:
-        gridchar = 'u'
-    elif grid in ["V_2D", "V_3D"]:
-        gridchar = 'v'
-    else:
-        log.fatal("Unknown grid identifier for NEMO: %s" % str(grid))
+    if gridchar not in ['t', 'u', 'v']:
+        log.fatal("Unsupported grid identifier for NEMO: %s" % str(grid))
         return None, None
     if shape == orca1_grid_shape:
         mesh = "ORCA1"
@@ -37,11 +34,9 @@ def load_vertices_from_file(grid, shape):
     file_name = '-'.join(["nemo", "vertices", mesh, gridchar, "grid"]) + ".nc"
     fullpath = os.path.join(os.path.dirname(__file__), "resources", "nemo-vertices", file_name)
     if not os.path.isfile(fullpath):
-        try:
-            get_from_b2share(file_name, fullpath)
-        except:
-
-            log.fatal("The file %s does not exist, please update your repo and reinstall")
+        if not get_from_b2share(file_name, fullpath):
+            log.fatal("The file %s could not be downloaded, please install manually at %s" % (file_name, fullpath))
+            return None, None
     nemo_vertices_file_name = os.path.join("ece2cmor3/resources/nemo-vertices/", fullpath)
     nemo_vertices_netcdf_file = netCDF4.Dataset(nemo_vertices_file_name, 'r')
     lon_vertices_raw = numpy.array(nemo_vertices_netcdf_file.variables["vertices_longitude"][...], copy=True)
@@ -54,14 +49,21 @@ def load_vertices_from_file(grid, shape):
 
 def get_from_b2share(fname, fullpath):
     site = "https://b2share.eudat.eu/api"
-    record = "6c1e2044a94b4a07861aa5740960a90e"
+    record = "3ad7d5c5f1ab419297c1e02bded8d70f"
     resp = requests.get('/'.join([site, "records", record]))
+    if not resp:
+        log.error("Problem getting record data from b2share server: %d" % resp.status_code)
+        return False
     d = resp.json()
     for f in d["files"]:
         if f["key"] == fname:
             url = '/'.join([site, "files", f["bucket"], f["key"]])
             log.info("Downloading file %s from b2share archive..." % fname)
             fresp = requests.get(url)
+            if not fresp:
+                log.error("Problem getting file %s from b2share server: %d" % (fname, resp.status_code))
+                return False
             with open(fullpath, 'wb') as fd:
                 fd.write(fresp.content)
             log.info("...success, file %s created" % fullpath)
+    return True
