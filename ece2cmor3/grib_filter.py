@@ -488,6 +488,8 @@ def build_fast_forward_cache(keys2files, grid):
     result = {}
     i = 0
     prev_key = (-1, -1, -1, -1, -1)
+    if grid not in record_keys:
+        return {}
     for key in record_keys[grid]:
         if key[:4] != prev_key[:4]: # flush
             if i > 1:
