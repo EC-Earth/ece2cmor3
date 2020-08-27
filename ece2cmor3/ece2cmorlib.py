@@ -194,7 +194,6 @@ def perform_ifs_tasks(datadir, expname,
                                     get_cmor_target("areacella", "fx"))
     ifs2cmor.execute(ifs_tasks + [area_task], nthreads=taskthreads)
 
-
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):
     global log, tasks, table_dir, prefix
