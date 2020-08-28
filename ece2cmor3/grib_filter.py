@@ -177,6 +177,10 @@ def get_record_key(gribfile, gridtype):
     if levtype == grib_file.pv_level_code:  # Mapping pv-levels to surface: we don't support more than one pv-level
         level = 0
         levtype = grib_file.surface_level_code
+    cosp_levels = {40: 84000, 41: 56000, 42: 22000}
+    if codetab == 126 and codevar in cosp_levels.keys():
+        level = cosp_levels[codevar]
+        levtype = grib_file.pressure_level_Pa_code
     # Fix for spectral height level fields in gridpoint file:
     if cmor_source.grib_code(codevar) in cmor_source.ifs_source.grib_codes_sh and \
             gridtype != cmor_source.ifs_grid.spec and levtype == grib_file.hybrid_level_code:
@@ -640,7 +644,10 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
             shifttime = 100 * hours
         timestamp = int(shifttime)
         gribfile.set_field(grib_file.time_key, timestamp)
-    if gribfile.get_field(grib_file.levtype_key) == grib_file.pressure_level_Pa_code:
+    if key[1] == 126 and key[0] in [40, 41, 42]:
+        gribfile.set_field(grib_file.levtype_key, 99)
+        gribfile.set_field(grib_file.level_key, key[3])
+    elif gribfile.get_field(grib_file.levtype_key) == grib_file.pressure_level_Pa_code:
         gribfile.set_field(grib_file.levtype_key, 99)
     if gribfile not in starttimes:
         starttimes[gribfile] = timestamp
