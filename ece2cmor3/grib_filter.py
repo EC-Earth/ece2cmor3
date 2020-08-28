@@ -645,8 +645,8 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
         timestamp = int(shifttime)
         gribfile.set_field(grib_file.time_key, timestamp)
     if key[1] == 126 and key[0] in [40, 41, 42]:
-        gribfile.set_field(grib_file.levtype_key, 99)
-        gribfile.set_field(grib_file.pressure_level_hPa_code, key[3]/100)
+        gribfile.set_field(grib_file.levtype_key, grib_file.pressure_level_hPa_code)
+        gribfile.set_field(grib_file.level_key, key[3]/100)
     elif gribfile.get_field(grib_file.levtype_key) == grib_file.pressure_level_Pa_code:
         gribfile.set_field(grib_file.levtype_key, 99)
     if gribfile not in starttimes:
