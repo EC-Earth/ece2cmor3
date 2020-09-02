@@ -162,7 +162,8 @@ def get_record_key(gribfile, gridtype):
     if levtype == grib_file.pressure_level_hPa_code:
         level *= 100
         levtype = grib_file.pressure_level_Pa_code
-    if levtype == 112 or levtype == grib_file.depth_level_code:
+    if levtype == 112 or levtype == grib_file.depth_level_code or \
+            (codetab == 128 and codevar in [35, 36, 37, 38, 39, 40, 41, 42, 139, 170, 183, 236]):
         level = 0
         levtype = grib_file.depth_level_code
     if codevar in [49, 165, 166]:
@@ -203,7 +204,8 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
             return matches[0]
     # Fix for depth levels variables
     if levtype == grib_file.depth_level_code:
-        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.depth_level_code]
+        matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] in
+                   (grib_file.depth_level_code, grib_file.surface_level_code)]
         if any(matches):
             return matches[0]
     if levtype == grib_file.hybrid_level_code and level == -1:
@@ -520,11 +522,12 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
         if month != 0 and year != 0 and (date.month, date.year) != (month, year):
             continue
         prev_grib_file, cur_grib_file = file_list[date]
-        prev_chained = i > 0 and (prev_grib_file == file_list[dates[i - 1]][1])
+        prev_chained = i > 0 and (os.path.realpath(prev_grib_file) == os.path.realpath(file_list[dates[i - 1]][1]))
         if prev_grib_file is not None and not prev_chained:
             with open(prev_grib_file, 'r') as fin:
                 proc_initial_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
-        next_chained = i < len(dates) - 1 and (cur_grib_file == file_list[dates[i + 1]][0])
+        next_chained = i < len(dates) - 1 and (os.path.realpath(cur_grib_file) ==
+                                               os.path.realpath(file_list[dates[i + 1]][0]))
         with open(cur_grib_file, 'r') as fin:
             log.info("Filtering grib file %s..." % cur_grib_file)
             if next_chained:
@@ -652,7 +655,9 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
     if gribfile not in starttimes:
         starttimes[gribfile] = timestamp
     for var_info in var_infos:
-        if timestamp / 100 % var_info[1] != 0:
+        if var_info[1] < 24 and timestamp / 100 % var_info[1] != 0:
+            log.warning("Skipping irregular GRIB record for %s with frequency %s at timestamp %s" %
+                        (str(var_info[0]), str(var_info[1]), str(timestamp)))
             continue
         handle = handles.get(var_info[0], None) if handles else None
         if handle:
@@ -666,7 +671,7 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
                     gribfile.write(ofile)
             else:
                 if not once:
-                    log.error("Unexpected missing file handle encountered for code %s" % var_info[0])
+                    log.error("Unexpected missing file handle encountered for code %s" % str(var_info[0]))
 
 
 # Converts 24 hours into extra days
