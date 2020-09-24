@@ -457,7 +457,10 @@ def validate_tasks(tasks):
                     if match_key[4] != matched_grid:
                         log.warning("Task %s in table %s depends on both gridpoint and spectral fields" %
                                     (task.target.variable, task.target.table))
-                matched_keys.append(match_key)
+                if match_key[2] == grib_file.hybrid_level_code:
+                    matched_keys.append((match_key[0], match_key[1], match_key[2], -1, match_key[4]))
+                else:
+                    matched_keys.append(match_key)
         if task.status != cmor_task.status_failed:
             # Fix for zg and ps on gridpoints and spectral fields on height levels:
             task.source.grid_ = matched_grid
@@ -526,25 +529,22 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
             if next_chained:
                 proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, once, cache)
             else:
-                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
+                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once, cache)
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=False):
+def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
     timestamp = -1
     keys = set()
-    while gribfile.read_next() and (handles is None or any(handles.keys())):
+    fast_forward_count = 0
+    while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
+        key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
+                                                                ff_cache, keys)
+        if cycle:
+            gribfile.release()
+            continue
         date = gribfile.get_field(grib_file.date_key)
         if (date % 10 ** 4) / 10 ** 2 == month:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile, gridtype)
-            if t == timestamp and key in keys:
-                gribfile.release()
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
             if (key[0], key[1]) not in accum_codes:
                 write_record(gribfile, key + (gridtype,), keys2files, handles=handles, once=once, setdate=None)
         gribfile.release()
@@ -556,61 +556,53 @@ def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False, ff_cache
     keys = set()
     fast_forward_count = 0
     while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
-        if fast_forward_count > 0:
-            fast_forward_count -= 1
+        key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
+                                                                ff_cache, keys)
+        if cycle:
             gribfile.release()
             continue
-        key = get_record_key(gribfile, gridtype)
-        t = gribfile.get_field(grib_file.time_key)
-        fast_forward_count = ff_cache.get((t,) + key, 0) if ff_cache is not None else 0
-        if fast_forward_count > 0:
-            fast_forward_count -= 1
-            gribfile.release()
-            continue
-        if t == timestamp and key in keys:
-            gribfile.release()
-            continue  # Prevent double grib messages
-        if t != timestamp:
-            keys = set()
-            timestamp = t
-        keys.add(key)
         write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                      handles=handles, once=once, setdate=None)
         gribfile.release()
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False):
+def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
     timestamp = -1
     keys = set()
-    while gribfile.read_next() and (handles is None or any(handles.keys())):
+    fast_forward_count = 0
+    while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
+        key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
+                                                                ff_cache, keys)
+        if cycle:
+            gribfile.release()
+            continue
         date = gribfile.get_field(grib_file.date_key)
         mon = (date % 10 ** 4) / 10 ** 2
         if mon == month:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile, gridtype)
-            if t == timestamp and key in keys:
-                gribfile.release()
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
             write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                          handles=handles, once=once, setdate=None)
         elif mon == month % 12 + 1:
-            t = gribfile.get_field(grib_file.time_key)
-            key = get_record_key(gribfile, gridtype)
-            if t == timestamp and key in keys:
-                gribfile.release()
-                continue  # Prevent double grib messages
-            if t != timestamp:
-                keys = set()
-                timestamp = t
-            keys.add(key)
             if (key[0], key[1]) in accum_codes:
-                write_record(gribfile, key + (gridtype,), keys2files, shift=-1, handles=handles, once=once, setdate=None)
+                write_record(gribfile, key + (gridtype,), keys2files, shift=-1, handles=handles, once=once,
+                             setdate=None)
         gribfile.release()
+
+
+def next_record(gribfile, ffwd_count, prev_time, gridtype, ffwd_cache, keys_cache):
+    if ffwd_count > 0:
+        return None, ffwd_count - 1, True, -1
+    key = get_record_key(gribfile, gridtype)
+    t = gribfile.get_field(grib_file.time_key)
+    new_ffwd_count = ffwd_cache.get((t,) + key, 0) if ffwd_cache is not None else 0
+    if new_ffwd_count > 0:
+        return key, new_ffwd_count - 1, True, t
+    if t == prev_time and key in keys_cache:
+        return key, new_ffwd_count, True, t
+    if t != prev_time:
+        keys_cache.clear()
+    keys_cache.add(key)
+    return key, new_ffwd_count, False, t
 
 
 # Writes the grib messages
