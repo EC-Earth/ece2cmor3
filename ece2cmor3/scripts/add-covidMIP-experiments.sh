@@ -1,7 +1,8 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This script adds some non-cmor variables (which thus do not exit in the CMIP6 data request) to the end of the cmor table in question.
+# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed expeiments (which thus
+# do not exit in the CMIP6 data request) to the end of the cmor table in question.
 #
 # This scripts requires no arguments.
 #
@@ -16,25 +17,23 @@ if [ "$#" -eq 0 ]; then
 
  if [ add_the_covidMIP_experiments ]; then
   # See #847 & #895, the addition of six Covid experiments:
-  # cmip6-experiment-CovidMIP-ssp245-baseline
-  # cmip6-experiment-CovidMIP-ssp245-cov-aer
-  # cmip6-experiment-CovidMIP-ssp245-cov-fossil
-  # cmip6-experiment-CovidMIP-ssp245-covid
-  # cmip6-experiment-CovidMIP-ssp245-cov-modgreen
-  # cmip6-experiment-CovidMIP-ssp245-cov-strgreen
+  #  CovidMIP ssp245-baseline
+  #  CovidMIP ssp245-cov-aer
+  #  CovidMIP ssp245-cov-fossil
+  #  CovidMIP ssp245-covid
+  #  CovidMIP ssp245-cov-modgreen
+  #  CovidMIP ssp245-cov-strgreen
 
   sed -i  '/"ssp370":{/i \
-            "ssp245-covid-baseline":{                                \
+            "ssp245-baseline":{                                      \
                 "activity_id":[                                      \
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
-                "experiment_id":"ssp245-covid-baseline",             \
+                "experiment_id":"ssp245-baseline",                   \
                 "parent_activity_id":[                               \
                     "CMIP"                                           \
                 ],                                                   \
@@ -53,9 +52,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
                 "experiment_id":"ssp245-covid",                      \
@@ -63,7 +60,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "parent_experiment_id":[                             \
-                    "ssp245-covid-baseline"                          \
+                    "ssp245-baseline"                                \
                 ],                                                   \
                 "required_model_components":[                        \
                     "AOGCM"                                          \
@@ -77,9 +74,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
                 "experiment_id":"ssp245-cov-aer",                    \
@@ -87,7 +82,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "parent_experiment_id":[                             \
-                    "ssp245-cov-aer-baseline"                        \
+                    "ssp245-baseline"                                \
                 ],                                                   \
                 "required_model_components":[                        \
                     "AOGCM"                                          \
@@ -101,9 +96,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
                 "experiment_id":"ssp245-cov-fossil",                 \
@@ -111,7 +104,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "parent_experiment_id":[                             \
-                    "ssp245-cov-fossil-baseline"                     \
+                    "ssp245-baseline"                                \
                 ],                                                   \
                 "required_model_components":[                        \
                     "AOGCM"                                          \
@@ -125,9 +118,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
                 "experiment_id":"ssp245-cov-modgreen",               \
@@ -135,7 +126,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "parent_experiment_id":[                             \
-                    "ssp245-cov-modgreen-baseline"                   \
+                    "ssp245-baseline"                                \
                 ],                                                   \
                 "required_model_components":[                        \
                     "AOGCM"                                          \
@@ -149,9 +140,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "additional_allowed_model_components":[              \
-                    "AER",                                           \
-                    "CHEM",                                          \
-                    "BGC"                                            \
+                    "AER"                                            \
                 ],                                                   \
                 "experiment":"update of RCP4.5 based on SSP2",       \
                 "experiment_id":"ssp245-cov-strgreen",               \
@@ -159,7 +148,7 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                          \
                 ],                                                   \
                 "parent_experiment_id":[                             \
-                    "ssp245-cov-strgreen-baseline"                   \
+                    "ssp245-baseline"                                \
                 ],                                                   \
                 "required_model_components":[                        \
                     "AOGCM"                                          \
@@ -173,7 +162,7 @@ if [ "$#" -eq 0 ]; then
 
  else
     echo '  '
-    echo '  Noting done, no set of variables has been selected to add to the tables.'
+    echo '  Noting done, no set of variables and / or experiments has been selected to add to the tables.'
     echo '  '
  fi
 
