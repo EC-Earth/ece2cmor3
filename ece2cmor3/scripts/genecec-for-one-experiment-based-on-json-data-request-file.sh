@@ -2,8 +2,7 @@
 # Thomas Reerink
 #
 # Run examples:
-#  ./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/test-data-request/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
-
+#  ./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -14,9 +13,13 @@
 # which is part of ece2cmor3.
 
 
+# Creating the xlsx data request file can be done with:
+#  drq -m CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB                          -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM
+#  drq -m CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-cmip-EC-EARTH-AOGCM
+
 if [ "$#" -eq 4 ]; then
 
-  json_data_request_file=$1
+  data_request_file=$1
 
   mip_name=$2
   experiment=$3
@@ -24,12 +27,26 @@ if [ "$#" -eq 4 ]; then
 
 
   output_dir=${experiment}-${ece_configuration}-request-1
+
+  if [ ${mip_name} = 'CovidMIP' ]; then
+   output_dir=cmip6-experiment-CovidMIP-${experiment}
+  fi
+
+  # Distinguish between a json & xlsx file:
+  if [ ${data_request_file:(-4)} = 'json' ]; then
+   request_option='--vars'
+  else
+   request_option='--drq'
+  fi
+
   rm -rf   ${output_dir}
   mkdir -p ${output_dir}
 
-  rsync -a ${json_data_request_file} ${output_dir}
+  if [ ${request_option} = '--vars' ]; then
+   rsync -a ${data_request_file} ${output_dir}
+  fi
 
-  ./drq2file_def-nemo.py  --vars    ${json_data_request_file}
+  ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
   mv xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${output_dir}
   mv xios-nemo-file_def-files/file_def_nemo-opa.xml            ${output_dir}
@@ -42,8 +59,11 @@ if [ "$#" -eq 4 ]; then
 
   cd ${output_dir}
 
-  ../drq2ppt.py           --vars ../${json_data_request_file}
-  ../drq2ins.py           --vars ../${json_data_request_file}
+  ../drq2ppt.py ${request_option} ../${data_request_file}
+  ../drq2ins.py ${request_option} ../${data_request_file}
+  if [ ${request_option} = '--drq' ]; then
+   ../drq2varlist.py ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+  fi
 
   # Remove the cmip6-file_def_nemo.xml file & the compact file_def files:
   rm -f cmip6-file_def_nemo.xml *-compact.xml
@@ -58,7 +78,7 @@ if [ "$#" -eq 4 ]; then
   sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' file_def_nemo*
 
   # Estimating the Volume of the TM5 output:
-  ../estimate-tm5-volume.py --vars ../${json_data_request_file}
+  ../estimate-tm5-volume.py ${request_option} ../${data_request_file}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > volume-estimate-${mip_name}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
@@ -67,11 +87,91 @@ if [ "$#" -eq 4 ]; then
   # Produce the metadata files for this MIP experiment.
   ./modify-metadata-template.sh ${mip_name} ${experiment} ${ece_configuration};
 
+  if [ ${mip_name} = 'CovidMIP' ]; then
+   if [ ${experiment} = 'ssp245-baseline' ]; then
+    sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "CMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "historical"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "60265.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "60265.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   else
+    sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "DAMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "ssp245-baseline"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "62091.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "62091.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+
+   sed -i -e 's/"activity_id":                  "CovidMIP"/"activity_id":                  "DAMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"forcing_index":                "1"/"forcing_index":                "2"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+  #sed -i -e 's/"#variant_info".*/"variant_info":                 "The f2 forcing referes to an update forcing of the XX data set which has been used in all covid experiments.",/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"#variant_info".*/"variant_info":                 "This experiment belongs to the set of CovidMIP experiments for which updated forcing aerosols data (MACv2-SP) have been provided, see https://gmd.copernicus.org/articles/12/989/2019/",/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"parent_variant_label":         "r1i1p1f1"/"parent_variant_label":         "r1i1p1f2"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+
+   # Prevent any 3 hourly raw output:
+   rm -f ${output_dir}/pptdddddd0300
+  fi
+
   mv -f metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json ${output_dir}
 
+  if [ ${mip_name} = 'CovidMIP' ]; then
+   mkdir -p CovidMIP
+   mv -f ${output_dir} CovidMIP
+  fi
+
+  echo ' Finished:'
+  echo '  '$0 $1 $2 $3 $4
+  echo
+
 else
-    echo '  '
+    echo
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-    echo '  ' $0 ../resources/test-data-request/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
-    echo '  '
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
+    echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-baseline     EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-covid        EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
+   #echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
+   #echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-baseline               EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-covid                  EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-cov-strgreen           EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-cov-modgreen           EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-cov-fossil             EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-cov-aer                EC-EARTH-AOGCM
+   #echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-cov-GHG                EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-baseline            EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-covid               EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-cov-strgreen        EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-cov-modgreen        EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-cov-fossil          EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-cov-aer             EC-EARTH-AOGCM
+   #echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-6hrLev.xlsx CovidMIP ssp245-cov-GHG             EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-baseline                      EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-covid                         EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-strgreen                  EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-modgreen                  EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-fossil                    EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-aer                       EC-EARTH-AOGCM
+   #echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-GHG                       EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-baseline                      EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-covid                         EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-strgreen                  EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-modgreen                  EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-fossil                    EC-EARTH-AOGCM
+    echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-aer                       EC-EARTH-AOGCM
+   #echo '  ' $0 cmip6-data-request/cmip6-data-request-m=CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-e=ssp245-t=1-p=1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx CovidMIP ssp245-cov-GHG                       EC-EARTH-AOGCM
+    echo
 fi
