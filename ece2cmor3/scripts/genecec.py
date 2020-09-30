@@ -13,8 +13,7 @@
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
 # file_def files for OPA, LIM and PISCES) and the instruction files for LPJ_GUESS (the
-# *.ins files) for all MIP experiments in which EC-Earth3
-# participates.
+# *.ins files) for all MIP experiments in which EC-Earth3 participates.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
