@@ -24,6 +24,10 @@ if [ "$#" -eq 0 ]; then
   #  CovidMIP ssp245-cov-modgreen
   #  CovidMIP ssp245-cov-strgreen
 
+  cd ../resources/cmip6-cmor-tables
+  git checkout Tables/CMIP6_CV.json
+  cd -
+
   sed -i  '/"ssp370":{/i \
             "ssp245-baseline":{                                      \
                 "activity_id":[                                      \
