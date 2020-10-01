@@ -13,8 +13,20 @@
 # which is part of ece2cmor3.
 
 
-# Creating the xlsx data request file can be done with:
-#  drq -m CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB                          -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM
+# The xlsx data request file has been created as follows:
+#  cd ../resources/miscellaneous-data-requests
+#  drq -m CMIP -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP
+# With this minimal request no 3hr & 6hr fields are in the request such that the file:
+#   ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx
+# can be directly used.
+#
+# The earlier approaches used:
+#  cd ../resources/miscellaneous-data-requests
+#  drq -m CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM
+#  cd cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/
+#  cp cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1.xlsx cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx
+# Then manually remove the 3hr and 6hrLev variables from the cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx.
+
 #  drq -m CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-cmip-EC-EARTH-AOGCM
 
 if [ "$#" -eq 4 ]; then
@@ -134,13 +146,13 @@ else
     echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
    #echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
     echo
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
-    echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
-   #echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
+   #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
     echo
     echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-baseline               EC-EARTH-AOGCM
     echo '  ' $0 cmip6-data-request-CovidMIP/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr.xlsx CovidMIP ssp245-covid                  EC-EARTH-AOGCM
