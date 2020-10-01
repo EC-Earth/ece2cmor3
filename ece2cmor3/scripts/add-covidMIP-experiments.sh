@@ -29,28 +29,6 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   sed -i  '/"ssp370":{/i \
-            "ssp245-baseline":{                                      \
-                "activity_id":[                                      \
-                    "DAMIP"                                          \
-                ],                                                   \
-                "additional_allowed_model_components":[              \
-                    "AER"                                            \
-                ],                                                   \
-                "experiment":"update of RCP4.5 based on SSP2",       \
-                "experiment_id":"ssp245-baseline",                   \
-                "parent_activity_id":[                               \
-                    "CMIP"                                           \
-                ],                                                   \
-                "parent_experiment_id":[                             \
-                    "historical"                                     \
-                ],                                                   \
-                "required_model_components":[                        \
-                    "AOGCM"                                          \
-                ],                                                   \
-                "sub_experiment_id":[                                \
-                    "none"                                           \
-                ]                                                    \
-            },                                                       \
             "ssp245-covid":{                                         \
                 "activity_id":[                                      \
                     "DAMIP"                                          \
