@@ -109,8 +109,8 @@ if [ "$#" -eq 4 ]; then
     sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "60265.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    else
     sed -i -e 's/"activity_id":                  "CovidMIP"/"activity_id":                  "DAMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-    sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "DAMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-    sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "ssp245-baseline"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "ScenarioMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "ssp245"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "62091.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "62091.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    fi
