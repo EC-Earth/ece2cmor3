@@ -158,6 +158,14 @@ else
     echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json                                CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
    #echo '  ' $0 ../resources/miscellaneous-data-requests/CovidMIP/cmip6-data-request-varlist-ScenarioMIP-ssp245-EC-EARTH-AOGCM-covidmip.json                                CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
     echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-baseline     EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-covid        EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
+   #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-varlist-CovidMIP-CMIP.json                                                                      CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP-scenariomip-EC-EARTH-AOGCM/cmvme_cm.co.dc.dy.ls.sc.vi_ssp245_1_1-no-3hr-no-6hrLev.xlsx CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
@@ -173,5 +181,13 @@ else
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx                                                             CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx                                                             CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
    #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx                                                             CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-baseline     EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-covid        EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM
+   #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx                                                             CovidMIP ssp245-cov-GHG      EC-EARTH-AOGCM
     echo
 fi
