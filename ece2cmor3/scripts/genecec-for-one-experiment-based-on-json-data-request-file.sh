@@ -19,6 +19,13 @@
 # With this minimal request no 3hr & 6hr fields are in the request such that the file:
 #   ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx
 # can be directly used.
+# However, finally the ec-earth consortium decided to add the following variables on top of this CMIP request:
+#  6hrPlevPt psl, ta, ua, va & zg500 and Omon msftyz & SImon sivol
+# Therefore:
+#  cd cmip6-data-request-CovidMIP/
+#  cp cmvme_CMIP_ssp245_1_1.xlsx cmvme_CMIP_ssp245_1_1-additional.xlsx
+# And manually edit the cmvme_CMIP_ssp245_1_1-additional.xlsx file by adding these variables on their
+# respectively tables. Note that the 6hrPlevPt sheet had to be manually added in this xlsx file.
 #
 # The earlier approaches used:
 #  cd ../resources/miscellaneous-data-requests
