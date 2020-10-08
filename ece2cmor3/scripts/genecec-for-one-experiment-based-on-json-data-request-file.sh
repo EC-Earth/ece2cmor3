@@ -20,7 +20,7 @@
 #   ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1.xlsx
 # can be directly used.
 # However, finally the ec-earth consortium decided to add the following variables on top of this CMIP request:
-#  6hrPlevPt psl, ta, ua, va & zg500 and Omon msftyz & SImon sivol
+#  6hrPlevPt psl, ta, ua, va & zg500 and Omon msftyz & SImon sivol & day sfcWind
 # Therefore:
 #  cd cmip6-data-request-CovidMIP/
 #  cp cmvme_CMIP_ssp245_1_1.xlsx cmvme_CMIP_ssp245_1_1-additional.xlsx
