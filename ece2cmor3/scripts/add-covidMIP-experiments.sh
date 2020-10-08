@@ -16,13 +16,12 @@ if [ "$#" -eq 0 ]; then
  
 
  if [ add_the_covidMIP_experiments ]; then
-  # See #847 & #895, the addition of six Covid experiments:
-  #  CovidMIP ssp245-baseline
-  #  CovidMIP ssp245-cov-aer
-  #  CovidMIP ssp245-cov-fossil
+  # See #847 & #895, the addition of five Covid experiments:
   #  CovidMIP ssp245-covid
-  #  CovidMIP ssp245-cov-modgreen
   #  CovidMIP ssp245-cov-strgreen
+  #  CovidMIP ssp245-cov-modgreen
+  #  CovidMIP ssp245-cov-fossil
+  #  CovidMIP ssp245-cov-aer
 
   cd ../resources/cmip6-cmor-tables
   git checkout Tables/CMIP6_CV.json
@@ -39,10 +38,10 @@ if [ "$#" -eq 0 ]; then
                 "experiment":"2-year blip run",                              \
                 "experiment_id":"ssp245-covid",                              \
                 "parent_activity_id":[                                       \
-                    "DAMIP"                                                  \
+                    "ScenarioMIP"                                            \
                 ],                                                           \
                 "parent_experiment_id":[                                     \
-                    "ssp245-baseline"                                        \
+                    "ssp245"                                                 \
                 ],                                                           \
                 "required_model_components":[                                \
                     "AOGCM"                                                  \
@@ -61,10 +60,10 @@ if [ "$#" -eq 0 ]; then
                 "experiment":"strong green stimulus run",                    \
                 "experiment_id":"ssp245-cov-strgreen",                       \
                 "parent_activity_id":[                                       \
-                    "DAMIP"                                                  \
+                    "ScenarioMIP"                                            \
                 ],                                                           \
                 "parent_experiment_id":[                                     \
-                    "ssp245-baseline"                                        \
+                    "ssp245"                                                 \
                 ],                                                           \
                 "required_model_components":[                                \
                     "AOGCM"                                                  \
@@ -83,10 +82,10 @@ if [ "$#" -eq 0 ]; then
                 "experiment":"moderate green stimulus run",                  \
                 "experiment_id":"ssp245-cov-modgreen",                       \
                 "parent_activity_id":[                                       \
-                    "DAMIP"                                                  \
+                    "ScenarioMIP"                                            \
                 ],                                                           \
                 "parent_experiment_id":[                                     \
-                    "ssp245-baseline"                                        \
+                    "ssp245"                                                 \
                 ],                                                           \
                 "required_model_components":[                                \
                     "AOGCM"                                                  \
@@ -105,10 +104,10 @@ if [ "$#" -eq 0 ]; then
                 "experiment":"fossil-fuel rebound run",                      \
                 "experiment_id":"ssp245-cov-fossil",                         \
                 "parent_activity_id":[                                       \
-                    "DAMIP"                                                  \
+                    "ScenarioMIP"                                            \
                 ],                                                           \
                 "parent_experiment_id":[                                     \
-                    "ssp245-baseline"                                        \
+                    "ssp245"                                                 \
                 ],                                                           \
                 "required_model_components":[                                \
                     "AOGCM"                                                  \
@@ -127,10 +126,10 @@ if [ "$#" -eq 0 ]; then
                 "experiment":"2-year blip anthropogenic aerosols-only run",  \
                 "experiment_id":"ssp245-cov-aer",                            \
                 "parent_activity_id":[                                       \
-                    "DAMIP"                                                  \
+                    "ScenarioMIP"                                            \
                 ],                                                           \
                 "parent_experiment_id":[                                     \
-                    "ssp245-baseline"                                        \
+                    "ssp245"                                                 \
                 ],                                                           \
                 "required_model_components":[                                \
                     "AOGCM"                                                  \
