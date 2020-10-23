@@ -21,6 +21,7 @@ if [ "$#" -eq 0 ]; then
   cd ../resources/cmip6-cmor-tables
   git checkout Tables/CMIP6_coordinate.json
   git checkout Tables/CMIP6_6hrPlevPt.json
+  git checkout Tables/CMIP6_6hrPlev.json
   cd -
 
 # Adding the plev23r & plev36 coordinates to the CMOR tables:
@@ -297,6 +298,55 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
   ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+
+# Add tos & siconca on 6hrPlevPt table:
+
+
+  sed -i  '/"ts": {/i \
+        "tos": {                                                                                                                            \
+            "frequency": "6hrPt",                                                                                                           \
+            "modeling_realm": "ocean",                                                                                                      \
+            "standard_name": "sea_surface_temperature",                                                                                     \
+            "units": "degC",                                                                                                                \
+            "cell_methods": "area: mean where sea time: point",                                                                             \
+            "cell_measures": "area: areacello",                                                                                             \
+            "long_name": "Sea Surface Temperature",                                                                                         \
+            "comment": "Temperature of upper boundary of the liquid ocean, including temperatures below sea-ice and floating ice shelves.", \
+            "dimensions": "longitude latitude time1",                                                                                       \
+            "out_name": "tos",                                                                                                              \
+            "type": "real",                                                                                                                 \
+            "positive": "",                                                                                                                 \
+            "valid_min": "",                                                                                                                \
+            "valid_max": "",                                                                                                                \
+            "ok_min_mean_abs": "",                                                                                                          \
+            "ok_max_mean_abs": ""                                                                                                           \
+        },                                                                                                                                  
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+#  time (and thus in other table 6hrPlev) or time1?
+#  sed -i  '/"snowmxrat27": {/i \
+  sed -i  '/"tas": {/i \
+        "siconca": {                                                    \
+            "frequency": "6hr",                                         \
+            "modeling_realm": "seaIce",                                 \
+            "standard_name": "sea_ice_area_fraction",                   \
+            "units": "%",                                               \
+            "cell_methods": "area: time: mean",                         \
+            "cell_measures": "area: areacella",                         \
+            "long_name": "Sea-Ice Area Percentage (Atmospheric Grid)",  \
+            "comment": "Percentage of grid cell covered by sea ice",    \
+            "dimensions": "longitude latitude time typesi",             \
+            "out_name": "siconca",                                      \
+            "type": "real",                                             \
+            "positive": "",                                             \
+            "valid_min": "",                                            \
+            "valid_max": "",                                            \
+            "ok_min_mean_abs": "",                                      \
+            "ok_max_mean_abs": ""                                       \
+        },                                                              
+  ' ../resources/tables/CMIP6_6hrPlev.json
+
 
  else
     echo '  '
