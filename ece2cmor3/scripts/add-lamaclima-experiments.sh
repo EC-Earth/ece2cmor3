@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed expeiments (which thus
+# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed experiments (which thus
 # do not exit in the CMIP6 data request) to the end of the cmor table in question.
 #
 # This scripts requires no arguments.

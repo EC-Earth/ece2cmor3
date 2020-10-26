@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed expeiments (which thus
+# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed experiments (which thus
 # do not exit in the CMIP6 data request) to the end of the cmor table in question.
 #
 # This scripts requires no arguments.
@@ -13,7 +13,7 @@
 if [ "$#" -eq 0 ]; then
 
  add_the_covidMIP_experiments=True             # See #847 & #895
- 
+
 
  if [ add_the_covidMIP_experiments ]; then
   # See #847 & #895, the addition of five Covid experiments:
