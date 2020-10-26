@@ -148,6 +148,16 @@ if [ "$#" -eq 4 ]; then
    mv -f ${output_dir} CovidMIP
   fi
 
+  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ]; then
+   mkdir -p knmi23-dutch-scenarios
+   mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev23r
+  fi
+
+  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+   mkdir -p knmi23-dutch-scenarios
+   mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev36
+  fi
+
   echo ' Finished:'
   echo '  '$0 $1 $2 $3 $4
   echo
@@ -156,6 +166,9 @@ else
     echo
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
+    echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP     historical          EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP     historical          EC-EARTH-AOGCM
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM
