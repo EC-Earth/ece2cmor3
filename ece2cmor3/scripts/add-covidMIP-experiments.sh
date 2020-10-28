@@ -33,7 +33,9 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                                                                                                           \
                 ],                                                                                                                                    \
                 "additional_allowed_model_components":[                                                                                               \
-                    "AER"                                                                                                                             \
+                    "AER",                                                                                                                            \
+                    "CHEM",                                                                                                                           \
+                    "BGC"                                                                                                                             \
                 ],                                                                                                                                    \
                 "experiment":"2-year Covid-19 emissions blip based upon ssp245",                                                                      \
                 "experiment_id":"ssp245-covid",                                                                                                       \
@@ -55,7 +57,9 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                                                                                                           \
                 ],                                                                                                                                    \
                 "additional_allowed_model_components":[                                                                                               \
-                    "AER"                                                                                                                             \
+                    "AER",                                                                                                                            \
+                    "CHEM",                                                                                                                           \
+                    "BGC"                                                                                                                             \
                 ],                                                                                                                                    \
                 "experiment":"2-year Covid-19 emissions blip followed by strong-green stimulus recovery, based upon ssp245",                          \
                 "experiment_id":"ssp245-cov-strgreen",                                                                                                \
@@ -77,7 +81,9 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                                                                                                           \
                 ],                                                                                                                                    \
                 "additional_allowed_model_components":[                                                                                               \
-                    "AER"                                                                                                                             \
+                    "AER",                                                                                                                            \
+                    "CHEM",                                                                                                                           \
+                    "BGC"                                                                                                                             \
                 ],                                                                                                                                    \
                 "experiment":"2-year Covid-19 emissions blip followed by moderate-green stimulus recovery, based upon ssp245",                        \
                 "experiment_id":"ssp245-cov-modgreen",                                                                                                \
@@ -99,7 +105,9 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                                                                                                           \
                 ],                                                                                                                                    \
                 "additional_allowed_model_components":[                                                                                               \
-                    "AER"                                                                                                                             \
+                    "AER",                                                                                                                            \
+                    "CHEM",                                                                                                                           \
+                    "BGC"                                                                                                                             \
                 ],                                                                                                                                    \
                 "experiment":"2-year Covid-19 emissions blip followed by increased emissions due to a fossil-fuel based recovery, based upon ssp245", \
                 "experiment_id":"ssp245-cov-fossil",                                                                                                  \
@@ -121,7 +129,9 @@ if [ "$#" -eq 0 ]; then
                     "DAMIP"                                                                                                                           \
                 ],                                                                                                                                    \
                 "additional_allowed_model_components":[                                                                                               \
-                    "AER"                                                                                                                             \
+                    "AER",                                                                                                                            \
+                    "CHEM",                                                                                                                           \
+                    "BGC"                                                                                                                             \
                 ],                                                                                                                                    \
                 "experiment":"2-year Covid-19 emissions blip including anthropogenic aerosols only, based upon ssp245",                               \
                 "experiment_id":"ssp245-cov-aer",                                                                                                     \
