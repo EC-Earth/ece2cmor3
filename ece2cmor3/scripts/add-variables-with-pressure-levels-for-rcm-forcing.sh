@@ -310,7 +310,7 @@ if [ "$#" -eq 0 ]; then
             "standard_name": "sea_surface_temperature",                                                                                     \
             "units": "degC",                                                                                                                \
             "cell_methods": "area: mean where sea time: point",                                                                             \
-            "cell_measures": "area: areacello",                                                                                             \
+            "cell_measures": "area: areacella",                                                                                             \
             "long_name": "Sea Surface Temperature",                                                                                         \
             "comment": "Temperature of upper boundary of the liquid ocean, including temperatures below sea-ice and floating ice shelves.", \
             "dimensions": "longitude latitude time1",                                                                                       \
