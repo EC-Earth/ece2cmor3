@@ -300,7 +300,7 @@ if [ "$#" -eq 0 ]; then
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
 
-# Add tos & siconca on 6hrPlevPt table:
+# Add tos, tsl on 6hrPlevPt table & siconca on 6hrPlev table:
 
 
   sed -i  '/"ts": {/i \
@@ -322,6 +322,27 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                          \
             "ok_max_mean_abs": ""                                                                                                           \
         },                                                                                                                                  
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+  sed -i  '/"ua": {/i \
+        "tsl4sl": {                                                                             \
+            "frequency": "6hrPt",                                                               \
+            "modeling_realm": "land",                                                           \
+            "standard_name": "soil_temperature",                                                \
+            "units": "K",                                                                       \
+            "cell_methods": "area: mean where land time: point",                                \
+            "cell_measures": "area: areacella",                                                 \
+            "long_name": "Temperature of Soil",                                                 \
+            "comment": "Temperature of soil. Reported as missing for grid cells with no land.", \
+            "dimensions": "longitude latitude time1 sdepth",                                    \
+            "out_name": "tsl",                                                                  \
+            "type": "real",                                                                     \
+            "positive": "",                                                                     \
+            "valid_min": "",                                                                    \
+            "valid_max": "",                                                                    \
+            "ok_min_mean_abs": "",                                                              \
+            "ok_max_mean_abs": ""                                                               \
+        },                                                                                      
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
 #  time (and thus in other table 6hrPlev) or time1?
@@ -346,27 +367,6 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                       \
         },                                                              
   ' ../resources/tables/CMIP6_6hrPlev.json
-
-  sed -i  '/"ua": {/i \
-        "tsl4sl": {                                                                             \
-            "frequency": "6hrPt",                                                               \
-            "modeling_realm": "land",                                                           \
-            "standard_name": "soil_temperature",                                                \
-            "units": "K",                                                                       \
-            "cell_methods": "area: mean where land time: point",                                \
-            "cell_measures": "area: areacella",                                                 \
-            "long_name": "Temperature of Soil",                                                 \
-            "comment": "Temperature of soil. Reported as missing for grid cells with no land.", \
-            "dimensions": "longitude latitude time1 sdepth",                                    \
-            "out_name": "tsl",                                                                  \
-            "type": "real",                                                                     \
-            "positive": "",                                                                     \
-            "valid_min": "",                                                                    \
-            "valid_max": "",                                                                    \
-            "ok_min_mean_abs": "",                                                              \
-            "ok_max_mean_abs": ""                                                               \
-        },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
 
  else
     echo '  '
