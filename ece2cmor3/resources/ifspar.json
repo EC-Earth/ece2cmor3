@@ -179,6 +179,10 @@
         "convert": "frac2percent"
     },
     {
+        "source": "34.128",
+        "target": "tos"
+    },
+    {
         "source": "44.128",
         "convert": "vol2flux",
         "target": "sbl"
@@ -679,7 +683,10 @@
     },
     {
         "source": "117.129",
-        "target": "tsl",
+        "target": [
+            "tsl",
+            "tsl4sl"
+        ],
         "expr": "merge(var139,var170,var183,var236)",
         "masked": "land",
         "table_override":
