@@ -334,7 +334,7 @@ if [ "$#" -eq 0 ]; then
             "cell_measures": "area: areacella",                                                 \
             "long_name": "Temperature of Soil",                                                 \
             "comment": "Temperature of soil. Reported as missing for grid cells with no land.", \
-            "dimensions": "longitude latitude time1 sdepth",                                    \
+            "dimensions": "longitude latitude sdepth time1",                                    \
             "out_name": "tsl",                                                                  \
             "type": "real",                                                                     \
             "positive": "",                                                                     \
