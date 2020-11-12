@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # Run examples:
-#  ./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
+#  ./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -45,7 +45,7 @@ if [ "$#" -eq 4 ]; then
   ece_configuration=$4
 
 
-  output_dir=${experiment}-${ece_configuration}-request-1
+  output_dir=${experiment}-${ece_configuration}
 
   if [ ${mip_name} = 'CovidMIP' ]; then
    output_dir=cmip6-experiment-CovidMIP-${experiment}
@@ -132,8 +132,6 @@ if [ "$#" -eq 4 ]; then
 
 
   if [ ${mip_name} = 'LAMACLIMA' ]; then
-    sed -i -e 's/"activity_id":                  "LAMACLIMA"/"activity_id":                  "ScenarioMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-   #sed -i -e 's/"experiment_id":                "lamaclima_ssp585"/"experiment_id":                "ssp585_lamaclima"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "CMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "historical"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "60265.0D"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -142,6 +140,11 @@ if [ "$#" -eq 4 ]; then
 
 
   mv -f metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json ${output_dir}
+
+  if [ ${mip_name} = 'LAMACLIMA' ]; then
+   mkdir -p lamaclima-control-output-files
+   mv -f ${output_dir} lamaclima-control-output-files
+  fi
 
   if [ ${mip_name} = 'CovidMIP' ]; then
    mkdir -p CovidMIP
@@ -169,7 +172,7 @@ if [ "$#" -eq 4 ]; then
 else
     echo
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA lamaclima_ssp585 EC-EARTH-Veg
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP     historical          EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP     historical          EC-EARTH-AOGCM
