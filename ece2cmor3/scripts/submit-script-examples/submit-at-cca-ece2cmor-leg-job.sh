@@ -136,6 +136,7 @@ fi
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " export HDF5_USE_FILE_LOCKING=FALSE                                                         " | sed 's/\s*$//g' >> ${job_name}
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_whether_ece2cmor_is_activated}                                                     " | sed 's/\s*$//g' >> ${job_name}
  echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
