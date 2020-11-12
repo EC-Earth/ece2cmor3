@@ -7,52 +7,50 @@
 # This scripts requires no arguments.
 #
 # Run example:
-#  ./add-covidMIP-experiments.sh
+#  ./add-lamaclima-experiments.sh
 #
 
 if [ "$#" -eq 0 ]; then
 
- add_the_covidMIP_experiments=True             # See #847 & #895
+ add_the_lamaclima_experiments=True             # See #853
  
 
- if [ add_the_covidMIP_experiments ]; then
-  # See #847 & #895, the addition of six Covid experiments:
-  #  CovidMIP ssp245-baseline
-  #  CovidMIP ssp245-cov-aer
-  #  CovidMIP ssp245-cov-fossil
-  #  CovidMIP ssp245-covid
-  #  CovidMIP ssp245-cov-modgreen
-  #  CovidMIP ssp245-cov-strgreen
+ if [ add_the_lamaclima_experiments ]; then
+  # See #853
+  #  LAMACLIMA ssp585-lamaclima
 
   cd ../resources/cmip6-cmor-tables
   git checkout Tables/CMIP6_CV.json
   cd -
 
-  sed -i  '/"volc-cluster-21C":{/i \
-            "lamaclima-ssp585":{                                     \
-                "activity_id":[                                      \
-                    "ScenarioMIP"                                    \
-                ],                                                   \
-                "additional_allowed_model_components":[              \
-                    "AER"                                            \
-                ],                                                   \
-                "experiment":"update of RCP8.5 based on SSP5",       \
-                "experiment_id":"lamaclima-ssp585",                  \
-                "parent_activity_id":[                               \
-                    "CMIP"                                           \
-                ],                                                   \
-                "parent_experiment_id":[                             \
-                    "historical"                                     \
-                ],                                                   \
-                "required_model_components":[                        \
-                    "AOGCM"                                          \
-                ],                                                   \
-                "sub_experiment_id":[                                \
-                    "none"                                           \
-                ]                                                    \
-            },                                                       
+  sed -i  '/"ssp585-withism":{/i \
+            "ssp585-lamaclima":{                                        \
+                "activity_id":[                                         \
+                    "LAMACLIMA"                                         \
+                ],                                                      \
+                "additional_allowed_model_components":[                 \
+                    "AER"                                               \
+                ],                                                      \
+                "experiment":"Lamaclima experiment based upon  SSP585", \
+                "experiment_id":"ssp585-lamaclima",                     \
+                "parent_activity_id":[                                  \
+                    "CMIP"                                              \
+                ],                                                      \
+                "parent_experiment_id":[                                \
+                    "historical"                                        \
+                ],                                                      \
+                "required_model_components":[                           \
+                    "AOGCM"                                             \
+                ],                                                      \
+                "sub_experiment_id":[                                   \
+                    "none"                                              \
+                ]                                                       \
+            },                                                          
   ' ../resources/tables/CMIP6_CV.json
 
+  sed -i  '/"LS3MIP":/i \
+            "LAMACLIMA":"LAnd MAnagement for CLImate Mitigation and Adaptation",
+  ' ../resources/tables/CMIP6_CV.json
 
  else
     echo '  '
