@@ -155,7 +155,7 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
 # Executes the processing loop.
 # used the nemo2cmor.py execute as template
 def get_lpj_freq(frequency):
-    if frequency == "yr":
+    if frequency == "yr" or frequency == "yrPt":
         return "yearly"
     if frequency == "mon":
         return "monthly"
