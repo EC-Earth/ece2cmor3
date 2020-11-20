@@ -630,6 +630,10 @@ def write_grid(grid, tasks):
 def get_grid_type(grid_name):
     if grid_name == "icemod":
         return 't'
+    expr = re.compile("(?i)(zoom|vert)?_sum$")
+    result = re.search(expr, grid_name)
+    if result is not None:
+        return 't'
     expr = re.compile("(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
     result = re.search(expr, grid_name)
     if not result:
@@ -652,14 +656,14 @@ class nemo_grid(object):
         input_lats = lats_
         # Dirty hack for lost precision in zonal grids:
         if input_lats.shape[1] == 1:
-            if input_lats.shape[0] > 2 and input_lats[-1, 0] == input_lats[-2, 0]:
+            if input_lats.shape[0] > 2 and input_lats[-1, 0] <= input_lats[-2, 0]:
                 input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
         gridtype = get_grid_type(name_)
-        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or gridtype == None:
+        if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or gridtype is None:
             # In the case of 1D horizontal case we keep the old method:
             log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
-                     (input_lats.shape, self.name))
+                     (self.name, input_lats.shape))
             self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
             self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
         else:
@@ -667,7 +671,7 @@ class nemo_grid(object):
             if self.vertex_lons is None or self.vertex_lats is None:
                 if test_mode_:
                     log.info("Using fallback to the old midpoint calculation method for grid %s with shape %s" %
-                             (input_lats.shape, self.name))
+                             (self.name, input_lats.shape))
                     self.vertex_lons = nemo_grid.create_vertex_lons(lons_)
                     self.vertex_lats = nemo_grid.create_vertex_lats(input_lats)
                 else:
