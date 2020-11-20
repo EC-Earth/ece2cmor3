@@ -134,8 +134,7 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.finalize()
         cmor.close()
 
-    @staticmethod
-    def test_create_grid():
+    def test_create_grid(self):
         dim = 1000
         lons = numpy.fromfunction(lambda i, j: (i * 360 + 0.5) / (0.5 * (dim + j) + 2), (dim, dim), dtype=numpy.float64)
         lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / (0.5 * (dim + i) + 2) - 90, (dim, dim),
@@ -181,7 +180,6 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.finalize()
         cmor.close()
 
-
     def test_grid_types(self):
         eq_(nemo2cmor.get_grid_type("lim_grid_T_2D"), 't')
         eq_(nemo2cmor.get_grid_type("lim_grid_U_3D"), 'u')
@@ -190,4 +188,8 @@ class nemo2cmor_tests(unittest.TestCase):
         eq_(nemo2cmor.get_grid_type("grid_U"), 'u')
         eq_(nemo2cmor.get_grid_type("opa_grid_ptr_T_3basin_2D"), None)
         eq_(nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice"), 't')
+        eq_(nemo2cmor.get_grid_type("opa_vert_sum"), 't')
+        eq_(nemo2cmor.get_grid_type("opa_zoom_700_sum"), 't')
+
+    def test_lat_bounds(self):
 
