@@ -190,6 +190,3 @@ class nemo2cmor_tests(unittest.TestCase):
         eq_(nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice"), 't')
         eq_(nemo2cmor.get_grid_type("opa_vert_sum"), 't')
         eq_(nemo2cmor.get_grid_type("opa_zoom_700_sum"), 't')
-
-    def test_lat_bounds(self):
-
