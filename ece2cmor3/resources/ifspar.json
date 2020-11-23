@@ -704,7 +704,7 @@
     {
         "source": "215.129",
         "target": "tsl4sl",
-        "expr": "merge(var139,var170,var183,var236)",
+        "expr": "merge(var139/(var172>0.5),var170/(var172>0.5),var183/(var172>0.5),var236/(var172>0.5))",
         "masked": "land"
     },
     {
