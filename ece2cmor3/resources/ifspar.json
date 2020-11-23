@@ -179,6 +179,13 @@
         "convert": "frac2percent"
     },
     {
+        "source": "34.129",
+        "target": "tos",
+        "expr": "var34 / (var172<=0.5)",
+        "convert": "K2degC",
+        "masked": "sea"
+    },
+    {
         "source": "44.128",
         "convert": "vol2flux",
         "target": "sbl"
@@ -228,6 +235,8 @@
         "target": [
             "ta",
             "ta7h",
+            "ta23r",
+            "ta36",
             "ta27",
             "ta500",
             "ta700",
@@ -239,6 +248,8 @@
         "target": [
             "ua",
             "ua7h",
+            "ua23r",
+            "ua36",
             "ua27"
         ]
     },
@@ -247,6 +258,8 @@
         "target": [
             "va",
             "va7h",
+            "va23r",
+            "va36",
             "va27"
         ]
     },
@@ -268,6 +281,8 @@
             "hus",
             "hus4",
             "hus7h",
+            "hus23r",
+            "hus36",
             "hus27",
             "hus850"
         ]
@@ -384,6 +399,11 @@
             "rsds",
             "rsdsIs"
         ]
+    },
+    {
+        "source": "172.128",
+        "target": "sftlf",
+        "convert": "frac2percent"
     },
     {
         "source": "175.128",
@@ -680,6 +700,12 @@
             "source": "139.128",
             "masked": "land"
         }
+    },
+    {
+        "source": "215.129",
+        "target": "tsl4sl",
+        "expr": "merge(var139,var170,var183,var236)",
+        "masked": "land"
     },
     {
         "source": "118.129",

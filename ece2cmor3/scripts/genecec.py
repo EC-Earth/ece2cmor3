@@ -13,8 +13,7 @@
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
 # file_def files for OPA, LIM and PISCES) and the instruction files for LPJ_GUESS (the
-# *.ins files) for all MIP experiments in which EC-Earth3
-# participates.
+# *.ins files) for all MIP experiments in which EC-Earth3 participates.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
@@ -163,7 +162,7 @@ for mip in dq.coll['mip'].items:
              os.system(command_01)
              os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
              os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
-             os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+             os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
              os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
              os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
              os.system(command_07)  # Rename directory names for joint MIPs
@@ -234,7 +233,7 @@ for mip in dq.coll['mip'].items:
              os.system(command_01)
              os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
              os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
-             os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file
+             os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
              os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
              os.system(command_c)   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
 

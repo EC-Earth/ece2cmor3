@@ -97,4 +97,8 @@ ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.*
 ece2cmor3/scripts/differences-with-benchmark-step-*.txt
 
 # Slurm messages:
-ece2cmor3/scripts/submit-script-examples/slurm-1*
+ece2cmor3/scripts/submit-script-examples/slurm-*
+
+ece2cmor3/resources/
+
+ece2cmor3/resources/miscellaneous-data-requests/

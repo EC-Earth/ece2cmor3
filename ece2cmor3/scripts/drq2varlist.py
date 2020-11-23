@@ -43,7 +43,7 @@ def main():
                         help="File (xlsx|json) containing requested cmor variables (Required, unless --allvars is used)")
     varsarg.add_argument("--allvars", action="store_true", default=False,
                         help="Read all possible variables from CMOR tables (Required, unless --drq is used)")
-    varsarg.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
                         help="EC-Earth configuration")
     parser.add_argument("--varlist", "-o", metavar="FILE.json", type=str, default="ece-cmip6-data-request-varlist.json",
                         help="Output file name")
