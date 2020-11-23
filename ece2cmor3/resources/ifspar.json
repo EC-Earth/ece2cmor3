@@ -174,9 +174,11 @@
         "masked": "land"
     },
     {
-        "source": "31.128",
+        "source": "31.129",
         "target": "siconca",
-        "convert": "frac2percent"
+        "expr": "var31 / (var172<=0.5)",
+        "convert": "frac2percent",
+        "masked": "sea"
     },
     {
         "source": "34.129",
