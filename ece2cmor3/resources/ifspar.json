@@ -180,7 +180,7 @@
     },
     {
         "source": "34.129",
-        "target": "tos",
+        "target": "tosa",
         "expr": "var34 / (var172<=0.5)",
         "convert": "K2degC",
         "masked": "sea"
