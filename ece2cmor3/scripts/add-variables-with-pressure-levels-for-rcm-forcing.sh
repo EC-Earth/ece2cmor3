@@ -12,11 +12,11 @@
 
 if [ "$#" -eq 0 ]; then
 
- add_variables_with_pressure_levels_for_rcm_forcing=True             # See #
+ add_variables_with_pressure_levels_for_rcm_forcing=True
 
 
  if [ add_variables_with_pressure_levels_for_rcm_forcing ]; then
-  # See #
+  # Add two sets of dynamic RCM forcing variables on dedicated pressure levels #664.
 
   cd ../resources/cmip6-cmor-tables
   git checkout Tables/CMIP6_coordinate.json
@@ -300,11 +300,10 @@ if [ "$#" -eq 0 ]; then
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
 
-# Add tos, tsl on 6hrPlevPt table & siconca on 6hrPlev table:
-
+# Add tosa (tos), tsl4sl (tsl) on 6hrPlevPt table & siconca on 6hrPlev table:
 
   sed -i  '/"ts": {/i \
-        "tos": {                                                                                                                            \
+        "tosa": {                                                                                                                           \
             "frequency": "6hrPt",                                                                                                           \
             "modeling_realm": "ocean",                                                                                                      \
             "standard_name": "sea_surface_temperature",                                                                                     \
@@ -345,8 +344,6 @@ if [ "$#" -eq 0 ]; then
         },                                                                                      
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
-#  time (and thus in other table 6hrPlev) or time1?
-#  sed -i  '/"snowmxrat27": {/i \
   sed -i  '/"tas": {/i \
         "siconca": {                                                    \
             "frequency": "6hr",                                         \

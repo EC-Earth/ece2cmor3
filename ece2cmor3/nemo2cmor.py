@@ -654,10 +654,10 @@ class nemo_grid(object):
         flat = numpy.vectorize(lambda x: (x + 90) % 180 - 90)
         self.lons = flon(nemo_grid.smoothen(lons_))
         input_lats = lats_
-        # Dirty hack for lost precision in zonal grids:
+        # Dirty hack for XIOS bug in zonal grid, yielding incorrect last latitude (see issue #669)
         if input_lats.shape[1] == 1:
             if input_lats.shape[0] > 2 and input_lats[-1, 0] <= input_lats[-2, 0]:
-                input_lats[-1, 0] = input_lats[-1, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
+                input_lats[-1, 0] = input_lats[-2, 0] + (input_lats[-2, 0] - input_lats[-3, 0])
         self.lats = flat(input_lats)
         gridtype = get_grid_type(name_)
         if input_lats.shape[0] == 1 or input_lats.shape[1] == 1 or gridtype is None:
