@@ -123,9 +123,13 @@ def write_ppt_files(tasks):
             if not zaxis:
                 for code in root_codes:
                     if code in cmor_source.ifs_source.grib_codes_3D:
-                        log.warning("3D grib code %s used in 2D cmor-target %s..."
-                                    "assuming this is on model levels" % (str(code), task.target.variable))
-                        mfp3dfs.append(code)
+                        # Exception for orog and areacella, depend only on lowest level of 129:
+                        if task.target.variable in ["orog", "areacella"] and code == cmor_source.grib_code(129):
+                            mfp2df.append(code)
+                        else:
+                            log.warning("3D grib code %s used in 2D cmor-target %s..."
+                                        "assuming this is on model levels" % (str(code), task.target.variable))
+                            mfp3dfs.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_dyn:
                         log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
