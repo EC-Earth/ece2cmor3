@@ -178,7 +178,7 @@
         "target": "siconca",
         "expr": "var31 / (var172<=0.5)",
         "convert": "frac2percent",
-        "masked": "sea"
+        "missval": "0"
     },
     {
         "source": "34.129",
