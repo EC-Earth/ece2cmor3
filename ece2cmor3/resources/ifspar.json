@@ -838,7 +838,6 @@
     {
         "script": "make_dynvars",
         "src": "make_dynvars.sh",
-        "call": "once",
         "filter": "False"
     }
 ]

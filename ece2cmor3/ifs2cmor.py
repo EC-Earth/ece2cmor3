@@ -159,17 +159,17 @@ def find_init_files(path, exp):
 def validate_script_task(task):
     script = getattr(task, cmor_task.postproc_script_key, None)
     if scripts is None:
-        return False
+        return None
     if script not in scripts:
         log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s "
                   % (script, task.target.variable, task.target.table))
         task.set_failed()
-        return False
+        return None
     if scripts[script].get("src", None) is None:
         log.error("Script source for %s has not been given, dismissing variable %s in table %s"
                   % (script, task.target.variable, task.target.table))
-        return False
-    return True
+        return None
+    return scripts[script].get("filter", "true").lower()
 
 
 def execute(tasks, nthreads=1):
@@ -183,15 +183,16 @@ def execute(tasks, nthreads=1):
     regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and
                      cmor_target.get_freq(t.target) != 0 and
                      not hasattr(t, cmor_task.postproc_script_key)]
-    script_tasks = [t for t in supported_tasks if validate_script_task(t)]
-    script_tasks_filter = [t for t in script_tasks if
-                           scripts[getattr(t, cmor_task.postproc_script_key)].get("filter", "true").lower() == "true"]
-    script_tasks_no_filter = list(set(script_tasks) - set(script_tasks_filter))
+    script_tasks = [t for t in supported_tasks if validate_script_task(t) != (None, None)]
+    # Scripts in charge of their own filtering, can create a group of variables at once
+    script_tasks_no_filter = [t for t in script_tasks if validate_script_task(t) == "false"]
+    # Scripts creating single variable, filtering done by ece2cmor3
+    script_tasks_filter = list(set(script_tasks) - set(script_tasks_no_filter))
 
     # No fx filtering needed, cdo can handle this file
     if ifs_init_gridpoint_file_.endswith("+000000"):
         tasks_to_filter = surf_pressure_tasks + regular_tasks + script_tasks_filter
-        tasks_no_filter = fx_tasks + mask_tasks + script_tasks_no_filter
+        tasks_no_filter = fx_tasks + mask_tasks
         for task in fx_tasks + mask_tasks:
             # dirty hack for orography being in ICMGG+000000 file...
             if task.target.variable in ["orog", "areacella"]:
@@ -203,16 +204,17 @@ def execute(tasks, nthreads=1):
             setattr(task, cmor_task.output_frequency_key, 0)
     else:
         tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks + script_tasks_filter
-        tasks_no_filter = script_tasks_no_filter
+        tasks_no_filter = []
 
-    # Launch call-1 scripts
-    tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
     np = nthreads
+
+    # Launch no-filter scripts
     jobs = []
+    tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
     for s, tasklist in tasks_per_script.items():
-        script_args = (s, scripts[s]["src"], )
         log.info("Launching script %s to process variables %s" %
                  (s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist])))
+        script_args = (s, scripts[s], tasklist)
         if np == 1:
             script_worker(args=script_args)
         else:
@@ -221,6 +223,7 @@ def execute(tasks, nthreads=1):
             jobs.append(p)
             np -= 1
 
+    # Do filtering
     if auto_filter_:
         tasks_todo = tasks_no_filter + grib_filter.execute(tasks_to_filter, filter_files=do_post_process(),
                                                            multi_threaded=(nthreads > 1))
@@ -247,25 +250,42 @@ def execute(tasks, nthreads=1):
     for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
-    if nthreads == 1:
+    if np == 1:
         for task in proctasks:
             cmor_worker(task)
     else:
-        pool = multiprocessing.Pool(processes=nthreads)
+        pool = multiprocessing.Pool(processes=np)
         pool.map(cmor_worker, proctasks)
         for task in proctasks:
             setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_))
+    for job in jobs:
+        job.join()
     if cleanup_tmpdir():
         clean_tmp_data(tasks_todo)
 
 
 # Worker function for parallel cmorization (not working at the present...)
 def cmor_worker(task):
-    log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
+    if validate_script_task(task) is not None:
+        script = scripts[getattr(task, cmor_task.postproc_script_key)]["src"]
+        log.info("Post-processing variable %s for target variable %s using %s..." % (task.source.get_grib_code().var_id,
+                                                                                     task.target.variable, script))
+        subprocess.check_call([script, task.target.variable, task.target.table,
+                               getattr(task, cmor_task.filter_output_key)], cwd=temp_dir_)
+        ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
+        if os.path.isfile(ncfile):
+            setattr(task, cmor_task.output_path_key, ncfile)
+        else:
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task")
+            task.set_failed()
+            return
+    else:
+        log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
-    postproc.post_process(task, temp_dir_, do_post_process())
-    if task.status == cmor_task.status_failed:
-        return
+        postproc.post_process(task, temp_dir_, do_post_process())
+        if task.status == cmor_task.status_failed:
+            return
+
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     define_cmor_axes(task)
@@ -274,13 +294,30 @@ def cmor_worker(task):
     execute_netcdf_task(task)
 
 
-# Invokes external script
+# Worker function invoking external script
 def script_worker(args):
-    name, src, shell = args
+    name, src, tasks = args
     tmpdir = os.path.join(temp_dir_, name + "-work")
     os.makedirs(tmpdir)
-    odir = os.path.abspath(os.path.dirname(ifs_gridpoint_files_.values()[0]))
-    subprocess.check_call([shell, src, odir, exp_name_], cwd=tmpdir)
+    gpfile = ifs_gridpoint_files_.values()[0]
+    year = os.path.basename(gpfile[-6:-2])
+    odir = os.path.abspath(os.path.dirname(gpfile))
+    subprocess.check_call([src, odir, exp_name_, year] + [t.target.variable + '_' + t.target.table for t in tasks],
+                          cwd=tmpdir)
+    for task in tasks:
+        ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
+        if os.path.isfile(ncfile):
+            setattr(task, cmor_task.output_path_key, ncfile)
+        else:
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task")
+            task.set_failed()
+            continue
+        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                            task.target.variable))
+        define_cmor_axes(task)
+        if task.status == cmor_task.status_failed:
+            return
+        execute_netcdf_task(task)
 
 
 # Converts the masks that are needed into a set of tasks
