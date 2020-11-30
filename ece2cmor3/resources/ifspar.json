@@ -819,6 +819,11 @@
         "expr": "sqrt(sqr(var165)+sqr(var166))"
     },
     {
+        "source": "215.129",
+        "target": "epfy",
+        "post-proc": "make_dynvars"
+    },
+    {
         "mask": "land",
         "expr": "var172>0.5"
     },
@@ -829,5 +834,11 @@
     {
         "mask": "sea_ice",
         "expr": "var31>0"
+    },
+    {
+        "script": "make_dynvars",
+        "src": "make_dynvars.sh",
+        "call": "once",
+        "filter": "False"
     }
 ]

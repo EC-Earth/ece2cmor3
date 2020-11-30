@@ -2,6 +2,7 @@ import cmor
 import glob
 import logging
 import multiprocessing
+import subprocess
 import netCDF4
 import numpy
 import os
@@ -47,6 +48,9 @@ auto_filter_ = True
 # Available geospatial masks, assigned by ece2cmorlib
 masks = {}
 
+# Custom scripts
+scripts = {}
+
 
 # Controls whether we enter filtering+post-processing stage
 def do_post_process():
@@ -77,18 +81,20 @@ def get_output_freq(task):
         return env_val
     # If the output frequency was set (auto-filtering), take that one
     if hasattr(task, cmor_task.output_frequency_key):
-        return getattr(task,  cmor_task.output_frequency_key)
+        return getattr(task, cmor_task.output_frequency_key)
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
         raise Exception("Cannot determine post-processing frequency for %s, please provide it by setting the "
                         "ECE2CMOR3_IFS_NFRPOS environment variable to the output frequency (in hours)" %
                         task.target.variable)
+
+
 #        return grib_filter.read_source_frequency(getattr(task, cmor_task.filter_output_key))
 
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_,\
+    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_, \
         ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
@@ -146,7 +152,24 @@ def find_init_files(path, exp):
             if f in files:
                 return os.path.join(root, f)
         return None
+
     return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
+
+
+def validate_script_task(task):
+    script = getattr(task, cmor_task.postproc_script_key, None)
+    if scripts is None:
+        return False
+    if script not in scripts:
+        log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s "
+                  % (script, task.target.variable, task.target.table))
+        task.set_failed()
+        return False
+    if scripts[script].get("src", None) is None:
+        log.error("Script source for %s has not been given, dismissing variable %s in table %s"
+                  % (script, task.target.variable, task.target.table))
+        return False
+    return True
 
 
 def execute(tasks, nthreads=1):
@@ -157,13 +180,19 @@ def execute(tasks, nthreads=1):
     mask_tasks = get_mask_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
     surf_pressure_tasks = get_sp_tasks(supported_tasks)
-    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and cmor_target.get_freq(t.target) != 0]
+    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and
+                     cmor_target.get_freq(t.target) != 0 and
+                     not hasattr(t, cmor_task.postproc_script_key)]
+    script_tasks = [t for t in supported_tasks if validate_script_task(t)]
+    script_tasks_filter = [t for t in script_tasks if
+                           scripts[getattr(t, cmor_task.postproc_script_key)].get("filter", "true").lower() == "true"]
+    script_tasks_no_filter = list(set(script_tasks) - set(script_tasks_filter))
 
     # No fx filtering needed, cdo can handle this file
     if ifs_init_gridpoint_file_.endswith("+000000"):
-        tasks_to_filter = surf_pressure_tasks + regular_tasks
-        tasks_no_filter = fx_tasks + mask_tasks
-        for task in tasks_no_filter:
+        tasks_to_filter = surf_pressure_tasks + regular_tasks + script_tasks_filter
+        tasks_no_filter = fx_tasks + mask_tasks + script_tasks_no_filter
+        for task in fx_tasks + mask_tasks:
             # dirty hack for orography being in ICMGG+000000 file...
             if task.target.variable in ["orog", "areacella"]:
                 task.source.grid_ = cmor_source.ifs_grid.point
@@ -173,8 +202,24 @@ def execute(tasks, nthreads=1):
                 setattr(task, cmor_task.filter_output_key, [ifs_init_gridpoint_file_])
             setattr(task, cmor_task.output_frequency_key, 0)
     else:
-        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
-        tasks_no_filter = []
+        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks + script_tasks_filter
+        tasks_no_filter = script_tasks_no_filter
+
+    # Launch call-1 scripts
+    tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
+    np = nthreads
+    jobs = []
+    for s, tasklist in tasks_per_script.items():
+        script_args = (s, scripts[s]["src"], )
+        log.info("Launching script %s to process variables %s" %
+                 (s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist])))
+        if np == 1:
+            script_worker(args=script_args)
+        else:
+            p = multiprocessing.Process(name=s, target=script_worker, args=script_args)
+            p.start()
+            jobs.append(p)
+            np -= 1
 
     if auto_filter_:
         tasks_todo = tasks_no_filter + grib_filter.execute(tasks_to_filter, filter_files=do_post_process(),
@@ -227,6 +272,15 @@ def cmor_worker(task):
     if task.status == cmor_task.status_failed:
         return
     execute_netcdf_task(task)
+
+
+# Invokes external script
+def script_worker(args):
+    name, src, shell = args
+    tmpdir = os.path.join(temp_dir_, name + "-work")
+    os.makedirs(tmpdir)
+    odir = os.path.abspath(os.path.dirname(ifs_gridpoint_files_.values()[0]))
+    subprocess.check_call([shell, src, odir, exp_name_], cwd=tmpdir)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -515,7 +569,8 @@ def execute_netcdf_task(task):
             unit = getattr(task.target, "units")
         if len(getattr(task.target, "positive", "")) > 0:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                                    positive="up" if getattr(task, cmor_task.conversion_key, None) == "vol2fluxup" else "down")
+                                   positive="up" if getattr(task, cmor_task.conversion_key,
+                                                            None) == "vol2fluxup" else "down")
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
