@@ -122,6 +122,8 @@ def write_ppt_files(tasks):
             root_codes = task.source.get_root_codes()
             if not zaxis:
                 for code in root_codes:
+                    if freq > 0 and code in cmor_source.ifs_source.grib_codes_fx:
+                        continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
                         # Exception for orog and areacella, depend only on lowest level of 129:
                         if task.target.variable in ["orog", "areacella"] and code == cmor_source.grib_code(129):
@@ -142,6 +144,8 @@ def write_ppt_files(tasks):
                         log.error("Unknown 2D IFS grib code %s skipped" % str(code))
             else:
                 for code in root_codes:
+                    if freq > 0 and code in cmor_source.ifs_source.grib_codes_fx:
+                        continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
                         if zaxis in cmor_target.model_axes:
                             log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
@@ -234,7 +238,7 @@ def write_ppt_files(tasks):
             fx_namelist = namelist
         if freq == min_freq:
             # Always add orography and land mask for lowest frequency ppt
-            mfpphy.extend([129, 172])
+            mfpphy.extend([129, 172, 43])
             mfpphy = sorted(list(set(mfpphy)))
             namelist["MFPPHY"] = mfpphy
             namelist["NFPPHY"] = len(mfpphy)
