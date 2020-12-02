@@ -12,7 +12,7 @@
 #SBATCH --partition=all
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
-#SBATCH --account=proj-cmip6
+#SBATCH --account=proj-dutch_post
 
 # Account options:  proj-cmip6 & model-testing & proj-dutch_scen & proj-dutch_post
 
@@ -37,7 +37,7 @@
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
    VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-test-all/$EXP
+   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-test-all-trunk-t001/$EXP
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " is empty. Aborting job:" $0 >&2; exit 1; fi
@@ -69,21 +69,6 @@
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
   #if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
-
-   # Launching the next job for the next leg:
-   arg0=$0
-   arg1=$1
-   arg2previous=$2
-   arg2next=$((10#${arg2previous}+16))  # Note +8 combines with the {nemo,ifs}-for-loop example below to 16 simultaneous jobs
-   arg2=$(printf %.3d ${arg2next} )
-   if [ ${arg2next} -lt 30 ] ; then
-    echo ' A next job is launched:'
-    echo ' ' sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
-    sbatch --job-name=cmorise-${arg1}-${arg2} ${arg0} ${arg1} ${arg2}
-   else
-    echo ' No next job is launched.'
-   fi
-
  else
   echo
   echo '  Illegal number of arguments: the script requires two arguments:'
@@ -92,7 +77,7 @@
   echo '  For instance:'
   echo '   sbatch ' $0 ' ifs 001'
   echo '  Or use:'
-  echo '   for j in {001..015}; do sbatch --job-name=cmorise-ifs-$j  ' $0 ' ifs  $j; done'
-  echo '   for j in {001..015}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
+  echo '   for j in {001..002}; do sbatch --job-name=cmorise-ifs-$j  ' $0 ' ifs  $j; done'
+  echo '   for j in {001..002}; do sbatch --job-name=cmorise-nemo-$j ' $0 ' nemo $j; done'
   echo
  fi

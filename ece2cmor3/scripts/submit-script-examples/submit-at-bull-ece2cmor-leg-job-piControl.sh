@@ -1,9 +1,6 @@
 #!/bin/bash
 #
-# Run this script by:
-#  sbatch submit-at-bull-ece2cmor-leg-job.sh
-#  for i in {001..010}; do sbatch submit-at-bull-ece2cmor-leg-job.sh ifs $i; done
-#  for i in {nemo,ifs}; do for j in {001..010}; do sbatch submit-at-bull-ece2cmor-leg-job.sh $i $j; done; done
+# Run this script without arguments for examples how to call this script.
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
@@ -17,7 +14,7 @@
 #SBATCH --cpus-per-task=28
 #SBATCH --account=proj-cmip6
 
-# Two account options:  proj-cmip6  &  model-testing
+# Account options:  proj-cmip6 & model-testing & proj-dutch_scen & proj-dutch_post
 
 # ECEDIR    is the directory with the raw ec-earth output results, for instance: t001/output/nemo/001
 # EXP       is the 4-digit ec-earth experiment ID or label, for instance: t001
