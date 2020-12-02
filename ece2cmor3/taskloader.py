@@ -70,8 +70,8 @@ def load_tasks(variables, active_components=None, target_filters=None, check_dup
         if not search_duplicate_tasks(filtered_matches):
             log.fatal("Duplicate requested variables were found, dismissing all cmorization tasks")
             return []
-    load_masks(load_model_vars())
-    return create_tasks(filtered_matches, get_models(active_components))
+    masks = load_masks(load_model_vars())
+    return create_tasks(filtered_matches, get_models(active_components), masks=masks)
 
 
 def get_models(active_components):
@@ -522,7 +522,7 @@ def matchvarpar(target, parblock):
 
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
-def create_tasks(matches, active_components):
+def create_tasks(matches, active_components, masks):
     global log, ignored_vars_file, json_table_key, skip_tables
     result = []
     model_vars = load_model_vars()
@@ -545,7 +545,7 @@ def create_tasks(matches, active_components):
                             "first match %s" % (model, target.variable, target.table, parmatch.get("source", None)))
             if parmatch.get("table_override", {}).get("table", "") == target.table:
                 parmatch = parmatch["table_override"]
-            task = create_cmor_task(parmatch, target, model)
+            task = create_cmor_task(parmatch, target, model, masks)
             if ece2cmorlib.add_task(task):
                 result.append(task)
     log.info("Created %d ece2cmor tasks from input variable list." % len(result))
@@ -567,6 +567,7 @@ def load_model_vars():
 
 # TODO: Delegate to components
 def load_masks(model_vars):
+    result = {}
     for par in model_vars["ifs"]:
         if json_mask_key in par:
             name = par[json_mask_key]
@@ -574,10 +575,12 @@ def load_masks(model_vars):
             if not expr:
                 log.error("No expression given for mask %s, ignoring mask definition" % name)
             else:
+                result[name] = expr
                 srcstr, func, val = parse_maskexpr(expr)
                 if srcstr:
                     src = create_cmor_source({json_source_key: srcstr}, "ifs")
                     ece2cmorlib.add_mask(name, src, func, val)
+    return result
 
 
 # Parses the input mask expression
@@ -602,15 +605,17 @@ def parse_maskexpr(exprstring):
 
 
 # Creates a single task from the target and parameter table entry
-def create_cmor_task(pardict, target, component):
+def create_cmor_task(pardict, target, component, masks):
     global log, json_source_key
+    mask = pardict.get(json_masked_key, None)
+    if mask is not None:
+        pardict[cmor_source.mask_expression_key] = masks[mask]
     source = create_cmor_source(pardict, component)
     if source is None:
         raise ValueError("Failed to construct a source for target variable %s in table %s: task skipped."
                          % (target.variable, target.table))
     task = cmor_task.cmor_task(source, target)
-    mask = pardict.get(json_masked_key, None)
-    if mask:
+    if mask is not None:
         setattr(task.target, cmor_target.mask_key, mask)
     for par in pardict:
         if par not in [json_source_key, json_target_key, json_mask_key, json_masked_key, json_table_key, "expr"]:

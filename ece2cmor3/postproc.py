@@ -107,22 +107,30 @@ def apply_command(command, task, output_path=None):
     return result
 
 
+def mask_rhs(rhs, mask):
+    return rhs if mask is None else '(' + rhs + ")/(" + mask + ')'
+
+
 # Checks whether the string expression denotes height level merging
 def add_expr_operators(cdo, task):
-    expr = getattr(task.source, cmor_source.expression_key, None)
-    if not expr:
-        return
+    input_expr = getattr(task.source, cmor_source.expression_key, None)
+    mask = getattr(task.source, cmor_source.mask_expression_key, None)
+    if input_expr is None:
+        if mask is None:
+            return
+        expr = '='.join([cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())] * 2)
+    else:
+        expr = input_expr
     missval = getattr(task, "missval", None)
     if missval is not None:
         cdo.add_operator(cdoapi.cdo_command.set_missval_operator, missval)
     groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
     if groups is None:
-        lhs = "var" + task.source.get_grib_code().var_id
+        lhs = cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())
         rhs = expr.replace(" ", "")
     else:
         lhs = groups.group(0)[:-1]
         rhs = expr.replace(" ", "")[len(lhs) + 1:]
-    expr = '='.join([lhs, rhs])
     new_code = int(lhs[3:])
     order = getattr(task.source, cmor_source.expression_order_key, 0)
     expr_operator = cdoapi.cdo_command.post_expr_operator if order == 1 else cdoapi.cdo_command.expression_operator
@@ -131,11 +139,11 @@ def add_expr_operators(cdo, task):
         sub_expr_list = arg.split(',')
         if not any(getattr(task.target, "z_dims", [])):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
-            sub_expr = sub_expr_list[0].strip()
+            sub_expr = mask_rhs(sub_expr_list[0].strip(), mask)
             if not re.match("var[0-9]{1,3}", sub_expr):
                 cdo.add_operator(expr_operator, "var" + str(new_code) + "=" + sub_expr)
             else:
-                task.source = cmor_source.ifs_source.read(sub_expr)
+                task.source = cmor_source.ifs_source.read(sub_expr, mask_expr=mask)
             root_codes = [int(s.strip()[3:]) for s in re.findall("var[0-9]{1,3}", sub_expr)]
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
@@ -143,10 +151,11 @@ def add_expr_operators(cdo, task):
             i = 0
             for sub_expr in sub_expr_list:
                 i += 1
-                cdo.add_operator(expr_operator, "var" + str(i) + "=" + sub_expr)
+                cdo.add_operator(expr_operator, "var" + str(i) + "=" + mask_rhs(sub_expr, mask))
             cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
     else:
-        cdo.add_operator(expr_operator, expr)
+        mask_interp_expr = '='.join([lhs, mask_rhs(rhs, mask)])
+        cdo.add_operator(expr_operator, mask_interp_expr)
     cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[c.var_id for c in task.source.get_root_codes()])
 
 

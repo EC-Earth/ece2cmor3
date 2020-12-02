@@ -80,6 +80,18 @@ class postproc_tests(unittest.TestCase):
                        "-setgridtype,regular -expr,'var23=var20/var22' -monmean -selzaxis,hybrid -selcode,20,22")
 
     @staticmethod
+    def test_postproc_post_expr_masked():
+        abspath = test_utils.get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        source = cmor_source.ifs_source.read("var23", "var126020/var126022", expr_order=1, mask_expr="var172>=0.5")
+        target = [t for t in targets if t.variable == "cdnc" and t.table == "AERmon"][0]
+        task = cmor_task.cmor_task(source, target)
+        command = postproc.create_command(task)
+        nose.tools.eq_(command.create_command(),
+                       "-setgridtype,regular -expr,'var23=(var20/var22)/(var172>=0.5)' -monmean -selzaxis,"
+                       "hybrid -selcode,20,22,172")
+
+    @staticmethod
     def test_postproc_maxwindspeed():
         abspath = test_utils.get_table_path()
         targets = cmor_target.create_targets(abspath, "CMIP6")
@@ -112,3 +124,18 @@ class postproc_tests(unittest.TestCase):
         nose.tools.eq_(command.create_command(), "-setgridtype,regular -setcode,118 -daymean -expr,"
                                                  "'var1=70*var39;var2=210*var40;var3=720*var41;var4=1890*var42' "
                                                  "-selcode,39,40,41,42")
+
+    @staticmethod
+    def test_postproc_mrsol_masked():
+        source = cmor_source.ifs_source.read("118.129", "merge(70*var39,210*var40,720*var41,1890*var42)",
+                                             mask_expr="var172>=0.5")
+        abspath = test_utils.get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        target = [t for t in targets if t.variable == "mrsol" and t.table == "Eday"][0]
+        task = cmor_task.cmor_task(source, target)
+        command = postproc.create_command(task)
+        print command.create_command()
+        nose.tools.eq_(command.create_command(), "-setgridtype,regular -setcode,118 -daymean -expr,"
+                                                 "'var1=(70*var39)/(var172>=0.5);var2=(210*var40)/("
+                                                 "var172>=0.5);var3=(720*var41)/(var172>=0.5);var4=(1890*var42)/("
+                                                 "var172>=0.5)' -selcode,39,40,41,42,172")
