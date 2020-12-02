@@ -608,7 +608,7 @@ def parse_maskexpr(exprstring):
 def create_cmor_task(pardict, target, component, masks):
     global log, json_source_key
     mask = pardict.get(json_masked_key, None)
-    if mask is not None:
+    if mask is not None and mask in masks:
         pardict[cmor_source.mask_expression_key] = masks[mask]
     source = create_cmor_source(pardict, component)
     if source is None:
