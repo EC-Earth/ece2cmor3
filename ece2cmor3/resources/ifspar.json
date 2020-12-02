@@ -828,6 +828,7 @@
     },
     {
         "mask": "sea_ice",
-        "expr": "var31>0"
+        "expr": "var31>0",
+        "comment": "This time dependent sea_ice mask can not be used in other variables. Use a var31 division direct in the expression."
     }
 ]
