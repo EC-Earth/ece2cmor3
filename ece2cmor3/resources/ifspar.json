@@ -174,9 +174,11 @@
         "masked": "land"
     },
     {
-        "source": "31.128",
+        "source": "31.129",
         "target": "siconca",
-        "convert": "frac2percent"
+        "expr": "var31 / (var172<=0.5)",
+        "convert": "frac2percent",
+        "missval": "0"
     },
     {
         "source": "34.129",
@@ -705,13 +707,13 @@
     {
         "source": "215.129",
         "target": "tsl4sl",
-        "expr": "merge(var139,var170,var183,var236)",
+        "expr": "merge(var139/(var172>0.5),var170/(var172>0.5),var183/(var172>0.5),var236/(var172>0.5))",
         "masked": "land"
     },
     {
         "source": "118.129",
         "target": "mrsol",
-        "expr": "merge(70*var39,210*var40,720*var41,1890*var42)",
+        "expr": "merge(70*var39/(var172>0.5),210*var40/(var172>0.5),720*var41/(var172>0.5),1890*var42/(var172>0.5))",
         "masked": "land"
     },
     {
@@ -806,7 +808,7 @@
         "source": "134.129",
         "target": "albsn",
         "expr": "var141?var32:1.e+14",
-        "missval": "1.e+14"
+        "fillval": "1.e+14"
     },
     {
         "source": "214.129",

@@ -437,7 +437,7 @@ def validate_tasks(tasks):
                     break
                 match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, varsfreq.keys())
                 if match_key is None:
-                    if 0 < target_freq and c in cmor_source.ifs_source.grib_codes_fx:
+                    if 0 != target_freq and c in cmor_source.ifs_source.grib_codes_fx:
                         match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, fxvars)
                         if match_key is None:
                             log.error("Field missing in the initial state files: "
