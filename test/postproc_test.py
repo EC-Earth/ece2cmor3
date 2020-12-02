@@ -139,3 +139,14 @@ class postproc_tests(unittest.TestCase):
                                                  "'var1=(70*var39)/(var172>=0.5);var2=(210*var40)/("
                                                  "var172>=0.5);var3=(720*var41)/(var172>=0.5);var4=(1890*var42)/("
                                                  "var172>=0.5)' -selcode,39,40,41,42,172")
+
+    @staticmethod
+    def test_postproc_tasmax_missval():
+        abspath = test_utils.get_table_path()
+        targets = cmor_target.create_targets(abspath, "CMIP6")
+        source = cmor_source.ifs_source.create(201, 128)
+        target = [t for t in targets if t.variable == "tasmax" and t.table == "Amon"][0]
+        task = cmor_task.cmor_task(source, target)
+        setattr(task, "missval", "0")
+        command = postproc.create_command(task)
+        nose.tools.eq_(command.create_command(), "-setmisstoc,0 -monmean -daymax -setgridtype,regular -selcode,201")

@@ -30,6 +30,7 @@ class cdo_command:
     ml2pl_operator = "ml2plx"
     ml2hl_operator = "ml2hl"
     merge_operator = "merge"
+    set_misstoc_operator = "setmisstoc"
 
     # CDO operators
     min = "min"
@@ -60,14 +61,14 @@ class cdo_command:
     post_addexpr_operator = "post_aexpr"
 
     # Optimized operator ordering for CDO:
-    operator_ordering = [set_code_operator, post_expr_operator, post_addexpr_operator, year + sum, year + mean,
-                         year + min, year + max, month + sum, month + mean, month + min, month + max, day + sum,
-                         day + mean, day + min, day + max, timselmean_operator, zonal + sum, zonal + mean, zonal + min,
-                         zonal + max, meridional + sum, meridional + mean, meridional + min, meridional + max,
-                         field + sum, field + mean, field + min, field + max, area_operator, gridtype_operator, ml2pl_operator,
-                         ml2hl_operator, set_missval_operator, add_expression_operator, expression_operator,
-                         spectral_operator, select_lev_operator, select_z_operator, select + hour, select + day,
-                         select + month, shift_time_operator, select_step_operator, select_code_operator]
+    operator_ordering = [set_code_operator, post_expr_operator, post_addexpr_operator, set_misstoc_operator, year + sum,
+                         year + mean, year + min, year + max, month + sum, month + mean, month + min, month + max,
+                         day + sum, day + mean, day + min, day + max, timselmean_operator, zonal + sum, zonal + mean,
+                         zonal + min, zonal + max, meridional + sum, meridional + mean, meridional + min, meridional + max,
+                         field + sum, field + mean, field + min, field + max, area_operator, gridtype_operator,
+                         ml2pl_operator, ml2hl_operator, set_missval_operator, add_expression_operator,
+                         expression_operator, spectral_operator, select_lev_operator, select_z_operator, select + hour,
+                         select + day, select + month, shift_time_operator, select_step_operator, select_code_operator]
 
     # Constructor
     def __init__(self, code=0):
