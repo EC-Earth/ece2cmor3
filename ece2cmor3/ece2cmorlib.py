@@ -189,7 +189,7 @@ def perform_ifs_tasks(datadir, expname,
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
-    ifs2cmor.scripts = {k: v for k, v in scripts if v["component"] == "ifs"}
+    ifs2cmor.scripts = {k: v for k, v in scripts.items() if v["component"] == "ifs"}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
                                 tempdir=tempdir, autofilter=auto_filter)):
         return

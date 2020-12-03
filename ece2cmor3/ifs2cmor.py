@@ -214,9 +214,9 @@ def execute(tasks, nthreads=1):
     for s, tasklist in tasks_per_script.items():
         log.info("Launching script %s to process variables %s" %
                  (s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist])))
-        script_args = (s, scripts[s], tasklist)
+        script_args = (s, str(scripts[s]["src"]), tasklist)
         if np == 1:
-            script_worker(args=script_args)
+            script_worker(*script_args)
         else:
             p = multiprocessing.Process(name=s, target=script_worker, args=script_args)
             p.start()
@@ -272,7 +272,7 @@ def cmor_worker(task):
                                                                                      task.target.variable, script))
         subprocess.check_call([script, task.target.variable, task.target.table,
                                getattr(task, cmor_task.filter_output_key)], cwd=temp_dir_)
-        ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
+        ncfile = os.path.join(temp_dir_, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
             setattr(task, cmor_task.output_path_key, ncfile)
         else:
@@ -281,7 +281,7 @@ def cmor_worker(task):
             return
     else:
         log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
+                                                                            task.target.variable))
         postproc.post_process(task, temp_dir_, do_post_process())
         if task.status == cmor_task.status_failed:
             return
@@ -295,21 +295,25 @@ def cmor_worker(task):
 
 
 # Worker function invoking external script
-def script_worker(args):
-    name, src, tasks = args
+def script_worker(name, src, tasks):
     tmpdir = os.path.join(temp_dir_, name + "-work")
-    os.makedirs(tmpdir)
+    if not os.path.isdir(tmpdir):
+        os.makedirs(tmpdir)
     gpfile = ifs_gridpoint_files_.values()[0]
     year = os.path.basename(gpfile[-6:-2])
     odir = os.path.abspath(os.path.dirname(gpfile))
-    subprocess.check_call([src, odir, exp_name_, year] + [t.target.variable + '_' + t.target.table for t in tasks],
-                          cwd=tmpdir)
+    try:
+        subprocess.check_call([src, odir, exp_name_, year] +
+                              [str(t.target.variable + '_' + t.target.table) for t in tasks],
+                              cwd=tmpdir, shell=False)
+    except subprocess.CalledProcessError as e:
+        log.error("Error in calling script %s: %s" % (src, str(e.output)))
     for task in tasks:
         ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
             setattr(task, cmor_task.output_path_key, ncfile)
         else:
-            log.error("Output file %s of script %s could not be found... skipping cmorization of task")
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task" % (ncfile, src))
             task.set_failed()
             continue
         log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
