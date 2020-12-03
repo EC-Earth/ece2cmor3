@@ -72,9 +72,8 @@ def load_tasks(variables, active_components=None, target_filters=None, check_dup
             log.fatal("Duplicate requested variables were found, dismissing all cmorization tasks")
             return []
     model_vars = load_model_vars()
-    load_masks(model_vars)
     load_scripts(model_vars)
-    masks = load_masks(load_model_vars())
+    masks = load_masks(model_vars)
     return create_tasks(filtered_matches, get_models(active_components), masks=masks)
 
 
