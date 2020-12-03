@@ -52,9 +52,19 @@ class cmor_source_tests(unittest.TestCase):
         eq_(src.get_grib_code(), grib_code(133, 128))
 
     @staticmethod
+    def test_create_from_short_string_masked():
+        src = ifs_source.read("133", mask_expr="var172<=0.5")
+        eq_(src.get_root_codes(), [grib_code(133, 128), grib_code(172, 128)])
+
+    @staticmethod
     def test_create_from_var_string():
         src = ifs_source.read("var133")
         eq_(src.get_grib_code(), grib_code(133, 128))
+
+    @staticmethod
+    def test_create_from_var_string_masked():
+        src = ifs_source.read("var133", mask_expr="var172<=0.5")
+        eq_(src.get_root_codes(), [grib_code(133, 128), grib_code(172, 128)])
 
     @staticmethod
     def test_create_from_expr():
@@ -106,6 +116,14 @@ class cmor_source_tests(unittest.TestCase):
         src = ifs_source.read("88", "(var144==0)*sqrt(sq(var131)+sq(var132))")
         eq_(src.get_grib_code(), grib_code(88, 128))
         eq_(src.get_root_codes(), [grib_code(144, 128), grib_code(131, 128), grib_code(132, 128)])
+        eq_(getattr(src, "expr"), "var88=(var144==0)*sqrt(sq(var131)+sq(var132))")
+        eq_(src.spatial_dims, 3)
+
+    @staticmethod
+    def test_create_from_expr_masked():
+        src = ifs_source.read("88", "(var144==0)*sqrt(sq(var131)+sq(var132))", mask_expr="var172>0.5")
+        eq_(src.get_grib_code(), grib_code(88, 128))
+        eq_(src.get_root_codes(), [grib_code(144, 128), grib_code(131, 128), grib_code(132, 128), grib_code(172, 128)])
         eq_(getattr(src, "expr"), "var88=(var144==0)*sqrt(sq(var131)+sq(var132))")
         eq_(src.spatial_dims, 3)
 
