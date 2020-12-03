@@ -165,11 +165,11 @@ if [ "$#" -eq 4 ]; then
    mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev36
   fi
 
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/retuning-piControl/cmvme_CMIP_ssp245_1_1-additional.xlsx' ]; then
+  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2020)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-   mkdir -p retuning-control-output-files
-   mv -f ${output_dir} retuning-control-output-files
+  #mkdir -p compact-control-output-files
+   mv -f ${output_dir} compact-control-output-files
   fi
 
   echo ' Finished:'
@@ -181,7 +181,7 @@ else
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/retuning-piControl/cmvme_CMIP_ssp245_1_1-additional.xlsx          CMIP     piControl           EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP     piControl           EC-EARTH-AOGCM
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP     historical          EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP     historical          EC-EARTH-AOGCM

@@ -181,9 +181,8 @@
         "missval": "0"
     },
     {
-        "source": "34.129",
+        "source": "34.128",
         "target": "tosa",
-        "expr": "var34 / (var172<=0.5)",
         "convert": "K2degC",
         "masked": "sea"
     },
@@ -707,13 +706,13 @@
     {
         "source": "215.129",
         "target": "tsl4sl",
-        "expr": "merge(var139/(var172>0.5),var170/(var172>0.5),var183/(var172>0.5),var236/(var172>0.5))",
+        "expr": "merge(var139,var170,var183,var236)",
         "masked": "land"
     },
     {
         "source": "118.129",
         "target": "mrsol",
-        "expr": "merge(70*var39/(var172>0.5),210*var40/(var172>0.5),720*var41/(var172>0.5),1890*var42/(var172>0.5))",
+        "expr": "merge(70*var39,210*var40,720*var41,1890*var42)",
         "masked": "land"
     },
     {
@@ -833,7 +832,8 @@
     },
     {
         "mask": "sea_ice",
-        "expr": "var31>0"
+        "expr": "var31>0",
+        "comment": "This time dependent sea_ice mask can not be used in other variables. Use a var31 division direct in the expression."
     },
     {
         "script": "make_dynvars",
