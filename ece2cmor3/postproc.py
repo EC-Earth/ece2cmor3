@@ -111,12 +111,15 @@ def apply_command(command, task, output_path=None):
 
 # Checks whether the string expression denotes height level merging
 def add_expr_operators(cdo, task):
+    missval = getattr(task, "missval", None)
+    if missval is not None:
+        cdo.add_operator(cdoapi.cdo_command.set_misstoc_operator, missval)
+    fillval = getattr(task, "fillval", None)
+    if fillval is not None:
+        cdo.add_operator(cdoapi.cdo_command.set_missval_operator, fillval)
     expr = getattr(task.source, cmor_source.expression_key, None)
     if not expr:
         return
-    missval = getattr(task, "missval", None)
-    if missval is not None:
-        cdo.add_operator(cdoapi.cdo_command.set_missval_operator, missval)
     groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
     if groups is None:
         lhs = "var" + task.source.get_grib_code().var_id

@@ -122,10 +122,16 @@ def write_ppt_files(tasks):
             root_codes = task.source.get_root_codes()
             if not zaxis:
                 for code in root_codes:
+                    if freq > 0 and code in cmor_source.ifs_source.grib_codes_fx:
+                        continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
-                        log.warning("3D grib code %s used in 2D cmor-target %s..."
-                                    "assuming this is on model levels" % (str(code), task.target.variable))
-                        mfp3dfs.append(code)
+                        # Exception for orog and areacella, depend only on lowest level of 129:
+                        if task.target.variable in ["orog", "areacella"] and code == cmor_source.grib_code(129):
+                            mfp2df.append(code)
+                        else:
+                            log.warning("3D grib code %s used in 2D cmor-target %s..."
+                                        "assuming this is on model levels" % (str(code), task.target.variable))
+                            mfp3dfs.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_dyn:
                         log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
@@ -138,6 +144,8 @@ def write_ppt_files(tasks):
                         log.error("Unknown 2D IFS grib code %s skipped" % str(code))
             else:
                 for code in root_codes:
+                    if freq > 0 and code in cmor_source.ifs_source.grib_codes_fx:
+                        continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
                         if zaxis in cmor_target.model_axes:
                             log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
@@ -230,7 +238,7 @@ def write_ppt_files(tasks):
             fx_namelist = namelist
         if freq == min_freq:
             # Always add orography and land mask for lowest frequency ppt
-            mfpphy.extend([129, 172])
+            mfpphy.extend([129, 172, 43])
             mfpphy = sorted(list(set(mfpphy)))
             namelist["MFPPHY"] = mfpphy
             namelist["NFPPHY"] = len(mfpphy)
