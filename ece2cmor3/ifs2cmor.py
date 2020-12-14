@@ -156,12 +156,12 @@ def execute(tasks, nthreads=1):
     log.info("Executing %d IFS tasks..." % len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
-    surf_pressure_tasks = get_sp_tasks(supported_tasks)
-    regular_tasks = [t for t in supported_tasks if t not in surf_pressure_tasks and cmor_target.get_freq(t.target) != 0]
+    regular_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) != 0]
+    req_ps_tasks, extra_ps_tasks = get_sp_tasks(supported_tasks)
 
     # No fx filtering needed, cdo can handle this file
     if ifs_init_gridpoint_file_.endswith("+000000"):
-        tasks_to_filter = surf_pressure_tasks + regular_tasks
+        tasks_to_filter = extra_ps_tasks + regular_tasks
         tasks_no_filter = fx_tasks + mask_tasks
         for task in tasks_no_filter:
             # dirty hack for orography being in ICMGG+000000 file...
@@ -173,7 +173,7 @@ def execute(tasks, nthreads=1):
                 setattr(task, cmor_task.filter_output_key, [ifs_init_gridpoint_file_])
             setattr(task, cmor_task.output_frequency_key, 0)
     else:
-        tasks_to_filter = mask_tasks + fx_tasks + surf_pressure_tasks + regular_tasks
+        tasks_to_filter = mask_tasks + fx_tasks + extra_ps_tasks + regular_tasks
         tasks_no_filter = []
 
     if auto_filter_:
@@ -197,7 +197,7 @@ def execute(tasks, nthreads=1):
         setattr(task, cmor_task.output_frequency_key, get_output_freq(task))
 
     # First post-process surface pressure and mask tasks
-    for task in list(set(tasks_todo).intersection(mask_tasks + surf_pressure_tasks)):
+    for task in list(set(tasks_todo).intersection(mask_tasks + req_ps_tasks + extra_ps_tasks)):
         postproc.post_process(task, temp_dir_, do_post_process())
     for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
@@ -349,15 +349,15 @@ def filter_tasks(tasks):
 def get_sp_tasks(tasks):
     tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
                                                           '_'.join(getattr(task.target, "time_operator", ["mean"]))))
-    result = []
+    existing, new = [], []
     for freq, task_group in tasks_by_freq.iteritems():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
         if not any(tasks3d):
             continue
         surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure]
-        if len(surf_pressure_tasks) > 0:
+        existing.extend(surf_pressure_tasks)
+        if any(surf_pressure_tasks):
             surf_pressure_task = surf_pressure_tasks[0]
-            result.append(surf_pressure_task)
         else:
             source = cmor_source.ifs_source(surface_pressure)
             surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
@@ -365,10 +365,10 @@ def get_sp_tasks(tasks):
             setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
             setattr(surf_pressure_task.target, cmor_target.dims_key, "latitude longitude")
             find_sp_variable(surf_pressure_task)
-            result.append(surf_pressure_task)
+            new.append(surf_pressure_task)
         for task3d in tasks3d:
             setattr(task3d, "sp_task", surf_pressure_task)
-    return result
+    return existing, new
 
 
 # Finds the surface pressure data source: gives priority to SH file.
