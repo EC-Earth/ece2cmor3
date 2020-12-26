@@ -872,7 +872,7 @@
     },
     {
         "script": "make_dynvars",
-        "src": "make_dynvars.sh",
+        "src": "/perm/ms/it/cc1f/ecearth3/post/tem-diag/make_dynvars.sh",
         "filter": "False"
     }
 ]
