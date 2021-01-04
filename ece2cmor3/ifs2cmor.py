@@ -158,7 +158,7 @@ def find_init_files(path, exp):
 
 def validate_script_task(task):
     script = getattr(task, cmor_task.postproc_script_key, None)
-    if scripts is None:
+    if script is None:
         return None
     if script not in scripts:
         log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s "
@@ -303,11 +303,13 @@ def script_worker(name, src, tasks):
     year = os.path.basename(gpfile[-6:-2])
     odir = os.path.abspath(os.path.dirname(gpfile))
     try:
-        subprocess.check_call([src, odir, exp_name_, year] +
-                              [str(t.target.variable + '_' + t.target.table) for t in tasks],
-                              cwd=tmpdir, shell=False)
+        out = subprocess.check_output([src, odir, exp_name_, year] +
+                                      [str(t.target.variable + '_' + t.target.table) for t in tasks],
+                                        cwd=tmpdir, shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         log.error("Error in calling script %s: %s" % (src, str(e.output)))
+    else:
+        log.info("\n{}\n".format(out))
     for task in tasks:
         ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
