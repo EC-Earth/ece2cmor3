@@ -308,8 +308,9 @@ def script_worker(name, src, tasks):
                                       cwd=tmpdir, shell=False, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         log.error("Error in calling script %s: %s" % (src, str(e.output)))
+        log.error("The exit code of %s was %s" % (src, str(out)))
     else:
-        log.info("\n{}\n".format(out))
+        log.info("The exit code of %s was %s" % (src, str(out)))
     for task in tasks:
         ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
