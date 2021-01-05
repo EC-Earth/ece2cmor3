@@ -13,13 +13,6 @@ test_data_path = os.path.join(os.path.dirname(__file__), "test_data", "ifs", "00
 tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 
-@pytest.fixture
-def setup():
-    grib_file.test_mode = grib_filter_test.test_mode
-    if not os.path.exists(tmp_path):
-        os.makedirs(tmp_path)
-
-
 class grib_filter_test(unittest.TestCase):
     test_mode = True
     date = datetime(year=1990, month=1, day=1, hour=1)
@@ -28,12 +21,15 @@ class grib_filter_test(unittest.TestCase):
     sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
     sh_path = {date: os.path.join(test_data_path, sh_file)}
     grib_file.test_mode = test_mode
+    if not os.path.exists(tmp_path):
+        os.makedirs(tmp_path)
 
     @staticmethod
     def test_initialize():
         grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
         assert grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9, cmor_source.ifs_grid.point)] == 6
-        assert grib_filter.varsfreq[(133, 128, grib_file.pressure_level_Pa_code, 85000, cmor_source.ifs_grid.point)] == 6
+        assert grib_filter.varsfreq[
+                   (133, 128, grib_file.pressure_level_Pa_code, 85000, cmor_source.ifs_grid.point)] == 6
         assert grib_filter.varsfreq[(164, 128, grib_file.surface_level_code, 0, cmor_source.ifs_grid.point)] == 3
 
     @staticmethod
@@ -186,4 +182,3 @@ class grib_filter_test(unittest.TestCase):
         os.rmdir(os.path.join(tmp_path, "prev_mon_test_src"))
         os.rmdir(path2)
         os.rmdir(os.path.join(tmp_path, "prev_mon_test_dst"))
-
