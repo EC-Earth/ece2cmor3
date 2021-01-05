@@ -15,8 +15,9 @@ jobs:
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Checkout code
       uses: actions/checkout@v2
+    - name: Install dependencies
       run: |
         conda env create -f environment.yml
         conda activate ece2cmor3
