@@ -7,7 +7,6 @@ import netCDF4
 import numpy
 import os
 import unittest
-from nose.tools import eq_
 
 from ece2cmor3 import ifs2cmor, ece2cmorlib
 
@@ -57,8 +56,8 @@ class ifs2cmor_tests(unittest.TestCase):
         cmor.load_table("CMIP6_Amon.json")
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="mon", path=filepath, name="time",
                                                                    has_bounds=True)
-        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 12)])
-        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 13)])
+        assert lower_bnds == [self.startdate + n * interval for n in range(0, 12)]
+        assert upper_bnds == [self.startdate + n * interval for n in range(1, 13)]
         os.remove(filepath)
 
     def test_daily_time_axis(self):
@@ -74,8 +73,8 @@ class ifs2cmor_tests(unittest.TestCase):
         cmor.load_table("CMIP6_day.json")
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="day", path=filepath, name="time",
                                                                    has_bounds=True)
-        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 365)])
-        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 366)])
+        assert lower_bnds == [self.startdate + n * interval for n in range(0, 365)]
+        assert upper_bnds == [self.startdate + n * interval for n in range(1, 366)]
         os.remove(filepath)
 
     def test_6hr_time_axis(self):
@@ -91,8 +90,8 @@ class ifs2cmor_tests(unittest.TestCase):
         cmor.load_table("CMIP6_6hrLev.json")
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="6hr", path=filepath, name="time",
                                                                    has_bounds=True)
-        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 4 * 365)])
-        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 4 * 365 + 1)])
+        assert lower_bnds == [self.startdate + n * interval for n in range(0, 4 * 365)]
+        assert upper_bnds == [self.startdate + n * interval for n in range(1, 4 * 365 + 1)]
         os.remove(filepath)
 
     def test_3hr_time_axis(self):
@@ -108,8 +107,8 @@ class ifs2cmor_tests(unittest.TestCase):
         cmor.load_table("CMIP6_3hr.json")
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="3hr", path=filepath, name="time",
                                                                    has_bounds=True)
-        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 8 * 365)])
-        eq_(upper_bnds, [self.startdate + n * interval for n in range(1, 8 * 365 + 1)])
+        assert lower_bnds == [self.startdate + n * interval for n in range(0, 8 * 365)]
+        assert upper_bnds == [self.startdate + n * interval for n in range(1, 8 * 365 + 1)]
         os.remove(filepath)
 
     def test_6hrPt_time_axis(self):
@@ -125,6 +124,6 @@ class ifs2cmor_tests(unittest.TestCase):
         cmor.load_table("CMIP6_6hrPlevPt.json")
         axisid, lower_bnds, upper_bnds = ifs2cmor.create_time_axis(freq="6hrPt", path=filepath, name="time1",
                                                                    has_bounds=False)
-        eq_(lower_bnds, [self.startdate + n * interval for n in range(0, 4 * 365)])
-        eq_(upper_bnds, lower_bnds)
+        assert lower_bnds == [self.startdate + n * interval for n in range(0, 4 * 365)]
+        assert upper_bnds == lower_bnds
         os.remove(filepath)
