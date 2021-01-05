@@ -300,12 +300,12 @@ def script_worker(name, src, tasks):
     if not os.path.isdir(tmpdir):
         os.makedirs(tmpdir)
     gpfile = ifs_gridpoint_files_.values()[0]
-    year = os.path.basename(gpfile[-6:-2])
+    year = os.path.basename(gpfile)[-6:-2]
     odir = os.path.abspath(os.path.dirname(gpfile))
     try:
-        out = subprocess.check_output([src, odir, exp_name_, year] +
-                                      [str(t.target.variable + '_' + t.target.table) for t in tasks],
-                                        cwd=tmpdir, shell=True, stderr=subprocess.STDOUT)
+        out = subprocess.check_output(args=[src, odir, exp_name_, year] +
+                                           [str(t.target.variable + '_' + t.target.table) for t in tasks],
+                                      cwd=tmpdir, shell=False, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         log.error("Error in calling script %s: %s" % (src, str(e.output)))
     else:
