@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
