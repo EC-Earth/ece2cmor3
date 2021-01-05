@@ -17,7 +17,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        conda env create -f environment.yml
+        conda env create -f ../environment.yml
         conda activate ece2cmor3
     - name: Lint with flake8
       run: |
@@ -29,4 +29,4 @@ jobs:
     - name: Test with pytest
       run: |
         conda install pytest
-        pytest --verbose
+        pytest --verbose ../test
