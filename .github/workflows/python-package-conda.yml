@@ -34,4 +34,5 @@ jobs:
         conda init bash
         conda activate ece2cmor3
         conda install pytest
+        python setup.py install
         pytest --verbose
