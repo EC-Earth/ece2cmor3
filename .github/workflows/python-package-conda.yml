@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         conda env create -f environment.yml
-        conda activate ece2cmor3
+        source activate ece2cmor3
     - name: Lint with flake8
       run: |
         conda install flake8
