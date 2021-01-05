@@ -10,17 +10,16 @@ jobs:
       matrix:
         python-version: ["2.7"]
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        conda env create -f environment.yml
-        source activate ece2cmor3
+        activate-environment: ece2cmor3
+        environment-file: environment.yml
+        auto-activate-base: false
     - name: Lint with flake8
       run: |
         conda install flake8
