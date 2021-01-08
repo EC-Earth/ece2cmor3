@@ -913,12 +913,10 @@ def create_grid_from_file(filepath):
         return None
     xvals = read_coordinate_vals(grid_descr, 'x', 360)
     yvals = read_coordinate_vals(grid_descr, 'y', 180)
-    if xvals is None or yvals is None:
-        log.error("Invalid grid detected in post-processed data: %s" % str(grid_descr))
-        return None
     return create_gauss_grid(xvals, yvals)
 
 
+# Reads x or y coordinate values from grid description. Returns empty array if not found
 def read_coordinate_vals(grid_descr, xydir, ndegrees):
     att_vals = xydir + "vals"
     if att_vals in grid_descr:
@@ -928,8 +926,7 @@ def read_coordinate_vals(grid_descr, xydir, ndegrees):
         x0, n = float(grid_descr[att_first]), int(grid_descr[att_size])
         dx = float(ndegrees) / n
         return numpy.array([x0 + i * dx for i in range(n)])
-    log.error("Could not retrieve %s-coordinate values from %s" % (xydir, str(grid_descr)))
-    return None
+    return numpy.array([])
 
 
 # Creates the regular gaussian grid from its arguments.
