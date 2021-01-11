@@ -597,6 +597,8 @@ def execute_netcdf_task(task):
         varlist = [v for v in ncvars if str(getattr(ncvars[v], "code", None)) == codestr]
         if len(varlist) == 0:
             varlist = [v for v in ncvars if str(v) == "var" + codestr]
+        if len(varlist) == 0:
+            varlist = [v for v in ncvars if str(v).lower() == task.target.variable]
         if task.target.variable == "areacella":
             varlist = ["cell_area"]
         if len(varlist) == 0:
