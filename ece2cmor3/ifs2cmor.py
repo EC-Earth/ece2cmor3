@@ -621,7 +621,7 @@ def execute_netcdf_task(task):
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
         factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None),
-                                                getattr(task, cmor_task.output_frequency_key))
+                                                getattr(task, cmor_task.output_frequency_key, None))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
             if d.startswith("time"):
