@@ -216,15 +216,18 @@ def execute(tasks, nthreads=1):
 
 # Worker function for parallel cmorization (not working at the present...)
 def cmor_worker(task):
+    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
+        return
     log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
-    postproc.post_process(task, temp_dir_, do_post_process())
-    if task.status == cmor_task.status_failed:
+    if task.status not in [cmor_task.status_postprocessing, cmor_task.status_postprocessed]:
+        postproc.post_process(task, temp_dir_, do_post_process())
+    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
     log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
                                                                         task.target.variable))
     define_cmor_axes(task)
-    if task.status == cmor_task.status_failed:
+    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
     execute_netcdf_task(task)
 
@@ -360,7 +363,7 @@ def get_sp_tasks(tasks):
             surf_pressure_task = surf_pressure_tasks[0]
         else:
             source = cmor_source.ifs_source(surface_pressure)
-            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("sp", tasks3d[0].target.table))
+            surf_pressure_task = cmor_task.cmor_task(source, cmor_target.cmor_target("ps", tasks3d[0].target.table))
             setattr(surf_pressure_task.target, cmor_target.freq_key, freq[0])
             setattr(surf_pressure_task.target, "time_operator", freq[1].split('_'))
             setattr(surf_pressure_task.target, cmor_target.dims_key, "latitude longitude")
@@ -415,8 +418,6 @@ depth_axis_ids = {}
 
 def define_cmor_axes(task):
     global global_grid_id, local_grid_ids
-    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized]:
-        return
     tgtdims = getattr(task.target, cmor_target.dims_key).split()
     grid_id = -1
     has_lats, has_lons = "latitude" in tgtdims, "longitude" in tgtdims
@@ -515,7 +516,7 @@ def execute_netcdf_task(task):
             unit = getattr(task.target, "units")
         if len(getattr(task.target, "positive", "")) > 0:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                                    positive="up" if getattr(task, cmor_task.conversion_key, None) == "vol2fluxup" else "down")
+                                   positive="up" if getattr(task, cmor_task.conversion_key, None) == "vol2fluxup" else "down")
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")

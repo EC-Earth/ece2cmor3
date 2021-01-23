@@ -199,7 +199,7 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
         if any(matches):
             return matches[0]
         matches = [k for k in keys if k[0] == varid and k[1] == tabid and k[2] == grib_file.hybrid_level_code and
-                   k[3] == 0]
+                   k[3] == 1]
         if any(matches):
             return matches[0]
     # Fix for depth levels variables
