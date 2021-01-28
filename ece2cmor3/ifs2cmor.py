@@ -543,7 +543,8 @@ def execute_netcdf_task(task):
                     time_slice_map.append(-1)
             time_selection = numpy.array(time_slice_map)
 
-        mask = getattr(task.target, cmor_target.mask_key, None)
+        #mask = getattr(task.target, cmor_target.mask_key, None)
+        mask = None
         mask_array = masks[mask].get("array", None) if mask in masks else None
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         if flip_sign:
