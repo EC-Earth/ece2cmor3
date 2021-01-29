@@ -3,8 +3,7 @@ import time
 
 import argparse
 import datetime
-import dateutil.parser
-import dateutil.relativedelta
+import dateutil
 import logging
 import os
 import sys
