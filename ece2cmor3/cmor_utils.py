@@ -67,6 +67,11 @@ def date2num(times, ref_time):
     return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
 
 
+# Fix for datetime.strftime("%Y%m%d") for years before 1900
+def date2str(dt):
+    return dt.isoformat().split('T')[0].replace('-', '')
+
+
 # Shifts the input times to the requested ref_time
 def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
     n = units.find(" since")

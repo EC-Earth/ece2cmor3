@@ -627,7 +627,7 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
     if not any(var_infos):
         return
     if setdate is not None:
-        gribfile.set_field(grib_file.date_key, int(setdate.strftime("%Y%m%d")))
+        gribfile.set_field(grib_file.date_key, int(cmor_utils.date2str(setdate)))
         gribfile.set_field(grib_file.time_key, 0)
     timestamp = gribfile.get_field(grib_file.time_key)
     if shift != 0 and setdate is None:
