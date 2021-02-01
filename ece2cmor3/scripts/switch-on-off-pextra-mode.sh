@@ -15,19 +15,19 @@ if [ "$#" -eq 1 ]; then
 
  if [ $1 == 'activate-pextra-mode' ]; then
   sed -i -e 's/"NRFP3S"] = -1/"NRFP3S"] = -99/' drq2ppt.py
-  cp -f ../resources/list-of-identified-missing-cmpi6-requested-variables-enable-pextra.xlsx ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+  cp -f ../resources/list-of-identified-missing-cmip6-requested-variables-enable-pextra.xlsx ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
   cd ../../; python setup.py develop; cd -;
   echo '  '
-  git diff ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+  git diff ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
   echo '  '
   git diff drq2ppt.py
   echo '  '
  elif [ $1 == 'deactivate-pextra-mode' ]; then
   sed -i -e 's/"NRFP3S"] = -99/"NRFP3S"] = -1/' drq2ppt.py
-  git checkout ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+  git checkout ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
   cd ../../; python setup.py develop; cd -;
   echo '  '
-  git diff ../resources/list-of-identified-missing-cmpi6-requested-variables.xlsx
+  git diff ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
   echo '  '
   git diff drq2ppt.py
   echo '  '

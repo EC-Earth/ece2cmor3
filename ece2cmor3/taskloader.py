@@ -31,9 +31,9 @@ omit_vars_file_04 = os.path.join(os.path.dirname(__file__), "resources", "lists-
 omit_vars_file_05 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
                                  "list-of-omitted-variables-05.xlsx")
 ignored_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                 "list-of-ignored-cmpi6-requested-variables.xlsx")
+                                 "list-of-ignored-cmip6-requested-variables.xlsx")
 identified_missing_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                            "list-of-identified-missing-cmpi6-requested-variables.xlsx")
+                                            "list-of-identified-missing-cmip6-requested-variables.xlsx")
 
 mask_predicates = {"=": lambda x, a: x == a,
                    "==": lambda x, a: x == a,
