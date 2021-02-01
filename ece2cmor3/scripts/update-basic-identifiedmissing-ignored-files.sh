@@ -119,7 +119,7 @@ if [ "$#" -eq -2 ]; then
 #   https://github.com/na-ka-na/ExcelCompare/blob/master/README.md
 # Java is needed, on ubuntu this can be installed by: sudo apt update; sudo apt install -y default-jre
 # Extract the zip and 
-#  cd ${HOME}; mv Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
+#  mkdir -p ${HOME}/bin; mv ${HOME}/Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
 
 
 else
