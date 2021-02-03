@@ -52,6 +52,7 @@ class cdo_command:
 
     # CDO level/grid keywords
     regular_grid_type = "regular"
+    regular_grid_type_nn = "regularnn"
     height = "height"
     pressure = "pressure"
     model_level = "hybrid"
