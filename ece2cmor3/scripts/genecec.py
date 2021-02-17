@@ -291,3 +291,23 @@ os.system(command_k) # Remove the piControl LPJG instruction file, and add a lin
 
 command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh cmip6-output-control-files"
 os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.
+
+
+# Create and add the CovidMIP control output files:
+command_covidmip_rm           = "rm -rf CovidMIP"
+command_covidmip_baseline     = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-baseline     EC-EARTH-AOGCM"
+command_covidmip_covid        = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-covid        EC-EARTH-AOGCM"
+command_covidmip_cov_strgreen = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-strgreen EC-EARTH-AOGCM"
+command_covidmip_cov_modgreen = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM"
+command_covidmip_cov_fossil   = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM"
+command_covidmip_cov_aer      = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM"
+command_covidmip_mv           = "mv -f CovidMIP cmip6-output-control-files/"
+
+os.system(command_covidmip_rm          )
+os.system(command_covidmip_baseline    )
+os.system(command_covidmip_covid       )
+os.system(command_covidmip_cov_strgreen)
+os.system(command_covidmip_cov_modgreen)
+os.system(command_covidmip_cov_fossil  )
+os.system(command_covidmip_cov_aer     )
+os.system(command_covidmip_mv          )
