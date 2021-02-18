@@ -146,12 +146,14 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    exit
   fi
 
-  # Create the ppt files for IFS input and estimate the Volume of the IFS output:
-  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  if [ ${mip_label} != 'OMIP' ]; then
+   # Create the ppt files for IFS input and estimate the Volume of the IFS output:
+   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
-  mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
-  mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+   mkdir -p ${path_of_created_output_control_files}/file_def-compact
+   if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
+   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+  fi
 
   # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
   ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
