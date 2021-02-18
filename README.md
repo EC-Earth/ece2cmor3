@@ -46,6 +46,7 @@ git clone https://github.com/EC-Earth/ece2cmor3.git
 cd ece2cmor3
 git submodule update --init --recursive
 ```
+Note that Github depricates the `https` clone method, therefore see how to [migrate from https to ssh](https://github.com/EC-Earth/ece2cmor3/wiki/instruction-how-to-change-from-https-to-ssh).
 
 ##### Creating a virtual conda environment and installing ece3cmor3 therein:
 In the ece2cmor3 git checkout directory, type
