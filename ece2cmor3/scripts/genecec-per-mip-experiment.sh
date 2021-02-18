@@ -156,7 +156,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   else
    echo
    echo 'Due to an empty IFS requests, see:'
-   if [ ${mip_label} != 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
+   if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
    echo 'the script' $0 'will skip:'
    echo ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
    echo
