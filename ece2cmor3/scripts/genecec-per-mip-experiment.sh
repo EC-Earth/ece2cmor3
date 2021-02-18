@@ -147,7 +147,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   fi
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  if [ ${mip_label} != 'OMIP' ]; then
+  if [ ${mip_label} != 'OMIP' ] && [ ${experiment} != 'rad-irf' ]; then
    # Create the ppt files for IFS input and estimate the Volume of the IFS output:
    ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
 
@@ -157,6 +157,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    echo
    echo 'Due to an empty IFS requests, see:'
    if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
+   if [ ${experiment} = 'rad-irf' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/661'; fi
    echo 'the script' $0 'will skip:'
    echo ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
    echo
