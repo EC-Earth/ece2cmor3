@@ -39,6 +39,7 @@ dependencies:
 - gitpython=2.1.11
 - nco                                             # Required by tem-diag
 - scipy                                           # Required by tem-diag
+- python-dateutil
 - pip:
   - f90nml==0.20
   - jsonschema==2.5.1

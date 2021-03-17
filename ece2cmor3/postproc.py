@@ -174,7 +174,10 @@ def add_grid_operators(cdo, task):
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+        grid_type = cdoapi.cdo_command.regular_grid_type
+        if getattr(task, "interpolate", "linear") == "nn":
+            grid_type = cdoapi.cdo_command.regular_grid_type_nn
+        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, grid_type)
     tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
     if "longitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "longitude_operator", [])]

@@ -146,12 +146,22 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    exit
   fi
 
-  # Create the ppt files for IFS input and estimate the Volume of the IFS output:
-  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
-
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
-  if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
-  mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+  if [ ${mip_label} != 'OMIP' ] && [ ${experiment} != 'rad-irf' ]; then
+   # Create the ppt files for IFS input and estimate the Volume of the IFS output:
+   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+
+   if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
+   mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
+  else
+   echo
+   echo 'Due to an empty IFS requests, see:'
+   if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
+   if [ ${experiment} = 'rad-irf' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/661'; fi
+   echo 'the script' $0 'will skip:'
+   echo ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+   echo
+  fi
 
   # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
   ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx

@@ -67,6 +67,11 @@ def date2num(times, ref_time):
     return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
 
 
+# Fix for datetime.strftime("%Y%m%d") for years before 1900
+def date2str(dt):
+    return dt.isoformat().split('T')[0].replace('-', '')
+
+
 # Shifts the input times to the requested ref_time
 def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
     n = units.find(" since")
@@ -306,7 +311,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             if timdim < 0:
                 vals = apply_mask(ncvar[:], factor, term, None, missval_in, missval)
             elif timdim == 0:
-                vals = apply_mask(ncvar[i:imax], factor, term, None, missval_in, missval)
+                vals = apply_mask(ncvar[time_slice], factor, term, None, missval_in, missval)
         elif ndims == 2:
             if timdim < 0:
                 if swaplatlon:
@@ -406,10 +411,17 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         if psvarid is not None and ncpsvar is not None:
             spvals = None
             if len(ncpsvar.shape) == 3:
-                spvals = numpy.transpose(ncpsvar[i:imax, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                if time_slice is None:
+                    spvals = numpy.transpose(numpy.full((1,) + ncpsvar.shape[1:], missval),
+                                             axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                else:
+                    spvals = numpy.transpose(ncpsvar[time_slice, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif len(ncpsvar.shape) == 4:
-                projvar = ncpsvar[i:imax, 0, :, :]
-                spvals = numpy.transpose(projvar, axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                if time_slice is None:
+                    spvals = numpy.transpose(numpy.full((1,) + ncvar.shape[2:], missval),
+                                             axes=[2, 1, 0] if swaplatlon else [2, 1, 0])
+                else:
+                    spvals = numpy.transpose(ncpsvar[time_slice, 0, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             if spvals is not None:
                 if fliplat:
                     spvals = numpy.flipud(spvals)

@@ -1,54 +1,60 @@
 import logging
 import unittest
 from ece2cmor3 import cdoapi
-import nose.tools
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 class cdoapi_tests(unittest.TestCase):
 
-    def test_select_code(self):
+    @staticmethod
+    def test_select_code():
         command = cdoapi.cdo_command(130)
         commstr = command.create_command()
-        nose.tools.eq_("-selcode,130", commstr)
+        assert commstr == "-selcode,130"
 
-    def test_select_codes(self):
+    @staticmethod
+    def test_select_codes():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.select_code_operator, 131, 132)
         commstr = command.create_command()
-        nose.tools.eq_("-selcode,130,131,132", commstr)
+        assert commstr == "-selcode,130,131,132"
 
-    def test_add_specmapping(self):
+    @staticmethod
+    def test_add_specmapping():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.spectral_operator)
         commstr = command.create_command()
-        nose.tools.eq_("-sp2gpl -selcode,130", commstr)
+        assert commstr == "-sp2gpl -selcode,130"
 
-    def test_add_gridmapping(self):
+    @staticmethod
+    def test_add_gridmapping():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         commstr = command.create_command()
-        nose.tools.eq_("-setgridtype,regular -selcode,130", commstr)
+        assert commstr == "-setgridtype,regular -selcode,130"
 
-    def test_add_sellevel(self):
+    @staticmethod
+    def test_add_sellevel():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.pressure)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
         commstr = command.create_command()
-        nose.tools.eq_("-setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130", commstr)
+        assert commstr == "-setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130"
 
-    def test_add_monmean(self):
+    @staticmethod
+    def test_add_monmean():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         command.add_operator(cdoapi.cdo_command.select_z_operator, cdoapi.cdo_command.pressure)
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
         commstr = command.create_command()
-        nose.tools.eq_("-setgridtype,regular -monmean -sellevel,500,350,10 -selzaxis,pressure -selcode,130", commstr)
+        assert commstr == "-setgridtype,regular -monmean -sellevel,500,350,10 -selzaxis,pressure -selcode,130"
 
-    def test_add_daymax(self):
+    @staticmethod
+    def test_add_daymax():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         command.add_operator(cdoapi.cdo_command.day + cdoapi.cdo_command.max)
@@ -56,10 +62,10 @@ class cdoapi_tests(unittest.TestCase):
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
         commstr = command.create_command()
-        nose.tools.eq_("-monmean -daymax -setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130",
-                       commstr)
+        assert commstr == "-monmean -daymax -setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130"
 
-    def test_add_daymin(self):
+    @staticmethod
+    def test_add_daymin():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.year + cdoapi.cdo_command.mean)
         command.add_operator(cdoapi.cdo_command.day + cdoapi.cdo_command.max)
@@ -67,26 +73,28 @@ class cdoapi_tests(unittest.TestCase):
         command.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
         command.add_operator(cdoapi.cdo_command.select_lev_operator, 500, 350, 10)
         commstr = command.create_command()
-        nose.tools.eq_("-yearmean -daymax -setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130",
-                       commstr)
+        assert commstr == "-yearmean -daymax -setgridtype,regular -sellevel,500,350,10 -selzaxis,pressure -selcode,130"
 
-    def test_expr(self):
+    @staticmethod
+    def test_expr():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.spectral_operator)
         command.add_operator(cdoapi.cdo_command.expression_operator, "var91=sq(var130)")
         commstr = command.create_command()
-        nose.tools.eq_("-expr,'var91=sq(var130)' -sp2gpl -selcode,130", commstr)
+        assert commstr == "-expr,'var91=sq(var130)' -sp2gpl -selcode,130"
 
-    def test_monmean_expr(self):
+    @staticmethod
+    def test_monmean_expr():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.expression_operator, "var91=sq(var130)")
         command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         commstr = command.create_command()
-        nose.tools.eq_("-monmean -expr,'var91=sq(var130)' -selcode,130", commstr)
+        assert commstr == "-monmean -expr,'var91=sq(var130)' -selcode,130"
 
-    def test_expr_monmean(self):
+    @staticmethod
+    def test_expr_monmean():
         command = cdoapi.cdo_command(130)
         command.add_operator(cdoapi.cdo_command.post_expr_operator, "var91=sq(var130)")
         command.add_operator(cdoapi.cdo_command.month + cdoapi.cdo_command.mean)
         commstr = command.create_command()
-        nose.tools.eq_("-expr,'var91=sq(var130)' -monmean -selcode,130", commstr)
+        assert commstr == "-expr,'var91=sq(var130)' -monmean -selcode,130"

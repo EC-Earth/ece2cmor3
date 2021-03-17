@@ -3,7 +3,6 @@ import os
 import json
 import logging
 import unittest
-from nose.tools import eq_, ok_
 
 from ece2cmor3 import taskloader, ece2cmorlib, cmor_source, cmor_task, cmor_target
 
@@ -29,9 +28,9 @@ class taskloader_test(unittest.TestCase):
         try:
             clt3hr = {"3hr": ["clt"]}
             taskloader.load_tasks_from_drq(clt3hr)
-            eq_(len(ece2cmorlib.tasks), 1)
+            assert len(ece2cmorlib.tasks) == 1
             src = ece2cmorlib.tasks[0].source
-            eq_(src.get_grib_code().var_id, 164)
+            assert src.get_grib_code().var_id == 164
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -42,9 +41,9 @@ class taskloader_test(unittest.TestCase):
             clt3hr = {"3hr": ["clt"]}
             taskloader_test.setup_drq(clt3hr)
             taskloader.load_tasks_from_drq(drqpath)
-            eq_(len(ece2cmorlib.tasks), 1)
+            assert len(ece2cmorlib.tasks) == 1
             src = ece2cmorlib.tasks[0].source
-            eq_(src.get_grib_code().var_id, 164)
+            assert src.get_grib_code().var_id == 164
         finally:
             taskloader_test.cleanup_drq()
             ece2cmorlib.finalize_without_cmor()
@@ -55,8 +54,8 @@ class taskloader_test(unittest.TestCase):
         try:
             avars = {"ifs": {"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]}}
             taskloader.load_tasks(avars)
-            eq_(len(ece2cmorlib.tasks), 5)
-            eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
+            assert len(ece2cmorlib.tasks) == 5
+            assert len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]) == 2
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -67,8 +66,8 @@ class taskloader_test(unittest.TestCase):
             avars = {"ifs": {"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]}}
             taskloader_test.setup_drq(avars)
             taskloader.load_tasks(drqpath)
-            eq_(len(ece2cmorlib.tasks), 5)
-            eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
+            assert len(ece2cmorlib.tasks) == 5
+            assert len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]) == 2
         finally:
             taskloader_test.cleanup_drq()
             ece2cmorlib.finalize_without_cmor()
@@ -78,8 +77,8 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             taskloader.load_tasks_from_drq({"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]})
-            eq_(len(ece2cmorlib.tasks), 5)
-            eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
+            assert len(ece2cmorlib.tasks) == 5
+            assert len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]) == 2
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -90,8 +89,8 @@ class taskloader_test(unittest.TestCase):
             avars = {"3hr": ["clt", "uas", "vas"], "Amon": ["vas", "tas"]}
             taskloader_test.setup_drq(avars)
             taskloader.load_tasks_from_drq(drqpath)
-            eq_(len(ece2cmorlib.tasks), 5)
-            eq_(2, len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]))
+            assert len(ece2cmorlib.tasks) == 5
+            assert len([t.source.get_grib_code().var_id for t in ece2cmorlib.tasks if t.target.variable == "vas"]) == 2
         finally:
             taskloader_test.cleanup_drq()
             ece2cmorlib.finalize_without_cmor()
@@ -106,8 +105,8 @@ class taskloader_test(unittest.TestCase):
         try:
             taskloader.load_tasks_from_drq({"3hr": ["clt", "uas", "vas"], "CFmon": ["clwc", "hur", "ps"]},
                                            target_filters={"model level": ifs_model_level_variable})
-            eq_(len(ece2cmorlib.tasks), 4)
-            eq_(len([t for t in ece2cmorlib.tasks if t.target.table == "CFmon"]), 1)
+            assert len(ece2cmorlib.tasks) == 4
+            assert len([t for t in ece2cmorlib.tasks if t.target.table == "CFmon"]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -116,7 +115,7 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             taskloader.load_tasks_from_drq({"Omon": ["tossq", "so", "thetao"], "Oday": ["sos"]})
-            eq_(len(ece2cmorlib.tasks), 4)
+            assert len(ece2cmorlib.tasks) == 4
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -126,9 +125,9 @@ class taskloader_test(unittest.TestCase):
         try:
             matches, omissions = taskloader.load_drq({"Emon": ["rsdsdiff"], "Amon": ["clivi"]})
             ignored, identified_missing, missing, dismissed = taskloader.split_targets(omissions)
-            eq_(len(matches["nemo"]), 0)
-            eq_(len(matches["ifs"]), 1)
-            eq_(len(ignored), 1)
+            assert len(matches["nemo"]) == 0
+            assert len(matches["ifs"]) == 1
+            assert len(ignored) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -137,9 +136,9 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             taskloader.load_tasks_from_drq({"3hr": ["clt", "uas"], "Amon": ["vas", "tas"], "Omon": ["tossq"]})
-            eq_(len(ece2cmorlib.tasks), 5)
-            eq_(4, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.ifs_source)]))
-            eq_(1, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]))
+            assert len(ece2cmorlib.tasks) == 5
+            assert len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.ifs_source)]) == 4
+            assert len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -149,8 +148,8 @@ class taskloader_test(unittest.TestCase):
         try:
             taskloader.load_tasks_from_drq({"3hr": ["clt", "uas"], "Amon": ["vas", "tas"], "Omon": ["tossq"]},
                                            active_components=["nemo"])
-            eq_(len(ece2cmorlib.tasks), 1)
-            eq_(1, len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]))
+            assert len(ece2cmorlib.tasks) == 1
+            assert len([t for t in ece2cmorlib.tasks if isinstance(t.source, cmor_source.netcdf_source)]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -159,13 +158,13 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             taskloader.load_tasks_from_drq({"Amon": ["prc", "rsus", "zg"]})
-            eq_(len(ece2cmorlib.tasks), 3)
+            assert len(ece2cmorlib.tasks) == 3
             prctask = [t for t in ece2cmorlib.tasks if t.target.variable == "prc"][0]
             rsustask = [t for t in ece2cmorlib.tasks if t.target.variable == "rsus"][0]
             zgtask = [t for t in ece2cmorlib.tasks if t.target.variable == "zg"][0]
-            eq_("vol2flux", getattr(prctask, cmor_task.conversion_key))
-            eq_("cum2inst", getattr(rsustask, cmor_task.conversion_key))
-            eq_("pot2alt", getattr(zgtask, cmor_task.conversion_key))
+            assert getattr(prctask, cmor_task.conversion_key) == "vol2flux"
+            assert getattr(rsustask, cmor_task.conversion_key) == "cum2inst"
+            assert getattr(zgtask, cmor_task.conversion_key) == "pot2alt"
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -174,7 +173,7 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             taskloader.load_tasks_from_drq({"day": ["sfcWindmax"]})
-            eq_("var214=sqrt(sqr(var165)+sqr(var166))", getattr(ece2cmorlib.tasks[0].source, "expr"))
+            assert getattr(ece2cmorlib.tasks[0].source, "expr") == "var214=sqrt(sqr(var165)+sqr(var166))"
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -183,9 +182,9 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize()
         try:
             taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components=["ifs"])
-            eq_(len(ece2cmorlib.tasks), 0)
+            assert not any(ece2cmorlib.tasks)
             taskloader.load_tasks_from_drq({"3hr": ["tos"]}, active_components=["nemo"])
-            eq_(len(ece2cmorlib.tasks), 1)
+            assert len(ece2cmorlib.tasks) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -194,11 +193,11 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"AERmon": ["ps"]}, check_prefs=False)
-            eq_(len(matches["ifs"]), 1)
-            eq_(len(matches["tm5"]), 1)
+            assert len(matches["ifs"]) == 1
+            assert len(matches["tm5"]) == 1
             matches, omitted = taskloader.load_drq({"AERmon": ["ps"]}, check_prefs=True)
-            eq_(len(matches["ifs"]), 0)
-            eq_(len(matches["tm5"]), 1)
+            assert len(matches["ifs"]) == 0
+            assert len(matches["tm5"]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -207,14 +206,14 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"AERmon": ["ps"]}, check_prefs=False)
-            eq_(len(matches["ifs"]), 1)
-            eq_(len(matches["tm5"]), 1)
+            assert len(matches["ifs"]) == 1
+            assert len(matches["tm5"]) == 1
             tasks = taskloader.load_tasks(matches, active_components=["ifs"], target_filters=None,
                                           check_duplicates=True)
-            eq_(len(tasks), 0)
+            assert not any(tasks)
             tasks = taskloader.load_tasks(matches, active_components=["ifs"], target_filters=None,
                                           check_duplicates=False)
-            eq_(len(tasks), 1)
+            assert len(tasks) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -223,9 +222,9 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="EC-EARTH-AOGCM")
-            eq_(len(matches["nemo"]), 0)
+            assert not any(matches["nemo"])
             matches, omitted = taskloader.load_drq({"Omon": ["cfc12"]}, config="EC-EARTH-CC")
-            eq_(len(matches["nemo"]), 1)
+            assert len(matches["nemo"]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -234,9 +233,9 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"6hrPlevPt": ["ua", "ua7h"]}, check_prefs=False)
-            eq_(len(matches["ifs"]), 2)
+            assert len(matches["ifs"]) == 2
             matches, omitted = taskloader.load_drq({"6hrPlevPt": ["ua", "ua7h"]}, check_prefs=True)
-            eq_(len(matches["ifs"]), 1)
+            assert len(matches["ifs"]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -245,9 +244,9 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"6hrPlevPt": ["zg7h", "zg27"]}, check_prefs=False)
-            eq_(len(matches["ifs"]), 2)
+            assert len(matches["ifs"]) == 2
             matches, omitted = taskloader.load_drq({"6hrPlevPt": ["zg7h", "zg27"]}, check_prefs=True)
-            eq_(len(matches["ifs"]), 1)
+            assert len(matches["ifs"]) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -256,13 +255,13 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             tasks = taskloader.load_tasks_from_drq({"6hrPlevPt": ["tsl"], "Lmon": ["tsl"]})
-            eq_(len(tasks), 2)
+            assert len(tasks) == 2
             for t in tasks:
                 if t.target.table == "6hrPlevPt":
-                    ok_(not hasattr(t.source, "expr"))
-                    ok_(t.source.get_grib_code() == cmor_source.grib_code(139))
+                    assert not hasattr(t.source, "expr")
+                    assert t.source.get_grib_code() == cmor_source.grib_code(139)
                 else:
-                    ok_("merge" in getattr(t.source, "expr"))
+                    assert "merge" in getattr(t.source, "expr")
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -271,8 +270,8 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             matches, omitted = taskloader.load_drq({"Oclim": ["difvho"]}, check_prefs=False)
-            eq_(len(matches["nemo"]), 1)
-            ok_(not any(omitted))
+            assert len(matches["nemo"]) == 1
+            assert not any(omitted)
         finally:
             ece2cmorlib.finalize_without_cmor()
 
@@ -281,10 +280,10 @@ class taskloader_test(unittest.TestCase):
         ece2cmorlib.initialize_without_cmor()
         try:
             tasks = taskloader.load_tasks({"ifs": {"AERmon": ["cdnc"]}})
-            eq_(len(tasks), 1)
+            assert len(tasks) == 1
             src = tasks[0].source
-            ok_(isinstance(src, cmor_source.ifs_source))
-            eq_(getattr(src, "expr_order", 0), 1)
+            assert isinstance(src, cmor_source.ifs_source)
+            assert getattr(src, "expr_order", 0) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
 

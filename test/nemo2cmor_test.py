@@ -1,19 +1,22 @@
 import datetime
+import json
 import logging
 import math
 import os
 import shutil
+import tempfile
 import unittest
 
 import cmor
 import numpy
-from nose.tools import eq_
 
 import test_utils
 from ece2cmor3 import nemo2cmor, cmor_source, cmor_target, cmor_task, ece2cmorlib
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
+
+outpath = os.path.join(os.getcwd(), "cmor")
 
 
 def circwave(t, j, i):
@@ -28,9 +31,18 @@ def hypwave(t, j, i):
     return 0.001 * math.sin((i * i - j * j) / 1000. + 0.1 * t)
 
 
-def get_table_path(tab_id=None):
+def init_cmor():
     directory = os.path.join(os.path.dirname(cmor_target.__file__), "resources", "tables")
-    return os.path.join(directory, "CMIP6_" + tab_id + ".json") if tab_id else directory
+    cmor.setup(directory)
+    conf_path = ece2cmorlib.conf_path_default
+    with open(conf_path, 'r') as f:
+        metadata = json.load(f)
+    metadata["outpath"] = outpath
+    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+        json.dump(metadata, tmp_file)
+    cmor.dataset_json(tmp_file.name)
+    cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+    return directory
 
 
 class nemo2cmor_tests(unittest.TestCase):
@@ -103,10 +115,9 @@ class nemo2cmor_tests(unittest.TestCase):
         opf.write_variables(self.data_dir, "expn", [sit])
 
     def tearDown(self):
-        cmor_dir = os.path.join(os.getcwd(), "cmor")
-        if os.path.exists(cmor_dir):
+        if os.path.exists(outpath):
             try:
-                shutil.rmtree(cmor_dir)
+                shutil.rmtree(outpath)
             except Exception as e:
                 log.warning("Attempt to remove cmorized test data failed, reason: %s" % e.message)
         if os.path.exists(self.data_dir):
@@ -116,11 +127,7 @@ class nemo2cmor_tests(unittest.TestCase):
                 log.warning("Attempt to remove generated test data failed, reason: %s" % e.message)
 
     def test_cmor_single_task(self):
-        tab_dir = get_table_path()
-        conf_path = ece2cmorlib.conf_path_default
-        cmor.setup(tab_dir)
-        cmor.dataset_json(conf_path)
-        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+        tab_dir = init_cmor()
         nemo2cmor.initialize(self.data_dir, "expn", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              testmode=True)
         src = cmor_source.netcdf_source("tos", "nemo")
@@ -134,7 +141,8 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.finalize()
         cmor.close()
 
-    def test_create_grid(self):
+    @staticmethod
+    def test_create_grid():
         dim = 1000
         lons = numpy.fromfunction(lambda i, j: (i * 360 + 0.5) / (0.5 * (dim + j) + 2), (dim, dim), dtype=numpy.float64)
         lats = numpy.fromfunction(lambda i, j: (j * 180 + 0.5) / (0.5 * (dim + i) + 2) - 90, (dim, dim),
@@ -147,26 +155,18 @@ class nemo2cmor_tests(unittest.TestCase):
         p3 = (grid.vertex_lons[0, 0, 2], grid.vertex_lats[0, 0, 2])
         p4 = (grid.vertex_lons[0, 0, 3], grid.vertex_lats[0, 0, 3])
 
-        eq_(p2[0], p3[0])
-        eq_(p1[1], p2[1])
-        eq_(p3[1], p4[1])
+        assert p2[0] == p3[0]
+        assert p1[1] == p2[1]
+        assert p3[1] == p4[1]
 
     def test_init_nemo2cmor(self):
-        tab_dir = get_table_path()
-        conf_path = ece2cmorlib.conf_path_default
-        cmor.setup(tab_dir)
-        cmor.dataset_json(conf_path)
-        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+        tab_dir = init_cmor()
         nemo2cmor.initialize(self.data_dir, "expn", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1))
         nemo2cmor.finalize()
         cmor.close()
 
     def test_cmor_single_task3d(self):
-        tab_dir = get_table_path()
-        conf_path = ece2cmorlib.conf_path_default
-        cmor.setup(tab_dir)
-        cmor.dataset_json(conf_path)
-        cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
+        tab_dir = init_cmor()
         nemo2cmor.initialize(self.data_dir, "expn", os.path.join(tab_dir, "CMIP6"), datetime.datetime(1990, 3, 1),
                              testmode=True)
         src = cmor_source.netcdf_source("to", "nemo")
@@ -180,13 +180,14 @@ class nemo2cmor_tests(unittest.TestCase):
         nemo2cmor.finalize()
         cmor.close()
 
-    def test_grid_types(self):
-        eq_(nemo2cmor.get_grid_type("lim_grid_T_2D"), 't')
-        eq_(nemo2cmor.get_grid_type("lim_grid_U_3D"), 'u')
-        eq_(nemo2cmor.get_grid_type("lim_grid_V_2D"), 'v')
-        eq_(nemo2cmor.get_grid_type("lim_grid_W_3D"), 't')
-        eq_(nemo2cmor.get_grid_type("grid_U"), 'u')
-        eq_(nemo2cmor.get_grid_type("opa_grid_ptr_T_3basin_2D"), None)
-        eq_(nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice"), 't')
-        eq_(nemo2cmor.get_grid_type("opa_vert_sum"), 't')
-        eq_(nemo2cmor.get_grid_type("opa_zoom_700_sum"), 't')
+    @staticmethod
+    def test_grid_types():
+        assert nemo2cmor.get_grid_type("lim_grid_T_2D") == 't'
+        assert nemo2cmor.get_grid_type("lim_grid_U_3D") == 'u'
+        assert nemo2cmor.get_grid_type("lim_grid_V_2D") == 'v'
+        assert nemo2cmor.get_grid_type("lim_grid_W_3D") == 't'
+        assert nemo2cmor.get_grid_type("grid_U") == 'u'
+        assert nemo2cmor.get_grid_type("opa_grid_ptr_T_3basin_2D") is None
+        assert nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice") == 't'
+        assert nemo2cmor.get_grid_type("opa_vert_sum") == 't'
+        assert nemo2cmor.get_grid_type("opa_zoom_700_sum") == 't'
