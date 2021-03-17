@@ -177,7 +177,7 @@ def execute(tasks, nthreads=1):
     mask_tasks = get_mask_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
     regular_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) != 0]
-    script_tasks = [t for t in supported_tasks if validate_script_task(t) != (None, None)]
+    script_tasks = [t for t in supported_tasks if validate_script_task(t) is not None]
     # Scripts in charge of their own filtering, can create a group of variables at once
     script_tasks_no_filter = [t for t in script_tasks if validate_script_task(t) == "false"]
     # Scripts creating single variable, filtering done by ece2cmor3
@@ -200,9 +200,7 @@ def execute(tasks, nthreads=1):
     else:
         tasks_to_filter = mask_tasks + fx_tasks + extra_ps_tasks + regular_tasks + script_tasks_filter
         tasks_no_filter = []
-
     np = nthreads
-
     # Launch no-filter scripts
     jobs = []
     tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
