@@ -1,0 +1,49 @@
+{
+    "ifs": {
+        "3hr": [
+            "mrsos",
+            "tslsi",
+            "mrro"
+        ],
+        "6hrPlevPt": [
+            "tsl"
+        ],
+        "Efx": [
+            "clayfrac",
+            "siltfrac",
+            "sandfrac",
+            "slthick"
+        ],
+        "Emon": [
+            "mrsol"
+        ],
+        "LImon": [
+            "lwsnl",
+            "snw",
+            "snm"
+        ],
+        "Lmon": [
+            "mrsos",
+            "mrso",
+            "mrfso",
+            "mrros",
+            "mrro",
+            "tsl"
+        ],
+        "day": [
+            "mrso",
+            "mrsos",
+            "tslsi",
+            "snw",
+            "mrro"
+        ],
+        "fx": [
+            "areacella",
+            "orog",
+            "sftlf"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {},
+    "tm5": {}
+}
