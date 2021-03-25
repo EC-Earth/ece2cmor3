@@ -11,7 +11,7 @@
 #  https://github.com/EC-Earth/ece2cmor3/issues/686
 #  https://github.com/EC-Earth/ece2cmor3/wiki/EC-Earth3-ESGF-errata
 #  https://dev.ec-earth.org/issues/922
-#  https://b2share.eudat.eu/records/5692faf1b52f446887f191ddd32a1381
+#  https://b2share.eudat.eu/records/f674000ecf3e4510a25960a4b7d77ee3
 
 if [ "$#" -eq 1 ]; then
  ec_earth_resolution=$1
