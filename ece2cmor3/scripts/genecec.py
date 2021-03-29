@@ -220,6 +220,9 @@ for mip in dq.coll['mip'].items:
           #  land-cClim            tier-2 historical land-only constant climate
           #  land-cCO2             tier-2 historical land-only constant CO2
           #  land-noShiftCultivate tier-2 historical land-only with shifting cultivation turned off
+          # Add also RFMIP tier 2 experiments (see #694):
+          #  piClim-spAer-histaer  tier-2  transient effective radiative forcing with specified anthropogenic aerosol optical properties, aerosol forcing
+          #  piClim-spAer-histall  tier-2  transient effective radiative forcing with specified anthropogenic aerosol optical properties, all forcings
           if ex.tier[0] in experiment_tiers_included or (ex.tier[0] == 2 and ex.label == 'amip-lfmip-pdLC')      or \
                                                         (ex.tier[0] == 2 and ex.label == 'amip-lfmip-rmLC')      or \
                                                         (ex.tier[0] == 2 and ex.label == 'hist-piAer')           or \
@@ -234,7 +237,9 @@ for mip in dq.coll['mip'].items:
                                                         (ex.tier[0] == 3 and ex.label == 'ssp370SST-lowNTCFCH4') or \
                                                         (ex.tier[0] == 2 and ex.label == 'land-cClim')           or \
                                                         (ex.tier[0] == 2 and ex.label == 'land-cCO2')            or \
-                                                        (ex.tier[0] == 2 and ex.label == 'land-noShiftCultivate'):
+                                                        (ex.tier[0] == 2 and ex.label == 'land-noShiftCultivate')or \
+                                                        (ex.tier[0] == 2 and ex.label == 'piClim-spAer-histaer') or \
+                                                        (ex.tier[0] == 2 and ex.label == 'piClim-spAer-histall'):
             #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
             #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
              os.system(command_01)
