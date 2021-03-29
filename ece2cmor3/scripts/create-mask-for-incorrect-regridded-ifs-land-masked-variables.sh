@@ -23,6 +23,12 @@ if [ "$#" -eq 1 ]; then
   tsl_Lmon_corrected=omit-mask-for-ifs-land-masked-variables/lr/cmor-Lmon-tsl-v1.7.0/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-LR/historical/r1i1p1f1/Lmon/tsl/gr/v20210324/tsl_Lmon_EC-Earth3-LR_historical_r1i1p1f1_gr_663501-663512.nc
   resolution_comment="This mask corresponds to the EC-Earth3 LR resolution, i.e. it corresponds with the IFS T159 atmosphere resolution"
   output_file=omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR.nc
+ elif [ "${ec_earth_resolution}" = "LR-pliocene" ]; then
+  ec_earth_resolution='lr-pliocene'
+  tsl_Lmon_incorrect=omit-mask-for-ifs-land-masked-variables/lr-pliocene/cmor-Lmon-tsl-v1.5.0/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-LR/historical/r1i1p1f1/Lmon/tsl/gr/v20210329/tsl_Lmon_EC-Earth3-LR_historical_r1i1p1f1_gr_199001-199012.nc
+  tsl_Lmon_corrected=omit-mask-for-ifs-land-masked-variables/lr-pliocene/cmor-Lmon-tsl-v1.7.0/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-LR/historical/r1i1p1f1/Lmon/tsl/gr/v20210329/tsl_Lmon_EC-Earth3-LR_historical_r1i1p1f1_gr_199001-199012.nc
+  resolution_comment="This mask corresponds to the pliocene variant of the EC-Earth3 LR resolution, i.e. it corresponds with the IFS T159 atmosphere resolution"
+  output_file=omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR-pliocene.nc
  elif [ "${ec_earth_resolution}" = "standard" ]; then
   ec_earth_resolution='standard'
   tsl_Lmon_incorrect=omit-mask-for-ifs-land-masked-variables/standard/original/tsl_Lmon_EC-Earth3_piControl_r1i1p1f1_gr_199101-199112-v1.5.0.nc
@@ -36,7 +42,7 @@ if [ "$#" -eq 1 ]; then
   resolution_comment="This mask corresponds to the EC-Earth3 HR resolution, i.e. it corresponds with the IFS T511 atmosphere resolution"
   output_file=omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-HR.nc
  else
-  echo 'Invalid argument value. Vaild options: LR, standard, HR'
+  echo 'Invalid argument value. Vaild options: LR, LR-pliocene, standard, HR'
   exit
  fi
 
@@ -119,6 +125,7 @@ else
     echo
     echo '  This scripts requires one arguments: the EC-Earth3 resolution, e.g.:'
     echo '  ' $0 LR
+    echo '  ' $0 LR-pliocene
     echo '  ' $0 standard
     echo '  ' $0 HR
     echo
