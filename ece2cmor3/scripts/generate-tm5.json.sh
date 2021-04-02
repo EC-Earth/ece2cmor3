@@ -11,7 +11,7 @@
 
 # The current list is in the arr array is compiled by considering all variables
 # which are marked as: "Available in TM5" in the file
-#  resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
 
 # Declare an array variable with all the nemo cmor variable names:
 declare -a arr=(
