@@ -11,7 +11,7 @@
 
 # The current list is in the arr array is compiled by considering all variables
 # which are marked as: "Available in LPJ-GUESS" in the file
-#  resources/pre-list-of-identified-missing-cmpi6-requested-variables.xlsx
+#  resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
 # These variables are copied in an ascii file, e.g.: lpjg-list-new.txt
 # Thereafter sorted and made unique (i.e. the duplicate once are removed) by:
 #  sort lpjg-list-new.txt |uniq > lpjg-list-new-sorted-unique.txt
