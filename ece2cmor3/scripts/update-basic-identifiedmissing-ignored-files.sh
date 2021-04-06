@@ -103,6 +103,38 @@ if [ "$#" -eq -2 ]; then
 #  -Add  manually the AERmon  co2  #589                                                      to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the E3hrPt  co2  #589                                                      to the list-of-ignored-cmip6-requested-variables.xlsx
 
+# cp list-of-ignored-cmip6-requested-variables.xlsx list-of-ignored-cmip6-requested-variables-enable-DynVarMIP.xlsx
+# Remove manually from the list-of-ignored-cmip6-requested-variables-enable-DynVarMIP.xlsx:
+#  EdayZ  epfy         # line  66
+#  EdayZ  epfz
+#  EdayZ  psitem
+#  EdayZ  utendepfd
+#  EdayZ  utendnogw
+#  EdayZ  utendogw
+#  EdayZ  utendvtem
+#  EdayZ  utendwtem
+#  EdayZ  vtem
+#  EdayZ  wtem         # line  75
+#
+#  EmonZ  epfy         # line 235
+#  EmonZ  epfz         # line 236
+#
+#  EmonZ  tntmp        # line 241
+#  EmonZ  tntrl
+#  EmonZ  tntrlcs
+#  EmonZ  tntrs
+#  EmonZ  tntrscs
+#  EmonZ  tntscp
+#  EmonZ  utendepfd
+#  EmonZ  utendnogw    # line 248
+#
+#  EmonZ  vtem         # line 250
+#  EmonZ  wtem         # line 251
+#
+#  Emon  utendnogw     # line 489
+#  Emon  utendogw      # line 490
+
+
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
    mv ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.* ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/;
