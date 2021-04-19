@@ -12,9 +12,9 @@
 #SBATCH --partition=all
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
-#SBATCH --account=proj-cmip6
+#SBATCH --account=proj-dutch_post
 
-# Account options:  proj-cmip6 & model-testing & proj-dutch_scen & proj-dutch_post
+# Account options:  proj-dutch_post & proj-dutch_scen & model-testing
 
 # ECEDIR    is the directory with the raw ec-earth output results, for instance: t001/output/nemo/001
 # EXP       is the 4-digit ec-earth experiment ID or label, for instance: t001
