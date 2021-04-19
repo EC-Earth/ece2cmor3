@@ -3,8 +3,8 @@
 #
 # Run examples:
 #  mkdir -p control-output-files/log-genecec;
-#  ./genecec.py >& control-output-files/log-genecec/log-genecec-v01 &
-#  ./genecec.py 1> control-output-files/log-genecec/log-genecec-stdout-v01 2> log-genecec/log-genecec-stderr-v01 &
+#  ./genecec.py config-genecec >& control-output-files/log-genecec/log-genecec-v001 &
+#  ./genecec.py config-genecec 1> control-output-files/log-genecec/log-genecec-stdout-v001 2> log-genecec/log-genecec-stderr-v001 &
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
@@ -20,24 +20,27 @@
 
 import sys
 import os
-import os.path                                                # for checking file existence with: os.path.isfile
+import os.path                                                  # for checking file existence with: os.path.isfile
 from dreqPy import dreq
 dq = dreq.loadDreq()
 
-error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'      # Red    error   message
-warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'      # Yellow warning message
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 if len(sys.argv) == 2:
 
-   if __name__ == "__main__": config = {}                     # python config syntax
+   if __name__ == "__main__": config = {}                       # python config syntax
 
-   config_filename = sys.argv[1]                              # Reading the config file name from the argument line
-   if os.path.isfile(config_filename) == False:               # Checking if the config file exists
+   config_filename = sys.argv[1]                                # Reading the config file name from the argument line
+   if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
     print(error_message, ' The config file ', config_filename, '  does not exist.\n')
     sys.exit()
-   exec(open(config_filename).read(), config)                 # Reading the config file
+   exec(open(config_filename).read(), config)                   # Reading the config file
 
-   output_dir_name = config['output_dir_name']                # output_dir_name             = 'output-control-files'
+   output_dir_name         = config['output_dir_name']          # output_dir_name                = 'output-control-files'
+   activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False
+   ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = ${HOME}/cmorize/ece2cmor3/      # Default ${HOME}/cmorize/ece2cmor3/
+
 
    # Specify in the list below which tier experiments should be included. For
    # instance [1,2] means tier 1 and tier 2 experiments are included:
