@@ -28,8 +28,8 @@
 #  genecec.py
 
 
-# Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
-ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
+# Set the root directory of ece2cmor3:
+ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/  # Default ${HOME}/cmorize/ece2cmor3/
 
 # Test whether the ece2cmor_root_directory exists:
 if [ ! -d ${ece2cmor_root_directory} ]; then 
@@ -43,65 +43,68 @@ if [ ! -d ${ece2cmor_root_directory} ]; then
 fi
 
 if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
- mip=$1
- experiment=$2
- tier=$3
- priority=$4
-
- # Check whether more than one MIP is specified in the data request
- multiplemips='no'
- if [[ ${mip} = *","* ]];then
-  multiplemips='yes'
-  echo ' Multiple mip case = ' ${multiplemips}
- fi
-
- # Replace , by dot in label:
- mip_label=$(echo ${mip} | sed 's/,/./g')
-#echo ' mip =' ${mip} '    experiment =' ${experiment} '    mip_label =' ${mip_label}
-#echo "${mip_label}" | tr '[:upper:]' '[:lower:]'
-
- if [ "${multiplemips}" = "yes" ]; then
-  # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
-  select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
- else
-  if [ "${mip}" = "AerChemMIP" ]; then
-   # For AerChemMIP the joined data request including the Core MIP request is prefered instead of only the specific AerChemMIP experiment specific request:
-   # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
-   select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
-  else
-   select_substring=${mip}
+  if ! type "ece2cmor" > /dev/null; then
+   echo
+   echo ' The CMIP6 data request tool ece2cmor is not available because of one of the following reasons:'
+   echo '  1. ece2cmor might be not installed'
+   echo '  2. ece2cmor might be not active, as the miniconda environment is not activated'
+   echo ' Stop'
+   echo
+   exit
   fi
- fi
- echo ${select_substring}
 
- install_setup="include-setup"
- if [ "$#" -eq 5 ]; then
-  if [ "$5" = "omit-setup" ]; then
-   install_setup="omit-setup"
+  if ! type "drq" > /dev/null; then
+   echo
+   echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
+   echo '  1. drq might be not installed'
+   echo '  2. drq might be not active, as the miniconda environment is not activated'
+   echo ' Stop'
+   echo
+   exit
   fi
- fi
 
- # Replace , by dot in label:
- mip_label=$(echo ${mip} | sed 's/,/./g')
+  mip=$1
+  experiment=$2
+  tier=$3
+  priority=$4
 
- path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
-
-#activateminiconda
- if ! type "drq" > /dev/null; then
-  echo
-  echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
-  echo '  1. drq might be not installed'
-  echo '  2. drq might be not active, as the miniconda environment is not activated'
-  echo ' Stop'
-  echo
-  exit
- else
- #conda activate ece2cmor3
+  install_setup="include-setup"
+  if [ "$#" -eq 5 ]; then
+   if [ "$5" = "omit-setup" ]; then
+    install_setup="omit-setup"
+   fi
+  fi
   if [ "${install_setup}" = "include-setup" ]; then
    cd ${ece2cmor_root_directory}; python setup.py install; cd -;
   else
    echo "Omit python setup.py install"
   fi
+
+  # Check whether more than one MIP is specified in the data request
+  multiplemips='no'
+  if [[ ${mip} = *","* ]];then
+   multiplemips='yes'
+   echo ' Multiple mip case = ' ${multiplemips}
+  fi
+
+  # Replace the comma(s) by dot(s) in label:
+  mip_label=$(echo ${mip} | sed 's/,/./g')
+
+  if [ "${multiplemips}" = "yes" ]; then
+   # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
+   select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
+  else
+   if [ "${mip}" = "AerChemMIP" ]; then
+    # For AerChemMIP the joined data request including the Core MIP request is prefered instead of only the specific AerChemMIP experiment specific request:
+    # The first two lower case characters of the multiple mip string are saved for selecting the experiment data request file:
+    select_substring=$(echo "${mip_label:0:2}" | tr '[:upper:]' '[:lower:]')
+   else
+    select_substring=${mip}
+   fi
+  fi
+
+  path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
+
   echo
   echo 'Executing the following job:'
   echo ' '$0 "$@"
@@ -112,18 +115,20 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    esm_label=''
   fi
 
+  xls_dir=cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  mkdir -p ${xls_dir};
+
   echo
-  echo 'First, the CMIP6 data request is applied by:'
-  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  echo 'The CMIP6 data request is obtained from:'
+  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir ${xls_dir}
   echo
 
-  mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir ${xls_dir}
 
   # Because in the VolMIP dcppC-forecast-addPinatubo experiment the cmvme_${mip_label}_${experiment}_1_1.xlsx file is not produced, a link
   # with this name is created to a file cmvme_cm.vo_${experiment}_1_1.xlsx which should be most similar:
   if [ ${mip_label} = 'VolMIP' ] && [ ${experiment} = 'dcppC-forecast-addPinatubo' ]; then
-   cd cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+   cd ${xls_dir}
    if [ -L cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
     rm -f cmvme_${mip_label}_${experiment}_1_1.xlsx
    fi
@@ -139,18 +144,20 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
 
+  cmip6_data_request_file=${xls_dir}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+
   # Check whether there will be selected a unique matching data request file in the created data request directory:
-  number_of_matching_files=$(ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx|wc -l)
+  number_of_matching_files=$(ls -1 ${cmip6_data_request_file}|wc -l)
   if [ ${number_of_matching_files} != 1 ]; then
    echo 'Number of matching files: ' ${number_of_matching_files}
-   ls cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+   ls ${cmip6_data_request_file}
    exit
   fi
 
   mkdir -p ${path_of_created_output_control_files}/file_def-compact
   if [ ${mip_label} != 'OMIP' ] && [ ${experiment} != 'rad-irf' ]; then
    # Create the ppt files for IFS input and estimate the Volume of the IFS output:
-   ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+   ./drq2ppt.py --drq ${cmip6_data_request_file}
 
    if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
    mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
@@ -160,12 +167,12 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
    if [ ${experiment} = 'rad-irf' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/661'; fi
    echo 'the script' $0 'will skip:'
-   echo ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+   echo ./drq2ppt.py --drq ${cmip6_data_request_file}
    echo
   fi
 
   # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
-  ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  ./drq2file_def-nemo.py --drq ${cmip6_data_request_file}
   mv -f ./xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-opa.xml            ${path_of_created_output_control_files}
   mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
@@ -174,19 +181,24 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   mv -f ./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
   mv -f ./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
-  # Estimating the Volume of the TM5 output:
-  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
-
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
-  ./drq2ins.py --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  ./drq2ins.py --drq ${cmip6_data_request_file}
   mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
+
+  # Estimating the Volume of the TM5 output:
+  ./estimate-tm5-volume.py --drq ${cmip6_data_request_file}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
 
+  # Generating the available, ignored, identified missing and missing files for this MIP experiment:
+  xls_ece_dir=cmip6-data-request-ece/cmip6-data-request-ece-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  mkdir -p ${xls_ece_dir};
+  ./checkvars.py -v --drq ${cmip6_data_request_file}  --output ${xls_ece_dir}/cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+
   echo
   echo 'The produced data request excel file:'
-  ls -1 cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
+  ls -1 ${cmip6_data_request_file}
 
   echo
   echo 'The generated ppt files are:'
@@ -208,12 +220,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo 'The estimate of the Volumes:'
   ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
 
-  # Generating the available, ignored, identified missing and missing files for this MIP experiment:
- #./checkvars.py -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx  --output cmvmm_e=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-
   echo
- #conda deactivate
- fi
 
 else
     echo '  '
