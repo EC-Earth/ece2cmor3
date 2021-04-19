@@ -1,4 +1,3 @@
-import csv
 import json
 import logging
 import os
@@ -17,6 +16,8 @@ json_tables_key = "tables"
 json_mask_key = "mask"
 json_masked_key = "masked"
 json_filepath_key = "filepath"
+json_script_key = "script"
+json_src_key = "src"
 
 variable_prefs_file = os.path.join(os.path.dirname(__file__), "resources", "varprefs.csv")
 
@@ -70,7 +71,9 @@ def load_tasks(variables, active_components=None, target_filters=None, check_dup
         if not search_duplicate_tasks(filtered_matches):
             log.fatal("Duplicate requested variables were found, dismissing all cmorization tasks")
             return []
-    masks = load_masks(load_model_vars())
+    model_vars = load_model_vars()
+    load_scripts(model_vars)
+    masks = load_masks(model_vars)
     return create_tasks(filtered_matches, get_models(active_components), masks=masks)
 
 
@@ -581,6 +584,13 @@ def load_masks(model_vars):
                     src = create_cmor_source({json_source_key: srcstr}, "ifs")
                     ece2cmorlib.add_mask(name, src, func, val)
     return result
+
+
+def load_scripts(model_vars):
+    for component in model_vars.keys():
+        for par in model_vars[component]:
+            if json_script_key in par:
+                ece2cmorlib.add_script(component, name=par[json_script_key], attributes=par)
 
 
 # Parses the input mask expression

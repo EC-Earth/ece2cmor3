@@ -2,6 +2,7 @@ import cmor
 import glob
 import logging
 import multiprocessing
+import subprocess
 import netCDF4
 import numpy
 import os
@@ -47,6 +48,9 @@ auto_filter_ = True
 # Available geospatial masks, assigned by ece2cmorlib
 masks = {}
 
+# Custom scripts
+scripts = {}
+
 
 # Controls whether we enter filtering+post-processing stage
 def do_post_process():
@@ -77,7 +81,7 @@ def get_output_freq(task):
         return env_val
     # If the output frequency was set (auto-filtering), take that one
     if hasattr(task, cmor_task.output_frequency_key):
-        return getattr(task,  cmor_task.output_frequency_key)
+        return getattr(task, cmor_task.output_frequency_key)
     # Try to read from the raw model output
     if hasattr(task, cmor_task.filter_output_key):
         raise Exception("Cannot determine post-processing frequency for %s, please provide it by setting the "
@@ -88,7 +92,7 @@ def get_output_freq(task):
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_,\
+    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_, \
         ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
@@ -149,6 +153,22 @@ def find_init_files(path, exp):
     return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
 
 
+def validate_script_task(task):
+    script = getattr(task, cmor_task.postproc_script_key, None)
+    if script is None:
+        return None
+    if script not in scripts:
+        log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s "
+                  % (script, task.target.variable, task.target.table))
+        task.set_failed()
+        return None
+    if scripts[script].get("src", None) is None:
+        log.error("Script source for %s has not been given, dismissing variable %s in table %s"
+                  % (script, task.target.variable, task.target.table))
+        return None
+    return scripts[script].get("filter", "true").lower()
+
+
 def execute(tasks, nthreads=1):
     global log, start_date_, auto_filter_
 
@@ -157,11 +177,16 @@ def execute(tasks, nthreads=1):
     mask_tasks = get_mask_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
     regular_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) != 0]
+    script_tasks = [t for t in supported_tasks if validate_script_task(t) is not None]
+    # Scripts in charge of their own filtering, can create a group of variables at once
+    script_tasks_no_filter = [t for t in script_tasks if validate_script_task(t) == "false"]
+    # Scripts creating single variable, filtering done by ece2cmor3
+    script_tasks_filter = list(set(script_tasks) - set(script_tasks_no_filter))
     req_ps_tasks, extra_ps_tasks = get_sp_tasks(supported_tasks)
 
     # No fx filtering needed, cdo can handle this file
     if ifs_init_gridpoint_file_.endswith("+000000"):
-        tasks_to_filter = extra_ps_tasks + regular_tasks
+        tasks_to_filter = extra_ps_tasks + regular_tasks + script_tasks_filter
         tasks_no_filter = fx_tasks + mask_tasks
         for task in tasks_no_filter:
             # dirty hack for orography being in ICMGG+000000 file...
@@ -173,9 +198,25 @@ def execute(tasks, nthreads=1):
                 setattr(task, cmor_task.filter_output_key, [ifs_init_gridpoint_file_])
             setattr(task, cmor_task.output_frequency_key, 0)
     else:
-        tasks_to_filter = mask_tasks + fx_tasks + extra_ps_tasks + regular_tasks
+        tasks_to_filter = mask_tasks + fx_tasks + extra_ps_tasks + regular_tasks + script_tasks_filter
         tasks_no_filter = []
+    np = nthreads
+    # Launch no-filter scripts
+    jobs = []
+    tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
+    for s, tasklist in tasks_per_script.items():
+        log.info("Launching script %s to process variables %s" %
+                 (s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist])))
+        script_args = (s, str(scripts[s]["src"]), tasklist)
+        if np == 1:
+            script_worker(*script_args)
+        else:
+            p = multiprocessing.Process(name=s, target=script_worker, args=script_args)
+            p.start()
+            jobs.append(p)
+            np -= 1
 
+    # Do filtering
     if auto_filter_:
         tasks_todo = tasks_no_filter + grib_filter.execute(tasks_to_filter, filter_files=do_post_process(),
                                                            multi_threaded=(nthreads > 1))
@@ -202,14 +243,16 @@ def execute(tasks, nthreads=1):
     for task in list(set(tasks_todo).intersection(mask_tasks)):
         read_mask(task.target.variable, getattr(task, cmor_task.output_path_key))
     proctasks = list(set(tasks_todo).intersection(regular_tasks + fx_tasks))
-    if nthreads == 1:
+    if np == 1:
         for task in proctasks:
             cmor_worker(task)
     else:
-        pool = multiprocessing.Pool(processes=nthreads)
+        pool = multiprocessing.Pool(processes=np)
         pool.map(cmor_worker, proctasks)
         for task in proctasks:
             setattr(task, cmor_task.output_path_key, postproc.get_output_path(task, temp_dir_))
+    for job in jobs:
+        job.join()
     if cleanup_tmpdir():
         clean_tmp_data(tasks_todo)
 
@@ -218,18 +261,65 @@ def execute(tasks, nthreads=1):
 def cmor_worker(task):
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
-    log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
-    if task.status not in [cmor_task.status_postprocessing, cmor_task.status_postprocessed]:
-        postproc.post_process(task, temp_dir_, do_post_process())
-    if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
-        return
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                        task.target.variable))
+    if validate_script_task(task) is not None:
+        script = scripts[getattr(task, cmor_task.postproc_script_key)]["src"]
+        log.info("Post-processing variable %s for target variable %s using %s..." % (task.source.get_grib_code().var_id,
+                                                                                     task.target.variable, script))
+        subprocess.check_call([script, task.target.variable, task.target.table,
+                               getattr(task, cmor_task.filter_output_key)], cwd=temp_dir_)
+        ncfile = os.path.join(temp_dir_, task.target.variable + '_' + task.target.table + ".nc")
+        if os.path.isfile(ncfile):
+            setattr(task, cmor_task.output_path_key, ncfile)
+        else:
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task")
+            task.set_failed()
+            return
+    else:
+        log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                            task.target.variable))
+        if task.status not in [cmor_task.status_postprocessing, cmor_task.status_postprocessed]:
+            postproc.post_process(task, temp_dir_, do_post_process())
+        if task.status == cmor_task.status_failed:
+            return
+
+    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,                                                                        task.target.variable))
     define_cmor_axes(task)
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
     execute_netcdf_task(task)
+
+
+# Worker function invoking external script
+def script_worker(name, src, tasks):
+    tmpdir = os.path.join(temp_dir_, name + "-work")
+    if not os.path.isdir(tmpdir):
+        os.makedirs(tmpdir)
+    gpfile = ifs_gridpoint_files_.values()[0]
+    year = os.path.basename(gpfile)[-6:-2]
+    odir = os.path.abspath(os.path.dirname(gpfile))
+    try:
+        out = subprocess.check_output(args=[src, odir, exp_name_, year] +
+                                           [str(t.target.variable + '_' + t.target.table) for t in tasks],
+                                      cwd=tmpdir, shell=False, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        log.error("Error in calling script %s: %s" % (src, str(e.output)))
+        log.error("The exit code of %s was %s" % (src, str(out)))
+    else:
+        log.info("The exit code of %s was %s" % (src, str(out)))
+    for task in tasks:
+        ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
+        if os.path.isfile(ncfile):
+            setattr(task, cmor_task.output_path_key, ncfile)
+        else:
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task" % (ncfile, src))
+            task.set_failed()
+            continue
+        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
+                                                                            task.target.variable))
+        define_cmor_axes(task)
+        if task.status == cmor_task.status_failed:
+            return
+        execute_netcdf_task(task)
 
 
 # Converts the masks that are needed into a set of tasks
@@ -500,6 +590,8 @@ def execute_netcdf_task(task):
         varlist = [v for v in ncvars if str(getattr(ncvars[v], "code", None)) == codestr]
         if len(varlist) == 0:
             varlist = [v for v in ncvars if str(v) == "var" + codestr]
+        if len(varlist) == 0:
+            varlist = [v for v in ncvars if str(v).lower() == task.target.variable]
         if task.target.variable == "areacella":
             varlist = ["cell_area"]
         if len(varlist) == 0:
@@ -516,12 +608,13 @@ def execute_netcdf_task(task):
             unit = getattr(task.target, "units")
         if len(getattr(task.target, "positive", "")) > 0:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes,
-                                   positive="up" if getattr(task, cmor_task.conversion_key, None) == "vol2fluxup" else "down")
+                                   positive="up" if getattr(task, cmor_task.conversion_key,
+                                                            None) == "vol2fluxup" else "down")
         else:
             var_id = cmor.variable(table_entry=str(task.target.variable), units=str(unit), axis_ids=axes)
         flip_sign = (getattr(task.target, "positive", None) == "up")
         factor, term = get_conversion_constants(getattr(task, cmor_task.conversion_key, None),
-                                                getattr(task, cmor_task.output_frequency_key))
+                                                getattr(task, cmor_task.output_frequency_key, None))
         time_dim, index = -1, 0
         for d in ncvar.dimensions:
             if d.startswith("time"):
@@ -816,12 +909,10 @@ def create_grid_from_file(filepath):
         return None
     xvals = read_coordinate_vals(grid_descr, 'x', 360)
     yvals = read_coordinate_vals(grid_descr, 'y', 180)
-    if xvals is None or yvals is None:
-        log.error("Invalid grid detected in post-processed data: %s" % str(grid_descr))
-        return None
     return create_gauss_grid(xvals, yvals)
 
 
+# Reads x or y coordinate values from grid description. Returns empty array if not found
 def read_coordinate_vals(grid_descr, xydir, ndegrees):
     att_vals = xydir + "vals"
     if att_vals in grid_descr:
@@ -831,8 +922,7 @@ def read_coordinate_vals(grid_descr, xydir, ndegrees):
         x0, n = float(grid_descr[att_first]), int(grid_descr[att_size])
         dx = float(ndegrees) / n
         return numpy.array([x0 + i * dx for i in range(n)])
-    log.error("Could not retrieve %s-coordinate values from %s" % (xydir, str(grid_descr)))
-    return None
+    return numpy.array([])
 
 
 # Creates the regular gaussian grid from its arguments.

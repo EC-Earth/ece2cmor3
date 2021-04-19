@@ -286,3 +286,16 @@ class taskloader_test(unittest.TestCase):
             assert getattr(src, "expr_order", 0) == 1
         finally:
             ece2cmorlib.finalize_without_cmor()
+
+    @staticmethod
+    def test_load_script_variable():
+        ece2cmorlib.initialize_without_cmor()
+        try:
+            tasks = taskloader.load_tasks({"ifs": {"EmonZ": ["epfy"]}})
+            assert len(tasks) == 1
+            src = tasks[0].source
+            assert isinstance(src, cmor_source.ifs_source)
+            script = getattr(tasks[0], "post-proc", None)
+            assert script in ece2cmorlib.scripts.keys() and ece2cmorlib.scripts[script]["component"] == "ifs"
+        finally:
+            ece2cmorlib.finalize_without_cmor()

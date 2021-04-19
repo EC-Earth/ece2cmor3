@@ -826,6 +826,46 @@
         "expr": "sqrt(sqr(var165)+sqr(var166))"
     },
     {
+        "source": "215.129",
+        "target": "epfy",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "216.129",
+        "target": "epfz",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "217.129",
+        "target": "vtem",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "218.129",
+        "target": "wtem",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "219.129",
+        "target": "psitem",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "220.129",
+        "target": "utendepfd",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "221.129",
+        "target": "utendvtem",
+        "post-proc": "make_dynvars"
+    },
+    {
+        "source": "222.129",
+        "target": "utendwtem",
+        "post-proc": "make_dynvars"
+    },
+    {
         "mask": "land",
         "expr": "var172>0.5"
     },
@@ -837,5 +877,10 @@
         "mask": "sea_ice",
         "expr": "var31>0",
         "comment": "This time dependent sea_ice mask can not be used in other variables. Use a var31 division direct in the expression."
+    },
+    {
+        "script": "make_dynvars",
+        "src": "make_dynvars.sh",
+        "filter": "False"
     }
 ]

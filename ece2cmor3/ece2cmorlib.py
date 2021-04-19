@@ -27,6 +27,7 @@ table_dir = table_dir_default
 tasks = []
 targets = []
 masks = {}
+scripts = {}
 enable_masks = True
 auto_filter = True
 
@@ -162,6 +163,13 @@ def add_mask(name, src, func, val):
     masks[name] = {"source": src, "operator": func, "rhs": val}
 
 
+# Adds a custom processing script
+def add_script(component, name, attributes):
+    global scripts
+    scripts[name] = {k: v for k, v in attributes.items() if k != "name"}
+    scripts[name]["component"] = component
+
+
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(datadir, expname,
                       refdate=None,
@@ -181,12 +189,14 @@ def perform_ifs_tasks(datadir, expname,
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
+    ifs2cmor.scripts = {k: v for k, v in scripts.items() if v["component"] == "ifs"}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
                                 tempdir=tempdir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     ifs2cmor.execute(ifs_tasks, nthreads=taskthreads)
+
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):
