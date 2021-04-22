@@ -138,6 +138,11 @@ def main():
 
     args = parser.parse_args()
 
+    print ""
+    print "Running checkvars.py with:"
+    print "./checkvars.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
+    print ""
+
     if not os.path.isfile(args.drq):
         log.fatal("Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting checkvars.')
