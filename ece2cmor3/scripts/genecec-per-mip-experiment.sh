@@ -31,18 +31,18 @@
 # Set the root directory of ece2cmor3:
 ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/  # Default ${HOME}/cmorize/ece2cmor3/
 
-# Test whether the ece2cmor_root_directory exists:
-if [ ! -d ${ece2cmor_root_directory} ]; then 
- line_nr=`grep -n 'ece2cmor_root_directory=' $0 | head -1 | sed 's/:.*$//'`
- echo
- echo ' The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
- echo ' Adjust the ece2cmor_root_directory at line' ${line_nr} 'of the script: ' $0
- echo ' Stop'
- exit
- echo
-fi
-
 if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
+
+  # Test whether the ece2cmor_root_directory exists:
+  if [ ! -d ${ece2cmor_root_directory} ]; then
+   line_nr=`grep -n 'ece2cmor_root_directory=' $0 | head -1 | sed 's/:.*$//'`
+   echo; tput setaf 1;
+   echo ' Error: The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
+   echo ' Adjust the ece2cmor_root_directory at line' ${line_nr} 'of the script: ' $0
+   tput sgr0; echo
+   exit
+  fi
+
   if ! type "ece2cmor" > /dev/null; then
    echo
    echo ' The CMIP6 data request tool ece2cmor is not available because of one of the following reasons:'
