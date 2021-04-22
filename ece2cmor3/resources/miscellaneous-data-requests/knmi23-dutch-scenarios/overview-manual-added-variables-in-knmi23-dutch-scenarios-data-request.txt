@@ -1,0 +1,27 @@
+# Add priority 1 in xlsx column A and CMIP in MIP list in xlsx column AB.
+# Check for added variables or add variables in xlsx column L for the CMOR Name.
+
+ 6hrPlevPt
+  ta23r
+  va23r
+  ua23r
+  hus23r
+  tosa
+  tsl4sl
+  mrsol
+
+
+ 6hrPlevPt
+  siconca
+
+ 6hrLev
+  ps
+
+ Omon
+  msftyz
+
+ Simon
+  sivol
+
+ day
+  sfcWind
