@@ -30,22 +30,35 @@ def write_varlist(targets, opath):
 def write_varlist_ascii(targets, opath):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
     ofile = open(opath, 'w')
-    ofile.write('{:10} {:20} {:5} {:45} {:115} '
-                '{:20} {:85} {:140} {:20} {} {}'.format('table', 'variable', 'prio', 'dimensions', 'long_name', 'unit',
-                                                 'link', 'list of MIPs which request this variable', 'comment_author',
-                                                 'comment', '\n'))
-    for k, vlist in tgtgroups.iteritems():
-        ofile.write('{}'.format('\n'))
-        for tgtvar in vlist:
-            ofile.write('{:10} {:20} {:5} {:45} {:115} '
-                        '{:20} {:85} {:140} {:20} {} {}'.format(tgtvar.table, tgtvar.variable, tgtvar.priority,
-                                                         getattr(tgtvar, "dimensions", "unknown"),
-                                                         getattr(tgtvar, "long_name", "unknown"),
-                                                         tgtvar.units,
-                                                         'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid", "unknown") + '.html',
-                                                         tgtvar.mip_list,
-                                                         getattr(tgtvar, "comment_author", ""),
-                                                         getattr(tgtvar, "ecearth_comment", ""), '\n'))
+    if True:
+     ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+                  'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
+                  'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
+     for k, vlist in tgtgroups.iteritems():
+         ofile.write('{}'.format('\n'))
+         for tgtvar in vlist:
+             ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+                          tgtvar.table,
+                          tgtvar.variable,
+                          getattr(tgtvar, "priority", "unknown"),
+                          getattr(tgtvar, "dimensions", "unknown"),
+                          getattr(tgtvar, "long_name", "unknown"),
+                          tgtvar.units,
+                          'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid", "unknown") + '.html',
+                          getattr(tgtvar, "mip_list", "unknown"),
+                          getattr(tgtvar, "comment_author", ""),
+                          getattr(tgtvar, "ecearth_comment", ""), '\n'))
+    else:
+     ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+     for k, vlist in tgtgroups.iteritems():
+         ofile.write('{}'.format('\n'))
+         for tgtvar in vlist:
+             ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format(tgtvar.table,
+                          tgtvar.variable,
+                          getattr(tgtvar, "dimensions", "unknown"),
+                          getattr(tgtvar, "long_name", "unknown"),
+                          tgtvar.units,
+                          getattr(tgtvar, "ecearth_comment", ""), '\n'))
     ofile.close()
 
 
@@ -96,7 +109,7 @@ def write_varlist_excel(targets, opath, with_pingfile):
         for tgtvar in vlist:
             worksheet.write(row_counter, 0, tgtvar.table)
             worksheet.write(row_counter, 1, tgtvar.variable)
-            worksheet.write(row_counter, 2, tgtvar.priority)
+            worksheet.write(row_counter, 2, getattr(tgtvar, "priority", "unknown"))
             worksheet.write(row_counter, 3, getattr(tgtvar, "dimensions", "unknown"))
             worksheet.write(row_counter, 4, getattr(tgtvar, "long_name", "unknown"))
             worksheet.write(row_counter, 5, tgtvar.units)
@@ -106,7 +119,7 @@ def write_varlist_excel(targets, opath, with_pingfile):
             worksheet.write(row_counter, 7, getattr(tgtvar, "ecearth_comment", ""))
             worksheet.write(row_counter, 8, getattr(tgtvar, "comment_author", ""))
             worksheet.write(row_counter, 9, getattr(tgtvar, "comment", "unknown"))
-            worksheet.write(row_counter, 10, tgtvar.mip_list)
+            worksheet.write(row_counter, 10, getattr(tgtvar, "mip_list", "unknown"))
             if with_pingfile:
                 worksheet.write(row_counter, 11, getattr(tgtvar, "model", ""))
                 worksheet.write(row_counter, 12, getattr(tgtvar, "units", ""))
