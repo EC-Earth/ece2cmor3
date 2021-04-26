@@ -65,6 +65,26 @@ if [ "$#" -eq 4 ]; then
    rsync -a ${data_request_file} ${output_dir}
   fi
 
+  # Generating the available, ignored, identified missing and missing xlsx & txt files:
+  xls_ece_dir=cmip6-data-request-ece/data-request-ece-${mip_name}-${experiment}
+  mkdir -p ${xls_ece_dir};
+
+  # Check whether the data request file is a json file, if so convert the json file for the checkvars application:
+  if [ "${data_request_file##*.}" = 'json' ]; then
+    ./convert-component-json-to-flat-json.sh ${data_request_file}
+   data_request_file_for_checkvars=${data_request_file##*/}
+   data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
+  else
+   data_request_file_for_checkvars=${data_request_file}
+  fi
+
+  echo
+  echo ' Running checkvars.py with:'
+  echo ' ' ./checkvars.py -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
+  echo
+  ./checkvars.py -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
+  echo
+
   ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
   mv xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${output_dir}
@@ -160,6 +180,7 @@ if [ "$#" -eq 4 ]; then
    fi
    mkdir -p knmi23-dutch-scenarios
    mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev23r
+   mv -f ${xls_ece_dir} ${xls_ece_dir}-plev23
   fi
 
   if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
@@ -171,6 +192,7 @@ if [ "$#" -eq 4 ]; then
    fi
    mkdir -p knmi23-dutch-scenarios
    mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev36
+   mv -f ${xls_ece_dir} ${xls_ece_dir}-plev36
   fi
 
   if [ ${data_request_file} = '../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx' ]; then
@@ -178,26 +200,27 @@ if [ "$#" -eq 4 ]; then
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2020)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   #mkdir -p compact-control-output-files
    mv -f ${output_dir} compact-control-output-files
+   mv -f ${xls_ece_dir} ${xls_ece_dir}-compact
   fi
 
   echo ' Finished:'
-  echo '  '$0 $1 $2 $3 $4
+  echo ' '$0 "$@"
   echo
 
 else
     echo
-    echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
+    echo '  This scripts requires four arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, e.g.:'
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM
     echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM
