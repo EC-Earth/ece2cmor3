@@ -115,7 +115,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
    esm_label=''
   fi
 
-  xls_dir=cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  xls_dir=cmip6-data-request/cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}
   mkdir -p ${xls_dir};
 
   echo
@@ -192,9 +192,9 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
-  xls_ece_dir=cmip6-data-request-ece/cmip6-data-request-ece-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  xls_ece_dir=cmip6-data-request-ece/cmip6-data-request-ece-${mip_label}-${experiment}-t${tier}-p${priority}
   mkdir -p ${xls_ece_dir};
-  ./checkvars.py -v --drq ${cmip6_data_request_file}  --output ${xls_ece_dir}/cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
+  ./checkvars.py -v --drq ${cmip6_data_request_file} --output ${xls_ece_dir}/cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
 
   echo
   echo 'The produced data request excel file:'
