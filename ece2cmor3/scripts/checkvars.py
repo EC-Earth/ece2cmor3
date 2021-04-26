@@ -157,7 +157,7 @@ def main():
     print ""
 
     if not os.path.isfile(args.drq):
-        log.fatal("Your data request file %s cannot be found." % args.drq)
+        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting checkvars.')
 
     # Initialize ece2cmor:

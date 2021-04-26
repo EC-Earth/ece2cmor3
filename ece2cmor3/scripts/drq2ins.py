@@ -55,11 +55,11 @@ def main():
     print ""
 
     if args.vars is not None and not os.path.isfile(args.vars):
-        log.fatal("Your variable list json file %s cannot be found." % args.vars)
+        log.fatal("Error: Your variable list json file %s cannot be found." % args.vars)
         sys.exit(' Exiting drq2ins.')
 
     if args.drq is not None and not os.path.isfile(args.drq):
-        log.fatal("Your data request file %s cannot be found." % args.drq)
+        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting drq2ins.')
 
     # Initialize ece2cmor:

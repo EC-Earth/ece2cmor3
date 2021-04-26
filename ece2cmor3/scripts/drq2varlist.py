@@ -60,7 +60,7 @@ def main():
     print ""
 
     if not args.allvars and not os.path.isfile(args.drq):
-        log.fatal("Your data request file %s cannot be found." % args.drq)
+        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
         sys.exit(' Exiting drq2varlist.')
 
     # Initialize ece2cmor:
