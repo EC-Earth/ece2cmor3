@@ -5,4 +5,4 @@ output_dir_name                = 'output-control-files'
 activate_pextra_mode           = False
 
 
-ece2cmor_root_directory        = '${HOME}/cmorize/ece2cmor3/'      # Default ${HOME}/cmorize/ece2cmor3/
+ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'      # Default ${HOME}/cmorize/ece2cmor3/

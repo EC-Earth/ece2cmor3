@@ -21,11 +21,14 @@
 import sys
 import os
 import os.path                                                  # for checking file existence with: os.path.isfile
+from os.path import expanduser                                  # Enable to go to the home dir: ~
 from dreqPy import dreq
 dq = dreq.loadDreq()
 
-error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
-warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
+#error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+#warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
+error_message   = '\n Error:'                                   # Red    error   message
+warning_message = '\n Warning:'                                 # Yellow warning message
 
 if len(sys.argv) == 2:
 
@@ -41,6 +44,21 @@ if len(sys.argv) == 2:
    activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False
    ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = ${HOME}/cmorize/ece2cmor3/      # Default ${HOME}/cmorize/ece2cmor3/
 
+   # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
+   previous_working_dir = os.getcwd()
+   if ece2cmor_root_directory[0] == '~':
+    expanded_ece2cmor_root_directory = expanduser("~") + ece2cmor_root_directory[1:]
+   else:
+    expanded_ece2cmor_root_directory = ece2cmor_root_directory
+   if os.path.isdir(expanded_ece2cmor_root_directory) == False:
+    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' does not exist.\n')
+    sys.exit()
+   if os.path.isfile(expanded_ece2cmor_root_directory + '/environment.yml') == False:
+    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
+    sys.exit()
+   os.chdir(expanded_ece2cmor_root_directory)
+   os.system('python setup.py install')
+   os.chdir(previous_working_dir)
 
    # Specify in the list below which tier experiments should be included. For
    # instance [1,2] means tier 1 and tier 2 experiments are included:
@@ -154,15 +172,11 @@ if len(sys.argv) == 2:
 
         # Loop over experiments:
         for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
-          if experiment_counter == 0:
-            omit_setup_argument = ''
-          else:
-            omit_setup_argument = ' omit-setup'
           ex = dq.inx.uid[u]
 
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
+          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
           command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
@@ -208,15 +222,11 @@ if len(sys.argv) == 2:
 
         # Loop over experiments:
         for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
-          if experiment_counter == 0:
-            omit_setup_argument = ''
-          else:
-            omit_setup_argument = ' omit-setup'
           ex = dq.inx.uid[u]
 
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 ' + omit_setup_argument
+          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
           command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'

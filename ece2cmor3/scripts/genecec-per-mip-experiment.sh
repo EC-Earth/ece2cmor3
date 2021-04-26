@@ -7,7 +7,6 @@
 # ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
-# ${5} the fifth   OPTIONAL argument will omit the install of the ece2cmor setup if equal to "omit-setup". To improve the performance when calling this script multiple times from another script.
 #
 #
 # Run example:
@@ -28,20 +27,7 @@
 #  genecec.py
 
 
-# Set the root directory of ece2cmor3:
-ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/  # Default ${HOME}/cmorize/ece2cmor3/
-
-if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
-
-  # Test whether the ece2cmor_root_directory exists:
-  if [ ! -d ${ece2cmor_root_directory} ]; then
-   line_nr=`grep -n 'ece2cmor_root_directory=' $0 | head -1 | sed 's/:.*$//'`
-   echo; tput setaf 1;
-   echo ' Error: The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
-   echo ' Adjust the ece2cmor_root_directory at line' ${line_nr} 'of the script: ' $0
-   tput sgr0; echo
-   exit
-  fi
+if [ "$#" -eq 4 ]; then
 
   if ! type "ece2cmor" > /dev/null; then
    echo
@@ -67,18 +53,6 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   experiment=$2
   tier=$3
   priority=$4
-
-  install_setup="include-setup"
-  if [ "$#" -eq 5 ]; then
-   if [ "$5" = "omit-setup" ]; then
-    install_setup="omit-setup"
-   fi
-  fi
-  if [ "${install_setup}" = "include-setup" ]; then
-   cd ${ece2cmor_root_directory}; python setup.py install; cd -;
-  else
-   echo "Omit python setup.py install"
-  fi
 
   # Check whether more than one MIP is specified in the data request
   multiplemips='no'
@@ -139,9 +113,9 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
     echo 'Create for '${mip_label}' a soft link:'
     ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
    fi
+  cd ../../
   fi
 
-  cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
 
   cmip6_data_request_file=${xls_dir}/cmvme_${select_substring}*${experiment}_${tier}_${priority}.xlsx
@@ -223,12 +197,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   echo
 
 else
-    echo '  '
+    echo
     echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
     echo '  ' $0 CMIP piControl 1 1
-    echo '  or with the fifth optional arument the "python setup.py install" is omitted:'
-    echo '  ' $0 CMIP piControl 1 1 omit-setup
-    echo '  '
+    echo
 fi
 
 # ./genecec-per-mip-experiment.sh CMIP         1pctCO2      1 1
