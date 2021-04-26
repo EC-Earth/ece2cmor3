@@ -87,14 +87,14 @@ if [ "$#" -eq 4 ]; then
 
   ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
-  mv xios-nemo-file_def-files/cmip6-file_def_nemo.xml          ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-opa.xml            ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-lim3.xml           ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-pisces.xml         ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-opa-compact.xml    ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml ${output_dir}
-  mv xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml   ${output_dir}
-  mv volume-estimate-nemo.txt                                  ${output_dir}
+  mv -f cmip6-file_def_nemo.xml          ${output_dir}
+  mv -f file_def_nemo-opa.xml            ${output_dir}
+  mv -f file_def_nemo-lim3.xml           ${output_dir}
+  mv -f file_def_nemo-pisces.xml         ${output_dir}
+  mv -f file_def_nemo-opa-compact.xml    ${output_dir}
+  mv -f file_def_nemo-pisces-compact.xml ${output_dir}
+  mv -f file_def_nemo-lim3-compact.xml   ${output_dir}
+  mv -f volume-estimate-nemo.txt         ${output_dir}
 
   cd ${output_dir}
 

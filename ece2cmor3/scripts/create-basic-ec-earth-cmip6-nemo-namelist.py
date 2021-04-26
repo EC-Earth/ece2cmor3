@@ -68,8 +68,8 @@ nemo_only_dr_nodummy_file_xlsx = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/s
 #nemo_only_dr_nodummy_file_txt  = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
 
 # These files are created by this script, but lateron also read by this script:
-basic_flat_file_def_file_name  = "./xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
-basic_file_def_file_name       = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+basic_flat_file_def_file_name  = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
+basic_file_def_file_name       = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
 
 
 message_occurence_identical_id = True

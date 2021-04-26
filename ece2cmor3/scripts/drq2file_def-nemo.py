@@ -23,14 +23,14 @@ import re                                                     # for regular expr
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
-basic_file_def_file_name          = "./xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
-file_def_file_name                = "./xios-nemo-file_def-files/cmip6-file_def_nemo.xml"
-file_def_opa_file_name            = "./xios-nemo-file_def-files/file_def_nemo-opa.xml"
-file_def_lim_file_name            = "./xios-nemo-file_def-files/file_def_nemo-lim3.xml"
-file_def_pisces_file_name         = "./xios-nemo-file_def-files/file_def_nemo-pisces.xml"
-file_def_opa_file_name_compact    = "./xios-nemo-file_def-files/file_def_nemo-opa-compact.xml"
-file_def_lim_file_name_compact    = "./xios-nemo-file_def-files/file_def_nemo-lim3-compact.xml"
-file_def_pisces_file_name_compact = "./xios-nemo-file_def-files/file_def_nemo-pisces-compact.xml"
+basic_file_def_file_name          = expanduser("~")+"/cmorize/ece2cmor3/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+file_def_file_name                = "./cmip6-file_def_nemo.xml"
+file_def_opa_file_name            = "./file_def_nemo-opa.xml"
+file_def_lim_file_name            = "./file_def_nemo-lim3.xml"
+file_def_pisces_file_name         = "./file_def_nemo-pisces.xml"
+file_def_opa_file_name_compact    = "./file_def_nemo-opa-compact.xml"
+file_def_lim_file_name_compact    = "./file_def_nemo-lim3-compact.xml"
+file_def_pisces_file_name_compact = "./file_def_nemo-pisces-compact.xml"
 
 # Logging configuration
 logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
