@@ -3,14 +3,13 @@
 #
 # This scripts requires four arguments (a fifth argument is OPTIONAL):
 #
-# ${1} the first   argument is the MIP name. The first argument can represent a list of MIPs, seperated by commas.
-# ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
-# ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
-# ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
-# ${5} the fifth   argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --nemo for only ocean variables
+# the first  argument is the MIP name. The first argument can represent a list of MIPs, seperated by commas.
+# the second argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
+# the third  argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
+# the fourth argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
+# the fifth  argument [OPTIONAL] is an additional checkvars.py argument, e.g.: --nemo for only ocean variables
 #
-# Run example:
-#  ./determine-missing-variables.sh CMIP CMIP 1 1
+# Run this script without arguments for examples how to call this script.
 #
 
 
@@ -69,43 +68,33 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   # Replace comma by dot in label:
   mip_label=$(echo ${mip} | sed 's/,/./g')
 
-  if ! type "drq" > /dev/null; then
-   echo
-   echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:' 
-   echo '  1. drq might be not installed'
-   echo '  2. drq might be not active, as the anaconda environment is not activated'
-   echo ' Stop'
-   echo
-   exit
+  cd ${ece2cmor_root_directory}; python setup.py develop; cd -;
+  mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
+  if [ ${mip} = 'VolMIP' ]; then
+   drq -m ${mip} -t ${tier} -p ${priority}                  --xls --xlsDir cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}
   else
-   cd ${ece2cmor_root_directory}; python setup.py develop; cd -;
-   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
-   if [ ${mip} = 'VolMIP' ]; then
-    drq -m ${mip} -t ${tier} -p ${priority}                  --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   else
-    drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   fi
-   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
-   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
-   if [ "${multiplemips}" == "yes" ]; then
-    ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/*.*TOTAL*.xlsx                                             --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   else
-    ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx          --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   #./checkvars.py                                  -v --drq cmip6-data-request/cmip6-data-request-m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx  --output cmvmm_m=${mip_label}-e=${experiment}-t=${tier}-p=${priority}
-   fi
+   drq -m ${mip} -t ${tier} -p ${priority} -e ${experiment} --xls --xlsDir cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}
+  fi
+  cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
+  # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
+  if [ "${multiplemips}" == "yes" ]; then
+   ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}/*.*TOTAL*.xlsx                                            --output cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
+  else
+   ./checkvars.py ${additional_checkvars_argument} -v --drq cmip6-data-request/cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}/cmvmm_${mip_label}_TOTAL_${tier}_${priority}.xlsx         --output cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
+  #./checkvars.py                                  -v --drq cmip6-data-request/cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}/cmvmm_${mip_label}_${experiment}_${tier}_${priority}.xlsx --output cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
   fi
 
 
   if [ ${mip} == 'CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB' ] && [ ${experiment} == 'CMIP' ]; then
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.available.json         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.json
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.missing.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.identifiedmissing.txt  cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.available.txt          cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.ignored.txt            cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.missing.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.xlsx
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.identifiedmissing.xlsx cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.xlsx
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.available.xlsx         cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx
-   mv cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.ignored.xlsx           cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.xlsx
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.available.json         cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.json
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.missing.txt            cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.missing.txt
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.identifiedmissing.txt  cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.identifiedmissing.txt
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.available.txt          cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.txt
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.ignored.txt            cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.ignored.txt
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.missing.xlsx           cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.missing.xlsx
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.identifiedmissing.xlsx cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.identifiedmissing.xlsx
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.available.xlsx         cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.xlsx
+   mv cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.ignored.xlsx           cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.ignored.xlsx
   fi
 
   # Some benchmark diffing, which can be activated by the developer:
@@ -113,10 +102,10 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
  #benchmark_step_1_and_2='benchmark-step-1+2-v49-pextra'
 
   if [ -d benchmark/${benchmark_step_1_and_2} ] && [ ${mip} == 'CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB' ] && [ ${experiment} == 'CMIP' ]; then
-   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.missing.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
-   echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.identifiedmissing.txt >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
-   echo 'Diff available.txt file:     ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.txt         >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
-   echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.ignored.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff missing.txt file:       ' >  differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.missing.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.missing.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff identified missing file:' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.identifiedmissing.txt benchmark/${benchmark_step_1_and_2}/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.identifiedmissing.txt >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff available.txt file:     ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.txt         benchmark/${benchmark_step_1_and_2}/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.txt         >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
+   echo 'Diff ignored.txt file:       ' >> differences-with-${benchmark_step_1_and_2}.txt;  diff -b cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.ignored.txt           benchmark/${benchmark_step_1_and_2}/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.ignored.txt           >> differences-with-${benchmark_step_1_and_2}.txt; echo ' ' >> differences-with-${benchmark_step_1_and_2}.txt;
   fi
 
 else
@@ -129,9 +118,9 @@ else
 fi
 
 # Filling eventually some or all of the omit lists below:
-#  cp cmvmm_m=CMIP-e=CMIP-t=1-p=1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
+#  cp cmvmm_CMIP-CMIP-t1-p1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
 #  cp identification/NEMO-identification/to-be-checked-if-PISCES-can-provide--not-in-LPJ-GUESS-version-2.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-02.xlsx
-#  cp cmvmm_m=CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-e=CMIP-t=1-p=1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
+#  cp cmvmm_CMIP.AerChemMIP.CDRMIP.C4MIP.DCPP.HighResMIP.ISMIP6.LS3MIP.LUMIP.OMIP.PAMIP.PMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-CMIP-t1-p1.missing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
 
 
 # Step 1: Request for CMIP experiments for tier=1 and priority=1:
@@ -142,9 +131,9 @@ fi
 
 # Step 3:
 
-# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m=all-ece-mips-step-1+2-e=CMIP-t=1-p=1.available.xlsx              ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
-# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m\=all-ece-mips-step-1+2-e\=CMIP-t\=1-p\=1.identifiedmissing.xlsx  ../resources/lists-of-omitted-variables/list-of-omitted-variables-02.xlsx
-# cpf benchmark/benchmark-step-1+2-v39-pextra/cmvmm_m\=all-ece-mips-step-1+2-e\=CMIP-t\=1-p\=1.ignored.xlsx            ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
+# cpf benchmark/benchmark-step-1+2-v49-pextra/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.available.xlsx         ../resources/lists-of-omitted-variables/list-of-omitted-variables-01.xlsx
+# cpf benchmark/benchmark-step-1+2-v49-pextra/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.identifiedmissing.xlsx ../resources/lists-of-omitted-variables/list-of-omitted-variables-02.xlsx
+# cpf benchmark/benchmark-step-1+2-v49-pextra/cmvmm_all-ece-mips-step-1+2-CMIP-t1-p1.ignored.xlsx           ../resources/lists-of-omitted-variables/list-of-omitted-variables-03.xlsx
 #
 # ./determine-missing-variables.sh AerChemMIP  AerChemMIP   1 1
 # ./determine-missing-variables.sh CDRMIP      CDRMIP       1 1
