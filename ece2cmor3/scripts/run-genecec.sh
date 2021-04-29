@@ -39,8 +39,14 @@ if [ "$#" -eq 2 ]; then
   version=$1
   pextra_mode=$2
 
+  if [ "${pextra_mode}" == 'pextra' ]; then
+   label=${version}-'pextra'
+  else
+   label=${version}
+  fi
+
   sed -e 's/output-control-files/control-output-files\/output-control-files-v'${version}'/' config-genecec > config-genecec-run
-  ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${version} &
+  ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${label} &
 
   if [ "${pextra_mode}" == 'pextra' ]; then
    sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec-run
