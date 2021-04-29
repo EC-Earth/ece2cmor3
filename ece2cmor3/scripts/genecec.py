@@ -25,10 +25,10 @@ from os.path import expanduser                                  # Enable to go t
 from dreqPy import dreq
 dq = dreq.loadDreq()
 
-#error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
-#warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
-error_message   = '\n Error:'                                   # Red    error   message
-warning_message = '\n Warning:'                                 # Yellow warning message
+#error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'       # Red    error   message
+#warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'       # Yellow warning message
+error_message   = '\n Error:'                                   #        error   message
+warning_message = '\n Warning:'                                 #        warning message
 
 if len(sys.argv) == 2:
 
@@ -40,7 +40,7 @@ if len(sys.argv) == 2:
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
 
-   base_dir_name           = config['output_dir_name']          # output_dir_name                = 'output-control-files'
+   output_dir_name         = config['output_dir_name']          # output_dir_name                = 'output-control-files'
    activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False
    ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = ${HOME}/cmorize/ece2cmor3/      # Default ${HOME}/cmorize/ece2cmor3/
 
@@ -60,22 +60,24 @@ if len(sys.argv) == 2:
    os.system('python setup.py install')
    os.chdir(previous_working_dir)
 
-   if base_dir_name[-1] != '/':
-    base_dir_name = base_dir_name + '/'
+   if output_dir_name[-1] != '/':
+    output_dir_name = output_dir_name + '/'
+
+   if activate_pextra_mode:
+    cmip6_base_dir_name = output_dir_name + 'cmip6-pextra/'
+    os.system('./switch-on-off-pextra-mode.sh activate-pextra-mode')
+   else:
+    cmip6_base_dir_name = output_dir_name + 'cmip6/'
+
 
    # Specify in the list below which tier experiments should be included. For
    # instance [1,2] means tier 1 and tier 2 experiments are included:
    experiment_tiers_included = [1]
    ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
-   #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
-   #ec_earth_mips = ['CMIP']        # for a faster test
-   #ec_earth_mips = ['ScenarioMIP'] # for a faster test
-   #ec_earth_mips = ['AerChemMIP']  # for a faster test
-   experiment_counter = 0
 
 
-   # The list of MIPs for each of the eight EC-Earth3 model configurations which run CMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
-   # for each of the EC-Earth3 model configurations:
+   # The list of MIPs for each of the eight EC-Earth3 model configurations which run CMIP in an iterable dictionary. This lists are needed in order
+   # to request the joint CMIP6 data requests for each of the EC-Earth3 model configurations:
    cmip_ece_configurations = {
     'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB',
     'EC-EARTH-HR'      : 'CMIP,DCPP,HighResMIP',
@@ -87,12 +89,8 @@ if len(sys.argv) == 2:
     'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
    }
 
-   # Some test cases:
-   #cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB'}
-   ##cmip_ece_configurations = {'dummy':'dummy'}
-
-   # The list of MIPs for each of the four EC-Earth3 model configurations which run ScenarioMIP in an iterable dictionary. This lists are needed to request the joint CMIP6 data requests
-   # for each of the EC-Earth3 model configurations:
+   # The list of MIPs for each of the four EC-Earth3 model configurations which run ScenarioMIP in an iterable dictionary. This lists are needed in order
+   # to request the joint CMIP6 data requests for each of the EC-Earth3 model configurations:
    scenario_ece_configurations = {
     'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB',
     'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
@@ -100,6 +98,15 @@ if len(sys.argv) == 2:
     'EC-EARTH-Veg'     : 'CMIP,LUMIP,LS3MIP,ScenarioMIP',
     'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
    }
+
+   #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
+   #ec_earth_mips = ['CMIP']        # for a faster test
+   #ec_earth_mips = ['ScenarioMIP'] # for a faster test
+   #ec_earth_mips = ['AerChemMIP']  # for a faster test
+
+   # Some test cases:
+   #cmip_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB'}
+   ##cmip_ece_configurations = {'dummy':'dummy'}
 
    # Some test cases:
    ##scenario_ece_configurations = {'EC-EARTH-AOGCM':'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB'}
@@ -137,10 +144,12 @@ if len(sys.argv) == 2:
    ## print ' {:20}   {}'.format(model_configuration, scenario_ece_configurations[model_configuration])
    ##sys.exit()
 
+   experiment_counter = 0
+
    command_show_version = 'git describe --tags | sed "s/^/ Using ece2cmor git revision: /"; echo;'
    os.system(command_show_version)
 
-   command_00 = 'rm -rf ' + base_dir_name
+   command_00 = 'rm -rf ' + cmip6_base_dir_name
    os.system(command_00)
 
    # Loop over MIPs:
@@ -175,18 +184,18 @@ if len(sys.argv) == 2:
         for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
           ex = dq.inx.uid[u]
 
-         #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-         #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
-          command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
-          command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
-          command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_05 = "sed -i -e '/deptho/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo*'
-          command_07 = 'mkdir -p ' + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv ' + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' ' + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + base_dir_name + mip_label
-          command_08 = '      mv ' + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* ' + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
-          command_09 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist ' + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-          command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + model_configuration + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + model_configuration + '-*-template.json '  + base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label
+         #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+         #command_x2 = "sed -i -e '/sfdsi_2/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_01 = './genecec-per-mip-experiment.sh ' + cmip6_base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
+          command_02 = 'rm -rf ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
+          command_03 = 'rm -f  ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
+          command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_05 = "sed -i -e '/deptho/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo*'
+          command_07 = 'mkdir -p ' + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; mv ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/*' + ' ' + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '; rm -rf ' + cmip6_base_dir_name + mip_label
+          command_08 = '      mv ' + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-* ' + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/volume-estimate-'  + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
+          command_09 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist ' + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
+          command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + model_configuration + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + model_configuration + '-*-template.json '  + cmip6_base_dir_name + mip_name + '/' + model_configuration + '/cmip6-experiment-' + mip_name + '-' + ex.label
          #print '{}'.format(command_01)
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
@@ -225,14 +234,14 @@ if len(sys.argv) == 2:
         for u in dq.inx.iref_by_sect[mip.uid].a['experiment']:
           ex = dq.inx.uid[u]
 
-         #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-         #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
-          command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
-          command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
-          command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_05 = "sed -i -e '/deptho/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
+         #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+         #command_x2 = "sed -i -e '/sfdsi_2/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_01 = './genecec-per-mip-experiment.sh ' + cmip6_base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
+          command_02 = 'rm -rf ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
+          command_03 = 'rm -f  ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
+          command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_05 = "sed -i -e '/deptho/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
+          command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
          #print '{}'.format(command_01)
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included:
@@ -283,8 +292,8 @@ if len(sys.argv) == 2:
 
                 # Looping over the various EC-Earth3 model configurations in order to generate for each of them the json cmip6 data request file:
                 for conf in model_configuration:
-                 command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + conf + ' --varlist ' + base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
-                 command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + conf + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + conf + '-*-template.json '  + base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label
+                 command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + conf + ' --varlist ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
+                 command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + conf + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + conf + '-*-template.json '  + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label
                  os.system(command_10) # Produce the json data request variant, the so called varlist.json
                  os.system(command_11) # Produce the metadata files for this MIP experiment.
 
@@ -299,20 +308,20 @@ if len(sys.argv) == 2:
 
    # Add a test case with which all available variables over all EC-Earth MIP experiments are switched on,
    # i.e. are enabled in the file_def files:
-   if os.path.isdir(base_dir_name + "CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/"):
-    command_a = "cp -r " + base_dir_name + "CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/ " + base_dir_name + "test-all-ece-mip-variables/"
+   if os.path.isdir(cmip6_base_dir_name + "CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/"):
+    command_a = "cp -r " + cmip6_base_dir_name + "CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/ " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
    else:
-    command_a = "cp -r " + base_dir_name + "CMIP/cmip6-experiment-CMIP-piControl/ " + base_dir_name + "test-all-ece-mip-variables/"
-   command_b  = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' " + base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
-   command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
-   command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. And in order to be able to test all IFS output by running one experiment, all available IFS fields are enabled in the ppt files.' > " + base_dir_name + "test-all-ece-mip-variables/README"
-   command_e  = "rm -f " + base_dir_name + "test-all-ece-mip-variables/ppt* " + base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt"
+    command_a = "cp -r " + cmip6_base_dir_name + "CMIP/cmip6-experiment-CMIP-piControl/ " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
+   command_b  = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' " + cmip6_base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
+   command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
+   command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. And in order to be able to test all IFS output by running one experiment, all available IFS fields are enabled in the ppt files.' > " + cmip6_base_dir_name + "test-all-ece-mip-variables/README"
+   command_e  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/ppt* " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + cmip6_base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt"
    command_f  = "./drq2ppt.py --allvars"
-   command_g  = "mv -f ppt0000000000 pptdddddd* " + base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
-   command_h  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM   --varlist " + base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
-   command_i  = "./drq2varlist.py --allvars --ececonf EC-EARTH-CC      --varlist " + base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
-   command_j  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AerChem --varlist " + base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
-   command_k  = "rm -f " + base_dir_name + "test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins " + base_dir_name + "test-all-ece-mip-variables/"
+   command_g  = "mv -f ppt0000000000 pptdddddd* " + cmip6_base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
+   command_h  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
+   command_i  = "./drq2varlist.py --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
+   command_j  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
+   command_k  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
 
    os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files
    os.system(command_b) # Switch on all available variables in the file_def files
@@ -326,7 +335,7 @@ if len(sys.argv) == 2:
    os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
    os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
 
-   command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh " + base_dir_name
+   command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh " + cmip6_base_dir_name
    os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.
 
 
@@ -338,7 +347,7 @@ if len(sys.argv) == 2:
    command_covidmip_cov_modgreen = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-modgreen EC-EARTH-AOGCM"
    command_covidmip_cov_fossil   = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-fossil   EC-EARTH-AOGCM"
    command_covidmip_cov_aer      = "./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP ssp245-cov-aer      EC-EARTH-AOGCM"
-   command_covidmip_mv           = "mv -f CovidMIP " + base_dir_name
+   command_covidmip_mv           = "mv -f CovidMIP " + cmip6_base_dir_name
 
    os.system(command_covidmip_rm          )
    os.system(command_covidmip_baseline    )
@@ -348,6 +357,9 @@ if len(sys.argv) == 2:
    os.system(command_covidmip_cov_fossil  )
    os.system(command_covidmip_cov_aer     )
    os.system(command_covidmip_mv          )
+
+   if activate_pextra_mode:
+    os.system('./switch-on-off-pextra-mode.sh deactivate-pextra-mode')
 
 else:
    print()
