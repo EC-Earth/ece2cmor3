@@ -40,7 +40,7 @@ if len(sys.argv) == 2:
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
 
-   output_dir_name         = config['output_dir_name']          # output_dir_name                = 'output-control-files'
+   base_dir_name           = config['output_dir_name']          # output_dir_name                = 'output-control-files'
    activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False
    ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = ${HOME}/cmorize/ece2cmor3/      # Default ${HOME}/cmorize/ece2cmor3/
 
@@ -59,6 +59,9 @@ if len(sys.argv) == 2:
    os.chdir(expanded_ece2cmor_root_directory)
    os.system('python setup.py install')
    os.chdir(previous_working_dir)
+
+   if base_dir_name[-1] != '/':
+    base_dir_name = base_dir_name + '/'
 
    # Specify in the list below which tier experiments should be included. For
    # instance [1,2] means tier 1 and tier 2 experiments are included:
@@ -137,8 +140,6 @@ if len(sys.argv) == 2:
    command_show_version = 'git describe --tags | sed "s/^/ Using ece2cmor git revision: /"; echo;'
    os.system(command_show_version)
 
-   base_dir_name = 'cmip6-output-control-files/'
-
    command_00 = 'rm -rf ' + base_dir_name
    os.system(command_00)
 
@@ -176,7 +177,7 @@ if len(sys.argv) == 2:
 
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
+          command_01 = './genecec-per-mip-experiment.sh ' + base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
           command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
@@ -226,7 +227,7 @@ if len(sys.argv) == 2:
 
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
-          command_01 = './genecec-per-mip-experiment.sh ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
+          command_01 = './genecec-per-mip-experiment.sh ' + base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
           command_02 = 'rm -rf ' + base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'

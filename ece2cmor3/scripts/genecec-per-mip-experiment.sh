@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 # Thomas Reerink
 #
-# This scripts needs four or five arguments
+# This scripts requires five arguments:
+#  first  argument is the base directory name which will be created if not existing. The results will be placed in a subdirectory of theis base directory.
+#  second argument is the MIP name
+#  third  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
+#  fourth argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
+#  fifth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
 #
-# ${1} the first   argument is the MIP name
-# ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
-# ${3} the third   argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
-# ${4} the fourth  argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
-#
-#
-# Run example:
-#  ./genecec-per-mip-experiment.sh CMIP                                                                           piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,LUMIP                                                                     piControl 1 1
-#  ./genecec-per-mip-experiment.sh CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB piControl 1 1
+# Run this script without arguments for examples how to call this script.
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
@@ -27,7 +23,7 @@
 #  genecec.py
 
 
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 5 ]; then
 
   if ! type "ece2cmor" > /dev/null; then
    echo
@@ -49,10 +45,11 @@ if [ "$#" -eq 4 ]; then
    exit
   fi
 
-  mip=$1
-  experiment=$2
-  tier=$3
-  priority=$4
+  base_dir_name=$1
+  mip=$2
+  experiment=$3
+  tier=$4
+  priority=$5
 
   # Check whether more than one MIP is specified in the data request
   multiplemips='no'
@@ -77,7 +74,7 @@ if [ "$#" -eq 4 ]; then
    fi
   fi
 
-  path_of_created_output_control_files=cmip6-output-control-files/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
+  path_of_created_output_control_files=${base_dir_name}/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
 
   echo
   echo 'Executing the following job:'
@@ -198,8 +195,9 @@ if [ "$#" -eq 4 ]; then
 
 else
     echo
-    echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-    echo '  ' $0 CMIP piControl 1 1
+    echo '  This scripts requires five arguments: base output directory, MIP (or comma separated lsit of MIPs), MIP experiment, experiment tier, priority level of variables included, e.g.:'
+    echo '  ' $0 cmip6-output-control-files CMIP                                                                           piControl 1 1
+    echo '  ' $0 cmip6-output-control-files CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB piControl 1 1
     echo
 fi
 
