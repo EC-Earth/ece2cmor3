@@ -43,7 +43,7 @@ if [ "$#" -eq 2 ]; then
   ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${version} &
 
   if [ "${pextra_mode}" == 'pextra' ]; then
-   sed -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec > config-genecec-run
+   sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec-run
   fi
 
 else
