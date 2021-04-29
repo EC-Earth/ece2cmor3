@@ -27,10 +27,11 @@ def write_varlist(targets, opath):
         ofile.close()
 
 
-def write_varlist_ascii(targets, opath):
+def write_varlist_ascii(targets, opath, print_all_columns):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
     ofile = open(opath, 'w')
-    if True:
+    if print_all_columns:
+     # In case the input data request is an xlsx file, all columns are printed:
      ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
                   'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
                   'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
@@ -49,6 +50,7 @@ def write_varlist_ascii(targets, opath):
                           getattr(tgtvar, "comment_author", ""),
                           getattr(tgtvar, "ecearth_comment", ""), '\n'))
     else:
+     # In case the input data request is a json file, a reduced number of columns is printed:
      ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
      for k, vlist in tgtgroups.iteritems():
          ofile.write('{}'.format('\n'))
@@ -60,6 +62,7 @@ def write_varlist_ascii(targets, opath):
                           tgtvar.units,
                           getattr(tgtvar, "ecearth_comment", ""), '\n'))
     ofile.close()
+    logging.info(" Writing the ascii file: %s" % opath)
 
 
 def write_varlist_excel(targets, opath, with_pingfile):
@@ -200,10 +203,13 @@ def main():
             write_varlist_excel(identified_missing_targets, args.output + ".identifiedmissing.xlsx", args.withping)
             write_varlist_excel(missing_targets, args.output + ".missing.xlsx", args.withping)
 
-            write_varlist_ascii(loaded_targets, args.output + ".available.txt")
-            write_varlist_ascii(ignored_targets, args.output + ".ignored.txt")
-            write_varlist_ascii(identified_missing_targets, args.output + ".identifiedmissing.txt")
-            write_varlist_ascii(missing_targets, args.output + ".missing.txt")
+            if args.drq[-4:] == 'xlsx':
+             write_varlist_ascii(loaded_targets            , args.output + ".available.txt"        , True)
+             write_varlist_ascii(ignored_targets           , args.output + ".ignored.txt"          , True)
+             write_varlist_ascii(identified_missing_targets, args.output + ".identifiedmissing.txt", True)
+             write_varlist_ascii(missing_targets           , args.output + ".missing.txt"          , True)
+            else:
+             write_varlist_ascii(loaded_targets            , args.output + ".available.txt"        , False)
 
 
     if False:
