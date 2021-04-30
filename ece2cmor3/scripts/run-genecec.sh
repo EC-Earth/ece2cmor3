@@ -36,8 +36,8 @@ if [ "$#" -eq 2 ]; then
    exit
   fi
 
-  version=$1
-  pextra_mode=$2
+  pextra_mode=$1
+  version=$2
 
   if [ "${pextra_mode}" == 'pextra' ]; then
    label=${version}-'pextra'
@@ -55,7 +55,7 @@ if [ "$#" -eq 2 ]; then
 else
   echo
   echo '  This scripts requires one argument, e.g.:'
-  echo '  ' $0 '190 default'
-  echo '  ' $0 '190 pextra'
+  echo '  ' $0 'default 191'
+  echo '  ' $0 'pextra  191'
   echo
 fi
