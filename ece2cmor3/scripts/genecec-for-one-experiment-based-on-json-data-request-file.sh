@@ -87,7 +87,7 @@ if [ "$#" -eq 4 ]; then
 
   ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
-  mv -f cmip6-file_def_nemo.xml  ${output_dir}
+  rm -f cmip6-file_def_nemo.xml
   mv -f file_def_nemo-opa.xml    ${output_dir}
   mv -f file_def_nemo-lim3.xml   ${output_dir}
   mv -f file_def_nemo-pisces.xml ${output_dir}
