@@ -150,6 +150,8 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true", default=False,
                         help="Write xlsx and ASCII files with verbose output (suppress the related terminal messages "
                              "as the content of these files contain this information)")
+    parser.add_argument("--asciionly", action="store_true", default=False,
+                        help="Write the ascii file(s) only")
     cmor_utils.ScriptUtils.add_model_tabfile_options(parser)
 
     args = parser.parse_args()
@@ -196,12 +198,14 @@ def main():
         if not os.path.isdir(output_dir):
             if output_dir != '':
                 os.makedirs(output_dir)
-        write_varlist(loaded, args.output + ".available.json")
+        if not args.asciionly:
+         write_varlist(loaded, args.output + ".available.json")
         if args.verbose:
-            write_varlist_excel(loaded_targets, args.output + ".available.xlsx", args.withping)
-            write_varlist_excel(ignored_targets, args.output + ".ignored.xlsx", args.withping)
-            write_varlist_excel(identified_missing_targets, args.output + ".identifiedmissing.xlsx", args.withping)
-            write_varlist_excel(missing_targets, args.output + ".missing.xlsx", args.withping)
+            if not args.asciionly:
+             write_varlist_excel(loaded_targets, args.output + ".available.xlsx", args.withping)
+             write_varlist_excel(ignored_targets, args.output + ".ignored.xlsx", args.withping)
+             write_varlist_excel(identified_missing_targets, args.output + ".identifiedmissing.xlsx", args.withping)
+             write_varlist_excel(missing_targets, args.output + ".missing.xlsx", args.withping)
 
             if args.drq[-4:] == 'xlsx':
              write_varlist_ascii(loaded_targets            , args.output + ".available.txt"        , True)
