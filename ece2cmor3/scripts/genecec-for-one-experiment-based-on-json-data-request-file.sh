@@ -87,14 +87,11 @@ if [ "$#" -eq 4 ]; then
 
   ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
-  mv -f cmip6-file_def_nemo.xml          ${output_dir}
-  mv -f file_def_nemo-opa.xml            ${output_dir}
-  mv -f file_def_nemo-lim3.xml           ${output_dir}
-  mv -f file_def_nemo-pisces.xml         ${output_dir}
-  mv -f file_def_nemo-opa-compact.xml    ${output_dir}
-  mv -f file_def_nemo-pisces-compact.xml ${output_dir}
-  mv -f file_def_nemo-lim3-compact.xml   ${output_dir}
-  mv -f volume-estimate-nemo.txt         ${output_dir}
+  mv -f cmip6-file_def_nemo.xml  ${output_dir}
+  mv -f file_def_nemo-opa.xml    ${output_dir}
+  mv -f file_def_nemo-lim3.xml   ${output_dir}
+  mv -f file_def_nemo-pisces.xml ${output_dir}
+  mv -f volume-estimate-nemo.txt ${output_dir}
 
   cd ${output_dir}
 
@@ -103,9 +100,6 @@ if [ "$#" -eq 4 ]; then
   if [ ${request_option} = '--drq' ]; then
    ../drq2varlist.py ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
   fi
-
-  # Remove the cmip6-file_def_nemo.xml file & the compact file_def files:
-  rm -f cmip6-file_def_nemo.xml *-compact.xml
 
   # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
   sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' file_def_nemo-opa.xml
