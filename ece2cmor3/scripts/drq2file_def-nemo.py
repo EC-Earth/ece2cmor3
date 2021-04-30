@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-ssp126-t1-p1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp126_1_1.xlsx
 #
 # With this script it is possible to generate the EC-Earth3 NEMO control output files, i.e.
 # the NEMO xml files for XIOS (the file_def files for OPA, LIM and PISCES) for one MIP experiment.
@@ -53,6 +53,8 @@ def main():
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
+    parser.add_argument("--compact", action="store_true", default=False,
+                        help="Add the compact file_def files as well")
 
     args = parser.parse_args()
 
@@ -216,31 +218,32 @@ def main():
 
     # PRODUCE FILE_DEF FILES FOR OPA, LIM AND PISCES WITH ONLY ENABLED VARIABLES:
 
-    # FILE_DEF FILE FOR OPA WITH ONLY ENABLED VARIABLES:
-    tree_opa_enabled_only = xmltree.parse(file_def_opa_file_name)
-    root_opa_enabled_only = tree_opa_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+    if args.compact:
+     # FILE_DEF FILE FOR OPA WITH ONLY ENABLED VARIABLES:
+     tree_opa_enabled_only = xmltree.parse(file_def_opa_file_name)
+     root_opa_enabled_only = tree_opa_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
-    for file_element in root_opa_enabled_only.findall('./file_group/file'):
-      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
-    tree_opa_enabled_only.write(file_def_opa_file_name_compact)
-
-
-    # FILE_DEF FILE FOR LIM WITH ONLY ENABLED VARIABLES:
-    tree_lim_enabled_only = xmltree.parse(file_def_lim_file_name)
-    root_lim_enabled_only = tree_lim_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-
-    for file_element in root_lim_enabled_only.findall('./file_group/file'):
-      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
-    tree_lim_enabled_only.write(file_def_lim_file_name_compact)
+     for file_element in root_opa_enabled_only.findall('./file_group/file'):
+       for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+     tree_opa_enabled_only.write(file_def_opa_file_name_compact)
 
 
-    # FILE_DEF FILE FOR PISCES WITH ONLY ENABLED VARIABLES:
-    tree_pisces_enabled_only = xmltree.parse(file_def_pisces_file_name)
-    root_pisces_enabled_only = tree_pisces_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+     # FILE_DEF FILE FOR LIM WITH ONLY ENABLED VARIABLES:
+     tree_lim_enabled_only = xmltree.parse(file_def_lim_file_name)
+     root_lim_enabled_only = tree_lim_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
-    for file_element in root_pisces_enabled_only.findall('./file_group/file'):
-      for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
-    tree_pisces_enabled_only.write(file_def_pisces_file_name_compact)
+     for file_element in root_lim_enabled_only.findall('./file_group/file'):
+       for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+     tree_lim_enabled_only.write(file_def_lim_file_name_compact)
+
+
+     # FILE_DEF FILE FOR PISCES WITH ONLY ENABLED VARIABLES:
+     tree_pisces_enabled_only = xmltree.parse(file_def_pisces_file_name)
+     root_pisces_enabled_only = tree_pisces_enabled_only.getroot()    # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+
+     for file_element in root_pisces_enabled_only.findall('./file_group/file'):
+       for field_element in file_element.findall('field[@enabled="False"]'): file_element.remove(field_element)
+     tree_pisces_enabled_only.write(file_def_pisces_file_name_compact)
 
 
 

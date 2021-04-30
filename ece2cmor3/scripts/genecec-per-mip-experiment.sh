@@ -125,7 +125,7 @@ if [ "$#" -eq 5 ]; then
    exit
   fi
 
-  mkdir -p ${path_of_created_output_control_files}/file_def-compact
+  mkdir -p ${path_of_created_output_control_files}
   if [ ${mip_label} != 'OMIP' ] && [ ${experiment} != 'rad-irf' ]; then
    # Create the ppt files for IFS input and estimate the Volume of the IFS output:
    ./drq2ppt.py --drq ${cmip6_data_request_file}
@@ -148,9 +148,6 @@ if [ "$#" -eq 5 ]; then
   mv -f file_def_nemo-opa.xml            ${path_of_created_output_control_files}
   mv -f file_def_nemo-lim3.xml           ${path_of_created_output_control_files}
   mv -f file_def_nemo-pisces.xml         ${path_of_created_output_control_files}
-  mv -f file_def_nemo-opa-compact.xml    ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
-  mv -f file_def_nemo-lim3-compact.xml   ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
-  mv -f file_def_nemo-pisces-compact.xml ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
   ./drq2ins.py --drq ${cmip6_data_request_file}
@@ -183,9 +180,6 @@ if [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
-  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-opa.xml
-  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-lim3.xml
-  ls -1 ${path_of_created_output_control_files}/file_def-compact/file_def_nemo-pisces.xml
 
   echo
   echo 'The estimate of the Volumes:'

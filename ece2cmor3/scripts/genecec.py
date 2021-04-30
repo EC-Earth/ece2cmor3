@@ -187,7 +187,6 @@ if len(sys.argv) == 2:
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
           command_01 = './genecec-per-mip-experiment.sh ' + cmip6_base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
-          command_02 = 'rm -rf ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
           command_05 = "sed -i -e '/deptho/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
@@ -205,7 +204,6 @@ if len(sys.argv) == 2:
                #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
                #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
                 os.system(command_01)
-                os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
                 os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
                 os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
                 os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
@@ -237,7 +235,6 @@ if len(sys.argv) == 2:
          #command_x1 = "sed -i -e 's/True\" field_ref=\"toce_pot\"/False\" field_ref=\"toce_pot\"/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
          #command_x2 = "sed -i -e '/sfdsi_2/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
           command_01 = './genecec-per-mip-experiment.sh ' + cmip6_base_dir_name + ' ' + mip_list + ' ' + ex.label + ' ' + str(ex.tier[0]) + ' 1 '
-          command_02 = 'rm -rf ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/file_def-compact'
           command_03 = 'rm -f  ' + cmip6_base_dir_name + mip_label + '/cmip6-experiment-*/cmip6-file_def_nemo.xml'
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
           command_05 = "sed -i -e '/deptho/d' " + cmip6_base_dir_name + mip_label + '/cmip6-experiment-' + mip_label + '-' + ex.label + '/file_def_nemo-opa.xml'
@@ -284,7 +281,6 @@ if len(sys.argv) == 2:
                #os.system(command_x1)  # Just set the toce fields false again because we still face troubles with them
                #os.system(command_x2)  # Delete the line with sfdsi_2 from the file_def_nemo-opa.xml files
                 os.system(command_01)
-                os.system(command_02)  # Remove the file_def-compact subdirectory with the compact file_def files
                 os.system(command_03)  # Remove the cmip6-file_def_nemo.xml file
                 os.system(command_04)  # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
                 os.system(command_05)  # Remove deptho from the file_def_nemo-opa.xml #249
