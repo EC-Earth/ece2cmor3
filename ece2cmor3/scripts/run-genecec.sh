@@ -50,9 +50,10 @@ if [ "$#" -eq 2 ]; then
    sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec-run
   fi
 
-  mkdir -p control-output-files/log-genecec
-  ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${label} &
- #./genecec.py config-genecec-run > control-output-files/log-genecec/log-genecec-stdout-v${label} 2> control-output-files/log-genecec/log-genecec-stderr-v${label} &
+  log_dir=control-output-files/log-genecec
+  mkdir -p ${log_dir}
+  ./genecec.py config-genecec-run >& ${log_dir}/log-genecec-v${label} &
+ #./genecec.py config-genecec-run > ${log_dir}/log-genecec-stdout-v${label} 2> ${log_dir}/log-genecec-stderr-v${label} &
 
 else
   echo
