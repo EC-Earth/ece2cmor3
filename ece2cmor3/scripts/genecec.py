@@ -2,9 +2,8 @@
 # Thomas Reerink
 #
 # Run examples:
-#  mkdir -p control-output-files/log-genecec;
-#  ./genecec.py config-genecec >& control-output-files/log-genecec/log-genecec-v001 &
-#  ./genecec.py config-genecec 1> control-output-files/log-genecec/log-genecec-stdout-v001 2> log-genecec/log-genecec-stderr-v001 &
+#  ./genecec.py config-genecec
+#  ./run-genecec.sh default 001
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the

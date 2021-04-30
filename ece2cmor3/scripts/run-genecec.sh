@@ -46,11 +46,13 @@ if [ "$#" -eq 2 ]; then
   fi
 
   sed -e 's/output-control-files/control-output-files\/output-control-files-v'${version}'/' config-genecec > config-genecec-run
-  ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${label} &
-
   if [ "${pextra_mode}" == 'pextra' ]; then
    sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec-run
   fi
+
+  mkdir -p control-output-files/log-genecec
+  ./genecec.py config-genecec-run >& control-output-files/log-genecec/log-genecec-v${label} &
+ #./genecec.py config-genecec-run > control-output-files/log-genecec/log-genecec-stdout-v${label} 2> control-output-files/log-genecec/log-genecec-stderr-v${label} &
 
 else
   echo
