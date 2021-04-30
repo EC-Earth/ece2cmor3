@@ -473,9 +473,9 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
 
 else
     echo '  '
-    echo '  This scripts requires two or three arguments, e.g.:'
+    echo '  This scripts requires three or four arguments, e.g.:'
     echo '  ' $0 CMIP historical EC-EARTH-Veg
-    echo '  ' $0 CMIP amip EC-EARTH-CC cmip6-CMIP-piControl-metadata-template.json
+    echo '  ' $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
     echo '  '
 fi
 
