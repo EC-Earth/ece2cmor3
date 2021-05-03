@@ -22,6 +22,15 @@ if [ "$#" -eq 1 ]; then
  echo '        ]'                                                                                                                                     >> ${output_json_file}
  echo '}'                                                                                                                                             >> ${output_json_file}
 
+ # Check wheter the two but last line (in case the tm5 list is not empty) contains an invalid json line:
+ check_end=`tail -n3 ${output_json_file} | head -n1`
+ if [ "${check_end}" == '        ],' ]; then
+  head --lines=-3 ${output_json_file} >  ${output_json_file}.tmp
+  echo '        ]'                    >> ${output_json_file}.tmp
+  echo '}'                            >> ${output_json_file}.tmp
+  mv -f ${output_json_file}.tmp ${output_json_file}
+ fi
+
  echo
  echo ' The script' $0 ' produced the file;'
  echo '  ' ${output_json_file}
