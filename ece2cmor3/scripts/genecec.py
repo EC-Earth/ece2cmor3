@@ -201,7 +201,7 @@ if len(sys.argv) == 2:
           command_12 = './convert-component-json-to-flat-json.py ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
           command_13 = './checkvars.py --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview-with-ece-preferences'
          #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + ece_configuration_dir
-          command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json
+          command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
          #print '{}'.format(command_01)
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
@@ -304,7 +304,7 @@ if len(sys.argv) == 2:
                  command_12 = './convert-component-json-to-flat-json.py ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
                  command_13 = './checkvars.py --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '-flat.json' +  ' --output ' + subdirname_experiment + '/request-overview-with-ece-preferences-' + conf
                 #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + subdirname_experiment
-                 command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json
+                 command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
                  os.system(command_10)   # Produce the ec-earth component json data request variant, the so called varlist.json
                  os.system(command_11)   # Produce the metadata files for this MIP experiment.
                  if add_request_overview:
