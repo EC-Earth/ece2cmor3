@@ -32,7 +32,7 @@ if [ "$#" -eq 1 ]; then
  fi
 
  echo
- echo ' The script' $0 ' produced the file;'
+ echo ' The script' $0 ' produced the file:'
  echo '  ' ${output_json_file}
  echo
 
