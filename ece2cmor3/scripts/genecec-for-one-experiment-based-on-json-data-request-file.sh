@@ -39,7 +39,6 @@
 if [ "$#" -eq 4 ]; then
 
   data_request_file=$1
-
   mip_name=$2
   experiment=$3
   ece_configuration=$4
@@ -71,11 +70,12 @@ if [ "$#" -eq 4 ]; then
 
   # Check whether the data request file is a json file, if so convert the json file for the checkvars application:
   if [ "${data_request_file##*.}" = 'json' ]; then
-    ./convert-component-json-to-flat-json.sh ${data_request_file}
+    ./convert-component-json-to-flat-json.py ${data_request_file}
    data_request_file_for_checkvars=${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
   else
-   data_request_file_for_checkvars=${data_request_file}
+   data_request_file_for_checkvars=${data_request_file##*/}
+   rsync -a ${data_request_file} ${data_request_file##*/}
   fi
 
   echo
@@ -84,6 +84,7 @@ if [ "$#" -eq 4 ]; then
   echo
   ./checkvars.py -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
   echo
+  rm -f ${data_request_file_for_checkvars}
 
   ./drq2file_def-nemo.py ${request_option} ${data_request_file}
 
@@ -99,6 +100,15 @@ if [ "$#" -eq 4 ]; then
   ../drq2ins.py ${request_option} ../${data_request_file}
   if [ ${request_option} = '--drq' ]; then
    ../drq2varlist.py ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   ../convert-component-json-to-flat-json.py cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview-with-ece-preferences
+   rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
+  else
+   ../convert-component-json-to-flat-json.py ${data_request_file##*/}
+   data_request_file_for_checkvars=${data_request_file##*/}
+   data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
+   checkvars -v --asciionly --drq ${data_request_file_for_checkvars} --output request-overview-with-ece-preferences
+   rm -f ${data_request_file_for_checkvars}
   fi
 
   # Remove the freq_op attribute for the variable msftbarot (uoce_e3u_vsum_e2u_cumul) from the file_def_nemo.xml file #327 & e.g. #518-165 on the ec-earth portal
