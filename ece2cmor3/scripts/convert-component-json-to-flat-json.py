@@ -32,46 +32,53 @@ if len(sys.argv) == 2:
        data_request = json.load(json_file)
    json_file.close()
 
-   data_request_1 = data_request
-   ifs_request  = data_request_1["ifs"]
-   nemo_request = data_request_1["nemo"]
-   lpjg_request = data_request_1["lpjg"]
-   tm5_request  = data_request_1["tm5"]
-
-
-   # Determine whether a same table is present in the nemo dictionary as in the ifs dictionary:
-   for x in nemo_request:
-    if x in ifs_request:
-     for i in range(0, len(nemo_request[x])):
-      ifs_request[x].append(nemo_request[x][i])
-    else:
-     ifs_request.update({x: nemo_request[x]})
-
-   # Determine whether a same table is present in the lpjg dictionary as in the ifs dictionary:
-   for x in lpjg_request:
-    if x in ifs_request:
-     for i in range(0, len(lpjg_request[x])):
-      ifs_request[x].append(lpjg_request[x][i])
-    else:
-     ifs_request.update({x: lpjg_request[x]})
-
-   # Determine whether a same table is present in the tm5 dictionary as in the ifs dictionary:
-   for x in tm5_request:
-    if x in ifs_request:
-     for i in range(0, len(tm5_request[x])):
-      ifs_request[x].append(tm5_request[x][i])
-    else:
-     ifs_request.update({x: tm5_request[x]})
-
    output_json_file = os.path.basename(input_json_file).replace('.json','-flat.json')
-   with open(output_json_file, 'w') as outfile:
-       json.dump(ifs_request, outfile, sort_keys=True, indent=4)
-   outfile.close()
-
 
    print()
    print(' The script:')
    print(' ', sys.argv[0], sys.argv[1])
+
+   # Check whether the input json file is a component json or a flat json file:
+   if "ifs" in data_request:
+    ifs_request  = data_request["ifs"]
+    nemo_request = data_request["nemo"]
+    lpjg_request = data_request["lpjg"]
+    tm5_request  = data_request["tm5"]
+
+
+    # Determine whether a same table is present in the nemo dictionary as in the ifs dictionary:
+    for x in nemo_request:
+     if x in ifs_request:
+      for i in range(0, len(nemo_request[x])):
+       ifs_request[x].append(nemo_request[x][i])
+     else:
+      ifs_request.update({x: nemo_request[x]})
+
+    # Determine whether a same table is present in the lpjg dictionary as in the ifs dictionary:
+    for x in lpjg_request:
+     if x in ifs_request:
+      for i in range(0, len(lpjg_request[x])):
+       ifs_request[x].append(lpjg_request[x][i])
+     else:
+      ifs_request.update({x: lpjg_request[x]})
+
+    # Determine whether a same table is present in the tm5 dictionary as in the ifs dictionary:
+    for x in tm5_request:
+     if x in ifs_request:
+      for i in range(0, len(tm5_request[x])):
+       ifs_request[x].append(tm5_request[x][i])
+     else:
+      ifs_request.update({x: tm5_request[x]})
+
+    with open(output_json_file, 'w') as outfile:
+        json.dump(ifs_request, outfile, sort_keys=True, indent=4)
+    outfile.close()
+
+   else:
+    print(warning_message, 'The file', sys.argv[1], 'is a flat json already, thefore it is not converted but copied instead.')
+    command = 'rsync -a ' + input_json_file + ' ' + output_json_file
+    os.system(command)
+
    print(' produced the file:')
    print('  ', output_json_file)
    print()
