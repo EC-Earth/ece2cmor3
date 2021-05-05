@@ -51,6 +51,9 @@ if [ "$#" -eq 4 ]; then
 
   output_dir=${experiment}-${ece_configuration}
 
+  if [ ${mip_name} = 'LAMACLIMA' ]; then
+   ./add-lamaclima-experiments.sh
+  fi
   if [ ${mip_name} = 'CovidMIP' ]; then
    output_dir=cmip6-experiment-CovidMIP-${experiment}
   fi
@@ -173,6 +176,7 @@ if [ "$#" -eq 4 ]; then
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    mkdir -p lamaclima-control-output-files
    mv -f ${output_dir} lamaclima-control-output-files
+   ./revert-nested-cmor-table-branch.sh
   fi
 
   if [ ${mip_name} = 'CovidMIP' ]; then
