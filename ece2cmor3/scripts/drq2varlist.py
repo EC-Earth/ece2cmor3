@@ -54,10 +54,10 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running drq2varlist.py with:"
-    print "./drq2varlist.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    print()
+    print('Running drq2varlist.py with:')
+    print('./drq2varlist.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print()
 
     if not args.allvars and not os.path.isfile(args.drq):
         log.fatal("Error: Your data request file %s cannot be found." % args.drq)

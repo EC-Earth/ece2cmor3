@@ -100,9 +100,9 @@ produce_nemopar_json = False
 # READING THE PING FILES:
 
 # Checking whether the ping files exist:
-if os.path.isfile(ping_file_name_ocean    ) == False: print ' The file ', ping_file_name_ocean    , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_name_seaIce   ) == False: print ' The file ', ping_file_name_seaIce   , '  does not exist.'; sys.exit(' stop')
-if os.path.isfile(ping_file_name_ocnBgchem) == False: print ' The file ', ping_file_name_ocnBgchem, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocean    ) == False: print(' The file ', ping_file_name_ocean    , '  does not exist.'); sys.exit(' stop')
+if os.path.isfile(ping_file_name_seaIce   ) == False: print(' The file ', ping_file_name_seaIce   , '  does not exist.'); sys.exit(' stop')
+if os.path.isfile(ping_file_name_ocnBgchem) == False: print(' The file ', ping_file_name_ocnBgchem, '  does not exist.'); sys.exit(' stop')
 
 treeOcean     = xmltree.parse(ping_file_name_ocean    )
 treeSeaIce    = xmltree.parse(ping_file_name_seaIce   )
@@ -169,12 +169,12 @@ total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + 
 total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgchem_expr
 
 # Check whether all list  have the same lenth:
-#print  '\n Consistency check whether all total ping lists are equal long: ', len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr)
+#print( '\n Consistency check whether all total ping lists are equal long: ', len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr))
 
 if exclude_dummy_fields:
- print '\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n'
+ print('\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n')
 else:
- print '\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n'
+ print('\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n')
 
 # Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
 # in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
@@ -182,32 +182,32 @@ else:
 for i in range(len(total_pinglist_id)):
   if total_pinglist_expr[i] != 'None':
    if total_pinglist_expr[i].replace(" ", "").replace("@", "")  != total_pinglist_text[i].replace(" ", ""):
-    print ' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n'
+    print(' Mismatch between ping content and ping expr for variable', total_pinglist_id[i], ':', total_pinglist_expr[i].replace(" ", "").replace("@", "") + ' and ' + total_pinglist_text[i].replace(" ", "") + '\n')
 
 # Give preference to the ping file "expr"-attribute in case the ping file "expr"-attribute has a value: that means overwrite the
 # xml content (the pinglist_text) by this ping file "expr"-attribute:
 if give_preference_to_pingfile_expression_attribute:
  for i in range(len(total_pinglist_id)):
    if total_pinglist_expr[i] != 'None':
-   #print ' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i])
+   #print(' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i]))
     total_pinglist_text[i] = total_pinglist_expr[i]
 
-#print pinglistOcean_id       , '\n '
-#print pinglistOcean_field_ref, '\n '
-#print pinglistOcean_text     , '\n '
+#print(pinglistOcean_id       , '\n ')
+#print(pinglistOcean_field_ref, '\n ')
+#print(pinglistOcean_text     , '\n ')
 
-#print rootOcean    [0][:] , '\n '
-#print field_elements_Ocean, '\n '
+#print(rootOcean    [0][:] , '\n ')
+#print(field_elements_Ocean, '\n ')
 
-#print rootOcean    [0].attrib["test"]          # Get an attribute of the parent element: This example only works if one adds an attribute in the field_definition of the ping ocean file, e.g. add : test='TEST'
-#print rootOcean    [0][0].attrib["field_ref"]
-#print rootOcean    [0][1].attrib["id"]
-#print rootOcean    [0][:].attrib["id"]         # does not work, needs an explicit for loop
+#print(rootOcean    [0].attrib["test"])          # Get an attribute of the parent element: This example only works if one adds an attribute in the field_definition of the ping ocean file, e.g. add : test='TEST'
+#print(rootOcean    [0][0].attrib["field_ref"])
+#print(rootOcean    [0][1].attrib["id"])
+#print(rootOcean    [0][:].attrib["id"])         # does not work, needs an explicit for loop
 
 #field_example = "tomint"  # Specify a cmor field name
 #field_example = "cfc11"   # Specify a cmor field name
 #index_in_ping_list = pinglistOcean_id.index(field_example)
-#print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
+#print(index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list])
 
 # Create an XML file, see http://stackabuse.com/reading-and-writing-xml-files-in-python/
 # mydata = xmltree.tostring(rootOcean)
@@ -217,24 +217,24 @@ if give_preference_to_pingfile_expression_attribute:
 
 #history
 
-#print rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgchem.attrib["id"]
+#print(rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgchem.attrib["id"]
 
-#print field_elements_Ocean    [1].__dict__  # Example print of the 1st Ocean     field-element
-#print field_elements_SeaIce   [1].__dict__  # Example print of the 1st SeaIce    field-element
-#print field_elements_OcnBgchem[1].__dict__  # Example print of the 1st OcnBgchem field-element
+#print(field_elements_Ocean    [1].__dict__)  # Example print of the 1st Ocean     field-element
+#print(field_elements_SeaIce   [1].__dict__)  # Example print of the 1st SeaIce    field-element
+#print(field_elements_OcnBgchem[1].__dict__)  # Example print of the 1st OcnBgchem field-element
 
-#print field_elements_Ocean    [1].tag,field_elements_Ocean    [1].attrib["id"],field_elements_Ocean    [1].attrib["field_ref"],field_elements_Ocean    [1].text  # Example print of the tag and some specified attributes of the 1st Ocean     field-element
-#print field_elements_SeaIce   [1].tag,field_elements_SeaIce   [1].attrib["id"],field_elements_SeaIce   [1].attrib["field_ref"],field_elements_SeaIce   [1].text  # Example print of the tag and some specified attributes of the 1st SeaIce    field-element
-#print field_elements_OcnBgchem[1].tag,field_elements_OcnBgchem[1].attrib["id"],field_elements_OcnBgchem[1].attrib["field_ref"],field_elements_OcnBgchem[1].text  # Example print of the tag and some specified attributes of the 1st OcnBgchem field-element
+#print(field_elements_Ocean    [1].tag,field_elements_Ocean    [1].attrib["id"],field_elements_Ocean    [1].attrib["field_ref"],field_elements_Ocean    [1].text)  # Example print of the tag and some specified attributes of the 1st Ocean     field-element
+#print(field_elements_SeaIce   [1].tag,field_elements_SeaIce   [1].attrib["id"],field_elements_SeaIce   [1].attrib["field_ref"],field_elements_SeaIce   [1].text)  # Example print of the tag and some specified attributes of the 1st SeaIce    field-element
+#print(field_elements_OcnBgchem[1].tag,field_elements_OcnBgchem[1].attrib["id"],field_elements_OcnBgchem[1].attrib["field_ref"],field_elements_OcnBgchem[1].text)  # Example print of the tag and some specified attributes of the 1st OcnBgchem field-element
 
 #for field_elements in [field_elements_Ocean, field_elements_SeaIce, field_elements_OcnBgchem]:
 #    for child in field_elements:
-#        print child.attrib["id"], child.attrib["field_ref"], child.text
+#        print(child.attrib["id"], child.attrib["field_ref"], child.text)
 
-#print rootOcean[0][0].attrib["field_ref"]
-#print rootOcean[0][0].text
-#print rootOcean[0][1].attrib["expr"]
-#print rootOcean[0][1].text
+#print(rootOcean[0][0].attrib["field_ref"])
+#print(rootOcean[0][0].text)
+#print(rootOcean[0][1].attrib["expr"])
+#print(rootOcean[0][1].text)
 
 
 
@@ -245,7 +245,7 @@ if give_preference_to_pingfile_expression_attribute:
 # READING THE FIELD_DEF FILES:
 
 def create_element_lists(file_name, attribute_1, attribute_2):
-    if os.path.isfile(file_name) == False: print ' The file ', file_name, '  does not exist.'; sys.exit(' stop')
+    if os.path.isfile(file_name) == False: print(' The file ', file_name, '  does not exist.'); sys.exit(' stop')
 
     tree = xmltree.parse(file_name)
     roottree = tree.getroot()
@@ -258,18 +258,18 @@ def create_element_lists(file_name, attribute_1, attribute_2):
     text_elements               = []    # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
     unit_elements               = []    # A list corresponding with the id list containing the unit        attribute values
     freq_offset_elements        = []    # A list corresponding with the id list containing the freq_offset attribute values
-   #print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
-   #for field in roottree.findall('.//field[@id]'): print field.attrib[attribute_1]
+   #print(' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name)
+   #for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
   ##eelements = roottree.findall('.//field[@id]')                                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
   ##for i in range(0, len(eelements)):
     for group in range(0, len(roottree)):
-       #print ' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name
+       #print(' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name)
         elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
         # If the field element is defined outside the field_group element, i.e. one level higher in the tree:
         if roottree[group].tag != "field_group":
          if "grid_ref" in roottree[group].attrib:
-         #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2]
+         #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2])
           field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
           field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
           text_elements             .append(roottree[group].text)
@@ -280,7 +280,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
 
          else:
           if "field_ref" in roottree[group].attrib:
-          #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has no grid_ref attribute but it has an field_ref attribute:', roottree[group].attrib["field_ref"]
+          #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has no grid_ref attribute but it has an field_ref attribute:', roottree[group].attrib["field_ref"])
            detected_field_ref = roottree[group].attrib["field_ref"]
            for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
             detected_grid_ref = field.attrib["grid_ref"]
@@ -288,7 +288,7 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             else:                             detected_unit = "no unit definition"
             if "freq_offset" in field.attrib: detected_freq_offset = field.attrib["freq_offset"]
             else:                             detected_freq_offset = "no freq_offset"
-           #print ' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has via the field_ref:', detected_field_ref, 'the grid_ref:', detected_grid_ref, 'with unit:', detected_unit
+           #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has via the field_ref:', detected_field_ref, 'the grid_ref:', detected_grid_ref, 'with unit:', detected_unit)
             field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
             field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
             text_elements             .append(roottree[group].text)
@@ -298,41 +298,41 @@ def create_element_lists(file_name, attribute_1, attribute_2):
             else:                                       freq_offset_elements.append(detected_freq_offset)
             
           else:
-           print ' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib
+           print(' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib)
 
         # If field_group element level exists:
         for child in elements:
-         if child.tag != "field": print ' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys()
+         if child.tag != "field": print(' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', child.attrib.keys())
          attribute_overview = attribute_overview + child.attrib.keys()  # Merge each step the next list of attribute keys with the overview list
 
          # If id attribute exits:
          if attribute_1 in child.attrib:
           field_elements_attribute_1.append(child.attrib[attribute_1])
-         #print ' ', attribute_1, ' = ', child.attrib[attribute_1]
+         #print(' ', attribute_1, ' = ', child.attrib[attribute_1])
 
           text_elements.append(child.text)
           if "unit"        in child.attrib: unit_elements.append(child.attrib["unit"])
           else:                             unit_elements.append("no unit definition")
-          if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]); #print child.attrib["freq_offset"], child.attrib["id"], file_name
+          if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]); #print(child.attrib["freq_offset"], child.attrib["id"], file_name)
           else:                             freq_offset_elements.append("no freq_offset")
 
           if attribute_2 in child.attrib:
            field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
-          #print ' ', attribute_2, ' = ', child.attrib[attribute_2]
+          #print(' ', attribute_2, ' = ', child.attrib[attribute_2])
           else:
            if attribute_2 in roottree[group].attrib:
             # In case the attribute is not present in th element definition, it is taken from its parent element:
            #field_elements_attribute_2.append('GRID_REF="'+roottree[group].attrib[attribute_2]+'"');
             field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"');
-           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib
+           #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib)
            else:
-           #print ' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
+           #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
             if 'do include domain ref' == 'do include domain ref':
-            #print 'do include domain ref'
+            #print('do include domain ref')
              if "domain_ref" in roottree[group].attrib:
               field_elements_attribute_2.append('domain_ref="'+roottree[group].attrib["domain_ref"]+'"')
              else:
-              print ' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib
+              print(' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
               field_elements_attribute_2.append(None)
             else:
              field_elements_attribute_2.append(None)
@@ -342,21 +342,21 @@ def create_element_lists(file_name, attribute_1, attribute_2):
            if "name" in child.attrib:
             fields_without_id_name.append(child.attrib["name"])
             fields_without_id_field_ref.append(child.attrib["field_ref"])
-           #print ' This variable {:15} has no id but it has a field_ref = {}'.format(child.attrib["name"], child.attrib["field_ref"])
+           #print(' This variable {:15} has no id but it has a field_ref = {}'.format(child.attrib["name"], child.attrib["field_ref"]))
            else:
             fields_without_id_name.append(child.attrib["field_ref"])      # ASSUMPTION about XIOS logic: in case no id and no name attribute are defined inside an element, it is assumed that the value of the field_ref attribute is taken as the value of the name attribute
             fields_without_id_field_ref.append(child.attrib["field_ref"])
-           #print ' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib)
+           #print(' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib))
           else:
-           print ' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib
+           print(' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib)
 
    #for item in range(0,len(fields_without_id_name)):
-   # print ' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item])
-   #print ' The length of the list with fields without an id is: ', len(fields_without_id_name)
+   # print(' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item]))
+   #print(' The length of the list with fields without an id is: ', len(fields_without_id_name))
     attribute_overview = list(set(attribute_overview))
-   #print '  ', attribute_overview
-    if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print ' ERROR: The id and grid_ref list are not of equal length\n'
-    if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print ' ERROR: The name and field_ref list are not of equal length\n'
+   #print('  ', attribute_overview)
+    if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print(' ERROR: The id and grid_ref list are not of equal length\n')
+    if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
     return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
 
@@ -378,24 +378,24 @@ total_units                          = units_opa        + units_lim        + uni
 total_freq_offsets                   = freq_offsets_opa + freq_offsets_lim + freq_offsets_pisces + freq_offsets_inerttrc
 
 #for item in range(0,len(total_no_id_field_def_nemo_name)):
-# print ' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item])
-print ' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n'
+# print(' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item]))
+print(' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n')
 
-print ' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n'
+print(' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n')
 
-print ' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n'
+print(' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n')
 
 for text in total_texts:
  if text == None: total_texts[total_texts.index(text)] = "None"
-#else:            print '{:6} {}'.format(total_texts.index(text), text)
+#else:            print('{:6} {}'.format(total_texts.index(text), text))
  
 
-#print field_def_nemo_opa_id
+#print(field_def_nemo_opa_id)
 
-#print list(set(total_field_def_nemo_id))
-#print list(set(total_field_def_nemo_grid_ref))
-#print total_field_def_nemo_id
-#print total_field_def_nemo_grid_ref
+#print(list(set(total_field_def_nemo_id)))
+#print(list(set(total_field_def_nemo_grid_ref)))
+#print(total_field_def_nemo_id)
+#print(total_field_def_nemo_grid_ref)
 
 
 ################################################################################
@@ -413,16 +413,16 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
     list_of_duplicate_variables = []
     for child in list_of_attribute_1:
      indices_identical_ids = get_indices(child, list_of_attribute_1)
-    #print len(indices_identical_ids), indices_identical_ids
+    #print(len(indices_identical_ids), indices_identical_ids)
      id_list       = []
      grid_ref_list = []
      for identical_child in range(0,len(indices_identical_ids)):
       id_list      .append(list_of_attribute_1[indices_identical_ids[identical_child]])
       grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_child]])
-     #print indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]]
-     if not check_all_list_elements_are_identical(id_list)      : print ' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list
-     if not check_all_list_elements_are_identical(grid_ref_list): print ' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
-     if message_occurence_identical_id and len(indices_identical_ids) > 1: print ' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list)
+     #print(indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]])
+     if not check_all_list_elements_are_identical(id_list)      : print(' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list)
+     if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+     if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
      if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
     return list(set(list_of_duplicate_variables))
 
@@ -431,17 +431,17 @@ def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribu
 #vars_with_duplicate_id_definition_nemo_pisces   = check_which_list_elements_are_identical(field_def_nemo_pisces_id   , field_def_nemo_pisces_grid_ref   )
 #vars_with_duplicate_id_definition_nemo_inerttrc = check_which_list_elements_are_identical(field_def_nemo_inerttrc_id , field_def_nemo_inerttrc_grid_ref )
 vars_with_duplicate_id_definition_total         = check_which_list_elements_are_identical(total_field_def_nemo_id    , total_field_def_nemo_grid_ref    )
-#print vars_with_duplicate_id_definition_total
+#print(vars_with_duplicate_id_definition_total)
 
 #x = [ 'w', 'e', 's', 's', 's', 'z','z', 's']
-#print [i for i, n in enumerate(x) if n == 's']
+#print([i for i, n in enumerate(x) if n == 's'])
 ################################################################################
 
-#print tree.getroot().attrib["level"]              # example of getting an attribute value of the root  element: the field_definition element
-#print tree.getroot()[0].attrib["id"]              # example of getting an attribute value of its child element: the field_group      element
-#print tree.getroot()[0].attrib["grid_ref"]        # example of getting an attribute value of its child element: the field_group      element
-#print field_def_nemo_opa[0].attrib["id"],         # example of getting an attribute value of its child element: the field            element
-#print field_def_nemo_opa[0].attrib["grid_ref"]    # example of getting an attribute value of its child element: the field            element
+#print(tree.getroot().attrib["level"])              # example of getting an attribute value of the root  element: the field_definition element
+#print(tree.getroot()[0].attrib["id"])              # example of getting an attribute value of its child element: the field_group      element
+#print(tree.getroot()[0].attrib["grid_ref"])        # example of getting an attribute value of its child element: the field_group      element
+#print(field_def_nemo_opa[0].attrib["id"],)         # example of getting an attribute value of its child element: the field            element
+#print(field_def_nemo_opa[0].attrib["grid_ref"])    # example of getting an attribute value of its child element: the field            element
 
 
 
@@ -480,7 +480,7 @@ def load_checkvars_excel(excel_file):
         coldict = {}
         for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, unit_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
             if colname not in header:
-              print " Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n"
+              print(" Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n")
               quit()
             coldict[colname] = header.index(colname)
         nr_of_header_lines = 2
@@ -501,14 +501,14 @@ def load_checkvars_excel(excel_file):
 
 
 if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
- print ' The file ', nemo_only_dr_nodummy_file_xlsx, '  does not exist.';
- print ' The correct file can be generated by: ./create-nemo-only-list/create-nemo-only-list.sh'
+ print(' The file ', nemo_only_dr_nodummy_file_xlsx, '  does not exist.')
+ print(' The correct file can be generated by: ./create-nemo-only-list/create-nemo-only-list.sh')
  sys.exit(' stop')
 
 # Read the excel file with the NEMO data request:
 dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_unit, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
 
-#print dr_miplist[0]
+#print(dr_miplist[0])
 
 
 
@@ -531,7 +531,7 @@ for element_counter in range(0,len(dr_ping_component)):
 # Create the output_freq attribute from the table name:
 table_list_of_dr = list(set(dr_table))
 for table in range(0,len(table_list_of_dr)):
- if not table_list_of_dr[table] in set(["", "SImon", "Omon", "Emon", "EmonZ", "SIday", "Oday", "Eday", "Oyr", "Oclim", "Ofx", "Odec", "3hr"]): print "\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n"
+ if not table_list_of_dr[table] in set(["", "SImon", "Omon", "Emon", "EmonZ", "SIday", "Oday", "Eday", "Oyr", "Oclim", "Ofx", "Odec", "3hr"]): print("\n No rule defined for the encountered table: ", table_list_of_dr[table], "\n This probably needs an additon to the code of create-basic-ec-earth-cmip6-nemo-namelist.py.\n")
 
 # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
 dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
@@ -587,25 +587,25 @@ cmor_table_units     = dr_varname[:]  # Take care here: a slice copy is needed.
 
 # Looping through the NEMO data request (which is currently based on the non-dummy ping file variables). The dr_varname list contains cmor variable names.
 for i in range(0, len(dr_varname)):
-#print ' {:18}, {:4}, {:4}, {:5}, {:3}, {:40}, {:8} {}'.format(dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i])
+#print(' {:18}, {:4}, {:4}, {:5}, {:3}, {:40}, {:8} {}'.format(dr_varname[i], dr_varname.index(dr_varname[i]), i, dr_table[i], dr_varprio[i], dr_vardim[i], dr_ping_component[i], dr_miplist[i]))
  if not dr_varname[i] == "":
   number_of_field_element = number_of_field_element + 1
   index_in_ping_list = total_pinglist_id.index(dr_varname[i])
-  if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print ' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list]
- #print ' {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list])
+  if not dr_varname[i] == total_pinglist_id[index_in_ping_list]: print(' WARNING: Different names [should not occur]:', dr_varname[i], total_pinglist_id[index_in_ping_list])
+ #print(' {:20} {:20} '.format(dr_varname[i], total_pinglist_id[index_in_ping_list]))
 
   # Creating a list with the grid_ref attribute and its value as abstracted from the field_def files:
   if include_grid_ref_from_field_def_files:
    # Adding the grid_ref attribute with its value (or alternatively the domain_ref attribute with its value):
    if not total_pinglist_field_ref[index_in_ping_list] in total_field_def_nemo_id:
     nr_of_missing_fields_in_field_def = nr_of_missing_fields_in_field_def + 1
-    print ' A field_ref in one of the ping files is not found in any of the field_def files: ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+    print(' A field_ref in one of the ping files is not found in any of the field_def files: ', nr_of_missing_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list])
    else:
     nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
-   #print 'available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list]
+   #print('available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list])
     index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
     grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
-   #print '{:5}  {}'.format(index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list])
+   #print('{:5}  {}'.format(index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]))
     texts        = 'fdf_expression="'+total_texts       [index_in_field_def_list]+'"'  # fdf expression: field_def file expression
     units        = 'unit="'          +total_units       [index_in_field_def_list]+'"'
     freq_offsets = 'freq_offset="'   +total_freq_offsets[index_in_field_def_list]+'"'
@@ -649,7 +649,7 @@ for i in range(0, len(dr_varname)):
     cmor_table_realm = getattr(t, "modeling_realm")
     cmor_table_units = getattr(t, "units")
     if False:
-     if cmor_table_units != str(dr_unit[i]): print ' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i])
+     if cmor_table_units != str(dr_unit[i]): print(' The cmor units differ from cmor table and from the data request: ', cmor_table_units, ' versus ', str(dr_unit[i]))
     if not hasattr(t, 'time_operator'):
      cmor_table_operation = 'operation="once"'
      cmor_table_freq_op   = 'freq_op='+dr_output_frequency[i][12:]
@@ -690,30 +690,30 @@ for i in range(0, len(dr_varname)):
   # Checking whether duplicate IDs are produced, in case add an extension "_2" in order to prevent duplicate IDs:
   test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
   if test_var_id_in_created_file_def in var_id_in_created_file_def:
-   print ' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.'
+   print(' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.')
    # Check in addtion in this block for Oclim variables which are already asked by Omon, skip them to prevent a netcdf file with two equal variable names:
    index_var =  var_id_in_created_file_def.index(test_var_id_in_created_file_def)
    if dr_table[index_var] in ['Omon', 'Oclim'] and dr_table[i] in ['Omon', 'Oclim']:
-    print ' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var]
+    print(' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var])
     include_variable = False
    test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
   var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
   # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
   if dr_table[i] in ["SImon", "SIday"] and dr_ping_component[i] != 'lim': 
-   print ' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".'
+   print(' \n WARNING: Table - model component matching issue with the variable:', '"'+dr_varname[i]+'"', 'in table', '"'+dr_table[i]+'"', 'orginating from model component', '"'+dr_ping_component[i]+'"', '. Model component wil be set to "lim".')
    dr_ping_component[i] = "lim"
 
- #print i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list
- #print index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list]
+ #print(i, number_of_field_element, " cmor table = ", dr_table[i], " cmor varname = ", dr_varname[i], " model component = ", dr_ping_component[i], "  nemo code name = ", total_pinglist_field_ref[index_in_ping_list], "  expression = ", total_pinglist_text[index_in_ping_list], " ping idex = ", index_in_ping_list)
+ #print(index_in_ping_list, pinglistOcean_id[index_in_ping_list], pinglistOcean_field_ref[index_in_ping_list], pinglistOcean_text[index_in_ping_list])
   if include_variable:
    #                                                                                                                                                                                                                                                                                41,                         25,                                                               40,       32,                      20,                  15,                           2,    25,                                         32,                                30,                                       30,                   20,                 15,           30,                                              17,                                50,                        15,                                      22,                                       31,                              14,                            125,                                       125,                                                              1030,                                                                                   1280,    80,                                                          80,     4,                                      65,           9,   {}))
    flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:2} {:25} {:32} {:30} {:30} {:20} {:15} {:30} {:17} {:50} {:15} {:22} {:31} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format('     <field id="'+var_id_in_created_file_def[i]+'" ', 'name="'+dr_varname[i]+'"', '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', grid_ref,  dr_output_frequency[i], '  enabled="False"', root_field_group_attributes, units, ' cmor_table_units="'+cmor_table_units+'"', 'cmor_unit="'+str(dr_unit[i])+'"', ' ping_unit="'+str(dr_ping_units[i])+'"', cmor_table_operation, cmor_table_freq_op, freq_offsets, '  field_nr="'+str(number_of_field_element)+'"', '  grid_shape="'+dr_vardim[i]+'"', 'table="'+dr_table[i]+'"', ' component="'+dr_ping_component[i]+'"', ' modeling_realm="'+cmor_table_realm+'"', ' priority="'+dr_varprio[i]+'"', ' miplist="'+dr_miplist[i]+'"', ' longname="'+dr_varlongname[i][:113]+'"', ' description="'+dr_description[i].replace("<", "less then ")+'"', ' ping_comment="'+dr_ping_comment[i].replace("\"", "'").replace("<", "less then ")+'"', texts, '  ping_expr="'+total_pinglist_expr[index_in_ping_list]+'"', ' > ', total_pinglist_text[index_in_ping_list], ' </field>', '\n'))
 #else:
-# print i, " Empty line" # Filter the empty lines in the xlsx between the table blocks.
+# print(i, " Empty line") # Filter the empty lines in the xlsx between the table blocks.
 
-  if dr_varname[i] in vars_with_duplicate_id_definition_total: print ' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i]
-  if dr_unit[i] != dr_ping_units[i]:                           print ' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i]
+  if dr_varname[i] in vars_with_duplicate_id_definition_total: print(' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i])
+  if dr_unit[i] != dr_ping_units[i]:                           print(' \n WARNING: The cmor_unit and ping_unit differ for variable ', dr_varname[i], ' units compare as:', dr_unit[i], ' versus ', dr_ping_units[i])
 
 
   # Checking whether variables are used that are present in the default file_def files with an operation definition different from: operation="average"
@@ -723,9 +723,9 @@ for i in range(0, len(dr_varname)):
   #  more file_def_nemo-*|grep -e'operation="average"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g' > average-vars.txt
   #  more file_def_nemo-*|grep -e operation=|grep -v -e 'operation="average"' -e 'operation="instant"' -e 'operation="maximum"' |sed -e 's/.*field field_ref="/#/'  -e 's/".*name=.*$/#/' -e 's/#/"/g'|wc
   if total_pinglist_field_ref[index_in_ping_list] in ["tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot", "tdenit", "tnfix", "tcflx", "tcflxcum", "tcexp", "tintpp", "pno3tot", "ppo4tot", "psiltot", "palktot", "pfertot"]:
-      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".'
+      print(' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="instant".')
   if total_pinglist_field_ref[index_in_ping_list] in ["mldkz5", "mldr10_1max", "mldkz5"]:
-      print ' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".'
+      print(' \n WARNING: The cmor variable', '"'+dr_varname[i]+'"', 'with field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', 'is used with operation="average" while a variable with the same name in the default file_def files uses operation="maximum".')
 
 flat_nemo_file_def_xml_file.write('\n\n    </file>\n')
 flat_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
@@ -780,8 +780,8 @@ if produce_varlistjson_file:
  os.system(command_2)
  os.system(command_3)
 
- print ' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.'
- print ' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'
+ print(' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.')
+ print(' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.')
 
 ################################################################################
 ###################################    7     ###################################
@@ -789,15 +789,15 @@ if produce_varlistjson_file:
 
 # READING THE BASIC FLAT FILE_DEF FILE:
 
-if os.path.isfile(basic_flat_file_def_file_name) == False: print ' The file ', basic_flat_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(basic_flat_file_def_file_name) == False: print(' The file ', basic_flat_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
 tree_basic_file_def             = xmltree.parse(basic_flat_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
-###print ' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name
-###for field in roottree.findall('.//field[@id]'): print field.attrib[attribute_1]
+###print(' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name)
+###for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
 ###for field in root_basic_file_def.findall('.//field[@id="'+detected_field_ref+'"]'):
 
 component_collection   = []
@@ -810,9 +810,9 @@ component_overview   = list(set(component_collection))
 output_freq_overview = list(set(output_freq_collection))
 grid_ref_overview    = list(set(grid_ref_collection))
 
-#print '\n There are', len(component_overview),   ' model components to loop over:\n ',   component_overview,   '\n'
-#print   ' There are', len(output_freq_overview), ' output frequencies to loop over:\n ', output_freq_overview, '\n'
-#print   ' There are', len(grid_ref_overview),    ' grids to loop over:\n ',              grid_ref_overview,    '\n'
+#print('\n There are', len(component_overview),   ' model components to loop over:\n ',   component_overview,   '\n')
+#print(  ' There are', len(output_freq_overview), ' output frequencies to loop over:\n ', output_freq_overview, '\n')
+#print(  ' There are', len(grid_ref_overview),    ' grids to loop over:\n ',              grid_ref_overview,    '\n')
 
 
 
@@ -847,17 +847,17 @@ for component_value in component_overview:
    for field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
     number_of_fields_per_file = number_of_fields_per_file + 1
     field_counter = field_counter + 1
-   #print ' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"])
+   #print(' {:7} {:20} {:10} {}'.format(field.attrib["component"], field.attrib["name"], field.attrib["output_freq"], field.attrib["grid_ref"]))
    if number_of_fields_per_file != 0:
     file_counter = file_counter + 1
-   #print ' Number of fields per file is {:3} for the combination: {:7} {:4} {}'.format(number_of_fields_per_file, component_value, output_freq_value, grid_ref_value)
+   #print(' Number of fields per file is {:3} for the combination: {:7} {:4} {}'.format(number_of_fields_per_file, component_value, output_freq_value, grid_ref_value))
 
     # Writing the file elements for the file_def file:
    #basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value[0:3], grid_ref_value, output_freq_value)) # Shorten model component label to 3 characters
     basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value     , grid_ref_value, output_freq_value))
     # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
     for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
-    #print 'tttt'+written_field.text+'tttt'  # To figure out the spaces in the string around None
+    #print('tttt'+written_field.text+'tttt')  # To figure out the spaces in the string around None
      if written_field.text == "   None                                                               " : written_field.text = ''
     #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                                  > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                                                                    , written_field.text))
     #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}                > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"'                                         , written_field.text))
@@ -865,7 +865,7 @@ for component_value in component_overview:
      basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}   freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"', '"'+written_field.attrib["freq_op"]+'"', written_field.text))
     basic_nemo_file_def_xml_file.write(  '\n    </file>\n')
 
-  #else: print ' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value)
+  #else: print(' No fields for this combination: {:7} {:4} {}'.format(component_value, output_freq_value, grid_ref_value))
 
 
 basic_nemo_file_def_xml_file.write('\n\n   </file_group>\n')
@@ -873,20 +873,20 @@ basic_nemo_file_def_xml_file.write('\n\n  </file_definition>\n')
 
 basic_nemo_file_def_xml_file.close()
 
-print '\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n'
+print('\n There are', field_counter, 'fields distributed over', file_counter, 'files.\n')
 
-#print tree_basic_file_def
-#print root_basic_file_def.tag                     # Shows the root file_definition element tag
-#print root_basic_file_def.attrib                  # Shows the root file_definition element attributes
-#print root_basic_file_def[0].tag                  # Shows the      file_group      element tag
-#print root_basic_file_def[0].attrib               # Shows the      file_group      element attributes
-#print field_elements_basic_file_def[0].tag        # Shows the      file            element tag        of the first file  element
-#print field_elements_basic_file_def[0].attrib     # Shows the      file            element attributes of the first file  element
-#print field_elements_basic_file_def[0][0].tag     # Shows the      field           element tag        of the first field element
-#print field_elements_basic_file_def[0][0].attrib  # Shows the      field           element attributes of the first field element
+#print(tree_basic_file_def)
+#print(root_basic_file_def.tag)                     # Shows the root file_definition element tag
+#print(root_basic_file_def.attrib)                  # Shows the root file_definition element attributes
+#print(root_basic_file_def[0].tag)                  # Shows the      file_group      element tag
+#print(root_basic_file_def[0].attrib)               # Shows the      file_group      element attributes
+#print(field_elements_basic_file_def[0].tag)        # Shows the      file            element tag        of the first file  element
+#print(field_elements_basic_file_def[0].attrib)     # Shows the      file            element attributes of the first file  element
+#print(field_elements_basic_file_def[0][0].tag)     # Shows the      field           element tag        of the first field element
+#print(field_elements_basic_file_def[0][0].attrib)  # Shows the      field           element attributes of the first field element
 
 #for child in field_elements_basic_file_def[0]:
-# print '{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text)
+# print('{:25} {:28} {:5} {:25} {:10} {}'.format(child.attrib["id"], child.attrib["field_ref"], child.attrib["output_freq"], child.attrib["grid_ref"], child.attrib["component"], child.text))
 
 
 
@@ -914,7 +914,7 @@ if produce_nemopar_json:
  nemopar.write('    }\n')
  nemopar.write(']\n')
  nemopar.close()
- print ' The produced new-nemopar.json file contains', i, 'variables.'
+ print(' The produced new-nemopar.json file contains', i, 'variables.')
 
 
 
@@ -924,14 +924,14 @@ if produce_nemopar_json:
 
 # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
 
-if os.path.isfile(basic_file_def_file_name) == False: print ' The file ', basic_file_def_file_name, '  does not exist.'; sys.exit(' stop')
+if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
 tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
 root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 field_elements_basic_file_def   = root_basic_file_def[0][:]
 
 #for file in root_basic_file_def.findall('.//file[@id]'):
-# print file.attrib["id"]
+# print(file.attrib["id"])
 
 ################################################################################
 ###################################   End    ###################################
@@ -1050,6 +1050,6 @@ field_elements_basic_file_def   = root_basic_file_def[0][:]
 # data_entire_file    = np.genfromtxt(nemo_only_dr_nodummy_file_txt, dtype=None, comments='#', delimiter=None, skip_header=2, skip_footer=0, converters=None, missing_values=None, filling_values=None, usecols=None, names=None, excludelist=None, deletechars=None, replace_space='_', autostrip=False, case_sensitive=True, defaultfmt='f%i', unpack=None, usemask=False, loose=True, invalid_raise=True, max_rows=None)
 # number_of_data_rows    = data_entire_file.shape[0]
 # number_of_data_columns = data_entire_file.shape[1]
-# #print data_entire_file[5][1] # print the element at the 6th line, 2nd column
-# ##print data_entire_file[:][1] # This does not work as expected
-# #print number_of_data_rows, number_of_data_columns
+# #print(data_entire_file[5][1]) # print the element at the 6th line, 2nd column
+# ##print(data_entire_file[:][1]) # This does not work as expected
+# #print(number_of_data_rows, number_of_data_columns)

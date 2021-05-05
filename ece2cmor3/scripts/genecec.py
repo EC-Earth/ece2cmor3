@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Thomas Reerink
 #
 # Run examples:
@@ -139,9 +139,9 @@ if len(sys.argv) == 2:
 
    # Or instead of an (alphabetic) sorted dictionary an ordered dictionary could be used.
    ##for model_configuration in sorted(cmip_ece_configurations.keys()):
-   ## print ' {:20}   {}'.format(model_configuration, cmip_ece_configurations[model_configuration])
+   ## print(' {:20}   {}'.format(model_configuration, cmip_ece_configurations[model_configuration]))
    ##for model_configuration in sorted(scenario_ece_configurations.keys()):
-   ## print ' {:20}   {}'.format(model_configuration, scenario_ece_configurations[model_configuration])
+   ## print(' {:20}   {}'.format(model_configuration, scenario_ece_configurations[model_configuration]))
    ##sys.exit()
 
    experiment_counter = 0
@@ -155,7 +155,7 @@ if len(sys.argv) == 2:
    # Loop over MIPs:
    for mip in dq.coll['mip'].items:
      mip_name  = mip.label
-     print '\n Starting to work on: ', mip_name, '\n'
+     print('\n Starting to work on: ', mip_name, '\n')
 
      if mip_name == 'CMIP' or mip_name == 'ScenarioMIP':
       if mip_name == 'CMIP':
@@ -163,7 +163,7 @@ if len(sys.argv) == 2:
       elif mip_name == 'ScenarioMIP':
        ece_configurations = scenario_ece_configurations
       else:
-       print '\n Aborting genecec: programmer error: no case for: ', mip_name, ' in joined MIP treatment.\n'
+       print('\n Aborting genecec: programmer error: no case for: ', mip_name, ' in joined MIP treatment.\n')
        sys.exit()
 
       for model_configuration in sorted(ece_configurations.keys()):
@@ -172,12 +172,12 @@ if len(sys.argv) == 2:
         multiplemips     = "." in mip_label
         select_substring = mip_label[0:2].lower()
 
-       #print ' mip = '             , mip
-       #print ' mip_name = '        , mip_name
-       #print ' mip_list = '        , mip_list
-       #print ' mip_label = '       , mip_label
-       #print ' multiplemips = '    , multiplemips
-       #print ' select_substring = ', select_substring
+       #print(' mip = '             , mip             )
+       #print(' mip_name = '        , mip_name        )
+       #print(' mip_list = '        , mip_list        )
+       #print(' mip_label = '       , mip_label       )
+       #print(' multiplemips = '    , multiplemips    )
+       #print(' select_substring = ', select_substring)
        #sys.exit()
 
         # Loop over experiments:
@@ -202,7 +202,7 @@ if len(sys.argv) == 2:
           command_13 = './checkvars.py --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview-with-ece-preferences'
          #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + ece_configuration_dir
           command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
-         #print '{}'.format(command_01)
+         #print('{}'.format(command_01))
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
             #if ex.tier[0] in experiment_tiers_included and ex.label == 'historical':  # for a faster test
@@ -224,13 +224,13 @@ if len(sys.argv) == 2:
                  os.system(command_14)  # Remove the flat json file
                 experiment_counter = experiment_counter + 1
              else:
-                print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
+                print(' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01))
           else:
-             print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
+             print(' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01))
 
      else:
-       #print '\n Model configuration is: ', model_configuration, 'for', mip_name, ex.label, '\n'
-        print '\n Reporting that ', mip_name, ' concerns a usual single MIP case'
+       #print('\n Model configuration is: ', model_configuration, 'for', mip_name, ex.label, '\n')
+        print('\n Reporting that ', mip_name, ' concerns a usual single MIP case')
         mip_list  = mip_name
         mip_label = mip_name
         if mip_name in ec_earth_mips:
@@ -251,7 +251,7 @@ if len(sys.argv) == 2:
           command_04 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' " + filename_file_def_nemo_opa
           command_05 = "sed -i -e '/deptho/d' " + filename_file_def_nemo_opa
           command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/file_def_nemo*'
-         #print '{}'.format(command_01)
+         #print('{}'.format(command_01))
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included:
              # Add also the LS3MIP tier 2 experiments: amip-lfmip-pdLC & amip-lfmip-rmLC
@@ -314,11 +314,11 @@ if len(sys.argv) == 2:
 
                 experiment_counter = experiment_counter + 1
              else:
-                print ' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01)
+                print(' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01))
           else:
-             print ' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01)
+             print(' EC-Earth3 does not participate in {:11}: Skipping: {}'.format(mip_name, command_01))
 
-   print ' There are {} experiments included. '.format(experiment_counter)
+   print(' There are {} experiments included. '.format(experiment_counter))
 
 
    # Add a test case with which all available variables over all EC-Earth MIP experiments are switched on,
