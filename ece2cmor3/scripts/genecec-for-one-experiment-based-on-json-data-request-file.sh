@@ -57,6 +57,9 @@ if [ "$#" -eq 4 ]; then
   if [ ${mip_name} = 'CovidMIP' ]; then
    output_dir=cmip6-experiment-CovidMIP-${experiment}
   fi
+  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+   ./add-variables-with-pressure-levels-for-rcm-forcing.sh
+  fi
 
   # Distinguish between a json & xlsx file:
   if [ ${data_request_file:(-4)} = 'json' ]; then
@@ -206,6 +209,10 @@ if [ "$#" -eq 4 ]; then
    mkdir -p knmi23-dutch-scenarios
    mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev36
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev36
+  fi
+
+  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+   ./revert-nested-cmor-table-branch.sh
   fi
 
   if [ ${data_request_file} = '../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx' ]; then
