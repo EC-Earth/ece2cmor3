@@ -97,7 +97,7 @@ if [ "$#" -eq 4 ]; then
   echo
   rm -f ${data_request_file_for_checkvars}
 
-  ./drq2file_def-nemo.py ${request_option} ${data_request_file}
+  drq2file_def ${request_option} ${data_request_file}
 
   rm -f cmip6-file_def_nemo.xml
   mv -f file_def_nemo-opa.xml    ${output_dir}

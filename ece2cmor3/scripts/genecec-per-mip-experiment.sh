@@ -143,7 +143,7 @@ if [ "$#" -eq 5 ]; then
   fi
 
   # Creating the file_def files for XIOS NEMO input and estimate the Volume of the NEMO output:
-  ./drq2file_def-nemo.py --drq ${cmip6_data_request_file}
+  drq2file_def --drq ${cmip6_data_request_file}
   rm -f cmip6-file_def_nemo.xml
   mv -f file_def_nemo-opa.xml    ${path_of_created_output_control_files}
   mv -f file_def_nemo-lim3.xml   ${path_of_created_output_control_files}

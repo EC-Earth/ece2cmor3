@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2file_def-nemo.py --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-ssp126-t1-p1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp126_1_1.xlsx
+#  drq2file_def --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.ScenarioMIP.CORDEX.DynVarMIP.VIACSAB-ssp126-t1-p1/cmvme_cm.co.dc.dy.ls.sc.vi_ssp126_1_1.xlsx
 #
 # With this script it is possible to generate the EC-Earth3 NEMO control output files, i.e.
 # the NEMO xml files for XIOS (the file_def files for OPA, LIM and PISCES) for one MIP experiment.
@@ -59,17 +59,17 @@ def main():
     args = parser.parse_args()
 
     print()
-    print('Running drq2file_def-nemo.py with:')
-    print('./drq2file_def-nemo.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print('Running drq2file_def with:')
+    print(' drq2file_def ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
     print()
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Error: Your variable list json file %s cannot be found." % args.vars)
-        sys.exit(' Exiting drq2file_def-nemo.')
+        sys.exit(' Exiting drq2file_def.')
 
     if args.drq is not None and not os.path.isfile(args.drq):
         log.fatal("Error: Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting drq2file_def-nemo.')
+        sys.exit(' Exiting drq2file_def.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
@@ -86,7 +86,7 @@ def main():
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
         log.error("It seems you are using the --%s option where you should use the --%s option for this file"
                   % (opt1, opt2))
-        sys.exit(' Exiting drq2file_def-nemo.')
+        sys.exit(' Exiting drq2file_def.')
 
     for task in ece2cmorlib.tasks:
          print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
