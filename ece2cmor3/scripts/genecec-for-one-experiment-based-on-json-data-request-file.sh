@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # Thomas Reerink
 #
-# Run examples:
-#  ./genecec-for-one-experiment-based-on-json-data-request-file.sh ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
+# This scripts requires four arguments:
+#  first  argument is the path/data-request-filename
+#  second argument is the MIP/project name
+#  third  argument is the experiment name
+#  fourth argument is the EC-Earth3 configuration
+#
+# Run this script without arguments for examples how to call this script.
 #
 # With this script it is possible to generate the EC-Earth3 control output files, i.e.
 # the IFS Fortran namelists (the ppt files), the NEMO xml files for XIOS (the
