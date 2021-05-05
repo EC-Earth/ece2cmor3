@@ -196,10 +196,10 @@ if len(sys.argv) == 2:
           command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + subdirname_experiment + '/file_def_nemo*'
           command_07 = 'mkdir -p ' + ece_configuration_dir + '; mv ' + subdirname_experiment + '/*' + ' ' + ece_configuration_dir + '; rm -rf ' + cmip6_base_dir_name + mip_label
           command_08 = '      mv ' + ece_configuration_dir + '/volume-estimate-* ' + ece_configuration_dir + '/volume-estimate-' + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
-          command_09 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
+          command_09 = 'drq2varlist --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
           command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + model_configuration + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + model_configuration + '-*-template.json ' + ece_configuration_dir
           command_12 = './convert-component-json-to-flat-json.py ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-          command_13 = './checkvars.py --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview-with-ece-preferences'
+          command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview-with-ece-preferences'
          #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + ece_configuration_dir
           command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
          #print('{}'.format(command_01))
@@ -220,7 +220,7 @@ if len(sys.argv) == 2:
                 os.system(command_11)   # Produce the metadata files for this MIP experiment.
                 if add_request_overview:
                  os.system(command_12)  # Convert the json data request file which contains the EC-Earth components to a flat json data request file for checkvars
-                 os.system(command_13)  # Execute checkvars.py --asciionly for the flat json data request file which includes the preferences
+                 os.system(command_13)  # Execute checkvars --asciionly for the flat json data request file which includes the preferences
                  os.system(command_14)  # Remove the flat json file
                 experiment_counter = experiment_counter + 1
              else:
@@ -299,17 +299,17 @@ if len(sys.argv) == 2:
 
                 # Looping over the various EC-Earth3 model configurations in order to generate for each of them the json cmip6 data request file:
                 for conf in model_configuration:
-                 command_10 = './drq2varlist.py --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + conf + ' --varlist ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
+                 command_10 = 'drq2varlist --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + conf + ' --varlist ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
                  command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + conf + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + conf + '-*-template.json ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label
                  command_12 = './convert-component-json-to-flat-json.py ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
-                 command_13 = './checkvars.py --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '-flat.json' +  ' --output ' + subdirname_experiment + '/request-overview-with-ece-preferences-' + conf
+                 command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '-flat.json' +  ' --output ' + subdirname_experiment + '/request-overview-with-ece-preferences-' + conf
                 #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + subdirname_experiment
                  command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
                  os.system(command_10)   # Produce the ec-earth component json data request variant, the so called varlist.json
                  os.system(command_11)   # Produce the metadata files for this MIP experiment.
                  if add_request_overview:
                   os.system(command_12)  # Convert the json data request file which contains the EC-Earth components to a flat json data request file for checkvars
-                  os.system(command_13)  # Execute checkvars.py --asciionly for the flat json data request file which includes the preferences
+                  os.system(command_13)  # Execute checkvars --asciionly for the flat json data request file which includes the preferences
                   os.system(command_14)  # Remove the flat json file
 
                 experiment_counter = experiment_counter + 1
@@ -331,11 +331,11 @@ if len(sys.argv) == 2:
    command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
    command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. And in order to be able to test all IFS output by running one experiment, all available IFS fields are enabled in the ppt files.' > " + cmip6_base_dir_name + "test-all-ece-mip-variables/README"
    command_e  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/ppt* " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + cmip6_base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt"
-   command_f  = "./drq2ppt.py --allvars"
+   command_f  = "drq2ppt --allvars"
    command_g  = "mv -f ppt0000000000 pptdddddd* " + cmip6_base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
-   command_h  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
-   command_i  = "./drq2varlist.py --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
-   command_j  = "./drq2varlist.py --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
+   command_h  = "drq2varlist --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
+   command_i  = "drq2varlist --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
+   command_j  = "drq2varlist --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
    command_k  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
 
    os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files

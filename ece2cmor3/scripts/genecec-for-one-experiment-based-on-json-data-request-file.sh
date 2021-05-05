@@ -90,10 +90,10 @@ if [ "$#" -eq 4 ]; then
   fi
 
   echo
-  echo ' Running checkvars.py with:'
-  echo ' ' ./checkvars.py -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
+  echo ' Running checkvars with:'
+  echo ' ' checkvars -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
   echo
-  ./checkvars.py -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
+  checkvars -v --drq ${data_request_file_for_checkvars} --output ${xls_ece_dir}/variable-list-${mip_name}-${experiment}
   echo
   rm -f ${data_request_file_for_checkvars}
 
@@ -107,10 +107,10 @@ if [ "$#" -eq 4 ]; then
 
   cd ${output_dir}
 
-  ../drq2ppt.py ${request_option} ../${data_request_file}
-  ../drq2ins.py ${request_option} ../${data_request_file}
+  drq2ppt ${request_option} ../${data_request_file}
+  drq2ins ${request_option} ../${data_request_file}
   if [ ${request_option} = '--drq' ]; then
-   ../drq2varlist.py ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   drq2varlist ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    ../convert-component-json-to-flat-json.py cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview-with-ece-preferences
    rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
@@ -137,7 +137,7 @@ if [ "$#" -eq 4 ]; then
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > volume-estimate-${mip_name}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
 
-  cd ../
+  cd -
   # Produce the metadata files for this MIP experiment.
   ./modify-metadata-template.sh ${mip_name} ${experiment} ${ece_configuration};
 

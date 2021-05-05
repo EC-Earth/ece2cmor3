@@ -451,7 +451,7 @@ vars_with_duplicate_id_definition_total         = check_which_list_elements_are_
 
 # READING THE NEMO DATA REQUEST FILES:
 
-# This function can be used to read any excel file which has been produced by the checkvars.py script,
+# This function can be used to read any excel file which has been produced by the checkvars script,
 # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
 # basic identified missing, available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(excel_file):
@@ -774,8 +774,8 @@ if produce_varlistjson_file:
 
  # Removing the variable deptho as lomg it can not be cmorized, see #249:
 #command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
- command_2 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-cc"   ) + " --ececonf EC-EARTH-CC "
- command_3 = " ./drq2varlist.py --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-aogcm") + " --ececonf EC-EARTH-AOGCM "
+ command_2 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-cc"   ) + " --ececonf EC-EARTH-CC "
+ command_3 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-aogcm") + " --ececonf EC-EARTH-AOGCM "
 #os.system(command_1)
  os.system(command_2)
  os.system(command_3)

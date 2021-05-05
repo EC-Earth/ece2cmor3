@@ -59,7 +59,7 @@ def main():
     args = parser.parse_args()
 
     print()
-    print('Running drq2ppt.py with:')
+    print('Running drq2file_def-nemo.py with:')
     print('./drq2file_def-nemo.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
     print()
 

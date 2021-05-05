@@ -45,14 +45,14 @@ if [ "$#" -eq 0 ]; then
 # Use the line below instead of the one above in order to create one list (without ping info, the resulting nemo-miss-list can be used to create a ping file template):
 # /bin/cp -f create-nemo-only-list/empty-list-of-cmip6-requested-variables.xlsx                            ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
 
-# Step 5: Run with the --withouttablescheck option checkvars.py based on the largest data request (and the pre-list-*.xlsx):
+# Step 5: Run with the --withouttablescheck option checkvars based on the largest data request (and the pre-list-*.xlsx):
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
-   ./checkvars.py --withouttablescheck --withping --nemo -v --drq xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
+   checkvars --withouttablescheck --withping --nemo -v --drq xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
-# Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars.py to the basic identifiedmissing and the basic ignored:
+# Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars to the basic identifiedmissing and the basic ignored:
    /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx
    /bin/cp -f cmvmm-all-mips-t=3-p=3.missing.xlsx           create-nemo-only-list/nemo-miss-list-cmip6-requested-variables.xlsx
   #/bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt

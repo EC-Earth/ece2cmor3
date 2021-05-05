@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  drq2ppt --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
 # or for the special "test all" case by:
-#  ./drq2ppt.py --allvars
+#  drq2ppt --allvars
 #
 # With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
 # the IFS Fortran namelists (the ppt files) for one MIP experiment.
@@ -293,8 +293,8 @@ def main():
     args = parser.parse_args()
 
     print()
-    print('Running drq2ppt.py with:')
-    print(' ./drq2ppt.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print('Running drq2ppt with:')
+    print(' drq2ppt ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
     print()
 
     if args.vars is not None and not os.path.isfile(args.vars):

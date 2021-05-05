@@ -128,7 +128,7 @@ if [ "$#" -eq 5 ]; then
   mkdir -p ${path_of_created_output_control_files}
   if [ ${mip_label} != 'OMIP' ] && [ ${experiment} != 'rad-irf' ]; then
    # Create the ppt files for IFS input and estimate the Volume of the IFS output:
-   ./drq2ppt.py --drq ${cmip6_data_request_file}
+   drq2ppt --drq ${cmip6_data_request_file}
 
    if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi                 # Removing the hourly / sub hourly table variables.
    mv -f ppt0000000000 pptdddddd* ${path_of_created_output_control_files}
@@ -138,7 +138,7 @@ if [ "$#" -eq 5 ]; then
    if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
    if [ ${experiment} = 'rad-irf' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/661'; fi
    echo 'the script' $0 'will skip:'
-   echo ./drq2ppt.py --drq ${cmip6_data_request_file}
+   echo drq2ppt --drq ${cmip6_data_request_file}
    echo
   fi
 
@@ -150,7 +150,7 @@ if [ "$#" -eq 5 ]; then
   mv -f file_def_nemo-pisces.xml ${path_of_created_output_control_files}
 
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
-  ./drq2ins.py --drq ${cmip6_data_request_file}
+  drq2ins --drq ${cmip6_data_request_file}
   mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
 
   # Estimating the Volume of the TM5 output:
@@ -162,7 +162,7 @@ if [ "$#" -eq 5 ]; then
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
   xls_ece_dir=cmip6-data-request-ece/cmip6-data-request-ece-${mip_label}-${experiment}-t${tier}-p${priority}
   mkdir -p ${xls_ece_dir};
-  ./checkvars.py -v --drq ${cmip6_data_request_file} --output ${xls_ece_dir}/cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
+  checkvars -v --drq ${cmip6_data_request_file} --output ${xls_ece_dir}/cmvmm_${mip_label}-${experiment}-t${tier}-p${priority}
 
   echo
   echo 'The produced data request excel file:'

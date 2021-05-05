@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx --ececonf EC-EARTH-AOGCM
-#  ./drq2varlist.py --drq ../resources/test-data-request/drqlist-nemo-all.json --ececonf dummy
-#  ./drq2varlist.py --drq cmip6-data-request/cmip6-data-request-C4MIP.CDRMIP.CMIP.LUMIP.OMIP.ScenarioMIP-historical-t1-p1/cmvme_c4.cd.cm.lu.om.sc_historical_1_1.xlsx --ececonf EC-EARTH-CC
+#  drq2varlist --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx --ececonf EC-EARTH-AOGCM
+#  drq2varlist --drq ../resources/test-data-request/drqlist-nemo-all.json --ececonf dummy
+#  drq2varlist --drq cmip6-data-request/cmip6-data-request-C4MIP.CDRMIP.CMIP.LUMIP.OMIP.ScenarioMIP-historical-t1-p1/cmvme_c4.cd.cm.lu.om.sc_historical_1_1.xlsx --ececonf EC-EARTH-CC
 # or for the special "test all" case by:
-#  ./drq2varlist.py --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-#  ./drq2varlist.py --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
+#  drq2varlist --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+#  drq2varlist --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
 #
 # This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
 # the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 
@@ -55,8 +55,8 @@ def main():
     args = parser.parse_args()
 
     print()
-    print('Running drq2varlist.py with:')
-    print('./drq2varlist.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print('Running drq2varlist with:')
+    print(' drq2varlist ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
     print()
 
     if not args.allvars and not os.path.isfile(args.drq):
