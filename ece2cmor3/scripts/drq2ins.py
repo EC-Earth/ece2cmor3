@@ -35,8 +35,8 @@ log = logging.getLogger(__name__)
 
 # Main program
 def main():
-    parser = argparse.ArgumentParser(description="Estimates the volume of the output from LPJ-GUESS for a given CMIP6 "
-                                                 "data request for EC-Earth3")
+    parser = argparse.ArgumentParser(description="Generate the LPJ-GUESS instruction files and estimate the volume of "
+                                                 "the output from LPJ-GUESS for a given CMIP6 data request for EC-Earth3")
     varsarg = parser.add_mutually_exclusive_group(required=True)
     varsarg.add_argument("--vars", metavar="FILE", type=str,
                          help="File (json) containing cmor variables per EC-Earth component")
@@ -173,8 +173,6 @@ def main():
     volume_estimate.write(' \nEC-Earth3 LPJ-GUESS Volume estimates of generated output:{}'.format('\n'))
     volume_estimate.write('  Volume estimate for the LPJ-GUESS T255 grid: {} GB/yr{}'.format(total_layer_equivalent * 0.12 / 1000.0, '\n'))
     volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
-    volume_estimate.close()
-
     volume_estimate.close()
 
     # Finishing up
