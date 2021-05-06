@@ -138,7 +138,7 @@ if [ "$#" -eq 4 ]; then
   sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' file_def_nemo*
 
   # Estimating the Volume of the TM5 output:
-  ../estimate-tm5-volume.py ${request_option} ${data_request_file}
+  estimate_tm5_volume ${request_option} ${data_request_file}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > volume-estimate-${mip_name}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt

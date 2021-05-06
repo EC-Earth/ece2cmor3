@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
-#  ./estimate-tm5-volume.py --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
+#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
+#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
 #
 # This script estimates the volume of the output from TM5 for one MIP experiment.
 #
@@ -48,17 +48,17 @@ def main():
     args = parser.parse_args()
 
     print()
-    print('Running estimate-tm5-volume.py with:')
-    print('./estimate-tm5-volume.py ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
+    print('Running estimate_tm5_volume.py with:')
+    print(' estimate_tm5_volume ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
     print()
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal("Error: Your variable list json file %s cannot be found." % args.vars)
-        sys.exit(' Exiting estimate-tm5-volume.')
+        sys.exit(' Exiting estimate_tm5_volume.')
 
     if args.drq is not None and not os.path.isfile(args.drq):
         log.fatal("Error: Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting estimate-tm5-volume.')
+        sys.exit(' Exiting estimate_tm5_volume.')
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
@@ -75,7 +75,7 @@ def main():
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
         log.error("It seems you are using the --%s option where you should use the --%s option for this file"
                   % (opt1, opt2))
-        sys.exit(' Exiting estimate-tm5-volume.')
+        sys.exit(' Exiting estimate_tm5_volume.')
 
     for task in ece2cmorlib.tasks:
          print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
