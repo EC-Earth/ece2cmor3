@@ -110,7 +110,7 @@ if [ "$#" -eq 5 ]; then
     echo 'Create for '${mip_label}' a soft link:'
     ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
    fi
-  cd ../../
+  cd -
   fi
 
   # Note that the *TOTAL* selection below has the risk that more than one file is selected (causing a crash) which only could happen if externally files are added in this directory:
