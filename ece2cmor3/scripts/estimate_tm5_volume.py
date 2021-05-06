@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=CMIP-t=1-p=1/cmvme_AerChemMIP_amip_1_1.xlsx
-#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-m=AerChemMIP-e=hist-1950HC-t=1-p=1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
+#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-AerChemMIP-hist-1950HC-t1-p1/cmvme_ae.cm_hist-1950HC_1_1.xlsx
+#  estimate_tm5_volume --drq cmip6-data-request/cmip6-data-request-AerChemMIP-hist-1950HC-t1-p1/cmvme_AerChemMIP_hist-1950HC_1_1.xlsx
 #
 # This script estimates the volume of the output from TM5 for one MIP experiment.
 #

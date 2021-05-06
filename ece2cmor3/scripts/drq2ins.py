@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  drq2ins --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
-#  drq2ins --drq cmip6-data-request/cmip6-data-request-m=LS3MIP-e=land-hist-t=1-p=1/cmvme_LS3MIP_land-hist_1_1.xlsx
+#  drq2ins --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx
+#  drq2ins --drq cmip6-data-request/cmip6-data-request-LS3MIP-land-hist-t1-p1/cmvme_LS3MIP_land-hist_1_1.xlsx
 #
 # With this script it is possible to generate the EC-Earth3 LPJ-GUESS control output files, i.e.
 # the LPJ-GUESS instruction files (the .ins files) for one MIP experiment.

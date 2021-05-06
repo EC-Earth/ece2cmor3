@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  drq2ppt --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  drq2ppt --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx
 # or for the special "test all" case by:
 #  drq2ppt --allvars
 #
