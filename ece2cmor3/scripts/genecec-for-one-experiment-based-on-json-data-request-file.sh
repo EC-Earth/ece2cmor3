@@ -81,7 +81,7 @@ if [ "$#" -eq 4 ]; then
 
   # Check whether the data request file is a json file, if so convert the json file for the checkvars application:
   if [ "${data_request_file##*.}" = 'json' ]; then
-    ./convert-component-json-to-flat-json.py ${data_request_file}
+   convert_component_to_flat_json ${data_request_file}
    data_request_file_for_checkvars=${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
   else
@@ -111,11 +111,11 @@ if [ "$#" -eq 4 ]; then
   drq2ins ${request_option} ../${data_request_file}
   if [ ${request_option} = '--drq' ]; then
    drq2varlist ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
-   ../convert-component-json-to-flat-json.py cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   convert_component_to_flat_json cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview-with-ece-preferences
    rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
   else
-   ../convert-component-json-to-flat-json.py ${data_request_file##*/}
+   convert_component_to_flat_json ${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
    checkvars -v --asciionly --drq ${data_request_file_for_checkvars} --output request-overview-with-ece-preferences

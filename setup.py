@@ -61,6 +61,7 @@ setup(name=name,
           "drq2file_def =  ece2cmor3.scripts.drq2file_def:main",
           "drq2ins =  ece2cmor3.scripts.drq2ins:main",
           "drq2varlist =  ece2cmor3.scripts.drq2varlist:main",
+          "convert_component_to_flat_json =  ece2cmor3.scripts.convert_component_to_flat_json:main",
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},
