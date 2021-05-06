@@ -6,6 +6,7 @@
 #  second argument is the MIP/project name
 #  third  argument is the experiment name
 #  fourth argument is the EC-Earth3 configuration
+#  fifth  argument is the output directory
 #
 # Run this script without arguments for examples how to call this script.
 #
@@ -41,27 +42,25 @@
 
 #  drq -m CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e ssp245 -t 1 -p 1 --xls --xlsDir cmip6-data-request-CovidMIP-cmip-EC-EARTH-AOGCM
 
-if [ "$#" -eq 4 ]; then
+if [ "$#" -eq 5 ]; then
 
   data_request_file=$1
   mip_name=$2
   experiment=$3
   ece_configuration=$4
+  output_dir=$5
 
   # If the data request file has a releative path a preceeding PWD is concatenated:
   if [[ "${data_request_file:0:1}" != / && "${data_request_file:0:2}" != ~[/a-z] ]]; then
    data_request_file=${PWD}/${data_request_file}
   fi
 
-  output_dir=${experiment}-${ece_configuration}
-
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    ./add-lamaclima-experiments.sh
   fi
 
-  if [ ${mip_name} = 'CovidMIP' ]; then
-   output_dir=cmip6-experiment-CovidMIP-${experiment}
-  fi
+  rm -rf   ${output_dir}
+  mkdir -p ${output_dir}
 
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    ./add-variables-with-pressure-levels-for-rcm-forcing.sh
@@ -73,9 +72,6 @@ if [ "$#" -eq 4 ]; then
   else
    request_option='--drq'
   fi
-
-  rm -rf   ${output_dir}
-  mkdir -p ${output_dir}
 
   if [ ${request_option} = '--vars' ]; then
    rsync -a ${data_request_file} ${output_dir}
@@ -183,14 +179,7 @@ if [ "$#" -eq 4 ]; then
   mv -f metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json ${output_dir}
 
   if [ ${mip_name} = 'LAMACLIMA' ]; then
-   mkdir -p lamaclima-control-output-files
-   mv -f ${output_dir} lamaclima-control-output-files
    ./revert-nested-cmor-table-branch.sh
-  fi
-
-  if [ ${mip_name} = 'CovidMIP' ]; then
-   mkdir -p CovidMIP
-   mv -f ${output_dir} CovidMIP
   fi
 
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ]; then
@@ -200,8 +189,6 @@ if [ "$#" -eq 4 ]; then
      sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "60265.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
      sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "60265.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    fi
-   mkdir -p knmi23-dutch-scenarios
-   mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev23r
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev23
   fi
 
@@ -213,8 +200,6 @@ if [ "$#" -eq 4 ]; then
      sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "60265.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    fi
    mkdir -p knmi23-dutch-scenarios
-   mv -f ${output_dir} knmi23-dutch-scenarios/${experiment}-${ece_configuration}-plev36
-   mv -f ${xls_ece_dir} ${xls_ece_dir}-plev36
   fi
 
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
@@ -224,37 +209,36 @@ if [ "$#" -eq 4 ]; then
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-additional.xlsx' ] && [ ${mip_name} != 'CovidMIP' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2020)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-  #mkdir -p compact-control-output-files
-   mv -f ${output_dir} compact-control-output-files
    mv -f ${xls_ece_dir} ${xls_ece_dir}-compact
   fi
 
+  echo
   echo ' Finished:'
   echo ' '$0 "$@"
   echo
 
 else
     echo
-    echo '  This scripts requires four arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, e.g.:'
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json LAMACLIMA ssp585-lamaclima EC-EARTH-Veg
+    echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-control-output-files/ssp585-lamaclima-EC-EARTH-Veg
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-control-output-files
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM knmi23-dutch-scenarios/historical-EC-EARTH-AOGCM-plev23r
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp126-EC-EARTH-AOGCM-plev23r
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp245-EC-EARTH-AOGCM-plev23r
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp585-EC-EARTH-AOGCM-plev23r
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM knmi23-dutch-scenarios/historical-EC-EARTH-AOGCM-plev36
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp126-EC-EARTH-AOGCM-plev36
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp245-EC-EARTH-AOGCM-plev36
+    echo '  ' $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM knmi23-dutch-scenarios/ssp585-EC-EARTH-AOGCM-plev36
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid        EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil   EC-EARTH-AOGCM
-    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer      EC-EARTH-AOGCM
-   #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-GHG      EC-EARTH-AOGCM
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-baseline
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid        EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-covid
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-strgreen
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-modgreen
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil   EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-fossil
+    echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer      EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-aer
+   #echo '  ' $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-GHG      EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-sssp245-cov-GHG
     echo
 fi
