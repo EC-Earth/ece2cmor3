@@ -48,16 +48,22 @@ if [ "$#" -eq 4 ]; then
   experiment=$3
   ece_configuration=$4
 
+  # If the data request file has a releative path a preceeding PWD is concatenated:
+  if [[ "${data_request_file:0:1}" != / && "${data_request_file:0:2}" != ~[/a-z] ]]; then
+   data_request_file=${PWD}/${data_request_file}
+  fi
 
   output_dir=${experiment}-${ece_configuration}
 
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    ./add-lamaclima-experiments.sh
   fi
+
   if [ ${mip_name} = 'CovidMIP' ]; then
    output_dir=cmip6-experiment-CovidMIP-${experiment}
   fi
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+
+  if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    ./add-variables-with-pressure-levels-for-rcm-forcing.sh
   fi
 
@@ -107,10 +113,10 @@ if [ "$#" -eq 4 ]; then
 
   cd ${output_dir}
 
-  drq2ppt ${request_option} ../${data_request_file}
-  drq2ins ${request_option} ../${data_request_file}
+  drq2ppt ${request_option} ${data_request_file}
+  drq2ins ${request_option} ${data_request_file}
   if [ ${request_option} = '--drq' ]; then
-   drq2varlist ${request_option} ../${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   drq2varlist ${request_option} ${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    convert_component_to_flat_json cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview-with-ece-preferences
    rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
@@ -132,7 +138,7 @@ if [ "$#" -eq 4 ]; then
   sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' file_def_nemo*
 
   # Estimating the Volume of the TM5 output:
-  ../estimate-tm5-volume.py ${request_option} ../${data_request_file}
+  ../estimate-tm5-volume.py ${request_option} ${data_request_file}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > volume-estimate-${mip_name}-${experiment}.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
@@ -187,7 +193,7 @@ if [ "$#" -eq 4 ]; then
    mv -f ${output_dir} CovidMIP
   fi
 
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ]; then
+  if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
    sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2021)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    if [ ${mip_name} = 'ScenarioMIP' ]; then
@@ -199,7 +205,7 @@ if [ "$#" -eq 4 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev23
   fi
 
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+  if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
    sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2021)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    if [ ${mip_name} = 'ScenarioMIP' ]; then
@@ -211,11 +217,11 @@ if [ "$#" -eq 4 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev36
   fi
 
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file} = '../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
+  if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    ./revert-nested-cmor-table-branch.sh
   fi
 
-  if [ ${data_request_file} = '../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx' ]; then
+  if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-additional.xlsx' ] && [ ${mip_name} != 'CovidMIP' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2020)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   #mkdir -p compact-control-output-files
