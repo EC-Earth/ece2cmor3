@@ -58,6 +58,7 @@ if len(sys.argv) == 2:
     sys.exit()
    os.chdir(expanded_ece2cmor_root_directory)
    os.system('python setup.py install')
+   os.system('python setup.py develop')
    os.chdir(previous_working_dir)
 
    if output_dir_name[-1] != '/':
@@ -372,6 +373,17 @@ if len(sys.argv) == 2:
    os.system(command_covidmip_cov_fossil  )
    os.system(command_covidmip_cov_aer     )
    os.system(command_covidmip_mv          )
+
+
+   if not activate_pextra_mode:
+    # Create and add the compact request control output files:
+    command_compact_request_rm    = "rm -rf compact-request"
+    command_compact_request       = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request"
+    command_compact_request_mv    = "mv -f compact-request " + output_dir_name
+
+    os.system(command_compact_request_rm   )
+    os.system(command_compact_request      )
+    os.system(command_compact_request_mv   )
 
    if activate_pextra_mode:
     os.system('./switch-on-off-pextra-mode.sh deactivate-pextra-mode')
