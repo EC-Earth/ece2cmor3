@@ -385,6 +385,29 @@ if len(sys.argv) == 2:
     os.system(command_compact_request      )
     os.system(command_compact_request_mv   )
 
+    # Create and add the rcm dynamic plev forcing control output files:
+    command_rcm_plev_rm           = "rm -rf rcm-dynamic-plev-forcing"
+    command_rcm_plev23_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+    command_rcm_plev23_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+    command_rcm_plev23_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+    command_rcm_plev23_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+    command_rcm_plev36_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+    command_rcm_plev36_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+    command_rcm_plev36_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+    command_rcm_plev36_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+    command_rcm_plev_mv           = "mv -f rcm-dynamic-plev23-forcing rcm-dynamic-plev36-forcing " + output_dir_name
+
+    os.system(command_rcm_plev_rm          )
+    os.system(command_rcm_plev23_histor    )
+    os.system(command_rcm_plev23_ssp126    )
+    os.system(command_rcm_plev23_ssp245    )
+    os.system(command_rcm_plev23_ssp585    )
+    os.system(command_rcm_plev36_histor    )
+    os.system(command_rcm_plev36_ssp126    )
+    os.system(command_rcm_plev36_ssp245    )
+    os.system(command_rcm_plev36_ssp585    )
+    os.system(command_rcm_plev_mv          )
+
    if activate_pextra_mode:
     os.system('./switch-on-off-pextra-mode.sh deactivate-pextra-mode')
 
