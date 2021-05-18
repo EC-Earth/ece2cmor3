@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thomas Reerink
 #
-# Run this script by:
-#  submit-at-cca-ece2cmor-leg-job.sh ifs 001
+# Run this script without arguments for examples how to call this script.
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for one leg
 #
@@ -36,7 +35,7 @@ if [ "$#" -eq 2 ]; then
  METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json
  TEMPDIR=${SCRATCH}/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
  VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
- ODIR=${SCRATCH}/cmorisation/cmorised-results/cmor-aerchem-cmip/$EXP
+ ODIR=${SCRATCH}/cmorisation/cmorised-results/cmor-aerchem-cmip-$EXP/$EXP
 
  # The directoy (at scratch) from where the submit scripts will be launched by qsub:
  running_directory=${SCRATCH}/cmorisation/
@@ -49,7 +48,7 @@ if [ "$#" -eq 2 ]; then
 
 
  pbs_header='
-#PBS -N cmor-'${COMPONENT}'-'${LEG}'-'${EXP}'
+#PBS -N c-'${COMPONENT}'-'${LEG}'-'${EXP}'
 #PBS -q nf
 #PBS -j oe
 #PBS -o pbs-log-for-cmorising-'${EXP}'-'${COMPONENT}'-'${LEG}'.out
