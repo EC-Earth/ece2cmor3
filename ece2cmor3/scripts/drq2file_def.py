@@ -155,11 +155,17 @@ def main():
     print(' The number of variables which is enabled in', file_def_file_name, ' is', count)
 
 
+   #volume_estimate = open('volume-estimate-nemo.txt','w')
+   #volume_estimate.write(' \nEC-Earth3 NEMO volume estimates of generated output:{}'.format('\n'))
+   #volume_estimate.write('  Volume estimate for the ORCA1L75   grid: {:6} GB/yr{}'.format(round(total_layer_equivalent * 0.43 / 1000.0, 1), '\n'))
+   #volume_estimate.write('  Volume estimate for the ORCA025L75 grid: {:6} GB/yr{}'.format(round(total_layer_equivalent * 5.76 / 1000.0, 1), '\n'))
+   #volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+   #volume_estimate.close()
+
+    hf = 1.2 # NEMO heuristic factor
     volume_estimate = open('volume-estimate-nemo.txt','w')
-    volume_estimate.write(' \nEC-Earth3 NEMO volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate for the ORCA1L75   grid: {} GB/yr{}'.format(total_layer_equivalent * 0.43 / 1000.0, '\n'))
-    volume_estimate.write('  Volume estimate for the ORCA025L75 grid: {} GB/yr{}'.format(total_layer_equivalent * 5.76 / 1000.0, '\n'))
-    volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA1L75    grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.43 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA025L75  grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 5.76 / 1000.0) / hf, 1), '\n'))
     volume_estimate.close()
 
 

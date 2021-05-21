@@ -169,10 +169,15 @@ def main():
     print('\n With a 2D layer equivalent of ', total_layer_equivalent, ' the LPJ-GUESS Volume estimate for this CMIP6 data request at T255 grid is ', total_layer_equivalent * 0.12 / 1000.0, ' GB per year\n')
     print(' The number of variables which is available from LPJ-GUESS in EC-Erth3 for this experiment is', count)
 
+   #volume_estimate = open('volume-estimate-lpj-guess.txt','w')
+   #volume_estimate.write(' \nEC-Earth3 LPJ-GUESS Volume estimates of generated output:{}'.format('\n'))
+   #volume_estimate.write('  Volume estimate for the LPJ-GUESS T255 grid: {} GB/yr{}'.format(total_layer_equivalent * 0.12 / 1000.0, '\n'))
+   #volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+   #volume_estimate.close()
+
+    hf = 1.0 # LPJG heuristic factor
     volume_estimate = open('volume-estimate-lpj-guess.txt','w')
-    volume_estimate.write(' \nEC-Earth3 LPJ-GUESS Volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate for the LPJ-GUESS T255 grid: {} GB/yr{}'.format(total_layer_equivalent * 0.12 / 1000.0, '\n'))
-    volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 LPJG output on the T255        grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.12 / 1000.0) / hf, 1), '\n'))
     volume_estimate.close()
 
     # Finishing up

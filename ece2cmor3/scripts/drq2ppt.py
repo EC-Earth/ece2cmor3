@@ -266,12 +266,18 @@ def write_ppt_files(tasks):
              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
     log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
 
+   #volume_estimate = open('volume-estimate-ifs.txt','w')
+   #volume_estimate.write(' \nEC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
+   #volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
+   #volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
+   #volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
+   #volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+   #volume_estimate.close()
+
+    hf = 3.0 # IFS heuristic factor
     volume_estimate = open('volume-estimate-ifs.txt','w')
-    volume_estimate.write(' \nEC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
-    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
-    volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
-    volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T255L91     grid: {:6} GB per year{}'.format(round((12*vol255) / hf, 1), '\n'))
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T511L91     grid: {:6} GB per year{}'.format(round((12*vol511) / hf, 1), '\n'))
     volume_estimate.close()
 
 

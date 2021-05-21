@@ -160,12 +160,16 @@ def main():
       #  print('Table: {} \tsize: {} GB/yr'.format(i,per_freq[i]*0.04/1000/120))
       #else:
       print('Table: {} \t tasks {} \tsize: {} GB/yr'.format(i,task_per_freq[i], per_freq[i] * 0.04 / 1024.0))
-    volume_estimate = open('volume-estimate-tm5.txt','w')
-    volume_estimate.write(' \nEC-Earth3 TM5 Volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.04 / 1000.0, '\n'))
-    volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
-    volume_estimate.close()
+   #volume_estimate = open('volume-estimate-tm5.txt','w')
+   #volume_estimate.write(' \nEC-Earth3 TM5 Volume estimates of generated output:{}'.format('\n'))
+   #volume_estimate.write('  Volume estimate for the TM5 3x2 degrees grid: {} GB/yr{}'.format(total_layer_equivalent * 0.04 / 1000.0, '\n'))
+   #volume_estimate.write('  With {:8} horizontal data slices per year across the vertical and time dimension.{}'.format(int(total_layer_equivalent), '\n\n'))
+   #volume_estimate.close()
 
+    hf = 1.0 # TM5 heuristic factor
+    volume_estimate = open('volume-estimate-tm5.txt','w')
+    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 TM5  output on the TM5 3x2 deg grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.04 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.close()
 
     # Finishing up
     ece2cmorlib.finalize_without_cmor()
