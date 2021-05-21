@@ -41,7 +41,7 @@ if len(sys.argv) == 2:
 
    output_dir_name         = config['output_dir_name']          # output_dir_name                = 'output-control-files/'                          # Default: output-control-files/
    activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False                                            # Default: False
-   add_request_overview    = config['add_request_overview']     # add_request_overview           = False                                            # Default: False
+   add_request_overview    = config['add_request_overview']     # add_request_overview           = False                                            # Default: True
    ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'                           # Default: ~/cmorize/ece2cmor3/
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
