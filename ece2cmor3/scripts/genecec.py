@@ -150,7 +150,7 @@ if len(sys.argv) == 2:
    command_show_version = 'git describe --tags | sed "s/^/ Using ece2cmor git revision: /"; echo;'
    os.system(command_show_version)
 
-   command_00 = 'rm -rf ' + cmip6_base_dir_name
+   command_00 = 'rm -rf ' + cmip6_base_dir_name + ' ' + cmip6-data-request-ece
    os.system(command_00)
 
    # Loop over MIPs:
@@ -203,8 +203,8 @@ if len(sys.argv) == 2:
          #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + ece_configuration_dir
           command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
           command_15 = 'cat ' + ece_configuration_dir + '/request-overview.available.txt ' + ece_configuration_dir + '/volume-estimate.txt > ' + ece_configuration_dir + '/request-overview-' + mip_name + '-' + ex.label + '-including-' + model_configuration + '-preferences.txt'
-          command_16 = 'rm -f ' + ece_configuration_dir + '/volume-estimate.txt '
-          command_17 = 'rm -f ' + subdirname_experiment + '/request-overview.available.txt '
+          command_16 = 'rm -f ' + ece_configuration_dir + '/volume-estimate.txt'
+          command_17 = 'rm -f ' + ece_configuration_dir + '/request-overview.available.txt'
 
          #print('{}'.format(command_01))
           if mip_name in ec_earth_mips:
@@ -312,8 +312,8 @@ if len(sys.argv) == 2:
                 #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + subdirname_experiment
                  command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
                  command_15 = 'cat ' + subdirname_experiment + '/request-overview.available.txt ' + subdirname_experiment + '/volume-estimate.txt > ' + subdirname_experiment + '/request-overview-' + mip_name + '-' + ex.label + '-including-' + conf + '-preferences.txt'
-                 command_16 = 'rm -f ' + subdirname_experiment + '/volume-estimate.txt '
-                 command_17 = 'rm -f ' + subdirname_experiment + '/request-overview.available.txt '
+                 command_16 = 'rm -f ' + subdirname_experiment + '/volume-estimate.txt'
+                 command_17 = 'rm -f ' + subdirname_experiment + '/request-overview.available.txt'
                  os.system(command_10)   # Produce the ec-earth component json data request variant, the so called varlist.json
                  os.system(command_11)   # Produce the metadata files for this MIP experiment.
                  if add_request_overview:
