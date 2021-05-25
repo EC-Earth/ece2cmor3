@@ -114,13 +114,13 @@ if [ "$#" -eq 5 ]; then
   if [ ${request_option} = '--drq' ]; then
    drq2varlist ${request_option} ${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    convert_component_to_flat_json cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
-   checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview-with-ece-preferences
+   checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview
    rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
   else
    convert_component_to_flat_json ${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file##*/}
    data_request_file_for_checkvars=${data_request_file_for_checkvars/.json/-flat.json}
-   checkvars -v --asciionly --drq ${data_request_file_for_checkvars} --output request-overview-with-ece-preferences
+   checkvars -v --asciionly --drq ${data_request_file_for_checkvars} --output request-overview
    rm -f ${data_request_file_for_checkvars}
   fi
 
@@ -136,8 +136,9 @@ if [ "$#" -eq 5 ]; then
   # Estimating the Volume of the TM5 output:
   estimate_tm5_volume ${request_option} ${data_request_file}
 
-  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > volume-estimate-${mip_name}-${experiment}.txt
-  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
+  cat request-overview.available.txt volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > request-overview-tmp.txt
+  mv -f request-overview-tmp.txt request-overview-${mip_name}-${experiment}-including-${ece_configuration}-preferences.txt
+  rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt request-overview.available.txt
 
   cd -
   # Produce the metadata files for this MIP experiment.
