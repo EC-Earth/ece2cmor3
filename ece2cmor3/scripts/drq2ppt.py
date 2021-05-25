@@ -276,8 +276,9 @@ def write_ppt_files(tasks):
 
     hf = 3.0 # IFS heuristic factor
     volume_estimate = open('volume-estimate-ifs.txt','w')
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T255L91     grid: {:6} GB per year{}'.format(round((12*vol255) / hf, 1), '\n'))
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T511L91     grid: {:6} GB per year{}'.format(round((12*vol511) / hf, 1), '\n'))
+    volume_estimate.write('{}'.format('\n\n\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T255L91     grid: {:6} GB per year{}'.format(round((12*vol255) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T511L91     grid: {:6} GB per year{}'.format(round((12*vol511) / hf, 1), '\n'))
     volume_estimate.close()
 
 

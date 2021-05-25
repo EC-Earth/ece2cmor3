@@ -168,7 +168,7 @@ def main():
 
     hf = 1.0 # TM5 heuristic factor
     volume_estimate = open('volume-estimate-tm5.txt','w')
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 TM5  output on the TM5 3x2 deg grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.04 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 TM5  output on the TM5 3x2 deg grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.04 / 1000.0) / hf, 1), '\n'))
     volume_estimate.close()
 
     # Finishing up

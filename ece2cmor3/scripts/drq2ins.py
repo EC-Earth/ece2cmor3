@@ -177,7 +177,7 @@ def main():
 
     hf = 1.0 # LPJG heuristic factor
     volume_estimate = open('volume-estimate-lpj-guess.txt','w')
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 LPJG output on the T255        grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.12 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 LPJG output on the T255        grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.12 / 1000.0) / hf, 1), '\n'))
     volume_estimate.close()
 
     # Finishing up

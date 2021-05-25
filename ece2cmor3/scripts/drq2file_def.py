@@ -164,8 +164,8 @@ def main():
 
     hf = 1.2 # NEMO heuristic factor
     volume_estimate = open('volume-estimate-nemo.txt','w')
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA1L75    grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.43 / 1000.0) / hf, 1), '\n'))
-    volume_estimate.write(' Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA025L75  grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 5.76 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA1L75    grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 0.43 / 1000.0) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 NEMO output on the ORCA025L75  grid: {:6} GB per year{}'.format(round((total_layer_equivalent * 5.76 / 1000.0) / hf, 1), '\n'))
     volume_estimate.close()
 
 
