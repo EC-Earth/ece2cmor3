@@ -156,7 +156,7 @@ if [ "$#" -eq 5 ]; then
   # Estimating the Volume of the TM5 output:
   estimate_tm5_volume --drq ${cmip6_data_request_file}
 
-  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
+  cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
@@ -179,11 +179,6 @@ if [ "$#" -eq 5 ]; then
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-opa.xml
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-lim3.xml
   ls -1 ${path_of_created_output_control_files}/file_def_nemo-pisces.xml
-
-  echo
-  echo 'The estimate of the Volumes:'
-  ls -1 ${path_of_created_output_control_files}/volume-estimate-${mip_label}-${experiment}.txt
-
   echo
 
 else

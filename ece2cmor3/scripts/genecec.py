@@ -196,13 +196,16 @@ if len(sys.argv) == 2:
           command_05 = "sed -i -e '/deptho/d' " + filename_file_def_nemo_opa
           command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + subdirname_experiment + '/file_def_nemo*'
           command_07 = 'mkdir -p ' + ece_configuration_dir + '; mv ' + subdirname_experiment + '/*' + ' ' + ece_configuration_dir + '; rm -rf ' + cmip6_base_dir_name + mip_label
-          command_08 = '      mv ' + ece_configuration_dir + '/volume-estimate-* ' + ece_configuration_dir + '/volume-estimate-' + mip_name + '-' + ex.label + '-' + model_configuration + '.txt'
           command_09 = 'drq2varlist --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + select_substring + '*_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + model_configuration + ' --varlist ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
           command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + model_configuration + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + model_configuration + '-*-template.json ' + ece_configuration_dir
           command_12 = 'convert_component_to_flat_json ' + ece_configuration_dir + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '.json'
-          command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview-with-ece-preferences'
+          command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + model_configuration + '-flat.json' +  ' --output ' + ece_configuration_dir + '/request-overview'
          #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + ece_configuration_dir
           command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
+          command_15 = 'cat ' + ece_configuration_dir + '/request-overview.available.txt ' + ece_configuration_dir + '/volume-estimate.txt > ' + ece_configuration_dir + '/request-overview-' + mip_name + '-' + ex.label + '-including-' + model_configuration + '-preferences.txt'
+          command_16 = 'rm -f ' + ece_configuration_dir + '/volume-estimate.txt '
+          command_17 = 'rm -f ' + subdirname_experiment + '/request-overview.available.txt '
+
          #print('{}'.format(command_01))
           if mip_name in ec_earth_mips:
             #if ex.tier[0] in experiment_tiers_included and ex.label == 'piControl':   # for a faster test
@@ -216,13 +219,15 @@ if len(sys.argv) == 2:
                 os.system(command_05)   # Remove deptho from the file_def_nemo-opa.xml #249
                 os.system(command_c )   # Switching the 'transect' variables off (the transect grid definition seems to depend on the XIOS 2.5 upgrade)
                 os.system(command_07)   # Rename directory names for joint MIPs
-                os.system(command_08)   # Rename volume-estimate file for joint MIPs
                 os.system(command_09)   # Produce the ec-earth component json data request variant, the so called varlist.json
                 os.system(command_11)   # Produce the metadata files for this MIP experiment.
                 if add_request_overview:
                  os.system(command_12)  # Convert the json data request file which contains the EC-Earth components to a flat json data request file for checkvars
                  os.system(command_13)  # Execute checkvars --asciionly for the flat json data request file which includes the preferences
                  os.system(command_14)  # Remove the flat json file
+                 os.system(command_15)  # Concatenate volume estimates to the request overview file
+                os.system(command_16)   # Remove volume estimate file
+                os.system(command_17)   # Remove the intermediate request-overview.available.txt file
                 experiment_counter = experiment_counter + 1
              else:
                 print(' Tier {} experiments are not included: Skipping: {}'.format(ex.tier[0], command_01))
@@ -303,15 +308,21 @@ if len(sys.argv) == 2:
                  command_10 = 'drq2varlist --drq cmip6-data-request/cmip6-data-request-' + mip_label + '-' + ex.label + '-t' + str(ex.tier[0]) + '-p' + '1' + '/cmvme_' + mip_name + '_' + ex.label + '_' + str(ex.tier[0]) + '_1.xlsx --ececonf ' + conf + ' --varlist ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
                  command_11 = './modify-metadata-template.sh ' + mip_name + ' ' + ex.label + ' ' + conf + '; mv -f metadata-cmip6-' + mip_name + '-' + ex.label + '-' + conf + '-*-template.json ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label
                  command_12 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + mip_name + '/cmip6-experiment-' + mip_name + '-' + ex.label + '/cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '.json'
-                 command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '-flat.json' +  ' --output ' + subdirname_experiment + '/request-overview-with-ece-preferences-' + conf
+                 command_13 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-' + mip_name + '-' + ex.label + '-' + conf + '-flat.json' +  ' --output ' + subdirname_experiment + '/request-overview'
                 #command_14 = 'mv -f ' + 'cmip6-data-request-varlist*-flat.json ' + subdirname_experiment
                  command_14 = 'rm -f ' + 'cmip6-data-request-varlist*-flat.json'
+                 command_15 = 'cat ' + subdirname_experiment + '/request-overview.available.txt ' + subdirname_experiment + '/volume-estimate.txt > ' + subdirname_experiment + '/request-overview-' + mip_name + '-' + ex.label + '-including-' + conf + '-preferences.txt'
+                 command_16 = 'rm -f ' + subdirname_experiment + '/volume-estimate.txt '
+                 command_17 = 'rm -f ' + subdirname_experiment + '/request-overview.available.txt '
                  os.system(command_10)   # Produce the ec-earth component json data request variant, the so called varlist.json
                  os.system(command_11)   # Produce the metadata files for this MIP experiment.
                  if add_request_overview:
                   os.system(command_12)  # Convert the json data request file which contains the EC-Earth components to a flat json data request file for checkvars
                   os.system(command_13)  # Execute checkvars --asciionly for the flat json data request file which includes the preferences
                   os.system(command_14)  # Remove the flat json file
+                  os.system(command_15)  # Concatenate volume estimates to the request overview file
+                 os.system(command_16)   # Remove volume estimate file
+                 os.system(command_17)   # Remove the intermediate request-overview.available.txt file
 
                 experiment_counter = experiment_counter + 1
              else:
@@ -331,7 +342,7 @@ if len(sys.argv) == 2:
    command_b  = "sed -i 's/enabled=\"False\"/enabled=\"True\"/' " + cmip6_base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
    command_c  = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' " + cmip6_base_dir_name + "test-all-ece-mip-variables/file_def_nemo-*"
    command_d  = "echo 'This directory is intended for the maintainers only. In order to be able to test all NEMO OPA & LIM output by running one experiment, all those fields are enabled in the OPA & LIM file_def files in this directory. And in order to be able to test all IFS output by running one experiment, all available IFS fields are enabled in the ppt files.' > " + cmip6_base_dir_name + "test-all-ece-mip-variables/README"
-   command_e  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/ppt* " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + cmip6_base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt"
+   command_e  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/ppt* " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + cmip6_base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt " + cmip6_base_dir_name + "test-all-ece-mip-variables/request-overview*.txt"
    command_f  = "drq2ppt --allvars"
    command_g  = "mv -f ppt0000000000 pptdddddd* " + cmip6_base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
    command_h  = "drq2varlist --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
