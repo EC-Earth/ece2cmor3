@@ -150,7 +150,7 @@ if len(sys.argv) == 2:
    command_show_version = 'git describe --tags | sed "s/^/ Using ece2cmor git revision: /"; echo;'
    os.system(command_show_version)
 
-   command_00 = 'rm -rf ' + cmip6_base_dir_name + ' ' + cmip6-data-request-ece
+   command_00 = 'rm -rf ' + cmip6_base_dir_name + ' cmip6-data-request-ece'
    os.system(command_00)
 
    # Loop over MIPs:
