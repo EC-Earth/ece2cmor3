@@ -3,14 +3,12 @@
 #
 # This scripts needs four or five arguments
 #
-# ${1} the first   argument is the MIP name
-# ${2} the second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
-# ${3} the third   argument is the ec-earth model configuration
-# ${4} the fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
+# first   argument is the MIP name
+# second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
+# third   argument is the ec-earth model configuration
+# fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
 #
-#
-# Run example:
-#  ./modify-metadata-template.sh CMIP piControl EC-EARTH-CC cmip6-CMIP-piControl-metadata-template.json
+# Run this script without arguments for examples how to call this script.
 #
 # With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment for all active components.
 #
