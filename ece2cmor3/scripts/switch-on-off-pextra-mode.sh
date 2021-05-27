@@ -1,17 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thomas Reerink
 #
 # This script applies the required changes to run ece2cmor3 & genecec in the PEXTRA mode or it resets these adjustments 
 #
-# This scripts requires one arguments:
+# This scripts requires one argument: activate-pextra-mode or deactivate-pextra-mode
 #
-# ${1} the first   argument is  activate-pextra-mode  or deactivate-pextra-mode 
-#
-# Run example:
-#  ./switch-on-off-pextra-mode.sh activate-pextra-mode
+# Run this script without arguments for examples how to call this script.
 #
 
 if [ "$#" -eq 1 ]; then
+
+#ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
+
+#if [ ! -f ${ece2cmor_root_directory}/environment.yml ]; then
+# echo; tput setaf 1;
+# echo ' Error from ' $0': The' ${ece2cmor_root_directory} 'is not the ece2cmor root directory'.
+# tput sgr0; echo
+# exit
+#fi
+
+#dir_at_start=${PWD}
+#cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
 
  if [ $1 == 'activate-pextra-mode' ]; then
   sed -i -e 's/"NRFP3S"] = -1/"NRFP3S"] = -99/' drq2ppt.py
@@ -40,6 +49,9 @@ if [ "$#" -eq 1 ]; then
     echo '  ' $0 deactivate-pextra-mode
     echo '  '
  fi
+
+## Returning to the directory before this script was called:
+#cd ${dir_at_start}
 
 else
     echo '  '
