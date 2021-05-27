@@ -18,6 +18,7 @@
 # Note that this script is called by the script:
 #  genecec-per-mip-experiment.sh
 #
+from __future__ import print_function
 import os
 import sys
 

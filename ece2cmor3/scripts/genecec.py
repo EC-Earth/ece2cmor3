@@ -17,6 +17,7 @@
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
 # which is part of ece2cmor3.
 
+from __future__ import print_function
 import sys
 import os
 import os.path                                                  # for checking file existence with: os.path.isfile
