@@ -66,6 +66,7 @@ setup(name=name,
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},
+      scripts=["ece2cmor3/scripts/genecec-per-mip-experiment.sh"],
       classifiers=[
           "Development Status :: 3 - Alpha",
           "Intended Audience :: Science/Research",
