@@ -44,7 +44,7 @@ def load_vertices_from_file(gridtype, shape):
 
 def get_from_b2share(fname, fullpath):
     site = "https://b2share.eudat.eu/api"
-    record = "3ad7d5c5f1ab419297c1e02bded8d70f"
+    record = "f7de9a85cbd443269958f0b80e7bc654"
     resp = requests.get('/'.join([site, "records", record]))
     if not resp:
         log.error("Problem getting record data from b2share server: %d" % resp.status_code)
