@@ -32,12 +32,12 @@
    LEG=$2
 
    EXP=t001
-   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r8018-control-output-files/$EXP/output/$COMPONENT/$LEG
+   ECEDIR=/lustre3/projects/CMIP6/reerink/ec-earth-3/branch-r8403-output-control-files/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=/nfs/home/users/reerink/ec-earth-3/branch-r8018-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
+   METADATA=/nfs/home/users/reerink/ec-earth-3/branch-r8403-output-control-files/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=/nfs/home/users/reerink/ec-earth-3/branch-r8018-control-output-files/runtime/classic/ctrl/cmip6-output-control-files/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/cmor-cmip-test-all-branch-r8018-control-output-files-t001/$EXP
+   VARLIST=/nfs/home/users/reerink/ec-earth-3/branch-r8403-output-control-files/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/test-all-branch-r8403-output-control-files-t001/$EXP
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " is empty. Aborting job:" $0 >&2; exit 1; fi
