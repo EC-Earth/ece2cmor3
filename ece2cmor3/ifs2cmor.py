@@ -8,7 +8,7 @@ import numpy
 import os
 
 from datetime import datetime, timedelta
-from ece2cmor3 import grib_filter, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
+from ece2cmor3 import grib_filter, grib_file, cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 timeshift = timedelta(0)
 # Apply timeshift for instance in case you want manually to add a shift for the piControl:
@@ -257,7 +257,7 @@ def execute(tasks, nthreads=1):
         clean_tmp_data(tasks_todo)
 
 
-# Worker function for parallel cmorization (not working at the present...)
+# Worker function for parallel cmorization
 def cmor_worker(task):
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
@@ -274,6 +274,11 @@ def cmor_worker(task):
             log.error("Output file %s of script %s could not be found... skipping cmorization of task")
             task.set_failed()
             return
+    elif task.target.variable == "sftlf":
+        ncfile = download_sftlf(task, temp_dir_)
+        setattr(task, cmor_task.output_path_key, ncfile)
+        setattr(task, "download", ncfile)
+        setattr(task, cmor_task.conversion_key, None)
     else:
         log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
                                                                             task.target.variable))
@@ -520,7 +525,11 @@ def define_cmor_axes(task):
         grid_ids = local_grid_ids.get(task.target.table, None)
         if grid_ids is None or (has_lons and grid_ids[0] is None) or (has_lats and grid_ids[1] is None):
             cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
-            grid_ids = create_grid_from_file(getattr(task, cmor_task.output_path_key))
+            downloaded_file = getattr(task, "download", None)
+            if downloaded_file is not None:
+                grid_ids = copy_grid_from_file(downloaded_file)
+            else:
+                grid_ids = create_grid_from_file(getattr(task, cmor_task.output_path_key))
             local_grid_ids[task.target.table] = grid_ids
         if has_lons:
             if has_lats:
@@ -643,7 +652,7 @@ def execute_netcdf_task(task):
         if flip_sign:
             missval = -missval
         cmor_utils.netcdf2cmor(var_id, ncvar, time_dim, factor, term, store_var, get_sp_var(surf_pressure_path),
-                               swaplatlon=False, fliplat=True, mask=mask_array, missval=missval,
+                               swaplatlon=False, fliplat=(not hasattr(task, "download")), mask=mask_array, missval=missval,
                                time_selection=time_selection, force_fx=(cmor_target.get_freq(task.target) == 0))
         cmor.close(var_id)
         task.next_state()
@@ -912,6 +921,18 @@ def create_grid_from_file(filepath):
     return create_gauss_grid(xvals, yvals)
 
 
+# Creates the regular gaussian grids from the postprocessed file argument.
+def copy_grid_from_file(filepath):
+    ds = netCDF4.Dataset(filepath, 'r')
+    lats = cmor.axis(table_entry="latitude", coord_vals=ds.variables["lat"][...], cell_bounds=ds.variables["lat_bnds"][...],
+                        units="degrees_north")
+    lons = cmor.axis(table_entry="longitude", coord_vals=ds.variables["lon"][...], cell_bounds=ds.variables["lon_bnds"][...],
+                        units="degrees_east")
+    ds.close()
+    return lats, lons
+
+
+
 # Reads x or y coordinate values from grid description. Returns empty array if not found
 def read_coordinate_vals(grid_descr, xydir, ndegrees):
     att_vals = xydir + "vals"
@@ -974,3 +995,18 @@ def get_lat_mids(yvals):
     lat_mids[1:ny] = 0.5 * (yvals[0:ny - 1] + yvals[1:ny])
     lat_mids[ny] = -90.
     return lat_mids
+
+
+# Helper function top download correct land-sea mask without lakes from b2share
+def download_sftlf(task, temp_dir_):
+    filtered_grib = getattr(task, cmor_task.filter_output_key)[0]
+    Nj = 0
+    with open(filtered_grib, 'r') as gfile:
+        grib = grib_file.create_grib_file(gfile)
+        while Nj == 0:
+            grib.read_next(headers_only=True)
+            Nj = int(grib.get_field("Nj"))
+    fname = "fx-sftlf-EC-Earth3-T" + str(Nj / 2 - 1) + ".nc"
+    fpath = os.path.join(temp_dir_, "sftlf_fx.nc")
+    cmor_utils.get_from_b2share(fname, fpath)
+    return fpath

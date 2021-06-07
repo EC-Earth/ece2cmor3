@@ -16,6 +16,7 @@ import netCDF4
 import numpy
 import os
 import re
+import requests
 
 # Log object
 from ece2cmor3 import components
@@ -439,6 +440,29 @@ def apply_mask(array, factor, term, mask, missval_in, missval_out):
     if factor != 1.0 or term != 0.0:
         numpy.putmask(array, array != new_miss_val, factor * array + term)
     return array
+
+
+# Downloads a file from our EC-Earth b2share data stor
+def get_from_b2share(fname, fullpath):
+    site = "https://b2share.eudat.eu/api"
+    record = "f7de9a85cbd443269958f0b80e7bc654"
+    resp = requests.get('/'.join([site, "records", record]))
+    if not resp:
+        log.error("Problem getting record data from b2share server: %d" % resp.status_code)
+        return False
+    d = resp.json()
+    for f in d["files"]:
+        if f["key"] == fname:
+            url = '/'.join([site, "files", f["bucket"], f["key"]])
+            log.info("Downloading file %s from b2share archive..." % fname)
+            fresp = requests.get(url)
+            if not fresp:
+                log.error("Problem getting file %s from b2share server: %d" % (fname, resp.status_code))
+                return False
+            with open(fullpath, 'wb') as fd:
+                fd.write(fresp.content)
+            log.info("...success, file %s created" % fullpath)
+    return True
 
 
 class ScriptUtils:
