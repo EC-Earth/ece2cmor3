@@ -89,7 +89,6 @@ if [ "$#" -eq -2 ]; then
 #  -Add  manually the CFsubhr cl--fco2nat--latitude block                                    to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the E3hr   gpp, ra, rh variables                                           to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the Efx    thkcello and masscello                                          to the list-of-ignored-cmip6-requested-variables.xlsx
-#  -Add  manually the Eday   mrros                                                           to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the E3hrPt o3                                                              to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the Amon   o3Clim, ch4Clim, ch4globalClim                                  to the list-of-ignored-cmip6-requested-variables.xlsx
 #  -Add  manually the CFmon  tnt                                                             to the list-of-ignored-cmip6-requested-variables.xlsx

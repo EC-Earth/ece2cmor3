@@ -353,9 +353,13 @@ def filter_fx_variables(gribfile, keys2files, gridtype, startdate, handles=None)
         if t != timestamp:
             keys = set()
             timestamp = t
-        keys.add(key)
+# This file may be processed twice: once for the fx-fields and once for the dynamic fields.
+# We add only the written fx-fields to the key set here.
+        if any([k[0:4] == key for k in keys2files.keys()]):
+            keys.add(key)
         write_record(gribfile, key + (gridtype,), keys2files, shift=0, handles=handles, once=True, setdate=startdate)
         gribfile.release()
+    return keys, timestamp
 
 
 def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
@@ -365,6 +369,8 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
     task2files, task2freqs, fxkeys, keys2files = cluster_files(valid_tasks, varstasks)
     grids = [cmor_source.ifs_grid.point, cmor_source.ifs_grid.spec]
     if filter_files:
+        keys_gp, timestamp_gp = set(), -1
+        keys_sp, timestamp_sp = set(), -1
         filehandles = open_files(keys2files)
         fxkeys2files = {k: keys2files[k] for k in fxkeys}
         if any(gridpoint_files):
@@ -372,33 +378,33 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
             first_gridpoint_file = gridpoint_files[gridpoint_start_date][0]
             if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
                 with open(str(ini_gridpoint_file), 'r') as fin:
-                    filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
-                                        filehandles)
+                    keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
+                                                                filehandles)
         elif ini_gridpoint_file is not None:
             with open(str(ini_gridpoint_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], None, filehandles)
+                keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], None, filehandles)
         if any(spectral_files):
             spectral_start_date = sorted(spectral_files.keys())[0]
             first_spectral_file = spectral_files[spectral_start_date][0]
             if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
                 with open(str(ini_spectral_file), 'r') as fin:
-                    filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
+                    keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
                                         filehandles)
         elif ini_spectral_file is not None:
             with open(str(ini_spectral_file), 'r') as fin:
-                filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], None, filehandles)
+                keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], None, filehandles)
         if multi_threaded:
             threads = []
-            for file_list, grid in zip([gridpoint_files, spectral_files], grids):
+            for file_list, grid, keys, timestamp in zip([gridpoint_files, spectral_files], grids, [keys_gp, keys_sp], [timestamp_gp, timestamp_sp]):
                 thread = threading.Thread(target=filter_grib_files, 
-                                          args=(file_list, keys2files, grid, filehandles, 0, 0, once))
+                                          args=(file_list, keys2files, grid, filehandles, 0, 0, once, keys, timestamp))
                 threads.append(thread)
                 thread.start()
             threads[0].join()
             threads[1].join()
         else:
-            for file_list, grid in zip([gridpoint_files, spectral_files], grids):
-                filter_grib_files(file_list, keys2files, grid, filehandles, month=0, year=0, once=once)
+            for file_list, grid, keys, timestamp in zip([gridpoint_files, spectral_files], grids, [keys_gp, keys_sp], [timestamp_gp, timestamp_sp]):
+                filter_grib_files(file_list, keys2files, grid, filehandles, month=0, year=0, once=once, prev_keys=keys, prev_timestamp=timestamp)
         for handle in filehandles.values():
             handle.close()
     for task in task2files:
@@ -517,9 +523,10 @@ def build_fast_forward_cache(keys2files, grid):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False):
+def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False, prev_keys=(), prev_timestamp=-1):
     dates = sorted(file_list.keys())
     cache = None if once else build_fast_forward_cache(keys2files, grid)
+    keys, timestamp = prev_keys, prev_timestamp
     for i in range(len(dates)):
         date = dates[i]
         if month != 0 and year != 0 and (date.month, date.year) != (month, year):
@@ -528,21 +535,25 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
         prev_chained = i > 0 and (os.path.realpath(prev_grib_file) == os.path.realpath(file_list[dates[i - 1]][1]))
         if prev_grib_file is not None and not prev_chained:
             with open(prev_grib_file, 'r') as fin:
-                proc_initial_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once)
+                log.info("Filtering grib file %s..." % os.path.abspath(prev_grib_file))
+                keys, timestamp = proc_initial_month(date.month, grib_file.create_grib_file(fin), keys2files,
+                                                     grid, handles, keys, timestamp, once)
         next_chained = i < len(dates) - 1 and (os.path.realpath(cur_grib_file) ==
                                                os.path.realpath(file_list[dates[i + 1]][0]))
         with open(cur_grib_file, 'r') as fin:
-            log.info("Filtering grib file %s..." % cur_grib_file)
+            log.info("Filtering grib file %s..." % os.path.abspath(cur_grib_file))
             if next_chained:
-                proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, once, cache)
+                keys, timestamp = proc_grib_file(grib_file.create_grib_file(fin), keys2files, grid, handles, keys,
+                                                 timestamp, once, cache)
             else:
-                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, once, cache)
+                proc_final_month(date.month, grib_file.create_grib_file(fin), keys2files, grid, handles, keys,
+                                 timestamp, once, cache)
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
-    timestamp = -1
-    keys = set()
+def proc_initial_month(month, gribfile, keys2files, gridtype, handles, prev_keys=(), prev_timestamp=-1, once=False, ff_cache=None):
+    timestamp = prev_timestamp
+    keys = prev_keys
     fast_forward_count = 0
     while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
         key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
@@ -555,12 +566,13 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, once=Fals
             if (key[0], key[1]) not in accum_codes:
                 write_record(gribfile, key + (gridtype,), keys2files, handles=handles, once=once, setdate=None)
         gribfile.release()
+    return keys, timestamp
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
-    timestamp = -1
-    keys = set()
+def proc_grib_file(gribfile, keys2files, gridtype, handles, prev_keys=(), prev_timestamp=-1, once=False, ff_cache=None):
+    timestamp = prev_timestamp
+    keys = prev_keys
     fast_forward_count = 0
     while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
         key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
@@ -571,12 +583,14 @@ def proc_grib_file(gribfile, keys2files, gridtype, handles, once=False, ff_cache
         write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                      handles=handles, once=once, setdate=None)
         gribfile.release()
+    return keys, timestamp
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False, ff_cache=None):
-    timestamp = -1
-    keys = set()
+def proc_final_month(month, gribfile, keys2files, gridtype, handles, prev_keys=(), prev_timestamp=-1, once=False,
+                     ff_cache=None):
+    timestamp = prev_timestamp
+    keys = prev_keys
     fast_forward_count = 0
     while gribfile.read_next(headers_only=(fast_forward_count > 0)) and (handles is None or any(handles.keys())):
         key, fast_forward_count, cycle, timestamp = next_record(gribfile, fast_forward_count, timestamp, gridtype,
@@ -594,6 +608,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, once=False,
                 write_record(gribfile, key + (gridtype,), keys2files, shift=-1, handles=handles, once=once,
                              setdate=None)
         gribfile.release()
+    return keys, timestamp
 
 
 def next_record(gribfile, ffwd_count, prev_time, gridtype, ffwd_cache, keys_cache):
