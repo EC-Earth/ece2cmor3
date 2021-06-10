@@ -275,7 +275,7 @@ def cmor_worker(task):
             task.set_failed()
             return
     elif task.target.variable == "sftlf":
-        ncfile = download_sftlf(task, temp_dir_)
+        ncfile = download_sftlf(task)
         setattr(task, cmor_task.output_path_key, ncfile)
         setattr(task, "download", ncfile)
         setattr(task, cmor_task.conversion_key, None)
@@ -998,7 +998,7 @@ def get_lat_mids(yvals):
 
 
 # Helper function top download correct land-sea mask without lakes from b2share
-def download_sftlf(task, temp_dir_):
+def download_sftlf(task):
     filtered_grib = getattr(task, cmor_task.filter_output_key)[0]
     Nj = 0
     with open(filtered_grib, 'r') as gfile:
@@ -1007,6 +1007,9 @@ def download_sftlf(task, temp_dir_):
             grib.read_next(headers_only=True)
             Nj = int(grib.get_field("Nj"))
     fname = "fx-sftlf-EC-Earth3-T" + str(Nj / 2 - 1) + ".nc"
-    fpath = os.path.join(temp_dir_, "sftlf_fx.nc")
-    cmor_utils.get_from_b2share(fname, fpath)
-    return fpath
+    fullpath = os.path.join(os.path.dirname(__file__), "resources", "b2share-data", fname)
+    if not os.path.isfile(fullpath):
+        if not cmor_utils.get_from_b2share(fname, fullpath):
+            log.fatal("The file %s could not be downloaded, please install manually at %s" % (fname, fullpath))
+            return None
+    return fullpath

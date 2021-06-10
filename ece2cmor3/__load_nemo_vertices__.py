@@ -28,12 +28,12 @@ def load_vertices_from_file(gridtype, shape):
     if (mesh, gridchar) in cached_vertices.keys():
         return cached_vertices[(mesh, gridchar)][0], cached_vertices[(mesh, gridchar)][1]
     file_name = '-'.join(["nemo", "vertices", mesh, gridchar, "grid"]) + ".nc"
-    fullpath = os.path.join(os.path.dirname(__file__), "resources", "nemo-vertices", file_name)
+    fullpath = os.path.join(os.path.dirname(__file__), "resources", "b2share-data", file_name)
     if not os.path.isfile(fullpath):
         if not cmor_utils.get_from_b2share(file_name, fullpath):
             log.fatal("The file %s could not be downloaded, please install manually at %s" % (file_name, fullpath))
             return None, None
-    nemo_vertices_file_name = os.path.join("ece2cmor3/resources/nemo-vertices/", fullpath)
+    nemo_vertices_file_name = os.path.join("ece2cmor3/resources/b2share-data/", fullpath)
     nemo_vertices_netcdf_file = netCDF4.Dataset(nemo_vertices_file_name, 'r')
     lon_vertices_raw = numpy.array(nemo_vertices_netcdf_file.variables["vertices_longitude"][...], copy=True)
     lat_vertices = numpy.array(nemo_vertices_netcdf_file.variables["vertices_latitude"][...], copy=True)

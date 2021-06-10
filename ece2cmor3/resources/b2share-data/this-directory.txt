@@ -6,6 +6,9 @@ This directory need to contain the following files:
  nemo-vertices-ORCA025-t-grid.nc    (3,3M)
  nemo-vertices-ORCA025-u-grid.nc    (3,3M)
  nemo-vertices-ORCA025-v-grid.nc    (3,3M)
+ fx-sftlf-EC-Earth3-T159.nc         ( 24K)
+ fx-sftlf-EC-Earth3-T255.nc         ( 68K)
+ fx-sftlf-EC-Earth3-T511.nc         (104K)
 
 With a clone of the cmor-fixer one can download these files:
  git clone git@github.com:EC-Earth/cmor-fixer.git
