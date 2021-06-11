@@ -17,3 +17,7 @@ The files can be found in the cmor-fixer repository in this directory:
  cmor-fixer/nemo-vertices
 
 Now make links or copy these files from the cmor-fixer repository into this directory of ece2cmor.
+
+One can as well manually download the files by using for instance:
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/fx-sftlf-EC-Earth3-T255.nc
+
