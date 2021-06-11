@@ -83,6 +83,17 @@ def main():
         sys.exit(' Exiting drq2ins.')
 
     print('\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n')
+
+    # Remove Eday mrros (not available in LPJ-GUESS, see ec-earth issue 633-21) from the LPJG instruction file (see #708 & #445):
+    count = 0
+    action_required = False
+    for task in ece2cmorlib.tasks:
+      if task.target.variable == 'mrros' and task.target.frequency == 'day':
+       list_nr_eday_mrros = count
+       action_required = True
+      count = count + 1
+    if  action_required:
+     ece2cmorlib.tasks.pop(list_nr_eday_mrros)
         
     instruction_file = open('lpjg_cmip6_output.ins','w')
 
