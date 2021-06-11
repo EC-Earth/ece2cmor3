@@ -1006,7 +1006,7 @@ def download_sftlf(task):
         while Nj == 0:
             grib.read_next(headers_only=True)
             Nj = int(grib.get_field("Nj"))
-    fname = "fx-sftlf-EC-Earth3-T" + str(Nj / 2 - 1) + ".nc"
+    fname = "fx-sftlf-EC-Earth3-T" + str(Nj - 1) + ".nc"
     fullpath = os.path.join(os.path.dirname(__file__), "resources", "b2share-data", fname)
     if not os.path.isfile(fullpath):
         if not cmor_utils.get_from_b2share(fname, fullpath):
