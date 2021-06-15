@@ -18,6 +18,17 @@ The files can be found in the cmor-fixer repository in this directory:
 
 Now make links or copy these files from the cmor-fixer repository into this directory of ece2cmor.
 
-One can as well manually download the files by using for instance:
+One can as well manually download all the files by using:
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/fx-sftlf-EC-Earth3-T159.nc
  wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/fx-sftlf-EC-Earth3-T255.nc
-
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/fx-sftlf-EC-Earth3-T511.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA1-t-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA1-u-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA1-v-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA025-t-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA025-u-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/nemo-vertices-ORCA025-v-grid.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-HR.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR-pliocene.nc
+ wget https://b2share.eudat.eu/api/files/359aeba7-9416-4896-bf34-6905eb21302e/omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables.nc
