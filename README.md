@@ -45,6 +45,7 @@ For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
 git clone https://github.com/EC-Earth/ece2cmor3.git
 cd ece2cmor3
 git submodule update --init --recursive
+./download-b2share-dataset.sh ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data
 ```
 Note that Github depricates the `https` clone method, therefore see how to [migrate from https to ssh](https://github.com/EC-Earth/ece2cmor3/wiki/instruction-how-to-change-from-https-to-ssh).
 
