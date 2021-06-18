@@ -29,6 +29,21 @@ if [ "$#" -eq 1 ]; then
  b2share_file_12=omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR-pliocene.nc
  b2share_file_13=omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables.nc
 
+ b2share_files=(
+  fx-sftlf-EC-Earth3-T159.nc
+  fx-sftlf-EC-Earth3-T255.nc
+  fx-sftlf-EC-Earth3-T511.nc
+  nemo-vertices-ORCA1-t-grid.nc
+  nemo-vertices-ORCA1-u-grid.nc
+  nemo-vertices-ORCA1-v-grid.nc
+  nemo-vertices-ORCA025-t-grid.nc
+  nemo-vertices-ORCA025-u-grid.nc
+  nemo-vertices-ORCA025-v-grid.nc
+  omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-HR.nc
+  omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR.nc
+  omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables-LR-pliocene.nc
+  omit-mask-for-regrid-bug-in-ec-earth-atmospheric-land-masked-variables.nc
+ )
 
  # Test whether the directroy exists:
  if [ ! -d ${b2share_directroy} ]; then 
@@ -39,45 +54,40 @@ if [ "$#" -eq 1 ]; then
  fi
 
  echo
- # Check for each of the b2share ece2cmor dataset files whteher they are available, if not the file
+ # Check for each of the b2share ece2cmor dataset files whether they are available, if not the file
  # will be downloaded with wget:
- for i in {01..13}; do
-     b2share_file="b2share_file_$i"
-     
-     if [ ! -f ${b2share_directroy}/${!b2share_file} ]; then
+ for b2share_file in "${b2share_files[@]}"; do
+     if [ ! -f ${b2share_directroy}/${b2share_file} ]; then
       tput setaf 1;
-      echo ' The file' ${!b2share_file} 'will be downloaded.'
+      echo ' The file' ${b2share_file} 'will be downloaded.'
       tput sgr0
       
-      wget --directory-prefix=${b2share_directroy}/ ${b2share_ece2cmor_dataset_address}/${!b2share_file}
+      wget --directory-prefix=${b2share_directroy}/ ${b2share_ece2cmor_dataset_address}/${b2share_file}
      else
-      echo ' The file' ${!b2share_file} 'is already available.'
+      echo ' The file' ${b2share_file} 'is already available.'
      fi
  done
  echo
 
  # Checking whether all files are there:
- for i in {01..13}; do
-     b2share_file="b2share_file_$i"
-     
-     if [ ! -f ${b2share_directroy}/${!b2share_file} ]; then
+ for b2share_file in "${b2share_files[@]}"; do
+     if [ ! -f ${b2share_directroy}/${b2share_file} ]; then
       tput setaf 1;
-      echo ' Warning: The file' ${b2share_directroy}/${!b2share_file} 'it still does not exist after trying to download it.'
+      echo ' Warning: The file' ${b2share_directroy}/${b2share_file} 'it still does not exist after trying to download it.'
       tput sgr0
      fi
  done
 
  # Checking the md5 checksums:
  cd ${b2share_directroy}
- for i in `ls -1 *.nc`; do md5sum $i >> verify-md5-checksum-b2share-data.md5; done
- diff verify-md5-checksum-b2share-data.md5 md5-checksum-b2share-data.md5
- rm -f verify-md5-checksum-b2share-data.md5
+ md5sum -c --quiet md5-checksum-b2share-data.md5
  cd -
 
 else
  echo
  echo ' Illegal number of arguments: the script requires one argument: The path of the b2share-data directory:'
  echo ' ' $0 '${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data'
+ echo ' ' $0 '${PERM}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data'
  echo
 fi
 
