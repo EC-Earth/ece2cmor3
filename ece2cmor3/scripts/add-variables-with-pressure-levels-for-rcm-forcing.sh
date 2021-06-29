@@ -367,7 +367,7 @@ if [ "$#" -eq 0 ]; then
 
  else
     echo '  '
-    echo '  Noting done, no set of variables and / or experiments has been selected to add to the tables.'
+    echo '  Nothing done, no set of variables and / or experiments has been selected to add to the tables.'
     echo '  '
  fi
 
