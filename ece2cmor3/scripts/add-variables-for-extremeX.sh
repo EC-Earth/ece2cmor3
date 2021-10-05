@@ -137,6 +137,7 @@ if [ "$#" -eq 0 ]; then
 
 
 
+# Additions to CMIP6_6hrPlevPt.json:
 
   sed -i  '/"hus7h": {/i \
                 "hus": {                                                                                \
@@ -276,7 +277,6 @@ if [ "$#" -eq 0 ]; then
         },                                                               
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
-# Note change looked shifted with the meld session, however this seems correct:
   sed -i  '/"va7h": {/i \
         "va3": {                                                               \
             "frequency": "6hrPt",                                              \
@@ -300,8 +300,7 @@ if [ "$#" -eq 0 ]; then
 
 
 
-
-
+# Additions to CMIP6_Amon.json:
 
   sed -i  '/"huss": {/i \
         "hus9": {                                                                               \
@@ -324,11 +323,133 @@ if [ "$#" -eq 0 ]; then
         },                                                                                      
   ' ../resources/tables/CMIP6_Amon.json
 
-# "rlut": {
-# "tas": {
-# "uas": {
-# "vas": {
-# "zg": {
+  sed -i  '/"rlut": {/i \
+        "fsntoa": {                                                                                 \
+            "frequency": "mon",                                                                     \
+            "modeling_realm": "atmos",                                                              \
+            "standard_name": "toa_net_shortwave_flux",                                              \
+            "units": "W m-2",                                                                       \
+            "cell_methods": "area: time: mean",                                                     \
+            "cell_measures": "area: areacella",                                                     \
+            "long_name": "TOA Net Solar Radiation",                                                 \
+            "comment": "at the top of the atmosphere (to be compared with satellite measurements)", \
+            "dimensions": "longitude latitude time",                                                \
+            "out_name": "fsntoa",                                                                   \
+            "type": "real",                                                                         \
+            "positive": "up",                                                                       \
+            "valid_min": "",                                                                        \
+            "valid_max": "",                                                                        \
+            "ok_min_mean_abs": "",                                                                  \
+            "ok_max_mean_abs": ""                                                                   \
+        },                                                                                          
+  ' ../resources/tables/CMIP6_Amon.json
+
+  sed -i  '/"tas": {/i \
+        "ta9": {                                           \
+            "frequency": "mon",                            \
+            "modeling_realm": "atmos",                     \
+            "standard_name": "air_temperature",            \
+            "units": "K",                                  \
+            "cell_methods": "time: mean",                  \
+            "cell_measures": "area: areacella",            \
+            "long_name": "Air Temperature",                \
+            "comment": "Air Temperature",                  \
+            "dimensions": "longitude latitude plev9 time", \
+            "out_name": "ta",                              \
+            "type": "real",                                \
+            "positive": "",                                \
+            "valid_min": "",                               \
+            "valid_max": "",                               \
+            "ok_min_mean_abs": "",                         \
+            "ok_max_mean_abs": ""                          \
+        },                                                 
+  ' ../resources/tables/CMIP6_Amon.json
+
+  sed -i  '/"uas": {/i \
+        "ua9": {                                                         \
+            "frequency": "mon",                                          \
+            "modeling_realm": "atmos",                                   \
+            "standard_name": "eastward_wind",                            \
+            "units": "m s-1",                                            \
+            "cell_methods": "time: mean",                                \
+            "cell_measures": "area: areacella",                          \
+            "long_name": "Eastward Wind",                                \
+            "comment": "Zonal wind (positive in a eastward direction).", \
+            "dimensions": "longitude latitude plev9 time",               \
+            "out_name": "ua",                                            \
+            "type": "real",                                              \
+            "positive": "",                                              \
+            "valid_min": "",                                             \
+            "valid_max": "",                                             \
+            "ok_min_mean_abs": "",                                       \
+            "ok_max_mean_abs": ""                                        \
+        },                                                               
+  ' ../resources/tables/CMIP6_Amon.json
+
+  sed -i  '/"vas": {/i \
+        "va9": {                                                               \
+            "frequency": "mon",                                                \
+            "modeling_realm": "atmos",                                         \
+            "standard_name": "northward_wind",                                 \
+            "units": "m s-1",                                                  \
+            "cell_methods": "time: mean",                                      \
+            "cell_measures": "area: areacella",                                \
+            "long_name": "Northward Wind",                                     \
+            "comment": "Meridional wind (positive in a northward direction).", \
+            "dimensions": "longitude latitude plev9 time",                     \
+            "out_name": "va",                                                  \
+            "type": "real",                                                    \
+            "positive": "",                                                    \
+            "valid_min": "",                                                   \
+            "valid_max": "",                                                   \
+            "ok_min_mean_abs": "",                                             \
+            "ok_max_mean_abs": ""                                              \
+        },                                                                     
+  ' ../resources/tables/CMIP6_Amon.json
+
+#           "comment": "The atmosphere boundary layer thickness is the 'depth' or 'height' of the (atmosphere) planetary boundary layer.", \
+  sed -i  '/"zg": {/i \
+        "zg9": {                                                                                                                           \
+            "frequency": "mon",                                                                                                            \
+            "modeling_realm": "atmos",                                                                                                     \
+            "standard_name": "geopotential_height",                                                                                        \
+            "units": "m",                                                                                                                  \
+            "cell_methods": "time: mean",                                                                                                  \
+            "cell_measures": "area: areacella",                                                                                            \
+            "long_name": "Geopotential Height",                                                                                            \
+            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.",\
+            "dimensions": "longitude latitude plev9 time",                                                                                 \
+            "out_name": "zg",                                                                                                              \
+            "type": "real",                                                                                                                \
+            "positive": "",                                                                                                                \
+            "valid_min": "",                                                                                                               \
+            "valid_max": "",                                                                                                               \
+            "ok_min_mean_abs": "",                                                                                                         \
+            "ok_max_mean_abs": ""                                                                                                          \
+        },                                                                                                                                 \
+        "zmla": {                                                                                                                          \
+            "frequency": "mon",                                                                                                            \
+            "modeling_realm": "atmos",                                                                                                     \
+            "standard_name": "atmosphere_boundary_layer_thickness",                                                                        \
+            "units": "m",                                                                                                                  \
+            "cell_methods": "area: time: mean",                                                                                            \
+            "cell_measures": "area: areacella",                                                                                            \
+            "long_name": "Height of Boundary Layer",                                                                                       \
+            "comment": "The atmosphere boundary layer thickness is the depth or height of the (atmosphere) planetary boundary layer.",     \
+            "dimensions": "longitude latitude time",                                                                                       \
+            "out_name": "zmla",                                                                                                            \
+            "type": "real",                                                                                                                \
+            "positive": "",                                                                                                                \
+            "valid_min": "",                                                                                                               \
+            "valid_max": "",                                                                                                               \
+            "ok_min_mean_abs": "",                                                                                                         \
+            "ok_max_mean_abs": ""                                                                                                          \
+        },                                                                                                                                 
+  ' ../resources/tables/CMIP6_Amon.json
+
+
+
+# Additions to CMIP6_day.json:
 
   sed -i  '/"hfls": {/i \
        "evspsbl": {                                                                             \
@@ -375,6 +496,10 @@ if [ "$#" -eq 0 ]; then
 # "uas": {
 # "zg": {
 # "zg": {
+
+
+
+# Additions to CMIP6_CV.json:
 
   sed -i  '/"s1910":"initialized near end of year 1910",/i \
             "afsf":"initialized in 1979",                  \
