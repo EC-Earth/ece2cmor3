@@ -177,10 +177,131 @@ if [ "$#" -eq 0 ]; then
                 },                                                                                      
   ' ../resources/tables/CMIP6_6hrPlevPt.json
 
-# "rainmxrat27": {
-# "ta27": {
-# "ua7h": {
-# "va3": {
+  sed -i  '/"rainmxrat27": {/i \
+        "ps": {                                                                                                                                 \
+            "frequency": "6hrPt",                                                                                                               \
+            "modeling_realm": "atmos",                                                                                                          \
+            "standard_name": "surface_air_pressure",                                                                                            \
+            "units": "Pa",                                                                                                                      \
+            "cell_methods": "area: mean time: point",                                                                                           \
+            "cell_measures": "area: areacella",                                                                                                 \
+            "long_name": "Surface Air Pressure",                                                                                                \
+            "comment": "surface pressure (not mean sea-level pressure), 2-D field to calculate the 3-D pressure field from hybrid coordinates", \
+            "dimensions": "longitude latitude time1",                                                                                           \
+            "out_name": "ps",                                                                                                                   \
+            "type": "real",                                                                                                                     \
+            "positive": "",                                                                                                                     \
+            "valid_min": "",                                                                                                                    \
+            "valid_max": "",                                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                                              \
+            "ok_max_mean_abs": ""                                                                                                               \
+        },                                                                                                                                      \
+        "pv": {                                                                                                                                 \
+            "frequency": "6hrPt",                                                                                                               \
+            "modeling_realm": "atmos",                                                                                                          \
+            "standard_name": "potential_vorticity",                                                                                             \
+            "units": "K m2 kg-1 s-1",                                                                                                           \
+            "cell_methods": "area: mean time: point",                                                                                           \
+            "cell_measures": "area: areacella",                                                                                                 \
+            "long_name": "Potential Vorticity",                                                                                                 \
+            "comment": "Ertel potential vorticity",                                                                                             \
+            "dimensions": "longitude latitude plev9 time1",                                                                                     \
+            "out_name": "pv",                                                                                                                   \
+            "type": "real",                                                                                                                     \
+            "positive": "",                                                                                                                     \
+            "valid_min": "",                                                                                                                    \
+            "valid_max": "",                                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                                              \
+            "ok_max_mean_abs": ""                                                                                                               \
+        },                                                                                                                                      \
+        "cape": {                                                                                                                               \
+            "frequency": "6hrPt",                                                                                                               \
+            "modeling_realm": "atmos",                                                                                                          \
+            "standard_name": "cape",                                                                                                            \
+            "units": "J kg-1",                                                                                                                  \
+            "cell_methods": "area: mean time: point",                                                                                           \
+            "cell_measures": "area: areacella",                                                                                                 \
+            "long_name": "Convective available potential energy",                                                                               \
+            "comment": "Convective available potential energy",                                                                                 \
+            "dimensions": "longitude latitude time1",                                                                                           \
+            "out_name": "cape",                                                                                                                 \
+            "type": "real",                                                                                                                     \
+            "positive": "",                                                                                                                     \
+            "valid_min": "",                                                                                                                    \
+            "valid_max": "",                                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                                              \
+            "ok_max_mean_abs": ""                                                                                                               \
+        },                                                                                                                                      
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+  sed -i  '/"ta27": {/i \
+        "ta3": {                                            \
+            "frequency": "6hrPt",                           \
+            "modeling_realm": "atmos",                      \
+            "standard_name": "air_temperature",             \
+            "units": "K",                                   \
+            "cell_methods": "area: mean time: point",       \
+            "cell_measures": "area: areacella",             \
+            "long_name": "Air Temperature",                 \
+            "comment": "Air Temperature",                   \
+            "dimensions": "longitude latitude plev3 time1", \
+            "out_name": "ta",                               \
+            "type": "real",                                 \
+            "positive": "",                                 \
+            "valid_min": "",                                \
+            "valid_max": "",                                \
+            "ok_min_mean_abs": "",                          \
+            "ok_max_mean_abs": ""                           \
+        },                                                  
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+  sed -i  '/"ua7h": {/i \
+        "ua3": {                                                         \
+            "frequency": "6hrPt",                                        \
+            "modeling_realm": "atmos",                                   \
+            "standard_name": "eastward_wind",                            \
+            "units": "m s-1",                                            \
+            "cell_methods": "area: mean time: point",                    \
+            "cell_measures": "area: areacella",                          \
+            "long_name": "Eastward Wind",                                \
+            "comment": "Zonal wind (positive in a eastward direction).", \
+            "dimensions": "longitude latitude plev3 time1",              \
+            "out_name": "ua",                                            \
+            "type": "real",                                              \
+            "positive": "",                                              \
+            "valid_min": "",                                             \
+            "valid_max": "",                                             \
+            "ok_min_mean_abs": "",                                       \
+            "ok_max_mean_abs": ""                                        \
+        },                                                               
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+# Note change looked shifted with the meld session, however this seems correct:
+  sed -i  '/"va7h": {/i \
+        "va3": {                                                               \
+            "frequency": "6hrPt",                                              \
+            "modeling_realm": "atmos",                                         \
+            "standard_name": "northward_wind",                                 \
+            "units": "m s-1",                                                  \
+            "cell_methods": "area: mean time: point",                          \
+            "cell_measures": "area: areacella",                                \
+            "long_name": "Northward Wind",                                     \
+            "comment": "Meridional wind (positive in a northward direction).", \
+            "dimensions": "longitude latitude plev3 time1",                    \
+            "out_name": "va",                                                  \
+            "type": "real",                                                    \
+            "positive": "",                                                    \
+            "valid_min": "",                                                   \
+            "valid_max": "",                                                   \
+            "ok_min_mean_abs": "",                                             \
+            "ok_max_mean_abs": ""                                              \
+        },                                                                     
+  ' ../resources/tables/CMIP6_6hrPlevPt.json
+
+
+
+
+
 
   sed -i  '/"huss": {/i \
         "hus9": {                                                                               \
