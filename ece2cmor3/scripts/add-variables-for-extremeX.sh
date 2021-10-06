@@ -489,12 +489,221 @@ if [ "$#" -eq 0 ]; then
         },                                                                                      
   ' ../resources/tables/CMIP6_day.json
 
-# "pr": {
-# "rsds": {
-# "tas": {
-# "uas": {
-# "zg": {
-# "zg": {
+  sed -i  '/"pr": {/i \
+        "mrsol": {                                                                                                                                             \
+            "frequency": "day",                                                                                                                                \
+            "modeling_realm": "land",                                                                                                                          \
+            "standard_name": "mass_content_of_water_in_soil_layer",                                                                                            \
+            "units": "kg m-2",                                                                                                                                 \
+            "cell_methods": "area: mean time: point",                                                                                                          \
+            "cell_measures": "area: areacella",                                                                                                                \
+            "long_name": "Total Water Content of Soil Layer",                                                                                                  \
+            "comment": "in each soil layer, the mass of water in all phases, including ice.  Reported as \x27missing\x27 for grid cells occupied entirely by \x27sea\x27", \
+            "dimensions": "longitude latitude sdepth time1",                                                                                                   \
+            "out_name": "mrsol",                                                                                                                               \
+            "type": "real",                                                                                                                                    \
+            "positive": "",                                                                                                                                    \
+            "valid_min": "",                                                                                                                                   \
+            "valid_max": "",                                                                                                                                   \
+            "ok_min_mean_abs": "",                                                                                                                             \
+            "ok_max_mean_abs": ""                                                                                                                              \
+        },                                                                                                                                                     
+  ' ../resources/tables/CMIP6_day.json
+
+  sed -i  '/"rsds": {/i \
+         "fsntoa": {                                                                                \
+            "frequency": "day",                                                                     \
+            "modeling_realm": "atmos",                                                              \
+            "standard_name": "toa_net_shortwave_flux",                                              \
+            "units": "W m-2",                                                                       \
+            "cell_methods": "area: time: mean",                                                     \
+            "cell_measures": "area: areacella",                                                     \
+            "long_name": "TOA Net Solar Radiation",                                                 \
+            "comment": "at the top of the atmosphere (to be compared with satellite measurements)", \
+            "dimensions": "longitude latitude time",                                                \
+            "out_name": "fsntoa",                                                                   \
+            "type": "real",                                                                         \
+            "positive": "up",                                                                       \
+            "valid_min": "",                                                                        \
+            "valid_max": "",                                                                        \
+            "ok_min_mean_abs": "",                                                                  \
+            "ok_max_mean_abs": ""                                                                   \
+        },                                                                                          
+  ' ../resources/tables/CMIP6_day.json
+
+  sed -i  '/"tas": {/i \
+        "tas": {                                                          \
+            "frequency": "day",                                           \
+            "modeling_realm": "atmos",                                    \
+            "standard_name": "air_temperature",                           \
+            "units": "K",                                                 \
+            "cell_methods": "area: time: mean",                           \
+            "cell_measures": "area: areacella",                           \
+            "long_name": "Near-Surface Air Temperature",                  \
+            "comment": "near-surface (usually, 2 meter) air temperature", \
+            "dimensions": "longitude latitude time height2m",             \
+            "out_name": "tas",                                            \
+            "type": "real",                                               \
+            "positive": "",                                               \
+            "valid_min": "",                                              \
+            "valid_max": "",                                              \
+            "ok_min_mean_abs": "",                                        \
+            "ok_max_mean_abs": ""                                         \
+        },                                                                
+  ' ../resources/tables/CMIP6_day.json
+
+  sed -i  '/"uas": {/i \
+        "ua9": {                                                         \
+            "frequency": "day",                                          \
+            "modeling_realm": "atmos",                                   \
+            "standard_name": "eastward_wind",                            \
+            "units": "m s-1",                                            \
+            "cell_methods": "time: mean",                                \
+            "cell_measures": "area: areacella",                          \
+            "long_name": "Eastward Wind",                                \
+            "comment": "Zonal wind (positive in a eastward direction).", \
+            "dimensions": "longitude latitude plev9 time",               \
+            "out_name": "ua",                                            \
+            "type": "real",                                              \
+            "positive": "",                                              \
+            "valid_min": "",                                             \
+            "valid_max": "",                                             \
+            "ok_min_mean_abs": "",                                       \
+            "ok_max_mean_abs": ""                                        \
+        },                                                               
+  ' ../resources/tables/CMIP6_day.json
+
+  sed -i  '/"zg": {/i \
+        "wap850": {                                                                             \
+            "frequency": "day",                                                                 \
+            "modeling_realm": "atmos",                                                          \
+            "standard_name": "lagrangian_tendency_of_air_pressure",                             \
+            "units": "Pa s-1",                                                                  \
+            "cell_methods": "time: mean",                                                       \
+            "cell_measures": "area: areacella",                                                 \
+            "long_name": "Omega (=dp/dt)",                                                      \
+            "comment": "Omega (vertical velocity in pressure coordinates, positive downwards)", \
+            "dimensions": "longitude latitude p850 time",                                       \
+            "out_name": "wap",                                                                  \
+            "type": "real",                                                                     \
+            "positive": "",                                                                     \
+            "valid_min": "",                                                                    \
+            "valid_max": "",                                                                    \
+            "ok_min_mean_abs": "",                                                              \
+            "ok_max_mean_abs": ""                                                               \
+        },                                                                                      
+  ' ../resources/tables/CMIP6_day.json
+
+  sed -i  '/"zg": {/i \
+        "zg200": {                                                                                                                                     \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "atmos",                                                                                                                 \
+            "standard_name": "geopotential_height",                                                                                                    \
+            "units": "m",                                                                                                                              \
+            "cell_methods": "time: mean",                                                                                                              \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Geopotential Height",                                                                                                        \
+            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.",\
+            "dimensions": "longitude latitude p200 time",                                                                                              \
+            "out_name": "zg200",                                                                                                                       \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        },                                                                                                                                             \
+        "zg500": {                                                                                                                                     \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "atmos",                                                                                                                 \
+            "standard_name": "geopotential_height",                                                                                                    \
+            "units": "m",                                                                                                                              \
+            "cell_methods": "time: mean",                                                                                                              \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Geopotential Height",                                                                                                        \
+            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.",\
+            "dimensions": "longitude latitude p500 time",                                                                                              \
+            "out_name": "zg500",                                                                                                                       \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        },                                                                                                                                             \
+        "zg850": {                                                                                                                                     \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "atmos",                                                                                                                 \
+            "standard_name": "geopotential_height",                                                                                                    \
+            "units": "m",                                                                                                                              \
+            "cell_methods": "time: mean",                                                                                                              \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Geopotential Height",                                                                                                        \
+            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.",\
+            "dimensions": "longitude latitude p850 time",                                                                                              \
+            "out_name": "zg850",                                                                                                                       \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        },                                                                                                                                             \
+       "mrros": {                                                                                                                                      \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "land",                                                                                                                  \
+            "standard_name": "surface_runoff_flux",                                                                                                    \
+            "units": "kg m-2 s-1",                                                                                                                     \
+            "cell_methods": "area: mean where land time: mean",                                                                                        \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Surface Runoff",                                                                                                             \
+            "comment": "The total surface run off leaving the land portion of the grid cell (excluding drainage through the base of the soil model).", \
+            "dimensions": "longitude latitude time",                                                                                                   \
+            "out_name": "mrros",                                                                                                                       \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        },                                                                                                                                             \
+        "mrfso": {                                                                                                                                     \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "land landIce",                                                                                                          \
+            "standard_name": "soil_frozen_water_content",                                                                                              \
+            "units": "kg m-2",                                                                                                                         \
+            "cell_methods": "area: mean where land time: mean",                                                                                        \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Soil Frozen Water Content",                                                                                                  \
+            "comment": "The mass per unit area (summed over all model layers) of frozen water.",                                                       \
+            "dimensions": "longitude latitude time",                                                                                                   \
+            "out_name": "mrfso",                                                                                                                       \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        },                                                                                                                                             \
+        "tsl": {                                                                                                                                       \
+            "frequency": "day",                                                                                                                        \
+            "modeling_realm": "land",                                                                                                                  \
+            "standard_name": "soil_temperature",                                                                                                       \
+            "units": "K",                                                                                                                              \
+            "cell_methods": "area: mean where land time: mean",                                                                                        \
+            "cell_measures": "area: areacella",                                                                                                        \
+            "long_name": "Temperature of Soil",                                                                                                        \
+            "comment": "Temperature of soil. Reported as missing for grid cells with no land.",                                                        \
+            "dimensions": "longitude latitude sdepth time",                                                                                            \
+            "out_name": "tsl",                                                                                                                         \
+            "type": "real",                                                                                                                            \
+            "positive": "",                                                                                                                            \
+            "valid_min": "",                                                                                                                           \
+            "valid_max": "",                                                                                                                           \
+            "ok_min_mean_abs": "",                                                                                                                     \
+            "ok_max_mean_abs": ""                                                                                                                      \
+        }                                                                                                                                              
+  ' ../resources/tables/CMIP6_day.json
 
 
 
