@@ -407,7 +407,6 @@ if [ "$#" -eq 0 ]; then
         },                                                                     
   ' ../resources/tables/CMIP6_Amon.json
 
-#           "comment": "The atmosphere boundary layer thickness is the 'depth' or 'height' of the (atmosphere) planetary boundary layer.", \
   sed -i  '/"zg": {/i \
         "zg9": {                                                                                                                           \
             "frequency": "mon",                                                                                                            \
@@ -435,7 +434,7 @@ if [ "$#" -eq 0 ]; then
             "cell_methods": "area: time: mean",                                                                                            \
             "cell_measures": "area: areacella",                                                                                            \
             "long_name": "Height of Boundary Layer",                                                                                       \
-            "comment": "The atmosphere boundary layer thickness is the depth or height of the (atmosphere) planetary boundary layer.",     \
+            "comment": "The atmosphere boundary layer thickness is the \x27depth\x27 or \x27height\x27 of the (atmosphere) planetary boundary layer.", \
             "dimensions": "longitude latitude time",                                                                                       \
             "out_name": "zmla",                                                                                                            \
             "type": "real",                                                                                                                \
@@ -496,6 +495,52 @@ if [ "$#" -eq 0 ]; then
 # "uas": {
 # "zg": {
 # "zg": {
+
+
+
+# Additions to CMIP6_Lmon.json:
+
+  sed -i  '/"nbp": {/i \
+        "mrsol": {                                                                                                                                             \
+            "frequency": "mon",                                                                                                                                \
+            "modeling_realm": "land",                                                                                                                          \
+            "standard_name": "mass_content_of_water_in_soil_layer",                                                                                            \
+            "units": "kg m-2",                                                                                                                                 \
+            "cell_methods": "area: mean time: point",                                                                                                          \
+            "cell_measures": "area: areacella",                                                                                                                \
+            "long_name": "Total Water Content of Soil Layer",                                                                                                  \
+            "comment": "in each soil layer, the mass of water in all phases, including ice.  Reported as \x27missing\x27 for grid cells occupied entirely by \x27sea\x27", \
+            "dimensions": "longitude latitude sdepth time1",                                                                                                   \
+            "out_name": "mrsol",                                                                                                                               \
+            "type": "real",                                                                                                                                    \
+            "positive": "",                                                                                                                                    \
+            "valid_min": "",                                                                                                                                   \
+            "valid_max": "",                                                                                                                                   \
+            "ok_min_mean_abs": "",                                                                                                                             \
+            "ok_max_mean_abs": ""                                                                                                                              \
+        },                                                                                                                                                     
+  ' ../resources/tables/CMIP6_Lmon.json
+
+  sed -i  '/"tsl": {/i \
+        "tslsi": {                                                               \
+            "frequency": "mon",                                                  \
+            "modeling_realm": "land",                                            \
+            "standard_name": "surface_temperature",                              \
+            "units": "K",                                                        \
+            "cell_methods": "area: time: mean (comment: over land and sea ice)", \
+            "cell_measures": "area: areacella",                                  \
+            "long_name": "Surface Temperature Where Land or Sea Ice",            \
+            "comment": "Surface temperature of all surfaces except open ocean.", \
+            "dimensions": "longitude latitude time",                             \
+            "out_name": "tslsi",                                                 \
+            "type": "real",                                                      \
+            "positive": "",                                                      \
+            "valid_min": "",                                                     \
+            "valid_max": "",                                                     \
+            "ok_min_mean_abs": "",                                               \
+            "ok_max_mean_abs": ""                                                \
+        }                                                                        
+  ' ../resources/tables/CMIP6_Lmon.json
 
 
 
