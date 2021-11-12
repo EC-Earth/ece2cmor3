@@ -417,10 +417,12 @@
     },
     {
         "source": "176.128",
+        "convert": "cum2inst",
         "target": "rss"
     },
     {
         "source": "177.128",
+        "convert": "cum2inst",
         "target": "rls"
     },
     {
