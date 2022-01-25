@@ -30,12 +30,12 @@ if [ "$#" -eq 2 ]; then
  LEG=$2
 
  EXP=onep
- ECEDIR=/scratch/ms/nl/nm6/ECEARTH-RUNS/$EXP/output/$COMPONENT/$LEG
+ ECEDIR=${SCRATCH}/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
  ECEMODEL=EC-EARTH-AOGCM
  METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AOGCM-$COMPONENT-template.json
  TEMPDIR=${SCRATCH}/cmorisation/temp-cmor-dir/$EXP/$COMPONENT/$LEG
  VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/cmip6-output-control-files/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
- ODIR=${SCRATCH}/cmorisation/cmorised-results/cmor-aerchem-cmip-$EXP/$EXP
+ ODIR=${SCRATCH}/cmorisation/cmorised-results/cmor-CMIP-historical-$EXP/$EXP
 
  # The directoy (at scratch) from where the submit scripts will be launched by qsub:
  running_directory=${SCRATCH}/cmorisation/
@@ -133,7 +133,7 @@ fi
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${pbs_header}                                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " source $SCRATCH/mamba/etc/profile.d/conda.sh                                               " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " export HDF5_USE_FILE_LOCKING=FALSE                                                         " | sed 's/\s*$//g' >> ${job_name}
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
