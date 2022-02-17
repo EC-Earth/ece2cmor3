@@ -75,10 +75,10 @@ targets = []
 for d in data:
     targets.append(str(d["target"]))
 #print targets
-print '\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist)
-print '\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets)
-print '\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file'
-print '\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n'
+print('\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist))
+print('\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets))
+print('\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file')
+print('\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n')
 
 #history
 

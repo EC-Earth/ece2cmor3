@@ -54,7 +54,7 @@ def choose_variable(target_list, model_component, ecearth_config):
     # For IFS, skip 3D variables on small level subsets in favor of extended level sets
     if model_component == "ifs":
         result = []
-        level_sets = map(cmor_target.get_z_axis, target_list)
+        level_sets = list(map(cmor_target.get_z_axis, target_list))
         for i in range(len(level_sets)):
             level_type, levels = level_sets[i][0], set(level_sets[i][1])
             add_to_list = True
@@ -66,7 +66,7 @@ def choose_variable(target_list, model_component, ecearth_config):
             if add_to_list:
                 result.append(target_list[i])
         # Incompatible variables fix: zg7h and zg27
-        vartabs = map(lambda t: (t.table, t.variable), result)
+        vartabs = [(t.table, t.variable) for t in result]
         if ("6hrPlevPt", "zg7h") in vartabs and ("6hrPlevPt", "zg27") in vartabs:
             result.remove([t for t in target_list if (t.table, t.variable) == ("6hrPlevPt", "zg27")][0])
         return result

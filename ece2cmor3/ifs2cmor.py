@@ -74,7 +74,7 @@ def get_output_freq(task):
     try:
         env_val = int(env_val)
     except ValueError:
-        log.error("Could not interpret environment variable ECE2CMOR3_IFS_NFRPOS with value %s as integer" %
+        log.error("Could not interpret environment variable ECE2CMOR3_IFS_NFRPOS with value %s as integer",
                   str(env_val))
         env_val = -1
     if env_val >= 0:
@@ -110,8 +110,8 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     if any(shfiles) and any(gpfiles) and set(shfiles.keys()) != set(gpfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
         if not any(intersection):
-            log.error("Gridpoint files %s and spectral files %s correspond to different months, no overlap found..." %
-                      (str(gpfiles.values()), str(shfiles.values())))
+            log.error("Gridpoint files %s and spectral files %s correspond to different months, no overlap found...",
+                      str(list(gpfiles.values())), str(list(shfiles.values())))
             ifs_gridpoint_files_ = {}
             ifs_spectral_files_ = {}
             return False
@@ -119,15 +119,15 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
             ifs_gridpoint_files_ = {date: gpfiles[date] for date in intersection}
             ifs_spectral_files_ = {date: shfiles[date] for date in intersection}
             log.warning("Gridpoint files %s and spectral files %s correspond to different months, found overlapping "
-                        "dates %s" % (str(gpfiles.values()), str(shfiles.values()), str(intersection)))
+                        "dates %s", str(list(gpfiles.values())), str(list(shfiles.values())), str(intersection))
     else:
         ifs_gridpoint_files_, ifs_spectral_files_ = gpfiles, shfiles
     if ifs_init_gridpoint_file_ is None:
         if any(ifs_gridpoint_files_.values()):
-            ifs_init_gridpoint_file_ = ifs_gridpoint_files_.values()[0]
+            ifs_init_gridpoint_file_ = list(ifs_gridpoint_files_.values())[0]
         else:
-            log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
-                      (exp_name_, path))
+            log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization",
+                      exp_name_, path)
             return False
 
     tmpdir_parent = os.getcwd() if tempdir is None else tempdir
@@ -138,7 +138,7 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     if not os.path.exists(temp_dir_):
         os.makedirs(temp_dir_)
     if auto_filter_:
-        ini_gpf = None if ifs_init_gridpoint_file_ == ifs_gridpoint_files_.values()[0] else ifs_init_gridpoint_file_
+        ini_gpf = None if ifs_init_gridpoint_file_ == list(ifs_gridpoint_files_.values())[0] else ifs_init_gridpoint_file_
         grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_, ini_gpfile=ini_gpf,
                                ini_shfile=ifs_init_spectral_file_)
     return True
@@ -158,13 +158,13 @@ def validate_script_task(task):
     if script is None:
         return None
     if script not in scripts:
-        log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s "
-                  % (script, task.target.variable, task.target.table))
+        log.error("Could not find post-processing script %s in ifspar.json, dismissing variable %s in table %s ",
+                  script, task.target.variable, task.target.table)
         task.set_failed()
         return None
     if scripts[script].get("src", None) is None:
-        log.error("Script source for %s has not been given, dismissing variable %s in table %s"
-                  % (script, task.target.variable, task.target.table))
+        log.error("Script source for %s has not been given, dismissing variable %s in table %s",
+                  script, task.target.variable, task.target.table)
         return None
     return scripts[script].get("filter", "true").lower()
 
@@ -173,7 +173,7 @@ def execute(tasks, nthreads=1):
     global log, start_date_, auto_filter_
 
     supported_tasks = [t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized]
-    log.info("Executing %d IFS tasks..." % len(supported_tasks))
+    log.info("Executing %d IFS tasks...", len(supported_tasks))
     mask_tasks = get_mask_tasks(supported_tasks)
     fx_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) == 0]
     regular_tasks = [t for t in supported_tasks if cmor_target.get_freq(t.target) != 0]
@@ -204,9 +204,9 @@ def execute(tasks, nthreads=1):
     # Launch no-filter scripts
     jobs = []
     tasks_per_script = cmor_utils.group(script_tasks_no_filter, lambda tsk: getattr(tsk, cmor_task.postproc_script_key))
-    for s, tasklist in tasks_per_script.items():
-        log.info("Launching script %s to process variables %s" %
-                 (s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist])))
+    for s, tasklist in list(tasks_per_script.items()):
+        log.info("Launching script %s to process variables %s",
+                 s, ','.join([t.target.variable + " in " + t.target.table for t in tasklist]))
         script_args = (s, str(scripts[s]["src"]), tasklist)
         if np == 1:
             script_worker(*script_args)
@@ -224,14 +224,14 @@ def execute(tasks, nthreads=1):
         tasks_todo = tasks_no_filter
         for task in tasks_to_filter:
             if task.source.grid_id() == cmor_source.ifs_grid.point:
-                setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+                setattr(task, cmor_task.filter_output_key, list(ifs_gridpoint_files_.values()))
                 tasks_todo.append(task)
             elif task.source.grid_id() == cmor_source.ifs_grid.spec:
-                setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+                setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
                 tasks_todo.append(task)
             else:
-                log.error("Task ifs source has unknown grid for %s in table %s" % (task.target.variable,
-                                                                                   task.target.table))
+                log.error("Task ifs source has unknown grid for %s in table %s",
+                          task.target.variable, task.target.table)
                 task.set_failed()
 
     for task in tasks_todo:
@@ -263,15 +263,16 @@ def cmor_worker(task):
         return
     if validate_script_task(task) is not None:
         script = scripts[getattr(task, cmor_task.postproc_script_key)]["src"]
-        log.info("Post-processing variable %s for target variable %s using %s..." % (task.source.get_grib_code().var_id,
-                                                                                     task.target.variable, script))
+        log.info("Post-processing variable %s for target variable %s using %s...", task.source.get_grib_code().var_id,
+                                                                                     task.target.variable, script)
         subprocess.check_call([script, task.target.variable, task.target.table,
                                getattr(task, cmor_task.filter_output_key)], cwd=temp_dir_)
         ncfile = os.path.join(temp_dir_, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
             setattr(task, cmor_task.output_path_key, ncfile)
         else:
-            log.error("Output file %s of script %s could not be found... skipping cmorization of task")
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task",
+                      ncfile, script)
             task.set_failed()
             return
     elif task.target.variable == "sftlf":
@@ -280,14 +281,14 @@ def cmor_worker(task):
         setattr(task, "download", ncfile)
         setattr(task, cmor_task.conversion_key, None)
     else:
-        log.info("Post-processing variable %s for target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                            task.target.variable))
+        log.info("Post-processing variable %s for target variable %s...", task.source.get_grib_code().var_id,
+                                                                            task.target.variable)
         if task.status not in [cmor_task.status_postprocessing, cmor_task.status_postprocessed]:
             postproc.post_process(task, temp_dir_, do_post_process())
         if task.status == cmor_task.status_failed:
             return
 
-    log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,                                                                        task.target.variable))
+    log.info("Cmorizing source variable %s to target variable %s...", task.source.get_grib_code().var_id,                                                                        task.target.variable)
     define_cmor_axes(task)
     if task.status in [cmor_task.status_failed, cmor_task.status_cmorized, cmor_task.status_finished]:
         return
@@ -299,7 +300,7 @@ def script_worker(name, src, tasks):
     tmpdir = os.path.join(temp_dir_, name + "-work")
     if not os.path.isdir(tmpdir):
         os.makedirs(tmpdir)
-    gpfile = ifs_gridpoint_files_.values()[0]
+    gpfile = list(ifs_gridpoint_files_.values())[0]
     year = os.path.basename(gpfile)[-6:-2]
     odir = os.path.abspath(os.path.dirname(gpfile))
     try:
@@ -307,20 +308,20 @@ def script_worker(name, src, tasks):
                                            [str(t.target.variable + '_' + t.target.table) for t in tasks],
                                       cwd=tmpdir, shell=False, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        log.error("Error in calling script %s: %s" % (src, str(e.output)))
-        log.error("The exit code of %s was %s" % (src, str(out)))
+        log.error("Error in calling script %s: %s", src, str(e.output))
+        log.error("The exit code of %s was %s", src, str(out))
     else:
-        log.info("The exit code of %s was %s" % (src, str(out)))
+        log.info("The exit code of %s was %s", src, str(out))
     for task in tasks:
         ncfile = os.path.join(tmpdir, task.target.variable + '_' + task.target.table + ".nc")
         if os.path.isfile(ncfile):
             setattr(task, cmor_task.output_path_key, ncfile)
         else:
-            log.error("Output file %s of script %s could not be found... skipping cmorization of task" % (ncfile, src))
+            log.error("Output file %s of script %s could not be found... skipping cmorization of task", ncfile, src)
             task.set_failed()
             continue
-        log.info("Cmorizing source variable %s to target variable %s..." % (task.source.get_grib_code().var_id,
-                                                                            task.target.variable))
+        log.info("Cmorizing source variable %s to target variable %s...", task.source.get_grib_code().var_id,
+                                                                            task.target.variable)
         define_cmor_axes(task)
         if task.status == cmor_task.status_failed:
             return
@@ -335,7 +336,7 @@ def get_mask_tasks(tasks):
         msk = getattr(task.target, cmor_target.mask_key, None)
         if msk:
             if msk not in masks:
-                log.warning("Mask %s is not supported as an IFS mask, skipping masking" % msk)
+                log.warning("Mask %s is not supported as an IFS mask, skipping masking", msk)
                 delattr(task.target, cmor_target.mask_key)
             else:
                 selected_masks.append(msk)
@@ -345,7 +346,7 @@ def get_mask_tasks(tasks):
             if len(words) == 3 and words[1] == "where":
                 mask_name = words[2]
                 if mask_name not in masks:
-                    log.warning("Mask %s is not supported as an IFS mask, skipping masking" % mask_name)
+                    log.warning("Mask %s is not supported as an IFS mask, skipping masking", mask_name)
                 else:
                     selected_masks.append(mask_name)
                     setattr(task.target, cmor_target.mask_key, mask_name)
@@ -366,7 +367,7 @@ def read_mask(name, filepath):
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
-        log.error("Could not read netcdf file %s while reading mask %s, reason: %s" % (filepath, name, e.message))
+        log.error("Could not read netcdf file %s while reading mask %s, reason: %s", filepath, name, e.message)
         return
     try:
         ncvars = dataset.variables
@@ -376,7 +377,7 @@ def read_mask(name, filepath):
             varlist = [v for v in ncvars if str(v) == "var" + codestr]
         if len(varlist) > 1:
             log.warning(
-                "CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+                "CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first", len(varlist))
         ncvar = ncvars[varlist[0]]
         if len(ncvar.shape) == 2:
             var = ncvar[:, :]
@@ -386,7 +387,7 @@ def read_mask(name, filepath):
             var = ncvar[0, 0, :, :]
         else:
             log.error(
-                "After processing, the shape of the mask variable is %s which cannot be applied to time slices" % str(
+                "After processing, the shape of the mask variable is %s which cannot be applied to time slices",str(
                     ncvar.shape))
             return
         f, v = masks[name]["operator"], masks[name]["rhs"]
@@ -411,7 +412,7 @@ def clean_tmp_data(tasks):
                 data_paths = [data_path]
             for dpath in data_paths:
                 dp = str(dpath)
-                if dp not in ifs_spectral_files_.values() + ifs_gridpoint_files_.values() and dp in tmp_files:
+                if dp not in list(ifs_spectral_files_.values()) + list(ifs_gridpoint_files_.values()) and dp in tmp_files:
                     try:
                         os.remove(dp)
                     except OSError:
@@ -420,13 +421,13 @@ def clean_tmp_data(tasks):
         os.rmdir(temp_dir_)
         temp_dir_ = os.getcwd()
     else:
-        log.warning("Skipped removal of nonempty work directory %s" % temp_dir_)
+        log.warning("Skipped removal of nonempty work directory %s", temp_dir_)
 
 
 # Creates a sub-list of tasks that we believe we can successfully process
 def filter_tasks(tasks):
     global log
-    log.info("Inspecting %d tasks." % len(tasks))
+    log.info("Inspecting %d tasks.", len(tasks))
     result = []
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
@@ -437,9 +438,9 @@ def filter_tasks(tasks):
             result.append(task)
         else:
             # TODO: Support zonal variables
-            log.error("Variable %s has unsupported combination of dimensions %s and will be skipped." % (
-                task.target.variable, tgtdims))
-    log.info("Validated %d tasks for processing." % len(result))
+            log.error("Variable %s has unsupported combination of dimensions %s and will be skipped.",
+                task.target.variable, tgtdims)
+    log.info("Validated %d tasks for processing.", len(result))
     return result
 
 
@@ -448,7 +449,7 @@ def get_sp_tasks(tasks):
     tasks_by_freq = cmor_utils.group(tasks, lambda task: (task.target.frequency,
                                                           '_'.join(getattr(task.target, "time_operator", ["mean"]))))
     existing, new = [], []
-    for freq, task_group in tasks_by_freq.iteritems():
+    for freq, task_group in tasks_by_freq.items():
         tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
         if not any(tasks3d):
             continue
@@ -479,7 +480,7 @@ def find_sp_variable(task):
         if grib_filter.spvar is None:
             log.error("Could not find surface pressure in model output...")
             return
-        log.info("Found surface pressure in file %s" % grib_filter.spvar[2])
+        log.info("Found surface pressure in file %s", grib_filter.spvar[2])
         setattr(task, cmor_task.filter_output_key, [grib_filter.spvar[2]])
         if grib_filter.spvar[0] == 152:
             task.source = ifs_ps_source
@@ -487,20 +488,20 @@ def find_sp_variable(task):
         return
     log.info("Looking for surface pressure variable in input files...")
     command = cdoapi.cdo_command()
-    code_string = command.show_code(ifs_spectral_files_.values()[0])
+    code_string = command.show_code(list(ifs_spectral_files_.values())[0])
     codes = [cmor_source.grib_code(int(c)) for c in code_string[0].split()]
     if surface_pressure in codes:
         log.info("Found surface pressure in spectral files")
-        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+        setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
         task.source.grid_ = 1
         return
     if ln_surface_pressure in codes:
         log.info("Found lnsp in spectral file")
-        setattr(task, cmor_task.filter_output_key, ifs_spectral_files_.values())
+        setattr(task, cmor_task.filter_output_key, list(ifs_spectral_files_.values()))
         task.source = ifs_ps_source
         return
     log.info("Did not find sp or lnsp in spectral file: assuming gridpoint file contains sp")
-    setattr(task, cmor_task.filter_output_key, ifs_gridpoint_files_.values())
+    setattr(task, cmor_task.filter_output_key, list(ifs_gridpoint_files_.values()))
     task.source.grid_ = 0
 
 
@@ -540,13 +541,13 @@ def define_cmor_axes(task):
             if has_lats:
                 grid_id = grid_ids[0]
     setattr(task, "grid_id", grid_id)
-    log.info("Loading CMOR table %s..." % task.target.table)
+    log.info("Loading CMOR table %s...", task.target.table)
     try:
         tab_id = cmor.load_table("_".join([table_root_, task.target.table]) + ".json")
         cmor.set_table(tab_id)
     except Exception as e:
-        log.error("CMOR failed to load table %s, the following variable will be skipped: %s. Reason: %s" % (
-            task.target.table, task.target.variable, e.message))
+        log.error("CMOR failed to load table %s, the following variable will be skipped: %s. Reason: %s",
+            task.target.table, task.target.variable, e.message)
         task.set_failed()
         return
     create_time_axes(task)
@@ -562,8 +563,8 @@ def execute_netcdf_task(task):
     filepath = getattr(task, cmor_task.output_path_key, None)
     if not filepath:
         log.error(
-            "Could not find file containing data for variable %s in table %s" % (task.target.variable,
-                                                                                 task.target.table))
+            "Could not find file containing data for variable %s in table %s", task.target.variable,
+                                                                                 task.target.table)
         return
     store_var = getattr(task, "store_with", None)
     surf_pressure_task = getattr(task, "sp_task", None)
@@ -571,7 +572,7 @@ def execute_netcdf_task(task):
     if store_var and not surf_pressure_path:
         log.error(
             "Could not find file containing surface pressure for model level variable...skipping variable %s in table "
-            "%s" % (task.target.variable, task.target.table))
+            "%s", task.target.variable, task.target.table)
         return
     axes = []
     t_bnds = []
@@ -589,8 +590,8 @@ def execute_netcdf_task(task):
     try:
         dataset = netCDF4.Dataset(filepath, 'r')
     except Exception as e:
-        log.error("Could not read netcdf file %s while cmorizing variable %s in table %s. Cause: %s" % (
-            filepath, task.target.variable, task.target.table, e.message))
+        log.error("Could not read netcdf file %s while cmorizing variable %s in table %s. Cause: %s",
+            filepath, task.target.variable, task.target.table, e.message)
         return
     try:
         ncvars = dataset.variables
@@ -605,12 +606,12 @@ def execute_netcdf_task(task):
             varlist = ["cell_area"]
         if len(varlist) == 0:
             log.error("No suitable variable found in cdo-produced file %s fro cmorizing variable %s in table %s... "
-                      "dismissing task" % (filepath, task.target.variable, task.target.table))
+                      "dismissing task", filepath, task.target.variable, task.target.table)
             task.set_failed()
             return
         if len(varlist) > 1:
             log.warning(
-                "CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first" % len(varlist))
+                "CDO variable retrieval resulted in multiple (%d) netcdf variables; will take first", len(varlist))
         ncvar = ncvars[varlist[0]]
         unit = getattr(ncvar, "units", None)
         if (not unit) or hasattr(task, cmor_task.conversion_key):
@@ -641,7 +642,7 @@ def execute_netcdf_task(task):
                     time_slice_map.append(time_stamps.index(candidates[0]))
                 else:
                     log.warning("For variable %s in table %s, no valid time point could be found at %s...inserting "
-                                "missing values" % (task.target.variable, task.target.table, str(bnd[0])))
+                                "missing values", task.target.variable, task.target.table, str(bnd[0]))
                     time_slice_map.append(-1)
             time_selection = numpy.array(time_slice_map)
 
@@ -689,7 +690,7 @@ def get_conversion_constants(conversion, output_frequency):
         return 1.0, -273.15
     if conversion == "degC2K":
         return 1.0, 273.15
-    log.error("Unknown explicit unit conversion: %s" % conversion)
+    log.error("Unknown explicit unit conversion: %s", conversion)
     return 1.0, 0.0
 
 
@@ -702,8 +703,8 @@ def create_time_axes(task):
     if not any(time_dims):
         return
     if len(time_dims) > 1:
-        log.error("Skipping variable %s in table %s with dimensions %s with multiple time dimensions." % (
-            task.target.variable, task.target.table, tgtdims))
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple time dimensions.",
+            task.target.variable, task.target.table, tgtdims)
         task.set_failed()
         return
     time_dim = str(time_dims[0])
@@ -712,11 +713,11 @@ def create_time_axes(task):
         tid = time_axis_ids[key]
     else:
         time_operator = getattr(task.target, "time_operator", ["mean"])
-        log.info("Creating time axis using variable %s..." % task.target.variable)
+        log.info("Creating time axis using variable %s...", task.target.variable)
         tid, tlow, tup = create_time_axis(freq=task.target.frequency, path=getattr(task, cmor_task.output_path_key),
                                           name=time_dim, has_bounds=(time_operator != ["point"]))
         time_axis_ids[key] = tid
-        time_axis_bnds[tid] = zip(tlow, tup)
+        time_axis_bnds[tid] = list(zip(tlow, tup))
     setattr(task, "t_axis_id", tid)
 
 
@@ -728,8 +729,8 @@ def create_depth_axes(task):
     if not any(z_dims):
         return
     if len(z_dims) > 1:
-        log.error("Skipping variable %s in table %s with dimensions %s with multiple z-directions." % (
-            task.target.variable, task.target.table, tgtdims))
+        log.error("Skipping variable %s in table %s with dimensions %s with multiple z-directions.",
+            task.target.variable, task.target.table, tgtdims)
         task.set_failed()
         return
     z_dim = str(z_dims[0])
@@ -742,19 +743,19 @@ def create_depth_axes(task):
             setattr(task, "z_axis_id", depth_axis_ids[key])
         return
     elif z_dim == "alevel":
-        log.info("Creating model level axis using variable %s..." % task.target.variable)
+        log.info("Creating model level axis using variable %s...", task.target.variable)
         axisid, psid = create_hybrid_level_axis(task)
         depth_axis_ids[key] = (axisid, psid)
         setattr(task, "z_axis_id", axisid)
         setattr(task, "store_with", psid)
         return
     elif z_dim == "sdepth":
-        log.info("Creating soil depth axis using variable %s..." % task.target.variable)
+        log.info("Creating soil depth axis using variable %s...", task.target.variable)
         axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
     elif z_dim == "sdepth1":
-        log.info("Creating soil depth axis 1 using variable %s..." % task.target.variable)
+        log.info("Creating soil depth axis 1 using variable %s...", task.target.variable)
         axisid = create_soil_depth_axis(z_dim)
         depth_axis_ids[key] = axisid
         setattr(task, "z_axis_id", axisid)
@@ -768,7 +769,7 @@ def create_depth_axes(task):
             levels.append(value)
         unit = axis.get("units", None)
         if len(levels) == 0:
-            log.warning("Skipping axis %s in table %s with no levels" % (z_dim, task.target.table))
+            log.warning("Skipping axis %s in table %s with no levels", z_dim, task.target.table)
             return
         else:
             values = [float(l) for l in levels]
@@ -783,15 +784,15 @@ def create_depth_axes(task):
                     axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit,
                                        cell_bounds=bounds_array)
                 else:
-                    log.error("Failed to retrieve bounds for vertical axis %s" % str(z_dim))
+                    log.error("Failed to retrieve bounds for vertical axis %s", str(z_dim))
                     axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
             else:
                 axisid = cmor.axis(table_entry=str(z_dim), coord_vals=values, units=unit)
             depth_axis_ids[key] = axisid
             setattr(task, "z_axis_id", axisid)
     else:
-        log.error("Vertical dimension %s for variable %s not found in header of table %s" % (
-            z_dim, task.target.variable, task.target.table))
+        log.error("Vertical dimension %s for variable %s not found in header of table %s",
+            z_dim, task.target.variable, task.target.table)
 
 
 # Creates the hybrid model vertical axis in cmor.
@@ -858,11 +859,11 @@ def create_time_axis(freq, path, name, has_bounds):
     global log, start_date_, ref_date_
     date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
-        log.error("Empty time step list encountered at time axis creation for files %s" % str(path))
+        log.error("Empty time step list encountered at time axis creation for files %s", str(path))
         return 0, [], []
     if has_bounds:
         bounds = numpy.empty([len(date_times), 2])
-        rounded_times = map(lambda time: (cmor_utils.get_rounded_time(freq, time)), date_times)
+        rounded_times = [(cmor_utils.get_rounded_time(freq, time)) for time in date_times]
         dt_low = rounded_times
         dt_up = rounded_times[1:] + [cmor_utils.get_rounded_time(freq, date_times[-1], 1)]
         bounds[:, 0], units = cmor_utils.date2num([t - timeshift for t in dt_low], ref_date_)
@@ -876,13 +877,13 @@ def create_time_axis(freq, path, name, has_bounds):
         while date > start_date_:
             date = date - step
             extra_dates.append(date)
-        log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added" %
-                    (path, len(extra_dates)))
+        log.warning("The file %s seems to be missing %d time stamps at the beginning, these will be added",
+                    path, len(extra_dates))
         date_times = extra_dates[::-1] + date_times
     if date_times[0] < start_date_:
         date_times = [t for t in date_times if t >= start_date_]
         log.warning("The file %s seems to be containing %d too many time stamps at the beginning, these will be "
-                    "removed" % (path, len([t for t in date_times if t >= start_date_])))
+                    "removed", path, len([t for t in date_times if t >= start_date_]))
     times, units = cmor_utils.date2num([t - timeshift for t in date_times], ref_date_)
     return cmor.axis(table_entry=str(name), units=units, coord_vals=times), date_times, date_times
 
@@ -902,7 +903,7 @@ def get_sp_var(ncpath):
                 return v
         return None
     except Exception as e:
-        log.error("Could not read netcdf file %s for surface pressure, reason: %s" % (ncpath, e.message))
+        log.error("Could not read netcdf file %s for surface pressure, reason: %s", ncpath, e.message)
         return None
 
 
@@ -913,8 +914,8 @@ def create_grid_from_file(filepath):
     grid_descr = command.get_grid_descr(filepath)
     gridtype = grid_descr.get("gridtype", "unknown")
     if gridtype != "gaussian":
-        log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s" % (
-            filepath, gridtype))
+        log.error("Cannot read other grids then regular gaussian grids, current grid type read from file %s was % s",
+            filepath, gridtype)
         return None
     xvals = read_coordinate_vals(grid_descr, 'x', 360)
     yvals = read_coordinate_vals(grid_descr, 'y', 180)
@@ -961,8 +962,8 @@ def create_gauss_grid(xvals, yvals):
         vert_lons[:, :, 3] = vert_lons[:, :, 0]
         vert_lons[:, :, 1] = numpy.tile(lon_mids[1:nx + 1], (ny, 1))
         vert_lons[:, :, 2] = vert_lons[:, :, 1]
-        i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(range(1, nx + 1)))
-        j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(range(1, ny + 1)))
+        i_index_id = cmor.axis(table_entry="i_index", units="1", coord_vals=numpy.array(list(range(1, nx + 1))))
+        j_index_id = cmor.axis(table_entry="j_index", units="1", coord_vals=numpy.array(list(range(1, ny + 1))))
         lon_arr = numpy.tile(xvals, (ny, 1))
         lat_arr = numpy.tile(yvals[::-1], (nx, 1)).transpose()
         return cmor.grid(axis_ids=[j_index_id, i_index_id], latitude=lat_arr, longitude=lon_arr,
@@ -1010,6 +1011,6 @@ def download_sftlf(task):
     fullpath = os.path.join(os.path.dirname(__file__), "resources", "b2share-data", fname)
     if not os.path.isfile(fullpath):
         if not cmor_utils.get_from_b2share(fname, fullpath):
-            log.fatal("The file %s could not be downloaded, please install manually at %s" % (fname, fullpath))
+            log.fatal("The file %s could not be downloaded, please install manually at %s", fname, fullpath)
             return None
     return fullpath

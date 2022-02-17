@@ -13,7 +13,7 @@
 #  genecec-per-mip-experiment.sh
 #
 
-from __future__ import print_function
+
 import xml.etree.ElementTree as xmltree
 import os.path                                                # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                    # for aborting: sys.exit

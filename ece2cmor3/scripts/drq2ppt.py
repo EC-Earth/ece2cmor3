@@ -14,7 +14,7 @@
 # Note that this script is called by the script:
 #  genecec-per-mip-experiment.sh
 #
-from __future__ import print_function
+
 import sys
 import os
 
@@ -82,7 +82,7 @@ def join_namelists(nml1, nml2):
             levels = list(reversed(levels))
         if len(levels) > 0:
             result[key] = levels
-    if "NRFP3S" in nml1.keys() or "NRFP3S" in nml2.keys():
+    if "NRFP3S" in list(nml1.keys()) or "NRFP3S" in list(nml2.keys()):
         # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
         result["NRFP3S"] = -1
     return result
@@ -92,9 +92,9 @@ def join_namelists(nml1, nml2):
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks, get_output_freq)
     # Fix for issue 313, make sure to always generate 6-hourly ppt:
-    if freqgroups.keys() == [3]:
+    if list(freqgroups.keys()) == [3]:
         freqgroups[6] = []
-    if -1 in freqgroups.keys():
+    if -1 in list(freqgroups.keys()):
         freqgroups.pop(-1)
     freqs_to_remove = []
     for freq1 in freqgroups:
@@ -181,15 +181,15 @@ def write_ppt_files(tasks):
         # Always add the logarithm of surface pressure, recommended by ECMWF
         mfp2df.append(cmor_source.grib_code(152))
         nfp2dfsp, nfp2dfgp = count_spectral_codes(mfp2df)
-        mfp2df = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp2df))))
+        mfp2df = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp2df)]))
         nfpphysp, nfpphygp = count_spectral_codes(mfpphy)
-        mfpphy = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfpphy))))
+        mfpphy = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfpphy)]))
         nfp3dfssp, nfp3dfsgp = count_spectral_codes(mfp3dfs)
-        mfp3dfs = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfs))))
+        mfp3dfs = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfs)]))
         nfp3dfpsp, nfp3dfpgp = count_spectral_codes(mfp3dfp)
-        mfp3dfp = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfp))))
+        mfp3dfp = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfp)]))
         nfp3dfhsp, nfp3dfhgp = count_spectral_codes(mfp3dfh)
-        mfp3dfh = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfh))))
+        mfp3dfh = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfh)]))
         plevs = sorted(list(set([float(s) for s in plevs])))[::-1]
         hlevs = sorted(list(set([float(s) for s in hlevs])))
         namelist = {"CFPFMT": "MODEL"}
