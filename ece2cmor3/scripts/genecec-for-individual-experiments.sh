@@ -213,6 +213,34 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-compact
   fi
 
+  if [ ${data_request_file##*/} = 'varex-data-request-varlist-EC-Earth3.json' ]; then
+   sed -i -e 's/"parent_variant_label":         "r1i1p1f1"/"parent_variant_label":         "r1i1p5f1"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   if [ ${output_dir##*/} = 'varex-control-CMIP-historical' ] || [ ${output_dir##*/} = 'varex-control-ScenarioMIP-ssp245' ]; then
+    sed -i -e 's/"physics_index":                "1"/"physics_index":                "5"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "The p5 label refers to the fact that for this experiment the rtc5 retune parameter set has been used.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   elif [ ${output_dir##*/} = 'varex-perturbed-soil-moisture-CMIP-historical' ] || [ ${output_dir##*/} = 'varex-perturbed-soil-moisture-ScenarioMIP-ssp245' ]; then
+    sed -i -e 's/"physics_index":                "1"/"physics_index":                "51"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "The p51 label refers to the fact that for this experiment the rtc5 retune parameter set has been used like in p5 experiments and in addition a soil moisture perturbation is applied.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   elif [ ${output_dir##*/} = 'varex-perturbed-convection-CMIP-historical' ] || [ ${output_dir##*/} = 'varex-perturbed-convection-ScenarioMIP-ssp245' ]; then
+    sed -i -e 's/"physics_index":                "1"/"physics_index":                "52"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "The p52 label refers to the fact that for this experiment the rtc5 retune parameter set has been used like in p5 experiments and in addition a convection perturbation is applied.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+   sed -i -e 's/"comment":                      ""/"comment":                      "Production: Laura Muntjewerf \& Thomas Reerink at KNMI"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"institution_id":               "EC-Earth-Consortium"/"institution_id":               "KNMI"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"contact":                      "cmip6-data@ec-earth.org"/"contact":                      "laura.muntjewerf@knmi.nl"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/CMIP6 model data produced by EC-Earth-Consortium/The VAREX model data produced by KNMI/' -e 's/Consult.*acknowledgment. //' -e 's/ and at http.*ec-earth.org//' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   if [ ${mip_name} = 'CMIP' ]; then
+     sed -i -e 's/"parent_experiment_id":         "piControl"/"parent_experiment_id":         "historical"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+     sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "54786.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+     sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "54786.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   elif [ ${mip_name} = 'ScenarioMIP' ]; then
+     sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "82180.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+     sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "82180.0D"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+   rm -f ${output_dir}/lpjg_cmip6_output.ins
+   mv -f ${xls_ece_dir} ${xls_ece_dir}-varex
+  fi
+
   echo
   echo ' Finished:'
   echo ' '$0 "$@"
@@ -222,6 +250,13 @@ else
     echo
     echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-control-output-files/ssp585-lamaclima-EC-EARTH-Veg
+    echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-control-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-control-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-soil-moisture-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-soil-moisture-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-convection-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-convection-ScenarioMIP-ssp245
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request
     echo
