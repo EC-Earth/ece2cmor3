@@ -27,7 +27,7 @@ dependencies:
   - cmor=3.5.0
   # Unlisted dependency dreq
   - cython
-  - f90nml=0.20
+  - f90nml=0.21
   - gitpython=2.1.11
   - jsonschema=2.5.1
   # Unlisted dependency of cdo
@@ -48,7 +48,7 @@ dependencies:
   # Required by tem-diag
   - scipy
   - setuptools=39.2.0
-  - testfixtures=5.3.1
+  - testfixtures=5.4.0
   # Unlisted dependency dreq and/or drq
   - xarray
   - xlrd==1.1.0
