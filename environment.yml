@@ -26,7 +26,7 @@ dependencies:
 - cdo=1.9.6
 - pyngl
 - python-cdo
-- python-eccodes
+- conda-forge/label/cf202003::python-eccodes
 - netcdf4
 - nose=1.3.7
 - pip
