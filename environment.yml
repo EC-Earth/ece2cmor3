@@ -22,7 +22,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - cmor=3.5.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
+  # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
+  - cmor=3.5.0
   - cdo=1.9.6
   - pyngl
   - python-cdo
@@ -34,11 +35,14 @@ dependencies:
   - python=2.7.15
   - setuptools=39.2.0
   - numpy>=1.15.1
-  - libiconv                                        # Unlisted dependency of cdo
+  # Unlisted dependency of cdo
+  - libiconv
   - pandas>=0.17.1
   - gitpython=2.1.11
-  - nco                                             # Required by tem-diag
-  - scipy                                           # Required by tem-diag
+  # Required by tem-diag
+  - nco
+  # Required by tem-diag
+  - scipy
   - python-dateutil
   - pip:
     - f90nml==0.20
@@ -47,5 +51,7 @@ dependencies:
     - xlrd==1.1.0
     - xlsxwriter==1.0.2
     - dreqPy==01.00.33
-    - cython                                        # Unlisted dependency dreq 
-    - xarray                                        # Unlisted dependency dreq and/or drq
+    # Unlisted dependency dreq
+    - cython
+    # Unlisted dependency dreq and/or drq
+    - xarray
