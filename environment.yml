@@ -25,7 +25,11 @@ dependencies:
   - cdo=1.9.6
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
   - cmor=3.5.0
+  # Unlisted dependency dreq
+  - cython
+  - f90nml=0.20
   - gitpython=2.1.11
+  - jsonschema=2.5.1
   # Unlisted dependency of cdo
   - libiconv
   # Required by tem-diag
@@ -44,14 +48,10 @@ dependencies:
   # Required by tem-diag
   - scipy
   - setuptools=39.2.0
+  - testfixtures=5.3.1
+  # Unlisted dependency dreq and/or drq
+  - xarray
+  - xlrd==1.1.0
+  - xlsxwriter==1.0.2
   - pip:
-    # Unlisted dependency dreq
-    - cython
     - dreqPy==01.00.33
-    - f90nml==0.20
-    - jsonschema==2.5.1
-    - testfixtures==5.3.1
-    # Unlisted dependency dreq and/or drq
-    - xarray
-    - xlrd==1.1.0
-    - xlsxwriter==1.0.2
