@@ -22,36 +22,36 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - cdo=1.9.6
+  - cdo
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
-  - cmor=3.5.0
+  - cmor
   # Unlisted dependency dreq
   - cython
-  - f90nml=0.21
-  - gitpython=2.1.11
-  - jsonschema=2.5.1
+  - f90nml
+  - gitpython
+  - jsonschema
   # Unlisted dependency of cdo
   - libiconv
   # Required by tem-diag
   - nco
   - netcdf4
-  - nose=1.3.7
-  - numpy>=1.15.1
-  - pandas>=0.17.1
+  - nose
+  - numpy
+  - pandas
   - pip
   - pyngl
-  - python=2.7.15
+  - python >=2.7,<3.0.a0
   - python-cdo
   - conda-forge/label/cf202003::python-eccodes
   - python-dateutil
   - requests
   # Required by tem-diag
   - scipy
-  - setuptools=39.2.0
-  - testfixtures=5.4.0
+  - setuptools
+  - testfixtures
   # Unlisted dependency dreq and/or drq
   - xarray
-  - xlrd==1.1.0
-  - xlsxwriter==1.0.2
+  - xlrd
+  - xlsxwriter
   - pip:
     - dreqPy==01.00.33
