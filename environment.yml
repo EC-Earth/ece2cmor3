@@ -20,7 +20,7 @@
 name: ece2cmor3
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - cdo=1.9.6
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
