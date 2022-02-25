@@ -19,33 +19,33 @@
 
 name: ece2cmor3
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
 dependencies:
-- cmor=3.5.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
-- cdo=1.9.6
-- pyngl
-- python-cdo
-- conda-forge/label/cf202003::python-eccodes
-- netcdf4
-- nose=1.3.7
-- pip
-- requests
-- python=2.7.15
-- setuptools=39.2.0
-- numpy>=1.15.1
-- libiconv                                        # Unlisted dependency of cdo
-- pandas>=0.17.1
-- gitpython=2.1.11
-- nco                                             # Required by tem-diag
-- scipy                                           # Required by tem-diag
-- python-dateutil
-- pip:
-  - f90nml==0.20
-  - jsonschema==2.5.1
-  - testfixtures==5.3.1
-  - xlrd==1.1.0
-  - xlsxwriter==1.0.2
-  - dreqPy==01.00.33
-  - cython                                        # Unlisted dependency dreq 
-  - xarray                                        # Unlisted dependency dreq and/or drq
+  - cmor=3.5.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
+  - cdo=1.9.6
+  - pyngl
+  - python-cdo
+  - conda-forge/label/cf202003::python-eccodes
+  - netcdf4
+  - nose=1.3.7
+  - pip
+  - requests
+  - python=2.7.15
+  - setuptools=39.2.0
+  - numpy>=1.15.1
+  - libiconv                                        # Unlisted dependency of cdo
+  - pandas>=0.17.1
+  - gitpython=2.1.11
+  - nco                                             # Required by tem-diag
+  - scipy                                           # Required by tem-diag
+  - python-dateutil
+  - pip:
+    - f90nml==0.20
+    - jsonschema==2.5.1
+    - testfixtures==5.3.1
+    - xlrd==1.1.0
+    - xlsxwriter==1.0.2
+    - dreqPy==01.00.33
+    - cython                                        # Unlisted dependency dreq 
+    - xarray                                        # Unlisted dependency dreq and/or drq
