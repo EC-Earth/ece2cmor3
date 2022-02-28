@@ -25,17 +25,12 @@ dependencies:
   - cdo
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
   - cmor
-  # Unlisted dependency dreq
-  - cython
   - f90nml
   - gitpython
   - jsonschema
-  # Unlisted dependency of cdo
-  - libiconv
   # Required by tem-diag
   - nco
   - netcdf4
-  - nose
   - numpy
   - pandas
   - pip
@@ -47,8 +42,6 @@ dependencies:
   - requests
   # Required by tem-diag
   - scipy
-  - setuptools
-  - testfixtures
   # Unlisted dependency dreq and/or drq
   - xarray
   - xlrd
