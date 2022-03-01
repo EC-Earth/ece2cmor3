@@ -42,6 +42,7 @@ dependencies:
   - requests
   # Required by tem-diag
   - scipy
+  - testfixtures
   # Unlisted dependency dreq and/or drq
   - xarray
   - xlrd
