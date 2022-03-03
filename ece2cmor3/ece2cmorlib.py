@@ -111,7 +111,7 @@ def initialize(
     metadata["latest_applied_cmor_fixer_version"] = "None"
     for key, val in list(metadata.items()):
         log.info("Metadata attribute %s: %s", key, val)
-    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
