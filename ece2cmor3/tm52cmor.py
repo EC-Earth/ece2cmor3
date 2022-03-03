@@ -129,6 +129,8 @@ ignore_frequency = ["subhrPt", "3hrPt"]
 ps6hrpath_ = None
 # using_grid_=False
 path_ = None
+
+
 # Initializes the processing loop.
 def initialize(path, expname, tabledir, prefix, refdate):
     """initialize the cmorization for TM5
@@ -157,7 +159,6 @@ def initialize(path, expname, tabledir, prefix, refdate):
         exit()
     else:
         areacella_ = netCDF4.Dataset(areacella_file[0], "r").variables["areacella"][:]
-    cal = None
     ref_date_ = refdate
 
     # read pressure level definitions from CMIP6_coordante file
@@ -253,7 +254,7 @@ def check_freqid(task):
         return False, None
     elif task.target.table == "AERmonZ":
         freqid = freqid + "Z"
-    elif freqid == None:
+    elif freqid is None:
         log.error(
             "Frequency %s of variable %s is unkonwn"
             % (task.target.frequency, task.target.variable)
@@ -285,8 +286,9 @@ def execute(tasks):
         elif task.target.frequency == "monC":
             if "Clim" in task.target.variable:
                 log.info(
-                    "Variable %s in table %s is climatological variable and thus not available in TM5."
-                    % (task.target.variable, task.target.table)
+                    "Variable %s in table %s is a climatological variable and "
+                    "thus not available in TM5.",
+                    task.target.variable, task.target.table
                 )
                 task.set_failed()
                 continue
