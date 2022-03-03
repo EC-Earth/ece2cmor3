@@ -2,6 +2,8 @@ import json
 import logging
 import os
 
+from openpyxl import load_workbook
+
 from ece2cmor3 import components
 from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 from ece2cmor3.cmor_source import create_cmor_source
@@ -473,7 +475,6 @@ def load_targets_f90nml(varlist):
 # Loads a drq excel file containing the cmor targets.
 def load_targets_excel(varlist):
     global log
-    import xlrd
 
     targets = []
     cmor_colname = "CMOR Name"
@@ -483,12 +484,12 @@ def load_targets_excel(varlist):
     )
     default_priority_colname = "Default Priority"  # Priority column name for the mip overview cmvmm_*.xlsx files
     mip_list_colname = "MIPs (by experiment)"
-    book = xlrd.open_workbook(varlist)
-    for sheetname in book.sheet_names():
+    book = load_workbook(filename=varlist, read_only=True)
+    for sheetname in book.sheetnames:
         if sheetname.lower() in ["notes"]:
             continue
-        sheet = book.sheet_by_name(sheetname)
-        row = sheet.row_values(0)
+        sheet = book[sheetname]
+        row = [c.value for c in sheet[1]]
         if cmor_colname not in row:
             log.error(
                 "Could not find cmor variable column in sheet %s for file %s: skipping variable"
@@ -509,13 +510,14 @@ def load_targets_excel(varlist):
                 % (sheet, varlist)
             )
         mip_list_index = row.index(mip_list_colname)
-        varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
-        vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
-        priority = [c.value for c in sheet.col_slice(colx=priority_index, start_rowx=1)]
-        mip_list = [c.value for c in sheet.col_slice(colx=mip_list_index, start_rowx=1)]
-        for i in range(len(varnames)):
+        for r in sheet.iter_rows(min_row=2, value_only=True):
             add_target(
-                str(varnames[i]), sheetname, targets, vids[i], priority[i], mip_list[i]
+                str(r[index]),
+                sheetname,
+                targets,
+                r[vid_index],
+                r[priority_index],
+                r[mip_list_index],
             )
     return targets
 
@@ -548,7 +550,6 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
     global log, skip_tables, with_pingfile
-    import xlrd
 
     table_colname = "Table"
     var_colname = "variable"
@@ -557,63 +558,49 @@ def load_checkvars_excel(basic_ignored_excel_file):
     model_colname = "model component in ping file"
     units_colname = "units as in ping file"
     pingcomment_colname = "ping file comment"
-    book = xlrd.open_workbook(basic_ignored_excel_file)
+    book = load_workbook(filename=basic_ignored_excel_file, read_only=True)
     varlist = {}
-    for sheetname in book.sheet_names():
+    for sheetname in book.sheetnames:
         if sheetname.lower() in ["notes"]:
             continue
-        sheet = book.sheet_by_name(sheetname)
-        header = sheet.row_values(0)
+        sheet = book[sheetname]
+        header = [c.value for c in sheet[1]]
         coldict = {}
         for colname in [table_colname, var_colname, comment_colname, author_colname]:
             if colname not in header:
-                log.error(
-                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet"
-                    % (colname, sheet, varlist)
-                )
+                log.error("Could not find the column '%s' in sheet %s for file %s: "
+                          "skipping sheet",
+                          colname, sheet, varlist)
                 continue
             coldict[colname] = header.index(colname)
-        tablenames = (
-            []
-            if skip_tables
-            else [
-                c.value
-                for c in sheet.col_slice(colx=coldict[table_colname], start_rowx=1)
-            ]
-        )
-        varnames = [
-            c.value for c in sheet.col_slice(colx=coldict[var_colname], start_rowx=1)
-        ]
-        comments = [
-            c.value
-            for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)
-        ]
-        authors = [
-            c.value for c in sheet.col_slice(colx=coldict[author_colname], start_rowx=1)
-        ]
-        model, units, pingcomment = [], [], []
         if with_pingfile:
             if model_colname not in header:
-                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname,
-                # sheet, varlist))
+                log.error("Could not find the column '%s' in sheet %s for file %s: "
+                          "skipping sheet",
+                          model_colname, sheet, varlist)
                 continue
-            coldict[model_colname] = header.index(model_colname)
-            model = [
-                c.value
-                for c in sheet.col_slice(colx=coldict[model_colname], start_rowx=1)
-            ]
-            coldict[units_colname] = header.index(units_colname)
-            units = [
-                c.value
-                for c in sheet.col_slice(colx=coldict[units_colname], start_rowx=1)
-            ]
-            coldict[pingcomment_colname] = header.index(pingcomment_colname)
-            pingcomment = [
-                c.value
-                for c in sheet.col_slice(
-                    colx=coldict[pingcomment_colname], start_rowx=1
-                )
-            ]
+            else:
+                coldict[model_colname] = header.index(model_colname)
+                coldict[units_colname] = header.index(units_colname)
+                coldict[pingcomment_colname] = header.index(pingcomment_colname)
+
+        tablenames = []
+        varnames = []
+        comments = []
+        authors = []
+        model = []
+        units = []
+        pingcomment = []
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            varnames.append(row[coldict[var_colname]])
+            comments.append(row[coldict[comment_colname]])
+            authors.append(row[coldict[author_colname]])
+            if not skip_tables:
+                tablenames.append(row[coldict[table_colname]])
+            if with_pingfile:
+                model.append(row[coldict[model_colname]])
+                units.append(row[coldict[units_colname]])
+                pingcomment.append(row[coldict[pingcomment_colname]])
         if skip_tables:
             for i in range(len(varnames)):
                 if with_pingfile:
