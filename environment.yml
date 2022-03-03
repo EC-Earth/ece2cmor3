@@ -17,35 +17,32 @@
 #   pip uninstall -y dreqPy==01.00.33; pip install dreqPy==01.0.32
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
-name: ece2cmor3
+name: ece2cmor3-py3
 channels:
   - conda-forge
   - nodefaults
 dependencies:
   - cdo=1.9.6
-  # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
   - cmor=3.5.0
+  - dreqpy==01.00.33
   - f90nml
   - gitpython
   - jsonschema
-  # Required by tem-diag
   - nco
   - netcdf4
+  - nose
   - numpy
   - pandas
   - pip
   - pyngl
-  - python >=2.7,<3.0.a0
+  - python
   - python-cdo
-  - conda-forge/label/cf202003::python-eccodes
   - python-dateutil
+  - python-eccodes
   - requests
-  # Required by tem-diag
   - scipy
+  - setuptools
   - testfixtures
-  # Unlisted dependency dreq and/or drq
   - xarray
   - xlrd
   - xlsxwriter
-  - pip:
-    - dreqPy==01.00.33
