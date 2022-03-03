@@ -8,15 +8,21 @@ from ece2cmor3 import grib_file
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create csv file of grib field description parameters (for testing "
-                                                 "only)")
-    parser.add_argument("input", metavar="FILE", type=str, help="Input grib file (Required)")
+    parser = argparse.ArgumentParser(
+        description="Create csv file of grib field description parameters (for testing "
+        "only)"
+    )
+    parser.add_argument(
+        "input", metavar="FILE", type=str, help="Input grib file (Required)"
+    )
 
     args = parser.parse_args()
 
     os.environ["GRIB_API_PYTHON_NO_TYPE_CHECKS"] = "1"
 
-    with open(args.input, 'r') as input_file, open(os.path.basename(args.input) + ".csv", 'w') as output_file:
+    with open(args.input, "r") as input_file, open(
+        os.path.basename(args.input) + ".csv", "w"
+    ) as output_file:
         reader = grib_file.ecmwf_grib_api(input_file)
         writer = csv.writer(output_file)
         while reader.read_next(headers_only=True):

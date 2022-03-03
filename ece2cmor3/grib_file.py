@@ -44,7 +44,6 @@ def create_grib_file(file_object_):
 
 # Interface for grib file object
 class grib_file(object):
-
     def __init__(self, file_object_):
         self.file_object = file_object_
 
@@ -69,13 +68,14 @@ class grib_file(object):
 
 # ECMWF grib api implementation of grib file interface
 class ecmwf_grib_api(grib_file):
-
     def __init__(self, file_object_):
         super(ecmwf_grib_api, self).__init__(file_object_)
         self.record = 0
 
     def read_next(self, headers_only=False):
-        self.record = gribapi.grib_new_from_file(self.file_object, headers_only=headers_only)
+        self.record = gribapi.grib_new_from_file(
+            self.file_object, headers_only=headers_only
+        )
         return self.record is not None
 
     def write(self, file_object_):
@@ -101,7 +101,7 @@ class csv_grib_mock(grib_file):
     def __init__(self, file_object_):
         super(csv_grib_mock, self).__init__(file_object_)
         self.row = []
-        self.reader = csv.reader(file_object_, delimiter=',')
+        self.reader = csv.reader(file_object_, delimiter=",")
 
     def read_next(self, headers_only=False):
         self.row = next(self.reader, None)

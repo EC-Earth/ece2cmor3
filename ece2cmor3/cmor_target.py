@@ -30,16 +30,49 @@ cell_measures_key = "cell_measures"
 cell_methods_key = "cell_methods"
 valid_min_key = "valid_min"
 valid_max_key = "valid_max"
-cell_measure_axes = ["time", "area", "volume", "latitude", "longitude", "grid_latitude", "grid_longitude", "depth"]
+cell_measure_axes = [
+    "time",
+    "area",
+    "volume",
+    "latitude",
+    "longitude",
+    "grid_latitude",
+    "grid_longitude",
+    "depth",
+]
 mask_key = "mask"
-xydims = {"latitude", "longitude", "gridlatitude", "gridlongitude", "xgre", "ygre", "xant", "yant"}
-extra_dims = {"basin", "spectband", "iceband", "landUse", "vertices", "effectRadLi", "effectRadIc", "tau",
-              "lambda550nm", "scatratio", "dbze", "soilpools", "sza5", "vegtype", "site", "siline"}
+xydims = {
+    "latitude",
+    "longitude",
+    "gridlatitude",
+    "gridlongitude",
+    "xgre",
+    "ygre",
+    "xant",
+    "yant",
+}
+extra_dims = {
+    "basin",
+    "spectband",
+    "iceband",
+    "landUse",
+    "vertices",
+    "effectRadLi",
+    "effectRadIc",
+    "tau",
+    "lambda550nm",
+    "scatratio",
+    "dbze",
+    "soilpools",
+    "sza5",
+    "vegtype",
+    "site",
+    "siline",
+}
 
 
 # Class for cmor target objects, which represent output variables.
 class cmor_target(object):
-
     def __init__(self, var_id__, tab_id__):
         self.variable = var_id__
         self.table = tab_id__
@@ -54,12 +87,17 @@ def get_table_id(filepath, prefix):
     fname = os.path.basename(filepath)
     regex = re.search("^" + prefix + "_.*.json$", fname)
     if not regex:
-        raise Exception("Unable to match file name", fname, "as cmor table json-file with prefix", prefix)
-    return regex.group()[len(prefix) + 1:len(fname) - 5]
+        raise Exception(
+            "Unable to match file name",
+            fname,
+            "as cmor table json-file with prefix",
+            prefix,
+        )
+    return regex.group()[len(prefix) + 1 : len(fname) - 5]
 
 
 def print_drq_version(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         try:
             data = json.loads(f.read())
             header = get_lowercase(data, head_key, None)
@@ -69,7 +107,9 @@ def print_drq_version(filepath):
                 log.info("CMOR tables %s : %s" % (key, header.get(key, "unknown")))
             return True
         except ValueError as err:
-            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            log.warning(
+                "Input table %s has been ignored. Reason: %s" % (filepath, format(err))
+            )
             return False
 
 
@@ -78,12 +118,14 @@ def create_targets_for_file(filepath, prefix):
     global log, axes, head_key, freq_key, realm_key, levs_key, axis_key, var_key, dims_key
     global cell_methods_key, cell_measures_key, cell_measure_axes
     tabid = get_table_id(filepath, prefix)
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         result = []
         try:
             data = json.loads(f.read())
         except ValueError as err:
-            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            log.warning(
+                "Input table %s has been ignored. Reason: %s" % (filepath, format(err))
+            )
             return result
     freq = None
     realm = None
@@ -115,9 +157,19 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s.encode("ascii") for s in v2.split() if not (s.lower().startswith("time") or
-                                                                                    s.lower().startswith("type"))])
-                                 - extra_dims)
+                spacedims = list(
+                    set(
+                        [
+                            s.encode("ascii")
+                            for s in v2.split()
+                            if not (
+                                s.lower().startswith("time")
+                                or s.lower().startswith("type")
+                            )
+                        ]
+                    )
+                    - extra_dims
+                )
                 setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
                 zdims = list(set(spacedims) - xydims)
@@ -126,20 +178,26 @@ def create_targets_for_file(filepath, prefix):
             if key in [cell_measures_key.lower(), cell_methods_key.lower()]:
                 cell_measure_str = re.sub("[\(\[].*?[\)\]]", "", v2.strip())
                 if cell_measure_str not in ["@OPT", "--OPT", "", None]:
-                    cell_measures = cell_measure_str.split(':')
+                    cell_measures = cell_measure_str.split(":")
                     for i in range(1, len(cell_measures)):
                         prev_words = cell_measures[i - 1].split()
                         if len(prev_words) == 0:
-                            log.error("Error parsing cell measures %s for variable %s in table %s" % (v2, k, tabid))
+                            log.error(
+                                "Error parsing cell measures %s for variable %s in table %s"
+                                % (v2, k, tabid)
+                            )
                             break
                         measure_dim = prev_words[-1].strip().lower()
                         if measure_dim not in cell_measure_axes:
-                            log.error("Error parsing cell measures %s for variable %s in table %s" % (v2, k, tabid))
+                            log.error(
+                                "Error parsing cell measures %s for variable %s in table %s"
+                                % (v2, k, tabid)
+                            )
                             break
                         key = measure_dim + "_operator"
                         value = cell_measures[i].strip().lower()
                         if i < len(cell_measures) - 1:
-                            value = ' '.join(value.split(' ')[:-1])
+                            value = " ".join(value.split(" ")[:-1])
                         if hasattr(target, key):
                             getattr(target, key).append(value)
                         else:
@@ -153,12 +211,14 @@ def create_targets_for_file(filepath, prefix):
 def create_axes_for_file(filepath, prefix):
     global log, axes, axis_key
     tabid = get_table_id(filepath, prefix)
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         result = []
         try:
             data = json.loads(f.read())
         except ValueError as err:
-            log.warning("Input table %s has been ignored. Reason: %s" % (filepath, format(err)))
+            log.warning(
+                "Input table %s has been ignored. Reason: %s" % (filepath, format(err))
+            )
             return result
         axes[tabid] = get_lowercase(data, axis_key, {})
 
@@ -180,7 +240,10 @@ def create_targets(path, prefix):
     result = []
     drq_version_printed = False
     if os.path.isfile(path):
-        if os.path.basename(path) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:
+        if os.path.basename(path) not in [
+            prefix + "_CV.json",
+            prefix + "_CV_test.json",
+        ]:
             print_drq_version(path)
             result = result + create_targets_for_file(path, prefix)
     elif os.path.isdir(path):
@@ -192,7 +255,10 @@ def create_targets(path, prefix):
         expr = re.compile("^" + prefix + "_.*.json$")
         paths = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
         for p in paths:
-            if os.path.basename(p) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:
+            if os.path.basename(p) not in [
+                prefix + "_CV.json",
+                prefix + "_CV_test.json",
+            ]:
                 if not drq_version_printed:
                     drq_version_printed = print_drq_version(p)
                 result = result + create_targets_for_file(p, prefix)
@@ -207,8 +273,10 @@ def validate_target(target):
     minnr = float(minstr) if minstr else -float("inf")
     maxnr = float(maxstr) if maxstr else float("inf")
     if minnr == maxnr:
-        log.error("The target variable %s in table %s has invalid bounds..."
-                  "skipping this target" % (target.variable, target.table))
+        log.error(
+            "The target variable %s in table %s has invalid bounds..."
+            "skipping this target" % (target.variable, target.table)
+        )
         return False
     return True
 
@@ -249,7 +317,10 @@ def get_z_axis(target):
         else:
             axisinfo = get_axis_info(target.table).get(axisname, None)
             if not axisinfo:
-                log.warning("Could not retrieve information for axis %s in table %s" % (axisname, target.table))
+                log.warning(
+                    "Could not retrieve information for axis %s in table %s"
+                    % (axisname, target.table)
+                )
                 continue
             zvar = axisinfo.get("standard_name", None)
             if zvar in pressure_axes + height_axes:
@@ -259,14 +330,21 @@ def get_z_axis(target):
                     if val:
                         levels = [val]
                 if not any(levels):
-                    log.warning("Could not retrieve levels for vertical coordinate %s" % axisname)
+                    log.warning(
+                        "Could not retrieve levels for vertical coordinate %s"
+                        % axisname
+                    )
                     continue
                 result.append((zvar, levels))
     if not any(result):
         return None, []
     if len(result) > 1:
-        log.warning("Multiple vertical axes declared for variable %s in table %s:"
-                    "taking first coordinate %s" % target.var_id, target.tab_id, result[0][0])
+        log.warning(
+            "Multiple vertical axes declared for variable %s in table %s:"
+            "taking first coordinate %s" % target.var_id,
+            target.tab_id,
+            result[0][0],
+        )
     return result[0]
 
 

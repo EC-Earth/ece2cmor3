@@ -9,24 +9,43 @@ realms = "realms"
 
 # List of components, used to determine the script arguments and used by task loader.
 # Add your NEWCOMPONENT to this dictionary if you want to extend ece2cmor3 to more models.
-models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "seaIce"],
-                  table_file: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json")},
-          "nemo": {realms: ["ocean", "ocnBgchem", "seaIce"],
-                   table_file: os.path.join(os.path.dirname(__file__), "resources", "nemopar.json")},
-          "lpjg": {realms: ["land", "atmos"],
-                   table_file: os.path.join(os.path.dirname(__file__), "resources", "lpjgpar.json")},
-          "tm5": {realms: ["aerosol", "atmosChem", "atmos"],
-                  table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json")}
-          }
+models = {
+    "ifs": {
+        realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "seaIce"],
+        table_file: os.path.join(os.path.dirname(__file__), "resources", "ifspar.json"),
+    },
+    "nemo": {
+        realms: ["ocean", "ocnBgchem", "seaIce"],
+        table_file: os.path.join(
+            os.path.dirname(__file__), "resources", "nemopar.json"
+        ),
+    },
+    "lpjg": {
+        realms: ["land", "atmos"],
+        table_file: os.path.join(
+            os.path.dirname(__file__), "resources", "lpjgpar.json"
+        ),
+    },
+    "tm5": {
+        realms: ["aerosol", "atmosChem", "atmos"],
+        table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json"),
+    },
+}
 
-ece_configs = {'EC-EARTH-AOGCM'   : ["ifs", "nemo"               ],
-               'EC-EARTH-HR'      : ["ifs", "nemo"               ],
-               'EC-EARTH-LR'      : ["ifs", "nemo"               ],
-               'EC-EARTH-CC'      : ["ifs", "nemo", "tm5", "lpjg"],
-               'EC-EARTH-GrisIS'  : ["ifs", "nemo"               ], # If a PISM component is added to ece2cmor3 it needs here to be added as well.
-               'EC-EARTH-AerChem' : ["ifs", "nemo", "tm5"        ],
-               'EC-EARTH-Veg'     : ["ifs", "nemo", "lpjg"       ],
-               'EC-EARTH-Veg-LR'  : ["ifs", "nemo", "lpjg"       ]}
+ece_configs = {
+    "EC-EARTH-AOGCM": ["ifs", "nemo"],
+    "EC-EARTH-HR": ["ifs", "nemo"],
+    "EC-EARTH-LR": ["ifs", "nemo"],
+    "EC-EARTH-CC": ["ifs", "nemo", "tm5", "lpjg"],
+    "EC-EARTH-GrisIS": [
+        "ifs",
+        "nemo",
+    ],  # If a PISM component is added to ece2cmor3 it needs here to be added as well.
+    "EC-EARTH-AerChem": ["ifs", "nemo", "tm5"],
+    "EC-EARTH-Veg": ["ifs", "nemo", "lpjg"],
+    "EC-EARTH-Veg-LR": ["ifs", "nemo", "lpjg"],
+}
+
 
 def load_parameter_table(component, filename):
     if component in models:

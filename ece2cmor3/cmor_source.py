@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 # Base class for cmor source objects, which represent variables produced by a model
 class cmor_source(object):
-
     def __init__(self):
         pass
 
@@ -30,21 +29,36 @@ def create_cmor_source(attributes, component):
         expr = attributes.get("expr", None)
         if src is None and expr is None:
             log.error(
-                "Could not find an IFS source or expression entry within attributes %s" % (str(attributes.__dict__)))
+                "Could not find an IFS source or expression entry within attributes %s"
+                % (str(attributes.__dict__))
+            )
             return None
-        result = ifs_source.read(src, expr, mask_expr=attributes.get(mask_expression_key, None),
-                                 expr_order=int(attributes.get("expr_order", "0")))
+        result = ifs_source.read(
+            src,
+            expr,
+            mask_expr=attributes.get(mask_expression_key, None),
+            expr_order=int(attributes.get("expr_order", "0")),
+        )
     if component == "nemo":
         if src is None:
-            log.error("Could not find a NEMO source variable within attributes %s" % (str(attributes.__dict__)))
+            log.error(
+                "Could not find a NEMO source variable within attributes %s"
+                % (str(attributes.__dict__))
+            )
         result = netcdf_source(src, component)
     if component == "lpjg":
         if src is None:
-            log.error("Could not find a LPJG source variable within attributes %s" % (str(attributes.__dict__)))
+            log.error(
+                "Could not find a LPJG source variable within attributes %s"
+                % (str(attributes.__dict__))
+            )
         result = lpjg_source(src)
     if component == "tm5":
         if src is None:
-            log.error("Could not find a TM5 source variable within attributes %s" % (str(attributes.__dict__)))
+            log.error(
+                "Could not find a TM5 source variable within attributes %s"
+                % (str(attributes.__dict__))
+            )
         result = tm5_source(src)
     # if component == NEWCOMPONENT:
     # create some source here, if NEWCOMPONENT has nc files as output, the NEMO case can be copied
@@ -53,7 +67,6 @@ def create_cmor_source(attributes, component):
 
 # NetCDF cmor source
 class netcdf_source(cmor_source):
-
     def __init__(self, variable, component):
         super(netcdf_source, self).__init__()
         self.variable_ = variable
@@ -76,7 +89,7 @@ class grib_code:
         return self.var_id == other.var_id and self.tab_id == other.tab_id
 
     def __str__(self):
-        return str(self.var_id) + '.' + str(self.tab_id)
+        return str(self.var_id) + "." + str(self.tab_id)
 
     def __hash__(self):
         return self.var_id + self.tab_id * 1000
@@ -84,7 +97,7 @@ class grib_code:
     @classmethod
     def read(cls, istr):
         s = istr[3:] if istr.startswith("var") else istr
-        string_pair = s.split('.')
+        string_pair = s.split(".")
         if len(string_pair) == 1:
             code_string = string_pair[0]
             if len(code_string) > 3:
@@ -124,7 +137,9 @@ mask_expression_key = "mask_expr"
 # IFS source subclass, constructed from a given grib code.
 class ifs_source(cmor_source):
     # Existing grib code lists, read from resources.
-    grib_codes_file = os.path.join(os.path.dirname(__file__), "resources/grib_codes.json")
+    grib_codes_file = os.path.join(
+        os.path.dirname(__file__), "resources/grib_codes.json"
+    )
     grib_codes_3D = read_grib_codes_group(grib_codes_file, "MFP3D")
     grib_codes_2D_dyn = read_grib_codes_group(grib_codes_file, "MFP2DF")
     grib_codes_2D_phy = read_grib_codes_group(grib_codes_file, "MFPPHY")
@@ -134,7 +149,9 @@ class ifs_source(cmor_source):
     grib_codes_min = read_grib_codes_group(grib_codes_file, "MINFLD")
     grib_codes_max = read_grib_codes_group(grib_codes_file, "MAXFLD")
     grib_codes_fx = read_grib_codes_group(grib_codes_file, "FXFLD")
-    grib_codes = grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
+    grib_codes = (
+        grib_codes_3D + grib_codes_2D_dyn + grib_codes_2D_phy + grib_codes_extra
+    )
 
     # Constructor.
     def __init__(self, code):
@@ -147,8 +164,14 @@ class ifs_source(cmor_source):
         else:
             self.code_ = code
             self.spatial_dims = -1
-            self.grid_ = ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
-            self.spatial_dims = 3 if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn) else 2
+            self.grid_ = (
+                ifs_grid.spec if code in ifs_source.grib_codes_sh else ifs_grid.point
+            )
+            self.spatial_dims = (
+                3
+                if code in (ifs_source.grib_codes_3D + ifs_source.grib_codes_2D_dyn)
+                else 2
+            )
 
     # Returns the model component.
     def model_component(self):
@@ -184,57 +207,84 @@ class ifs_source(cmor_source):
         cls = ifs_source(gc)
         if expr is not None:
             if gc in ifs_source.grib_codes:
-                log.error("Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
-                          % (expr, str(gc)))
+                log.error(
+                    "Expression %s assigned to reserved existing grib code %s, skipping expression assignment"
+                    % (expr, str(gc))
+                )
             else:
                 # Remove whitespace
                 expr_string = expr.replace(" ", "")
                 # Find all variable strings
-                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr_string) + re.findall("var[0-9]{6}(?![0-9])",
-                                                                                         expr_string)
+                varstrs = re.findall(
+                    "var[0-9]{1,3}(?![0-9])", expr_string
+                ) + re.findall("var[0-9]{6}(?![0-9])", expr_string)
                 # Split into LHS and RHS
                 groups = re.search("^var([0-9]{1,3}|[0-9]{6})\=(?!\=)", expr_string)
 
                 # Remove LHS if present
                 if groups is not None:
-                    log.warning("Ignoring left-hand side assignment in expression %s" % expr)
+                    log.warning(
+                        "Ignoring left-hand side assignment in expression %s" % expr
+                    )
                     varstrs.remove(groups.group(0)[:-1])
-                    expr_string = expr_string[len(groups.group(0)):]
+                    expr_string = expr_string[len(groups.group(0)) :]
 
                 # Remove leading zeros
-                expr_string = re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), expr_string)
+                expr_string = re.sub(
+                    "var[0-9]{6}",
+                    lambda o: "var" + o.group(0)[-3:].lstrip("0"),
+                    expr_string,
+                )
 
                 # Add LHS again
-                expr_string = '='.join(["var" + str(gc.var_id), expr_string])
+                expr_string = "=".join(["var" + str(gc.var_id), expr_string])
 
                 # Collect root codes
                 root_codes = []
                 for varstr in varstrs:
                     code = grib_code.read(varstr)
                     if code not in ifs_source.grib_codes:
-                        log.error("Unknown grib code %s in expression %s found" % (str(code), expr))
+                        log.error(
+                            "Unknown grib code %s in expression %s found"
+                            % (str(code), expr)
+                        )
                     if code not in root_codes:
                         root_codes.append(code)
 
-                num_sp_codes = len([c for c in root_codes if c in ifs_source.grib_codes_sh])
+                num_sp_codes = len(
+                    [c for c in root_codes if c in ifs_source.grib_codes_sh]
+                )
                 if num_sp_codes != 0 and num_sp_codes != len(root_codes):
-                    log.error("Invalid combination of gridpoint and spectral variables in expression %s" % expr)
+                    log.error(
+                        "Invalid combination of gridpoint and spectral variables in expression %s"
+                        % expr
+                    )
 
-                cls.grid_ = ifs_grid.spec if all(
-                    [c in ifs_source.grib_codes_sh for c in root_codes]) else ifs_grid.point
-                cls.spatial_dims = 3 if any([c in ifs_source.grib_codes_3D for c in root_codes]) else 2
+                cls.grid_ = (
+                    ifs_grid.spec
+                    if all([c in ifs_source.grib_codes_sh for c in root_codes])
+                    else ifs_grid.point
+                )
+                cls.spatial_dims = (
+                    3 if any([c in ifs_source.grib_codes_3D for c in root_codes]) else 2
+                )
                 setattr(cls, "root_codes", root_codes)
                 setattr(cls, expression_key, expr_string)
                 setattr(cls, expression_order_key, expr_order)
         if mask_expr is not None:
             setattr(cls, mask_expression_key, mask_expr)
-            varstrs = re.findall("var[0-9]{1,3}(?![0-9])", mask_expr) + re.findall("var[0-9]{6}(?![0-9])", mask_expr)
+            varstrs = re.findall("var[0-9]{1,3}(?![0-9])", mask_expr) + re.findall(
+                "var[0-9]{6}(?![0-9])", mask_expr
+            )
             # Collect root codes
             root_codes = getattr(cls, "root_codes", [cls.get_grib_code()])
             for varstr in varstrs:
                 code = grib_code.read(varstr)
                 if code not in ifs_source.grib_codes:
-                    log.error("Unknown grib code %s in expression %s found" % (str(code), mask_expr))
+                    log.error(
+                        "Unknown grib code %s in expression %s found"
+                        % (str(code), mask_expr)
+                    )
                 if code not in root_codes:
                     root_codes.append(code)
             setattr(cls, "root_codes", root_codes)
@@ -249,7 +299,6 @@ class ifs_source(cmor_source):
 
 # LPJ-Guess source subclass
 class lpjg_source(cmor_source):
-
     def __init__(self, colname):
         super(lpjg_source, self).__init__()
         self.colname_ = colname
@@ -263,7 +312,6 @@ class lpjg_source(cmor_source):
 
 # LTM5 source subclass
 class tm5_source(cmor_source):
-
     def __init__(self, colname):
         super(tm5_source, self).__init__()
         self.colname_ = colname

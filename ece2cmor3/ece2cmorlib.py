@@ -6,15 +6,29 @@ import logging
 import os
 import tempfile
 
-from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
-    cmor_utils, cmor_source
+from ece2cmor3 import (
+    __version__,
+    cmor_target,
+    cmor_task,
+    nemo2cmor,
+    ifs2cmor,
+    lpjg2cmor,
+    tm52cmor,
+    postproc,
+    cmor_utils,
+    cmor_source,
+)
 
 # Logger instance
 log = logging.getLogger(__name__)
 
 # Module configuration defaults
-conf_path_default = os.path.join(os.path.dirname(__file__), "resources", "metadata-templates",
-                                 "cmip6-CMIP-piControl-metadata-template.json")
+conf_path_default = os.path.join(
+    os.path.dirname(__file__),
+    "resources",
+    "metadata-templates",
+    "cmip6-CMIP-piControl-metadata-template.json",
+)
 cmor_mode_default = cmor.CMOR_PRESERVE
 prefix_default = "CMIP6"
 table_dir_default = os.path.join(os.path.dirname(__file__), "resources", "tables")
@@ -41,10 +55,14 @@ PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 
 
 # Initialization function without using the cmor library, must be called before starting
-def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
-                            tableprefix=prefix_default):
+def initialize_without_cmor(
+    metadata_path=conf_path_default,
+    mode=cmor_mode_default,
+    tabledir=table_dir_default,
+    tableprefix=prefix_default,
+):
     global prefix, table_dir, targets, metadata, cmor_mode
-    with open(metadata_path, 'r') as f:
+    with open(metadata_path, "r") as f:
         metadata = json.load(f)
     cmor_mode = mode
     table_dir = tabledir
@@ -54,10 +72,17 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
 
 
 # Initialization function, must be called before starting
-def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
-               tableprefix=prefix_default, outputdir=None, logfile=None, create_subdirs=True):
+def initialize(
+    metadata_path=conf_path_default,
+    mode=cmor_mode_default,
+    tabledir=table_dir_default,
+    tableprefix=prefix_default,
+    outputdir=None,
+    logfile=None,
+    create_subdirs=True,
+):
     global prefix, table_dir, targets, metadata, cmor_mode
-    with open(metadata_path, 'r') as f:
+    with open(metadata_path, "r") as f:
         metadata = json.load(f)
     cmor_mode = mode
     table_dir = tabledir
@@ -65,19 +90,25 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     validate_setup_settings()
     logname = logfile
     if logfile is not None:
-        logname = '.'.join(logfile.split('.')[:-1] + ["cmor", "log"])
-    cmor.setup(table_dir, cmor_mode, logfile=logname, create_subdirectories=(1 if create_subdirs else 0))
+        logname = ".".join(logfile.split(".")[:-1] + ["cmor", "log"])
+    cmor.setup(
+        table_dir,
+        cmor_mode,
+        logfile=logname,
+        create_subdirectories=(1 if create_subdirs else 0),
+    )
     if outputdir is not None:
         metadata["outpath"] = outputdir
     if "outpath" not in metadata:
         metadata["outpath"] = os.path.join(os.getcwd(), "cmor")
     hist = metadata.get("history", "")
-    newline = "processed by ece2cmor {version}, git rev. " \
-              "{sha}\n".format(version=__version__.version, sha=cmor_utils.get_git_hash())
+    newline = "processed by ece2cmor {version}, git rev. " "{sha}\n".format(
+        version=__version__.version, sha=cmor_utils.get_git_hash()
+    )
     metadata["history"] = newline + hist if len(hist) != 0 else newline
     metadata["latest_ece2cmor_version"] = __version__.version
     metadata["ece2cmor_git_revision"] = cmor_utils.get_git_hash()
-    metadata["latest_applied_cmor_fixer_version"] = 'None'
+    metadata["latest_applied_cmor_fixer_version"] = "None"
     for key, val in list(metadata.items()):
         log.info("Metadata attribute %s: %s", key, val)
     with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
@@ -101,7 +132,14 @@ def validate_setup_settings():
     if not prefix or not isinstance(prefix, str):
         log.error("Cmorization table prefix is empty or not a string")
         raise Exception("Cmorization table prefix is empty or not a string")
-    if cmor_mode not in [APPEND, APPEND_NC3, REPLACE, REPLACE_NC3, PRESERVE, PRESERVE_NC3]:
+    if cmor_mode not in [
+        APPEND,
+        APPEND_NC3,
+        REPLACE,
+        REPLACE_NC3,
+        PRESERVE,
+        PRESERVE_NC3,
+    ]:
         log.error("Invalid CMOR netcdf file action %s given" % str(cmor_mode))
         raise Exception("Invalid CMOR netcdf file action")
     return 0
@@ -136,7 +174,10 @@ def get_cmor_target(var_id, tab_id=None):
         elif len(results) == 0:
             return None
         else:
-            log.error("Table validation error: multiple variables with name %s found in table %s" % (var_id, tab_id))
+            log.error(
+                "Table validation error: multiple variables with name %s found in table %s"
+                % (var_id, tab_id)
+            )
 
 
 # Adds a task to the task list.
@@ -152,7 +193,9 @@ def add_task(tsk):
             tasks.remove(duptasks[0])
         tasks.append(tsk)
     else:
-        log.error("Can only append cmor_task to the list, attempt to append %s" % str(tsk))
+        log.error(
+            "Can only append cmor_task to the list, attempt to append %s" % str(tsk)
+        )
         return False
     return True
 
@@ -171,12 +214,15 @@ def add_script(component, name, attributes):
 
 
 # Performs an IFS cmorization processing:
-def perform_ifs_tasks(datadir, expname,
-                      refdate=None,
-                      postprocmode=postproc.recreate,
-                      tempdir="/tmp/ece2cmor",
-                      taskthreads=4,
-                      cdothreads=4):
+def perform_ifs_tasks(
+    datadir,
+    expname,
+    refdate=None,
+    postprocmode=postproc.recreate,
+    tempdir="/tmp/ece2cmor",
+    taskthreads=4,
+    cdothreads=4,
+):
     global log, tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
@@ -186,12 +232,22 @@ def perform_ifs_tasks(datadir, expname,
         return
     tableroot = os.path.join(table_dir, prefix)
     if enable_masks:
-        ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
+        ifs2cmor.masks = {
+            k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"
+        }
     else:
         ifs2cmor.masks = {}
-    ifs2cmor.scripts = {k: v for k, v in list(scripts.items()) if v["component"] == "ifs"}
-    if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
-                                tempdir=tempdir, autofilter=auto_filter)):
+    ifs2cmor.scripts = {
+        k: v for k, v in list(scripts.items()) if v["component"] == "ifs"
+    }
+    if not ifs2cmor.initialize(
+        datadir,
+        expname,
+        tableroot,
+        refdate if refdate else datetime.datetime(1850, 1, 1),
+        tempdir=tempdir,
+        autofilter=auto_filter,
+    ):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
@@ -204,7 +260,9 @@ def perform_nemo_tasks(datadir, expname, refdate):
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
-    log.info("Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks)))
+    log.info(
+        "Selected %d NEMO tasks from %d input tasks" % (len(nemo_tasks), len(tasks))
+    )
     tableroot = os.path.join(table_dir, prefix)
     if not nemo2cmor.initialize(datadir, expname, tableroot, refdate):
         return
@@ -217,7 +275,9 @@ def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
-    log.info("Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks), len(tasks)))
+    log.info(
+        "Selected %d LPJG tasks from %d input tasks" % (len(lpjg_tasks), len(tasks))
+    )
     if not lpjg2cmor.initialize(datadir, ncdir, expname, table_dir, prefix, refdate):
         return
     lpjg2cmor.execute(lpjg_tasks)
@@ -230,7 +290,7 @@ def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
     validate_run_settings(datadir, expname)
     tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
     log.info("Selected %d TM5 tasks from %d input tasks" % (len(tm5_tasks), len(tasks)))
-    if (not tm52cmor.initialize(datadir, expname, table_dir, prefix, refdate)):
+    if not tm52cmor.initialize(datadir, expname, table_dir, prefix, refdate):
         return
     tm52cmor.execute(tm5_tasks)
 
