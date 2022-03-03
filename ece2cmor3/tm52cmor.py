@@ -225,7 +225,7 @@ def execute(tasks):
         success,freqid=check_freqid(task)
         if not success:
             task.set_failed()
-            log.info('Frequency %s for task %s not available.'(task.target.frequency,task.target.variable))
+            log.info('Frequency %s for task %s not available.', task.target.frequency,task.target.variable)
             continue
         for fstr in tm5_files_:
             # only select files which start with variable name and have _ behind (e.g. o3 .neq. o3loss)
