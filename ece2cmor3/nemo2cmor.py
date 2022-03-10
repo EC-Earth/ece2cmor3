@@ -81,7 +81,8 @@ nemo_masks_ = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, testmode=False):
-    global nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_, test_mode_
+    global nemo_files_, bathy_file_, basin_file_, exp_name_
+    global table_root_, ref_date_, test_mode_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
@@ -127,7 +128,6 @@ def finalize():
 
 # Executes the processing loop.
 def execute(tasks):
-    global time_axes_, depth_axes_, table_root_
     log.info("Looking up variables in files...")
     tasks = lookup_variables(tasks)
     log.info("Creating NEMO grids in CMOR...")
@@ -367,7 +367,6 @@ def create_cmor_variable(task, srcvar, ncvar, axes):
 
 # Creates all depth axes for the given table from the given files
 def create_depth_axes(ds, tasks, table):
-    global depth_axes_
     if table not in depth_axes_:
         depth_axes_[table] = {}
     log.info(
@@ -437,7 +436,6 @@ def create_depth_axes(ds, tasks, table):
 
 
 def create_time_axes(ds, tasks, table):
-    global time_axes_
     if table == "Ofx":
         return
     if table not in time_axes_:
@@ -599,7 +597,6 @@ def read_times(ds, task):
 
 
 def create_type_axes(ds, tasks, table):
-    global type_axes_
     if table not in type_axes_:
         type_axes_[table] = {}
     log.info(
@@ -683,7 +680,6 @@ def create_type_axes(ds, tasks, table):
 
 # Selects files with data with the given frequency
 def select_freq_files(freq, varname):
-    global exp_name_, nemo_files_
     if freq == "fx":
         nemo_freq = "1y"
     elif freq in ["yr", "yrPt"]:
@@ -719,7 +715,6 @@ def select_freq_files(freq, varname):
 
 
 def create_masks(tasks):
-    global nemo_masks_
     for task in tasks:
         mask = getattr(task.target, cmor_target.mask_key, None)
         if mask is not None and mask not in list(nemo_masks_.keys()):
@@ -793,7 +788,6 @@ def read_grid(ncfile):
 
 # Transfers the grid to cmor.
 def write_grid(grid, tasks):
-    global grid_ids_, lat_axes_
     nx = grid.lons.shape[0]
     ny = grid.lons.shape[1]
     if ny == 1:
