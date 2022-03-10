@@ -290,7 +290,6 @@ def soft_match_key(varid, tabid, levtype, level, gridtype, keys):
 
 # Converts cmor-levels to grib levels code
 def get_levels(task, code):
-    global log
     # Special cases
     if code.tab_id == 128:
         gc = code.var_id

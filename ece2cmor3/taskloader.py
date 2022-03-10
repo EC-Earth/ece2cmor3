@@ -451,7 +451,6 @@ def load_targets_json(variables, asfile=True):
 
 # Loads the legacy ece2cmorlib input namelists to targets
 def load_targets_f90nml(varlist):
-    global log
     import f90nml
 
     vlist = f90nml.read(varlist)
@@ -474,8 +473,6 @@ def load_targets_f90nml(varlist):
 
 # Loads a drq excel file containing the cmor targets.
 def load_targets_excel(varlist):
-    global log
-
     targets = []
     cmor_colname = "CMOR Name"
     vid_colname = "vid"
@@ -524,7 +521,6 @@ def load_targets_excel(varlist):
 
 # Small utility loading targets from the list
 def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=None):
-    global log
     target = ece2cmorlib.get_cmor_target(variable, table)
     if target:
         if vid:
@@ -549,7 +545,7 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # produced by the checkvars.py script, in other words it can read the basic ignored, basic identified missing,
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
-    global log, skip_tables, with_pingfile
+    global skip_tables, with_pingfile
 
     table_colname = "Table"
     var_colname = "variable"
@@ -686,7 +682,7 @@ def matchvarpar(target, parblock):
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
 def create_tasks(matches, active_components, masks):
-    global log, ignored_vars_file, json_table_key, skip_tables
+    global ignored_vars_file, json_table_key, skip_tables
     result = []
     model_vars = load_model_vars()
     for model, targets in list(matches.items()):
@@ -792,7 +788,7 @@ def parse_maskexpr(exprstring):
 
 # Creates a single task from the target and parameter table entry
 def create_cmor_task(pardict, target, component, masks):
-    global log, json_source_key
+    global json_source_key
     mask = pardict.get(json_masked_key, None)
     if mask is not None and mask in masks:
         pardict[cmor_source.mask_expression_key] = masks[mask]

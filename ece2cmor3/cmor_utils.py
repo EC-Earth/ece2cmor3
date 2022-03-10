@@ -127,7 +127,6 @@ def get_rounded_time(freq, time, offset=0):
 
 # Creates time intervals between start and end with length delta. Last interval may be cut to match end-date.
 def make_time_intervals(start, end, delta):
-    global log
     if end < start:
         log.warning("Start date %s later than end date %s" % (str(start), str(end)))
         return []
@@ -158,7 +157,6 @@ def find_ifs_output(path, expname=None):
 
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
-    global log
     fname = os.path.basename(filepath)
     regex = re.search("\+[0-9]{6}", fname)
     if not regex:
@@ -179,7 +177,6 @@ def find_nemo_output(path, expname=None):
 
 # Returns the grid for the given file name.
 def get_nemo_grid(filepath):
-    global log
     f = os.path.basename(filepath)
     expname = f[:4]
     expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
@@ -193,7 +190,6 @@ def get_nemo_grid(filepath):
 
 # Returns the frequency string for a given nemo output file.
 def get_nemo_frequency(filepath, expname):
-    global log
     f = os.path.basename(filepath)
     expr = re.compile("^" + expname + ".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if not re.match(expr, f):
@@ -260,7 +256,6 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
 
 
 def get_tm5_frequency(filepath, expname):
-    global log
     f = os.path.basename(filepath)
     expr = re.compile(".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
     if not re.match(expr, f):
@@ -287,7 +282,6 @@ def get_tm5_frequency(filepath, expname):
 
 # Returns the start and end date corresponding to the given nemo output file.
 def get_tm5_interval(filepath):
-    global log
     fname = os.path.basename(filepath)
     regex = re.findall("[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
     start, end = None, None
@@ -327,7 +321,6 @@ def netcdf2cmor(
     time_selection=None,
     force_fx=False,
 ):
-    global log
     ndims = len(ncvar.shape)
     if timdim < 0:
         ntimes = 1 if time_selection is None else len(time_selection)

@@ -144,7 +144,7 @@ def initialize(path, expname, tabledir, prefix, refdate):
     Returns:
         boolean: success
     """
-    global log, tm5_files_, exp_name_, table_root_, ref_date_, plev39_, plev19_, areacella_, path_
+    global tm5_files_, exp_name_, table_root_, ref_date_, plev39_, plev19_, areacella_, path_
     exp_name_ = expname
     path_ = path
     table_root_ = os.path.join(tabledir, prefix)
@@ -233,7 +233,6 @@ def check_freqid(task):
         boolean: True if task will be cmorized
         freqid (string): name of frequency in files
     """
-    global log
     freqid = set_freqid(task.target.frequency)
     if task.target.frequency == "monC":
         if task.target.table == "Amon" and (
@@ -273,7 +272,7 @@ def execute(tasks):
     Returns:
         boolean: success
     """
-    global log, time_axes_, depth_axes_, table_root_, tm5_files_, areacella_, using_grid_, ps_tasks
+    global time_axes_, depth_axes_, table_root_, tm5_files_, areacella_, using_grid_, ps_tasks
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
     # Assign file to each task
@@ -499,7 +498,7 @@ def execute_netcdf_task(task, tableid):
     Returns:
         boolean: success of writing a variable
     """
-    global log, dim_ids_, depth_axes_, time_axes_, areacella_
+    global dim_ids_, depth_axes_, time_axes_, areacella_
     interpolate_to_pressure = False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
@@ -814,7 +813,6 @@ def create_time_axes(tasks):
 
     """
 
-    global log  # ,time_axes_
     time_axes = {}
     for task in tasks:
         freq = task.target.frequency
@@ -851,7 +849,7 @@ def create_time_axis(path, name, has_bounds):
     Returns:
         cmor.axis-object: time axis object with given freq
     """
-    global log, ref_date_
+    global ref_date_
     vals = None
     units = None
     ds = None

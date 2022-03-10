@@ -81,7 +81,7 @@ nemo_masks_ = {}
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, testmode=False):
-    global log, nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_, test_mode_
+    global nemo_files_, bathy_file_, basin_file_, exp_name_, table_root_, ref_date_, test_mode_
     exp_name_ = expname
     table_root_ = tableroot
     ref_date_ = refdate
@@ -127,7 +127,7 @@ def finalize():
 
 # Executes the processing loop.
 def execute(tasks):
-    global log, time_axes_, depth_axes_, table_root_
+    global time_axes_, depth_axes_, table_root_
     log.info("Looking up variables in files...")
     tasks = lookup_variables(tasks)
     log.info("Creating NEMO grids in CMOR...")
@@ -260,7 +260,6 @@ def create_basins(target, dataset):
 
 # Performs a single task.
 def execute_netcdf_task(dataset, task):
-    global log
     task.status = cmor_task.status_cmorizing
     grid_axes = [] if not hasattr(task, "grid_id") else [getattr(task, "grid_id")]
     z_axes = getattr(task, "z_axes", [])
@@ -324,7 +323,6 @@ def execute_netcdf_task(dataset, task):
 
 # Returns the constants A,B for unit conversions of type y = A*x + B
 def get_conversion_constants(conversion):
-    global log
     if not conversion:
         return 1.0, 0.0
     if conversion == "tossqfix":

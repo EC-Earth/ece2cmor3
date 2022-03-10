@@ -119,7 +119,6 @@ class cdo_command:
 
     # Adds an operator
     def add_operator(self, operator, *args):
-        global log
         if operator in cdo_command.operator_ordering:
             if operator not in self.operators:
                 self.operators[operator] = list(args)
@@ -148,7 +147,6 @@ class cdo_command:
 
     # Applies the current set of operators to the input file.
     def apply(self, ifile, ofile=None, threads=4, grib_first=False):
-        global log
         keys = cdo_command.optimize_order(
             sorted(
                 list(self.operators.keys()),
@@ -267,7 +265,6 @@ class cdo_command:
 
     # Grid description method
     def get_grid_descr(self, ifile):
-        global log
         int_fields = ["gridsize", "np", "xsize", "ysize"]
         real_fields = ["xfirst", "xinc", "yfirst", "yinc"]
         array_fields = ["xvals", "yvals"]

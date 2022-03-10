@@ -115,7 +115,7 @@ def print_drq_version(filepath):
 
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath, prefix):
-    global log, axes, head_key, freq_key, realm_key, levs_key, axis_key, var_key, dims_key
+    global axes, head_key, freq_key, realm_key, levs_key, axis_key, var_key, dims_key
     global cell_methods_key, cell_measures_key, cell_measure_axes
     tabid = get_table_id(filepath, prefix)
     with open(filepath, "r") as f:
@@ -209,7 +209,7 @@ def create_targets_for_file(filepath, prefix):
 
 # Creates axes info dictionaries for given file
 def create_axes_for_file(filepath, prefix):
-    global log, axes, axis_key
+    global axes, axis_key
     tabid = get_table_id(filepath, prefix)
     with open(filepath, "r") as f:
         result = []
@@ -267,7 +267,7 @@ def create_targets(path, prefix):
 
 # Validates a CMOR target, skipping those that do not make any sense
 def validate_target(target):
-    global log, valid_min_key, valid_max_key
+    global valid_min_key, valid_max_key
     minstr = getattr(target, valid_min_key, "").strip()
     maxstr = getattr(target, valid_max_key, "").strip()
     minnr = float(minstr) if minstr else -float("inf")
@@ -309,7 +309,6 @@ def is_instantaneous(target):
 
 # Sets the z-axis attributes for the given target
 def get_z_axis(target):
-    global log
     result = []
     for axisname in getattr(target, "z_dims", []):
         if axisname in model_axes:

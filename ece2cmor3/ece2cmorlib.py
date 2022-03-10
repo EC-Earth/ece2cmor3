@@ -164,7 +164,7 @@ def finalize():
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id, tab_id=None):
-    global log, targets
+    global targets
     if tab_id is None:
         return [t for t in targets if t.variable == var_id]
     else:
@@ -182,7 +182,7 @@ def get_cmor_target(var_id, tab_id=None):
 
 # Adds a task to the task list.
 def add_task(tsk):
-    global log, tasks, targets
+    global tasks, targets
     if isinstance(tsk, cmor_task.cmor_task):
         if tsk.target not in targets:
             log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
@@ -223,7 +223,7 @@ def perform_ifs_tasks(
     taskthreads=4,
     cdothreads=4,
 ):
-    global log, tasks, table_dir, prefix, masks
+    global tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
@@ -256,7 +256,7 @@ def perform_ifs_tasks(
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):
-    global log, tasks, table_dir, prefix
+    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
@@ -271,7 +271,7 @@ def perform_nemo_tasks(datadir, expname, refdate):
 
 # Performs a LPJG cmorization processing:
 def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
-    global log, tasks, table_dir, prefix
+    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
@@ -285,7 +285,7 @@ def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
 
 # Performs a TM5 cmorization processing:
 def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
-    global log, tasks, table_dir, prefix
+    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
@@ -296,7 +296,7 @@ def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
 
 
 # def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
-#    global log, tasks, table_dir, prefix
+#    global tasks, table_dir, prefix
 #    validate_setup_settings()
 #    validate_run_settings(datadir, expname)
 #    NEWCOMPONENT_tasks = [t for t in tasks if isinstance(t.source, cmor_source.NEWCOMPONENT_source)]

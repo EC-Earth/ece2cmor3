@@ -52,7 +52,6 @@ def get_output_path(task, tmp_path):
 
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_task_list(tasks):
-    global log
     freqset = set([cmor_target.get_freq(t.target) for t in tasks])
     if len(freqset) != 1:
         log.error(
@@ -85,7 +84,7 @@ def create_command(task):
 # Executes the command and replaces the path attribute for all tasks in the tasklist
 # to the output of cdo. This path is constructed from the basepath and the first task.
 def apply_command(command, task, output_path=None):
-    global log, cdo_threads, skip, append, recreate, mode
+    global cdo_threads, skip, append, recreate, mode
     if output_path is None and mode in [skip, append]:
         log.warning(
             "Executing post-processing in skip/append mode without path given: this will skip the entire task."
@@ -457,7 +456,6 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
 
 # Translates the cmor vertical level post-processing operation to a cdo command-line option
 def add_level_operators(cdo, task):
-    global log
     if task.source.spatial_dims == 2:
         return
     zdims = getattr(task.target, "z_dims", [])

@@ -349,7 +349,7 @@ def coords(df, root, meta):
 
 # Initialization before the processing of the LPJ-Guess tasks
 def initialize(path, ncpath, expname, tabledir, prefix, refdate):
-    global log, exp_name_, table_root_, ref_date_
+    global exp_name_, table_root_, ref_date_
     global lpjg_path_, ncpath_, ncpath_created_, landuse_requested_, cmor_prefix_
     exp_name_ = expname
     table_root_ = os.path.join(tabledir, prefix)
@@ -392,7 +392,7 @@ def get_lpj_freq(frequency):
 
 
 def execute(tasks):
-    global log, table_root_
+    global table_root_
     global lpjg_path_, ncpath_
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
@@ -1001,7 +1001,6 @@ def get_lpjg_datacolumn(df, freq, colname, months_as_cols):
 
 # Performs CMORization of a single task/year
 def execute_single_task(dataset, task):
-    global log
     task.status = cmor_task.status_cmorizing
     lon_axis = (
         [] if not hasattr(task, "longitude_axis") else [getattr(task, "longitude_axis")]
@@ -1132,7 +1131,6 @@ def create_grid(ds, task):
 
 # Unit conversion utility method (not really needed but carried over from nemo2cmor anyway)
 def get_conversion_factor(conversion):
-    global log
     if not conversion:
         return 1.0
     #   if conversion == "tossqfix":

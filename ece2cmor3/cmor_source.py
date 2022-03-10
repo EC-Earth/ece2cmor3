@@ -156,7 +156,6 @@ class ifs_source(cmor_source):
     # Constructor.
     def __init__(self, code):
         super(ifs_source, self).__init__()
-        global log
         if not code:
             self.code_ = None
             self.spatial_dims = -1
@@ -202,7 +201,6 @@ class ifs_source(cmor_source):
     # Creates an instance from the input string s.
     @classmethod
     def read(cls, s, expr=None, mask_expr=None, expr_order=0):
-        global log
         gc = grib_code.read(s)
         cls = ifs_source(gc)
         if expr is not None:

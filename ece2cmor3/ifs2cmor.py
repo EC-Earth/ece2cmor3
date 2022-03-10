@@ -107,7 +107,7 @@ def get_output_freq(task):
 
 # Initializes the processing loop.
 def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True):
-    global log, exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_, ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
+    global exp_name_, table_root_, ifs_gridpoint_files_, ifs_spectral_files_, ifs_init_spectral_file_, ifs_init_gridpoint_file_, temp_dir_, ref_date_, start_date_, auto_filter_
 
     exp_name_ = expname
     table_root_ = tableroot
@@ -222,7 +222,7 @@ def validate_script_task(task):
 
 
 def execute(tasks, nthreads=1):
-    global log, start_date_, auto_filter_
+    global start_date_, auto_filter_
 
     supported_tasks = [
         t for t in filter_tasks(tasks) if t.status == cmor_task.status_initialized
@@ -460,7 +460,7 @@ def script_worker(name, src, tasks):
 
 # Converts the masks that are needed into a set of tasks
 def get_mask_tasks(tasks):
-    global log, masks
+    global masks
     selected_masks = []
     for task in tasks:
         msk = getattr(task.target, cmor_target.mask_key, None)
@@ -576,7 +576,6 @@ def clean_tmp_data(tasks):
 
 # Creates a sub-list of tasks that we believe we can successfully process
 def filter_tasks(tasks):
-    global log
     log.info("Inspecting %d tasks.", len(tasks))
     result = []
     for task in tasks:
@@ -744,7 +743,6 @@ def define_cmor_axes(task):
 
 # Executes a single task
 def execute_netcdf_task(task):
-    global log
     task.next_state()
     filepath = getattr(task, cmor_task.output_path_key, None)
     if not filepath:
@@ -898,7 +896,6 @@ def execute_netcdf_task(task):
 
 # Returns the constants A,B for unit conversions of type y = A*x + B
 def get_conversion_constants(conversion, output_frequency):
-    global log
     if not conversion:
         return 1.0, 0.0
     if conversion == "cum2inst":
@@ -929,7 +926,7 @@ def get_conversion_constants(conversion, output_frequency):
 
 # Creates time axes in cmor and attach the id's as attributes to the tasks
 def create_time_axes(task):
-    global log, time_axis_ids, time_axis_bnds
+    global time_axis_ids, time_axis_bnds
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # TODO: better to check in the table axes if the standard name of the dimension equals "time"
     time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
@@ -964,7 +961,7 @@ def create_time_axes(task):
 
 # Creates depth axes in cmor and attach the id's as attributes to the tasks
 def create_depth_axes(task):
-    global log, depth_axis_ids
+    global depth_axis_ids
     tgtdims = getattr(task.target, cmor_target.dims_key)
     z_dims = getattr(task.target, "z_dims", [])
     if not any(z_dims):
@@ -1131,7 +1128,6 @@ def create_hybrid_level_axis(task):
 
 # Creates a soil depth axis.
 def create_soil_depth_axis(name):
-    global log
     if name == "sdepth1":
         return cmor.axis(
             table_entry=name, coord_vals=[0.05], cell_bounds=[0.0, 0.1], units="m"
@@ -1147,7 +1143,7 @@ def create_soil_depth_axis(name):
 
 # Makes a time axis for the given table
 def create_time_axis(freq, path, name, has_bounds):
-    global log, start_date_, ref_date_
+    global start_date_, ref_date_
     date_times = cmor_utils.read_time_stamps(path)
     if len(date_times) == 0:
         log.error(
@@ -1232,7 +1228,6 @@ def get_sp_var(ncpath):
 
 # Creates the regular gaussian grids from the postprocessed file argument.
 def create_grid_from_file(filepath):
-    global log
     command = cdoapi.cdo_command()
     grid_descr = command.get_grid_descr(filepath)
     gridtype = grid_descr.get("gridtype", "unknown")
