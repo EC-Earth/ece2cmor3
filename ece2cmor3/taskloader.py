@@ -545,8 +545,6 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # produced by the checkvars.py script, in other words it can read the basic ignored, basic identified missing,
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
-    global skip_tables, with_pingfile
-
     table_colname = "Table"
     var_colname = "variable"
     comment_colname = "comment"
@@ -616,7 +614,6 @@ def load_checkvars_excel(basic_ignored_excel_file):
 
 
 def match_variables(targets, model_variables):
-    global json_target_key
     # Return value: dictionary of models and lists of targets
     matches = {m: [] for m in list(components.models.keys())}
     # Loop over requested variables
@@ -682,7 +679,6 @@ def matchvarpar(target, parblock):
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
 def create_tasks(matches, active_components, masks):
-    global ignored_vars_file, json_table_key, skip_tables
     result = []
     model_vars = load_model_vars()
     for model, targets in list(matches.items()):
@@ -768,7 +764,6 @@ def load_scripts(model_vars):
 # Parses the input mask expression
 # TODO: Delegate to components
 def parse_maskexpr(exprstring):
-    global mask_predicates
     ops = list(mask_predicates.keys())
     ops.sort(key=len)
     for op in ops[::-1]:
@@ -788,7 +783,6 @@ def parse_maskexpr(exprstring):
 
 # Creates a single task from the target and parameter table entry
 def create_cmor_task(pardict, target, component, masks):
-    global json_source_key
     mask = pardict.get(json_masked_key, None)
     if mask is not None and mask in masks:
         pardict[cmor_source.mask_expression_key] = masks[mask]
