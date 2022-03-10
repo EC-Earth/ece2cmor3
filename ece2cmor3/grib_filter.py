@@ -30,7 +30,8 @@ starttimes = {}
 # Initializes the module, looks up previous month files and inspects the first
 # day in the input files to set up an administration of the fields.
 def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
-    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes, record_keys
+    global gridpoint_files, spectral_files, ini_gridpoint_file
+    global ini_spectral_file, temp_dir, accum_codes
     grib_file.initialize()
     gridpoint_files = {
         d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in list(gpfiles.keys())
@@ -96,7 +97,6 @@ def update_sp_key(fname):
 
 # Function reading the file with grib-codes of accumulated fields
 def load_accum_codes(path):
-    global accum_key
     data = json.loads(open(path).read())
     if accum_key in data:
         return list(map(grib_tuple_from_string, data[accum_key]))
@@ -950,7 +950,6 @@ def next_record(gribfile, ffwd_count, prev_time, gridtype, ffwd_cache, keys_cach
 def write_record(
     gribfile, key, keys2files, shift=0, handles=None, once=False, setdate=None
 ):
-    global starttimes
     var_infos = set()
     if key[2] == grib_file.hybrid_level_code:
         for k, v in list(keys2files.items()):
