@@ -1,3 +1,4 @@
+from functools import lru_cache
 import logging
 import os
 
@@ -12,11 +13,9 @@ log = logging.getLogger(__name__)
 orca1_grid_shape = (292, 362)
 orca025_grid_shape = (1050, 1442)
 
-cached_vertices = {}
 
-
+@lru_cache
 def load_vertices_from_file(gridtype, shape):
-    global cached_vertices
     gridchar = gridtype
     if shape == orca1_grid_shape:
         mesh = "ORCA1"
@@ -25,11 +24,6 @@ def load_vertices_from_file(gridtype, shape):
     else:
         log.fatal("Unsupported grid resolution for NEMO: %s" % str(shape))
         return None, None
-    if (mesh, gridchar) in list(cached_vertices.keys()):
-        return (
-            cached_vertices[(mesh, gridchar)][0],
-            cached_vertices[(mesh, gridchar)][1],
-        )
     file_name = "-".join(["nemo", "vertices", mesh, gridchar, "grid"]) + ".nc"
     fullpath = os.path.join(
         os.path.dirname(__file__), "resources", "b2share-data", file_name
@@ -55,5 +49,4 @@ def load_vertices_from_file(gridtype, shape):
     lon_vertices = numpy.where(
         lon_vertices_raw < 0, lon_vertices_raw + 360.0, lon_vertices_raw
     )
-    cached_vertices[(mesh, gridchar)] = (lon_vertices, lat_vertices)
     return lon_vertices, lat_vertices
