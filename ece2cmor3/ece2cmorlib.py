@@ -35,7 +35,7 @@ table_dir_default = os.path.join(os.path.dirname(__file__), "resources", "tables
 
 # ece2cmor master API.
 metadata = {}
-cmor_mode = cmor_mode_default
+# cmor_mode = cmor_mode_default
 prefix = prefix_default
 table_dir = table_dir_default
 tasks = []
@@ -122,7 +122,6 @@ def initialize(
 
 # Validation of setup configuration
 def validate_setup_settings():
-    global prefix, table_dir, cmor_mode
     if not table_dir or not isinstance(table_dir, str):
         log.error("Invalid cmorization table string given...aborting")
         raise Exception("Cmorization table directory is empty or not a string")
@@ -164,7 +163,6 @@ def finalize():
 
 # Returns one or more cmor targets for task creation.
 def get_cmor_target(var_id, tab_id=None):
-    global targets
     if tab_id is None:
         return [t for t in targets if t.variable == var_id]
     else:
@@ -182,7 +180,6 @@ def get_cmor_target(var_id, tab_id=None):
 
 # Adds a task to the task list.
 def add_task(tsk):
-    global tasks, targets
     if isinstance(tsk, cmor_task.cmor_task):
         if tsk.target not in targets:
             log.error("Cannot append tasks with unknown target %s" % str(tsk.target))
@@ -202,13 +199,11 @@ def add_task(tsk):
 
 # Adds a mask
 def add_mask(name, src, func, val):
-    global masks
     masks[name] = {"source": src, "operator": func, "rhs": val}
 
 
 # Adds a custom processing script
 def add_script(component, name, attributes):
-    global scripts
     scripts[name] = {k: v for k, v in list(attributes.items()) if k != "name"}
     scripts[name]["component"] = component
 
@@ -223,7 +218,6 @@ def perform_ifs_tasks(
     taskthreads=4,
     cdothreads=4,
 ):
-    global tasks, table_dir, prefix, masks
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     ifs_tasks = [t for t in tasks if t.source.model_component() == "ifs"]
@@ -256,7 +250,6 @@ def perform_ifs_tasks(
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):
-    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     nemo_tasks = [t for t in tasks if t.source.model_component() == "nemo"]
@@ -271,7 +264,6 @@ def perform_nemo_tasks(datadir, expname, refdate):
 
 # Performs a LPJG cmorization processing:
 def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
-    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     lpjg_tasks = [t for t in tasks if t.source.model_component() == "lpjg"]
@@ -285,7 +277,6 @@ def perform_lpjg_tasks(datadir, ncdir, expname, refdate):
 
 # Performs a TM5 cmorization processing:
 def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
-    global tasks, table_dir, prefix
     validate_setup_settings()
     validate_run_settings(datadir, expname)
     tm5_tasks = [t for t in tasks if t.source.model_component() == "tm5"]
@@ -296,7 +287,6 @@ def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
 
 
 # def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
-#    global tasks, table_dir, prefix
 #    validate_setup_settings()
 #    validate_run_settings(datadir, expname)
 #    NEWCOMPONENT_tasks = [t for t in tasks if isinstance(t.source, cmor_source.NEWCOMPONENT_source)]
