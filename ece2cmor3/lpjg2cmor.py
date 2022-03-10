@@ -392,8 +392,6 @@ def get_lpj_freq(frequency):
 
 
 def execute(tasks):
-    global table_root_
-    global lpjg_path_, ncpath_
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
@@ -636,8 +634,6 @@ def divide_years(lpjgfile, firstyr, lastyr, outname):
 # this function builds upon a combination of _get and save_nc functions from the out2nc.py tool originally by Michael
 #  Mischurow
 def create_lpjg_netcdf(freq, inputfile, outname, outdims):
-    global ncpath_, gridfile_
-
     # checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists
     #  in lpjg data)
     is_land_use = "landUse" in outdims.split()
