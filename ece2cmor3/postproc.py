@@ -84,7 +84,6 @@ def create_command(task):
 # Executes the command and replaces the path attribute for all tasks in the tasklist
 # to the output of cdo. This path is constructed from the basepath and the first task.
 def apply_command(command, task, output_path=None):
-    global cdo_threads, skip, append, recreate, mode
     if output_path is None and mode in [skip, append]:
         log.warning(
             "Executing post-processing in skip/append mode without path given: this will skip the entire task."
