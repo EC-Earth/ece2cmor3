@@ -115,8 +115,6 @@ def print_drq_version(filepath):
 
 # Creates cmor-targets from the input json-file
 def create_targets_for_file(filepath, prefix):
-    global axes, head_key, freq_key, realm_key, levs_key, axis_key, var_key, dims_key
-    global cell_methods_key, cell_measures_key, cell_measure_axes
     tabid = get_table_id(filepath, prefix)
     with open(filepath, "r") as f:
         result = []
@@ -209,7 +207,6 @@ def create_targets_for_file(filepath, prefix):
 
 # Creates axes info dictionaries for given file
 def create_axes_for_file(filepath, prefix):
-    global axes, axis_key
     tabid = get_table_id(filepath, prefix)
     with open(filepath, "r") as f:
         result = []
@@ -236,7 +233,6 @@ def get_lowercase(dictionary, key, default):
 
 # Creates cmor-targets from all json files in the given directory, with argument prefix.
 def create_targets(path, prefix):
-    global coord_file
     result = []
     drq_version_printed = False
     if os.path.isfile(path):
@@ -267,7 +263,6 @@ def create_targets(path, prefix):
 
 # Validates a CMOR target, skipping those that do not make any sense
 def validate_target(target):
-    global valid_min_key, valid_max_key
     minstr = getattr(target, valid_min_key, "").strip()
     maxstr = getattr(target, valid_max_key, "").strip()
     minnr = float(minstr) if minstr else -float("inf")
@@ -349,7 +344,6 @@ def get_z_axis(target):
 
 # Returns the axes defined for the input table.
 def get_axis_info(table_id):
-    global axes, coord_file
     result = axes.get(coord_file, {})
     overrides = axes.get(table_id, {})
     for k, v in overrides.items():
