@@ -144,7 +144,8 @@ def initialize(path, expname, tabledir, prefix, refdate):
     Returns:
         boolean: success
     """
-    global tm5_files_, exp_name_, table_root_, ref_date_, plev39_, plev19_, areacella_, path_
+    global tm5_files_, exp_name_, table_root_, ref_date_
+    global plev39_, plev19_, areacella_, path_
     exp_name_ = expname
     path_ = path
     table_root_ = os.path.join(tabledir, prefix)
@@ -272,7 +273,7 @@ def execute(tasks):
     Returns:
         boolean: success
     """
-    global time_axes_, depth_axes_, table_root_, tm5_files_, areacella_, using_grid_, ps_tasks
+    global time_axes_, ps_tasks
     log.info("Executing %d tm5 tasks..." % len(tasks))
     log.info("Cmorizing tm5 tasks...")
     # Assign file to each task
@@ -498,7 +499,6 @@ def execute_netcdf_task(task, tableid):
     Returns:
         boolean: success of writing a variable
     """
-    global dim_ids_, depth_axes_, time_axes_, areacella_
     interpolate_to_pressure = False
     task.status = cmor_task.status_cmorizing
     filepath = getattr(task, cmor_task.output_path_key, None)
@@ -849,7 +849,6 @@ def create_time_axis(path, name, has_bounds):
     Returns:
         cmor.axis-object: time axis object with given freq
     """
-    global ref_date_
     vals = None
     units = None
     ds = None
@@ -906,7 +905,6 @@ def create_type_axes(task):
     Returns:
         Boolean: if succesful creation
     """
-    global type_axes
     table = task.target.table
     key = (table, "lambda550nm")
     if key not in type_axes_:
@@ -939,8 +937,6 @@ def create_depth_axes(task):
     Returns:
         boolean: is creation successful or not
     """
-    global log_depth_axis_ids, zfactor_ids
-
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # zdims all other than xy
     # including lambda550nm...
@@ -1039,7 +1035,6 @@ def create_hybrid_level_axis(task, leveltype="alevel"):
         axisid (cmor.axis-object): axis id for levels
         storewith (cmor.zfactor-object): surface pressure field for saving into same file. needed for calculation of pressure on model levels.
     """
-    global time_axes_, store_with_ps_, dim_ids_, zfactor_ids
     # define grid axes and time axis for hybrid levels
     axes = [getattr(task, "lat"), getattr(task, "lon"), getattr(task, "time_axis")]
 
