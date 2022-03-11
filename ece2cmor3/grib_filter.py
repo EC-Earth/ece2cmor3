@@ -132,7 +132,7 @@ def inspect_day(gribfile, grid):
     keylist = []
     while gribfile.read_next(headers_only=True):
         date = gribfile.get_field(grib_file.date_key)
-        time = gribfile.get_field(grib_file.time_key) / 100
+        time = gribfile.get_field(grib_file.time_key) // 100
         if date == inidate + 1 and time == initime:
             gribfile.release()
             break
