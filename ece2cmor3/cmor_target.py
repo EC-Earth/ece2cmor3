@@ -158,7 +158,7 @@ def create_targets_for_file(filepath, prefix):
                 spacedims = list(
                     set(
                         [
-                            s.encode("ascii")
+                            s
                             for s in v2.split()
                             if not (
                                 s.lower().startswith("time")

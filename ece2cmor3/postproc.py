@@ -353,7 +353,7 @@ def add_time_operators(cdo, task):
 
 
 def add_high_freq_operator(cdo_command, target_freq, operator, task):
-    timestamps = [i * target_freq for i in range(24 / target_freq)]
+    timestamps = [i * target_freq for i in range(24 // target_freq)]
     aggregators = {
         "mean": (
             cmor_source.ifs_source.grib_codes_accum,
