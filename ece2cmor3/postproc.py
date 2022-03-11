@@ -410,7 +410,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
             [c for c in task.source.get_root_codes() if c in aggregators[operator][0]]
         ):
             source_freq = getattr(task, cmor_task.output_frequency_key)
-            steps = target_freq / source_freq
+            steps = target_freq // source_freq
             if steps == 0:
                 log.error(
                     "Requested %s at %d-hourly frequency cannot be computed for variable %s in table %s "
@@ -429,7 +429,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
                     "Computing inaccurate mean value over %d time steps for variable "
                     "%s in table %s"
                     % (
-                        target_freq / source_freq,
+                        target_freq // source_freq,
                         task.target.variable,
                         task.target.table,
                     )

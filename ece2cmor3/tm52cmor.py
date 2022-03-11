@@ -648,7 +648,7 @@ def execute_netcdf_task(task, tableid):
         missval = getattr(task.target, cmor_target.missval_key, 1.0e20)
         vals = numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
-        nroll = dims[-1] / 2
+        nroll = dims[-1] // 2
         ncvar = numpy.roll(vals, nroll, len(dims) - 1)
         vals = numpy.copy(ncvar[:, :, :])
     # Default values
