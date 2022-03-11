@@ -174,7 +174,7 @@ def create_targets_for_file(filepath, prefix):
                 if any(zdims):
                     setattr(target, "z_dims", zdims)
             if key in [cell_measures_key.lower(), cell_methods_key.lower()]:
-                cell_measure_str = re.sub("[\(\[].*?[\)\]]", "", v2.strip())
+                cell_measure_str = re.sub(r"[\(\[].*?[\)\]]", "", v2.strip())
                 if cell_measure_str not in ["@OPT", "--OPT", "", None]:
                     cell_measures = cell_measure_str.split(":")
                     for i in range(1, len(cell_measures)):

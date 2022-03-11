@@ -147,7 +147,7 @@ def add_expr_operators(cdo, task):
         )
     else:
         expr = input_expr
-    groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
+    groups = re.search(r"^var([0-9]{1,3})\=", expr.replace(" ", ""))
     if groups is None:
         lhs = cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())
         rhs = expr.replace(" ", "")
