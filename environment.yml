@@ -22,9 +22,9 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - cdo
+  - cdo=1.9.6
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
-  - cmor
+  - cmor=3.5.0
   - f90nml
   - gitpython
   - jsonschema
