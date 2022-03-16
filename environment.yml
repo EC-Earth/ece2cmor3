@@ -43,6 +43,5 @@ dependencies:
   - requests
   - scipy
   - setuptools
-  - testfixtures
   - xarray
   - xlsxwriter

@@ -1,13 +1,12 @@
 import logging
-import unittest
-from testfixtures import LogCapture
+import re
 
 from ece2cmor3.cmor_source import ifs_source, netcdf_source, grib_code
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-class cmor_source_tests(unittest.TestCase):
+class TestCmorSource:
 
     @staticmethod
     def test_default_ifs_source():
@@ -129,16 +128,18 @@ class cmor_source_tests(unittest.TestCase):
         assert src.spatial_dims == 3
 
     @staticmethod
-    def test_invalid_expression1():
-        with LogCapture() as logc:
-            ifs_source.read("141.128", "sqrt(sq(var165)+sq(var166))")
-            assert "cmor_source ERROR" in str(logc)
+    def test_invalid_expression1(caplog):
+        ifs_source.read("141.128", "sqrt(sq(var165)+sq(var166))")
+        assert re.match(
+            r"ERROR *ece2cmor3\.cmor_source.*"
+            r"assigned to reserved existing grib code", caplog.text)
 
     @staticmethod
-    def test_invalid_expression2():
-        with LogCapture() as logc:
-            ifs_source.read("89.128", "sqrt(sq(var88)+sq(var166))")
-            assert "cmor_source ERROR" in str(logc)
+    def test_invalid_expression2(caplog):
+        ifs_source.read("89.128", "sqrt(sq(var88)+sq(var166))")
+        assert re.match(
+            r"ERROR *ece2cmor3\.cmor_source.*"
+            r"Unknown grib code", caplog.text)
 
     @staticmethod
     def test_create_netcdf_source():
