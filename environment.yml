@@ -22,8 +22,8 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - cdo=1.9.6
-  - cmor=3.5.0
+  - cdo
+  - cmor
   - dreqpy==01.00.33
   - f90nml
   - gitpython
