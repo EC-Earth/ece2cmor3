@@ -59,6 +59,7 @@ setup(name=name,
       long_description=read("README.md"),
       entry_points={"console_scripts": [
           "ece2cmor =  ece2cmor3.ece2cmor:main",
+          "versioncheck = ece2cmor3.versioncheck:main",
           "checkvars =  ece2cmor3.scripts.checkvars:main",
           "drq2ppt =  ece2cmor3.scripts.drq2ppt:main",
           "drq2file_def =  ece2cmor3.scripts.drq2file_def:main",
