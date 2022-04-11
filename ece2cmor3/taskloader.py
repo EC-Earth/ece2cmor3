@@ -507,7 +507,7 @@ def load_targets_excel(varlist):
                 % (sheet, varlist)
             )
         mip_list_index = row.index(mip_list_colname)
-        for r in sheet.iter_rows(min_row=2, value_only=True):
+        for r in sheet.iter_rows(min_row=2, values_only=True):
             add_target(
                 str(r[index]),
                 sheetname,
