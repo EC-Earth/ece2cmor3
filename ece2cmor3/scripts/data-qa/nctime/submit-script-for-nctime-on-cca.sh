@@ -5,8 +5,9 @@
 #
 # Run nctime on the cmorised data.
 #
-# This scripts requires one arguments:
+# This scripts requires two arguments:
 #  1st argument: the directory path with the cmorised data
+#  2nd argument: the experiment ID
 
 # cmorised_data_dir  is the directory with the raw ec-earth output results, for instance: CMIP6
 
@@ -66,17 +67,30 @@ if [ "$#" -eq 2 ]; then
  if ! type ece2cmor > /dev/null; then echo -e "\e[1;31m Error:\e[0m"" ece2cmor is not activated." ;fi
  '
 
+if [ -d ${PERM}/cmorize/ece2cmor3/ ]; then
+ ece2cmor_version_log='
+ cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
+ '
+else
+ ece2cmor_version_log='
+ echo; echo "Using version:"; ece2cmor --version
+ '
+fi
+
  # Creating the job submit script which will be submitted by qsub:
 
  echo "#!/usr/bin/env bash                                                                         " | sed 's/\s*$//g' >  ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${pbs_header}                                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " source $PERM/miniconda2/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " source $SCRATCH/mamba/etc/profile.d/conda.sh                                               " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " export HDF5_USE_FILE_LOCKING=FALSE                                                         " | sed 's/\s*$//g' >> ${job_name}
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_whether_ece2cmor_is_activated}                                                     " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
@@ -109,7 +123,7 @@ if [ "$#" -eq 2 ]; then
 
  else
   echo
-  echo ' Illegal number of arguments. Needs one argument:'
+  echo ' Illegal number of arguments. Needs two arguments:'
   echo '  ' $0 ${SCRATCH}/cmorisation/cmorised-results/cmor-lamaclima-FRST/FRST/CMIP6/ FRST
   echo
  fi
