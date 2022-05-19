@@ -19,8 +19,10 @@ if [ "$#" -eq 2 ]; then
  input_dir_name=${1}
  EXP=${2}
 
+ # The ece2cmor3 root directory:
+ ece2cmor_root_dir=\${PERM}/cmorize/ece2cmor3
  # The directoy where the submit scripts will be launched by qsub:
- running_directory=${PERM}/cmorize/ece2cmor3/ece2cmor3/scripts/data-qa/nctime/
+ running_directory=${ece2cmor_root_dir}/ece2cmor3/scripts/data-qa/nctime/
 
 
 
@@ -66,11 +68,15 @@ if [ "$#" -eq 2 ]; then
  cd ${input_dir_name}/../
 
  # Creating the file overview:
- find ${input_dir_name##*/} -type f > ${file_list}
+#find ${input_dir_name##*/} -type f > ${file_list}
 
  # Creating sha256sum checksum:
- /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a parallel -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
+#/usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a parallel -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
+
+ # Sequential sha256 case:
+ /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
  '
+
  one_line_command=$(echo ${checksum_call} | sed -e 's/\\//g')
 
  check_data_directory='
@@ -82,11 +88,11 @@ if [ "$#" -eq 2 ]; then
  if ! type ece2cmor > /dev/null; then echo -e "\e[1;31m Error:\e[0m"" ece2cmor is not activated." ;fi
  '
 
-if [ -d ${PERM}/cmorize/ece2cmor3/ ]; then
+if [ -d ${ece2cmor_root_dir}/ ]; then
  ece2cmor_version_log='
- cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
+ cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
+#cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
+#cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
  '
 else
  ece2cmor_version_log='
@@ -109,9 +115,9 @@ fi
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo ${one_line_command}                                                                   " | sed 's/\s*$//g' >> ${job_name}
- echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
+#echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
+#echo " echo ${one_line_command}                                                                   " | sed 's/\s*$//g' >> ${job_name}
+#echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${add_comment}                                                                             " | sed 's/\s*$//g' >> ${job_name}
  echo " ${change_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
@@ -140,5 +146,6 @@ fi
   echo
   echo ' Illegal number of arguments. Needs otwo arguments:'
   echo '  ' $0 /scratch/ms/nl/nklm/cmorisation/cmorised-results/cmor-VAREX-cmip-h015/h015/CMIP6 h015
+  echo '  ' $0 /scratch/ms/nl/nktr/test-fx/fx h015
   echo
  fi
