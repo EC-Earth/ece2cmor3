@@ -115,7 +115,7 @@ fi
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " echo 'Run the sha256 checksum on the cmorised data set for experiment' \${EXP}             " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ' Run the sha256 checksum on the cmorised data set for experiment' \${EXP}            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${checksum_call}                                                                           " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
