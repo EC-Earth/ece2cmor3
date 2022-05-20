@@ -58,8 +58,9 @@ if [ "$#" -eq 2 ]; then
   input_dir_name=${input_dir_name:0:(-1)}
  fi
 
- file_list=file-overview-${input_dir_name##*/}.txt
- checksum_file=sha256sum-checksum-${input_dir_name##*/}.txt
+ file_list=file-overview-${input_dir_name##*/}-${EXP}.txt
+ checksum_file=sha256sum-checksum-${input_dir_name##*/}-${EXP}.txt
+ time_file=time-${input_dir_name##*/}-${EXP}.txt
 
  cd ${input_dir_name}/../
 
@@ -68,11 +69,11 @@ if [ "$#" -eq 2 ]; then
   find ${input_dir_name##*/} -type f > ${file_list}
 
   # Creating sha256sum checksum with use of parallel:
-  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a ${parallel_cca} -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o ${time_file} -a ${parallel_cca} -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
  else
   # Creating sha256sum checksum in a sequential way:
   echo '\''Creating sha256sum checksum in a sequential way:'\''
-  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o ${time_file} -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
  fi
  '
  #echo "The checksums are created by a sequential call of sha256 because ${HOME}/bin/parallel is not found. On cca one can use parallel by:"
