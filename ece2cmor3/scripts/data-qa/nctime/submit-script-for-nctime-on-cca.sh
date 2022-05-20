@@ -20,7 +20,8 @@ if [ "$#" -eq 2 ]; then
  EXP=${2}
 
  # The directoy where the submit scripts will be launched by qsub:
- running_directory=${PERM}/cmorize/ece2cmor3/ece2cmor3/scripts/data-qa/nctime/
+ nctime_dir=${PERM}/cmorize/ece2cmor3/ece2cmor3/scripts/data-qa/nctime/
+ path_log_subdir=${nctime_dir}/log-nctcck/${EXP}
 
 
 
@@ -46,17 +47,22 @@ if [ "$#" -eq 2 ]; then
  definition_of_script_variables='
  EXP='${EXP}'
  cmorised_data_dir='${cmorised_data_dir}'
- running_directory='${running_directory}'
+ nctime_dir='${nctime_dir}'
+ path_log_subdir='${path_log_subdir}'
  '
 
  job_name=run-nctime-${EXP}.sh
 
- add_comment='# Run nctime on the cmorised data set of the entire experiment by checking with the nctime command nctcck the conitinuity of the produced time records:'
+ add_comment_part_1='Run nctime on the cmorised data set of the entire experiment'
+ add_comment_part_2='by checking with the nctime command nctcck the conitinuity of the produced time records:'
 
- change_dir='cd ${running_directory}'
+ change_dir='cd ${nctime_dir}'
+ create_dir='mkdir -p ${path_log_subdir}'
 
- nctime_call='nctcck --max-processes -1 -i ${running_directory}/esgini-dir -l ${running_directory}/log-nctcck ${cmorised_data_dir}'
- one_line_command=$(echo ${nctime_call} | sed -e 's/\\//g')
+ nctxck_call='nctxck --max-processes -1 -i ${nctime_dir}/esgini-dir -l ${path_log_subdir} ${cmorised_data_dir}'
+ nctcck_call='nctcck --max-processes -1 -i ${nctime_dir}/esgini-dir -l ${path_log_subdir} ${cmorised_data_dir}'
+ one_line_command_01=$(echo ${nctxck_call} | sed -e 's/\\//g')
+ one_line_command_02=$(echo ${nctcck_call} | sed -e 's/\\//g')
 
  check_data_directory='
  if [ ! -d "$cmorised_data_dir"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $cmorised_data_dir " does not exist. Aborting job: " $0 >&2; exit 1; fi
@@ -69,9 +75,9 @@ if [ "$#" -eq 2 ]; then
 
 if [ -d ${PERM}/cmorize/ece2cmor3/ ]; then
  ece2cmor_version_log='
- cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
+ cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${nctime_dir}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${nctime_dir}';
+#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${nctime_dir}';
  '
 else
  ece2cmor_version_log='
@@ -95,12 +101,15 @@ fi
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo ${one_line_command}                                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ${one_line_command_01}                                                                " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ${one_line_command_02}                                                                " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " ${add_comment}                                                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo '${add_comment_part_1} ${EXP} ${add_comment_part_2}'                                  " | sed 's/\s*$//g' >> ${job_name}
  echo " ${change_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
- echo " ${nctime_call}                                                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${create_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${nctxck_call}                                                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${nctcck_call}                                                                             " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo " echo 'The ${job_name} job has finished.'                                                   " | sed 's/\s*$//g' >> ${job_name}
@@ -109,21 +118,22 @@ fi
  chmod uog+x ${job_name}
 
 
- cd ${running_directory}
+ cd ${nctime_dir}
 
  # Submitting the job with qsub:
  qsub ${job_name}
 
  # Printing some status info of the job:
  echo
- echo ' The ' ${running_directory}${job_name} ' submit script is created and submitted. Monitor your job by:'
+ echo ' The ' ${nctime_dir}${job_name} ' submit script is created and submitted. Monitor your job by:'
  echo '  qstat -u ' ${USER}
- echo '  cd '${running_directory}
+ echo '  cd '${nctime_dir}
  echo
 
  else
   echo
-  echo ' Illegal number of arguments. Needs two arguments:'
+  echo ' Illegal number of arguments. Needs two arguments, e.g.:'
   echo '  ' $0 ${SCRATCH}/cmorisation/cmorised-results/cmor-lamaclima-FRST/FRST/CMIP6/ FRST
+  echo '  ' $0 /scratch/ms/nl/nklm/cmorisation/cmorised-results/cmor-VAREX-cmip-h015/h015/CMIP6 h015
   echo
  fi
