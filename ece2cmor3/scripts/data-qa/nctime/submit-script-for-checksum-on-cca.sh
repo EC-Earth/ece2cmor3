@@ -140,7 +140,7 @@ fi
 
  else
   echo
-  echo ' Illegal number of arguments. Needs otwo arguments:'
+  echo ' Illegal number of arguments. Needs otwo arguments, e.g.:'
   echo '  ' $0 /scratch/ms/nl/nklm/cmorisation/cmorised-results/cmor-VAREX-cmip-h015/h015/CMIP6 h015
   echo '  ' $0 /scratch/ms/nl/nktr/test-fx/fx h015
   echo
