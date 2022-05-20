@@ -24,7 +24,7 @@ if [ "$#" -eq 2 ]; then
  # The directoy where the submit scripts will be launched by qsub:
  running_directory=${ece2cmor_root_dir}/ece2cmor3/scripts/data-qa/nctime/
 
-
+ parallel_cca=/home/ms/nl/nm6/bin/parallel
 
  #===============================================================================
  # Below this line the normal end user doesn't have to change anything
@@ -46,16 +46,12 @@ if [ "$#" -eq 2 ]; then
 
  # This block of variables need to be checked and adjusted:
  definition_of_script_variables='
+ parallel_cca='${parallel_cca}'
  EXP='${EXP}'
  input_dir_name='${input_dir_name}'
- running_directory='${running_directory}'
  '
 
  job_name=run-checksum-${EXP}.sh
-
- add_comment='# Run the sha256 checksum on the cmorised data set of the entire experiment:'
-
- change_dir='cd ${running_directory}'
 
  checksum_call='
  if [ ${input_dir_name:(-1)} == '/' ]; then
@@ -67,17 +63,20 @@ if [ "$#" -eq 2 ]; then
 
  cd ${input_dir_name}/../
 
- # Creating the file overview:
-#find ${input_dir_name##*/} -type f > ${file_list}
+ if [ -f "${parallel_cca}" ]; then
+  # Creating the file overview:
+  find ${input_dir_name##*/} -type f > ${file_list}
 
- # Creating sha256sum checksum:
-#/usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a parallel -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
-
- # Sequential sha256 case:
- /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
+  # Creating sha256sum checksum with use of parallel:
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a ${parallel_cca} -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
+ else
+  # Creating sha256sum checksum in a sequential way:
+  echo '\''Creating sha256sum checksum in a sequential way:'\''
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o time-${input_dir_name##*/}.txt -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
+ fi
  '
-
- one_line_command=$(echo ${checksum_call} | sed -e 's/\\//g')
+ #echo "The checksums are created by a sequential call of sha256 because ${HOME}/bin/parallel is not found. On cca one can use parallel by:"
+ #echo " mkdir -p ${HOME}/bin; rsync -a rsync -a /home/ms/nl/nm6/bin/* ${HOME}/bin/"
 
  check_data_directory='
  if [ ! -d "$input_dir_name"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $input_dir_name " does not exist. Aborting job: " $0 >&2; exit 1; fi
@@ -106,7 +105,7 @@ fi
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${pbs_header}                                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " source $SCRATCH/mamba/etc/profile.d/conda.sh                                               " | sed 's/\s*$//g' >> ${job_name}
+ echo " source ${SCRATCH}/mamba/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " export HDF5_USE_FILE_LOCKING=FALSE                                                         " | sed 's/\s*$//g' >> ${job_name}
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
@@ -114,17 +113,13 @@ fi
  echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
- echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
-#echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
-#echo " echo ${one_line_command}                                                                   " | sed 's/\s*$//g' >> ${job_name}
-#echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " ${add_comment}                                                                             " | sed 's/\s*$//g' >> ${job_name}
- echo " ${change_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo 'Run the sha256 checksum on the cmorised data set for experiment' \${EXP}             " | sed 's/\s*$//g' >> ${job_name}
  echo " ${checksum_call}                                                                           " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo 'The ${job_name} job has finished.'                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ' The ${job_name} job has finished, see:'                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo '  '\${checksum_file}                                                                 " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
 
  chmod uog+x ${job_name}

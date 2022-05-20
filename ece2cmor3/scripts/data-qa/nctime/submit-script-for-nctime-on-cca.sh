@@ -85,7 +85,7 @@ fi
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " ${pbs_header}                                                                              " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " source $SCRATCH/mamba/etc/profile.d/conda.sh                                               " | sed 's/\s*$//g' >> ${job_name}
+ echo " source ${SCRATCH}/mamba/etc/profile.d/conda.sh                                             " | sed 's/\s*$//g' >> ${job_name}
  echo " conda activate ece2cmor3                                                                   " | sed 's/\s*$//g' >> ${job_name}
  echo " export HDF5_USE_FILE_LOCKING=FALSE                                                         " | sed 's/\s*$//g' >> ${job_name}
  echo " export UVCDAT_ANONYMOUS_LOG=false                                                          " | sed 's/\s*$//g' >> ${job_name}
