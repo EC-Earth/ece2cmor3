@@ -250,6 +250,7 @@ else
     echo
     echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-control-output-files/ssp585-lamaclima-EC-EARTH-Veg
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp585-lamaclima    EC-EARTH-CC    lamaclima-control-output-files/ssp585-lamaclima-EC-EARTH-CC
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-control-CMIP-historical
     echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-control-ScenarioMIP-ssp245
