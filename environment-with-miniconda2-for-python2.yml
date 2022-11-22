@@ -1,0 +1,50 @@
+# For developers only:
+#  Remove the ece2cmor environment and clean the downloaded conda cache:
+#   conda deactivate
+#   conda env remove -y -n ece2cmor3-python-2
+#   conda clean --all -y
+#  Create the ece2cmor3 environment:
+#   conda update -y -n base -c defaults conda    # For updating conda itself
+#   conda env create -f environment-with-miniconda2-for-python2.yml
+#  Basic tests:
+#   cdo -V
+#  Miscelaneous relevant help commands:
+#   conda env list
+#   conda list
+#   conda update --all
+#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
+#   pip uninstall -y dreqPy==01.00.33; pip install dreqPy==01.0.32
+#  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
+
+name: ece2cmor3-python-2
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - cdo=1.9.6
+  # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
+  - cmor=3.5.0
+  - f90nml
+  - gitpython
+  - jsonschema
+  # Required by tem-diag
+  - nco
+  - netcdf4
+  - numpy
+  - pandas
+  - pip
+  - pyngl
+  - python >=2.7,<3.0.a0
+  - python-cdo
+  - conda-forge/label/cf202003::python-eccodes
+  - python-dateutil
+  - requests
+  # Required by tem-diag
+  - scipy
+  - testfixtures
+  # Unlisted dependency dreq and/or drq
+  - xarray
+  - xlrd
+  - xlsxwriter
+  - pip:
+    - dreqPy==01.00.33
