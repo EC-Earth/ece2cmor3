@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env /home/reerink/miniconda2/envs/python34/bin/python
+# Currently a workaround is used by using a python3.4 - dreqPy environment, see #741.
 # Thomas Reerink
 #
 # Run examples:
 #  ./genecec.py config-genecec
-#  ./run-genecec.sh default 001
+#  ./run-genecec.sh default 001 in-ece2cmor3-dir
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the

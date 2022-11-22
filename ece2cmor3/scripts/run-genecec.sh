@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # Thomas Reerink
 #
-# This scripts requires one argument:
-#  first  argument is a version number.
-#
 # Run this script without arguments for examples how to call this script.
 #
 # With this script genecec can be run and the output is written to a log file.
@@ -14,7 +11,7 @@
 # Note that this script calls genecec.py
 
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 3 ]; then
 
   if ! type "ece2cmor" > /dev/null; then
    echo; tput setaf 1;
@@ -38,6 +35,9 @@ if [ "$#" -eq 2 ]; then
 
   pextra_mode=$1
   version=$2
+  python_case=$3
+
+  config_genecec_run_file=config-genecec-run
 
   if [ "${pextra_mode}" == 'pextra' ]; then
    label=${version}-'pextra'
@@ -45,20 +45,35 @@ if [ "$#" -eq 2 ]; then
    label=${version}
   fi
 
-  sed -e 's/output-control-files/control-output-files\/output-control-files-v'${version}'/' config-genecec > config-genecec-run
+  sed -e 's/output-control-files/control-output-files\/output-control-files-v'${version}'/' config-genecec > ${config_genecec_run_file}
   if [ "${pextra_mode}" == 'pextra' ]; then
-   sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' config-genecec-run
+   sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' ${config_genecec_run_file}
+   sed -i -e 's/default/pextra/' ${config_genecec_run_file}                                                                # Adjust just example in header
+  fi
+  sed -i -e "s/001/${version}/" ${config_genecec_run_file}                                                                 # Adjust just example in header
+
+  if [ "${python_case}" == 'in-ece2cmor3-python-2-dir' ]; then
+   sed -i -e "s/ece2cmor3/ece2cmor3-python-2/" ${config_genecec_run_file}
+   sed -i -e "s/in-ece2cmor3-dir/in-ece2cmor3-python-2-dir/" ${config_genecec_run_file}                                    # Adjust just example in header
+  elif [ "${python_case}" == 'in-ece2cmor3-python-3-dir' ]; then
+   sed -i -e "s/ece2cmor3/ece2cmor3-python-3/" ${config_genecec_run_file}
+   sed -i -e "s/in-ece2cmor3-dir/in-ece2cmor3-python-3-dir/" ${config_genecec_run_file}                                    # Adjust just example in header
   fi
 
   log_dir=control-output-files/log-genecec
+  log_file=${log_dir}/log-genecec-v${label}
   mkdir -p ${log_dir}
-  ./genecec.py config-genecec-run >& ${log_dir}/log-genecec-v${label} &
- #./genecec.py config-genecec-run > ${log_dir}/log-genecec-stdout-v${label} 2> ${log_dir}/log-genecec-stderr-v${label} &
+  ./genecec.py ${config_genecec_run_file} >& ${log_file} &
+ #./genecec.py ${config_genecec_run_file} >  ${log_file/genecec/-stdout} 2> ${log_file/genecec/-stderr} &
 
 else
   echo
-  echo '  This scripts requires one argument, e.g.:'
-  echo '  ' $0 'default 191'
-  echo '  ' $0 'pextra  191'
+  echo '  This scripts requires three arguments, e.g.:'
+  echo '  ' $0 'default 228 in-ece2cmor3-python-2-dir'
+  echo '  ' $0 'pextra  228 in-ece2cmor3-python-2-dir'
+  echo '  ' $0 'default 228 in-ece2cmor3-python-3-dir'
+  echo '  ' $0 'pextra  228 in-ece2cmor3-python-3-dir'
+  echo '  ' $0 'default 228 in-ece2cmor3-dir'
+  echo '  ' $0 'pextra  228 in-ece2cmor3-dir'
   echo
 fi
