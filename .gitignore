@@ -99,7 +99,7 @@ ece2cmor3/scripts/differences-with-benchmark-step-*.txt
 # Slurm messages:
 ece2cmor3/scripts/submit-script-examples/slurm-*
 
-ece2cmor3/resources/
+ece2cmor3/resources/b2share-data/
 
 ece2cmor3/resources/miscellaneous-data-requests/
 

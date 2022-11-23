@@ -3,27 +3,28 @@
 #
 # Run this script without arguments for examples how to call this script.
 #
-# Run nctime on the cmorised data.
+# Run checksum on the cmorised data.
 #
-# This scripts requires two arguments:
+# This scripts requires one arguments:
 #  1st argument: the directory path with the cmorised data
 #  2nd argument: the experiment ID
 
-# cmorised_data_dir  is the directory with the raw ec-earth output results, for instance: CMIP6
+# input_dir_name  is the directory with the raw ec-earth output results, for instance: CMIP6
 
 if [ "$#" -eq 2 ]; then
 
  wall_clock_time=2:00:00    # Maximum estimated time of run, e.g: 6:01:00  means 6 ours, 1 minute, zero seconds
  cores_per_node=18          # The number of cores used per node, recommended at cca is to use one thread, i.e 18 cores per node
 
- cmorised_data_dir=${1}
+ input_dir_name=${1}
  EXP=${2}
 
+ # The ece2cmor3 root directory:
+ ece2cmor_root_dir=\${PERM}/cmorize/ece2cmor3
  # The directoy where the submit scripts will be launched by qsub:
- nctime_dir=${PERM}/cmorize/ece2cmor3/ece2cmor3/scripts/data-qa/nctime/
- path_log_subdir=${nctime_dir}/log-nctcck/${EXP}
+ running_directory=${ece2cmor_root_dir}/ece2cmor3/scripts/data-qa/nctime/
 
-
+ parallel_cca=/home/ms/nl/nm6/bin/parallel
 
  #===============================================================================
  # Below this line the normal end user doesn't have to change anything
@@ -31,10 +32,10 @@ if [ "$#" -eq 2 ]; then
 
 
  pbs_header='
-#PBS -N nctime-'${EXP}'
+#PBS -N checksum-'${EXP}'
 #PBS -q nf
 #PBS -j oe
-#PBS -o pbs-log-for-nctime-'${EXP}'.out
+#PBS -o pbs-log-for-checksum-'${EXP}'.out
 #PBS -l walltime='${wall_clock_time}'
 #PBS -l EC_hyperthreads=1
 #PBS -l EC_total_tasks=1
@@ -45,39 +46,53 @@ if [ "$#" -eq 2 ]; then
 
  # This block of variables need to be checked and adjusted:
  definition_of_script_variables='
+ parallel_cca='${parallel_cca}'
  EXP='${EXP}'
- cmorised_data_dir='${cmorised_data_dir}'
- nctime_dir='${nctime_dir}'
- path_log_subdir='${path_log_subdir}'
+ input_dir_name='${input_dir_name}'
  '
 
- job_name=run-nctime-${EXP}.sh
+ job_name=run-checksum-${EXP}.sh
 
- add_comment_part_1='Run nctime on the cmorised data set of the entire experiment'
- add_comment_part_2='by checking with the nctime command nctcck the conitinuity of the produced time records:'
+ checksum_call='
+ if [ ${input_dir_name:(-1)} == '/' ]; then
+  input_dir_name=${input_dir_name:0:(-1)}
+ fi
 
- change_dir='cd ${nctime_dir}'
- create_dir='mkdir -p ${path_log_subdir}'
+ file_list=file-overview-${input_dir_name##*/}-${EXP}.txt
+ checksum_file=sha256sum-checksum-${input_dir_name##*/}-${EXP}.txt
+ time_file=time-${input_dir_name##*/}-${EXP}.txt
 
- nctxck_call='nctxck --max-processes -1 -i ${nctime_dir}/esgini-dir -l ${path_log_subdir} ${cmorised_data_dir}'
- nctcck_call='nctcck --max-processes -1 -i ${nctime_dir}/esgini-dir -l ${path_log_subdir} ${cmorised_data_dir}'
- one_line_command_01=$(echo ${nctxck_call} | sed -e 's/\\//g')
- one_line_command_02=$(echo ${nctcck_call} | sed -e 's/\\//g')
+ cd ${input_dir_name}/../
+
+ if [ -f "${parallel_cca}" ]; then
+  # Creating the file overview:
+  find ${input_dir_name##*/} -type f > ${file_list}
+
+  # Creating sha256sum checksum with use of parallel:
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o ${time_file} -a ${parallel_cca} -k -j 28 -a ${file_list} sha256sum > ${checksum_file}
+ else
+  # Creating sha256sum checksum in a sequential way:
+  echo '\''Creating sha256sum checksum in a sequential way:'\''
+  /usr/bin/time -f "\t%E real,\t%U user,\t%S sys" -o ${time_file} -a find ${input_dir_name} -type f -print0 | xargs -0 sha256sum > ${checksum_file}
+ fi
+ '
+ #echo "The checksums are created by a sequential call of sha256 because ${HOME}/bin/parallel is not found. On cca one can use parallel by:"
+ #echo " mkdir -p ${HOME}/bin; rsync -a rsync -a /home/ms/nl/nm6/bin/* ${HOME}/bin/"
 
  check_data_directory='
- if [ ! -d "$cmorised_data_dir"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $cmorised_data_dir " does not exist. Aborting job: " $0 >&2; exit 1; fi
- if [ ! "$(ls -A $cmorised_data_dir)" ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $cmorised_data_dir " is empty. Aborting job:" $0 >&2; exit 1; fi
+ if [ ! -d "$input_dir_name"       ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $input_dir_name " does not exist. Aborting job: " $0 >&2; exit 1; fi
+ if [ ! "$(ls -A $input_dir_name)" ]; then echo -e "\e[1;31m Error:\e[0m"" EC-Earth3 data output directory: " $input_dir_name " is empty. Aborting job:" $0 >&2; exit 1; fi
  '
 
  check_whether_ece2cmor_is_activated='
  if ! type ece2cmor > /dev/null; then echo -e "\e[1;31m Error:\e[0m"" ece2cmor is not activated." ;fi
  '
 
-if [ -d ${PERM}/cmorize/ece2cmor3/ ]; then
+if [ -d ${ece2cmor_root_dir}/ ]; then
  ece2cmor_version_log='
- cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${nctime_dir}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${nctime_dir}';
-#cd ${PERM}/cmorize/ece2cmor3/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${nctime_dir}';
+ cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version;                                           cd '${running_directory}';
+#cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no           cd '${running_directory}';
+#cd ${ece2cmor_root_dir}/; echo; git log |head -n 1 | sed -e "s/^/Using /" -e "s/$/ for/"; ece2cmor --version; git status --untracked-files=no; git diff cd '${running_directory}';
  '
 else
  ece2cmor_version_log='
@@ -99,41 +114,34 @@ fi
  echo " ${ece2cmor_version_log}                                                                    " | sed 's/\s*$//g' >> ${job_name}
  echo " ${definition_of_script_variables}                                                          " | sed 's/\s*$//g' >> ${job_name}
  echo " ${check_data_directory}                                                                    " | sed 's/\s*$//g' >> ${job_name}
- echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo 'The ${job_name} job will run:'                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo ${one_line_command_01}                                                                " | sed 's/\s*$//g' >> ${job_name}
- echo " echo ${one_line_command_02}                                                                " | sed 's/\s*$//g' >> ${job_name}
- echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
- echo " echo '${add_comment_part_1} ${EXP} ${add_comment_part_2}'                                  " | sed 's/\s*$//g' >> ${job_name}
- echo " ${change_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
- echo " ${create_dir}                                                                              " | sed 's/\s*$//g' >> ${job_name}
- echo " ${nctxck_call}                                                                             " | sed 's/\s*$//g' >> ${job_name}
- echo " ${nctcck_call}                                                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ' Run the sha256 checksum on the cmorised data set for experiment' \${EXP}            " | sed 's/\s*$//g' >> ${job_name}
+ echo " ${checksum_call}                                                                           " | sed 's/\s*$//g' >> ${job_name}
  echo "                                                                                            " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
- echo " echo 'The ${job_name} job has finished.'                                                   " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo ' The ${job_name} job has finished, see:'                                             " | sed 's/\s*$//g' >> ${job_name}
+ echo " echo '  '\${checksum_file}                                                                 " | sed 's/\s*$//g' >> ${job_name}
  echo " echo                                                                                       " | sed 's/\s*$//g' >> ${job_name}
 
  chmod uog+x ${job_name}
 
 
- cd ${nctime_dir}
+ cd ${running_directory}
 
  # Submitting the job with qsub:
  qsub ${job_name}
 
  # Printing some status info of the job:
  echo
- echo ' The ' ${nctime_dir}${job_name} ' submit script is created and submitted. Monitor your job by:'
+ echo ' The ' ${running_directory}${job_name} ' submit script is created and submitted. Monitor your job by:'
  echo '  qstat -u ' ${USER}
- echo '  cd '${nctime_dir}
+ echo '  cd '${running_directory}
  echo
 
  else
   echo
-  echo ' Illegal number of arguments. Needs two arguments, e.g.:'
-  echo '  ' $0 ${SCRATCH}/cmorisation/cmorised-results/cmor-lamaclima-FRST/FRST/CMIP6/ FRST
+  echo ' Illegal number of arguments. Needs otwo arguments, e.g.:'
   echo '  ' $0 /scratch/ms/nl/nklm/cmorisation/cmorised-results/cmor-VAREX-cmip-h015/h015/CMIP6 h015
+  echo '  ' $0 /scratch/ms/nl/nktr/test-fx/fx h015
   echo
  fi

@@ -189,27 +189,27 @@ else
     echo
 fi
 
-# ./genecec-per-mip-experiment.sh CMIP         1pctCO2      1 1
-# ./genecec-per-mip-experiment.sh CMIP         abrupt-4xCO2 1 1
-# ./genecec-per-mip-experiment.sh CMIP         amip         1 1
-# ./genecec-per-mip-experiment.sh CMIP         historical   1 1
-# ./genecec-per-mip-experiment.sh CMIP         piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         1pctCO2      1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         abrupt-4xCO2 1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         amip         1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         historical   1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         piControl    1 1
 
-# ./genecec-per-mip-experiment.sh AerChemMIP   piControl 1 1
-# ./genecec-per-mip-experiment.sh CDRMIP       piControl 1 1
-# ./genecec-per-mip-experiment.sh C4MIP        piControl 1 1
-# ./genecec-per-mip-experiment.sh DCPP         piControl 1 1
-# ./genecec-per-mip-experiment.sh HighResMIP   piControl 1 1
-# ./genecec-per-mip-experiment.sh ISMIP6       piControl 1 1
-# ./genecec-per-mip-experiment.sh LS3MIP       piControl 1 1
-# ./genecec-per-mip-experiment.sh LUMIP        piControl 1 1
-# ./genecec-per-mip-experiment.sh OMIP         piControl 1 1
-# ./genecec-per-mip-experiment.sh PAMIP        piControl 1 1
-# ./genecec-per-mip-experiment.sh PMIP         piControl 1 1
-# ./genecec-per-mip-experiment.sh RFMIP        piControl 1 1
-# ./genecec-per-mip-experiment.sh ScenarioMIP  piControl 1 1
-# ./genecec-per-mip-experiment.sh VolMIP       piControl 1 1
-# ./genecec-per-mip-experiment.sh CORDEX       piControl 1 1
-# ./genecec-per-mip-experiment.sh DynVarMIP    piControl 1 1
-# ./genecec-per-mip-experiment.sh SIMIP        piControl 1 1
-# ./genecec-per-mip-experiment.sh VIACSAB      piControl 1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files AerChemMIP   piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CDRMIP       piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files C4MIP        piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files DCPP         piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files HighResMIP   piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files ISMIP6       piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files LS3MIP       piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files LUMIP        piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files OMIP         piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files PAMIP        piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files PMIP         piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files RFMIP        piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files ScenarioMIP  piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files VolMIP       piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files CORDEX       piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files DynVarMIP    piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files SIMIP        piControl    1 1
+# ./genecec-per-mip-experiment.sh cmip6-output-control-files VIACSAB      piControl    1 1
