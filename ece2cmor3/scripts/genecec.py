@@ -1,5 +1,4 @@
-#!/usr/bin/env /home/reerink/miniconda2/envs/python34/bin/python
-# Currently a workaround is used by using a python3.4 - dreqPy environment, see #741.
+#!/usr/bin/env python3
 # Thomas Reerink
 #
 # Run examples:
