@@ -1,11 +1,10 @@
 # For developers only:
 #  Remove the ece2cmor environment and clean the downloaded conda cache:
 #   conda deactivate
-#   conda env remove -y -n ece2cmor3-python-2
-#   conda clean --all -y
+#   mamba env remove -y -n ece2cmor3-python-2
+#   mamba clean --all -y
 #  Create the ece2cmor3 environment:
-#   conda update -y -n base -c defaults conda    # For updating conda itself
-#   conda env create -f environment-with-miniconda2-for-python2.yml
+#   mamba env create -f environment.yml
 #  Basic tests:
 #   cdo -V
 #  Miscelaneous relevant help commands:
