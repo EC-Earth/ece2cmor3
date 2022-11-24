@@ -1,0 +1,42 @@
+# For developers only:
+#  Remove the ece2cmor environment and clean the downloaded conda cache:
+#   conda deactivate
+#   mamba env remove -y -n ece2cmor3-python-3
+#   mamba clean --all -y
+#  Create the ece2cmor3 environment:
+#   mamba update -y --name base mamba                          # For updating mamba itself
+#   mamba env create -f environment-with-mamba-for-python3.yml
+#  Basic tests:
+#   cdo -V
+#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
+#   pip uninstall -y dreqPy==01.00.33; pip install dreqPy==01.0.32
+#  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
+
+name: ece2cmor3-python-3
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - cdo
+  - cmor
+  - dreqPy==01.2.0
+  - f90nml
+  - gitpython
+  - jsonschema
+  - nco
+  - netcdf4
+  - numpy
+  - openpyxl
+  - pandas
+  - pip
+  - pyngl
+  - pytest
+  - python
+  - python-cdo
+  - python-dateutil
+  - python-eccodes
+  - requests
+  - scipy
+  - setuptools
+  - xarray
+  - xlsxwriter
