@@ -47,4 +47,4 @@ dependencies:
   - xlrd
   - xlsxwriter
   - pip:
-    - dreqPy==01.00.33
+    - dreqPy==01.2.0
