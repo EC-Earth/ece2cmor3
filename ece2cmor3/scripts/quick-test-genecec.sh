@@ -55,6 +55,10 @@ if [ "$#" -eq 2 ]; then
   
  #conda deactivate
 
+  echo " Compare the results like:"
+  echo "  diff -r ${test_dir}/${mip}-${exp}-v01 ${test_dir}/${mip}-${exp}-${test_version}"
+  echo "  meld    ${log_file/${test_version}/v01} ${log_file}"
+
 else
   echo
   echo "  This scripts has to be run with the correct environment and requires two arguments, e.g.:"
