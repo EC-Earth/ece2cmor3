@@ -222,14 +222,10 @@ def write_ppt_files(tasks):
             namelist["RFP3H"] = hlevs
             num_slices_sp += (nfp3dfhsp * len(hlevs))
             num_slices_gp += (nfp3dfhgp * len(hlevs))
-        num_slices_tot_sp = num_slices_sp if prev_freq == 0 else \
-            (num_slices_sp + ((freq/prev_freq) - 1) * num_slices_tot_sp)
-        num_slices_tot_gp = num_slices_gp if prev_freq == 0 else \
-            (num_slices_gp + ((freq/prev_freq) - 1) * num_slices_tot_gp)
-        num_blocks_tot_sp = num_blocks_sp if prev_freq == 0 else \
-            (num_blocks_sp + ((freq/prev_freq) - 1) * num_blocks_tot_sp)
-        num_blocks_tot_gp = num_blocks_gp if prev_freq == 0 else \
-            (num_blocks_gp + ((freq/prev_freq) - 1) * num_blocks_tot_gp)
+        num_slices_tot_sp = num_slices_sp if prev_freq == 0 else (num_slices_sp + ((freq // prev_freq) - 1) * num_slices_tot_sp)
+        num_slices_tot_gp = num_slices_gp if prev_freq == 0 else (num_slices_gp + ((freq // prev_freq) - 1) * num_slices_tot_gp)
+        num_blocks_tot_sp = num_blocks_sp if prev_freq == 0 else (num_blocks_sp + ((freq // prev_freq) - 1) * num_blocks_tot_sp)
+        num_blocks_tot_gp = num_blocks_gp if prev_freq == 0 else (num_blocks_gp + ((freq // prev_freq) - 1) * num_blocks_tot_gp)
         prev_freq = freq
         nml = f90nml.Namelist({"NAMFPC": namelist})
         nml.uppercase, nml.end_comma = True, True
@@ -248,10 +244,10 @@ def write_ppt_files(tasks):
             # Write initial state ppt
             f90nml.write(nml, "ppt0000000000")
     average_hours_per_month = 730
-    slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) / prev_freq
-    slices_per_month_gp = (average_hours_per_month * num_slices_tot_gp) / prev_freq
-    blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) / prev_freq
-    blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) / prev_freq
+    slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) // prev_freq
+    slices_per_month_gp = (average_hours_per_month * num_slices_tot_gp) // prev_freq
+    blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) // prev_freq
+    blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) // prev_freq
     num_layers = 91
     log.info("")
     log.info("EC-Earth IFS output volume estimates:")
