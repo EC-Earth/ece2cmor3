@@ -27,7 +27,7 @@ if [ "$#" -eq 0 ]; then
 
 # Step 3: Open the following files:
 #  cd ${HOME}/cmorize/shaconemo/ping-files/r274/; nedit cmor-*-without-dummy-lines.txt cmor-*-without-dummy-lines-only-model-name.txt cmor-*-without-dummy-lines-comment2.txt cmor-*-without-dummy-lines-only-model-name.txt cmor-*-without-dummy-lines-ping-file-unit.txt cmor-*-without-dummy-lines-ping-file-comment.txt; cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/;
-#  xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmip6-requested-variables.xlsx
+#  open ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/create-nemo-only-list/nemo-only-pre-list-of-identified-missing-cmip6-requested-variables.xlsx
 # And copy manually the content of the file:
 #  cmor-varlist-based-on-ping-r274-without-dummy-lines.txt                   (the cmor variable names)              in the                     "variable"-column of the nemo-only-pre-list-*.xlsx file
 #  cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt          (the identification comment)           in the                      "comment"-column of the nemo-only-pre-list-*.xlsx file
@@ -49,8 +49,8 @@ if [ "$#" -eq 0 ]; then
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    checkvars --withouttablescheck --withping --nemo -v --drq xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
-#  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
-#  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
+#  open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
+#  open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars to the basic identifiedmissing and the basic ignored:
    /bin/cp -f cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx

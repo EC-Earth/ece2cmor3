@@ -25,7 +25,7 @@ if [ "$#" -eq -2 ]; then
 # # Step 3: Manually select the entire column of variables in the first file and the entire comment from the second file:
 #   nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
 # # and copy them manually into the variable and comment column respectively (and update the comment author column) in the file:
-#   xdg-open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
+#   open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
 # # After updating the pre* files it is most convenient to commit them first.
 
   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
@@ -54,8 +54,8 @@ if [ "$#" -eq -2 ]; then
    cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    checkvars --withouttablescheck -v --drq  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
-#  xdg-open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
-#  xdg-open cmvmm-all-mips-t=3-p=3.ignored.xlsx
+#  open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
+#  open cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
 # Step 6: Copy the resulting identifiedmissing and ignored produced by the checkvars to the basic identifiedmissing and the basic ignored:
    rsync -a cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx ../resources/list-of-identified-missing-cmip6-requested-variables.xlsx
