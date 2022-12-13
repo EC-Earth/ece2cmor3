@@ -1,0 +1,4 @@
+# This config file can be used with:
+#  ./create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist
+
+ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'
