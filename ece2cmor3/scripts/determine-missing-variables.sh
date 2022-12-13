@@ -68,7 +68,7 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   # Replace comma by dot in label:
   mip_label=$(echo ${mip} | sed 's/,/./g')
 
-  cd ${ece2cmor_root_directory}; python setup.py develop; cd -;
+  cd ${ece2cmor_root_directory}; pip install -e .; cd -;
   mkdir -p  ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/; cd ${ece2cmor_root_directory}/ece2cmor3/scripts/cmip6-data-request/;
   if [ ${mip} = 'VolMIP' ]; then
    drq -m ${mip} -t ${tier} -p ${priority}                  --xls --xlsDir cmip6-data-request-${mip_label}-${experiment}-t${tier}-p${priority}

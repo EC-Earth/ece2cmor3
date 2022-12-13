@@ -51,7 +51,7 @@ if [ "$#" -eq -2 ]; then
   rsync -a ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmip6-requested-variables.xlsx                        ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmip6-requested-variables.xlsx
 
 # Step 5: Run with the --withouttablescheck option checkvars based on the largest data request (and the pre-list-*.xlsx):
-   cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
+   cd ${HOME}/cmorize/ece2cmor3/; pip install -e .; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    checkvars --withouttablescheck -v --drq  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
@@ -137,7 +137,7 @@ if [ "$#" -eq -2 ]; then
 # Test that this replace gives still the same results:
    mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
    mv ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.* ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/;
-   cd ${HOME}/cmorize/ece2cmor3/; python setup.py develop; cd -;
+   cd ${HOME}/cmorize/ece2cmor3/; pip install -e .; cd -;
    cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
    checkvars -v --drq xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 # The differences reflect the manual changes:

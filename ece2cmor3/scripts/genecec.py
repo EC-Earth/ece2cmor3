@@ -58,8 +58,7 @@ if len(sys.argv) == 2:
     print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
     sys.exit()
    os.chdir(expanded_ece2cmor_root_directory)
-   os.system('python setup.py install')
-   os.system('python setup.py develop')
+   os.system('pip install -e .')
    os.chdir(previous_working_dir)
 
    if output_dir_name[-1] != '/':
