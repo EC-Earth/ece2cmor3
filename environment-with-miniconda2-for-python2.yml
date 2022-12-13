@@ -1,19 +1,20 @@
 # For developers only:
-#  Remove the ece2cmor environment and clean the downloaded conda cache:
+#  Remove the ece2cmor environment:
 #   conda deactivate
-#   conda env remove -y -n ece2cmor3-python-2
-#   conda clean --all -y
+#   rm -rf ${mambapath}/envs/ece2cmor3-python-2
 #  Create the ece2cmor3 environment:
+#   activateminiconda2
 #   conda update -y -n base -c defaults conda    # For updating conda itself
 #   conda env create -f environment-with-miniconda2-for-python2.yml
 #  Basic tests:
-#   cdo -V
-#  Miscelaneous relevant help commands:
-#   conda env list
-#   conda list
-#   conda update --all
+#   which python                                 # ${miniconda2path}/envs/ece2cmor3-python-2/bin/python
+#   python --version                             # Python 2.7.15
+#   cdo -V                                       # version 1.9.6
+#   drq -v                                       # version 01.02.00
+#   drq -h
+#   ece2cmor -V                                  # ece2cmor v1.8.1
 #  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
-#   pip uninstall -y dreqPy==01.00.33; pip install dreqPy==01.0.32
+#   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3-python-2
@@ -24,6 +25,7 @@ dependencies:
   - cdo=1.9.6
   # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
   - cmor=3.5.0
+  - dreqPy==01.2.0
   - f90nml
   - gitpython
   - jsonschema
@@ -44,7 +46,6 @@ dependencies:
   - testfixtures
   # Unlisted dependency dreq and/or drq
   - xarray
+  - openpyxl
   - xlrd
   - xlsxwriter
-  - pip:
-    - dreqPy==01.2.0
