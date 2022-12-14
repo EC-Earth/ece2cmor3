@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # Thomas Reerink
 
-# Call this script by:
-#  ./create-basic-ec-earth-cmip6-nemo-namelist.py
+# Run this script without arguments for examples how to call this script.
 
 # 1. This script reads the shaconemo xml ping files (the files which relate NEMO code variable
 # names with CMOR names. NEMO code names which are labeled by 'dummy_' have not been identified by
@@ -67,44 +66,28 @@ if len(sys.argv) == 2:
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
 
-   ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'                           # Default: ~/cmorize/ece2cmor3/
+   # Take the config variables:
+   ece2cmor_root_directory        = os.path.expanduser(config['ece2cmor_root_directory'       ]) # ece2cmor_root_directory         = '~/cmorize/ece2cmor3/'
+   ping_file_name_ocean           = os.path.expanduser(config['ping_file_name_ocean'          ]) # ping_file_name_ocean            = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
+   ping_file_name_seaIce          = os.path.expanduser(config['ping_file_name_seaIce'         ]) # ping_file_name_seaIce           = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
+   ping_file_name_ocnBgchem       = os.path.expanduser(config['ping_file_name_ocnBgchem'      ]) # ping_file_name_ocnBgchem        = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
+   field_def_file_directory       = os.path.expanduser(config['field_def_file_directory'      ]) # field_def_file_directory        = '~/ec-earth-3/trunk/runtime/classic/ctrl/'
+   nemo_only_dr_nodummy_file_xlsx = os.path.expanduser(config['nemo_only_dr_nodummy_file_xlsx']) # nemo_only_dr_nodummy_file_xlsx  =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
+   nemo_only_dr_nodummy_file_txt  = os.path.expanduser(config['nemo_only_dr_nodummy_file_txt' ]) # nemo_only_dr_nodummy_file_txt   =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
+   basic_flat_file_def_file_name  = os.path.expanduser(config['basic_flat_file_def_file_name' ]) # basic_flat_file_def_file_name   =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
+   basic_file_def_file_name       = os.path.expanduser(config['basic_file_def_file_name'      ]) # basic_file_def_file_name        =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
    previous_working_dir = os.getcwd()
-   if ece2cmor_root_directory[0] == '~':
-    expanded_ece2cmor_root_directory = expanduser("~") + ece2cmor_root_directory[1:]
-   else:
-    expanded_ece2cmor_root_directory = ece2cmor_root_directory
-   if os.path.isdir(expanded_ece2cmor_root_directory) == False:
-    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' does not exist.\n')
+   if os.path.isdir(ece2cmor_root_directory) == False:
+    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' does not exist.\n')
     sys.exit()
-   if os.path.isfile(expanded_ece2cmor_root_directory + '/environment.yml') == False:
-    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
+   if os.path.isfile(ece2cmor_root_directory + '/environment.yml') == False:
+    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
     sys.exit()
-   os.chdir(expanded_ece2cmor_root_directory)
+   os.chdir(ece2cmor_root_directory)
    os.system('pip install -e .')
    os.chdir(previous_working_dir)
-
-
-   # Note that the ping files are not yet available within ec-earth3 trunk, so you need the Shaconemo repository
-   # or the Shaconemo vendor branch of the ec-earth3 repository: ^/ecearth3/vendor/nemo/shaconemo/ORCA1_LIM3_PISCES/EXP00/
-   #ping_file_name_ocean           = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_ocean_DR1.00.27.xml"
-   #ping_file_name_seaIce          = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_seaIce_DR1.00.27.xml"
-   #ping_file_name_ocnBgchem       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ping_ocnBgChem_DR1.00.27.xml"
-   #field_def_file_directory       = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
-   ping_file_name_ocean           = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml"
-   ping_file_name_seaIce          = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml"
-   ping_file_name_ocnBgchem       = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml"
-   field_def_file_directory       = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/"
-
-   # These files can be generated by calling: ./create-nemo-only-list/create-nemo-only-list.sh :
-   nemo_only_dr_nodummy_file_xlsx =  expanded_ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
-   #nemo_only_dr_nodummy_file_txt =  expanded_ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
-
-   # These files are created by this script, but lateron also read by this script:
-   basic_flat_file_def_file_name  =  expanded_ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
-   basic_file_def_file_name       =  expanded_ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
-
 
    message_occurence_identical_id = True
    message_occurence_identical_id = False
@@ -974,7 +957,7 @@ if len(sys.argv) == 2:
 else:
    print()
    print(' This script needs one argument: a config file name. E.g.:')
-   print('  ', sys.argv[0], 'config-genecec')
+   print('  ', sys.argv[0], 'config-create-basic-ec-earth-cmip6-nemo-namelist')
    print()
 
 
