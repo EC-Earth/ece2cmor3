@@ -473,20 +473,6 @@ if len(sys.argv) == 2:
    def load_checkvars_excel(excel_file):
        import openpyxl
        import string
-       table_colname           = "Table"                                        # CMOR table name
-       var_colname             = "variable"                                     # CMOR variable name
-       prio_colname            = "prio"                                         # priority of variable
-       dimension_colname       = "Dimension format of variable"                 # Dimension format of variable according to the data request
-       longname_colname        = "variable long name"                           # Variable long name according to the data request
-       unit_colname            = "unit"                                         # Unit according to the data request
-       link_colname            = "link"                                         # Link provided by the data request
-       comment_colname         = "comment"                                      # Identification comment by EC-Earth members
-       author_colname          = "comment author"                               # Author(s) of the identification comment
-       description_colname     = "extensive variable description"               # Description according to the data request
-       miplist_colname         = "list of MIPs which request this variable"     # List of MIPs which request this variable in the data request
-       model_component_colname = "model component in ping file"                 # The source of this data are the ping files
-       ping_units_colname      = "units as in ping file"                        # The source of this data are the ping files
-       ping_comment_colname    = "ping file comment"                            # The source of this data are the ping files
 
        alphabet = list(string.ascii_uppercase)
 
@@ -500,19 +486,19 @@ if len(sys.argv) == 2:
            column_names[column_name[0].value] = alphabet[column_counter]
            column_counter += 1
 
-       tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname          )
-       varnames        = list_based_on_xlsx_column(worksheet, column_names, var_colname            )
-       varpriority     = list_based_on_xlsx_column(worksheet, column_names, prio_colname           )
-       vardimension    = list_based_on_xlsx_column(worksheet, column_names, dimension_colname      )
-       varlongname     = list_based_on_xlsx_column(worksheet, column_names, longname_colname       )
-       varunit         = list_based_on_xlsx_column(worksheet, column_names, unit_colname           )
-       weblink         = list_based_on_xlsx_column(worksheet, column_names, link_colname           )
-       comments        = list_based_on_xlsx_column(worksheet, column_names, comment_colname        )
-       description     = list_based_on_xlsx_column(worksheet, column_names, description_colname    )
-       miplist         = list_based_on_xlsx_column(worksheet, column_names, miplist_colname        )
-       model_component = list_based_on_xlsx_column(worksheet, column_names, model_component_colname)
-       ping_units      = list_based_on_xlsx_column(worksheet, column_names, ping_units_colname     )
-       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, ping_comment_colname   )
+       tablenames      = list_based_on_xlsx_column(worksheet, column_names, "Table"                                    ) # CMOR table name
+       varnames        = list_based_on_xlsx_column(worksheet, column_names, "variable"                                 ) # CMOR variable name
+       varpriority     = list_based_on_xlsx_column(worksheet, column_names, "prio"                                     ) # priority of variable
+       vardimension    = list_based_on_xlsx_column(worksheet, column_names, "Dimension format of variable"             ) # Dimension format of variable according to the data request
+       varlongname     = list_based_on_xlsx_column(worksheet, column_names, "variable long name"                       ) # Variable long name according to the data request
+       varunit         = list_based_on_xlsx_column(worksheet, column_names, "unit"                                     ) # Unit according to the data request
+       weblink         = list_based_on_xlsx_column(worksheet, column_names, "link"                                     ) # Link provided by the data request
+       comments        = list_based_on_xlsx_column(worksheet, column_names, "comment"                                  ) # Identification comment by EC-Earth members
+       description     = list_based_on_xlsx_column(worksheet, column_names, "extensive variable description"           ) # Description according to the data request
+       miplist         = list_based_on_xlsx_column(worksheet, column_names, "list of MIPs which request this variable" ) # List of MIPs which request this variable in the data request
+       model_component = list_based_on_xlsx_column(worksheet, column_names, "model component in ping file"             ) # The source of this data are the ping files
+       ping_units      = list_based_on_xlsx_column(worksheet, column_names, "units as in ping file"                    ) # The source of this data are the ping files
+       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, "ping file comment"                        ) # The source of this data are the ping files
 
        # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better.
        # Therefore this block can be removed lateron.
@@ -526,7 +512,6 @@ if len(sys.argv) == 2:
         if str(x) == '1':
          ping_units[counter] = '1.0'
         counter = counter + 1
-
        return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
 
    def list_based_on_xlsx_column(sheet, column_names, column_name):
