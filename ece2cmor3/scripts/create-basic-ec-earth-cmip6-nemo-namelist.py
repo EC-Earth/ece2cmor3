@@ -468,9 +468,8 @@ if len(sys.argv) == 2:
 
    # READING THE NEMO DATA REQUEST FILES:
 
-   # This function can be used to read any excel file which has been produced by the checkvars script,
-   # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
-   # basic identified missing, available, ignored, identified-missing, and missing files.
+   # This function can be used to read the nemo_only_dr_nodummy_file_xlsx (the nemo-only-list-cmip6-requested-variables.xlsx)
+   # file which has been produced by the ./create-nemo-only-list/create-nemo-only-list.sh script guidelines.
    def load_checkvars_excel(excel_file):
        import openpyxl
        import string
@@ -515,7 +514,8 @@ if len(sys.argv) == 2:
        ping_units      = list_based_on_xlsx_column(worksheet, column_names, ping_units_colname     )
        ping_comment    = list_based_on_xlsx_column(worksheet, column_names, ping_comment_colname   )
 
-       # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better. Therefore this block can be removed later.
+       # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better.
+       # Therefore this block can be removed lateron.
        counter = 0
        for x in varunit:
         if str(x) == '1':
