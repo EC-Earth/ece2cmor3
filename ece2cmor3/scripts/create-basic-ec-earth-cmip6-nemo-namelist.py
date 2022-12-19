@@ -471,7 +471,7 @@ if len(sys.argv) == 2:
    # This function can be used to read any excel file which has been produced by the checkvars script,
    # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
    # basic identified missing, available, ignored, identified-missing, and missing files.
-   def load_checkvars_excel(excel_file):
+   def load_checkvars_excel_0(excel_file):
        import xlrd
        table_colname           = "Table"                                        # CMOR table name
        var_colname             = "variable"                                     # CMOR variable name
@@ -515,6 +515,80 @@ if len(sys.argv) == 2:
            ping_units      = [c.value for c in sheet.col_slice(colx=coldict[ping_units_colname     ], start_rowx = nr_of_header_lines)]
            ping_comment    = [c.value for c in sheet.col_slice(colx=coldict[ping_comment_colname   ], start_rowx = nr_of_header_lines)]
        return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
+
+
+
+   # This function can be used to read any excel file which has been produced by the checkvars script,
+   # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
+   # basic identified missing, available, ignored, identified-missing, and missing files.
+   def load_checkvars_excel(excel_file):
+       import openpyxl
+       import string
+       table_colname           = "Table"                                        # CMOR table name
+       var_colname             = "variable"                                     # CMOR variable name
+       prio_colname            = "prio"                                         # priority of variable
+       dimension_colname       = "Dimension format of variable"                 # Dimension format of variable according to the data request
+       longname_colname        = "variable long name"                           # Variable long name according to the data request
+       unit_colname            = "unit"                                         # Unit according to the data request
+       link_colname            = "link"                                         # Link provided by the data request
+       comment_colname         = "comment"                                      # Identification comment by EC-Earth members
+       author_colname          = "comment author"                               # Author(s) of the identification comment
+       description_colname     = "extensive variable description"               # Description according to the data request
+       miplist_colname         = "list of MIPs which request this variable"     # List of MIPs which request this variable in the data request
+       model_component_colname = "model component in ping file"                 # The source of this data are the ping files
+       ping_units_colname      = "units as in ping file"                        # The source of this data are the ping files
+       ping_comment_colname    = "ping file comment"                            # The source of this data are the ping files
+
+       alphabet = list(string.ascii_uppercase)
+
+       workbook  = openpyxl.load_workbook(filename=excel_file, read_only=None)
+       worksheet = workbook['Sheet1']
+
+       # Create a dictionary with column names as keys and column numbers as values:
+       column_names   = {}
+       column_counter = 0
+       for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
+           column_names[column_name[0].value] = alphabet[column_counter]
+           column_counter += 1
+
+       for col in [table_colname, var_colname, unit_colname]:
+        tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname          )
+        varnames        = list_based_on_xlsx_column(worksheet, column_names, var_colname            )
+        varpriority     = list_based_on_xlsx_column(worksheet, column_names, prio_colname           )
+        vardimension    = list_based_on_xlsx_column(worksheet, column_names, dimension_colname      )
+        varlongname     = list_based_on_xlsx_column(worksheet, column_names, longname_colname       )
+        varunit         = list_based_on_xlsx_column(worksheet, column_names, unit_colname           )
+        weblink         = list_based_on_xlsx_column(worksheet, column_names, link_colname           )
+        comments        = list_based_on_xlsx_column(worksheet, column_names, comment_colname        )
+        description     = list_based_on_xlsx_column(worksheet, column_names, description_colname    )
+        miplist         = list_based_on_xlsx_column(worksheet, column_names, miplist_colname        )
+        model_component = list_based_on_xlsx_column(worksheet, column_names, model_component_colname)
+        ping_units      = list_based_on_xlsx_column(worksheet, column_names, ping_units_colname     )
+        ping_comment    = list_based_on_xlsx_column(worksheet, column_names, ping_comment_colname   )
+
+       # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better. Therefore this block can be removed later.
+       counter = 0
+       for x in varunit:
+        if str(x) == '1':
+         varunit[counter] = '1.0'
+        counter = counter + 1
+       counter = 0
+       for x in ping_units:
+        if str(x) == '1':
+         ping_units[counter] = '1.0'
+        counter = counter + 1
+
+       return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
+
+   def list_based_on_xlsx_column(sheet, column_names, column_name):
+       list_with_column_content = []
+       for cell in sheet[column_names[column_name]]:
+        cell_id_cmor_var = column_names['variable'] + str(cell.row)  # Construct the cell id of the corresponding cmor variable cell
+        if sheet[cell_id_cmor_var].value != None:                    # Only empty lines are deselected (based on an empty cmor variable cell
+        #list_with_column_content.append(str(cell.value))
+         list_with_column_content.append(cell.value)
+       del list_with_column_content[0]                               # Remove the first row, the header line
+       return list_with_column_content
 
 
    if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
