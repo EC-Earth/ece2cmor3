@@ -471,56 +471,6 @@ if len(sys.argv) == 2:
    # This function can be used to read any excel file which has been produced by the checkvars script,
    # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
    # basic identified missing, available, ignored, identified-missing, and missing files.
-   def load_checkvars_excel_0(excel_file):
-       import xlrd
-       table_colname           = "Table"                                        # CMOR table name
-       var_colname             = "variable"                                     # CMOR variable name
-       prio_colname            = "prio"                                         # priority of variable
-       dimension_colname       = "Dimension format of variable"                 # Dimension format of variable according to the data request
-       longname_colname        = "variable long name"                           # Variable long name according to the data request
-       unit_colname            = "unit"                                         # Unit according to the data request
-       link_colname            = "link"                                         # Link provided by the data request
-       comment_colname         = "comment"                                      # Identification comment by EC-Earth members
-       author_colname          = "comment author"                               # Author(s) of the identification comment
-       description_colname     = "extensive variable description"               # Description according to the data request
-       miplist_colname         = "list of MIPs which request this variable"     # List of MIPs which request this variable in the data request
-       model_component_colname = "model component in ping file"                 # The source of this data are the ping files
-       ping_units_colname      = "units as in ping file"                        # The source of this data are the ping files
-       ping_comment_colname    = "ping file comment"                            # The source of this data are the ping files
-
-       book = xlrd.open_workbook(excel_file)
-       for sheetname in book.sheet_names():
-           if sheetname.lower() in ["notes"]:
-               continue
-           sheet = book.sheet_by_name(sheetname)
-           header = sheet.row_values(0)
-           coldict = {}
-           for colname in [table_colname, var_colname, prio_colname, dimension_colname, longname_colname, unit_colname, link_colname, comment_colname, description_colname, miplist_colname, model_component_colname, ping_units_colname, ping_comment_colname]:
-               if colname not in header:
-                 print(" Could not find the column: ", colname, " in the sheet", sheet, "\n in the file", excel_file, "\n")
-                 quit()
-               coldict[colname] = header.index(colname)
-           nr_of_header_lines = 2
-           tablenames      = [c.value for c in sheet.col_slice(colx=coldict[table_colname          ], start_rowx = nr_of_header_lines)]
-           varnames        = [c.value for c in sheet.col_slice(colx=coldict[var_colname            ], start_rowx = nr_of_header_lines)]
-           varpriority     = [c.value for c in sheet.col_slice(colx=coldict[prio_colname           ], start_rowx = nr_of_header_lines)]
-           vardimension    = [c.value for c in sheet.col_slice(colx=coldict[dimension_colname      ], start_rowx = nr_of_header_lines)]
-           varlongname     = [c.value for c in sheet.col_slice(colx=coldict[longname_colname       ], start_rowx = nr_of_header_lines)]
-           varunit         = [c.value for c in sheet.col_slice(colx=coldict[unit_colname           ], start_rowx = nr_of_header_lines)]
-           weblink         = [c.value for c in sheet.col_slice(colx=coldict[link_colname           ], start_rowx = nr_of_header_lines)]
-           comments        = [c.value for c in sheet.col_slice(colx=coldict[comment_colname        ], start_rowx = nr_of_header_lines)]
-           description     = [c.value for c in sheet.col_slice(colx=coldict[description_colname    ], start_rowx = nr_of_header_lines)]
-           miplist         = [c.value for c in sheet.col_slice(colx=coldict[miplist_colname        ], start_rowx = nr_of_header_lines)]
-           model_component = [c.value for c in sheet.col_slice(colx=coldict[model_component_colname], start_rowx = nr_of_header_lines)]
-           ping_units      = [c.value for c in sheet.col_slice(colx=coldict[ping_units_colname     ], start_rowx = nr_of_header_lines)]
-           ping_comment    = [c.value for c in sheet.col_slice(colx=coldict[ping_comment_colname   ], start_rowx = nr_of_header_lines)]
-       return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
-
-
-
-   # This function can be used to read any excel file which has been produced by the checkvars script,
-   # in other words it can read the pre basic ignored, the pre basic identified missing, basic ignored,
-   # basic identified missing, available, ignored, identified-missing, and missing files.
    def load_checkvars_excel(excel_file):
        import openpyxl
        import string
