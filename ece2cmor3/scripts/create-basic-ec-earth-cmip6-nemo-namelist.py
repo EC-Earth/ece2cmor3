@@ -501,20 +501,19 @@ if len(sys.argv) == 2:
            column_names[column_name[0].value] = alphabet[column_counter]
            column_counter += 1
 
-       for col in [table_colname, var_colname, unit_colname]:
-        tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname          )
-        varnames        = list_based_on_xlsx_column(worksheet, column_names, var_colname            )
-        varpriority     = list_based_on_xlsx_column(worksheet, column_names, prio_colname           )
-        vardimension    = list_based_on_xlsx_column(worksheet, column_names, dimension_colname      )
-        varlongname     = list_based_on_xlsx_column(worksheet, column_names, longname_colname       )
-        varunit         = list_based_on_xlsx_column(worksheet, column_names, unit_colname           )
-        weblink         = list_based_on_xlsx_column(worksheet, column_names, link_colname           )
-        comments        = list_based_on_xlsx_column(worksheet, column_names, comment_colname        )
-        description     = list_based_on_xlsx_column(worksheet, column_names, description_colname    )
-        miplist         = list_based_on_xlsx_column(worksheet, column_names, miplist_colname        )
-        model_component = list_based_on_xlsx_column(worksheet, column_names, model_component_colname)
-        ping_units      = list_based_on_xlsx_column(worksheet, column_names, ping_units_colname     )
-        ping_comment    = list_based_on_xlsx_column(worksheet, column_names, ping_comment_colname   )
+       tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname          )
+       varnames        = list_based_on_xlsx_column(worksheet, column_names, var_colname            )
+       varpriority     = list_based_on_xlsx_column(worksheet, column_names, prio_colname           )
+       vardimension    = list_based_on_xlsx_column(worksheet, column_names, dimension_colname      )
+       varlongname     = list_based_on_xlsx_column(worksheet, column_names, longname_colname       )
+       varunit         = list_based_on_xlsx_column(worksheet, column_names, unit_colname           )
+       weblink         = list_based_on_xlsx_column(worksheet, column_names, link_colname           )
+       comments        = list_based_on_xlsx_column(worksheet, column_names, comment_colname        )
+       description     = list_based_on_xlsx_column(worksheet, column_names, description_colname    )
+       miplist         = list_based_on_xlsx_column(worksheet, column_names, miplist_colname        )
+       model_component = list_based_on_xlsx_column(worksheet, column_names, model_component_colname)
+       ping_units      = list_based_on_xlsx_column(worksheet, column_names, ping_units_colname     )
+       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, ping_comment_colname   )
 
        # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better. Therefore this block can be removed later.
        counter = 0
