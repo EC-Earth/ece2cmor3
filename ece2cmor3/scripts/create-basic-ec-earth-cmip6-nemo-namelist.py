@@ -470,7 +470,7 @@ if len(sys.argv) == 2:
 
    # This function can be used to read the nemo_only_dr_nodummy_file_xlsx (the nemo-only-list-cmip6-requested-variables.xlsx)
    # file which has been produced by the ./create-nemo-only-list/create-nemo-only-list.sh script guidelines.
-   def load_checkvars_excel(excel_file):
+   def load_nemo_only_excel(excel_file):
        import openpyxl
        import string
 
@@ -531,7 +531,7 @@ if len(sys.argv) == 2:
     sys.exit(' stop')
 
    # Read the excel file with the NEMO data request:
-   dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_unit, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_checkvars_excel(nemo_only_dr_nodummy_file_xlsx)
+   dr_table, dr_varname, dr_varprio, dr_vardim, dr_varlongname, dr_unit, dr_weblink, dr_comment, dr_description, dr_miplist, dr_ping_component, dr_ping_units, dr_ping_comment = load_nemo_only_excel(nemo_only_dr_nodummy_file_xlsx)
 
    #print(dr_miplist[0])
 
