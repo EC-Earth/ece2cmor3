@@ -373,26 +373,26 @@ def load_targets_excel(varlist):
         if sheetname.lower() in ["notes"]:
             continue
         sheet = book.sheet_by_name(sheetname)
-        row = sheet.row_values(0)
-        if cmor_colname not in row:
+        column_names = sheet.row_values(0)
+        if cmor_colname not in column_names:
             log.error(
                 "Could not find cmor variable column in sheet %s for file %s: skipping variable" % (sheet, varlist))
             continue
-        index = row.index(cmor_colname)
-        vid_index = row.index(vid_colname)
-        if priority_colname in row:
-            priority_index = row.index(priority_colname)
-        elif default_priority_colname in row:
+        cmorname_index = column_names.index(cmor_colname)
+        vid_index = column_names.index(vid_colname)
+        if priority_colname in column_names:
+            priority_index = column_names.index(priority_colname)
+        elif default_priority_colname in column_names:
             # If no "Priority" column is found try to find a "Default Priority" column
-            priority_index = row.index(default_priority_colname)
+            priority_index = column_names.index(default_priority_colname)
         else:
             # If no "Priority" column and no "Default Priority" column are found, abort with message
             raise Exception(
                 "Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (
                     sheet, varlist))
-        mip_list_index = row.index(mip_list_colname)
-        varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
-        vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
+        mip_list_index = column_names.index(mip_list_colname)
+        varnames = [c.value for c in sheet.col_slice(colx=cmorname_index, start_rowx=1)]
+        vids     = [c.value for c in sheet.col_slice(colx=vid_index     , start_rowx=1)]
         priority = [c.value for c in sheet.col_slice(colx=priority_index, start_rowx=1)]
         mip_list = [c.value for c in sheet.col_slice(colx=mip_list_index, start_rowx=1)]
         for i in range(len(varnames)):
