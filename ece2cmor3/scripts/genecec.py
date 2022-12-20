@@ -41,8 +41,8 @@ if len(sys.argv) == 2:
    exec(open(config_filename).read(), config)                   # Reading the config file
 
    output_dir_name         = os.path.expanduser(config['output_dir_name'        ])  # output_dir_name                = 'output-control-files/'
-   activate_pextra_mode    = os.path.expanduser(config['activate_pextra_mode'   ])  # activate_pextra_mode           = False
-   add_request_overview    = os.path.expanduser(config['add_request_overview'   ])  # add_request_overview           = True
+   activate_pextra_mode    =                    config['activate_pextra_mode'   ]   # activate_pextra_mode           = False
+   add_request_overview    =                    config['add_request_overview'   ]   # add_request_overview           = True
    ece2cmor_root_directory = os.path.expanduser(config['ece2cmor_root_directory'])  # ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
