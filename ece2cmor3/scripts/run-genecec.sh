@@ -45,7 +45,7 @@ if [ "$#" -eq 3 ]; then
    label=${version}
   fi
 
-  sed -e 's/output-control-files/control-output-files\/output-control-files-v'${version}'/' config-genecec > ${config_genecec_run_file}
+  sed -e 's/output-control-files/~\/cmorize\/control-output-files\/output-control-files-v'${version}'/' config-genecec > ${config_genecec_run_file}
   if [ "${pextra_mode}" == 'pextra' ]; then
    sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' ${config_genecec_run_file}
    sed -i -e 's/default/pextra/' ${config_genecec_run_file}                                                                # Adjust just example in header
@@ -60,7 +60,7 @@ if [ "$#" -eq 3 ]; then
    sed -i -e "s/in-ece2cmor3-dir/in-ece2cmor3-python-3-dir/" ${config_genecec_run_file}                                    # Adjust just example in header
   fi
 
-  log_dir=control-output-files/log-genecec
+  log_dir=~/cmorize/control-output-files/log-genecec
   log_file=${log_dir}/log-genecec-v${label}
   mkdir -p ${log_dir}
   ./genecec.py ${config_genecec_run_file} >& ${log_file} &

@@ -90,9 +90,9 @@ def main():
     else:
        print()
        print('  This scripts requires one argument, a json file, e.g.:')
-       print('  ', sys.argv[0], 'control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
+       print('  ', sys.argv[0], '~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
        print('  ', sys.argv[0], '../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json')
-       print('  ', sys.argv[0], 'control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
+       print('  ', sys.argv[0], '~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
        print()
 
 if __name__ == "__main__":
@@ -101,11 +101,11 @@ if __name__ == "__main__":
 
 # Validation:
 #
-# non_flat_json=control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
+# non_flat_json=~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json
 # flat_json=cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM-flat.json
 # non_flat_json=../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json
 # flat_json=lamaclima-data-request-varlist-EC-EARTH-Veg-flat.json
-# non_flat_json=control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json
+# non_flat_json=~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json
 # flat_json=cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem-flat.json
 # 
 # more ${flat_json}  | grep -v -e '}' -e '{' -e ']' -e '\[' | sort > sorted-flat.txt

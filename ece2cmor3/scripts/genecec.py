@@ -40,24 +40,20 @@ if len(sys.argv) == 2:
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
 
-   output_dir_name         = config['output_dir_name']          # output_dir_name                = 'output-control-files/'                          # Default: output-control-files/
-   activate_pextra_mode    = config['activate_pextra_mode']     # activate_pextra_mode           = False                                            # Default: False
-   add_request_overview    = config['add_request_overview']     # add_request_overview           = False                                            # Default: True
-   ece2cmor_root_directory = config['ece2cmor_root_directory']  # ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'                           # Default: ~/cmorize/ece2cmor3/
+   output_dir_name         = os.path.expanduser(config['output_dir_name'        ])  # output_dir_name                = 'output-control-files/'
+   activate_pextra_mode    = os.path.expanduser(config['activate_pextra_mode'   ])  # activate_pextra_mode           = False
+   add_request_overview    = os.path.expanduser(config['add_request_overview'   ])  # add_request_overview           = True
+   ece2cmor_root_directory = os.path.expanduser(config['ece2cmor_root_directory'])  # ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
    previous_working_dir = os.getcwd()
-   if ece2cmor_root_directory[0] == '~':
-    expanded_ece2cmor_root_directory = expanduser("~") + ece2cmor_root_directory[1:]
-   else:
-    expanded_ece2cmor_root_directory = ece2cmor_root_directory
-   if os.path.isdir(expanded_ece2cmor_root_directory) == False:
-    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' does not exist.\n')
+   if os.path.isdir(ece2cmor_root_directory) == False:
+    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' does not exist.\n')
     sys.exit()
-   if os.path.isfile(expanded_ece2cmor_root_directory + '/environment.yml') == False:
-    print(error_message, ' The ece2cmor root directory ', expanded_ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
+   if os.path.isfile(ece2cmor_root_directory + '/environment.yml') == False:
+    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
     sys.exit()
-   os.chdir(expanded_ece2cmor_root_directory)
+   os.chdir(ece2cmor_root_directory)
    os.system('pip install -e .')
    os.chdir(previous_working_dir)
 
