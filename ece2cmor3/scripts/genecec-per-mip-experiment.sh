@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This scripts requires five arguments:
-#  first  argument is the base directory name which will be created if not existing. The results will be placed in a subdirectory of theis base directory.
+#  first  argument is the base directory name which will be created if not existing. The results will be placed in a subdirectory of this base directory.
 #  second argument is the MIP name
 #  third  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 #  fourth argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
