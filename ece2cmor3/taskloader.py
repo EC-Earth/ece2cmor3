@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import logging
 import os
@@ -6,6 +7,8 @@ from ece2cmor3 import components
 from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 from ece2cmor3.cmor_source import create_cmor_source
 from ece2cmor3.resources import prefs
+
+tmp_debug_printing = False
 
 log = logging.getLogger(__name__)
 
@@ -284,6 +287,7 @@ def omit_targets(targetlist):
     identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
     filtered_list = []
     for target in targetlist:
+       #if tmp_debug_printing: print('target', target.table, str(target.variable))
         key = target.variable if skip_tables else (target.table, target.variable)
         if key in ignoredvarlist:
             target.ecearth_comment, target.comment_author = ignoredvarlist[key]
@@ -362,6 +366,7 @@ def load_targets_f90nml(varlist):
 def load_targets_excel(varlist):
     global log
     import xlrd
+    if tmp_debug_printing: print('\nTEST load_targets_excel\n')
     targets = []
     cmor_colname             = "CMOR Name"
     vid_colname              = "vid"
@@ -434,6 +439,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
     units_colname       = "units as in ping file"
     pingcomment_colname = "ping file comment"
 
+    if tmp_debug_printing: print('\nTEST load_checkvars_excel_0\n')
     book = xlrd.open_workbook(basic_ignored_excel_file)
     varlist = {}
 
@@ -445,22 +451,22 @@ def load_checkvars_excel(basic_ignored_excel_file):
         coldict = {}
         for colname in [table_colname, var_colname, comment_colname, author_colname]:
             if colname not in header:
-                log.error(
-                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (
-                        colname, sheet, varlist))
-                continue
+             log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (colname, sheet, varlist))
+             continue
             coldict[colname] = header.index(colname)
-        tablenames  = [] if skip_tables else [c.value for c in sheet.col_slice(colx=coldict[table_colname  ], start_rowx=1)]
-        varnames    =                        [c.value for c in sheet.col_slice(colx=coldict[var_colname    ], start_rowx=1)]
-        comments    =                        [c.value for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)]
-        authors     =                        [c.value for c in sheet.col_slice(colx=coldict[author_colname ], start_rowx=1)]
+        if skip_tables:
+         tablenames = []
+        else:
+         tablenames = [c.value for c in sheet.col_slice(colx=coldict[table_colname  ], start_rowx=1)]
+        varnames    = [c.value for c in sheet.col_slice(colx=coldict[var_colname    ], start_rowx=1)]
+        comments    = [c.value for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)]
+        authors     = [c.value for c in sheet.col_slice(colx=coldict[author_colname ], start_rowx=1)]
         model       = []
         units       = []
         pingcomment = []
         if with_pingfile:
             if model_colname not in header:
-                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname,
-                # sheet, varlist))
+                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname, sheet, varlist))
                 continue
             coldict[model_colname      ] = header.index(model_colname)
             coldict[units_colname      ] = header.index(units_colname)
@@ -478,6 +484,96 @@ def load_checkvars_excel(basic_ignored_excel_file):
             for i in range(len(varnames)):
                 varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
     return varlist
+
+
+# Loads the basic excel ignored file containing the cmor variables for which has been decided that they will be not
+# taken into account or it loads the basic excel identified-missing file containing the cmor variables which have
+# been identified but are not yet fully cmorized. This function can be used to read any excel file which has been
+# produced by the checkvars.py script, in other words it can read the basic ignored, basic identified missing,
+# available, ignored, identified-missing, and missing files.
+def load_checkvars_excel_new(basic_ignored_excel_file):
+    global log, skip_tables, with_pingfile
+    import openpyxl
+    import string
+
+    if tmp_debug_printing: print('\nTEST load_checkvars_excel\n')
+    alphabet = list(string.ascii_uppercase)
+
+    workbook  = openpyxl.load_workbook(filename=basic_ignored_excel_file, read_only=None)
+    worksheet = workbook['Sheet1']
+    varlist = {}
+
+    # Create a dictionary with column names as keys and column numbers as values:
+    column_names   = {}
+    column_counter = 0
+    for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
+        column_names[column_name[0].value] = alphabet[column_counter]
+        column_counter += 1
+    if tmp_debug_printing: print('print column_names.keys: ', column_names.keys())
+
+    table_colname       = "Table"
+    var_colname         = "variable"
+    comment_colname     = "comment"
+    author_colname      = "comment author"
+    model_colname       = "model component in ping file"
+    units_colname       = "units as in ping file"
+    pingcomment_colname = "ping file comment"
+
+    if with_pingfile:
+     expected_column_names = [table_colname, var_colname, comment_colname, author_colname, model_colname, units_colname, pingcomment_colname]
+    else:
+     expected_column_names = [table_colname, var_colname, comment_colname, author_colname]
+
+    for column_name in expected_column_names:
+     if column_name not in column_names.keys():
+      log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
+
+    if skip_tables:
+     tablenames      = []
+    else:
+     tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname      ) # CMOR table name
+    varnames         = list_based_on_xlsx_column(worksheet, column_names, var_colname        ) # CMOR variable name
+    comments         = list_based_on_xlsx_column(worksheet, column_names, comment_colname    ) # Identification comment by EC-Earth members
+    authors          = list_based_on_xlsx_column(worksheet, column_names, author_colname     ) # Author(s) of comment
+    if with_pingfile:
+     model_component = list_based_on_xlsx_column(worksheet, column_names, model_colname      ) # NEMO model component as in the ping files
+     ping_units      = list_based_on_xlsx_column(worksheet, column_names, units_colname      ) # The units   as given in the ping files
+     ping_comment    = list_based_on_xlsx_column(worksheet, column_names, pingcomment_colname) # The comment as given in the ping files
+    else:
+     model           = []
+     units           = []
+     pingcomment     = []
+    if  tmp_debug_printing: print('len(tablenames     ): ', len(tablenames     ))
+    if  tmp_debug_printing: print('len(varnames       ): ', len(varnames       ))
+    if  tmp_debug_printing: print('len(comments       ): ', len(comments       ))
+    if  tmp_debug_printing: print('len(authors        ): ', len(authors        ))
+    if with_pingfile:
+     if tmp_debug_printing: print('len(model_component): ', len(model_component))
+     if tmp_debug_printing: print('len(ping_units     ): ', len(ping_units     ))
+     if tmp_debug_printing: print('len(ping_comment   ): ', len(ping_comment   ))
+    if  tmp_debug_printing: print('print varname: ', varnames)
+
+    if skip_tables:
+     for i in range(len(varnames)):
+         if with_pingfile:
+          varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
+         else:
+          varlist[varnames[i]] = (comments[i], authors[i])
+    else:
+     for i in range(len(varnames)):
+         varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
+    if tmp_debug_printing: print('print returned varlist: ', varlist)
+    return varlist
+
+def list_based_on_xlsx_column(sheet, column_names, column_name):
+    list_with_column_content = []
+    for cell in sheet[column_names[column_name]]:
+     cell_id_cmor_var = column_names['variable'] + str(cell.row)  # Construct the cell id of the corresponding cmor variable cell
+     if sheet[cell_id_cmor_var].value != None:                    # Only empty lines are deselected (based on an empty cmor variable cell
+     #list_with_column_content.append(str(cell.value))
+      list_with_column_content.append(cell.value)
+    del list_with_column_content[0]                               # Remove the first row, the header line
+    return list_with_column_content
 
 
 def match_variables(targets, model_variables):
