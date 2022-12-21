@@ -69,3 +69,6 @@ else
   echo "   $0 python-3 v01"
   echo
 fi
+
+# A quick one liner to test the taskloader:
+#  drq2ppt --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx; mkdir -p test-drq-ppt-v01; mv -f ppt* volume-estimate-ifs.txt test-drq-ppt-v01; diff -r test-drq-ppt-v01/ test-drq-ppt-v00/
