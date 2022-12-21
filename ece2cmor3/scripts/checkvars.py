@@ -42,14 +42,14 @@ def write_varlist_ascii(targets, opath, print_all_columns):
              ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
                           tgtvar.table,
                           tgtvar.variable,
-                          getattr(tgtvar, "priority", "unknown"),
-                          getattr(tgtvar, "dimensions", "unknown"),
-                          getattr(tgtvar, "long_name", "unknown"),
+                          getattr(tgtvar, "priority"       , "unknown"),
+                          getattr(tgtvar, "dimensions"     , "unknown"),
+                          getattr(tgtvar, "long_name"      , "unknown"),
                           tgtvar.units,
                           'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid", "unknown") + '.html',
-                          getattr(tgtvar, "mip_list", "unknown"),
-                          getattr(tgtvar, "comment_author", ""),
-                          getattr(tgtvar, "ecearth_comment", ""), '\n'))
+                          getattr(tgtvar, "mip_list"       , "unknown"),
+                          getattr(tgtvar, "comment_author" , ""       ),
+                          getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     else:
      # In case the input data request is a json file, a reduced number of columns is printed:
      ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
@@ -58,10 +58,10 @@ def write_varlist_ascii(targets, opath, print_all_columns):
          for tgtvar in vlist:
              ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format(tgtvar.table,
                           tgtvar.variable,
-                          getattr(tgtvar, "dimensions", "unknown"),
-                          getattr(tgtvar, "long_name", "unknown"),
+                          getattr(tgtvar, "dimensions"     , "unknown"),
+                          getattr(tgtvar, "long_name"      , "unknown"),
                           tgtvar.units,
-                          getattr(tgtvar, "ecearth_comment", ""), '\n'))
+                          getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     ofile.close()
     logging.info(" Writing the ascii file: %s" % opath)
 
@@ -72,39 +72,39 @@ def write_varlist_excel(targets, opath, with_pingfile):
     workbook = xlsxwriter.Workbook(opath)
     worksheet = workbook.add_worksheet()
 
-    worksheet.set_column('A:A', 10)  # Adjust the column width of column A
-    worksheet.set_column('B:B', 15)  # Adjust the column width of column B
-    worksheet.set_column('C:C', 4)  # Adjust the column width of column C
-    worksheet.set_column('D:D', 35)  # Adjust the column width of column D
-    worksheet.set_column('E:E', 80)  # Adjust the column width of column E
-    worksheet.set_column('F:F', 15)  # Adjust the column width of column E
-    worksheet.set_column('G:G', 4)  # Adjust the column width of column F
-    worksheet.set_column('H:H', 80)  # Adjust the column width of column G
-    worksheet.set_column('I:I', 15)  # Adjust the column width of column H
-    worksheet.set_column('J:J', 200)  # Adjust the column width of column I
-    worksheet.set_column('K:K', 80)  # Adjust the column width of column J
+    worksheet.set_column('A:A',  10)     # Adjust the column width of column A
+    worksheet.set_column('B:B',  15)     # Adjust the column width of column B
+    worksheet.set_column('C:C',   4)     # Adjust the column width of column C
+    worksheet.set_column('D:D',  35)     # Adjust the column width of column D
+    worksheet.set_column('E:E',  80)     # Adjust the column width of column E
+    worksheet.set_column('F:F',  15)     # Adjust the column width of column E
+    worksheet.set_column('G:G',   4)     # Adjust the column width of column F
+    worksheet.set_column('H:H',  80)     # Adjust the column width of column G
+    worksheet.set_column('I:I',  15)     # Adjust the column width of column H
+    worksheet.set_column('J:J', 200)     # Adjust the column width of column I
+    worksheet.set_column('K:K',  80)     # Adjust the column width of column J
     if with_pingfile:
-        worksheet.set_column('L:L', 28)  # Adjust the column width of column L
-        worksheet.set_column('M:M', 17)  # Adjust the column width of column M
-        worksheet.set_column('N:N', 100)  # Adjust the column width of column N
+        worksheet.set_column('L:L',  28) # Adjust the column width of column L
+        worksheet.set_column('M:M',  17) # Adjust the column width of column M
+        worksheet.set_column('N:N', 100) # Adjust the column width of column N
 
     bold = workbook.add_format({'bold': True})  # Add a bold format
 
-    worksheet.write(0, 0, 'Table', bold)
-    worksheet.write(0, 1, 'variable', bold)
-    worksheet.write(0, 2, 'prio', bold)
-    worksheet.write(0, 3, 'Dimension format of variable', bold)
-    worksheet.write(0, 4, 'variable long name', bold)
-    worksheet.write(0, 5, 'unit', bold)
-    worksheet.write(0, 6, 'link', bold)
-    worksheet.write(0, 7, 'comment', bold)
-    worksheet.write(0, 8, 'comment author', bold)
-    worksheet.write(0, 9, 'extensive variable description', bold)
+    worksheet.write(0, 0, 'Table'                                    , bold)
+    worksheet.write(0, 1, 'variable'                                 , bold)
+    worksheet.write(0, 2, 'prio'                                     , bold)
+    worksheet.write(0, 3, 'Dimension format of variable'             , bold)
+    worksheet.write(0, 4, 'variable long name'                       , bold)
+    worksheet.write(0, 5, 'unit'                                     , bold)
+    worksheet.write(0, 6, 'link'                                     , bold)
+    worksheet.write(0, 7, 'comment'                                  , bold)
+    worksheet.write(0, 8, 'comment author'                           , bold)
+    worksheet.write(0, 9, 'extensive variable description'           , bold)
     worksheet.write(0, 10, 'list of MIPs which request this variable', bold)
     if with_pingfile:
-        worksheet.write(0, 11, 'model component in ping file', bold)
-        worksheet.write(0, 12, 'units as in ping file', bold)
-        worksheet.write(0, 13, 'ping file comment', bold)
+        worksheet.write(0, 11, 'model component in ping file'        , bold)
+        worksheet.write(0, 12, 'units as in ping file'               , bold)
+        worksheet.write(0, 13, 'ping file comment'                   , bold)
 
     row_counter = 1
     for k, vlist in tgtgroups.iteritems():
@@ -113,20 +113,20 @@ def write_varlist_excel(targets, opath, with_pingfile):
         for tgtvar in vlist:
             worksheet.write(row_counter, 0, tgtvar.table)
             worksheet.write(row_counter, 1, tgtvar.variable)
-            worksheet.write(row_counter, 2, getattr(tgtvar, "priority", "unknown"))
+            worksheet.write(row_counter, 2, getattr(tgtvar, "priority"  , "unknown"))
             worksheet.write(row_counter, 3, getattr(tgtvar, "dimensions", "unknown"))
-            worksheet.write(row_counter, 4, getattr(tgtvar, "long_name", "unknown"))
+            worksheet.write(row_counter, 4, getattr(tgtvar, "long_name" , "unknown"))
             worksheet.write(row_counter, 5, tgtvar.units)
             worksheet.write(row_counter, 6,
                             '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid",
                                                                                                   "unknown") + '.html","web")')
-            worksheet.write(row_counter, 7, getattr(tgtvar, "ecearth_comment", ""))
-            worksheet.write(row_counter, 8, getattr(tgtvar, "comment_author", ""))
-            worksheet.write(row_counter, 9, getattr(tgtvar, "comment", "unknown"))
-            worksheet.write(row_counter, 10, getattr(tgtvar, "mip_list", "unknown"))
+            worksheet.write(row_counter, 7, getattr(tgtvar, "ecearth_comment", ""       ))
+            worksheet.write(row_counter, 8, getattr(tgtvar, "comment_author" , ""       ))
+            worksheet.write(row_counter, 9, getattr(tgtvar, "comment"        , "unknown"))
+            worksheet.write(row_counter, 10, getattr(tgtvar, "mip_list"      , "unknown"))
             if with_pingfile:
-                worksheet.write(row_counter, 11, getattr(tgtvar, "model", ""))
-                worksheet.write(row_counter, 12, getattr(tgtvar, "units", ""))
+                worksheet.write(row_counter, 11, getattr(tgtvar, "model"      , ""))
+                worksheet.write(row_counter, 12, getattr(tgtvar, "units"      , ""))
                 worksheet.write(row_counter, 13, getattr(tgtvar, "pingcomment", ""))
             row_counter += 1
     workbook.close()
@@ -173,7 +173,7 @@ def main():
     active_components = cmor_utils.ScriptUtils.get_active_components(args)
 
     # Configure task loader:
-    taskloader.skip_tables = args.withouttablescheck
+    taskloader.skip_tables   = args.withouttablescheck
     taskloader.with_pingfile = args.withping
 
     # Load the variables as task targets:
@@ -189,10 +189,10 @@ def main():
     loaded = [t for m in active_components for t in matches[m]]
     ignored, identified_missing, missing, dismissed = taskloader.split_targets(omitted_targets)
 
-    loaded_targets = sorted(list(set(loaded)), key=lambda tgt: (tgt.table, tgt.variable))
-    ignored_targets = sorted(list(set(ignored)), key=lambda tgt: (tgt.table, tgt.variable))
+    loaded_targets             = sorted(list(set(loaded)) , key=lambda tgt: (tgt.table, tgt.variable))
+    ignored_targets            = sorted(list(set(ignored)), key=lambda tgt: (tgt.table, tgt.variable))
     identified_missing_targets = sorted(identified_missing, key=lambda tgt: (tgt.table, tgt.variable))
-    missing_targets = sorted(missing, key=lambda tgt: (tgt.table, tgt.variable))
+    missing_targets            = sorted(missing           , key=lambda tgt: (tgt.table, tgt.variable))
 
     if args.output:
         output_dir = os.path.dirname(args.output)
@@ -203,10 +203,10 @@ def main():
          write_varlist(loaded, args.output + ".available.json")
         if args.verbose:
             if not args.asciionly:
-             write_varlist_excel(loaded_targets, args.output + ".available.xlsx", args.withping)
-             write_varlist_excel(ignored_targets, args.output + ".ignored.xlsx", args.withping)
+             write_varlist_excel(loaded_targets            , args.output + ".available.xlsx"        , args.withping)
+             write_varlist_excel(ignored_targets           , args.output + ".ignored.xlsx"          , args.withping)
              write_varlist_excel(identified_missing_targets, args.output + ".identifiedmissing.xlsx", args.withping)
-             write_varlist_excel(missing_targets, args.output + ".missing.xlsx", args.withping)
+             write_varlist_excel(missing_targets           , args.output + ".missing.xlsx"          , args.withping)
 
             if args.drq[-4:] == 'xlsx':
              write_varlist_ascii(loaded_targets            , args.output + ".available.txt"        , True)
@@ -218,10 +218,10 @@ def main():
 
 
     if False:
-     # Add writting of a json data request formatted file which includes all available variables in order to provide a 
+     # Add writing of a json data request formatted file which includes all available variables in order to provide a
      # single test which covers all identified & available variables. If this block is activated and the following is run:
      # ./determine-missing-variables.sh CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1
-     # At least an equivalent json data request which covers all Core MIP requests is produced. However this does not 
+     # At least an equivalent json data request which covers all Core MIP requests is produced. However this does not
      # necessarily include all specific MIP requests. In fact it would be better to create a json data request equivalent
      # based on the ifspar.json.
      result = {}
