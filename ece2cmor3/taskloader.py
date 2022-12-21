@@ -430,69 +430,6 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
     global log, skip_tables, with_pingfile
-    import xlrd
-    table_colname       = "Table"
-    var_colname         = "variable"
-    comment_colname     = "comment"
-    author_colname      = "comment author"
-    model_colname       = "model component in ping file"
-    units_colname       = "units as in ping file"
-    pingcomment_colname = "ping file comment"
-
-    if tmp_debug_printing: print('\nTEST load_checkvars_excel_0\n')
-    book = xlrd.open_workbook(basic_ignored_excel_file)
-    varlist = {}
-
-    for sheetname in book.sheet_names():
-        if sheetname.lower() in ["notes"]:
-            continue
-        sheet = book.sheet_by_name(sheetname)
-        header = sheet.row_values(0)
-        coldict = {}
-        for colname in [table_colname, var_colname, comment_colname, author_colname]:
-            if colname not in header:
-             log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (colname, sheet, varlist))
-             continue
-            coldict[colname] = header.index(colname)
-        if skip_tables:
-         tablenames = []
-        else:
-         tablenames = [c.value for c in sheet.col_slice(colx=coldict[table_colname  ], start_rowx=1)]
-        varnames    = [c.value for c in sheet.col_slice(colx=coldict[var_colname    ], start_rowx=1)]
-        comments    = [c.value for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)]
-        authors     = [c.value for c in sheet.col_slice(colx=coldict[author_colname ], start_rowx=1)]
-        model       = []
-        units       = []
-        pingcomment = []
-        if with_pingfile:
-            if model_colname not in header:
-                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname, sheet, varlist))
-                continue
-            coldict[model_colname      ] = header.index(model_colname)
-            coldict[units_colname      ] = header.index(units_colname)
-            coldict[pingcomment_colname] = header.index(pingcomment_colname)
-            model       = [c.value for c in sheet.col_slice(colx=coldict[model_colname      ], start_rowx=1)]
-            units       = [c.value for c in sheet.col_slice(colx=coldict[units_colname      ], start_rowx=1)]
-            pingcomment = [c.value for c in sheet.col_slice(colx=coldict[pingcomment_colname], start_rowx=1)]
-        if skip_tables:
-            for i in range(len(varnames)):
-                if with_pingfile:
-                    varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
-                else:
-                    varlist[varnames[i]] = (comments[i], authors[i])
-        else:
-            for i in range(len(varnames)):
-                varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
-    return varlist
-
-
-# Loads the basic excel ignored file containing the cmor variables for which has been decided that they will be not
-# taken into account or it loads the basic excel identified-missing file containing the cmor variables which have
-# been identified but are not yet fully cmorized. This function can be used to read any excel file which has been
-# produced by the checkvars.py script, in other words it can read the basic ignored, basic identified missing,
-# available, ignored, identified-missing, and missing files.
-def load_checkvars_excel_new(basic_ignored_excel_file):
-    global log, skip_tables, with_pingfile
     import openpyxl
     import string
 
