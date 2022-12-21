@@ -26,6 +26,8 @@ import f90nml
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
+old_log_format = False
+
 # Logging configuration
 logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
@@ -134,12 +136,18 @@ def write_ppt_files(tasks):
                                         "assuming this is on model levels" % (str(code), task.target.variable))
                             mfp3dfs.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_dyn:
-                        log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
-                                 "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        if old_log_format:
+                         log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
+                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        else:
+                         log.info('Adding grib code {:>7} to MFP2DF  {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                         mfp2df.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_phy:
-                        log.info("Adding grib code %s to MFPPHY %dhr ppt file for variable "
-                                 "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        if old_log_format:
+                         log.info("Adding grib code %s to MFPPHY %dhr ppt file for variable "
+                                  "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        else:
+                         log.info('Adding grib code {:>7} to MFPPHY  {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                         mfpphy.append(code)
                     else:
                         log.error("Unknown 2D IFS grib code %s skipped" % str(code))
@@ -149,18 +157,27 @@ def write_ppt_files(tasks):
                         continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
                         if zaxis in cmor_target.model_axes:
-                            log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            if old_log_format:
+                             log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
+                                      "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            else:
+                             log.info('Adding grib code {:>7} to MFP3DFS {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfs.append(code)
                             alevs.extend(levs)
                         elif zaxis in cmor_target.pressure_axes:
-                            log.info("Adding grib code %s to MFP3DFP %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            if old_log_format:
+                             log.info("Adding grib code %s to MFP3DFP %dhr ppt file for variable "
+                                      "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            else:
+                             log.info('Adding grib code {:>7} to MFP3DFP {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfp.append(code)
                             plevs.extend(levs)
                         elif zaxis in cmor_target.height_axes:
-                            log.info("Adding grib code %s to MFP3DFH %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            if old_log_format:
+                             log.info("Adding grib code %s to MFP3DFH %dhr ppt file for variable "
+                                      "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            else:
+                             log.info('Adding grib code {:>7} to MFP3DFH {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfh.append(code)
                             hlevs.extend(levs)
                         else:
@@ -249,19 +266,36 @@ def write_ppt_files(tasks):
     blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) // prev_freq
     blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) // prev_freq
     num_layers = 91
-    log.info("")
-    log.info("EC-Earth IFS output volume estimates:")
-    log.info("---------------------------------------------------------------------------")
-    log.info("# spectral GRIB messages p/m:  %d" % (slices_per_month_sp + num_layers * blocks_per_month_sp))
-    log.info("# gridpoint GRIB messages p/m: %d" % (slices_per_month_gp + num_layers * blocks_per_month_gp))
-    log.info("---------------------------------------------------------------------------")
-    log.info("                           T255L91                     T511L91               ")
-    log.info("---------------------------------------------------------------------------")
-    vol255 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.133 / 1000. +\
-             (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.180 / 1000.
-    vol511 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.503 / 1000. +\
-             (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
-    log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
+    if old_log_format:
+     log.info("")
+     log.info("EC-Earth IFS output volume estimates:")
+     log.info("---------------------------------------------------------------------------")
+     log.info("# spectral GRIB messages p/m:  %d" % (slices_per_month_sp + num_layers * blocks_per_month_sp))
+     log.info("# gridpoint GRIB messages p/m: %d" % (slices_per_month_gp + num_layers * blocks_per_month_gp))
+     log.info("---------------------------------------------------------------------------")
+     log.info("                           T255L91                     T511L91               ")
+     log.info("---------------------------------------------------------------------------")
+     vol255 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.133 / 1000. +\
+              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.180 / 1000.
+     vol511 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.503 / 1000. +\
+              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
+     log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
+    else:
+     log.info('-----------------------------------------')
+     log.info('EC-Earth IFS output volume estimates:    ')
+     log.info('-----------------------------------------')
+     log.info(' spectral  GRIB messages p/m: {:>7}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp))
+     log.info(' gridpoint GRIB messages p/m: {:>7}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp))
+     log.info('-----------------------------------------')
+     log.info('     T255L91               T511L91       ')
+     vol255 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.133 / 1000. +\
+              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.180 / 1000.
+     vol511 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.503 / 1000. +\
+              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
+     log.info(' {:7.2f} GB/yr          {:7.2f} GB/yr        '.format (12*vol255, 12*vol511))
+     log.info('-----------------------------------------')
+
+
 
    #volume_estimate = open('volume-estimate-ifs.txt','w')
    #volume_estimate.write(' \nEC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
