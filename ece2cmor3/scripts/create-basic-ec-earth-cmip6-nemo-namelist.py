@@ -472,9 +472,8 @@ if len(sys.argv) == 2:
    # file which has been produced by the ./create-nemo-only-list/create-nemo-only-list.sh script guidelines.
    def load_nemo_only_excel(excel_file):
        import openpyxl
-       import string
 
-       alphabet = list(string.ascii_uppercase)
+       sheet_column_indices = create_sheet_column_indices()
 
        workbook  = openpyxl.load_workbook(filename=excel_file, read_only=None)
        worksheet = workbook['Sheet1']
@@ -483,7 +482,7 @@ if len(sys.argv) == 2:
        column_names   = {}
        column_counter = 0
        for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
-           column_names[column_name[0].value] = alphabet[column_counter]
+           column_names[column_name[0].value] = sheet_column_indices[column_counter]
            column_counter += 1
 
        tablenames      = list_based_on_xlsx_column(worksheet, column_names, "Table"                                    ) # CMOR table name
@@ -523,6 +522,13 @@ if len(sys.argv) == 2:
          list_with_column_content.append(cell.value)
        del list_with_column_content[0]                               # Remove the first row, the header line
        return list_with_column_content
+
+   def create_sheet_column_indices():
+       import string
+       alphabet = list(string.ascii_uppercase)
+       alphabet_extended = ['A' + s for s in alphabet]
+       sheet_column_indices = alphabet + alphabet_extended
+       return sheet_column_indices
 
 
    if os.path.isfile(nemo_only_dr_nodummy_file_xlsx) == False: 
