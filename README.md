@@ -12,7 +12,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 * nose, testfixtures (only for testing)
 * pip (for installing python packages)
 * f90nml (only for fortran namelist I/O)
-* xlrd (for reading *.xlsx excel sheets)
+* openpyxl (for reading *.xlsx excel sheets)
 * XlsxWriter (for writing *.xlsx excel sheets)
 
 ## Installation:

@@ -46,5 +46,4 @@ dependencies:
   # Unlisted dependency dreq and/or drq
   - xarray
   - openpyxl
-  - xlrd
   - xlsxwriter
