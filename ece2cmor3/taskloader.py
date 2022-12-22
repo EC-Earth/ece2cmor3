@@ -8,8 +8,6 @@ from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 from ece2cmor3.cmor_source import create_cmor_source
 from ece2cmor3.resources import prefs
 
-tmp_debug_printing = True
-
 log = logging.getLogger(__name__)
 
 json_source_key   = "source"
@@ -269,7 +267,6 @@ def read_drq(varlist):
 # Filters out ignored, identified missing and omitted targets from the input target list. Attaches attributes to the
 # omitted targets to track what happened to the variable
 def omit_targets(targetlist):
-    if tmp_debug_printing: print('\nCalling: omit_targets\n')
     omitvarlist_01 = load_checkvars_excel(omit_vars_file_01)
     omitvarlist_02 = load_checkvars_excel(omit_vars_file_02)
     omitvarlist_03 = load_checkvars_excel(omit_vars_file_03)
@@ -356,55 +353,10 @@ def load_targets_f90nml(varlist):
 
 
 # Loads a drq excel file containing the cmor targets.
-def load_targets_excel_old(varlist):
-    global log
-    import xlrd
-    if tmp_debug_printing: print('\nCalling: load_targets_excel\n')
-    if tmp_debug_printing: print('varlist (dr file): ', varlist)
-    targets = []
-    cmor_colname             = "CMOR Name"
-    vid_colname              = "vid"
-    priority_colname         = "Priority"             # Priority column name for the experiment   cmvme_*.xlsx files
-    default_priority_colname = "Default Priority"     # Priority column name for the mip overview cmvmm_*.xlsx files
-    mip_list_colname         = "MIPs (by experiment)"
-    book = xlrd.open_workbook(varlist)
-    for sheetname in book.sheet_names():
-        if sheetname.lower() in ["notes"]:
-            continue
-        sheet = book.sheet_by_name(sheetname)
-        column_names = sheet.row_values(0)
-        if cmor_colname not in column_names:
-            log.error(
-                "Could not find cmor variable column in sheet %s for file %s: skipping variable" % (sheet, varlist))
-            continue
-        cmorname_index = column_names.index(cmor_colname)
-        vid_index      = column_names.index(vid_colname)
-        if priority_colname in column_names:
-            priority_index = column_names.index(priority_colname)
-        elif default_priority_colname in column_names:
-            # If no "Priority" column is found try to find a "Default Priority" column
-            priority_index = column_names.index(default_priority_colname)
-        else:
-            # If no "Priority" column and no "Default Priority" column are found, abort with message
-            raise Exception(
-                "Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (
-                    sheet, varlist))
-        mip_list_index = column_names.index(mip_list_colname)
-        varnames = [c.value for c in sheet.col_slice(colx=cmorname_index, start_rowx=1)]
-        vids     = [c.value for c in sheet.col_slice(colx=vid_index     , start_rowx=1)]
-        priority = [c.value for c in sheet.col_slice(colx=priority_index, start_rowx=1)]
-        mip_list = [c.value for c in sheet.col_slice(colx=mip_list_index, start_rowx=1)]
-        for i in range(len(varnames)):
-            add_target(str(varnames[i]), sheetname, targets, vids[i], priority[i], mip_list[i])
-    return targets
-
-
-# Loads a drq excel file containing the cmor targets.
 def load_targets_excel(data_request_file):
     global log
     import openpyxl
 
-    if tmp_debug_printing: print('\nCalling: load_targets_excel\n')
     sheet_column_indices = create_sheet_column_indices()
 
     workbook  = openpyxl.load_workbook(filename=data_request_file, read_only=None)
@@ -475,7 +427,6 @@ def load_checkvars_excel(basic_ignored_excel_file):
     global log, skip_tables, with_pingfile
     import openpyxl
 
-    if tmp_debug_printing: print('\nCalling: load_checkvars_excel\n')
     sheet_column_indices = create_sheet_column_indices()
 
     workbook  = openpyxl.load_workbook(filename=basic_ignored_excel_file, read_only=None)
