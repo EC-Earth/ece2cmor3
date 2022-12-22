@@ -8,7 +8,7 @@ from ece2cmor3 import ece2cmorlib, cmor_source, cmor_target, cmor_task
 from ece2cmor3.cmor_source import create_cmor_source
 from ece2cmor3.resources import prefs
 
-tmp_debug_printing = False
+tmp_debug_printing = True
 
 log = logging.getLogger(__name__)
 
@@ -356,10 +356,11 @@ def load_targets_f90nml(varlist):
 
 
 # Loads a drq excel file containing the cmor targets.
-def load_targets_excel(varlist):
+def load_targets_excel_old(varlist):
     global log
     import xlrd
     if tmp_debug_printing: print('\nCalling: load_targets_excel\n')
+    if tmp_debug_printing: print('varlist (dr file): ', varlist)
     targets = []
     cmor_colname             = "CMOR Name"
     vid_colname              = "vid"
@@ -398,6 +399,55 @@ def load_targets_excel(varlist):
     return targets
 
 
+# Loads a drq excel file containing the cmor targets.
+def load_targets_excel(data_request_file):
+    global log
+    import openpyxl
+
+    if tmp_debug_printing: print('\nCalling: load_targets_excel\n')
+    sheet_column_indices = create_sheet_column_indices()
+
+    workbook  = openpyxl.load_workbook(filename=data_request_file, read_only=None)
+    targets   = []
+
+    var_colname              = "CMOR Name"
+    vid_colname              = "vid"
+    mip_list_colname         = "MIPs (by experiment)"
+    priority_colname         = "Priority"             # Priority column name for the experiment   cmvme_*.xlsx files
+    default_priority_colname = "Default Priority"     # Priority column name for the mip overview cmvmm_*.xlsx files
+
+    # Loop over the sheets (tables). Each sheetname corresponds with a cmor table and thus each sheet (table) contains all requested variables for that cmor table:
+    for sheetname in workbook.sheetnames:
+        if sheetname.lower() in ["notes"]:
+         continue
+        worksheet = workbook[sheetname]
+
+        # Create a dictionary with column names as keys and column numbers as values:
+        column_names   = {}
+        column_counter = 0
+        for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
+            column_names[str(column_name[0].value)] = sheet_column_indices[column_counter]
+            column_counter += 1
+
+        if priority_colname not in column_names:
+         # If no "Priority" column is found try to find a "Default Priority" column instead
+         priority_colname = default_priority_colname
+
+        for column in [var_colname, vid_colname, mip_list_colname, priority_colname]:
+         if column not in column_names:
+          log.error('Could not find the {:} column in sheet {:9} for file {:}: skipping entire table.'.format('"'+column+'"', sheetname, data_request_file))
+          # If an error here, the error will be messaged and a crash will follow below.
+
+        varnames        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', var_colname     )
+        vids            = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', vid_colname     )
+        mip_list        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', mip_list_colname)
+        priority        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', priority_colname)
+
+        for i in range(len(varnames)):
+            add_target(str(varnames[i]), sheetname, targets, vids[i], priority[i], mip_list[i])
+    return targets
+
+
 # Small utility loading targets from the list
 def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=None):
     global log
@@ -424,10 +474,9 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 def load_checkvars_excel(basic_ignored_excel_file):
     global log, skip_tables, with_pingfile
     import openpyxl
-    import string
 
     if tmp_debug_printing: print('\nCalling: load_checkvars_excel\n')
-    alphabet = list(string.ascii_uppercase)
+    sheet_column_indices = create_sheet_column_indices()
 
     workbook  = openpyxl.load_workbook(filename=basic_ignored_excel_file, read_only=None)
     worksheet = workbook['Sheet1']
@@ -437,7 +486,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
     column_names   = {}
     column_counter = 0
     for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
-        column_names[column_name[0].value] = alphabet[column_counter]
+        column_names[column_name[0].value] = sheet_column_indices[column_counter]
         column_counter += 1
 
     table_colname       = "Table"
@@ -457,10 +506,10 @@ def load_checkvars_excel(basic_ignored_excel_file):
     if skip_tables:
      tablenames      = []
     else:
-     tablenames      = list_based_on_xlsx_column(worksheet, column_names, table_colname      ) # CMOR table name
-    varnames         = list_based_on_xlsx_column(worksheet, column_names, var_colname        ) # CMOR variable name
-    comments         = list_based_on_xlsx_column(worksheet, column_names, comment_colname    ) # Identification comment by EC-Earth members
-    authors          = list_based_on_xlsx_column(worksheet, column_names, author_colname     ) # Author(s) of comment
+     tablenames      = list_based_on_xlsx_column(worksheet, column_names, 'variable', table_colname      ) # CMOR table name
+    varnames         = list_based_on_xlsx_column(worksheet, column_names, 'variable', var_colname        ) # CMOR variable name
+    comments         = list_based_on_xlsx_column(worksheet, column_names, 'variable', comment_colname    ) # Identification comment by EC-Earth members
+    authors          = list_based_on_xlsx_column(worksheet, column_names, 'variable', author_colname     ) # Author(s) of comment
     if with_pingfile:
      pingfile_column_names = [model_colname, units_colname, pingcomment_colname]
      for column_name in pingfile_column_names:
@@ -468,9 +517,9 @@ def load_checkvars_excel(basic_ignored_excel_file):
        log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
        pingfile_content_available = False
       else:
-       model_component = list_based_on_xlsx_column(worksheet, column_names, model_colname      ) # NEMO model component as in the ping files
-       ping_units      = list_based_on_xlsx_column(worksheet, column_names, units_colname      ) # The units   as given in the ping files
-       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, pingcomment_colname) # The comment as given in the ping files
+       model_component = list_based_on_xlsx_column(worksheet, column_names, 'variable', model_colname      ) # NEMO model component as in the ping files
+       ping_units      = list_based_on_xlsx_column(worksheet, column_names, 'variable', units_colname      ) # The units   as given in the ping files
+       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, 'variable', pingcomment_colname) # The comment as given in the ping files
        pingfile_content_available = True
 
     if skip_tables:
@@ -484,16 +533,22 @@ def load_checkvars_excel(basic_ignored_excel_file):
          varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
     return varlist
 
-def list_based_on_xlsx_column(sheet, column_names, column_name):
+def list_based_on_xlsx_column(sheet, column_names, varname_for_empty_check, column_name):
     list_with_column_content = []
     for cell in sheet[column_names[column_name]]:
-     cell_id_cmor_var = column_names['variable'] + str(cell.row)  # Construct the cell id of the corresponding cmor variable cell
+     cell_id_cmor_var = column_names[varname_for_empty_check] + str(cell.row)  # Construct the cell id of the corresponding cmor variable cell
      if sheet[cell_id_cmor_var].value != None:                    # Only empty lines are deselected (based on an empty cmor variable cell
      #list_with_column_content.append(str(cell.value))
       list_with_column_content.append(cell.value)
     del list_with_column_content[0]                               # Remove the first row, the header line
     return list_with_column_content
 
+def create_sheet_column_indices():
+    import string
+    alphabet = list(string.ascii_uppercase)
+    alphabet_extended = ['A' + s for s in alphabet]
+    sheet_column_indices = alphabet + alphabet_extended
+    return sheet_column_indices
 
 def match_variables(targets, model_variables):
     global json_target_key
