@@ -12,42 +12,35 @@ tmp_debug_printing = False
 
 log = logging.getLogger(__name__)
 
-json_source_key = "source"
-json_target_key = "target"
-json_table_key = "table"
-json_tables_key = "tables"
-json_mask_key = "mask"
-json_masked_key = "masked"
+json_source_key   = "source"
+json_target_key   = "target"
+json_table_key    = "table"
+json_tables_key   = "tables"
+json_mask_key     = "mask"
+json_masked_key   = "masked"
 json_filepath_key = "filepath"
-json_script_key = "script"
-json_src_key = "src"
+json_script_key   = "script"
+json_src_key      = "src"
 
-variable_prefs_file = os.path.join(os.path.dirname(__file__), "resources", "varprefs.csv")
+variable_prefs_file          = os.path.join(os.path.dirname(__file__), "resources",                               "varprefs.csv")
 
-omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-01.xlsx")
-omit_vars_file_02 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-02.xlsx")
-omit_vars_file_03 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-03.xlsx")
-omit_vars_file_04 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-04.xlsx")
-omit_vars_file_05 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-05.xlsx")
-ignored_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                 "list-of-ignored-cmip6-requested-variables.xlsx")
-identified_missing_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                            "list-of-identified-missing-cmip6-requested-variables.xlsx")
+omit_vars_file_01            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-01.xlsx")
+omit_vars_file_02            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-02.xlsx")
+omit_vars_file_03            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-03.xlsx")
+omit_vars_file_04            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-04.xlsx")
+omit_vars_file_05            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-05.xlsx")
+ignored_vars_file            = os.path.join(os.path.dirname(__file__), "resources",                               "list-of-ignored-cmip6-requested-variables.xlsx")
+identified_missing_vars_file = os.path.join(os.path.dirname(__file__), "resources",                               "list-of-identified-missing-cmip6-requested-variables.xlsx")
 
-mask_predicates = {"=": lambda x, a: x == a,
+mask_predicates = {"=":  lambda x, a: x == a,
                    "==": lambda x, a: x == a,
                    "!=": lambda x, a: x != a,
-                   "<": lambda x, a: x < a,
+                   "<":  lambda x, a: x <  a,
                    "<=": lambda x, a: x <= a,
-                   ">": lambda x, a: x > a,
+                   ">":  lambda x, a: x >  a,
                    ">=": lambda x, a: x >= a}
 
-skip_tables = False
+skip_tables   = False
 with_pingfile = False
 
 
