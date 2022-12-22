@@ -276,6 +276,7 @@ def read_drq(varlist):
 # Filters out ignored, identified missing and omitted targets from the input target list. Attaches attributes to the
 # omitted targets to track what happened to the variable
 def omit_targets(targetlist):
+    if tmp_debug_printing: print('\nCalling: omit_targets\n')
     omitvarlist_01 = load_checkvars_excel(omit_vars_file_01)
     omitvarlist_02 = load_checkvars_excel(omit_vars_file_02)
     omitvarlist_03 = load_checkvars_excel(omit_vars_file_03)
@@ -287,7 +288,6 @@ def omit_targets(targetlist):
     identifiedmissingvarlist = load_checkvars_excel(identified_missing_vars_file)
     filtered_list = []
     for target in targetlist:
-       #if tmp_debug_printing: print('target', target.table, str(target.variable))
         key = target.variable if skip_tables else (target.table, target.variable)
         if key in ignoredvarlist:
             target.ecearth_comment, target.comment_author = ignoredvarlist[key]
@@ -366,7 +366,7 @@ def load_targets_f90nml(varlist):
 def load_targets_excel(varlist):
     global log
     import xlrd
-    if tmp_debug_printing: print('\nTEST load_targets_excel\n')
+    if tmp_debug_printing: print('\nCalling: load_targets_excel\n')
     targets = []
     cmor_colname             = "CMOR Name"
     vid_colname              = "vid"
@@ -433,7 +433,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
     import openpyxl
     import string
 
-    if tmp_debug_printing: print('\nTEST load_checkvars_excel\n')
+    if tmp_debug_printing: print('\nCalling: load_checkvars_excel\n')
     alphabet = list(string.ascii_uppercase)
 
     workbook  = openpyxl.load_workbook(filename=basic_ignored_excel_file, read_only=None)
@@ -446,7 +446,6 @@ def load_checkvars_excel(basic_ignored_excel_file):
     for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
         column_names[column_name[0].value] = alphabet[column_counter]
         column_counter += 1
-    if tmp_debug_printing: print('print column_names.keys: ', column_names.keys())
 
     table_colname       = "Table"
     var_colname         = "variable"
@@ -456,12 +455,9 @@ def load_checkvars_excel(basic_ignored_excel_file):
     units_colname       = "units as in ping file"
     pingcomment_colname = "ping file comment"
 
-    if with_pingfile:
-     expected_column_names = [table_colname, var_colname, comment_colname, author_colname, model_colname, units_colname, pingcomment_colname]
-    else:
-     expected_column_names = [table_colname, var_colname, comment_colname, author_colname]
+    required_column_names = [table_colname, var_colname, comment_colname, author_colname]
 
-    for column_name in expected_column_names:
+    for column_name in required_column_names:
      if column_name not in column_names.keys():
       log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
 
@@ -473,33 +469,26 @@ def load_checkvars_excel(basic_ignored_excel_file):
     comments         = list_based_on_xlsx_column(worksheet, column_names, comment_colname    ) # Identification comment by EC-Earth members
     authors          = list_based_on_xlsx_column(worksheet, column_names, author_colname     ) # Author(s) of comment
     if with_pingfile:
-     model_component = list_based_on_xlsx_column(worksheet, column_names, model_colname      ) # NEMO model component as in the ping files
-     ping_units      = list_based_on_xlsx_column(worksheet, column_names, units_colname      ) # The units   as given in the ping files
-     ping_comment    = list_based_on_xlsx_column(worksheet, column_names, pingcomment_colname) # The comment as given in the ping files
-    else:
-     model           = []
-     units           = []
-     pingcomment     = []
-    if  tmp_debug_printing: print('len(tablenames     ): ', len(tablenames     ))
-    if  tmp_debug_printing: print('len(varnames       ): ', len(varnames       ))
-    if  tmp_debug_printing: print('len(comments       ): ', len(comments       ))
-    if  tmp_debug_printing: print('len(authors        ): ', len(authors        ))
-    if with_pingfile:
-     if tmp_debug_printing: print('len(model_component): ', len(model_component))
-     if tmp_debug_printing: print('len(ping_units     ): ', len(ping_units     ))
-     if tmp_debug_printing: print('len(ping_comment   ): ', len(ping_comment   ))
-    if  tmp_debug_printing: print('print varname: ', varnames)
+     pingfile_column_names = [model_colname, units_colname, pingcomment_colname]
+     for column_name in pingfile_column_names:
+      if column_name not in column_names.keys():
+       log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
+       pingfile_content_available = False
+      else:
+       model_component = list_based_on_xlsx_column(worksheet, column_names, model_colname      ) # NEMO model component as in the ping files
+       ping_units      = list_based_on_xlsx_column(worksheet, column_names, units_colname      ) # The units   as given in the ping files
+       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, pingcomment_colname) # The comment as given in the ping files
+       pingfile_content_available = True
 
     if skip_tables:
      for i in range(len(varnames)):
-         if with_pingfile:
-          varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
+         if with_pingfile and pingfile_content_available:
+          varlist[varnames[i]] = (comments[i], authors[i], model_component[i], ping_units[i], ping_comment[i])
          else:
           varlist[varnames[i]] = (comments[i], authors[i])
     else:
      for i in range(len(varnames)):
          varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
-    if tmp_debug_printing: print('print returned varlist: ', varlist)
     return varlist
 
 def list_based_on_xlsx_column(sheet, column_names, column_name):
