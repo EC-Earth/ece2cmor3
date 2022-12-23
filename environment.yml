@@ -45,6 +45,7 @@ dependencies:
   - testfixtures
   # Unlisted dependency dreq and/or drq
   - xarray
+  - openpyxl
   - xlsxwriter
   - pip:
     - dreqPy==01.2.0
