@@ -1,7 +1,7 @@
 # For developers only:
 #  Remove the ece2cmor environment:
 #   conda deactivate
-#   rm -rf ${mambapath}/envs/ece2cmor3-python-2
+#   rm -rf ${miniconda2path}/envs/ece2cmor3-python-2
 #  Create the ece2cmor3 environment:
 #   activateminiconda2
 #   conda update -y -n base -c defaults conda    # For updating conda itself
@@ -29,8 +29,6 @@ dependencies:
   - f90nml
   - gitpython
   - jsonschema
-  # Required by tem-diag
-  - nco
   - netcdf4
   - numpy
   - pandas
@@ -41,10 +39,10 @@ dependencies:
   - conda-forge/label/cf202003::python-eccodes
   - python-dateutil
   - requests
-  # Required by tem-diag
-  - scipy
   - testfixtures
-  # Unlisted dependency dreq and/or drq
   - xarray
   - openpyxl
   - xlsxwriter
+  # Required by tem-diag
+  - nco
+  - scipy
