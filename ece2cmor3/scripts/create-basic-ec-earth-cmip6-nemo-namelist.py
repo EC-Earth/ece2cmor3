@@ -498,19 +498,6 @@ if len(sys.argv) == 2:
        model_component = list_based_on_xlsx_column(worksheet, column_names, "model component in ping file"             ) # The source of this data are the ping files
        ping_units      = list_based_on_xlsx_column(worksheet, column_names, "units as in ping file"                    ) # The source of this data are the ping files
        ping_comment    = list_based_on_xlsx_column(worksheet, column_names, "ping file comment"                        ) # The source of this data are the ping files
-
-       # To obtain identical results as previous where we have 1.0 in some cmor_unit & ping_unit instead of 1 which actually is better.
-       # Therefore this block can be removed lateron.
-       counter = 0
-       for x in varunit:
-        if str(x) == '1':
-         varunit[counter] = '1.0'
-        counter = counter + 1
-       counter = 0
-       for x in ping_units:
-        if str(x) == '1':
-         ping_units[counter] = '1.0'
-        counter = counter + 1
        return tablenames, varnames, varpriority, vardimension, varlongname, varunit, weblink, comments, description, miplist, model_component, ping_units, ping_comment
 
    def list_based_on_xlsx_column(sheet, column_names, column_name):
