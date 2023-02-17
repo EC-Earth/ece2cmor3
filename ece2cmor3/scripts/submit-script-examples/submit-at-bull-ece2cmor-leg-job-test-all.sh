@@ -37,7 +37,7 @@
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
    VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/test-all-trunk-t001/$EXP
+   ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/test-all-trunk-$EXP-ece-py2-v01/$EXP
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " does not exist. Aborting job: " $0 >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: " $ECEDIR " is empty. Aborting job:" $0 >&2; exit 1; fi
@@ -46,8 +46,8 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
    mkdir -p $TEMPDIR
 
-   source /lustre2/projects/model_testing/reerink/miniconda2/etc/profile.d/conda.sh
-   conda activate ece2cmor3
+   source /lustre3/projects/CMIP6/reerink/mamba/etc/profile.d/conda.sh
+   conda activate ece2cmor3-python-2
 
    export HDF5_USE_FILE_LOCKING=FALSE
    export UVCDAT_ANONYMOUS_LOG=false
