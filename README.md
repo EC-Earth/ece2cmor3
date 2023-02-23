@@ -16,14 +16,14 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Installation:
 
-More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
+More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal (which are still the previous miniconda guidelines), including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
 
 #### Installation & running with Mamba (strongly recommended):
 With the `Mamba` package manager all the packages (mostly python in our case) can be installed within one go. For instance, this is certainly beneficial at HPC systems where permissions to install complementary python packages to the default python distribution are lacking.
 
 ##### Define a mambapath & two aliases
 
-First, define the following aliases in a `.bashrc` file:
+First, define a `mambapath` and two aliases in a `.bashrc` file for later use:
  ```shell
  mambapath=${HOME}/mamba/
  alias activatemamba='source ${mambapath}/etc/profile.d/conda.sh'
@@ -32,11 +32,11 @@ First, define the following aliases in a `.bashrc` file:
 
 ##### If Mamba is not yet installed:
 
-Download [mamba](https://github.com/conda-forge/miniforge/releases/latest/) by using `wget` and install with `bash`:
+Download [mamba](https://github.com/conda-forge/miniforge/releases/latest/) by using `wget` and install it via the commandline with `bash`:
  ```shell
  # Check whether mambapath is set:
  echo ${mambapath}
- # Check whether a mamba install & environments exits and move them before an accidental overwrite:
+ # Create a backup of an eventual mamba install (and environments) to prevent an accidental overwrite:
  if [ -d ${mambapath} ]; then backup_label=backup-`date +%d-%m-%Y`; mv -f  ${mambapath} ${mambapath/mamba/mamba-${backup_label}}; fi
  
  # Download & install mamba:
@@ -52,33 +52,44 @@ Download [mamba](https://github.com/conda-forge/miniforge/releases/latest/) by u
 
 ##### Download ece3cmor3 by a git checkout
 
-For example we create the directoy ${HOME}/cmorize/ for the ece2cmor tool:
+For example we create the directoy `${HOME}/cmorize/` for the ece2cmor tool:
 
 ```shell
+cd ${HOME}/cmorize/
 git clone https://github.com/EC-Earth/ece2cmor3.git
 cd ece2cmor3
 git submodule update --init --recursive
-./download-b2share-dataset.sh ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data
+./download-b2share-dataset.sh ./ece2cmor3/resources/b2share-data
 ```
 Note that Github depricates the `https` clone method, therefore see how to [migrate from https to ssh](https://github.com/EC-Earth/ece2cmor3/wiki/instruction-how-to-change-from-https-to-ssh).
 
-##### Creating a virtual conda environment and installing ece3cmor3 therein:
+##### Creating ece2cmor3 environment via mamba:
 In the ece2cmor3 git checkout directory, type
 ```shell
-activateminiconda                         # The alias as defined above
-conda update -n base -c defaults conda    # for updating conda itself
-conda env create -f environment.yml       # for linux & mac os
-conda activate ece2cmor3
-python setup.py install
+activatemamba                             # The mamba-activate alias (as defined above)
+cd ${HOME}/cmorize/ece2cmor3              # Navigate to the ece2cmor3 root directory
+mamba env create -f environment.yml       # Create the python environment (for linux & mac os)
+conda activate ece2cmor3                  # Here conda is still used instead of mamba
+pip install .                             # Install the ece2cmor3 package
+conda deactivate                          # Deactivating the active (here ece2cmor3) environment
 ```
 
-##### Running ece2cmor3 inside the conda environment:
+##### Running ece2cmor3 from its environment:
 
+Some basic tests:
 ```shell
- conda activate ece2cmor3
- ece2cmor -h
- checkvars -h
- etc.
+ activateece2cmor3
+  which mamba                              # ${mambapath}/condabin/mamba
+  which conda                              # ${mambapath}/condabin/conda
+  which python                             # ${mambapath}/envs/ece2cmor3-python-2/bin/python
+  mamba --version                          # mamba 1.3.1 & conda 22.11.1
+  python --version                         # Python 2.7.15
+  cdo -V                                   # version 1.9.6
+  drq -v                                   # version 01.02.00 
+  ece2cmor -V                              # ece2cmor v1.8.1
+  ece2cmor -h
+  drq -h
+  checkvars -h
  conda deactivate
 ```
 
@@ -94,9 +105,10 @@ git submodule update --init --recursive
 
 #### Note for developers: 
 
-To avoid many installation calls during development, you can symlink the installed modules to the source directory by executing
+Use the `-e` for the developer mode, i.e. code changes are immediately active:
 ```shell
-python setup.py develop;
+cd ${HOME}/cmorize/ece2cmor3
+pip install -e .
 ```
 
 #### Updating the nested CMOR table repository by maintainers:
