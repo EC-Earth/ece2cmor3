@@ -9,7 +9,6 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 * dreq (the CMIP6 data request tool drq)
 * netCDF4
 * cdo (version 1.9.6; only for atmosphere post-processing)
-* nose, testfixtures (only for testing)
 * pip (for installing python packages)
 * f90nml (only for fortran namelist I/O)
 * openpyxl (for reading *.xlsx excel sheets)
@@ -19,21 +18,35 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
 
-#### Installation & running with miniconda (strongly recommended):
-The Miniconda python distribution should be installed. With miniconda all the packages can be installed within one go by the package manager `conda`. This applies also to systems where one is not allowed to install complementary python packages to the default python distribution.
+#### Installation & running with Mamba (strongly recommended):
+With the `Mamba` package manager all the packages (mostly python in our case) can be installed within one go. For instance, this is certainly beneficial at HPC systems where permissions to install complementary python packages to the default python distribution are lacking.
 
-##### If Miniconda is not yet installed:
+##### Define a mambapath & two aliases
 
-Download [miniconda](https://repo.continuum.io/miniconda/) (e.g. take the latest miniconda version for python 2.7) by using `wget` and install with `bash`:
+First, define the following aliases in a `.bashrc` file:
  ```shell
- wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
- bash Miniconda2-latest-Linux-x86_64.sh -b -u -p /$HOME/miniconda2
+ mambapath=${HOME}/mamba/
+ alias activatemamba='source ${mambapath}/etc/profile.d/conda.sh'
+ alias activateece2cmor3='activatemamba; conda activate ece2cmor3'
  ```
-One could consider to add the following aliases in the `.bashrc` file:
+
+##### If Mamba is not yet installed:
+
+Download [mamba](https://github.com/conda-forge/miniforge/releases/latest/) by using `wget` and install with `bash`:
  ```shell
- mincondapath=${HOME}/miniconda2/
- alias activateminiconda='source ${mincondapath}/etc/profile.d/conda.sh; export PATH="${mincondapath}/bin:$PATH"'
- alias activateece2cmor3='activateminiconda; conda activate ece2cmor3;'
+ # Check whether mambapath is set:
+ echo ${mambapath}
+ # Check whether a mamba install & environments exits and move them before an accidental overwrite:
+ if [ -d ${mambapath} ]; then backup_label=backup-`date +%d-%m-%Y`; mv -f  ${mambapath} ${mambapath/mamba/mamba-${backup_label}}; fi
+ 
+ # Download & install mamba:
+ mkdir -p ${HOME}/Downloads; cd ${HOME}/Downloads/
+ wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+ bash Mambaforge-$(uname)-$(uname -m).sh -b -u -p ${mambapath}
+ 
+ # Update mamba:
+ activatemamba
+ mamba update -y --name base mamba
  ```
 
 
