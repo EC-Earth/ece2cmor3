@@ -477,7 +477,7 @@ def execute_netcdf_task(task,tableid):
         missval = getattr(task.target, cmor_target.missval_key, 1.e+20)
         vals=numpy.copy(ncvar[:])
         dims = numpy.shape(vals)
-        nroll=dims[-1]/2
+        nroll=dims[-1]//2
         ncvar = numpy.roll(vals,nroll,len(dims)-1)
         vals=numpy.copy(ncvar[:,:,:])
     # Default values
@@ -645,7 +645,7 @@ def create_time_axis(path,name,has_bounds):
         ds.close()
     tm5refdate=datetime.datetime.strptime(tm5unit,"days since %Y-%m-%d %H:%M:%S")
     # delta days for change of reftime
-    diff_days= (refdate-tm5refdate).total_seconds()/86400
+    diff_days= (refdate-tm5refdate).total_seconds()//86400
     vals=vals-diff_days
     if has_bounds:
         bndvar2=numpy.zeros_like(bndvar)
