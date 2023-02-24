@@ -292,7 +292,8 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         ntimes = 1 if time_selection is None else len(time_selection)
     else:
         ntimes = ncvar.shape[timdim] if time_selection is None else len(time_selection)
-    size = ncvar.size / ntimes
+    size = ncvar.size // ntimes
+   #size = ncvar.size / ntimes   # after porting to python3
     chunk = int(math.floor(4.0E+9 / (8 * size)))  # Use max 4 GB of memory
     if time_selection is not None and numpy.any(time_selection < 0):
         chunk = 1

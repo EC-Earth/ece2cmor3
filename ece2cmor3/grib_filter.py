@@ -96,7 +96,7 @@ def grib_tuple_from_string(s):
 def grib_tuple_from_ints(i, j):
     if i < 10 ** 3:
         return i, j
-    return i % 10 ** 3, i / 10 ** 3
+    return i % 10 ** 3, i // 10 ** 3
 
 
 # Inspects a single time point in the initial file
@@ -114,7 +114,7 @@ def inspect_day(gribfile, grid):
     keylist = []
     while gribfile.read_next(headers_only=True):
         date = gribfile.get_field(grib_file.date_key)
-        time = gribfile.get_field(grib_file.time_key) / 100
+        time = gribfile.get_field(grib_file.time_key) // 100
         if date == inidate + 1 and time == initime:
             gribfile.release()
             break
@@ -562,7 +562,7 @@ def proc_initial_month(month, gribfile, keys2files, gridtype, handles, prev_keys
             gribfile.release()
             continue
         date = gribfile.get_field(grib_file.date_key)
-        if (date % 10 ** 4) / 10 ** 2 == month:
+        if (date % 10 ** 4) // 10 ** 2 == month:
             if (key[0], key[1]) not in accum_codes:
                 write_record(gribfile, key + (gridtype,), keys2files, handles=handles, once=once, setdate=None)
         gribfile.release()
@@ -599,7 +599,7 @@ def proc_final_month(month, gribfile, keys2files, gridtype, handles, prev_keys=(
             gribfile.release()
             continue
         date = gribfile.get_field(grib_file.date_key)
-        mon = (date % 10 ** 4) / 10 ** 2
+        mon = (date % 10 ** 4) // 10 ** 2
         if mon == month:
             write_record(gribfile, key + (gridtype,), keys2files, shift=-1 if (key[0], key[1]) in accum_codes else 0,
                          handles=handles, once=once, setdate=None)
@@ -649,20 +649,20 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
         freq = varsfreq.get(key, 0)
         shifttime = timestamp + shift * freq * 100
         if shifttime < 0 or shifttime >= 2400:
-            newdate, hours = fix_date_time(gribfile.get_field(grib_file.date_key), shifttime / 100)
+            newdate, hours = fix_date_time(gribfile.get_field(grib_file.date_key), shifttime // 100)
             gribfile.set_field(grib_file.date_key, newdate)
             shifttime = 100 * hours
         timestamp = int(shifttime)
         gribfile.set_field(grib_file.time_key, timestamp)
     if key[1] == 126 and key[0] in [40, 41, 42]:
         gribfile.set_field(grib_file.levtype_key, grib_file.pressure_level_hPa_code)
-        gribfile.set_field(grib_file.level_key, key[3]/100)
+        gribfile.set_field(grib_file.level_key, key[3]//100)
     elif gribfile.get_field(grib_file.levtype_key) == grib_file.pressure_level_Pa_code:
         gribfile.set_field(grib_file.levtype_key, 99)
     if gribfile not in starttimes:
         starttimes[gribfile] = timestamp
     for var_info in var_infos:
-        if var_info[1] < 24 and timestamp / 100 % var_info[1] != 0:
+        if var_info[1] < 24 and timestamp // 100 % var_info[1] != 0:
             log.warning("Skipping irregular GRIB record for %s with frequency %s at timestamp %s" %
                         (str(var_info[0]), str(var_info[1]), str(timestamp)))
             continue
@@ -683,6 +683,6 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
 
 # Converts 24 hours into extra days
 def fix_date_time(date, time):
-    timestamp = datetime.datetime(year=date / 10 ** 4, month=(date % 10 ** 4) / 10 ** 2,
+    timestamp = datetime.datetime(year=date // 10 ** 4, month=(date % 10 ** 4) // 10 ** 2,
                                   day=date % 10 ** 2) + datetime.timedelta(hours=time)
     return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour
