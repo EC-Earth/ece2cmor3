@@ -107,6 +107,7 @@ git submodule update --init --recursive
 
 Use the `-e` for the developer mode, i.e. code changes are immediately active:
 ```shell
+activateece2cmor3
 cd ${HOME}/cmorize/ece2cmor3
 pip install -e .
 ```
