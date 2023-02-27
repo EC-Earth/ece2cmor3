@@ -29,7 +29,7 @@ if [ "$#" -eq 5 ]; then
    echo
    echo ' The CMIP6 data request tool ece2cmor is not available because of one of the following reasons:'
    echo '  1. ece2cmor might be not installed'
-   echo '  2. ece2cmor might be not active, as the miniconda environment is not activated'
+   echo '  2. ece2cmor might be not active, check whether the ece2cmor3 environment is activated'
    echo ' Stop'
    echo
    exit
@@ -39,7 +39,7 @@ if [ "$#" -eq 5 ]; then
    echo
    echo ' The CMIP6 data request tool drq is not available because of one of the following reasons:'
    echo '  1. drq might be not installed'
-   echo '  2. drq might be not active, as the miniconda environment is not activated'
+   echo '  2. drq might be not active, check whether the ece2cmor3 environment is activated'
    echo ' Stop'
    echo
    exit
