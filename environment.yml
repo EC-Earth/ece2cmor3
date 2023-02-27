@@ -1,13 +1,13 @@
 # For developers only:
 #  Remove the ece2cmor environment:
 #   conda deactivate
-#   rm -rf ${miniconda2path}/envs/ece2cmor3-python-2
+#   rm -rf ${mambapath}/envs/ece2cmor3-python-2
 #  Create the ece2cmor3 environment:
-#   activateminiconda2
-#   conda update -y -n base -c defaults conda    # For updating conda itself
-#   conda env create -f environment.yml
+#    activatemamba
+#    mamba update -y --name base mamba           # For updating mamba itself
+#    mamba env create -f environment.yml         # Create the ece2cmor3 environment
 #  Basic tests:
-#   which python                                 # ${miniconda2path}/envs/ece2cmor3-python-2/bin/python
+#   which python                                 # ${mambapath}/envs/ece2cmor3-python-2/bin/python
 #   python --version                             # Python 2.7.15
 #   cdo -V                                       # version 1.9.6
 #   drq -v                                       # version 01.02.00
