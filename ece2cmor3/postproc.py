@@ -1,15 +1,15 @@
 import logging
 import threading
 import re
-import Queue
+import queue
 import os
 
 from ece2cmor3 import cmor_task
 
-import grib_file
-import cdoapi
-import cmor_source
-import cmor_target
+from . import grib_file
+from . import cdoapi
+from . import cmor_source
+from . import cmor_target
 
 # Log object
 log = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def get_output_path(task, tmp_path):
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_task_list(tasks):
     global log
-    freqset = set(map(lambda t: cmor_target.get_freq(t.target), tasks))
+    freqset = set([cmor_target.get_freq(t.target) for t in tasks])
     if len(freqset) != 1:
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
         return False
@@ -181,7 +181,7 @@ def add_grid_operators(cdo, task):
     tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
     if "longitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "longitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.zonal + operator_mapping[operators[0]])
         else:
             log.error("Longitude reduction operator for task %s in table %s is not supported" % (task.target.variable,
@@ -189,7 +189,7 @@ def add_grid_operators(cdo, task):
             task.set_failed()
     if "latitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "latitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.meridional + operator_mapping[operators[0]])
         else:
             log.error("Latitude reduction operator for task %s in table %s is not supported" % (task.target.variable,

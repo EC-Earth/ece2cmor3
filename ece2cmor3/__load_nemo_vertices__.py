@@ -25,7 +25,7 @@ def load_vertices_from_file(gridtype, shape):
     else:
         log.fatal("Unsupported grid resolution for NEMO: %s" % str(shape))
         return None, None
-    if (mesh, gridchar) in cached_vertices.keys():
+    if (mesh, gridchar) in list(cached_vertices.keys()):
         return cached_vertices[(mesh, gridchar)][0], cached_vertices[(mesh, gridchar)][1]
     file_name = '-'.join(["nemo", "vertices", mesh, gridchar, "grid"]) + ".nc"
     fullpath = os.path.join(os.path.dirname(__file__), "resources", "b2share-data", file_name)

@@ -11,7 +11,7 @@
 # which is part of ece2cmor3.
 #
 
-from __future__ import print_function
+
 from dreqPy import dreq
 dq = dreq.loadDreq()
 

@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import json
 import logging
 import os
@@ -59,7 +59,7 @@ def load_tasks_from_drq(varlist, active_components=None, target_filters=None, co
 
 # Basic task loader: first argument has already partitioned variables into component groups
 def load_tasks(variables, active_components=None, target_filters=None, check_duplicates=False):
-    matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
+    matches = load_vars(variables, asfile=(isinstance(variables, str) and os.path.isfile(variables)))
     filtered_matches = apply_filters(matches, target_filters)
     if check_duplicates:
         if not search_duplicate_tasks(filtered_matches):
@@ -72,8 +72,8 @@ def load_tasks(variables, active_components=None, target_filters=None, check_dup
 
 
 def get_models(active_components):
-    all_models = components.models.keys()
-    if isinstance(active_components, basestring):
+    all_models = list(components.models.keys())
+    if isinstance(active_components, str):
         return [active_components] if active_components in all_models else []
     if isinstance(active_components, list):
         return [m for m in active_components if m in all_models]
@@ -85,7 +85,7 @@ def get_models(active_components):
 # Loads a json file or string or dictionary containing the cmor targets for multiple components
 def load_vars(variables, asfile=True):
     modeldict = {}
-    if isinstance(variables, basestring):
+    if isinstance(variables, str):
         vartext = open(variables, 'r').read() if asfile else variables
         modeldict = json.loads(vartext)
     elif isinstance(variables, dict):
@@ -93,8 +93,8 @@ def load_vars(variables, asfile=True):
     else:
         log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = {}
-    for model, varlist in modeldict.iteritems():
-        if model not in components.models.keys():
+    for model, varlist in modeldict.items():
+        if model not in list(components.models.keys()):
             if model in set([t.table for t in ece2cmorlib.targets]):
                 raise SwapDrqAndVarListException(reverse=True)
             log.error("Cannot interpret %s as an EC-Earth model component." % str(model))
@@ -120,7 +120,7 @@ def load_drq(varlist, config=None, check_prefs=True):
     model_vars = load_model_vars()
     # Match model component variables with requested targets
     matches = match_variables(targets, model_vars)
-    matched_targets = [t for target_list in matches.values() for t in target_list]
+    matched_targets = [t for target_list in list(matches.values()) for t in target_list]
     for t in targets:
         if t not in matched_targets:
             setattr(t, "load_status", "missing")
@@ -128,7 +128,7 @@ def load_drq(varlist, config=None, check_prefs=True):
         if config is None:
             log.warning("Determining preferred model components for variables without target EC-Earth configuration: "
                         "assuming all components should be considered may result in duplicate matches")
-        if config not in components.ece_configs.keys():
+        if config not in list(components.ece_configs.keys()):
             log.warning("Determining preferred model components for variables with unknown target EC-Earth "
                         "configuration %s: assuming all components should be considered may result in duplicate matches" % config)
         for model in matches:
@@ -147,7 +147,7 @@ def load_drq(varlist, config=None, check_prefs=True):
                         log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
                                  .format(model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
-                for key, tgts in d.items():
+                for key, tgts in list(d.items()):
                     if len(tgts) > 1:
                         log.warning("Duplicate variables found with output name %s in table %s: %s" %
                                     (getattr(tgts[0], "out_name", tgts[0].variable), tgts[0].table,
@@ -162,7 +162,7 @@ def load_drq(varlist, config=None, check_prefs=True):
                         choices = [tgts[0]]
                     enabled_targets.extend(choices)
                 matches[model] = [t for t in targetlist if t in enabled_targets]
-    omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
+    omitted_targets = set(requested_targets) - set([t for target_list in list(matches.values()) for t in target_list])
     return matches, list(omitted_targets)
 
 
@@ -170,10 +170,10 @@ def apply_filters(matches, target_filters=None):
     if target_filters is None:
         return matches
     result = {}
-    for model, targetlist in matches.items():
+    for model, targetlist in list(matches.items()):
         requested_targets = targetlist
-        for msg, func in target_filters.items():
-            filtered_targets = filter(func, requested_targets)
+        for msg, func in list(target_filters.items()):
+            filtered_targets = list(filter(func, requested_targets))
             for tgt in list(set(requested_targets) - set(filtered_targets)):
                 log.info("Dismissing %s target variable %s in table %s for component %s..." %
                          (msg, tgt.variable, tgt.table, model))
@@ -185,7 +185,7 @@ def apply_filters(matches, target_filters=None):
 
 def search_duplicate_tasks(matches):
     status_ok = True
-    for model in matches.keys():
+    for model in list(matches.keys()):
         targetlist = matches[model]
         n = len(targetlist)
         for i in range(n):
@@ -205,9 +205,9 @@ def search_duplicate_tasks(matches):
                         log.error("Found duplicate output name for targets %s, %s in table %s for model %s"
                                   % (t1.variable, t2.variable, t1.table, model))
                         status_ok = False
-            index = matches.keys().index(model) + 1
-            if index < len(matches.keys()):
-                for other_model in matches.keys()[index:]:
+            index = list(matches.keys()).index(model) + 1
+            if index < len(list(matches.keys())):
+                for other_model in list(matches.keys())[index:]:
                     other_targetlist = matches[other_model]
                     for t2 in other_targetlist:
                         key2 = '_'.join([t2.variable, t2.table])
@@ -235,7 +235,7 @@ def split_targets(targetlist):
 
 def read_drq(varlist):
     targetlist = []
-    if isinstance(varlist, basestring):
+    if isinstance(varlist, str):
         if os.path.isfile(varlist):
             fname, fext = os.path.splitext(varlist)
             if len(fext) == 0:
@@ -255,8 +255,8 @@ def read_drq(varlist):
         targetlist = varlist
     elif isinstance(varlist, dict):
         targetlist = []
-        for table, val in varlist.iteritems():
-            varseq = [val] if isinstance(val, basestring) else val
+        for table, val in varlist.items():
+            varseq = [val] if isinstance(val, str) else val
             for v in varseq:
                 add_target(v, table, targetlist)
     else:
@@ -295,8 +295,8 @@ def omit_targets(targetlist):
                 comment, author = identifiedmissingvarlist[key]
                 setattr(target, "ecearth_comment", comment)
                 setattr(target, "comment_author", author)
-        elif any([key in omitvarlist for omitvarlist in omit_lists.values()]):
-            for status, omitvarlist in omit_lists.items():
+        elif any([key in omitvarlist for omitvarlist in list(omit_lists.values())]):
+            for status, omitvarlist in list(omit_lists.items()):
                 if key in omitvarlist:
                     setattr(target, "load_status", status)
                     break
@@ -308,7 +308,7 @@ def omit_targets(targetlist):
 # Loads a json file or string or dictionary containing the cmor targets.
 def load_targets_json(variables, asfile=True):
     vardict = {}
-    if isinstance(variables, basestring):
+    if isinstance(variables, str):
         vartext = open(variables, 'r').read() if asfile else variables
         vardict = json.loads(vartext)
     elif isinstance(variables, dict):
@@ -316,13 +316,13 @@ def load_targets_json(variables, asfile=True):
     else:
         log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = []
-    for tab, var in vardict.iteritems():
+    for tab, var in vardict.items():
         if tab in components.models and isinstance(var, dict):
             raise SwapDrqAndVarListException(reverse=False)
-        if not isinstance(tab, basestring):
+        if not isinstance(tab, str):
             log.error("Cannot interpret %s as a CMOR table identifier" % str(tab))
             continue
-        if isinstance(var, basestring):
+        if isinstance(var, str):
             add_target(var, tab, targets)
         elif isinstance(var, list):
             for v in var:
@@ -451,7 +451,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
     required_column_names = [table_colname, var_colname, comment_colname, author_colname]
 
     for column_name in required_column_names:
-     if column_name not in column_names.keys():
+     if column_name not in list(column_names.keys()):
       log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
 
     if skip_tables:
@@ -464,7 +464,7 @@ def load_checkvars_excel(basic_ignored_excel_file):
     if with_pingfile:
      pingfile_column_names = [model_colname, units_colname, pingcomment_colname]
      for column_name in pingfile_column_names:
-      if column_name not in column_names.keys():
+      if column_name not in list(column_names.keys()):
        log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
        pingfile_content_available = False
       else:
@@ -504,11 +504,11 @@ def create_sheet_column_indices():
 def match_variables(targets, model_variables):
     global json_target_key
     # Return value: dictionary of models and lists of targets
-    matches = {m: [] for m in components.models.keys()}
+    matches = {m: [] for m in list(components.models.keys())}
     # Loop over requested variables
     for target in targets:
         # Loop over model components
-        for model, variable_mapping in model_variables.items():
+        for model, variable_mapping in list(model_variables.items()):
             # Loop over supported variables by the component
             for parblock in variable_mapping:
                 if matchvarpar(target, parblock):
@@ -521,7 +521,7 @@ def match_variables(targets, model_variables):
                     else:
                         parmatch = parblock
                     comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
-                    if cmor_source.expression_key in parmatch.keys():
+                    if cmor_source.expression_key in list(parmatch.keys()):
                         comment_string += ", expression = " + parmatch[cmor_source.expression_key]
                     comment = getattr(target, "ecearth_comment", None)
                     if comment is not None:
@@ -539,7 +539,7 @@ def matchvarpar(target, parblock):
     parvars = parblock.get(json_target_key, None)
     if isinstance(parvars, list) and target.variable in parvars:
         result = True
-    if isinstance(parvars, basestring) and target.variable == parvars:
+    if isinstance(parvars, str) and target.variable == parvars:
         result = True
     if hasattr(parblock, json_table_key) and target.table != parblock[json_table_key]:
         result = False
@@ -553,10 +553,10 @@ def create_tasks(matches, active_components, masks):
     global log, ignored_vars_file, json_table_key, skip_tables
     result = []
     model_vars = load_model_vars()
-    for model, targets in matches.items():
+    for model, targets in list(matches.items()):
         if isinstance(active_components, list) and model not in active_components:
             continue
-        if isinstance(active_components, basestring) and model != active_components:
+        if isinstance(active_components, str) and model != active_components:
             continue
         parblocks = model_vars[model]
         for target in targets:
@@ -611,7 +611,7 @@ def load_masks(model_vars):
 
 
 def load_scripts(model_vars):
-    for component in model_vars.keys():
+    for component in list(model_vars.keys()):
         for par in model_vars[component]:
             if json_script_key in par:
                 ece2cmorlib.add_script(component, name=par[json_script_key], attributes=par)
