@@ -18,7 +18,7 @@ if [ "$#" -eq 0 ]; then
 # (non dummy) variables from the shaconemo ping files, we use the total CMIP6 request for all CMIP6 MIPs with highest tier and priority.
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
-  ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3
+  ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3-python-2
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts/; 
   drq -m CMIP,AerChemMIP,CDRMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e CMIP -t 3 -p 3 --xls --xlsDir xls-m=all-cmip6-mips-e=CMIP-t=3-p=3
 
