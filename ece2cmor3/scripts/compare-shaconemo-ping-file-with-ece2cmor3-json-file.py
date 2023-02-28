@@ -9,6 +9,7 @@
 # be cmorized by ece2cmor3. The script shows which variables are only in one of both files
 # available.
 
+from __future__ import print_function
 import xml.etree.ElementTree as xmltree
 import json
 from os.path import expanduser
@@ -69,34 +70,34 @@ total_pinglist = pinglistOcean + pinglistSeaIce + pinglistOcnBgChem
 
 f = open("../resources/nemopar.json").read()
 data = json.loads(f)
-#print data
+#print(data)
 
 targets = []
 for d in data:
     targets.append(str(d["target"]))
-#print targets
-print '\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist)
-print '\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets)
-print '\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file'
-print '\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n'
+#print(targets)
+print('\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist))
+print('\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets))
+print('\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file')
+print('\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n')
 
 #history
 
-#print rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgChem.attrib["id"]
+#print(rootOcean.attrib["id"], rootSeaIce.attrib["id"], rootOcnBgChem.attrib["id"])
 
-#print field_elements_Ocean    [1].__dict__  # Example print of the 1st Ocean     field-element
-#print field_elements_SeaIce   [1].__dict__  # Example print of the 1st SeaIce    field-element
-#print field_elements_OcnBgChem[1].__dict__  # Example print of the 1st OcnBgChem field-element
+#print(field_elements_Ocean    [1].__dict__  # Example print of the 1st Ocean     field-element)
+#print(field_elements_SeaIce   [1].__dict__  # Example print of the 1st SeaIce    field-element)
+#print(field_elements_OcnBgChem[1].__dict__  # Example print of the 1st OcnBgChem field-element)
 
-#print field_elements_Ocean    [1].tag,field_elements_Ocean    [1].attrib["id"],field_elements_Ocean    [1].attrib["field_ref"],field_elements_Ocean    [1].text  # Example print of the tag and some specified attributes of the 1st Ocean     field-element
-#print field_elements_SeaIce   [1].tag,field_elements_SeaIce   [1].attrib["id"],field_elements_SeaIce   [1].attrib["field_ref"],field_elements_SeaIce   [1].text  # Example print of the tag and some specified attributes of the 1st SeaIce    field-element
-#print field_elements_OcnBgChem[1].tag,field_elements_OcnBgChem[1].attrib["id"],field_elements_OcnBgChem[1].attrib["field_ref"],field_elements_OcnBgChem[1].text  # Example print of the tag and some specified attributes of the 1st OcnBgChem field-element
+#print(field_elements_Ocean    [1].tag,field_elements_Ocean    [1].attrib["id"],field_elements_Ocean    [1].attrib["field_ref"],field_elements_Ocean    [1].text  # Example print of the tag and some specified attributes of the 1st Ocean     field-element)
+#print(field_elements_SeaIce   [1].tag,field_elements_SeaIce   [1].attrib["id"],field_elements_SeaIce   [1].attrib["field_ref"],field_elements_SeaIce   [1].text  # Example print of the tag and some specified attributes of the 1st SeaIce    field-element)
+#print(field_elements_OcnBgChem[1].tag,field_elements_OcnBgChem[1].attrib["id"],field_elements_OcnBgChem[1].attrib["field_ref"],field_elements_OcnBgChem[1].text  # Example print of the tag and some specified attributes of the 1st OcnBgChem field-element)
 
 #for field_elements in [field_elements_Ocean, field_elements_SeaIce, field_elements_OcnBgChem]:
 #    for child in field_elements:
-#        print child.attrib["id"], child.attrib["field_ref"], child.text
+#        print(child.attrib["id"], child.attrib["field_ref"], child.text)
 
-#print rootOcean[0][0].attrib["field_ref"]
-#print rootOcean[0][0].text
-#print rootOcean[0][1].attrib["expr"]
-#print rootOcean[0][1].text
+#print(rootOcean[0][0].attrib["field_ref"])
+#print(rootOcean[0][0].text)
+#print(rootOcean[0][1].attrib["expr"])
+#print(rootOcean[0][1].text)
