@@ -23,7 +23,6 @@ channels:
   - nodefaults
 dependencies:
   - cdo=1.9.6
-  # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
   - cmor=3.5.0
   - dreqPy==01.2.0
   - f90nml
@@ -31,6 +30,7 @@ dependencies:
   - jsonschema
   - netcdf4
   - numpy
+  - openpyxl
   - pandas
   - pip
   - pyngl
@@ -41,8 +41,7 @@ dependencies:
   - requests
   - testfixtures
   - xarray
-  - openpyxl
   - xlsxwriter
-  # Required by tem-diag
+  # Additionally required by tem-diag:
   - nco
   - scipy
