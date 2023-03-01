@@ -8,14 +8,15 @@
 #    mamba env create -f environment-with-mamba-for-python3.yml
 #  Basic tests:
 #   which python                                 # ${mambapath}/envs/ece2cmor3-python-3/bin/python
-#   python --version                             # Python 3.11.1
+#   python --version                             # Python 3.11
 #   cdo -V                                       # version 1.9.6
 #   drq -v                                       # version 01.02.00
 #   drq -h
 #   ece2cmor -V                                  # ece2cmor v1.8.1
-#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
+#
+#  The version of one of the packages can be adjusted manually, For instance change the
+#  data request version of the dreq package (ensure the ece2cmor3 environment is active):
 #   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
-#  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3-python-3
 channels:
@@ -23,7 +24,7 @@ channels:
   - nodefaults
 dependencies:
   - cdo=1.9.6
-  - cmor=3.5.0
+  - cmor
   - dreqPy==01.2.0
   - f90nml
   - gitpython
