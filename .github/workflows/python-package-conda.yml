@@ -8,7 +8,7 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.7", "3.10", "3.11"]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -18,7 +18,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: ece2cmor3
-        environment-file: environment-with-mamba-for-python3-cdo-2.1.yml
+        environment-file: environment.yml
         python-version: ${{ matrix.python-version }}
         miniforge-version: "latest"
         miniforge-variant: Mambaforge

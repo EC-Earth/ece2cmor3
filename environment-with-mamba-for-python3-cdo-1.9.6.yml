@@ -5,10 +5,10 @@
 #  Create the ece2cmor3 environment:
 #    activatemamba
 #    mamba update -y --name base mamba           # For updating mamba itself
-#    mamba env create -f environment-with-mamba-for-python3.yml
+#    mamba env create -f environment-with-mamba-for-python3-cdo-1.9.6.yml
 #  Basic tests:
 #   which python                                 # ${mambapath}/envs/ece2cmor3-python-3/bin/python
-#   python --version                             # Python 3.11
+#   python --version                             # Python 3.7
 #   cdo -V                                       # version 1.9.6
 #   drq -v                                       # version 01.02.00
 #   drq -h
@@ -18,12 +18,12 @@
 #  data request version of the dreq package (ensure the ece2cmor3 environment is active):
 #   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
 
-name: ece2cmor3-python-3-cdo-2.1
+name: ece2cmor3-python-3-cdo-1.9.6
 channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - cdo
+  - cdo=1.9.6
   - cmor
   - dreqPy==01.2.0
   - f90nml
