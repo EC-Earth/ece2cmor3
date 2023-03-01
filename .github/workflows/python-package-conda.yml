@@ -18,7 +18,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         activate-environment: ece2cmor3
-        environment-file: environment.yml
+        environment-file: environment-with-mamba-for-python3.yml
         python-version: ${{ matrix.python-version }}
         miniforge-version: "latest"
         miniforge-variant: Mambaforge
