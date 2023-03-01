@@ -47,7 +47,7 @@ if [ "$#" -eq 2 ]; then
  #fi
 
   cd ${HOME}/cmorize/ece2cmor3-${python_version}/ece2cmor3/scripts
-  test_dir=test-${python_version}
+  test_dir=../../../control-output-files/quicktest/quicktest-${python_version}
   log_dir=${test_dir}/log-files/; mkdir -p ${log_dir}
   log_file=${log_dir}/log-${mip}-${exp}-${test_version}.txt
   ./genecec-per-mip-experiment.sh ${test_dir}/${mip}-${exp}-${test_version} ${mip_list} ${exp} 1 1 >& ${log_file}
