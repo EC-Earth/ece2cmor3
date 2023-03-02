@@ -47,6 +47,11 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
+    log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
+   #log.info('Python version info: {:}'.format(os.sys.version_info))
+    log.info('cdo {:}'.format(cdo.Cdo().version()))
+    log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
+    log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -60,13 +65,11 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-
     log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
    #log.info('Python version info: {:}'.format(os.sys.version_info))
     log.info('cdo {:}'.format(cdo.Cdo().version()))
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
-
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
