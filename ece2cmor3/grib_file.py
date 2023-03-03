@@ -27,7 +27,7 @@ test_mode = False
 # Module initializer function
 def initialize():
     if not test_mode:
-        orig_path = str(subprocess.check_output(["codes_info", "-d"]))
+        orig_path = str(subprocess.check_output(["codes_info", "-d"]).decode('UTF-8'))
         ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
         prepended_path = ":".join([ece_path, orig_path])
         os.environ["ECCODES_DEFINITION_PATH"] = prepended_path
