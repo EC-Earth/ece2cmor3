@@ -663,8 +663,9 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
         starttimes[gribfile] = timestamp
     for var_info in var_infos:
         if var_info[1] < 24 and timestamp // 100 % var_info[1] != 0:
-            log.warning("Skipping irregular GRIB record for %s with frequency %s at timestamp %s" %
-                        (str(var_info[0]), str(var_info[1]), str(timestamp)))
+            # Note this can result in a massive number of warnings in log file:
+           #log.warning("Skipping irregular GRIB record for %s with frequency %s at timestamp %s" %
+           #            (str(var_info[0]), str(var_info[1]), str(timestamp)))
             continue
         handle = handles.get(var_info[0], None) if handles else None
         if handle:
