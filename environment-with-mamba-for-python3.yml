@@ -41,6 +41,7 @@ dependencies:
   - python-eccodes
   - python-dateutil
   - requests
+  - setuptools
   - testfixtures
   - xarray
   - xlsxwriter
