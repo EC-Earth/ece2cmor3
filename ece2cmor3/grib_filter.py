@@ -684,5 +684,5 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
 # Converts 24 hours into extra days
 def fix_date_time(date, time):
     timestamp = datetime.datetime(year=date // 10 ** 4, month=(date % 10 ** 4) // 10 ** 2,
-                                  day=date % 10 ** 2) + datetime.timedelta(hours=time)
+                                  day=date % 10 ** 2) + datetime.timedelta(hours=int(time))
     return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour
