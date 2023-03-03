@@ -5,7 +5,8 @@ import json
 import logging
 import os
 import tempfile
-import cdo
+import cdo       # Only for version printing
+import dreqPy    # Only for version printing
 
 from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
     cmor_utils, cmor_source
@@ -52,6 +53,7 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     log.info('cdo {:}'.format(cdo.Cdo().version()))
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
+    log.info('dreqPy {:} is loaded'.format(dreqPy.version))
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -70,6 +72,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     log.info('cdo {:}'.format(cdo.Cdo().version()))
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
+    log.info('dreqPy {:} is loaded'.format(dreqPy.version))
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
