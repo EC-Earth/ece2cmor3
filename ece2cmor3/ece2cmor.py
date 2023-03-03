@@ -73,7 +73,8 @@ def main(args=None):
     cmor_utils.ScriptUtils.set_custom_tabfiles(args)
 
     logfile = None
-    logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+   #logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+    logformat =             "%(levelname)s:%(name)s: %(message)s"
     logdateformat = "%Y-%m-%d %H:%M:%S"
     if getattr(args, "log", False):
         dirs = os.path.abspath(args.datadir).split(os.sep)
