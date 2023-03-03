@@ -4,6 +4,7 @@ import cmor
 import json
 import logging
 import os
+#import subprocess
 import tempfile
 import cdo       # Only for version printing
 import dreqPy    # Only for version printing
@@ -54,6 +55,9 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
     log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -73,6 +77,9 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
     log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
