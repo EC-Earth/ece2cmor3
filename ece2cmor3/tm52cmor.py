@@ -112,9 +112,9 @@ def initialize(path,expname,tabledir, prefix,refdate):
             data = json.loads(f.read())
         axis_entries = data.get("axis_entry", {})
         axis_entries = {k.lower(): v for k, v in axis_entries.items()}
-        plev19=numpy.array([numpy.float(value) for value in  axis_entries['plev19']['requested']])
+        plev19=numpy.array([numpy.float64(value) for value in  axis_entries['plev19']['requested']])
         plev19_=plev19
-        plev39=numpy.array([numpy.float(value) for value in  axis_entries['plev39']['requested']])
+        plev39=numpy.array([numpy.float64(value) for value in  axis_entries['plev39']['requested']])
         plev39_=plev39
     else:
         log.warning('Using default pressure level definitions')
