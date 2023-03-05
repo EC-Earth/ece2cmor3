@@ -10,7 +10,8 @@ import os
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils, components
 
 # Logging configuration
-logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+##logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+logformat  =             "%(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 

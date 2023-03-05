@@ -35,7 +35,8 @@ file_def_lim_file_name_compact    = "./file_def_nemo-lim3-compact.xml"
 file_def_pisces_file_name_compact = "./file_def_nemo-pisces-compact.xml"
 
 # Logging configuration
-logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+#logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+logformat  =             "%(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
