@@ -18,7 +18,7 @@ import json
 with open('../resources/tables/CMIP6_CV.json', 'r') as g:
     datastore = json.load(g)
 
-#for k, v in datastore.iteritems():
+#for k, v in datastore.items():
 #    print(k, v)
 
 #print(datastore["CV"]["activity_id"])
