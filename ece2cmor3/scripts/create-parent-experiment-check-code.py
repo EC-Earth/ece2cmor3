@@ -12,6 +12,7 @@
 #
 
 import json
+import os
 
 
 #Read JSON data into the datastore variable
@@ -26,8 +27,11 @@ with open('../resources/tables/CMIP6_CV.json', 'r') as g:
 #print(datastore["CV"]["source_id"]["EC-Earth3"])
 #print(datastore["CV"]["experiment_id"]["1pctCO2"]["parent_activity_id"])
 
+code_file        = 'code-parent-check.sh'
+sorted_code_file = 'sorted-' + code_file
 
-code_parent_check_file = open('code-parent-check.sh','w')
+
+code_parent_check_file = open(code_file,'w')
 code_parent_check_file.write('\n')
 
 #requested_item=
@@ -66,7 +70,8 @@ for k, v in datastore["CV"]["experiment_id"].items():
 
 code_parent_check_file.close()
 
-
+# Create the MIP alphabetic sorted variant:
+os.system('sort ' + code_file + ' > ' + sorted_code_file)
 
 
 # Fragment from the CMIP6_CV.json:
