@@ -104,8 +104,8 @@ class csv_grib_mock(grib_file):
         self.reader = csv.reader(file_object_, delimiter=',')
 
     def read_next(self, headers_only=False):
-        self.row = next(self.reader, None)
-        return self.row is not None
+        self.row = next(self.reader, [])
+        return any(self.row)
 
     def write(self, file_object_):
         writer = csv.writer(file_object_)

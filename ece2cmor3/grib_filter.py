@@ -496,7 +496,8 @@ def open_files(vars2files):
             resource.setrlimit(resource.RLIMIT_NOFILE, (numreq + 1, -1))
         except ValueError:
             return {}
-    return {f: open(os.path.join(temp_dir, f), 'wb') for f in files}
+    byte_mode = 'w' if grib_file.test_mode else 'wb'
+    return {f: open(os.path.join(temp_dir, f), byte_mode) for f in files}
 
 
 def build_fast_forward_cache(keys2files, grid):
