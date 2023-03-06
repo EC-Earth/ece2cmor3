@@ -703,6 +703,9 @@ if len(sys.argv) == 2:
        if cmor_table_operation != 'operation="average"':
         print('\n WARNING: the time averaging operators @ are removed from the expression because a non time average variable is detected: {} becomes {} for {} {} with {}'.format(total_pinglist_text[index_in_ping_list], total_pinglist_text[index_in_ping_list].replace('@',''), dr_varname[i], dr_table[i], cmor_table_operation))
         total_pinglist_text[index_in_ping_list] = total_pinglist_text[index_in_ping_list].replace('@','')
+     else:
+      # Avoid None's by setting a space just before writing:
+      total_pinglist_text[index_in_ping_list] = ' '
 
      include_variable = True
      # Checking whether duplicate IDs are produced, in case add an extension "_2" in order to prevent duplicate IDs:
