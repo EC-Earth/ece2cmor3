@@ -882,6 +882,72 @@ if len(sys.argv) == 2:
 
    # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
 
+   # Alternatively this ordering can be later also used to achieve a preserved preferred order instead of the python2 order.
+   # Five order help functions which are used by sorted in order to match the previous python2 ordering of the thirty file blocks
+   # in the basic-cmip6-file_def_nemo.xml (see sorted with key argument: https://realpython.com/python-sort/
+   def tweakedorder_component(iterable_object):
+    if   iterable_object == 'lim'    : return  1
+    elif iterable_object == 'opa'    : return  2
+    elif iterable_object == 'pisces' : return  3
+    else:                              return  4
+
+   # The three lists below have been dtected with the following grep:
+   # grep name_suffix ${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml| sed -e "s/^.*lim_/l '/" -e "s/^.*opa_/o '/" -e "s/^.*pisces_/p '/" -e "s/grid.*freq..//" -e "s/zoom.*freq..//" -e "s/vert.*freq..//" -e "s/.>$/'/" | uniq
+   def tweakedorder_freq_lim(iterable_object):
+    if   iterable_object == '1d'                   : return  1
+    elif iterable_object == '1mo'                  : return  2
+    else:                                            return  3
+
+   def tweakedorder_freq_opa(iterable_object):
+    if   iterable_object == '1y'                   : return  1
+    elif iterable_object == '3h'                   : return  2
+    elif iterable_object == '1d'                   : return  3
+    elif iterable_object == '1mo'                  : return  4
+    else:                                            return  5
+
+   def tweakedorder_freq_pisces(iterable_object):
+    if   iterable_object == '1y'                   : return  1
+    elif iterable_object == '1d'                   : return  2
+    elif iterable_object == '1mo'                  : return  3
+    else:                                            return  4
+
+   # The three lists below have been detected with the following grep (but needed additional manual order fixes for the grid_opa list:
+   # grep name_suffix ${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml | sed -e "s/^.*lim_/l '/" -e "s/^.*opa_/o '/" -e "s/^.*pisces_/p '/"  -e "s/..output.*$/'/"
+   def tweakedorder_grid_lim(iterable_object):
+    if   iterable_object == 'grid_V_2D'            : return  1
+    elif iterable_object == 'grid_T_2D'            : return  2
+    elif iterable_object == 'grid_U_2D'            : return  3
+    elif iterable_object == 'grid_1point'          : return  7
+    elif iterable_object == 'grid_T_3D_ncatice'    : return  8
+    elif iterable_object == 'grid_transect_lim'    : return  9
+    else:                                            return 10
+
+   def tweakedorder_grid_opa(iterable_object):
+    if   iterable_object == 'grid_T_3D'            : return  1
+    elif iterable_object == 'zoom_700_sum'         : return  2
+    elif iterable_object == 'grid_V_2D'            : return  3
+    elif iterable_object == 'grid_V_3D'            : return  4
+    elif iterable_object == 'grid_T_2D'            : return  5
+    elif iterable_object == 'grid_U_2D'            : return  6
+    elif iterable_object == 'zoom_300_sum'         : return  7
+    elif iterable_object == 'grid_transect'        : return  8
+    elif iterable_object == 'grid_W_3D'            : return  9
+    elif iterable_object == 'grid_W_2D'            : return 10
+    elif iterable_object == 'grid_U_3D'            : return 11
+    elif iterable_object == 'vert_sum'             : return 12
+    elif iterable_object == 'grid_1point'          : return 13
+    elif iterable_object == 'grid_ptr_T_3basin_2D' : return 14
+    elif iterable_object == 'zoom_2000_sum'        : return 25
+    elif iterable_object == 'grid_ptr_W_3basin_3D' : return 26
+    else:                                            return 27
+
+   def tweakedorder_grid_pisces(iterable_object):
+    if   iterable_object == 'grid_T_3D'            : return  1
+    elif iterable_object == 'grid_T_2D'            : return  2
+    elif iterable_object == 'grid_T_SFC'           : return  3
+    else:                                            return  4
+
+
    #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
    #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="1mo"][@grid_ref="grid_T_2D"]'):
 
@@ -894,13 +960,24 @@ if len(sys.argv) == 2:
    file_counter  = 0
 
    # Loop over the model components: ['lim', 'opa', 'pisces']
-   for component_value in component_overview:
+   for component_value in sorted(component_overview, key=tweakedorder_component):
+
+    # Select the appropiate order function in order to match our former python2 ordering:
+    if   component_value == 'lim':
+     tweakedorder_freq = tweakedorder_freq_lim
+     tweakedorder_grid = tweakedorder_grid_lim
+    elif component_value == 'pisces':
+     tweakedorder_freq = tweakedorder_freq_pisces
+     tweakedorder_grid = tweakedorder_grid_pisces
+    else:
+     tweakedorder_freq = tweakedorder_freq_opa
+     tweakedorder_grid = tweakedorder_grid_opa
 
     # Loop over the output frequencies: ['y', 'mo', 'd']
-    for output_freq_value in output_freq_overview:
+    for output_freq_value in sorted(output_freq_overview, key=tweakedorder_freq):
 
      # Loop over the grid references: ['grid_T_3D', 'grid_V_2D', 'grid_V_3D', 'grid_T_2D', 'grid_U_2D', 'grid_transect', 'grid_W_3D', 'grid_W_2D', 'grid_U_3D', 'grid_T_SFC', 'grid_1point', 'grid_ptr_T_3basin_2D', 'grid_T_3D_ncatice', 'grid_ptr_W_3basin_3D', 'grid_transect_lim']
-     for grid_ref_value in grid_ref_overview:
+     for grid_ref_value in sorted(grid_ref_overview, key=tweakedorder_grid):
       number_of_fields_per_file = 0
      #print('{:7} {:7} {:}'.format(component_value, output_freq_value, grid_ref_value))
 
