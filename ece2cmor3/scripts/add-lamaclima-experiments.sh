@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thomas Reerink
 #
 # This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed experiments (which thus
@@ -24,33 +24,36 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   sed -i  '/"ssp585-withism":{/i \
-            "ssp585-lamaclima":{                                        \
-                "activity_id":[                                         \
-                    "LAMACLIMA"                                         \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER"                                               \
-                ],                                                      \
-                "experiment":"Lamaclima experiment based upon  SSP585", \
-                "experiment_id":"ssp585-lamaclima",                     \
-                "parent_activity_id":[                                  \
-                    "CMIP"                                              \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "historical"                                        \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AOGCM"                                             \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "none"                                              \
-                ]                                                       \
-            },                                                          
+            "ssp585-lamaclima":{                                       \
+                "activity_id":[                                        \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "additional_allowed_model_components":[                \
+                    "AER"                                              \
+                ],                                                     \
+                "experiment":"Lamaclima experiment based upon SSP585", \
+                "experiment_id":"ssp585-lamaclima",                    \
+                "parent_activity_id":[                                 \
+                    "CMIP"                                             \
+                ],                                                     \
+                "parent_experiment_id":[                               \
+                    "historical"                                       \
+                ],                                                     \
+                "required_model_components":[                          \
+                    "AOGCM"                                            \
+                ],                                                     \
+                "sub_experiment_id":[                                  \
+                    "none"                                             \
+                ]                                                      \
+            },                                                         
   ' ../resources/tables/CMIP6_CV.json
 
   sed -i  '/"LS3MIP":/i \
             "LAMACLIMA":"LAnd MAnagement for CLImate Mitigation and Adaptation",
   ' ../resources/tables/CMIP6_CV.json
+
+  # Remove the trailing spaces of the inserted block above:
+  sed -i 's/\s*$//g' ../resources/tables/CMIP6_CV.json
 
  else
     echo '  '
