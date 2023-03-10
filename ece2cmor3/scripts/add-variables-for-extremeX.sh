@@ -6,17 +6,13 @@
 #
 # This scripts requires no arguments.
 #
-# Run example:
-#  ./add-variables-with-pressure-levels-for-rcm-forcing.sh
-#
 
 if [ "$#" -eq 0 ]; then
 
  add_variables_with_pressure_levels_for_rcm_forcing=True
 
-
  if [ add_variables_with_pressure_levels_for_rcm_forcing ]; then
-  # Add two sets of dynamic RCM forcing variables on dedicated pressure levels #664.
+  # See #717 https://github.com/EC-Earth/ece2cmor3/issues/717
 
   cd ../resources/
   git checkout ifspar.json

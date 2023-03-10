@@ -6,18 +6,16 @@
 #
 # This scripts requires no arguments.
 #
-# Run example:
-#  ./add-varex-experiments.sh
-#
 
 if [ "$#" -eq 0 ]; then
 
  add_the_varex_experiments=True
- 
 
  if [ add_the_varex_experiments ]; then
-  # See #724
-  #  varex
+  # See #728   https://github.com/EC-Earth/ece2cmor3/issues/728
+  # See #1062  https://dev.ec-earth.org/issues/1062
+
+  # VAREX
 
   # Always first revert the CMOR table file in its repository:
   cd ../resources/cmip6-cmor-tables

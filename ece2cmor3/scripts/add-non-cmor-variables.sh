@@ -1,7 +1,7 @@
 #!/bin/bash
 # Thomas Reerink
 #
-# This script adds some non-cmor variables (which thus do not exit in the CMIP6 data request) to the end of the cmor table in question.
+# This script adds some non-cmor variables (which thus do not exit in the CMIP6 data request) in the relevant cmor table.
 #
 # This scripts requires no arguments.
 #
@@ -11,11 +11,13 @@
 
 if [ "$#" -eq 0 ]; then
 
- add_the_clear_sky_aerosol_free_net_surface_radiation_fluxes=True             # See 732 & #736-7.
- 
+ add_the_clear_sky_aerosol_free_net_surface_radiation_fluxes=True
 
  if [ add_the_clear_sky_aerosol_free_net_surface_radiation_fluxes ]; then
-  # See #732 & #736-7 and #403-56 about naming.
+  # See #403-56  https://dev.ec-earth.org/issues/403-56
+  # See #732     https://dev.ec-earth.org/issues/732
+  # See #736-7   https://dev.ec-earth.org/issues/736-7
+
   # rsscsaf  126070  CVEXTR2(11)='clear SW surf', grib 126.70 clear SW surf rsscsaf (r: radiation, s: short wave, s:surface, cs: clear sky, af: aerosol free)
   # rssaf    126071  CVEXTR2(12)='total SW surf', grib 126.71 total SW surf rssaf
   # rlscsaf  126074  CVEXTR2(15)='clear LW surf', grib 126.74 clear LW surf rlscsaf

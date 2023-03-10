@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 # Thomas Reerink
 #
-# This script adds / inserts some non-cmor variables and /or non (yet) approved CMIP endorsed experiments (which thus
-# do not exit in the CMIP6 data request) to the end of the cmor table in question.
+# This script adds / inserts a not (yet) approved CMIP endorsed MIP and experiment(s),
+# which thus do not exist in the CMIP6 CMOR tables.
 #
 # This scripts requires no arguments.
-#
-# Run example:
-#  ./add-lamaclima-experiments.sh
 #
 
 if [ "$#" -eq 0 ]; then

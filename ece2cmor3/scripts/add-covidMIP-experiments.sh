@@ -6,17 +6,16 @@
 #
 # This scripts requires no arguments.
 #
-# Run example:
-#  ./add-covidMIP-experiments.sh
-#
 
 if [ "$#" -eq 0 ]; then
 
- add_the_covidMIP_experiments=True             # See #847 & #895
-
+ add_the_covidMIP_experiments=True
 
  if [ add_the_covidMIP_experiments ]; then
-  # See #847 & #895, the addition of five Covid experiments:
+  # See #847  https://dev.ec-earth.org/issues/847
+  # See #895  https://dev.ec-earth.org/issues/895
+
+  # The addition of five Covid experiments (meanwhile they are part of the official data request)
   #  CovidMIP ssp245-covid
   #  CovidMIP ssp245-cov-strgreen
   #  CovidMIP ssp245-cov-modgreen
