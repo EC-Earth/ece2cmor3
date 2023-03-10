@@ -150,6 +150,9 @@ if [ "$#" -eq 0 ]; then
             },                                                               
   ' ../resources/tables/CMIP6_CV.json
 
+  # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g' ../resources/tables/CMIP6_CV.json
+
 
  else
     echo '  '
