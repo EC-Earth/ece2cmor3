@@ -400,7 +400,7 @@ if len(sys.argv) == 2:
 
    print(' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n')
 
-   print(' The atribute overview of all field_def files:\n ', list(set(total_attribute_overview_nemo_opa)), '\n')
+   print(' The atribute overview of all field_def files:\n ', sorted(list(set(total_attribute_overview_nemo_opa))), '\n')
 
    for text in total_texts:
     if text == None: total_texts[total_texts.index(text)] = "None"
@@ -795,7 +795,8 @@ if len(sys.argv) == 2:
    ################################################################################
    if produce_varlistjson_file:
     drqlistjson_file_name = '../resources/test-data-request/drqlist-nemo-all.json'
-    varlistjson_file_name = '../resources/test-data-request/varlist-nemo-all.json'
+    file_name_varlistjson_ece_cc    = '../resources/test-data-request/varlist-nemo-all-ec-earth-cc.json'
+    file_name_varlistjson_ece_aogcm = '../resources/test-data-request/varlist-nemo-all-ec-earth-aogcm.json'
 
     drqlistjson = open(drqlistjson_file_name,'w')
     drqlistjson.write('{}{}'.format('{','\n'))
@@ -828,16 +829,15 @@ if len(sys.argv) == 2:
     drqlistjson.write('{}{}'.format('}','\n'))
     drqlistjson.close()
 
-    # Removing the variable deptho as lomg it can not be cmorized, see #249:
-   #command_1 = "sed -i '/deptho/d' " + drqlistjson_file_name
-    command_2 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-cc"   ) + " --ececonf EC-EARTH-CC "
-    command_3 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + varlistjson_file_name.replace("all", "all-ec-earth-aogcm") + " --ececonf EC-EARTH-AOGCM "
+    command_2 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + file_name_varlistjson_ece_cc    + " --ececonf EC-EARTH-CC "
+    command_3 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + file_name_varlistjson_ece_aogcm + " --ececonf EC-EARTH-AOGCM "
    #os.system(command_1)
     os.system(command_2)
     os.system(command_3)
 
-    print(' \n The produced', drqlistjson_file_name, ' file contains', i, 'variables.')
-    print(' \n The produced', varlistjson_file_name, ' is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.')
+    print('\n The produced {:67} contains {:} variables.'.format(drqlistjson_file_name, i))
+    print(' The produced {:67} is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'.format(file_name_varlistjson_ece_cc   ))
+    print(' The produced {:67} is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'.format(file_name_varlistjson_ece_aogcm))
 
    ################################################################################
    ###################################    7     ###################################
@@ -848,13 +848,17 @@ if len(sys.argv) == 2:
    if os.path.isfile(basic_flat_file_def_file_name) == False: print(' The file ', basic_flat_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
    tree_basic_file_def             = xmltree.parse(basic_flat_file_def_file_name)
-   root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   field_elements_basic_file_def   = root_basic_file_def[0][:]
-   #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+   root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has four indices: the 1st index refers to file_definition, the 2nd index refers to the file_group, the 3rd index refers to the file, the 4th index referers to the field elements
+   field_elements_basic_file_def   = root_basic_file_def[0][0][0][:]
+   #field_elements_basic_file_def  = tree_basic_file_def.getroot()[0][:]                  # This root has four indices: the 1st index refers to file_definition, the 2nd index refers to the file_group, the 3rd index refers to the file, the 4th index referers to the field elements
 
-   ###print(' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name)
-   ###for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
-   ###for field in root_basic_file_def.findall('.//field[@id="'+detected_field_ref+'"]'):
+  #print('\n Number of field elements is {:} in file {:}'.format(len(root_basic_file_def.findall('.//field[@id]')), basic_flat_file_def_file_name))
+  #print('{:}'.format(field.attrib["id"]))
+  #for field in root_basic_file_def.findall('.//field[@id]'):
+  #for field in root_basic_file_def.findall('.//field[@name="tos"]'):
+  # print('{:25} {:20} {:10} {:28} {:20} {:20} {:7} {:10} {:10} {:}'.format(field.attrib["id"], field.attrib["name"], field.attrib["table"]  , field.attrib["field_ref"], \
+  #                                                                  field.attrib["grid_ref"] , field.attrib["unit"], field.attrib["enabled"], field.attrib["operation"], \
+  #                                                                  field.attrib["freq_op"]  , field.text))
 
    component_collection   = []
    output_freq_collection = []
@@ -878,6 +882,72 @@ if len(sys.argv) == 2:
 
    # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
 
+   # Alternatively this ordering can be later also used to achieve a preserved preferred order instead of the python2 order.
+   # Five order help functions which are used by sorted in order to match the previous python2 ordering of the thirty file blocks
+   # in the basic-cmip6-file_def_nemo.xml (see sorted with key argument: https://realpython.com/python-sort/
+   def tweakedorder_component(iterable_object):
+    if   iterable_object == 'lim'    : return  1
+    elif iterable_object == 'opa'    : return  2
+    elif iterable_object == 'pisces' : return  3
+    else:                              return  4
+
+   # The three lists below have been dtected with the following grep:
+   # grep name_suffix ${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml| sed -e "s/^.*lim_/l '/" -e "s/^.*opa_/o '/" -e "s/^.*pisces_/p '/" -e "s/grid.*freq..//" -e "s/zoom.*freq..//" -e "s/vert.*freq..//" -e "s/.>$/'/" | uniq
+   def tweakedorder_freq_lim(iterable_object):
+    if   iterable_object == '1d'                   : return  1
+    elif iterable_object == '1mo'                  : return  2
+    else:                                            return  3
+
+   def tweakedorder_freq_opa(iterable_object):
+    if   iterable_object == '1y'                   : return  1
+    elif iterable_object == '3h'                   : return  2
+    elif iterable_object == '1d'                   : return  3
+    elif iterable_object == '1mo'                  : return  4
+    else:                                            return  5
+
+   def tweakedorder_freq_pisces(iterable_object):
+    if   iterable_object == '1y'                   : return  1
+    elif iterable_object == '1d'                   : return  2
+    elif iterable_object == '1mo'                  : return  3
+    else:                                            return  4
+
+   # The three lists below have been detected with the following grep (but needed additional manual order fixes for the grid_opa list:
+   # grep name_suffix ${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml | sed -e "s/^.*lim_/l '/" -e "s/^.*opa_/o '/" -e "s/^.*pisces_/p '/"  -e "s/..output.*$/'/"
+   def tweakedorder_grid_lim(iterable_object):
+    if   iterable_object == 'grid_V_2D'            : return  1
+    elif iterable_object == 'grid_T_2D'            : return  2
+    elif iterable_object == 'grid_U_2D'            : return  3
+    elif iterable_object == 'grid_1point'          : return  7
+    elif iterable_object == 'grid_T_3D_ncatice'    : return  8
+    elif iterable_object == 'grid_transect_lim'    : return  9
+    else:                                            return 10
+
+   def tweakedorder_grid_opa(iterable_object):
+    if   iterable_object == 'grid_T_3D'            : return  1
+    elif iterable_object == 'zoom_700_sum'         : return  2
+    elif iterable_object == 'grid_V_2D'            : return  3
+    elif iterable_object == 'grid_V_3D'            : return  4
+    elif iterable_object == 'grid_T_2D'            : return  5
+    elif iterable_object == 'grid_U_2D'            : return  6
+    elif iterable_object == 'zoom_300_sum'         : return  7
+    elif iterable_object == 'grid_transect'        : return  8
+    elif iterable_object == 'grid_W_3D'            : return  9
+    elif iterable_object == 'grid_W_2D'            : return 10
+    elif iterable_object == 'grid_U_3D'            : return 11
+    elif iterable_object == 'vert_sum'             : return 12
+    elif iterable_object == 'grid_1point'          : return 13
+    elif iterable_object == 'grid_ptr_T_3basin_2D' : return 14
+    elif iterable_object == 'zoom_2000_sum'        : return 25
+    elif iterable_object == 'grid_ptr_W_3basin_3D' : return 26
+    else:                                            return 27
+
+   def tweakedorder_grid_pisces(iterable_object):
+    if   iterable_object == 'grid_T_3D'            : return  1
+    elif iterable_object == 'grid_T_2D'            : return  2
+    elif iterable_object == 'grid_T_SFC'           : return  3
+    else:                                            return  4
+
+
    #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
    #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="1mo"][@grid_ref="grid_T_2D"]'):
 
@@ -890,14 +960,26 @@ if len(sys.argv) == 2:
    file_counter  = 0
 
    # Loop over the model components: ['lim', 'opa', 'pisces']
-   for component_value in component_overview:
+   for component_value in sorted(component_overview, key=tweakedorder_component):
+
+    # Select the appropiate order function in order to match our former python2 ordering:
+    if   component_value == 'lim':
+     tweakedorder_freq = tweakedorder_freq_lim
+     tweakedorder_grid = tweakedorder_grid_lim
+    elif component_value == 'pisces':
+     tweakedorder_freq = tweakedorder_freq_pisces
+     tweakedorder_grid = tweakedorder_grid_pisces
+    else:
+     tweakedorder_freq = tweakedorder_freq_opa
+     tweakedorder_grid = tweakedorder_grid_opa
 
     # Loop over the output frequencies: ['y', 'mo', 'd']
-    for output_freq_value in output_freq_overview:
+    for output_freq_value in sorted(output_freq_overview, key=tweakedorder_freq):
 
      # Loop over the grid references: ['grid_T_3D', 'grid_V_2D', 'grid_V_3D', 'grid_T_2D', 'grid_U_2D', 'grid_transect', 'grid_W_3D', 'grid_W_2D', 'grid_U_3D', 'grid_T_SFC', 'grid_1point', 'grid_ptr_T_3basin_2D', 'grid_T_3D_ncatice', 'grid_ptr_W_3basin_3D', 'grid_transect_lim']
-     for grid_ref_value in grid_ref_overview:
+     for grid_ref_value in sorted(grid_ref_overview, key=tweakedorder_grid):
       number_of_fields_per_file = 0
+     #print('{:7} {:7} {:}'.format(component_value, output_freq_value, grid_ref_value))
 
       # Internal loop of finding the selection based on the three selection criteria: model component, output_frequency and grid reference:
       for field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
@@ -913,8 +995,8 @@ if len(sys.argv) == 2:
        basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value     , grid_ref_value, output_freq_value))
        # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
        for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
+       #print('{:6} {:30} {:21} {:}'.format(written_field.tag, written_field.attrib['id'], written_field.attrib['grid_ref'], written_field.attrib['output_freq']))
        #print('tttt'+written_field.text+'tttt')  # To figure out the spaces in the string around None
-        if written_field.text == "   None                                                               " : written_field.text = ''
        #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                                  > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                                                                    , written_field.text))
        #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"   operation={:10}                > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"', '"'+written_field.attrib["operation"]+'"'                                         , written_field.text))
        #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                     freq_op={:6} > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                           , '"'+written_field.attrib["freq_op"]+'"', written_field.text))
@@ -950,7 +1032,7 @@ if len(sys.argv) == 2:
    ###################################    9     ###################################
    ################################################################################
 
-   # PRODUCE A nemopar.sjon FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
+   # PRODUCE A nemopar.json FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
 
    if produce_nemopar_json:
     nemopar = open('new-nemopar.json','w')
@@ -983,7 +1065,7 @@ if len(sys.argv) == 2:
    if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
    tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
-   root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+   root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has four indices: the 1st index refers to file_definition, the 2nd index refers to the file_group, the 3rd index refers to the file, the 4th index referers to the field elements
    field_elements_basic_file_def   = root_basic_file_def[0][:]
 
    #for file in root_basic_file_def.findall('.//file[@id]'):

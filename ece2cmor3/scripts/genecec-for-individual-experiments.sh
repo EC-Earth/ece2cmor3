@@ -241,6 +241,21 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-varex
   fi
 
+  if [ ${data_request_file##*/} = 'sofiamip-extended.json' ]; then
+   sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "CMIP"/'                                                                                        ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "piControl"/'                                                                                   ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"comment":                      ""/"comment":                      "Production: Andre Juling at KNMI"/'                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"institution_id":               "EC-Earth-Consortium"/"institution_id":               "KNMI"/'                                                                     ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"contact":                      "cmip6-data@ec-earth.org"/"contact":                      "andre.juling@knmi.nl"/'                                                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/CMIP6 model data produced by EC-Earth-Consortium/The SOFIAMIP model data produced by KNMI/' -e 's/Consult.*acknowledgment. //' -e 's/ and at http.*ec-earth.org//' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   if [ ${mip_name} = 'SOFIAMIP' ]; then
+    #sed -i -e 's/"parent_experiment_id":         "piControl"/"parent_experiment_id":         "historical"/'                                                                       ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+     sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "149749.0D"/'                                                                             ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+   rm -f ${output_dir}/lpjg_cmip6_output.ins
+   mv -f ${xls_ece_dir} ${xls_ece_dir}-sofiamip
+  fi
+
   echo
   echo ' Finished:'
   echo ' '$0 "$@"
@@ -249,15 +264,17 @@ if [ "$#" -eq 5 ]; then
 else
     echo
     echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-control-output-files/ssp585-lamaclima-EC-EARTH-Veg
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC    lamaclima-control-output-files/ssp119-lamaclima-EC-EARTH-CC
+    echo '  ' $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip-output-control-files/faf-antwater-sofiamip
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-control-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-control-ScenarioMIP-ssp245
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-soil-moisture-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-soil-moisture-ScenarioMIP-ssp245
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-convection-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-control-output-files/varex-perturbed-convection-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-output-control-files/ssp585-lamaclima-EC-EARTH-Veg
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC    lamaclima-output-control-files/ssp119-lamaclima-EC-EARTH-CC
+    echo
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-control-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-control-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-soil-moisture-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-soil-moisture-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-convection-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-convection-ScenarioMIP-ssp245
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request
     echo
