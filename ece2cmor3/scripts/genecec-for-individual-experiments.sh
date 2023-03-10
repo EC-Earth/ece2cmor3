@@ -264,7 +264,7 @@ if [ "$#" -eq 5 ]; then
 else
     echo
     echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
-    echo '  ' $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    antwater            EC-EARTH-AOGCM sofiamip-output-control-files/antwater-sofiamip
+    echo '  ' $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip-output-control-files/faf-antwater-sofiamip
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-output-control-files/ssp585-lamaclima-EC-EARTH-Veg
     echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC    lamaclima-output-control-files/ssp119-lamaclima-EC-EARTH-CC
