@@ -16,11 +16,15 @@ if [ "$#" -eq 0 ]; then
 
   # Add two sets of dynamic RCM forcing variables on dedicated pressure levels.
 
-  cd ../resources/cmip6-cmor-tables
-  git checkout Tables/CMIP6_coordinate.json
-  git checkout Tables/CMIP6_6hrPlevPt.json
-  git checkout Tables/CMIP6_6hrPlev.json
-  cd -
+  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_file_coordinate=CMIP6_coordinate.json
+  table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
+  table_file_6hrPlev=CMIP6_6hrPlev.json
+
+  cd ${table_path}
+  git checkout ${table_file_coordinate}
+  git checkout ${table_file_6hrPlevPt}
+  git checkout ${table_file_6hrPlev}
 
 # Adding the plev23r & plev36 coordinates to the CMOR tables:
 
@@ -72,7 +76,7 @@ if [ "$#" -eq 0 ]; then
             "bounds_values": "",                                                                \
             "generic_level_name": ""                                                            \
         },                                                                                      
-  ' ../resources/tables/CMIP6_coordinate.json
+  ' ${table_file_coordinate}
 
   sed -i  '/"plev39": {/i \
         "plev36": {                                                                             \
@@ -135,7 +139,7 @@ if [ "$#" -eq 0 ]; then
             "bounds_values": "",                                                                \
             "generic_level_name": ""                                                            \
         },                                                                                      
-  ' ../resources/tables/CMIP6_coordinate.json
+  ' ${table_file_coordinate}
 
 
 # Adding the variables to the 6hrPlevPt table:
@@ -177,7 +181,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"ua7h": {/i \
         "ua23r": {                                                                              \
@@ -216,7 +220,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
 
   sed -i  '/"va7h": {/i \
@@ -256,7 +260,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"hus7h": {/i \
         "hus23r": {                                                                             \
@@ -295,7 +299,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
 
 # Add tosa (tos), tsl4sl (tsl) on 6hrPlevPt table & siconca on 6hrPlev table:
@@ -319,7 +323,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                          \
             "ok_max_mean_abs": ""                                                                                                           \
         },                                                                                                                                  
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"ua": {/i \
         "tsl4sl": {                                                                             \
@@ -340,7 +344,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"tas": {/i \
         "siconca": {                                                    \
@@ -361,12 +365,24 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                      \
             "ok_max_mean_abs": ""                                       \
         },                                                              
-  ' ../resources/tables/CMIP6_6hrPlev.json
+  ' ${table_file_6hrPlev}
 
   # Remove the trailing spaces of the inserted block above:
-  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_coordinate.json
-  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_6hrPlevPt.json
-  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_6hrPlev.json
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_coordinate}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlevPt}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlev}
+
+  cd -
+
+  echo
+  echo " $0 reports:"
+  echo "  The adjusted files are:"
+  echo "   ${table_path}/${table_file_coordinate}"
+  echo "   ${table_path}/${table_file_6hrPlevPt}"
+  echo "   ${table_path}/${table_file_6hrPlev}"
+  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo "  cd ${table_path}; git diff; cd -"
+  echo
 
  else
     echo '  '
