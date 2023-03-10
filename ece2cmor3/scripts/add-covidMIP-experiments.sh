@@ -164,14 +164,14 @@ if [ "$#" -eq 0 ]; then
   echo
 
  else
-    echo '  '
-    echo '  Nothing done, no set of variables and / or experiments has been selected to add to the tables.'
-    echo '  '
+    echo
+    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+    echo
  fi
 
 else
-    echo '  '
-    echo '  This scripts requires no argument:'
-    echo '  ' $0
-    echo '  '
+    echo
+    echo " This scripts requires no argument:"
+    echo "  $0"
+    echo
 fi
