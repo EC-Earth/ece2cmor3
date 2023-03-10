@@ -14,25 +14,27 @@ if [ "$#" -eq -2 ]; then
 # (non dummy) variables from the shaconemo ping files, we use the total CMIP6 request for all CMIP6 MIPs with highest tier and priority.
 
 # Step 1: request all CMIP6 MIPs for most extended tier and priority:
-  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
+  ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3
+  cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
   drq -m CMIP,AerChemMIP,CDRMIP,C4MIP,CFMIP,DAMIP,DCPP,FAFMIP,GeoMIP,GMMIP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB -e CMIP -t 3 -p 3 --xls --xlsDir xls-m=all-cmip6-mips-e=CMIP-t=3-p=3
 
-# Step 2: update the Shaconemo repository and thus the ping files:
-  cd ${HOME}/cmorize/shaconemo/ping-files/
-  ./extract-info-from-ping-files.csh
+        # Step 2: update the Shaconemo repository and thus the ping files:
+          cd ${HOME}/cmorize/shaconemo/ping-files/
+          ./extract-info-from-ping-files.csh
 
-# This block does not longer apply now the NEMO variables are available and removed from the (pre) idenfified missing lists:
-# # Step 3: Manually select the entire column of variables in the first file and the entire comment from the second file:
-#   nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
-# # and copy them manually into the variable and comment column respectively (and update the comment author column) in the file:
-#   open ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
-# # After updating the pre* files it is most convenient to commit them first.
+        # This block does not longer apply now the NEMO variables are available and removed from the (pre) idenfified missing lists:
+        # # Step 3: Manually select the entire column of variables in the first file and the entire comment from the second file:
+        #   nedit r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt r274/cmor-varlist-based-on-ping-r274-without-dummy-lines-comment2.txt &
+        # # and copy them manually into the variable and comment column respectively (and update the comment author column) in the file:
+        #   open ${ece2cmor_root_directory}/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx
+        # # After updating the pre* files it is most convenient to commit them first.
 
-  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/; 
-  nedit generate-nemopar.json.sh ../resources/nemopar.json &
-# and copy (as described in generate-nemopar.json.sh) the result of:
-  more ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
-# into the "arr" list of generate-nemopar.json.sh. Therafter run generate-nemopar.json.sh:
+          cd ${ece2cmor_root_directory}/ece2cmor3/scripts/
+          nedit generate-nemopar.json.sh ../resources/nemopar.json &
+        # and copy (as described in generate-nemopar.json.sh) the result of:
+          more ${HOME}/cmorize/shaconemo/ping-files/r274/cmor-varlist-based-on-ping-r274-without-dummy-lines.txt | sed -e 's/^/"/'  -e 's/$/"/' > tmp-nemopar-list.txt
+        # into the "arr" list of generate-nemopar.json.sh.
+  # Therafter run generate-nemopar.json.sh:
   ./generate-nemopar.json.sh  new-nemopar.json
   ./generate-tm5.json.sh      new-tm5par.json
   ./generate-lpjguess.json.sh new-lpjguesspar.json
@@ -47,12 +49,12 @@ if [ "$#" -eq -2 ]; then
   git diff ../resources/lpjgpar.json
   
 # Step 4: Temporary overwrite the basic identifiedmissing and basic ignored files by their corresponding pre-* ones:
-  rsync -a ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx             ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-identified-missing-cmip6-requested-variables.xlsx
-  rsync -a ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/pre-list-of-ignored-cmip6-requested-variables.xlsx                        ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/list-of-ignored-cmip6-requested-variables.xlsx
+  rsync -a ${ece2cmor_root_directory}/ece2cmor3/resources/pre-list-of-identified-missing-cmip6-requested-variables.xlsx ${ece2cmor_root_directory}/ece2cmor3/resources/list-of-identified-missing-cmip6-requested-variables.xlsx
+  rsync -a ${ece2cmor_root_directory}/ece2cmor3/resources/pre-list-of-ignored-cmip6-requested-variables.xlsx            ${ece2cmor_root_directory}/ece2cmor3/resources/list-of-ignored-cmip6-requested-variables.xlsx
 
 # Step 5: Run with the --withouttablescheck option checkvars based on the largest data request (and the pre-list-*.xlsx):
-   cd ${HOME}/cmorize/ece2cmor3/; pip install -e .; cd -;
-   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
+   cd ${ece2cmor_root_directory}/; pip install -e .; cd -
+   cd ${ece2cmor_root_directory}/ece2cmor3/scripts
    checkvars --withouttablescheck -v --drq  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 #  open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
 #  open cmvmm-all-mips-t=3-p=3.ignored.xlsx
@@ -135,27 +137,27 @@ if [ "$#" -eq -2 ]; then
 
 
 # Test that this replace gives still the same results:
-   mkdir -p ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*;
-   mv ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.* ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/;
-   cd ${HOME}/cmorize/ece2cmor3/; pip install -e .; cd -;
-   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts;
+   mkdir -p ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3; rm -f ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.*
+   mv ${ece2cmor_root_directory}/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.*                   ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/
+   cd ${ece2cmor_root_directory}/; pip install -e .; cd -
+   cd ${ece2cmor_root_directory}/ece2cmor3/scripts
    checkvars -v --drq xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
 # The differences reflect the manual changes:
-   meld       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt
-   meld       ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.ignored.txt            ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.ignored.txt
-#  excel-diff ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
-#  excel-diff ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.ignored.xlsx           ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.ignored.xlsx
+   meld       ${ece2cmor_root_directory}/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt  ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.identifiedmissing.txt
+   meld       ${ece2cmor_root_directory}/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.ignored.txt            ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.ignored.txt
+#  excel-diff ${ece2cmor_root_directory}/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
+#  excel-diff ${ece2cmor_root_directory}/ece2cmor3/scripts/cmvmm-all-mips-t=3-p=3.ignored.xlsx           ${ece2cmor_root_directory}/ece2cmor3/scripts/backup-cmvmm-all-mips-t=3-p=3/cmvmm-all-mips-t=3-p=3.ignored.xlsx
 
 # Note exel-diff is installed by following:
 #   https://github.com/na-ka-na/ExcelCompare/blob/master/README.md
 # Java is needed, on ubuntu this can be installed by: sudo apt update; sudo apt install -y default-jre
 # Extract the zip and 
-#  mkdir -p ${HOME}/bin; mv ${HOME}/Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff;
+#  mkdir -p ${HOME}/bin; mv ${HOME}/Downloads/ExcelCompare-0.6.1 ${HOME}/bin; cd ${HOME}/bin/; chmod uog+x ExcelCompare-0.6.1/bin/excel_cmp; ln -s ExcelCompare-0.6.1/bin/excel_cmp excel-diff
 
 
 else
-    echo '  '
-    echo '  This script can not be executed, because a few manual editting steps are required.'
-    echo '  This guidance serves to produce the basic identified missing file and the basic ignored file.'
-    echo '  '
+  echo
+  echo '  This script can not be executed, because a few manual editting steps are required.'
+  echo '  This guidance serves to produce the basic identified missing file and the basic ignored file.'
+  echo
 fi

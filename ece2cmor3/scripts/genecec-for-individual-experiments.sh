@@ -264,17 +264,17 @@ if [ "$#" -eq 5 ]; then
 else
     echo
     echo '  This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:'
-    echo '  ' $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip-output-control-files/faf-antwater-sofiamip
+    echo '  ' $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip/faf-antwater-sofiamip
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima-output-control-files/ssp585-lamaclima-EC-EARTH-Veg
-    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC    lamaclima-output-control-files/ssp119-lamaclima-EC-EARTH-CC
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima/ssp585-lamaclima-EC-EARTH-Veg
+    echo '  ' $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC    lamaclima/ssp119-lamaclima-EC-EARTH-CC
     echo
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-control-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-control-ScenarioMIP-ssp245
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-soil-moisture-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-soil-moisture-ScenarioMIP-ssp245
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-convection-CMIP-historical
-    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex-output-control-files/varex-perturbed-convection-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex/varex-control-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex/varex-control-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex/varex-perturbed-soil-moisture-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex/varex-perturbed-soil-moisture-ScenarioMIP-ssp245
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM varex/varex-perturbed-convection-CMIP-historical
+    echo '  ' $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM varex/varex-perturbed-convection-ScenarioMIP-ssp245
     echo
     echo '  ' $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request
     echo
