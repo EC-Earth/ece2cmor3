@@ -365,6 +365,11 @@ if [ "$#" -eq 0 ]; then
         },                                                              
   ' ../resources/tables/CMIP6_6hrPlev.json
 
+  # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_coordinate.json
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_6hrPlevPt.json
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_6hrPlev.json
+
  else
     echo '  '
     echo '  Nothing done, no set of variables and / or experiments has been selected to add to the tables.'
