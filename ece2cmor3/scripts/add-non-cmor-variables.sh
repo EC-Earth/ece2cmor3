@@ -14,6 +14,7 @@ if [ "$#" -eq 0 ]; then
  add_the_clear_sky_aerosol_free_net_surface_radiation_fluxes=True
 
  if [ add_the_clear_sky_aerosol_free_net_surface_radiation_fluxes ]; then
+  # See #575     https://github.com/EC-Earth/ece2cmor3/issues/575
   # See #403-56  https://dev.ec-earth.org/issues/403-56
   # See #732     https://dev.ec-earth.org/issues/732
   # See #736-7   https://dev.ec-earth.org/issues/736-7
@@ -23,9 +24,11 @@ if [ "$#" -eq 0 ]; then
   # rlscsaf  126074  CVEXTR2(15)='clear LW surf', grib 126.74 clear LW surf rlscsaf
   # rlsaf    126075  CVEXTR2(16)='total LW surf', grib 126.75 total LW surf rlsaf
 
-  cd ../resources/cmip6-cmor-tables
-  git checkout Tables/CMIP6_AERmon.json
-  cd -
+  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_file_aermon=CMIP6_AERmon.json
+
+  cd ${table_path}
+  git checkout ${table_file_aermon}
 
   sed -i  '/"so2": {/i \
         "rsscsaf": {                                                                                                            \
@@ -100,10 +103,19 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                              \
             "ok_max_mean_abs": ""                                                                                               \
         },                                                                                                                      
-  ' ../resources/tables/CMIP6_AERmon.json
+  ' ${table_file_aermon}
 
   # Remove the trailing spaces of the inserted block above:
-  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ../resources/tables/CMIP6_AERmon.json
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_aermon}
+
+  cd -
+
+  echo
+  echo " $0 reports:"
+  echo "  The adjusted file is:  ${table_path}/${table_file_aermon}"
+  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo "  cd ${table_path}; git diff; cd -"
+  echo
 
  else
     echo '  '
