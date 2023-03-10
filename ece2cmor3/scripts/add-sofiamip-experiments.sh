@@ -53,6 +53,18 @@ if [ "$#" -eq 0 ]; then
             "SOFIAMIP":"Southern Ocean Freshwater release model experiments Initiative",
   ' ${table_file_cv}
 
+  # Add KNMI as an institute with its own institution_id:
+  sed -i  '/"KIOST":/i \
+            "KNMI":"The Royal Netherlands Meteorological Institute (KNMI), De Bilt, The Netherlands",
+  ' ${table_file_cv}
+
+  # Adjust the license such that it matches with the production institute KNMI.
+  sed -i -e 's/CMIP6 model data/The VAREX model data/' -e 's/Consult.*acknowledgment//' ${table_file_cv}
+
+  # Allow KNMI on it self to be a institute which produces EC-Earth3 experiments:
+  # This insert is vulnerable for upstream table changes within 20 lines after the match:
+  sed -i -e '/"EC-Earth3":{/!b;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;a\                    "KNMI",' ${table_file_cv}
+
   # Remove the trailing spaces of the inserted block above:
   sed -i 's/\s*$//g' ${table_file_cv}
 
