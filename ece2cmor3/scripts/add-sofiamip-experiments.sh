@@ -22,11 +22,8 @@ if [ "$#" -eq 0 ]; then
   cd ${table_path}
   git checkout ${table_file_cv}
 
-# sed -i  '/"faf-antwater-stress":{/i \
-#           "faf-antwater":{                                                                                                                                  \
-#               "experiment_id":"faf-antwater",                                                                                                               \
-  sed -i  '/"a4SST":{/i \
-            "antwater":{                                                                                                                                      \
+  sed -i  '/"faf-antwater-stress":{/i \
+            "faf-antwater":{                                                                                                                                  \
                 "activity_id":[                                                                                                                               \
                     "SOFIAMIP"                                                                                                                                \
                 ],                                                                                                                                            \
@@ -36,7 +33,7 @@ if [ "$#" -eq 0 ]; then
                     "BGC"                                                                                                                                     \
                 ],                                                                                                                                            \
                 "experiment":"control plus perturbative surface fluxes of momentum and freshwater into ocean, the latter around the coast of Antarctica only" \
-                "experiment_id":"antwater",                                                                                                                   \
+                "experiment_id":"faf-antwater",                                                                                                                   \
                 "parent_activity_id":[                                                                                                                        \
                     "CMIP"                                                                                                                                    \
                 ],                                                                                                                                            \
