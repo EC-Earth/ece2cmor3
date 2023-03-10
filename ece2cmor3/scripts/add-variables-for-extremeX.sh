@@ -14,19 +14,17 @@ if [ "$#" -eq 0 ]; then
  if [ add_variables_with_pressure_levels_for_rcm_forcing ]; then
   # See #717 https://github.com/EC-Earth/ece2cmor3/issues/717
 
+  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_file_coordinate=CMIP6_coordinate.json
+  table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
+  table_file_Amon=CMIP6_Amon.json
+  table_file_day=CMIP6_day.json
+  table_file_Lmon=CMIP6_Lmon.json
+  table_file_CV=CMIP6_CV.json
+
   cd ../resources/
   git checkout ifspar.json
   cd -
-  
-  cd ../resources/cmip6-cmor-tables
-  git checkout Tables/CMIP6_6hrPlevPt.json
-  git checkout Tables/CMIP6_Amon.json
-  git checkout Tables/CMIP6_CV.json
-  git checkout Tables/CMIP6_Lmon.json
-  git checkout Tables/CMIP6_coordinate.json
-  git checkout Tables/CMIP6_day.json
-  cd -
-
 
   head --lines=-1 ../resources/ifspar.json                   > extended-ifspar.json
 
@@ -93,6 +91,14 @@ if [ "$#" -eq 0 ]; then
   mv -f extended-ifspar.json ../resources/ifspar.json
 
 
+  cd ${table_path}
+  git checkout ${table_file_coordinate}
+  git checkout ${table_file_6hrPlevPt}
+  git checkout ${table_file_Amon}
+  git checkout ${table_file_day}
+  git checkout ${table_file_Lmon}
+  git checkout ${table_file_CV}
+
 # Adding the plev9 coordinate to the CMOR tables:
 
   sed -i  '/"plev39": {/i \
@@ -129,7 +135,7 @@ if [ "$#" -eq 0 ]; then
             "bounds_values": "",              \
             "generic_level_name": ""          \
         },                                    
-  ' ../resources/tables/CMIP6_coordinate.json
+  ' ${table_file_coordinate}
 
 
 
@@ -172,7 +178,7 @@ if [ "$#" -eq 0 ]; then
                     "ok_min_mean_abs": "",                                                              \
                     "ok_max_mean_abs": ""                                                               \
                 },                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"rainmxrat27": {/i \
         "ps": {                                                                                                                                 \
@@ -229,7 +235,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                              \
             "ok_max_mean_abs": ""                                                                                                               \
         },                                                                                                                                      
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"ta27": {/i \
         "ta3": {                                            \
@@ -250,7 +256,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                          \
             "ok_max_mean_abs": ""                           \
         },                                                  
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"ua7h": {/i \
         "ua3": {                                                         \
@@ -271,7 +277,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                       \
             "ok_max_mean_abs": ""                                        \
         },                                                               
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
   sed -i  '/"va7h": {/i \
         "va3": {                                                               \
@@ -292,7 +298,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                             \
             "ok_max_mean_abs": ""                                              \
         },                                                                     
-  ' ../resources/tables/CMIP6_6hrPlevPt.json
+  ' ${table_file_6hrPlevPt}
 
 
 
@@ -317,7 +323,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
   sed -i  '/"rlut": {/i \
         "fsntoa": {                                                                                 \
@@ -338,7 +344,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                  \
             "ok_max_mean_abs": ""                                                                   \
         },                                                                                          
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
   sed -i  '/"tas": {/i \
         "ta9": {                                           \
@@ -359,7 +365,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                         \
             "ok_max_mean_abs": ""                          \
         },                                                 
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
   sed -i  '/"uas": {/i \
         "ua9": {                                                         \
@@ -380,7 +386,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                       \
             "ok_max_mean_abs": ""                                        \
         },                                                               
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
   sed -i  '/"vas": {/i \
         "va9": {                                                               \
@@ -401,7 +407,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                             \
             "ok_max_mean_abs": ""                                              \
         },                                                                     
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
   sed -i  '/"zg": {/i \
         "zg9": {                                                                                                                           \
@@ -440,7 +446,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                         \
             "ok_max_mean_abs": ""                                                                                                          \
         },                                                                                                                                 
-  ' ../resources/tables/CMIP6_Amon.json
+  ' ${table_file_Amon}
 
 
 
@@ -483,7 +489,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"pr": {/i \
         "mrsol": {                                                                                                                                             \
@@ -504,7 +510,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                                             \
             "ok_max_mean_abs": ""                                                                                                                              \
         },                                                                                                                                                     
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"rsds": {/i \
          "fsntoa": {                                                                                \
@@ -525,7 +531,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                  \
             "ok_max_mean_abs": ""                                                                   \
         },                                                                                          
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"tas": {/i \
         "tas": {                                                          \
@@ -546,7 +552,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                        \
             "ok_max_mean_abs": ""                                         \
         },                                                                
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"uas": {/i \
         "ua9": {                                                         \
@@ -567,7 +573,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                       \
             "ok_max_mean_abs": ""                                        \
         },                                                               
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"zg": {/i \
         "wap850": {                                                                             \
@@ -588,7 +594,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                              \
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
   sed -i  '/"zg": {/i \
         "zg200": {                                                                                                                                     \
@@ -699,7 +705,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                                     \
             "ok_max_mean_abs": ""                                                                                                                      \
         }                                                                                                                                              
-  ' ../resources/tables/CMIP6_day.json
+  ' ${table_file_day}
 
 
 
@@ -724,7 +730,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                                                                             \
             "ok_max_mean_abs": ""                                                                                                                              \
         },                                                                                                                                                     
-  ' ../resources/tables/CMIP6_Lmon.json
+  ' ${table_file_Lmon}
 
   sed -i  '/"tsl": {/i \
         "tslsi": {                                                               \
@@ -745,7 +751,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                               \
             "ok_max_mean_abs": ""                                                \
         }                                                                        
-  ' ../resources/tables/CMIP6_Lmon.json
+  ' ${table_file_Lmon}
 
 
 
@@ -970,7 +976,7 @@ if [ "$#" -eq 0 ]; then
             "e098":"initialized in 2009",                  \
             "e099":"initialized in 2009",                  \
             "e100":"initialized in 2009",                  
-  ' ../resources/tables/CMIP6_CV.json
+  ' ${table_file_CV}
 
 
 
@@ -1308,29 +1314,40 @@ if [ "$#" -eq 0 ]; then
                     "afsc"                                              \
                 ]                                                       \
             },                                                          
-  ' ../resources/tables/CMIP6_CV.json
+  ' ${table_file_CV}
 
+  # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_coordinate}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlevPt}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Amon}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_day}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Lmon}
+  sed -i -e 's/\s*$//g'                ${table_file_CV}
 
+  cd -
 
-
-
-
-
-
-
-
-
-
+  echo
+  echo " $0 reports:"
+  echo "  The adjusted files are:"
+  echo "   ${table_path}/${table_file_coordinate}"
+  echo "   ${table_path}/${table_file_6hrPlevPt}"
+  echo "   ${table_path}/${table_file_Amon}"
+  echo "   ${table_path}/${table_file_day}"
+  echo "   ${table_path}/${table_file_Lmon}"
+  echo "   ${table_path}/${table_file_CV}"
+  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo "  cd ${table_path}; git diff; cd -"
+  echo
 
  else
-    echo '  '
-    echo '  Nothing done, no set of variables and / or experiments has been selected to add to the tables.'
-    echo '  '
+    echo
+    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+    echo
  fi
 
 else
-    echo '  '
-    echo '  This scripts requires no argument:'
-    echo '  ' $0
-    echo '  '
+    echo
+    echo " This scripts requires no argument:"
+    echo "  $0"
+    echo
 fi
