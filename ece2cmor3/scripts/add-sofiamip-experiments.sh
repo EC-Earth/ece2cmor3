@@ -60,6 +60,7 @@ if [ "$#" -eq 0 ]; then
   sed -i 's/\s*$//g' ${table_file_cv}
 
   cd -
+
   echo
   echo " $0 reports:"
   echo "  The adjusted file is:  ${table_path}/${table_file_cv}"
