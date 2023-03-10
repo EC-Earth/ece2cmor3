@@ -16,9 +16,11 @@ if [ "$#" -eq 0 ]; then
   # See #749
   #  sofiamip antwater
 
-  cd ../resources/cmip6-cmor-tables
-  git checkout Tables/CMIP6_CV.json
-  cd -
+  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_file_cv=CMIP6_CV.json
+
+  cd ${table_path}
+  git checkout ${table_file_cv}
 
 # sed -i  '/"faf-antwater-stress":{/i \
 #           "faf-antwater":{                                                                                                                                  \
@@ -48,20 +50,21 @@ if [ "$#" -eq 0 ]; then
                     "none"                                                                                                                                    \
                 ]                                                                                                                                             \
             },                                                                                                                                                
-  ' ../resources/tables/CMIP6_CV.json
+  ' ${table_file_cv}
 
   sed -i  '/"VIACSAB":/i \
             "SOFIAMIP":"Southern Ocean Freshwater release model experiments Initiative",
-  ' ../resources/tables/CMIP6_CV.json
+  ' ${table_file_cv}
 
   # Remove the trailing spaces of the inserted block above:
-  sed -i 's/\s*$//g' ../resources/tables/CMIP6_CV.json
+  sed -i 's/\s*$//g' ${table_file_cv}
 
+  cd -
   echo
   echo " $0 reports:"
-  echo "  The adjusted file is:  ../resources/tables/CMIP6_CV.json "
+  echo "  The adjusted file is:  ${table_path}/${table_file_cv}"
   echo "  Which is part of a nested repository, therefore to view the diff, run:"
-  echo "  cd ../resources/tables; git diff; cd -"
+  echo "  cd ${table_path}; git diff; cd -"
   echo
 
  else
