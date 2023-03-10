@@ -9,12 +9,12 @@
 
 if [ "$#" -eq 0 ]; then
 
- add_the_sofiamip_experiments=True             # See #749
- 
+ add_the_sofiamip_experiments=True
 
  if [ add_the_sofiamip_experiments ]; then
-  # See #749
-  #  sofiamip antwater
+  # See #749  https://github.com/EC-Earth/ece2cmor3/issues/749
+
+  # SOFIAMIP faf-antwater
 
   table_path=../resources/cmip6-cmor-tables/Tables/
   table_file_cv=CMIP6_CV.json
