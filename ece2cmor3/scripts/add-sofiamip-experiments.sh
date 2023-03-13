@@ -59,7 +59,7 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_cv}
 
   # Adjust the license such that it matches with the production institute KNMI.
-  sed -i -e 's/CMIP6 model data/The VAREX model data/' -e 's/Consult.*acknowledgment//' ${table_file_cv}
+  sed -i -e 's/CMIP6 model data/The SOFIAMIP model data/' -e 's/Consult.*acknowledgment//' ${table_file_cv}
 
   # Allow KNMI on it self to be a institute which produces EC-Earth3 experiments:
   # This insert is vulnerable for upstream table changes within 20 lines after the match:
