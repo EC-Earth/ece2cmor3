@@ -151,6 +151,17 @@ def main():
      # After the table attribute has been used to match with the data request, the table attribute is removed here because it is not a valid XIOS attribute:
      field.attrib.pop('table', None)
 
+     # Ordering the attributes of all elements (taking the alphabetic order which matches with the previous python2 ordering):
+     for elem in root_basic_file_def.iter():
+            #print(' element (pre  sorted order): {:}'.format(elem.attrib))
+             attrib = elem.attrib
+             if len(attrib) > 1:
+              # Adjust the attribute order, in this case by a default sorting (i.e. alphabetic sorting):
+              attribs = sorted(attrib.items())
+              attrib.clear()
+              attrib.update(attribs)
+            #print(' element (post sorted order): {:}'.format(elem.attrib))
+
     # Write the NEMO XIOS file_def input files:
     tree_basic_file_def.write(file_def_file_name)
 
