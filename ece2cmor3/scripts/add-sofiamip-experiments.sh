@@ -32,8 +32,8 @@ if [ "$#" -eq 0 ]; then
                     "CHEM",                                                                                                                                   \
                     "BGC"                                                                                                                                     \
                 ],                                                                                                                                            \
-                "experiment":"control plus perturbative surface fluxes of momentum and freshwater into ocean, the latter around the coast of Antarctica only" \
-                "experiment_id":"faf-antwater",                                                                                                                   \
+                "experiment":"control plus perturbative surface fluxes of freshwater into ocean, the latter around the coast of Antarctica only",             \
+                "experiment_id":"faf-antwater",                                                                                                               \
                 "parent_activity_id":[                                                                                                                        \
                     "CMIP"                                                                                                                                    \
                 ],                                                                                                                                            \
