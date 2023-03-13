@@ -1066,10 +1066,10 @@ if len(sys.argv) == 2:
 
    tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
    root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has four indices: the 1st index refers to file_definition, the 2nd index refers to the file_group, the 3rd index refers to the file, the 4th index referers to the field elements
-   field_elements_basic_file_def   = root_basic_file_def[0][:]
+   field_elements_basic_file_def   = root_basic_file_def[0][0][0][:]
 
-   #for file in root_basic_file_def.findall('.//file[@id]'):
-   # print(file.attrib["id"])
+  #for file in root_basic_file_def.findall('.//file[@id]'):
+  # print('  {:}'.format(file.attrib["id"]))
 
    ################################################################################
    ###################################   End    ###################################
