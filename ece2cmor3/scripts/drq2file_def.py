@@ -102,8 +102,8 @@ def main():
     if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
     tree_basic_file_def             = xmltree.parse(basic_file_def_file_name)
-    root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   #field_elements_basic_file_def   = root_basic_file_def[0][:]
+    root_basic_file_def             = tree_basic_file_def.getroot()                        # This root has four indices: the 1st index refers to file_definition, the 2nd index refers to the file_group, the 3rd index refers to the file, the 4th index referers to the field elements
+   #field_elements_basic_file_def   = root_basic_file_def[0][0][0][:]
 
     total_layer_equivalent= 0
     count = 0
