@@ -5,6 +5,7 @@ import json
 import logging
 import sys
 import os
+import re
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils, components
 
@@ -28,6 +29,13 @@ def write_varlist(targets, opath):
         ofile.close()
     logging.info('Writing the json  file: {:}'.format(opath))
 
+# Check whether an attribute has a None value, if so replace the None value by an empty string:
+def check_attribute_for_none_value(object_name, attribute_name, opath):
+    if getattr(object_name, attribute_name, "") == None:
+    #logging.info('An empty string is written for {:15} in {:6} {:10} in {:}'.format(attribute_name, object_name.table, object_name.variable, opath))
+     logging.info('An empty string is written for {:15} in {:6} {:10} in {:}'.format(attribute_name, object_name.table, object_name.variable, re.sub(r'/.*/', '/*/', opath)))
+     # Replace the None value by an empty string:
+     setattr(object_name, attribute_name , "")
 
 def write_varlist_ascii(targets, opath, print_all_columns):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
@@ -40,6 +48,13 @@ def write_varlist_ascii(targets, opath, print_all_columns):
      for k, vlist in tgtgroups.items():
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
+             check_attribute_for_none_value(tgtvar, "priority"       , opath)
+             check_attribute_for_none_value(tgtvar, "dimensions"     , opath)
+             check_attribute_for_none_value(tgtvar, "long_name"      , opath)
+             check_attribute_for_none_value(tgtvar, "mip_list"       , opath)
+             check_attribute_for_none_value(tgtvar, "vid"            , opath)
+             check_attribute_for_none_value(tgtvar, "comment_author" , opath)
+             check_attribute_for_none_value(tgtvar, "ecearth_comment", opath)
              ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
                           tgtvar.table,
                           tgtvar.variable,
