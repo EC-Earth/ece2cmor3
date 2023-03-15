@@ -160,7 +160,7 @@ def main():
     args = parser.parse_args()
 
     # Echo the exact call of the script in the log messages:
-    logging.info('Running {:} with:\n\n  {:} {:}\n'.format(parser.prog, parser.prog, ' '.join(sys.argv[1:])))
+    logging.info('Running {:} with:\n\n {:} {:}\n'.format(parser.prog, parser.prog, ' '.join(sys.argv[1:])))
     # Print the values of all arguments in the log messages::
     logging.info('------  {} argument list:  ------'.format(parser.prog))
     for arg_key, arg_value in vars(parser.parse_args()).items(): logging.info('--{:18} = {:}'.format(arg_key, arg_value))
