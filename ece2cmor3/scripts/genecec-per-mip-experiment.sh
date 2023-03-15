@@ -55,7 +55,7 @@ if [ "$#" -eq 5 ]; then
   multiplemips='no'
   if [[ ${mip} = *","* ]];then
    multiplemips='yes'
-   echo ' Multiple mip case = ' ${multiplemips}
+   echo " Multiple mip case = ${multiplemips}"
   fi
 
   # Replace the comma(s) by dot(s) in label:
@@ -77,8 +77,8 @@ if [ "$#" -eq 5 ]; then
   path_of_created_output_control_files=${base_dir_name}/${mip_label}/cmip6-experiment-${mip_label}-${experiment}
 
   echo
-  echo 'Executing the following job:'
-  echo ' '$0 "$@"
+  echo "Executing the following job:"
+  echo " $0 $@"
 
   if [ ${experiment} = 'esm-hist' ] || [ ${experiment} = 'esm-piControl' ]; then
    esm_label=' --esm'
@@ -90,8 +90,8 @@ if [ "$#" -eq 5 ]; then
   mkdir -p ${xls_dir};
 
   echo
-  echo 'The CMIP6 data request is obtained from:'
-  echo ' ' drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir ${xls_dir}
+  echo "The CMIP6 data request is obtained from:"
+  echo " drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir ${xls_dir}"
   echo
 
   drq -m ${mip} -e ${experiment} -t ${tier} -p ${priority} ${esm_label} --xls --xlsDir ${xls_dir}
@@ -107,7 +107,7 @@ if [ "$#" -eq 5 ]; then
    if [ ! -f cmvme_${mip_label}_${experiment}_1_1.xlsx ]; then
     ln -s cmvme_cm.vo_${experiment}_1_1.xlsx cmvme_${mip_label}_${experiment}_1_1.xlsx
     echo
-    echo 'Create for '${mip_label}' a soft link:'
+    echo "Create for ${mip_label} a soft link:"
     ls -l cmvme_${mip_label}_${experiment}_1_1.xlsx
    fi
   cd -
@@ -120,7 +120,7 @@ if [ "$#" -eq 5 ]; then
   # Check whether there will be selected a unique matching data request file in the created data request directory:
   number_of_matching_files=$(ls -1 ${cmip6_data_request_file}|wc -l)
   if [ ${number_of_matching_files} != 1 ]; then
-   echo 'Number of matching files: ' ${number_of_matching_files}
+   echo "Number of matching files: ${number_of_matching_files}"
    ls ${cmip6_data_request_file}
    exit
   fi
@@ -135,10 +135,10 @@ if [ "$#" -eq 5 ]; then
   else
    echo
    echo 'Due to an empty IFS requests, see:'
-   if [ ${mip_label} = 'OMIP' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
+   if [ ${mip_label}  = 'OMIP'    ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/660'; fi
    if [ ${experiment} = 'rad-irf' ]; then echo ' https://github.com/EC-Earth/ece2cmor3/issues/661'; fi
-   echo 'the script' $0 'will skip:'
-   echo drq2ppt --drq ${cmip6_data_request_file}
+   echo "the script $0 will skip:"
+   echo "drq2ppt --drq ${cmip6_data_request_file}"
    echo
   fi
 
@@ -151,13 +151,14 @@ if [ "$#" -eq 5 ]; then
 
   # Creating the instruction files for LPJ-GUESS and estimating the Volume of the LPJ-GUESS output:
   drq2ins --drq ${cmip6_data_request_file}
-  mv -f ./lpjg_cmip6_output.ins                                     ${path_of_created_output_control_files}
+  mv -f ./lpjg_cmip6_output.ins ${path_of_created_output_control_files}
 
   # Estimating the Volume of the TM5 output:
   estimate_tm5_volume --drq ${cmip6_data_request_file}
 
   cat volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > ${path_of_created_output_control_files}/volume-estimate.txt
   rm -f volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt
+  echo
 
   # Generating the available, ignored, identified missing and missing files for this MIP experiment:
   xls_ece_dir=cmip6-data-request-ece/cmip6-data-request-ece-${mip_label}-${experiment}-t${tier}-p${priority}
@@ -182,11 +183,11 @@ if [ "$#" -eq 5 ]; then
   echo
 
 else
-    echo
-    echo '  This scripts requires five arguments: base output directory, MIP (or comma separated lsit of MIPs), MIP experiment, experiment tier, priority level of variables included, e.g.:'
-    echo '  ' $0 cmip6-output-control-files CMIP                                                                           piControl 1 1
-    echo '  ' $0 cmip6-output-control-files CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB piControl 1 1
-    echo
+  echo
+  echo " This scripts requires five arguments: base output directory, MIP (or comma separated lsit of MIPs), MIP experiment, experiment tier, priority level of variables included, e.g.:"
+  echo "  $0 cmip6-output-control-files CMIP                                                                           piControl 1 1"
+  echo "  $0 cmip6-output-control-files CMIP,DCPP,LS3MIP,PAMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB piControl 1 1"
+  echo
 fi
 
 # ./genecec-per-mip-experiment.sh cmip6-output-control-files CMIP         1pctCO2      1 1
