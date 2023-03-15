@@ -167,8 +167,8 @@ def main():
     logging.info('------  end {} argument list  ------\n'.format(parser.prog))
 
     if not os.path.isfile(args.drq):
-        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting checkvars.')
+        log.fatal('Error: Your data request file {:} cannot be found.'.format(args.drq))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
@@ -186,9 +186,8 @@ def main():
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
-        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
-                  % (opt1, opt2))
-        sys.exit(' Exiting checkvars.')
+        log.error('It seems you are using the --{:} option where you should use the --{:} option for this file'.format(opt1, opt2))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     loaded = [t for m in active_components for t in matches[m]]
     ignored, identified_missing, missing, dismissed = taskloader.split_targets(omitted_targets)

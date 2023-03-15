@@ -57,12 +57,12 @@ def main():
     print()
 
     if args.vars is not None and not os.path.isfile(args.vars):
-        log.fatal("Error: Your variable list json file %s cannot be found." % args.vars)
-        sys.exit(' Exiting drq2ins.')
+        log.fatal('Error: Your variable list json file {:} cannot be found.'.format(args.vars))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     if args.drq is not None and not os.path.isfile(args.drq):
-        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting drq2ins.')
+        log.fatal('Error: Your data request file {:} cannot be found.'.format(args.drq))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
@@ -79,9 +79,8 @@ def main():
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
-        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
-                  % (opt1, opt2))
-        sys.exit(' Exiting drq2ins.')
+        log.error('It seems you are using the --{:} option where you should use the --{:} option for this file'.format(opt1, opt2))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     print('\n Number of activated data request tasks is', len(ece2cmorlib.tasks), '\n')
 

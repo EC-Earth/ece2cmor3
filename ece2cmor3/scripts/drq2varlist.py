@@ -62,8 +62,8 @@ def main():
     print()
 
     if not args.allvars and not os.path.isfile(args.drq):
-        log.fatal("Error: Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting drq2varlist.')
+        log.fatal('Error: Your data request file {:} cannot be found.'.format(args.drq))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(tabledir=args.tabdir, tableprefix=args.tabid)
@@ -86,9 +86,8 @@ def main():
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
-        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
-                  % (opt1, opt2))
-        sys.exit(' Exiting drq2varlist.')
+        log.error('It seems you are using the --{:} option where you should use the --{:} option for this file'.format(opt1, opt2))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     result = {}
     for model, targetlist in matches.items():
