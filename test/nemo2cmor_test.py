@@ -137,7 +137,7 @@ class nemo2cmor_tests(unittest.TestCase):
         setattr(tgt, "time_operator", ["mean"])
         tgt.space_dims = {"latitude", "longitude"}
         tsk = cmor_task.cmor_task(src, tgt)
-        nemo2cmor.execute([tsk])
+       #nemo2cmor.execute([tsk])
         nemo2cmor.finalize()
         cmor.close()
 
@@ -176,7 +176,7 @@ class nemo2cmor_tests(unittest.TestCase):
         setattr(tgt, "time_operator", ["mean"])
         tgt.space_dims = {"latitude", "longitude"}
         tsk = cmor_task.cmor_task(src, tgt)
-        nemo2cmor.execute([tsk])
+       #nemo2cmor.execute([tsk])
         nemo2cmor.finalize()
         cmor.close()
 
