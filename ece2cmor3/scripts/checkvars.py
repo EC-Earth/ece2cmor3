@@ -64,7 +64,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
                           tgtvar.units,
                           'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid", "unknown") + '.html',
                           getattr(tgtvar, "mip_list"       , "unknown"),
-                          getattr(tgtvar, "comment_author" , ""       ), # Potential problem (with python3) with empty comment_author field in ../resources/list-of-ignored-cmip6-requested-variables.xlsx (currently for Amon ccb, CFday ccb, CFsubhr ccb, )
+                          getattr(tgtvar, "comment_author" , ""       ),
                           getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     else:
      # In case the input data request is a json file, a reduced number of columns is printed:
