@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import sys
 
 import argparse
 import json
 import logging
+import sys
 import os
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils, components
 
 # Logging configuration
 ##logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
-logformat  =             "%(levelname)s:%(name)s: %(message)s"
+logformat   =             "%(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
@@ -27,6 +27,7 @@ def write_varlist(targets, opath):
         json.dump(tgtdict, ofile, indent=4, separators=(',', ': '))
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
         ofile.close()
+    logging.info('Writing the json  file: {:}'.format(opath))
 
 
 def write_varlist_ascii(targets, opath, print_all_columns):
@@ -64,7 +65,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
                           tgtvar.units,
                           getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     ofile.close()
-    logging.info(" Writing the ascii file: %s" % opath)
+    logging.info('Writing the ascii file: {:}'.format(opath))
 
 
 def write_varlist_excel(targets, opath, with_pingfile):
@@ -131,7 +132,7 @@ def write_varlist_excel(targets, opath, with_pingfile):
                 worksheet.write(row_counter, 13, getattr(tgtvar, "pingcomment", ""))
             row_counter += 1
     workbook.close()
-    logging.info(" Writing the excel file: %s" % opath)
+    logging.info('Writing the excel file: {:}'.format(opath))
 
 
 # Main program
