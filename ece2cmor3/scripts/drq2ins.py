@@ -51,10 +51,12 @@ def main():
 
     args = parser.parse_args()
 
-    print()
-    print('Running drq2ins with:')
-    print(' drq2ins ' + cmor_utils.ScriptUtils.get_drq_vars_options(args))
-    print()
+    # Echo the exact call of the script in the log messages:
+    logging.info('Running {:} with:\n\n {:} {:}\n'.format(parser.prog, parser.prog, ' '.join(sys.argv[1:])))
+    # Print the values of all arguments in the log messages::
+    logging.info('------  {} argument list:  ------'.format(parser.prog))
+    for arg_key, arg_value in vars(parser.parse_args()).items(): logging.info('--{:18} = {:}'.format(arg_key, arg_value))
+    logging.info('------  end {} argument list  ------\n'.format(parser.prog))
 
     if args.vars is not None and not os.path.isfile(args.vars):
         log.fatal('Error: Your variable list json file {:} cannot be found.'.format(args.vars))
