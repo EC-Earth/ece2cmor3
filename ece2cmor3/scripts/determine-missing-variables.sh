@@ -12,8 +12,6 @@
 # Run this script without arguments for examples how to call this script.
 #
 
-
-# Set the root directory of ece2cmor3 (default ${HOME}/cmorize/ece2cmor3/ ):
 ece2cmor_root_directory=${HOME}/cmorize/ece2cmor3/
 
 if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
