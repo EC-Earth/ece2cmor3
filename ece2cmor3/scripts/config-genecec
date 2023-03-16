@@ -1,8 +1,8 @@
 # This config file can be used with:
 #  ./run-genecec.sh default 001 in-ece2cmor3-dir
 
-output_dir_name                = 'output-control-files/'
-activate_pextra_mode           = False
-add_request_overview           = True
+output_dir_name                 = 'output-control-files/'
+activate_pextra_mode            = False
+add_request_overview            = True
 
-ece2cmor_root_directory        = '~/cmorize/ece2cmor3/'
+ece2cmor_root_directory         = '~/cmorize/ece2cmor3/'
