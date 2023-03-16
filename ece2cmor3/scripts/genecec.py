@@ -40,6 +40,11 @@ if len(sys.argv) == 2:
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
 
+   print()
+   os.system('which ece2cmor')
+   os.system('ece2cmor --version')
+   print()
+
    output_dir_name         = os.path.expanduser(config['output_dir_name'        ])  # output_dir_name                = 'output-control-files/'
    activate_pextra_mode    =                    config['activate_pextra_mode'   ]   # activate_pextra_mode           = False
    add_request_overview    =                    config['add_request_overview'   ]   # add_request_overview           = True
