@@ -16,7 +16,6 @@
 
 import sys
 import os
-import os.path                                                  # for checking file existence with: os.path.isfile
 import json
 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
@@ -38,9 +37,7 @@ def main():
 
        output_json_file = os.path.basename(input_json_file).replace('.json','-flat.json')
 
-       print()
-       print(' The script:')
-       print(' ', sys.argv[0], sys.argv[1])
+       print('\n Running {:} with:\n  {:} {:}\n'.format(os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]), sys.argv[1]))
 
        # Check whether the input json file is a component json or a flat json file:
        if "ifs" in data_request:
@@ -83,16 +80,19 @@ def main():
         command = 'rsync -a ' + input_json_file + ' ' + output_json_file
         os.system(command)
 
-       print(' produced the file:')
+       command = 'sed -i "s/\s*$//g"' + ' ' + output_json_file
+       os.system(command)
+
+       print(' which produced the file:')
        print('  ', output_json_file)
        print()
 
     else:
        print()
        print('  This scripts requires one argument, a json file, e.g.:')
-       print('  ', sys.argv[0], '~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
-       print('  ', sys.argv[0], '../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json')
-       print('  ', sys.argv[0], '~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
+       print('  ', os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
+       print('  ', os.path.basename(sys.argv[0]), '../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json')
+       print('  ', os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
        print()
 
 if __name__ == "__main__":
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 # non_flat_json=~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json
 # flat_json=cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem-flat.json
 # 
-# more ${flat_json}  | grep -v -e '}' -e '{' -e ']' -e '\[' | sort > sorted-flat.txt
+# more ${flat_json}     | grep -v -e '}' -e '{' -e ']' -e '\[' | sort > sorted-flat.txt
 # more ${non_flat_json} | grep -v -e '}' -e '{' -e ']' -e '\[' | sort > sorted-non-flat.txt
 # wc sorted-non-flat.txt; wc sorted-flat.txt
 # diff -b sorted-non-flat.txt sorted-flat.txt

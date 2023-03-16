@@ -3,7 +3,7 @@
 #
 # Run examples:
 #  ./genecec.py config-genecec
-#  ./run-genecec.sh default 001 in-ece2cmor3-dir
+#  ./run-genecec.sh default 001 ece2cmor3
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the
@@ -20,7 +20,7 @@
 
 import sys
 import os
-import os.path                                                  # for checking file existence with: os.path.isfile
+import subprocess
 from os.path import expanduser                                  # Enable to go to the home dir: ~
 from dreqPy import dreq
 dq = dreq.loadDreq()
@@ -39,6 +39,17 @@ if len(sys.argv) == 2:
     print(error_message, ' The config file ', config_filename, '  does not exist.\n')
     sys.exit()
    exec(open(config_filename).read(), config)                   # Reading the config file
+
+   print()
+   print(' The used ece2cmor3 environment: {:}'.format(subprocess.check_output('which ece2cmor'    , shell=True).decode('utf-8').strip("\n")))
+   print(' The used drq       version:     {:}'.format(subprocess.check_output('drq -v'            , shell=True)[0:42].decode('utf-8').strip("\n")))
+   print(' The used python    version:     {:}'.format(os.sys.version[0:68]))
+   print(' The used python    version:     {:}'.format(os.sys.version_info))
+   print(' The used dreqPy    version:     {:}'.format(dreq.version))
+   print(' The used ece2cmor3 version:     ', end='', flush=True)
+   subprocess.check_output('ece2cmor --version', shell=True).decode('utf-8').strip("\n")
+  #print(' The used ece2cmor3 version:     {:}'.format(subprocess.check_output('ece2cmor --version', shell=True).decode('utf-8').strip("\n"))) # output printed line before?
+   print()
 
    output_dir_name         = os.path.expanduser(config['output_dir_name'        ])  # output_dir_name                = 'output-control-files/'
    activate_pextra_mode    =                    config['activate_pextra_mode'   ]   # activate_pextra_mode           = False
