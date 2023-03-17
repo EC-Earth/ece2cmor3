@@ -92,7 +92,8 @@ def write_varlist_ascii(targets, opath, print_all_columns):
      ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {}{}'.format(
                   'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
                   'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
-     for k, vlist in tgtgroups.items():
+     for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
+         vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
              check_attribute_for_none_value(tgtvar, "priority"       , opath)
@@ -171,7 +172,8 @@ def write_varlist_excel(targets, opath, with_pingfile):
         worksheet.write(0, 13, 'ping file comment'                   , bold)
 
     row_counter = 1
-    for k, vlist in tgtgroups.items():
+    for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
+        vlist = tgtgroups[k]
         worksheet.write(row_counter, 0, '')
         row_counter += 1
         for tgtvar in vlist:
