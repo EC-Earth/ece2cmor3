@@ -822,7 +822,7 @@ if len(sys.argv) == 2:
        drqlistjson.write('        {}{}'.format('"'+dr_varname[i]+'"', '\n'))
       else:
        drqlistjson.write('        {}{}'.format('"'+dr_varname[i]+'",', '\n'))
-     #drqlistjson.write('        {:20} {:10} {} {}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
+     #drqlistjson.write('        {:20} {:10} {}{}'.format('"'+dr_varname[i]+'",', dr_table[i], ending_status, '\n'))
       previous_table = dr_table[i]
 
     drqlistjson.write('    ]{}'.format('\n'))
