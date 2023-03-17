@@ -89,7 +89,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
     ofile = open(opath, 'w')
     if print_all_columns:
      # In case the input data request is an xlsx file, all columns are printed:
-     ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+     ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {}{}'.format(
                   'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
                   'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
      for k, vlist in tgtgroups.items():
@@ -102,7 +102,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
              check_attribute_for_none_value(tgtvar, "vid"            , opath)
              check_attribute_for_none_value(tgtvar, "comment_author" , opath)
              check_attribute_for_none_value(tgtvar, "ecearth_comment", opath)
-             ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+             ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {}{}'.format(
                           tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "priority"       , "unknown"),
@@ -115,12 +115,12 @@ def write_varlist_ascii(targets, opath, print_all_columns):
                           getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     else:
      # In case the input data request is a json file, a reduced number of columns is printed:
-     ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+     ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
      for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
          vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
-             ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format(tgtvar.table,
+             ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format(tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "dimensions"     , "unknown"),
                           getattr(tgtvar, "long_name"      , "unknown"),
