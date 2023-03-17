@@ -528,7 +528,7 @@ def match_variables(targets, model_variables):
                         comment_string += ", expression = " + parmatch[cmor_source.expression_key]
                     comment = getattr(target, "ecearth_comment", None)
                     if comment is not None:
-                        setattr(target, "ecearth_comment", comment + '|' + comment_string)
+                        setattr(target, "ecearth_comment", comment + ' | ' + comment_string)
                     else:
                         setattr(target, "ecearth_comment", comment_string)
                     setattr(target, "comment_author", "automatic")
