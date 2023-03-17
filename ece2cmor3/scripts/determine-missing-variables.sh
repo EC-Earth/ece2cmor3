@@ -20,8 +20,8 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   if [ ! -d ${ece2cmor_root_directory} ]; then 
    line_nr=`grep -n 'ece2cmor_root_directory=' $0 | head -1 | sed 's/:.*$//'`
    echo; tput setaf 1;
-   echo ' Error: The root directory of ece2cmor3: ' ${ece2cmor_root_directory} ' is not found.'
-   echo ' Adjust the ece2cmor_root_directory at line' ${line_nr} 'of the script: ' $0
+   echo " Error: The root directory of ece2cmor3: ${ece2cmor_root_directory} is not found."
+   echo " Adjust the ece2cmor_root_directory at line ${line_nr} of the script: $0"
    tput sgr0; echo
    exit
   fi
@@ -107,12 +107,12 @@ if [ "$#" -eq 4 ] || [ "$#" -eq 5 ]; then
   fi
 
 else
-  echo '  '
-  echo '  This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:'
-  echo '  ' $0 CMIP CMIP 1 1
-  echo '  The first argument can represent a list of MIPs, seperated by commas, e.g.:'
-  echo '  ' $0 CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1
-  echo '  '
+  echo
+  echo " This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:"
+  echo "  $0 CMIP CMIP 1 1"
+  echo " The first argument can represent a list of MIPs, seperated by commas, e.g.:"
+  echo "  $0 CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1"
+  echo
 fi
 
 # Filling eventually some or all of the omit lists below:

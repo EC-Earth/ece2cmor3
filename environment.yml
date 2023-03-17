@@ -1,7 +1,7 @@
 # For developers only:
 #  Remove the ece2cmor environment:
 #   conda deactivate
-#   rm -rf ${mambapath}/envs/ece2cmor3-python-2
+#   rm -rf ${mambapath}/envs/ece2cmor3
 #  Create the ece2cmor3 environment:
 #    activatemamba
 #    mamba update -y --name base mamba           # For updating mamba itself

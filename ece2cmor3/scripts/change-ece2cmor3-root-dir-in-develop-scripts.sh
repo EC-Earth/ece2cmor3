@@ -15,17 +15,20 @@ if [ "$#" -eq 1 ]; then
   adjusted_root_dir=$1
 
   # First revert the concerned files:
+  git checkout ../../environment.yml
   git checkout config-create-basic-ec-earth-cmip6-nemo-namelist
   git checkout create-nemo-only-list/create-nemo-only-list.sh
   git checkout update-basic-identifiedmissing-ignored-files.sh
   git checkout determine-missing-variables.sh
 
   # Adjust files:
+  sed -i -e "s/name: ${default_root_dir}/name: ${adjusted_root_dir}/"       ../../environment.yml
   sed -i -e "s/cmorize\/${default_root_dir}/cmorize\/${adjusted_root_dir}/" config-create-basic-ec-earth-cmip6-nemo-namelist
   sed -i -e "s/cmorize\/${default_root_dir}/cmorize\/${adjusted_root_dir}/" create-nemo-only-list/create-nemo-only-list.sh
   sed -i -e "s/cmorize\/${default_root_dir}/cmorize\/${adjusted_root_dir}/" update-basic-identifiedmissing-ignored-files.sh
   sed -i -e "s/cmorize\/${default_root_dir}/cmorize\/${adjusted_root_dir}/" determine-missing-variables.sh
 
+  git diff ../../environment.yml
   git diff config-create-basic-ec-earth-cmip6-nemo-namelist
   git diff create-nemo-only-list/create-nemo-only-list.sh
   git diff update-basic-identifiedmissing-ignored-files.sh
