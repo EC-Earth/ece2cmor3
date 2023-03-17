@@ -89,7 +89,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
     ofile = open(opath, 'w')
     if print_all_columns:
      # In case the input data request is an xlsx file, all columns are printed:
-     ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {}{}'.format(
+     ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:40} {}{}'.format(
                   'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
                   'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
      for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
@@ -103,7 +103,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
              check_attribute_for_none_value(tgtvar, "vid"            , opath)
              check_attribute_for_none_value(tgtvar, "comment_author" , opath)
              check_attribute_for_none_value(tgtvar, "ecearth_comment", opath)
-             ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {}{}'.format(
+             ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:40} {}{}'.format(
                           tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "priority"       , "unknown"),
@@ -183,9 +183,8 @@ def write_varlist_excel(targets, opath, with_pingfile):
             worksheet.write(row_counter, 3, getattr(tgtvar, "dimensions", "unknown"))
             worksheet.write(row_counter, 4, getattr(tgtvar, "long_name" , "unknown"))
             worksheet.write(row_counter, 5, tgtvar.units)
-            worksheet.write(row_counter, 6,
-                            '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid",
-                                                                                                  "unknown") + '.html","web")')
+            worksheet.write(row_counter, 6, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' +
+                                            getattr(tgtvar, "vid", "unknown") + '.html","web")')
             worksheet.write(row_counter, 7, getattr(tgtvar, "ecearth_comment", ""       ))
             worksheet.write(row_counter, 8, getattr(tgtvar, "comment_author" , ""       ))
             worksheet.write(row_counter, 9, getattr(tgtvar, "comment"        , "unknown"))
