@@ -520,7 +520,10 @@ def match_variables(targets, model_variables):
                         parmatch = parblock["table_override"]
                     else:
                         parmatch = parblock
-                    comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
+                    if model == 'ifs':
+                     comment_string = '{:4} code name = {:>7}'.format(model, parmatch.get(json_source_key, "?"))
+                    else:
+                     comment_string = '{:4} code name = {:}'.format(model, parmatch.get(json_source_key, "?"))
                     if cmor_source.expression_key in list(parmatch.keys()):
                         comment_string += ", expression = " + parmatch[cmor_source.expression_key]
                     comment = getattr(target, "ecearth_comment", None)
