@@ -16,7 +16,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Installation:
 
-More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal (which are still the previous miniconda guidelines), including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
+More extensive installation description can be found [here](https://dev.ec-earth.org/projects/cmip6/wiki/Installation_of_ece2cmor3) at the EC-Earth portal, including the link to an [example of running ece2cmor](https://dev.ec-earth.org/projects/cmip6/wiki/Step-by-step_guide_for_making_CMIP6_experiments#Cmorisation-with-ece2cmor-v120). The basic ece2cmor3 installation description follows below.
 
 #### Installation & running with Mamba (strongly recommended):
 With the `Mamba` package manager all the packages (mostly python in our case) can be installed within one go. For instance, this is certainly beneficial at HPC systems where permissions to install complementary python packages to the default python distribution are lacking.
@@ -85,8 +85,8 @@ Some basic tests:
   mamba --version                          # mamba 1.3.1 & conda 22.11.1
   python --version                         # Python 2.7.15
   cdo -V                                   # version 1.9.6
-  drq -v                                   # version 01.02.00 
-  ece2cmor -V                              # ece2cmor v1.8.1
+  drq -v                                   # version 01.02.00
+  ece2cmor -V                              # ece2cmor v1.9.0
   ece2cmor -h
   drq -h
   checkvars -h
