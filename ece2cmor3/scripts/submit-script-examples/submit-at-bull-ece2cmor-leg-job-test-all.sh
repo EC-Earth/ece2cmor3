@@ -73,12 +73,12 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001"
+  echo "  sbatch $0 ifs 001 t001 py2-v01"
   echo " Or use:"
-  echo "  for j in {001..001}; do sbatch --job-name=cmorise-ifs-$j  $0 ifs  $j t001 py2-v01; done"
-  echo "  for j in {001..001}; do sbatch --job-name=cmorise-nemo-$j $0 nemo $j t001 py2-v01; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 py2-v01; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 py2-v01; done"
   echo
-  echo "  for j in {001..002}; do sbatch --job-name=cmorise-ifs-$j  $0 ifs  $j t001 py2-v01; done"
-  echo "  for j in {001..002}; do sbatch --job-name=cmorise-nemo-$j $0 nemo $j t001 py2-v01; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 py2-v01; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 py2-v01; done"
   echo
  fi

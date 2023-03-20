@@ -86,9 +86,9 @@
   echo "  2nd argument: leg"
   echo "  3rd argument: experiment ID"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001"
+  echo "  sbatch $0 ifs 001 t001"
   echo " Or use:"
-  echo "   for j in {001..002}; do sbatch --job-name=cmorise-ifs-$j  $0 ifs  $j t001; done"
-  echo "   for j in {001..002}; do sbatch --job-name=cmorise-nemo-$j $0 nemo $j t001; done"
+  echo "   for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001; done"
+  echo "   for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001; done"
   echo
  fi
