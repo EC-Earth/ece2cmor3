@@ -17,7 +17,7 @@
 #   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
-name: ece2cmor3-python-2
+name: ece2cmor3
 channels:
   - conda-forge
   - nodefaults
