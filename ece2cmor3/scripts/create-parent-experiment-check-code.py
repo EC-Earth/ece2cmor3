@@ -19,7 +19,7 @@ import os
 with open('../resources/tables/CMIP6_CV.json', 'r') as g:
     datastore = json.load(g)
 
-#for k, v in datastore.iteritems():
+#for k, v in datastore.items():
 #    print(k, v)
 
 #print(datastore["CV"]["activity_id"])
@@ -36,13 +36,13 @@ code_parent_check_file.write('\n')
 
 #requested_item=
 
-for k, v in datastore["CV"]["experiment_id"].iteritems():
+for k, v in datastore["CV"]["experiment_id"].items():
    #print(' {:30} {:30} {:30}'.format(k, v["activity_id"][0], v["parent_experiment_id"][0]))
 
     if k != v["experiment_id"]:
-     print(' IDs differ: {:30} {:30} {:30}'.format(v["activity_id"][0], v["experiment_id"], k))
+     print((' IDs differ: {:30} {:30} {:30}'.format(v["activity_id"][0], v["experiment_id"], k)))
     if len(v["activity_id"][:]) != 1:
-     print(' The activity_id has multiple entries: {:30} {:30}'.format(v["activity_id"], k))
+     print((' The activity_id has multiple entries: {:30} {:30}'.format(v["activity_id"], k)))
 #   if len(v["parent_activity_id"][:]) != 1:
 #    print(' The parent_activity_id has multiple entries: {:30} {:30} {:30}'.format(v["activity_id"], k, v["parent_activity_id"][:]))
 #   if len(v["parent_experiment_id"][:]) != 1:

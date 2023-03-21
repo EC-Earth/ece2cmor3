@@ -8,37 +8,41 @@
 #    mamba env create -f environment.yml         # Create the ece2cmor3 environment
 #  Basic tests:
 #   which python                                 # ${mambapath}/envs/ece2cmor3/bin/python
-#   python --version                             # Python 2.7.15
-#   cdo -V                                       # version 1.9.6
+#   python --version                             # Python 3.11
+#   cdo -V                                       # version 2.1.1
 #   drq -v                                       # version 01.02.00
 #   drq -h
 #   ece2cmor -V                                  # ece2cmor v1.9.1
-#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
+#
+#  The version of one of the packages can be adjusted manually, For instance change the
+#  data request version of the dreq package (ensure the ece2cmor3 environment is active):
 #   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
-#  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
 name: ece2cmor3
 channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - cdo=1.9.6
-  - cmor=3.5.0
+  - cdo
+  - cmor
   - dreqPy==01.2.0
   - f90nml
   - gitpython
   - jsonschema
   - netcdf4
-  - numpy
+  # Limiting here the numpy version until the dependency with the cmor lib is corrected (triggered by the numpy.float & int aliases deprecation):
+  - numpy<1.24
   - openpyxl
   - pandas
   - pip
   - pyngl
-  - python >=2.7,<3.0.a0
+  - pytest
+  - python
   - python-cdo
-  - conda-forge/label/cf202003::python-eccodes
+  - python-eccodes
   - python-dateutil
   - requests
+  - setuptools
   - testfixtures
   - xarray
   - xlsxwriter

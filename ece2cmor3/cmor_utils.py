@@ -83,7 +83,7 @@ def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
 def make_cmor_frequency(s):
     if isinstance(s, dateutil.relativedelta.relativedelta) or isinstance(s, datetime.timedelta):
         return s
-    if isinstance(s, basestring):
+    if isinstance(s, str):
         if s in ["yr", "yrPt", "dec"]:
             return dateutil.relativedelta.relativedelta(years=1)
         if s in ["mon", "monC", "monPt"]:
@@ -198,7 +198,7 @@ def get_nemo_frequency(filepath, expname):
 def read_time_stamps(path):
     command = cdo.Cdo()
     times = command.showtimestamp(input=path)[0].split()
-    return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
+    return [datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S") for s in times]
 
 
 def find_tm5_output(path, expname=None, varname=None, freq=None):
@@ -505,7 +505,7 @@ class ScriptUtils:
         result = list(result)
         # If no flag was found, activate all components in configuration
         if len(result) == 0:
-            return components.ece_configs.get(conf, components.models.keys())
+            return components.ece_configs.get(conf, list(components.models.keys()))
         return result
 
     @staticmethod

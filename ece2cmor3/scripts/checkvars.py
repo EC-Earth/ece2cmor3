@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-from __future__ import print_function
 
 import argparse
 import json
 import logging
 import sys
 import os
+import re
 
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_utils, components
 
@@ -22,26 +22,88 @@ log = logging.getLogger(__name__)
 # Converts the input fortran variable namelist file to json
 def write_varlist(targets, opath):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
-    tgtdict = {k: [t.variable for t in tgtgroups[k]] for k in tgtgroups.keys()}
+    tgtdict = {k: [t.variable for t in tgtgroups[k]] for k in list(tgtgroups.keys())}
     with open(opath, 'w') as ofile:
         json.dump(tgtdict, ofile, indent=4, separators=(',', ': '))
         ofile.write('\n')  # Add newline at the end of the json file because the python json package doesn't do this.
         ofile.close()
     logging.info('Writing the json  file: {:}'.format(opath))
 
+# Check whether an attribute has a None value, if so replace the None value by an empty string:
+def check_attribute_for_none_value(object_name, attribute_name, opath):
+    if getattr(object_name, attribute_name, "") == None:
+    #logging.info('An empty string is written for {:15} in {:6} {:10} in {:}'.format(attribute_name, object_name.table, object_name.variable, opath))
+     logging.info('An empty string is written for {:15} in {:6} {:10} in {:}'.format(attribute_name, object_name.table, object_name.variable, re.sub(r'/.*/', '/*/', opath)))
+     # Replace the None value by an empty string:
+     setattr(object_name, attribute_name , "")
+
+def tweakedorder_table_realm(iterable_object):           # From: https://clipc-services.ceda.ac.uk/dreq/index/miptable.html
+    if   iterable_object == 'fx'          : return  1    #  fx           Fixed variables [fx] (8 variables)
+    elif iterable_object == '3hr'         : return  2    #  3hr          3-hourly data [3hr] (23 variables)
+    elif iterable_object == '6hrLev'      : return  3    #  6hrLev       6-hourly data on atmospheric model levels [6hr] (8 variables)
+    elif iterable_object == '6hrPlev'     : return  4    #  6hrPlev      6-hourly atmospheric data on pressure levels (time mean) [6hr] (17 variables)
+    elif iterable_object == '6hrPlevPt'   : return  5    #  6hrPlevPt    6-hourly atmospheric data on pressure levels (instantaneous) [6hr] (37 variables)
+    elif iterable_object == 'day'         : return  6    #  day          Daily Data (extension - contains both atmospheric and oceanographic data) [day] (38 variables)
+    elif iterable_object == 'Amon'        : return  7    #  Amon         Monthly atmospheric data [mon] (75 variables)
+    elif iterable_object == 'Ofx'         : return  8    #  Ofx          Fixed ocean data [fx] (9 variables)
+    elif iterable_object == 'Oday'        : return  9    #  Oday         Daily ocean data [day] (7 variables)
+    elif iterable_object == 'Omon'        : return 10    #  Omon         Monthly ocean data [mon] (292 variables)
+    elif iterable_object == 'Oyr'         : return 11    #  Oyr          Annual ocean variables [yr] (122 variables)
+    elif iterable_object == 'Odec'        : return 12    #  Odec         Decadal ocean data [decadal] (30 variables)
+    elif iterable_object == 'Oclim'       : return 13    #  Oclim        Monthly climatologies of ocean data [monClim] (34 variables)
+    elif iterable_object == 'SIday'       : return 14    #  SIday        Daily sea-ice data [day] (9 variables)
+    elif iterable_object == 'SImon'       : return 15    #  SImon        Monthly sea-ice data [mon] (89 variables)
+    elif iterable_object == 'Lmon'        : return 16    #  Lmon         Monthly land surface and soil model fields [mon] (53 variables)
+    elif iterable_object == 'LImon'       : return 17    #  LImon        Monthly fields for the terrestrial cryosphere [mon] (36 variables)
+    elif iterable_object == 'CFsubhr'     : return 18    #  CFsubhr      Diagnostics for cloud forcing analysis at specific sites [subhr] (79 variables)
+    elif iterable_object == 'CF3hr'       : return 19    #  CF3hr        3-hourly associated with cloud forcing [3hr] (64 variables)
+    elif iterable_object == 'CFday'       : return 20    #  CFday        Daily data associated with cloud forcing [day] (36 variables)
+    elif iterable_object == 'CFmon'       : return 21    #  CFmon        Monthly data associated with cloud forcing [mon] (57 variables)
+    elif iterable_object == 'Efx'         : return 22    #  Efx          Fixed (extension) [fx] (16 variables)
+    elif iterable_object == 'Esubhr'      : return 23    #  Esubhr       Sub-hourly (extension) [subhr] (33 variables)
+    elif iterable_object == 'E1hr'        : return 24    #  E1hr         Hourly Atmospheric Data (extension) [1hr] (16 variables)
+    elif iterable_object == 'E1hrClimMon' : return 25    #  E1hrClimMon  Diurnal Cycle [1hrClimMon] (5 variables)
+    elif iterable_object == 'E3hr'        : return 26    #  E3hr         3-hourly (time mean, extension) [3hr] (19 variables)
+    elif iterable_object == 'E3hrPt'      : return 27    #  E3hrPt       3-hourly (instantaneous, extension) [3hr] (48 variables)
+    elif iterable_object == 'E6hrZ'       : return 28    #  E6hrZ        6-hourly Zonal Mean (extension) [6hr] (3 variables)
+    elif iterable_object == 'Eday'        : return 29    #  Eday         Daily (time mean, extension) [day] (123 variables)
+    elif iterable_object == 'EdayZ'       : return 30    #  EdayZ        Daily Zonal Mean (extension) [day] (15 variables)
+    elif iterable_object == 'Emon'        : return 31    #  Emon         Monthly (time mean, extension) [mon] (331 variables)
+    elif iterable_object == 'EmonZ'       : return 32    #  EmonZ        Monthly zonal means (time mean, extension) [mon] (25 variables)
+    elif iterable_object == 'Eyr'         : return 33    #  Eyr          Daily (time mean, extension) [yr] (19 variables)
+    elif iterable_object == 'AERfx'       : return 34    #  AERfx        Fixed atmospheric chemistry and aerosol data [fx] (0 variables)
+    elif iterable_object == 'AERhr'       : return 35    #  AERhr        Hourly atmospheric chemistry and aerosol data [1hr] (5 variables)
+    elif iterable_object == 'AERday'      : return 36    #  AERday       Daily atmospheric chemistry and aerosol data [day] (11 variables)
+    elif iterable_object == 'AERmon'      : return 37    #  AERmon       Monthly atmospheric chemistry and aerosol data [mon] (126 variables)
+    elif iterable_object == 'AERmonZ'     : return 38    #  AERmonZ      Monthly atmospheric chemistry and aerosol data [mon] (17 variables)
+    elif iterable_object == 'IfxAnt'      : return 39    #  IfxAnt       Fixed fields on the Antarctic ice sheet [fx] (4 variables)
+    elif iterable_object == 'IfxGre'      : return 40    #  IfxGre       Fixed fields on the Greenland ice sheet [fx] (4 variables)
+    elif iterable_object == 'ImonAnt'     : return 41    #  ImonAnt      Monthly fields on the Antarctic ice sheet [mon] (27 variables)
+    elif iterable_object == 'ImonGre'     : return 42    #  ImonGre      Monthly fields on the Greenland ice sheet [mon] (27 variables)
+    elif iterable_object == 'IyrAnt'      : return 43    #  IyrAnt       Annual fields on the Antarctic ice sheet [yr] (33 variables)
+    elif iterable_object == 'IyrGre'      : return 44    #  IyrGre       Annual fields on the Greenland ice sheet [yr] (33 variables)
+    else:                                   return 45
 
 def write_varlist_ascii(targets, opath, print_all_columns):
     tgtgroups = cmor_utils.group(targets, lambda t: t.table)
     ofile = open(opath, 'w')
     if print_all_columns:
      # In case the input data request is an xlsx file, all columns are printed:
-     ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+     ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:40} {}{}'.format(
                   'table', 'variable', 'prio', 'dimensions', 'long_name', 'unit','link',
                   'list of MIPs which request this variable', 'comment_author', 'comment', '\n'))
-     for k, vlist in tgtgroups.iteritems():
+     for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
+         vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
-             ofile.write('{:10} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:20} {} {}'.format(
+             check_attribute_for_none_value(tgtvar, "priority"       , opath)
+             check_attribute_for_none_value(tgtvar, "dimensions"     , opath)
+             check_attribute_for_none_value(tgtvar, "long_name"      , opath)
+             check_attribute_for_none_value(tgtvar, "mip_list"       , opath)
+             check_attribute_for_none_value(tgtvar, "vid"            , opath)
+             check_attribute_for_none_value(tgtvar, "comment_author" , opath)
+             check_attribute_for_none_value(tgtvar, "ecearth_comment", opath)
+             ofile.write('{:11} {:20} {:5} {:45} {:115} {:20} {:85} {:140} {:40} {}{}'.format(
                           tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "priority"       , "unknown"),
@@ -50,15 +112,16 @@ def write_varlist_ascii(targets, opath, print_all_columns):
                           tgtvar.units,
                           'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid", "unknown") + '.html',
                           getattr(tgtvar, "mip_list"       , "unknown"),
-                          getattr(tgtvar, "comment_author" , ""       ), # Potential problem (with python3) with empty comment_author field in ../resources/list-of-ignored-cmip6-requested-variables.xlsx (currently for Amon ccb, CFday ccb, CFsubhr ccb, )
+                          getattr(tgtvar, "comment_author" , ""       ),
                           getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     else:
      # In case the input data request is a json file, a reduced number of columns is printed:
-     ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
-     for k, vlist in tgtgroups.iteritems():
+     ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+     for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
+         vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
-             ofile.write('{:10} {:20} {:45} {:115} {:20} {} {}'.format(tgtvar.table,
+             ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format(tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "dimensions"     , "unknown"),
                           getattr(tgtvar, "long_name"      , "unknown"),
@@ -109,7 +172,8 @@ def write_varlist_excel(targets, opath, with_pingfile):
         worksheet.write(0, 13, 'ping file comment'                   , bold)
 
     row_counter = 1
-    for k, vlist in tgtgroups.iteritems():
+    for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
+        vlist = tgtgroups[k]
         worksheet.write(row_counter, 0, '')
         row_counter += 1
         for tgtvar in vlist:
@@ -119,9 +183,8 @@ def write_varlist_excel(targets, opath, with_pingfile):
             worksheet.write(row_counter, 3, getattr(tgtvar, "dimensions", "unknown"))
             worksheet.write(row_counter, 4, getattr(tgtvar, "long_name" , "unknown"))
             worksheet.write(row_counter, 5, tgtvar.units)
-            worksheet.write(row_counter, 6,
-                            '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' + getattr(tgtvar, "vid",
-                                                                                                  "unknown") + '.html","web")')
+            worksheet.write(row_counter, 6, '=HYPERLINK("' + 'http://clipc-services.ceda.ac.uk/dreq/u/' +
+                                            getattr(tgtvar, "vid", "unknown") + '.html","web")')
             worksheet.write(row_counter, 7, getattr(tgtvar, "ecearth_comment", ""       ))
             worksheet.write(row_counter, 8, getattr(tgtvar, "comment_author" , ""       ))
             worksheet.write(row_counter, 9, getattr(tgtvar, "comment"        , "unknown"))
@@ -228,7 +291,7 @@ def main():
      # necessarily include all specific MIP requests. In fact it would be better to create a json data request equivalent
      # based on the ifspar.json.
      result = {}
-     for model, targetlist in matches.items():
+     for model, targetlist in list(matches.items()):
          result[model] = {}
          for target in targetlist:
              table = target.table

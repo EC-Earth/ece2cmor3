@@ -33,8 +33,8 @@ def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
     global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes, \
         record_keys
     grib_file.initialize()
-    gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in gpfiles.keys()}
-    spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in shfiles.keys()}
+    gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in list(gpfiles.keys())}
+    spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in list(shfiles.keys())}
     ini_gridpoint_file, ini_spectral_file = ini_gpfile, ini_shfile
     temp_dir = tmpdir
     accum_codes = load_accum_codes(
@@ -81,7 +81,7 @@ def load_accum_codes(path):
     global accum_key
     data = json.loads(open(path).read())
     if accum_key in data:
-        return map(grib_tuple_from_string, data[accum_key])
+        return list(map(grib_tuple_from_string, data[accum_key]))
     else:
         return []
 
@@ -134,7 +134,7 @@ def inspect_day(gribfile, grid):
             records[key] = [time]
         gribfile.release()
     result = {}
-    for key, val in records.iteritems():
+    for key, val in records.items():
         hrs = numpy.array(val)
         if len(hrs) == 1:
             log.warning("Variable %d.%d on level %d of type %d has been detected once in first day "
@@ -179,7 +179,7 @@ def get_record_key(gribfile, gridtype):
         level = 0
         levtype = grib_file.surface_level_code
     cosp_levels = {40: 84000, 41: 56000, 42: 22000}
-    if codetab == 126 and codevar in cosp_levels.keys():
+    if codetab == 126 and codevar in list(cosp_levels.keys()):
         level = cosp_levels[codevar]
         levtype = grib_file.pressure_level_Pa_code
     # Fix for spectral height level fields in gridpoint file:
@@ -299,23 +299,23 @@ def cluster_files(valid_tasks, varstasks):
     for task in valid_tasks:
         task2files[task] = set()
         task2freqs[task] = set()
-        for key, tsklist in varstasks.iteritems():
+        for key, tsklist in varstasks.items():
             if task in tsklist:
                 task2files[task].add('.'.join([str(key[0]), str(key[1]), str(key[2])]))
                 if key[3] == -1:
-                    task2freqs[task].update([varsfreq[k] for k in varsfreq.keys() if
+                    task2freqs[task].update([varsfreq[k] for k in list(varsfreq.keys()) if
                                              (k[0], k[1], k[2]) == (key[0], key[1], key[2])])
                 else:
                     if key in varsfreq:
                         task2freqs[task].add(varsfreq[key])
                     elif key in fxvars:
                         varsfx.add(key)
-    for task, fnames in task2files.iteritems():
+    for task, fnames in task2files.items():
         codes = {(int(f.split('.')[0]), int(f.split('.')[1])): f for f in sorted(list(fnames))}
         cum_file = '_'.join([codes[k] for k in codes if k in accum_codes])
         inst_file = '_'.join([codes[k] for k in codes if k not in accum_codes])
-        task2files[task] = filter(None, [cum_file, inst_file])
-    for task, freqset in task2freqs.iteritems():
+        task2files[task] = [_f for _f in [cum_file, inst_file] if _f]
+    for task, freqset in task2freqs.items():
         maxfreq = max(freqset) if len(freqset) > 0 else 0
         if any([f for f in freqset if maxfreq % f != 0]):
             log.error("Task depends on input fields with incompatible time steps")
@@ -355,7 +355,7 @@ def filter_fx_variables(gribfile, keys2files, gridtype, startdate, handles=None)
             timestamp = t
 # This file may be processed twice: once for the fx-fields and once for the dynamic fields.
 # We add only the written fx-fields to the key set here.
-        if any([k[0:4] == key for k in keys2files.keys()]):
+        if any([k[0:4] == key for k in list(keys2files.keys())]):
             keys.add(key)
         write_record(gribfile, key + (gridtype,), keys2files, shift=0, handles=handles, once=True, setdate=startdate)
         gribfile.release()
@@ -405,7 +405,7 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
         else:
             for file_list, grid, keys, timestamp in zip([gridpoint_files, spectral_files], grids, [keys_gp, keys_sp], [timestamp_gp, timestamp_sp]):
                 filter_grib_files(file_list, keys2files, grid, filehandles, month=0, year=0, once=once, prev_keys=keys, prev_timestamp=timestamp)
-        for handle in filehandles.values():
+        for handle in list(filehandles.values()):
             handle.close()
     for task in task2files:
         if task.status != cmor_task.status_failed:
@@ -441,7 +441,7 @@ def validate_tasks(tasks):
             for level in levels:
                 if task.status == cmor_task.status_failed:
                     break
-                match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, varsfreq.keys())
+                match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, list(varsfreq.keys()))
                 if match_key is None:
                     if 0 != target_freq and c in cmor_source.ifs_source.grib_codes_fx:
                         match_key = soft_match_key(c.var_id, c.tab_id, levtype, level, task.source.grid_, fxvars)
@@ -487,7 +487,7 @@ def validate_tasks(tasks):
 
 def open_files(vars2files):
     files = set()
-    for fileset in vars2files.values():
+    for fileset in list(vars2files.values()):
         files.update(set([t[0] for t in fileset]))
     numreq = len(files)
     softlim = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
@@ -496,7 +496,8 @@ def open_files(vars2files):
             resource.setrlimit(resource.RLIMIT_NOFILE, (numreq + 1, -1))
         except ValueError:
             return {}
-    return {f: open(os.path.join(temp_dir, f), 'w') for f in files}
+    byte_mode = 'w' if grib_file.test_mode else 'wb'
+    return {f: open(os.path.join(temp_dir, f), byte_mode) for f in files}
 
 
 def build_fast_forward_cache(keys2files, grid):
@@ -632,7 +633,7 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
     global starttimes
     var_infos = set()
     if key[2] == grib_file.hybrid_level_code:
-        for k, v in keys2files.items():
+        for k, v in list(keys2files.items()):
             if k[:3] == key[:3]:
                 var_infos.update(v)
     else:
@@ -685,5 +686,5 @@ def write_record(gribfile, key, keys2files, shift=0, handles=None, once=False, s
 # Converts 24 hours into extra days
 def fix_date_time(date, time):
     timestamp = datetime.datetime(year=date // 10 ** 4, month=(date % 10 ** 4) // 10 ** 2,
-                                  day=date % 10 ** 2) + datetime.timedelta(hours=time)
+                                  day=date % 10 ** 2) + datetime.timedelta(hours=int(time))
     return timestamp.year * 10 ** 4 + timestamp.month * 10 ** 2 + timestamp.day, timestamp.hour

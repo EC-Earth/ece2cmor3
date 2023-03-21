@@ -6,10 +6,10 @@ import json
 import logging
 import netCDF4
 import cmor
-import cmor_utils
-import cmor_source
-import cmor_target
-import cmor_task
+from . import cmor_utils
+from . import cmor_source
+from . import cmor_target
+from . import cmor_task
 import cdo
 from ece2cmor3 import cdoapi
 import Ngl
@@ -111,10 +111,10 @@ def initialize(path,expname,tabledir, prefix,refdate):
         with open(coordfile) as f:
             data = json.loads(f.read())
         axis_entries = data.get("axis_entry", {})
-        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}
-        plev19=numpy.array([numpy.float(value) for value in  axis_entries['plev19']['requested']])
+        axis_entries = {k.lower(): v for k, v in axis_entries.items()}
+        plev19=numpy.array([numpy.float64(value) for value in  axis_entries['plev19']['requested']])
         plev19_=plev19
-        plev39=numpy.array([numpy.float(value) for value in  axis_entries['plev39']['requested']])
+        plev39=numpy.array([numpy.float64(value) for value in  axis_entries['plev39']['requested']])
         plev39_=plev39
     else:
         log.warning('Using default pressure level definitions')
@@ -248,7 +248,7 @@ def execute(tasks):
 
     #group the taks according to table
     taskdict = cmor_utils.group(tasks,lambda t:t.target.table)
-    for table,tasklist in taskdict.iteritems():
+    for table,tasklist in taskdict.items():
         try:
             log.info("Loading CMOR table %s to process %d variables..." % (table,len(tasklist)))
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
@@ -326,7 +326,7 @@ def execute(tasks):
                         taskmask[task] = True
                 else:
                     log.info("Skipping variable %s for unknown reason..." % (task.source.variable()))
-        for task,executed in taskmask.iteritems():
+        for task,executed in taskmask.items():
             if(not executed):
                 log.error("ERR -14: The source variable %s of target %s in  table %s failed to cmorize" % (task.source.variable(),task.target.variable,task.target.table))
                 failed.append([task.target.variable,task.target.table])
@@ -682,7 +682,7 @@ def create_type_axes(task):
     filepath= getattr(task,cmor_task.output_path_key)
     log.info("Creating extra axes for table %s using file %s..." % (table, filepath))
     table_type_axes = type_axes_[key]
-    tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(extra_axes.keys())
+    tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
     for dim in tgtdims:
         if dim == 'lambda550nm':
             ncunits=extra_axes['lambda550nm']['ncunits']
@@ -923,7 +923,7 @@ def get_ps_tasks(tasks):
     global exp_name_,path_
     tasks_by_freq = cmor_utils.group(tasks, lambda task: task.target.frequency)
     result = {}
-    for freq, task_group in tasks_by_freq.iteritems():
+    for freq, task_group in tasks_by_freq.items():
         tasks3d = [t for t in task_group if ("alevel" in getattr(t.target, cmor_target.dims_key).split()  or "plev19" in getattr(t.target, cmor_target.dims_key).split() or
             "alevhalf" in getattr(t.target, cmor_target.dims_key).split()  or "plev39"  in getattr(t.target, cmor_target.dims_key).split() )]
         if not any(tasks3d):

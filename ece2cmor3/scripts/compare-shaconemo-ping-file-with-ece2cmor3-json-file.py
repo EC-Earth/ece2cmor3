@@ -9,7 +9,7 @@
 # be cmorized by ece2cmor3. The script shows which variables are only in one of both files
 # available.
 
-from __future__ import print_function
+
 import xml.etree.ElementTree as xmltree
 import json
 from os.path import expanduser

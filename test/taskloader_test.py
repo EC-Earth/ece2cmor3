@@ -296,6 +296,6 @@ class taskloader_test(unittest.TestCase):
             src = tasks[0].source
             assert isinstance(src, cmor_source.ifs_source)
             script = getattr(tasks[0], "post-proc", None)
-            assert script in ece2cmorlib.scripts.keys() and ece2cmorlib.scripts[script]["component"] == "ifs"
+            assert script in list(ece2cmorlib.scripts.keys()) and ece2cmorlib.scripts[script]["component"] == "ifs"
         finally:
             ece2cmorlib.finalize_without_cmor()

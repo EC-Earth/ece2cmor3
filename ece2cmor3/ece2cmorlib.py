@@ -4,6 +4,7 @@ import cmor
 import json
 import logging
 import os
+#import subprocess
 import tempfile
 import cdo       # Only for version printing
 import dreqPy    # Only for version printing
@@ -54,6 +55,9 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
     log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -73,6 +77,9 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
     log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
     log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -92,7 +99,7 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     metadata["latest_ece2cmor_version"] = __version__.version
     metadata["ece2cmor_git_revision"] = cmor_utils.get_git_hash()
     metadata["latest_applied_cmor_fixer_version"] = 'None'
-    for key, val in metadata.items():
+    for key, val in list(metadata.items()):
         log.info("Metadata attribute %s: %s", key, val)
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
@@ -180,7 +187,7 @@ def add_mask(name, src, func, val):
 # Adds a custom processing script
 def add_script(component, name, attributes):
     global scripts
-    scripts[name] = {k: v for k, v in attributes.items() if k != "name"}
+    scripts[name] = {k: v for k, v in list(attributes.items()) if k != "name"}
     scripts[name]["component"] = component
 
 
@@ -203,7 +210,7 @@ def perform_ifs_tasks(datadir, expname,
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
-    ifs2cmor.scripts = {k: v for k, v in scripts.items() if v["component"] == "ifs"}
+    ifs2cmor.scripts = {k: v for k, v in list(scripts.items()) if v["component"] == "ifs"}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
                                 tempdir=tempdir, autofilter=auto_filter)):
         return

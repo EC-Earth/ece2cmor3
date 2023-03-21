@@ -87,7 +87,7 @@ class grib_filter_test(unittest.TestCase):
         src = cmor_source.ifs_source.read("214.128", "sqrt(sqr(var165)+sqr(var166))")
         tsk = cmor_task.cmor_task(src, tgt)
         grib_filter.execute([tsk])
-        filepath = os.path.join(tmp_path, "166.128.105_165.128.105.3")
+        filepath = os.path.join(tmp_path, "165.128.105_166.128.105.3")
         assert os.path.isfile(filepath)
         assert getattr(tsk, cmor_task.filter_output_key) == [filepath]
         with open(filepath) as fin:
