@@ -12,12 +12,12 @@
 #   cdo -V                                       # version 1.9.6
 #   drq -v                                       # version 01.02.00
 #   drq -h
-#   ece2cmor -V                                  # ece2cmor v1.9.0
+#   ece2cmor -V                                  # ece2cmor v1.9.1
 #  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
 #   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
 #  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
 
-name: ece2cmor3
+name: ece2cmor3-python-2
 channels:
   - conda-forge
   - nodefaults
