@@ -192,7 +192,7 @@ def lookup_variables(tasks):
 
 
 def create_basins(target, dataset):
-    meanings = {"atlmsk": "atlantic_ocean", "indmsk": "indian_ocean", "pacmsk": "pacific_ocean"}
+    meanings = {"pacmsk": "pacific_ocean", "indmsk": "indian_ocean", "atlmsk": "atlantic_ocean"}
     flagvals = [int(s) for s in getattr(target, "flag_values", "").split()]
     basins = getattr(target, "flag_meanings", "").split()
     data = numpy.copy(dataset.variables["glomsk"][...])
