@@ -30,8 +30,7 @@ dependencies:
   - gitpython
   - jsonschema
   - netcdf4
-  # Limiting here the numpy version until the dependency with the cmor lib is corrected (triggered by the numpy.float & int aliases deprecation):
-  - numpy<1.24
+  - numpy
   - openpyxl
   - pandas
   - pip
