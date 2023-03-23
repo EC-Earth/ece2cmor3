@@ -60,11 +60,7 @@ if [ "$#" -eq 3 ]; then
 else
   echo
   echo " This scripts requires three arguments, e.g.:"
-  echo "  $0 default 226 ece2cmor3-python-2"
-  echo "  $0 pextra  226 ece2cmor3-python-2"
-  echo "  $0 default 402 ece2cmor3-python-3"
-  echo "  $0 pextra  402 ece2cmor3-python-3"
-  echo "  $0 default 241 ece2cmor3"
-  echo "  $0 pextra  241 ece2cmor3"
+  echo "  $0 default 420 ece2cmor3"
+  echo "  $0 pextra  420 ece2cmor3"
   echo
 fi
