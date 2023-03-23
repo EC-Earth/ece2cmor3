@@ -133,7 +133,7 @@ def find_ifs_output(path, expname=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile("^(ICMGG|ICMSH)" + subexpr + "\+[0-9]{6}$")
+    expr = re.compile(r"^(ICMGG|ICMSH)" + subexpr + r"\+[0-9]{6}$")
     result = []
     for root, dirs, files in os.walk(path):
         result.extend([os.path.join(root, f) for f in files if re.match(expr, f)])
@@ -144,7 +144,7 @@ def find_ifs_output(path, expname=None):
 def get_ifs_date(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.search("\+[0-9]{6}", fname)
+    regex = re.search(r"\+[0-9]{6}", fname)
     if not regex:
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
@@ -157,7 +157,7 @@ def find_nemo_output(path, expname=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile(subexpr + "_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    expr = re.compile(subexpr + r"_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 
@@ -166,7 +166,7 @@ def get_nemo_grid(filepath):
     global log
     f = os.path.basename(filepath)
     expname = f[:4]
-    expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
+    expr = re.compile(r"(?<=^" + expname + r"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result = re.search(expr, f)
     if not result:
         log.error("File path %s does not contain a grid string" % filepath)
@@ -179,12 +179,12 @@ def get_nemo_grid(filepath):
 def get_nemo_frequency(filepath, expname):
     global log
     f = os.path.basename(filepath)
-    expr = re.compile("^" + expname + ".*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    expr = re.compile(r"^" + expname + r".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if not re.match(expr, f):
         log.error("File path %s does not correspond to nemo output of experiment %s" % (filepath, expname))
         return None
     fstr = f[len(expname) + 1:].split("_")[0]
-    expr = re.compile("^(\d+)([hdmy])")
+    expr = re.compile(r"^(\d+)([hdmy])")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
@@ -226,11 +226,11 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
         # aspi
         # second quotation marks:
         # _*_185001-185012.nc to _*_185001010000-185012312300 [6-12 numbers in date]
-        expr = re.compile("(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
+        expr = re.compile(r"(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + r"_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
     elif varname is not None and freq == 'fx':
-        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(varname + r"_.*" + freq + r".*_" + subexpr + r"_.*.nc$")
     else:
-        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(varname + r"_.*" + freq + r".*_" + subexpr + r"_.*.nc$")
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
@@ -239,14 +239,14 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
 def get_tm5_frequency(filepath, expname):
     global log
     f = os.path.basename(filepath)
-    expr = re.compile(".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    expr = re.compile(r".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
     if not re.match(expr, f):
         log.error("File path %s does not correspond to tm5 output of experiment %s" % (filepath, expname))
         return None
 
     fstr = f.split("_")[1]
-    expr = re.compile("(AERhr|AER6hr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
-    # expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
+    expr = re.compile(r"(AERhr|AER6hr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
+    # expr = re.compile(r"(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
@@ -261,7 +261,7 @@ def get_tm5_frequency(filepath, expname):
 def get_tm5_interval(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.findall("[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
+    regex = re.findall(r"[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
     start, end = None, None
     if not regex or len(regex) != 2:
         log.error("Unable to parse dates from tm5 file name %s" % fname)

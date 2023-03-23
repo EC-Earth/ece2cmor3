@@ -44,7 +44,7 @@ class nemo_output_factory(object):
     def set_timeframe(self, startdate_, enddate_, frequency_):
         self.startdate = startdate_
         self.enddate = enddate_
-        expr = re.compile("^[1-9]([hdmy])$")
+        expr = re.compile(r"^[1-9]([hdmy])$")
         if re.match(expr, frequency_):
             self.frequency = frequency_
         else:

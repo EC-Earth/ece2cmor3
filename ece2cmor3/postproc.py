@@ -127,7 +127,7 @@ def add_expr_operators(cdo, task):
         expr = '='.join([cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())] * 2)
     else:
         expr = input_expr
-    groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
+    groups = re.search(r"^var([0-9]{1,3})\=", expr.replace(" ", ""))
     if groups is None:
         lhs = cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())
         rhs = expr.replace(" ", "")
@@ -143,11 +143,11 @@ def add_expr_operators(cdo, task):
         if not any(getattr(task.target, "z_dims", [])):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
             sub_expr = mask_rhs(sub_expr_list[0].strip(), mask)
-            if not re.match("var[0-9]{1,3}", sub_expr):
+            if not re.match(r"var[0-9]{1,3}", sub_expr):
                 cdo.add_operator(expr_operator, "var" + str(new_code) + "=" + sub_expr)
             else:
                 task.source = cmor_source.ifs_source.read(sub_expr, mask_expr=mask)
-            root_codes = [int(s.strip()[3:]) for s in re.findall("var[0-9]{1,3}", sub_expr)]
+            root_codes = [int(s.strip()[3:]) for s in re.findall(r"var[0-9]{1,3}", sub_expr)]
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
         else:

@@ -190,10 +190,10 @@ class ifs_source(cmor_source):
                 # Remove whitespace
                 expr_string = expr.replace(" ", "")
                 # Find all variable strings
-                varstrs = re.findall("var[0-9]{1,3}(?![0-9])", expr_string) + re.findall("var[0-9]{6}(?![0-9])",
-                                                                                         expr_string)
+                varstrs = re.findall(r"var[0-9]{1,3}(?![0-9])", expr_string) + re.findall(r"var[0-9]{6}(?![0-9])",
+                                                                                          expr_string)
                 # Split into LHS and RHS
-                groups = re.search("^var([0-9]{1,3}|[0-9]{6})\=(?!\=)", expr_string)
+                groups = re.search(r"^var([0-9]{1,3}|[0-9]{6})\=(?!\=)", expr_string)
 
                 # Remove LHS if present
                 if groups is not None:
@@ -202,7 +202,7 @@ class ifs_source(cmor_source):
                     expr_string = expr_string[len(groups.group(0)):]
 
                 # Remove leading zeros
-                expr_string = re.sub("var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), expr_string)
+                expr_string = re.sub(r"var[0-9]{6}", lambda o: "var" + o.group(0)[-3:].lstrip('0'), expr_string)
 
                 # Add LHS again
                 expr_string = '='.join(["var" + str(gc.var_id), expr_string])
@@ -228,7 +228,7 @@ class ifs_source(cmor_source):
                 setattr(cls, expression_order_key, expr_order)
         if mask_expr is not None:
             setattr(cls, mask_expression_key, mask_expr)
-            varstrs = re.findall("var[0-9]{1,3}(?![0-9])", mask_expr) + re.findall("var[0-9]{6}(?![0-9])", mask_expr)
+            varstrs = re.findall(r"var[0-9]{1,3}(?![0-9])", mask_expr) + re.findall(r"var[0-9]{6}(?![0-9])", mask_expr)
             # Collect root codes
             root_codes = getattr(cls, "root_codes", [cls.get_grib_code()])
             for varstr in varstrs:

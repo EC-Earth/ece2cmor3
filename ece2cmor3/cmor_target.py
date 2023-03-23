@@ -52,7 +52,7 @@ class cmor_target(object):
 # Derives the table id for the given file path
 def get_table_id(filepath, prefix):
     fname = os.path.basename(filepath)
-    regex = re.search("^" + prefix + "_.*.json$", fname)
+    regex = re.search(r"^" + prefix + r"_.*.json$", fname)
     if not regex:
         raise Exception("Unable to match file name", fname, "as cmor table json-file with prefix", prefix)
     return regex.group()[len(prefix) + 1:len(fname) - 5]
@@ -124,7 +124,7 @@ def create_targets_for_file(filepath, prefix):
                 if any(zdims):
                     setattr(target, "z_dims", zdims)
             if key in [cell_measures_key.lower(), cell_methods_key.lower()]:
-                cell_measure_str = re.sub("[\(\[].*?[\)\]]", "", v2.strip())
+                cell_measure_str = re.sub(r"[\(\[].*?[\)\]]", "", v2.strip())
                 if cell_measure_str not in ["@OPT", "--OPT", "", None]:
                     cell_measures = cell_measure_str.split(':')
                     for i in range(1, len(cell_measures)):
@@ -189,7 +189,7 @@ def create_targets(path, prefix):
             drq_version_printed = print_drq_version(coordfilepath)
         if os.path.exists(coordfilepath):
             create_axes_for_file(coordfilepath, prefix)
-        expr = re.compile("^" + prefix + "_.*.json$")
+        expr = re.compile(r"^" + prefix + r"_.*.json$")
         paths = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
         for p in paths:
             if os.path.basename(p) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:

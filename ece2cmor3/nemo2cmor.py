@@ -630,11 +630,11 @@ def write_grid(grid, tasks):
 def get_grid_type(grid_name):
     if grid_name == "icemod":
         return 't'
-    expr = re.compile("(?i)(zoom|vert)?_sum$")
+    expr = re.compile(r"(?i)(zoom|vert)?_sum$")
     result = re.search(expr, grid_name)
     if result is not None:
         return 't'
-    expr = re.compile("(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
+    expr = re.compile(r"(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
     result = re.search(expr, grid_name)
     if not result:
         return None
