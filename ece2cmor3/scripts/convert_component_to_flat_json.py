@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Thomas Reerink
 #
 # This script converts a component json file produced by genecec including the preferences
