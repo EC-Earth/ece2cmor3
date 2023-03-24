@@ -39,6 +39,5 @@ else
   echo " This scripts requires one argument:"
   echo "  $0 ece2cmor3"
   echo "  $0 ece2cmor3-python-2"
-  echo "  $0 ece2cmor3-python-3"
   echo
 fi

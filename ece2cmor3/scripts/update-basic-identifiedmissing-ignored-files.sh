@@ -55,8 +55,6 @@ if [ "$#" -eq -2 ]; then
   # Step 5: Run with the --withouttablescheck option checkvars based on the largest data request (and the pre-list-*.xlsx):
   cd ${ece2cmor_root_directory}/; pip install -e .; cd -
   cd ${ece2cmor_root_directory}/ece2cmor3/scripts
-  # Potential problem (with python3) with empty comment_author field in ignored file (currently for Amon ccb, CFday ccb, CFsubhr ccb)
-  # Note that during running the commands here this potential problem comes upstream from the pre-ignored file.
   checkvars --withouttablescheck -v --drq  xls-m=all-cmip6-mips-e=CMIP-t=3-p=3/cmvmm_ae.c4.cd.cf.cm.co.da.dc.dy.fa.ge.gm.hi.is.ls.lu.om.pa.pm.rf.sc.si.vi.vo_TOTAL_3_3.xlsx  --output cmvmm-all-mips-t=3-p=3
   # open cmvmm-all-mips-t=3-p=3.identifiedmissing.xlsx
   # open cmvmm-all-mips-t=3-p=3.ignored.xlsx
