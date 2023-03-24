@@ -86,8 +86,6 @@ if [ "$#" -eq 1 ]; then
 else
  echo
  echo ' Illegal number of arguments: the script requires one argument: The path of the b2share-data directory:'
- echo ' ' $0 '${HOME}/cmorize/ece2cmor3-python-3/ece2cmor3/resources/b2share-data'
- echo ' ' $0 '${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/b2share-data'
  echo ' ' $0 '${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data'
  echo ' ' $0 '${PERM}/cmorize/ece2cmor3/ece2cmor3/resources/b2share-data'
  echo

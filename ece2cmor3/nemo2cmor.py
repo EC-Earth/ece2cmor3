@@ -192,7 +192,7 @@ def lookup_variables(tasks):
 
 
 def create_basins(target, dataset):
-    meanings = {"atlmsk": "atlantic_ocean", "indmsk": "indian_ocean", "pacmsk": "pacific_ocean"}
+    meanings = {"pacmsk": "pacific_ocean", "indmsk": "indian_ocean", "atlmsk": "atlantic_ocean"}
     flagvals = [int(s) for s in getattr(target, "flag_values", "").split()]
     basins = getattr(target, "flag_meanings", "").split()
     data = numpy.copy(dataset.variables["glomsk"][...])
@@ -630,11 +630,11 @@ def write_grid(grid, tasks):
 def get_grid_type(grid_name):
     if grid_name == "icemod":
         return 't'
-    expr = re.compile("(?i)(zoom|vert)?_sum$")
+    expr = re.compile(r"(?i)(zoom|vert)?_sum$")
     result = re.search(expr, grid_name)
     if result is not None:
         return 't'
-    expr = re.compile("(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
+    expr = re.compile(r"(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
     result = re.search(expr, grid_name)
     if not result:
         return None

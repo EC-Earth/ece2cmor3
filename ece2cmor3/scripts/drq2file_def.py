@@ -192,7 +192,7 @@ def main():
 
     for file_element in root_opa.findall('./file_group/file'):
      # Get the model component info from this attribute by  using a regular expression:
-     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     model_component = re.search(r'_(.+?)_', file_element.attrib["name_suffix"]).group(1)
      if model_component == 'lim' or model_component == 'pisces':
      #print(' Remove file for opa file_def:', file_element.attrib["id"], model_component)
       # Remove this file element from its parent element the file_group element:
@@ -208,7 +208,7 @@ def main():
 
     for file_element in root_lim.findall('./file_group/file'):
      # Get the model component info from this attribute by  using a regular expression:
-     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     model_component = re.search(r'_(.+?)_', file_element.attrib["name_suffix"]).group(1)
      if model_component == 'opa' or model_component == 'pisces':
      #print(' Remove file for lim file_def:', file_element.attrib["id"], model_component)
       # Remove this file element from its parent element the file_group element:
@@ -224,7 +224,7 @@ def main():
 
     for file_element in root_pisces.findall('./file_group/file'):
      # Get the model component info from this attribute by  using a regular expression:
-     model_component = re.search('_(.+?)_', file_element.attrib["name_suffix"]).group(1)
+     model_component = re.search(r'_(.+?)_', file_element.attrib["name_suffix"]).group(1)
      if model_component == 'opa' or model_component == 'lim':
      #print(' Remove file for pisces file_def:', file_element.attrib["id"], model_component)
       # Remove this file element from its parent element the file_group element:

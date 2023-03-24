@@ -44,7 +44,7 @@ def get_output_freq(task):
         log.warning("Variable %s in table %s: sub-hourly frequencies are not supported... Skipping variable" %
                     (task.target.variable, task.target.table))
         return -1
-    regex = re.search("^[0-9]+hr*", task.target.frequency)
+    regex = re.search(r"^[0-9]+hr*", task.target.frequency)
     if regex:
         return int(regex.group(0)[:-2])
     return get_sample_freq(task)
