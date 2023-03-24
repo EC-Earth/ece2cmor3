@@ -4,7 +4,10 @@ import cmor
 import json
 import logging
 import os
+#import subprocess
 import tempfile
+import cdo       # Only for version printing
+import dreqPy    # Only for version printing
 
 from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
     cmor_utils, cmor_source
@@ -27,6 +30,7 @@ table_dir = table_dir_default
 tasks = []
 targets = []
 masks = {}
+scripts = {}
 enable_masks = True
 auto_filter = True
 clim_dir = None
@@ -46,6 +50,15 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
+    log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
+   #log.info('Python version info: {:}'.format(os.sys.version_info))
+    log.info('cdo {:}'.format(cdo.Cdo().version()))
+    log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
+    log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
+    log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -59,6 +72,15 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     global prefix, table_dir, targets, metadata, cmor_mode, clim_dir
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
+    log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
+   #log.info('Python version info: {:}'.format(os.sys.version_info))
+    log.info('cdo {:}'.format(cdo.Cdo().version()))
+    log.info('CDO_PY_VERSION: {:}'.format(cdo.CDO_PY_VERSION))
+    log.info('CMOR library: CMOR{:}.{:}.{:}'.format(cmor.CMOR_VERSION_MAJOR, cmor.CMOR_VERSION_MINOR, cmor.CMOR_VERSION_PATCH))
+    log.info('dreqPy {:} is loaded'.format(dreqPy.version))
+   #log.info('{:}'.format(subprocess.getoutput('python --version'                             ))) # Alternative version logging
+   #log.info('{:}'.format(subprocess.getoutput('cdo --version | head -1 | sed "s/.https.*$//"'))) # Alternative version logging without loading the package in this module
+   #log.info('{:}'.format(subprocess.getoutput('drq -v | grep dreqPy.version'                 ))) # Alternative version logging without loading the package in this module
     cmor_mode = mode
     table_dir = tabledir
     prefix = tableprefix
@@ -78,9 +100,9 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     metadata["latest_ece2cmor_version"] = __version__.version
     metadata["ece2cmor_git_revision"] = cmor_utils.get_git_hash()
     metadata["latest_applied_cmor_fixer_version"] = 'None'
-    for key, val in metadata.items():
+    for key, val in list(metadata.items()):
         log.info("Metadata attribute %s: %s", key, val)
-    with tempfile.NamedTemporaryFile("r+w", suffix=".json", delete=False) as tmp_file:
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tmp_file:
         json.dump(metadata, tmp_file)
     cmor.dataset_json(tmp_file.name)
     cmor.set_cur_dataset_attribute("calendar", "proleptic_gregorian")
@@ -166,6 +188,13 @@ def add_mask(name, src, func, val):
     masks[name] = {"source": src, "operator": func, "rhs": val}
 
 
+# Adds a custom processing script
+def add_script(component, name, attributes):
+    global scripts
+    scripts[name] = {k: v for k, v in list(attributes.items()) if k != "name"}
+    scripts[name]["component"] = component
+
+
 # Performs an IFS cmorization processing:
 def perform_ifs_tasks(datadir, expname,
                       refdate=None,
@@ -185,12 +214,14 @@ def perform_ifs_tasks(datadir, expname,
         ifs2cmor.masks = {k: masks[k] for k in masks if masks[k]["source"].model_component() == "ifs"}
     else:
         ifs2cmor.masks = {}
+    ifs2cmor.scripts = {k: v for k, v in list(scripts.items()) if v["component"] == "ifs"}
     if (not ifs2cmor.initialize(datadir, expname, tableroot, refdate if refdate else datetime.datetime(1850, 1, 1),
                                 tempdir=tempdir, climdir=clim_dir, autofilter=auto_filter)):
         return
     postproc.postproc_mode = postprocmode
     postproc.cdo_threads = cdothreads
     ifs2cmor.execute(ifs_tasks, nthreads=taskthreads)
+
 
 # Performs a NEMO cmorization processing:
 def perform_nemo_tasks(datadir, expname, refdate):

@@ -95,7 +95,8 @@ then
                     echo "Moving: $f --> $new_version_dir"
                 else
                     [ -d $new_version_dir ] || mkdir --verbose $new_version_dir
-                    mv --interactive --verbose $f $new_version_dir
+                   #mv --interactive --verbose $f $new_version_dir
+                    mv --force       --verbose $f $new_version_dir
                 fi
             done
             if [ -z ${move+x} ]

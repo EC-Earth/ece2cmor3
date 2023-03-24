@@ -1,15 +1,15 @@
 import logging
 import threading
 import re
-import Queue
+import queue
 import os
 
 from ece2cmor3 import cmor_task, cmor_utils
 
-import grib_file
-import cdoapi
-import cmor_source
-import cmor_target
+from . import grib_file
+from . import cdoapi
+from . import cmor_source
+from . import cmor_target
 
 # Log object
 log = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def get_output_path(task, tmp_path, clim_path):
 # Checks whether the task grouping makes sense: only tasks for the same variable and frequency can be safely grouped.
 def validate_task_list(tasks):
     global log
-    freqset = set(map(lambda t: cmor_target.get_freq(t.target), tasks))
+    freqset = set([cmor_target.get_freq(t.target) for t in tasks])
     if len(freqset) != 1:
         log.error("Multiple target variables joined to single cdo command: %s" % str(freqset))
         return False
@@ -109,6 +109,10 @@ def apply_command(command, task, output_path=None):
     return result
 
 
+def mask_rhs(rhs, mask):
+    return rhs if mask is None else '(' + rhs + ")/(" + mask + ')'
+
+
 # Checks whether the string expression denotes height level merging
 def add_expr_operators(cdo, task):
     missval = getattr(task, "missval", None)
@@ -117,17 +121,21 @@ def add_expr_operators(cdo, task):
     fillval = getattr(task, "fillval", None)
     if fillval is not None:
         cdo.add_operator(cdoapi.cdo_command.set_missval_operator, fillval)
-    expr = getattr(task.source, cmor_source.expression_key, None)
-    if not expr:
-        return
-    groups = re.search("^var([0-9]{1,3})\=", expr.replace(" ", ""))
+    input_expr = getattr(task.source, cmor_source.expression_key, None)
+    mask = getattr(task.source, cmor_source.mask_expression_key, None)
+    if input_expr is None:
+        if mask is None:
+            return
+        expr = '='.join([cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())] * 2)
+    else:
+        expr = input_expr
+    groups = re.search(r"^var([0-9]{1,3})\=", expr.replace(" ", ""))
     if groups is None:
-        lhs = "var" + task.source.get_grib_code().var_id
+        lhs = cmor_source.grib_code.to_cdo_str(task.source.get_grib_code())
         rhs = expr.replace(" ", "")
     else:
         lhs = groups.group(0)[:-1]
         rhs = expr.replace(" ", "")[len(lhs) + 1:]
-    expr = '='.join([lhs, rhs])
     new_code = int(lhs[3:])
     order = getattr(task.source, cmor_source.expression_order_key, 0)
     expr_operator = cdoapi.cdo_command.post_expr_operator if order == 1 else cdoapi.cdo_command.expression_operator
@@ -136,22 +144,23 @@ def add_expr_operators(cdo, task):
         sub_expr_list = arg.split(',')
         if not any(getattr(task.target, "z_dims", [])):
             log.warning("Encountered 3d expression for variable with no z-axis: taking first field")
-            sub_expr = sub_expr_list[0].strip()
-            if not re.match("var[0-9]{1,3}", sub_expr):
+            sub_expr = mask_rhs(sub_expr_list[0].strip(), mask)
+            if not re.match(r"var[0-9]{1,3}", sub_expr):
                 cdo.add_operator(expr_operator, "var" + str(new_code) + "=" + sub_expr)
             else:
-                task.source = cmor_source.ifs_source.read(sub_expr)
-            root_codes = [int(s.strip()[3:]) for s in re.findall("var[0-9]{1,3}", sub_expr)]
+                task.source = cmor_source.ifs_source.read(sub_expr, mask_expr=mask)
+            root_codes = [int(s.strip()[3:]) for s in re.findall(r"var[0-9]{1,3}", sub_expr)]
             cdo.add_operator(cdoapi.cdo_command.select_code_operator, *root_codes)
             return
         else:
             i = 0
             for sub_expr in sub_expr_list:
                 i += 1
-                cdo.add_operator(expr_operator, "var" + str(i) + "=" + sub_expr)
+                cdo.add_operator(expr_operator, "var" + str(i) + "=" + mask_rhs(sub_expr, mask))
             cdo.add_operator(cdoapi.cdo_command.set_code_operator, new_code)
     else:
-        cdo.add_operator(expr_operator, expr)
+        mask_interp_expr = '='.join([lhs, mask_rhs(rhs, mask)])
+        cdo.add_operator(expr_operator, mask_interp_expr)
     cdo.add_operator(cdoapi.cdo_command.select_code_operator, *[c.var_id for c in task.source.get_root_codes()])
 
 
@@ -167,11 +176,14 @@ def add_grid_operators(cdo, task):
     if grid == cmor_source.ifs_grid.spec:
         cdo.add_operator(cdoapi.cdo_command.spectral_operator)
     else:
-        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, cdoapi.cdo_command.regular_grid_type)
+        grid_type = cdoapi.cdo_command.regular_grid_type
+        if getattr(task, "interpolate", "linear") == "nn":
+            grid_type = cdoapi.cdo_command.regular_grid_type_nn
+        cdo.add_operator(cdoapi.cdo_command.gridtype_operator, grid_type)
     tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
     if "longitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "longitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.zonal + operator_mapping[operators[0]])
         else:
             log.error("Longitude reduction operator for task %s in table %s is not supported" % (task.target.variable,
@@ -179,7 +191,7 @@ def add_grid_operators(cdo, task):
             task.set_failed()
     if "latitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "latitude_operator", [])]
-        if len(operators) == 1 and operators[0] in operator_mapping.keys():
+        if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):
             cdo.add_operator(cdoapi.cdo_command.meridional + operator_mapping[operators[0]])
         else:
             log.error("Latitude reduction operator for task %s in table %s is not supported" % (task.target.variable,
@@ -309,7 +321,7 @@ def add_time_operators(cdo, task):
 
 
 def add_high_freq_operator(cdo_command, target_freq, operator, task):
-    timestamps = [i * target_freq for i in range(24 / target_freq)]
+    timestamps = [i * target_freq for i in range(24 // target_freq)]
     aggregators = {"mean": (cmor_source.ifs_source.grib_codes_accum, cdoapi.cdo_command.timselmean_operator),
                    "minimum": (cmor_source.ifs_source.grib_codes_min, cdoapi.cdo_command.timselmin_operator),
                    "maximum": (cmor_source.ifs_source.grib_codes_max, cdoapi.cdo_command.timselmax_operator)}
@@ -327,7 +339,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
     elif operator in aggregators:
         if not all([c for c in task.source.get_root_codes() if c in aggregators[operator][0]]):
             source_freq = getattr(task, cmor_task.output_frequency_key)
-            steps = target_freq / source_freq
+            steps = target_freq // source_freq
             if steps == 0:
                 log.error("Requested %s at %d-hourly frequency cannot be computed for variable %s in table %s "
                           "because its output frequency is only %d" % (operator, target_freq, task.target.variable,
@@ -335,7 +347,7 @@ def add_high_freq_operator(cdo_command, target_freq, operator, task):
                 task.set_failed()
             else:
                 log.warning("Computing inaccurate mean value over %d time steps for variable "
-                            "%s in table %s" % (target_freq / source_freq, task.target.variable, task.target.table))
+                            "%s in table %s" % (target_freq // source_freq, task.target.variable, task.target.table))
                 if steps == 1:
                     cdo_command.add_operator(cdoapi.cdo_command.select + cdoapi.cdo_command.hour, *timestamps)
                 else:

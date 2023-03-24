@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-# Note that the script gives different precision results for python2 and python3.
-# The current archived ingrid_T*_unstructured.txt files have been produced with a
-# miniconda3 environment active (see https://github.com/EC-Earth/ece2cmor3/issues/633).
+# Note that at the time the script gave different precision results for different
+# python versions,see https://github.com/EC-Earth/ece2cmor3/issues/633.
 
 # Call the script like:
 #  ./create_cdo_ingrid_for_lpjgout.py
-#  python3 create_cdo_ingrid_for_lpjgout.py
+#  python create_cdo_ingrid_for_lpjgout.py
 
 import netCDF4 as nc
 import numpy as np
@@ -134,4 +133,4 @@ for grid in ["T159", "T255"]:
  f.write(str('\n'))
  f.close()
 
- print("Created file: "+ingridfile)
+ print(("Created file: "+ingridfile))

@@ -1,0 +1,27 @@
+{
+    "ifs": {
+        "6hrLev": [
+            "ta",
+            "ua",
+            "va",
+            "hus",
+            "ps"
+        ],
+        "6hrPlev": [
+            "siconca"
+        ],
+        "6hrPlevPt": [
+            "tosa",
+            "tsl4sl",
+            "mrsol"
+        ],
+        "fx": [
+            "areacella",
+            "orog",
+            "sftlf"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {},
+    "tm5": {}
+}

@@ -1,4 +1,4 @@
-import thread
+import _thread
 import numpy
 import logging
 import cdo
@@ -52,6 +52,7 @@ class cdo_command:
 
     # CDO level/grid keywords
     regular_grid_type = "regular"
+    regular_grid_type_nn = "regularnn"
     height = "height"
     pressure = "pressure"
     model_level = "hybrid"
@@ -94,7 +95,7 @@ class cdo_command:
     # Creates a command string from the given operator list
     def create_command(self):
         keys = cdo_command.optimize_order(
-            sorted(self.operators.keys(), key=lambda op: cdo_command.operator_ordering.index(op)))
+            sorted(list(self.operators.keys()), key=lambda op: cdo_command.operator_ordering.index(op)))
         return " ".join([cdo_command.make_option(k, self.operators[k]) for k in keys])
 
     def merge(self, ifiles, ofile):
@@ -109,7 +110,7 @@ class cdo_command:
     def apply(self, ifile, ofile=None, threads=4, grib_first=False):
         global log
         keys = cdo_command.optimize_order(
-            sorted(self.operators.keys(), key=lambda op: cdo_command.operator_ordering.index(op)))
+            sorted(list(self.operators.keys()), key=lambda op: cdo_command.operator_ordering.index(op)))
         option_string = "-f nc" if threads < 2 else ("-f nc -P " + str(threads))
         if grib_first:
             option_string = "" if threads < 2 else ("-P " + str(threads))
@@ -170,7 +171,7 @@ class cdo_command:
     # Applies the current set of operators and returns the netcdf variables in memory:
     def apply_cdf(self, ifile, threads=4):
         keys = cdo_command.optimize_order(
-            sorted(self.operators.keys(), key=lambda op: cdo_command.operator_ordering.index(op)))
+            sorted(list(self.operators.keys()), key=lambda op: cdo_command.operator_ordering.index(op)))
         option_string = "" if threads < 2 else ("-P " + str(threads))
         func = getattr(self.app, keys[0], None)
         app_args = None
@@ -225,7 +226,7 @@ class cdo_command:
             else:
                 log.error("Could not parse grid description line %s as a key-value pair" % s)
                 continue
-        for k, v in info_dict.iteritems():
+        for k, v in info_dict.items():
             if k in int_fields:
                 info_dict[k] = int(v)
             if k in real_fields:

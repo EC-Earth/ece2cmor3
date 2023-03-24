@@ -46,7 +46,7 @@
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
    mkdir -p $TEMPDIR
 
-   source /lustre2/projects/model_testing/reerink/miniconda2/etc/profile.d/conda.sh
+   source /lustre3/projects/CMIP6/reerink/mamba/etc/profile.d/conda.sh
    conda activate ece2cmor3
 
    export HDF5_USE_FILE_LOCKING=FALSE

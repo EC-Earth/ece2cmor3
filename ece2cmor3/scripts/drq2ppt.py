@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 # Call this script e.g. by:
-#  ./drq2ppt.py --drq cmip6-data-request/cmip6-data-request-m=CMIP-e=CMIP-t=1-p=1/cmvme_CMIP_piControl_1_1.xlsx
+#  drq2ppt --drq cmip6-data-request/cmip6-data-request-CMIP.DCPP.LS3MIP.PAMIP.RFMIP.ScenarioMIP.VolMIP.CORDEX.DynVarMIP.SIMIP.VIACSAB-historical-t1-p1/cmvme_cm.co.dc.dy.ls.pa.rf.sc.si.vi.vo_historical_1_1.xlsx
 # or for the special "test all" case by:
-#  ./drq2ppt.py --allvars
+#  drq2ppt --allvars
 #
 # With this script it is possible to generate the EC-Earth3 IFS control output files, i.e.
 # the IFS Fortran namelists (the ppt files) for one MIP experiment.
@@ -14,6 +14,7 @@
 # Note that this script is called by the script:
 #  genecec-per-mip-experiment.sh
 #
+
 import sys
 import os
 
@@ -26,7 +27,8 @@ import f90nml
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_target, cmor_utils, components
 
 # Logging configuration
-logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+#logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+logformat  =             "%(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
@@ -42,7 +44,7 @@ def get_output_freq(task):
         log.warning("Variable %s in table %s: sub-hourly frequencies are not supported... Skipping variable" %
                     (task.target.variable, task.target.table))
         return -1
-    regex = re.search("^[0-9]+hr*", task.target.frequency)
+    regex = re.search(r"^[0-9]+hr*", task.target.frequency)
     if regex:
         return int(regex.group(0)[:-2])
     return get_sample_freq(task)
@@ -81,7 +83,7 @@ def join_namelists(nml1, nml2):
             levels = list(reversed(levels))
         if len(levels) > 0:
             result[key] = levels
-    if "NRFP3S" in nml1.keys() or "NRFP3S" in nml2.keys():
+    if "NRFP3S" in list(nml1.keys()) or "NRFP3S" in list(nml2.keys()):
         # To include all model levels use magic number -99. Opposite, by using the magic number -1 the variable is not saved at any model level:
         result["NRFP3S"] = -1
     return result
@@ -91,9 +93,9 @@ def join_namelists(nml1, nml2):
 def write_ppt_files(tasks):
     freqgroups = cmor_utils.group(tasks, get_output_freq)
     # Fix for issue 313, make sure to always generate 6-hourly ppt:
-    if freqgroups.keys() == [3]:
+    if list(freqgroups.keys()) == [3]:
         freqgroups[6] = []
-    if -1 in freqgroups.keys():
+    if -1 in list(freqgroups.keys()):
         freqgroups.pop(-1)
     freqs_to_remove = []
     for freq1 in freqgroups:
@@ -133,12 +135,10 @@ def write_ppt_files(tasks):
                                         "assuming this is on model levels" % (str(code), task.target.variable))
                             mfp3dfs.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_dyn:
-                        log.info("Adding grib code %s to MFP2DF %dhr ppt file for variable "
-                                 "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        log.info('Adding grib code {:>7} to MFP2DF  {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                         mfp2df.append(code)
                     elif code in cmor_source.ifs_source.grib_codes_2D_phy:
-                        log.info("Adding grib code %s to MFPPHY %dhr ppt file for variable "
-                                 "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                        log.info('Adding grib code {:>7} to MFPPHY  {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                         mfpphy.append(code)
                     else:
                         log.error("Unknown 2D IFS grib code %s skipped" % str(code))
@@ -148,18 +148,15 @@ def write_ppt_files(tasks):
                         continue
                     if code in cmor_source.ifs_source.grib_codes_3D:
                         if zaxis in cmor_target.model_axes:
-                            log.info("Adding grib code %s to MFP3DFS %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            log.info('Adding grib code {:>7} to MFP3DFS {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfs.append(code)
                             alevs.extend(levs)
                         elif zaxis in cmor_target.pressure_axes:
-                            log.info("Adding grib code %s to MFP3DFP %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            log.info('Adding grib code {:>7} to MFP3DFP {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfp.append(code)
                             plevs.extend(levs)
                         elif zaxis in cmor_target.height_axes:
-                            log.info("Adding grib code %s to MFP3DFH %dhr ppt file for variable "
-                                     "%s in table %s" % (str(code), freq, task.target.variable, task.target.table))
+                            log.info('Adding grib code {:>7} to MFP3DFH {:1}hr ppt file in table {:9} for variable {:}'.format(str(code), freq, task.target.table, task.target.variable))
                             mfp3dfh.append(code)
                             hlevs.extend(levs)
                         else:
@@ -180,15 +177,15 @@ def write_ppt_files(tasks):
         # Always add the logarithm of surface pressure, recommended by ECMWF
         mfp2df.append(cmor_source.grib_code(152))
         nfp2dfsp, nfp2dfgp = count_spectral_codes(mfp2df)
-        mfp2df = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp2df))))
+        mfp2df = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp2df)]))
         nfpphysp, nfpphygp = count_spectral_codes(mfpphy)
-        mfpphy = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfpphy))))
+        mfpphy = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfpphy)]))
         nfp3dfssp, nfp3dfsgp = count_spectral_codes(mfp3dfs)
-        mfp3dfs = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfs))))
+        mfp3dfs = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfs)]))
         nfp3dfpsp, nfp3dfpgp = count_spectral_codes(mfp3dfp)
-        mfp3dfp = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfp))))
+        mfp3dfp = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfp)]))
         nfp3dfhsp, nfp3dfhgp = count_spectral_codes(mfp3dfh)
-        mfp3dfh = sorted(list(map(lambda c: c.var_id if c.tab_id == 128 else c.__hash__(), set(mfp3dfh))))
+        mfp3dfh = sorted(list([c.var_id if c.tab_id == 128 else c.__hash__() for c in set(mfp3dfh)]))
         plevs = sorted(list(set([float(s) for s in plevs])))[::-1]
         hlevs = sorted(list(set([float(s) for s in hlevs])))
         namelist = {"CFPFMT": "MODEL"}
@@ -221,14 +218,10 @@ def write_ppt_files(tasks):
             namelist["RFP3H"] = hlevs
             num_slices_sp += (nfp3dfhsp * len(hlevs))
             num_slices_gp += (nfp3dfhgp * len(hlevs))
-        num_slices_tot_sp = num_slices_sp if prev_freq == 0 else \
-            (num_slices_sp + ((freq/prev_freq) - 1) * num_slices_tot_sp)
-        num_slices_tot_gp = num_slices_gp if prev_freq == 0 else \
-            (num_slices_gp + ((freq/prev_freq) - 1) * num_slices_tot_gp)
-        num_blocks_tot_sp = num_blocks_sp if prev_freq == 0 else \
-            (num_blocks_sp + ((freq/prev_freq) - 1) * num_blocks_tot_sp)
-        num_blocks_tot_gp = num_blocks_gp if prev_freq == 0 else \
-            (num_blocks_gp + ((freq/prev_freq) - 1) * num_blocks_tot_gp)
+        num_slices_tot_sp = num_slices_sp if prev_freq == 0 else (num_slices_sp + ((freq // prev_freq) - 1) * num_slices_tot_sp)
+        num_slices_tot_gp = num_slices_gp if prev_freq == 0 else (num_slices_gp + ((freq // prev_freq) - 1) * num_slices_tot_gp)
+        num_blocks_tot_sp = num_blocks_sp if prev_freq == 0 else (num_blocks_sp + ((freq // prev_freq) - 1) * num_blocks_tot_sp)
+        num_blocks_tot_gp = num_blocks_gp if prev_freq == 0 else (num_blocks_gp + ((freq // prev_freq) - 1) * num_blocks_tot_gp)
         prev_freq = freq
         nml = f90nml.Namelist({"NAMFPC": namelist})
         nml.uppercase, nml.end_comma = True, True
@@ -247,31 +240,40 @@ def write_ppt_files(tasks):
             # Write initial state ppt
             f90nml.write(nml, "ppt0000000000")
     average_hours_per_month = 730
-    slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) / prev_freq
-    slices_per_month_gp = (average_hours_per_month * num_slices_tot_gp) / prev_freq
-    blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) / prev_freq
-    blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) / prev_freq
+    slices_per_month_sp = (average_hours_per_month * num_slices_tot_sp) // prev_freq
+    slices_per_month_gp = (average_hours_per_month * num_slices_tot_gp) // prev_freq
+    blocks_per_month_sp = (average_hours_per_month * num_blocks_tot_sp) // prev_freq
+    blocks_per_month_gp = (average_hours_per_month * num_blocks_tot_gp) // prev_freq
     num_layers = 91
-    log.info("")
-    log.info("EC-Earth IFS output volume estimates:")
-    log.info("---------------------------------------------------------------------------")
-    log.info("# spectral GRIB messages p/m:  %d" % (slices_per_month_sp + num_layers * blocks_per_month_sp))
-    log.info("# gridpoint GRIB messages p/m: %d" % (slices_per_month_gp + num_layers * blocks_per_month_gp))
-    log.info("---------------------------------------------------------------------------")
-    log.info("                           T255L91                     T511L91               ")
-    log.info("---------------------------------------------------------------------------")
+    log.info('-----------------------------------------')
+    log.info('EC-Earth IFS output volume estimates:    ')
+    log.info('-----------------------------------------')
+    log.info(' spectral  GRIB messages p/m: {:>7}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp))
+    log.info(' gridpoint GRIB messages p/m: {:>7}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp))
+    log.info('-----------------------------------------')
+    log.info('     T255L91               T511L91       ')
     vol255 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.133 / 1000. +\
              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.180 / 1000.
     vol511 = (slices_per_month_sp + num_layers * blocks_per_month_sp) * 0.503 / 1000. +\
              (slices_per_month_gp + num_layers * blocks_per_month_gp) * 0.698 / 1000.
-    log.info("                           %.2f GB/yr                %.2f GB/yr        " % (12*vol255, 12*vol511))
+    log.info(' {:7.2f} GB/yr          {:7.2f} GB/yr        '.format (12*vol255, 12*vol511))
+    log.info('-----------------------------------------')
 
+
+
+   #volume_estimate = open('volume-estimate-ifs.txt','w')
+   #volume_estimate.write(' \nEC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
+   #volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
+   #volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
+   #volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
+   #volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+   #volume_estimate.close()
+
+    hf = 3.0 # IFS heuristic factor
     volume_estimate = open('volume-estimate-ifs.txt','w')
-    volume_estimate.write(' \nEC-Earth3 IFS volume estimates of generated output:{}'.format('\n'))
-    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T255L91 grid: {} GB/yr{}'.format(12*vol255, '\n'))
-    volume_estimate.write('  Volume estimate of the spectral + gridpoint GRIB files for T511L91 grid: {} GB/yr{}'.format(12*vol511, '\n\n'))
-    volume_estimate.write('  Number of spectral  GRIB messages per month: {}{}'.format(slices_per_month_sp + num_layers * blocks_per_month_sp, '\n'))
-    volume_estimate.write('  Number of gridpoint GRIB messages per month: {}{}'.format(slices_per_month_gp + num_layers * blocks_per_month_gp, '\n\n'))
+    volume_estimate.write('{}'.format('\n\n\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T255L91     grid: {:6} GB per year{}'.format(round((12*vol255) / hf, 1), '\n'))
+    volume_estimate.write('Heuristic volume estimate for the raw EC-Earth3 IFS  output on the T511L91     grid: {:6} GB per year{}'.format(round((12*vol511) / hf, 1), '\n'))
     volume_estimate.close()
 
 
@@ -292,18 +294,20 @@ def main():
 
     args = parser.parse_args()
 
-    print ""
-    print "Running drq2ppt.py with:"
-    print " ./drq2ppt.py " + cmor_utils.ScriptUtils.get_drq_vars_options(args)
-    print ""
+    # Echo the exact call of the script in the log messages:
+    logging.info('Running {:} with:\n\n {:} {:}\n'.format(parser.prog, parser.prog, ' '.join(sys.argv[1:])))
+    # Print the values of all arguments in the log messages::
+    logging.info('------  {} argument list:  ------'.format(parser.prog))
+    for arg_key, arg_value in vars(parser.parse_args()).items(): logging.info('--{:18} = {:}'.format(arg_key, arg_value))
+    logging.info('------  end {} argument list  ------\n'.format(parser.prog))
 
     if args.vars is not None and not os.path.isfile(args.vars):
-        log.fatal("Your variable list json file %s cannot be found." % args.vars)
-        sys.exit(' Exiting drq2ppt.')
+        log.fatal('Error: Your variable list json file {:} cannot be found.'.format(args.vars))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     if args.drq is not None and not os.path.isfile(args.drq):
-        log.fatal("Your data request file %s cannot be found." % args.drq)
-        sys.exit(' Exiting drq2ppt.')
+        log.fatal('Error: Your data request file {:} cannot be found.'.format(args.drq))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     # Initialize ece2cmor:
     ece2cmorlib.initialize_without_cmor(ece2cmorlib.conf_path_default, mode=ece2cmorlib.PRESERVE, tabledir=args.tabdir,
@@ -320,9 +324,8 @@ def main():
     except taskloader.SwapDrqAndVarListException as e:
         log.error(e.message)
         opt1, opt2 = "vars" if e.reverse else "drq", "drq" if e.reverse else "vars"
-        log.error("It seems you are using the --%s option where you should use the --%s option for this file"
-                  % (opt1, opt2))
-        sys.exit(' Exiting drq2ppt.')
+        log.error('It seems you are using the --{:} option where you should use the --{:} option for this file'.format(opt1, opt2))
+        sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     # Write the IFS input files
     write_ppt_files(ece2cmorlib.tasks)

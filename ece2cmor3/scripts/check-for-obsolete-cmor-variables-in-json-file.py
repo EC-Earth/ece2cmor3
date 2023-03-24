@@ -11,7 +11,7 @@ import json
 from ece2cmor3 import ece2cmorlib, taskloader, cmor_source, cmor_utils, components
 
 # Logging configuration
-logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+logformat = "%(levelname)s:%(name)s: %(message)s"
 logdateformat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat)
 
@@ -32,9 +32,12 @@ def check_obsolete(fname):
             if tvar not in [t.variable for t in ece2cmorlib.targets]:
                 if tvar in ["rsscsaf", "rssaf", "rlscsaf", "rlsaf"]:
                  log.info("Non-cmor target found (see #575) in %s: %s" % (fname, tvar))
+                elif tvar in ["tosa", "ta23r", "ta36", "ua23r", "ua36", "va23r", "va36", "hus23r", "hus36", "tsl4sl"]:
+                 log.info("Non-cmor target found (see #664) in %s: %s" % (fname, tvar))
                 else:
-                 log.info("Obsolete target found in %s: %s" % (fname, tvar))
-    log.info("\n")
+                 log.info("Obsolete target found            in %s: %s" % (fname, tvar))
+
+
 
 
 # Main program
@@ -55,7 +58,7 @@ def main():
 
     active_components = cmor_utils.ScriptUtils.get_active_components(args)
 
-    for model in components.models.keys():
+    for model in list(components.models.keys()):
         if model in active_components:
             check_obsolete(components.models[model][components.table_file])
 

@@ -52,7 +52,7 @@ class cmor_target(object):
 # Derives the table id for the given file path
 def get_table_id(filepath, prefix):
     fname = os.path.basename(filepath)
-    regex = re.search("^" + prefix + "_.*.json$", fname)
+    regex = re.search(r"^" + prefix + r"_.*.json$", fname)
     if not regex:
         raise Exception("Unable to match file name", fname, "as cmor table json-file with prefix", prefix)
     return regex.group()[len(prefix) + 1:len(fname) - 5]
@@ -103,7 +103,7 @@ def create_targets_for_file(filepath, prefix):
             axes_entries[modlev] = {"requested": "all"}
     axes[tabid] = axes_entries
     var_entries = get_lowercase(data, var_key, {})
-    for k, v in var_entries.iteritems():
+    for k, v in var_entries.items():
         target = cmor_target(k, tabid)
         target.frequency = freq
         target.realm = realm
@@ -111,12 +111,12 @@ def create_targets_for_file(filepath, prefix):
             setattr(target, missval_key, float(missval))
         if missvalint:
             setattr(target, int_missval_key, int(missvalint))
-        for k2, v2 in v.iteritems():
+        for k2, v2 in v.items():
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s.encode("ascii") for s in v2.split() if not (s.lower().startswith("time") or
-                                                                                    s.lower().startswith("type"))])
+                spacedims = list(set([s for s in v2.split() if not (s.lower().startswith("time") or
+                                                                    s.lower().startswith("type"))])
                                  - extra_dims)
                 setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
@@ -124,7 +124,7 @@ def create_targets_for_file(filepath, prefix):
                 if any(zdims):
                     setattr(target, "z_dims", zdims)
             if key in [cell_measures_key.lower(), cell_methods_key.lower()]:
-                cell_measure_str = re.sub("[\(\[].*?[\)\]]", "", v2.strip())
+                cell_measure_str = re.sub(r"[\(\[].*?[\)\]]", "", v2.strip())
                 if cell_measure_str not in ["@OPT", "--OPT", "", None]:
                     cell_measures = cell_measure_str.split(':')
                     for i in range(1, len(cell_measures)):
@@ -165,11 +165,11 @@ def create_axes_for_file(filepath, prefix):
 
 # Utility function for lower-case dictionary searches
 def get_lowercase(dictionary, key, default):
-    if not isinstance(key, basestring):
+    if not isinstance(key, str):
         return dictionary.get(key, default)
     lowerkey = key.lower()
-    for k, v in dictionary.iteritems():
-        if isinstance(k, basestring) and k.lower() == lowerkey:
+    for k, v in dictionary.items():
+        if isinstance(k, str) and k.lower() == lowerkey:
             return v
     return default
 
@@ -189,7 +189,7 @@ def create_targets(path, prefix):
             drq_version_printed = print_drq_version(coordfilepath)
         if os.path.exists(coordfilepath):
             create_axes_for_file(coordfilepath, prefix)
-        expr = re.compile("^" + prefix + "_.*.json$")
+        expr = re.compile(r"^" + prefix + r"_.*.json$")
         paths = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
         for p in paths:
             if os.path.basename(p) not in [prefix + "_CV.json", prefix + "_CV_test.json"]:
@@ -275,6 +275,6 @@ def get_axis_info(table_id):
     global axes, coord_file
     result = axes.get(coord_file, {})
     overrides = axes.get(table_id, {})
-    for k, v in overrides.iteritems():
+    for k, v in overrides.items():
         result[k] = v
     return result

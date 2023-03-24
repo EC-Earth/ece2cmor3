@@ -1,4 +1,4 @@
-import csv
+
 import json
 import logging
 import os
@@ -10,40 +10,35 @@ from ece2cmor3.resources import prefs
 
 log = logging.getLogger(__name__)
 
-json_source_key = "source"
-json_target_key = "target"
-json_table_key = "table"
-json_tables_key = "tables"
-json_mask_key = "mask"
-json_masked_key = "masked"
+json_source_key   = "source"
+json_target_key   = "target"
+json_table_key    = "table"
+json_tables_key   = "tables"
+json_mask_key     = "mask"
+json_masked_key   = "masked"
 json_filepath_key = "filepath"
+json_script_key   = "script"
+json_src_key      = "src"
 
-variable_prefs_file = os.path.join(os.path.dirname(__file__), "resources", "varprefs.csv")
+variable_prefs_file          = os.path.join(os.path.dirname(__file__), "resources",                               "varprefs.csv")
 
-omit_vars_file_01 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-01.xlsx")
-omit_vars_file_02 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-02.xlsx")
-omit_vars_file_03 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-03.xlsx")
-omit_vars_file_04 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-04.xlsx")
-omit_vars_file_05 = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables",
-                                 "list-of-omitted-variables-05.xlsx")
-ignored_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                 "list-of-ignored-cmpi6-requested-variables.xlsx")
-identified_missing_vars_file = os.path.join(os.path.dirname(__file__), "resources",
-                                            "list-of-identified-missing-cmpi6-requested-variables.xlsx")
+omit_vars_file_01            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-01.xlsx")
+omit_vars_file_02            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-02.xlsx")
+omit_vars_file_03            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-03.xlsx")
+omit_vars_file_04            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-04.xlsx")
+omit_vars_file_05            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-05.xlsx")
+ignored_vars_file            = os.path.join(os.path.dirname(__file__), "resources",                               "list-of-ignored-cmip6-requested-variables.xlsx")
+identified_missing_vars_file = os.path.join(os.path.dirname(__file__), "resources",                               "list-of-identified-missing-cmip6-requested-variables.xlsx")
 
-mask_predicates = {"=": lambda x, a: x == a,
+mask_predicates = {"=":  lambda x, a: x == a,
                    "==": lambda x, a: x == a,
                    "!=": lambda x, a: x != a,
-                   "<": lambda x, a: x < a,
+                   "<":  lambda x, a: x <  a,
                    "<=": lambda x, a: x <= a,
-                   ">": lambda x, a: x > a,
+                   ">":  lambda x, a: x >  a,
                    ">=": lambda x, a: x >= a}
 
-skip_tables = False
+skip_tables   = False
 with_pingfile = False
 
 
@@ -64,19 +59,21 @@ def load_tasks_from_drq(varlist, active_components=None, target_filters=None, co
 
 # Basic task loader: first argument has already partitioned variables into component groups
 def load_tasks(variables, active_components=None, target_filters=None, check_duplicates=False):
-    matches = load_vars(variables, asfile=(isinstance(variables, basestring) and os.path.isfile(variables)))
+    matches = load_vars(variables, asfile=(isinstance(variables, str) and os.path.isfile(variables)))
     filtered_matches = apply_filters(matches, target_filters)
     if check_duplicates:
         if not search_duplicate_tasks(filtered_matches):
             log.fatal("Duplicate requested variables were found, dismissing all cmorization tasks")
             return []
-    load_masks(load_model_vars())
-    return create_tasks(filtered_matches, get_models(active_components))
+    model_vars = load_model_vars()
+    load_scripts(model_vars)
+    masks = load_masks(model_vars)
+    return create_tasks(filtered_matches, get_models(active_components), masks=masks)
 
 
 def get_models(active_components):
-    all_models = components.models.keys()
-    if isinstance(active_components, basestring):
+    all_models = list(components.models.keys())
+    if isinstance(active_components, str):
         return [active_components] if active_components in all_models else []
     if isinstance(active_components, list):
         return [m for m in active_components if m in all_models]
@@ -88,7 +85,7 @@ def get_models(active_components):
 # Loads a json file or string or dictionary containing the cmor targets for multiple components
 def load_vars(variables, asfile=True):
     modeldict = {}
-    if isinstance(variables, basestring):
+    if isinstance(variables, str):
         vartext = open(variables, 'r').read() if asfile else variables
         modeldict = json.loads(vartext)
     elif isinstance(variables, dict):
@@ -96,8 +93,8 @@ def load_vars(variables, asfile=True):
     else:
         log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = {}
-    for model, varlist in modeldict.iteritems():
-        if model not in components.models.keys():
+    for model, varlist in modeldict.items():
+        if model not in list(components.models.keys()):
             if model in set([t.table for t in ece2cmorlib.targets]):
                 raise SwapDrqAndVarListException(reverse=True)
             log.error("Cannot interpret %s as an EC-Earth model component." % str(model))
@@ -123,7 +120,7 @@ def load_drq(varlist, config=None, check_prefs=True):
     model_vars = load_model_vars()
     # Match model component variables with requested targets
     matches = match_variables(targets, model_vars)
-    matched_targets = [t for target_list in matches.values() for t in target_list]
+    matched_targets = [t for target_list in list(matches.values()) for t in target_list]
     for t in targets:
         if t not in matched_targets:
             setattr(t, "load_status", "missing")
@@ -131,7 +128,7 @@ def load_drq(varlist, config=None, check_prefs=True):
         if config is None:
             log.warning("Determining preferred model components for variables without target EC-Earth configuration: "
                         "assuming all components should be considered may result in duplicate matches")
-        if config not in components.ece_configs.keys():
+        if config not in list(components.ece_configs.keys()):
             log.warning("Determining preferred model components for variables with unknown target EC-Earth "
                         "configuration %s: assuming all components should be considered may result in duplicate matches" % config)
         for model in matches:
@@ -150,7 +147,7 @@ def load_drq(varlist, config=None, check_prefs=True):
                         log.info('Dismissing {:7} target {:20} within {:17} configuration due to preference flagging'
                                  .format(model, str(t), "any" if config is None else config))
                         setattr(t, "load_status", "dismissed")
-                for key, tgts in d.items():
+                for key, tgts in list(d.items()):
                     if len(tgts) > 1:
                         log.warning("Duplicate variables found with output name %s in table %s: %s" %
                                     (getattr(tgts[0], "out_name", tgts[0].variable), tgts[0].table,
@@ -165,7 +162,7 @@ def load_drq(varlist, config=None, check_prefs=True):
                         choices = [tgts[0]]
                     enabled_targets.extend(choices)
                 matches[model] = [t for t in targetlist if t in enabled_targets]
-    omitted_targets = set(requested_targets) - set([t for target_list in matches.values() for t in target_list])
+    omitted_targets = set(requested_targets) - set([t for target_list in list(matches.values()) for t in target_list])
     return matches, list(omitted_targets)
 
 
@@ -173,10 +170,10 @@ def apply_filters(matches, target_filters=None):
     if target_filters is None:
         return matches
     result = {}
-    for model, targetlist in matches.items():
+    for model, targetlist in list(matches.items()):
         requested_targets = targetlist
-        for msg, func in target_filters.items():
-            filtered_targets = filter(func, requested_targets)
+        for msg, func in list(target_filters.items()):
+            filtered_targets = list(filter(func, requested_targets))
             for tgt in list(set(requested_targets) - set(filtered_targets)):
                 log.info("Dismissing %s target variable %s in table %s for component %s..." %
                          (msg, tgt.variable, tgt.table, model))
@@ -188,7 +185,7 @@ def apply_filters(matches, target_filters=None):
 
 def search_duplicate_tasks(matches):
     status_ok = True
-    for model in matches.keys():
+    for model in list(matches.keys()):
         targetlist = matches[model]
         n = len(targetlist)
         for i in range(n):
@@ -208,9 +205,9 @@ def search_duplicate_tasks(matches):
                         log.error("Found duplicate output name for targets %s, %s in table %s for model %s"
                                   % (t1.variable, t2.variable, t1.table, model))
                         status_ok = False
-            index = matches.keys().index(model) + 1
-            if index < len(matches.keys()):
-                for other_model in matches.keys()[index:]:
+            index = list(matches.keys()).index(model) + 1
+            if index < len(list(matches.keys())):
+                for other_model in list(matches.keys())[index:]:
                     other_targetlist = matches[other_model]
                     for t2 in other_targetlist:
                         key2 = '_'.join([t2.variable, t2.table])
@@ -238,7 +235,7 @@ def split_targets(targetlist):
 
 def read_drq(varlist):
     targetlist = []
-    if isinstance(varlist, basestring):
+    if isinstance(varlist, str):
         if os.path.isfile(varlist):
             fname, fext = os.path.splitext(varlist)
             if len(fext) == 0:
@@ -258,8 +255,8 @@ def read_drq(varlist):
         targetlist = varlist
     elif isinstance(varlist, dict):
         targetlist = []
-        for table, val in varlist.iteritems():
-            varseq = [val] if isinstance(val, basestring) else val
+        for table, val in varlist.items():
+            varseq = [val] if isinstance(val, str) else val
             for v in varseq:
                 add_target(v, table, targetlist)
     else:
@@ -298,8 +295,8 @@ def omit_targets(targetlist):
                 comment, author = identifiedmissingvarlist[key]
                 setattr(target, "ecearth_comment", comment)
                 setattr(target, "comment_author", author)
-        elif any([key in omitvarlist for omitvarlist in omit_lists.values()]):
-            for status, omitvarlist in omit_lists.items():
+        elif any([key in omitvarlist for omitvarlist in list(omit_lists.values())]):
+            for status, omitvarlist in list(omit_lists.items()):
                 if key in omitvarlist:
                     setattr(target, "load_status", status)
                     break
@@ -311,7 +308,7 @@ def omit_targets(targetlist):
 # Loads a json file or string or dictionary containing the cmor targets.
 def load_targets_json(variables, asfile=True):
     vardict = {}
-    if isinstance(variables, basestring):
+    if isinstance(variables, str):
         vartext = open(variables, 'r').read() if asfile else variables
         vardict = json.loads(vartext)
     elif isinstance(variables, dict):
@@ -319,13 +316,13 @@ def load_targets_json(variables, asfile=True):
     else:
         log.error("Cannot create cmor target list from object %s" % str(variables))
     targets = []
-    for tab, var in vardict.iteritems():
+    for tab, var in vardict.items():
         if tab in components.models and isinstance(var, dict):
             raise SwapDrqAndVarListException(reverse=False)
-        if not isinstance(tab, basestring):
+        if not isinstance(tab, str):
             log.error("Cannot interpret %s as a CMOR table identifier" % str(tab))
             continue
-        if isinstance(var, basestring):
+        if isinstance(var, str):
             add_target(var, tab, targets)
         elif isinstance(var, list):
             for v in var:
@@ -356,42 +353,48 @@ def load_targets_f90nml(varlist):
 
 
 # Loads a drq excel file containing the cmor targets.
-def load_targets_excel(varlist):
+def load_targets_excel(data_request_file):
     global log
-    import xlrd
-    targets = []
-    cmor_colname = "CMOR Name"
-    vid_colname = "vid"
-    priority_colname = "Priority"  # Priority column name for the experiment   cmvme_*.xlsx files
-    default_priority_colname = "Default Priority"  # Priority column name for the mip overview cmvmm_*.xlsx files
-    mip_list_colname = "MIPs (by experiment)"
-    book = xlrd.open_workbook(varlist)
-    for sheetname in book.sheet_names():
+    import openpyxl
+
+    sheet_column_indices = create_sheet_column_indices()
+
+    workbook  = openpyxl.load_workbook(filename=data_request_file, read_only=None)
+    targets   = []
+
+    var_colname              = "CMOR Name"
+    vid_colname              = "vid"
+    mip_list_colname         = "MIPs (by experiment)"
+    priority_colname         = "Priority"             # Priority column name for the experiment   cmvme_*.xlsx files
+    default_priority_colname = "Default Priority"     # Priority column name for the mip overview cmvmm_*.xlsx files
+
+    # Loop over the sheets (tables). Each sheetname corresponds with a cmor table and thus each sheet (table) contains all requested variables for that cmor table:
+    for sheetname in workbook.sheetnames:
         if sheetname.lower() in ["notes"]:
-            continue
-        sheet = book.sheet_by_name(sheetname)
-        row = sheet.row_values(0)
-        if cmor_colname not in row:
-            log.error(
-                "Could not find cmor variable column in sheet %s for file %s: skipping variable" % (sheet, varlist))
-            continue
-        index = row.index(cmor_colname)
-        vid_index = row.index(vid_colname)
-        if priority_colname in row:
-            priority_index = row.index(priority_colname)
-        elif default_priority_colname in row:
-            # If no "Priority" column is found try to find a "Default Priority" column
-            priority_index = row.index(default_priority_colname)
-        else:
-            # If no "Priority" column and no "Default Priority" column are found, abort with message
-            raise Exception(
-                "Error: Could not find priority variable column in sheet %s for file %s. Program has been aborted." % (
-                    sheet, varlist))
-        mip_list_index = row.index(mip_list_colname)
-        varnames = [c.value for c in sheet.col_slice(colx=index, start_rowx=1)]
-        vids = [c.value for c in sheet.col_slice(colx=vid_index, start_rowx=1)]
-        priority = [c.value for c in sheet.col_slice(colx=priority_index, start_rowx=1)]
-        mip_list = [c.value for c in sheet.col_slice(colx=mip_list_index, start_rowx=1)]
+         continue
+        worksheet = workbook[sheetname]
+
+        # Create a dictionary with column names as keys and column numbers as values:
+        column_names   = {}
+        column_counter = 0
+        for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
+            column_names[str(column_name[0].value)] = sheet_column_indices[column_counter]
+            column_counter += 1
+
+        if priority_colname not in column_names:
+         # If no "Priority" column is found try to find a "Default Priority" column instead
+         priority_colname = default_priority_colname
+
+        for column in [var_colname, vid_colname, mip_list_colname, priority_colname]:
+         if column not in column_names:
+          log.error('Could not find the {:} column in sheet {:9} for file {:}: skipping entire table.'.format('"'+column+'"', sheetname, data_request_file))
+          # If an error here, the error will be messaged and a crash will follow below.
+
+        varnames        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', var_colname     )
+        vids            = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', vid_colname     )
+        mip_list        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', mip_list_colname)
+        priority        = list_based_on_xlsx_column(worksheet, column_names, 'CMOR Name', priority_colname)
+
         for i in range(len(varnames)):
             add_target(str(varnames[i]), sheetname, targets, vids[i], priority[i], mip_list[i])
     return targets
@@ -422,66 +425,90 @@ def add_target(variable, table, targetlist, vid=None, priority=None, mip_list=No
 # available, ignored, identified-missing, and missing files.
 def load_checkvars_excel(basic_ignored_excel_file):
     global log, skip_tables, with_pingfile
-    import xlrd
-    table_colname = "Table"
-    var_colname = "variable"
-    comment_colname = "comment"
-    author_colname = "comment author"
-    model_colname = "model component in ping file"
-    units_colname = "units as in ping file"
-    pingcomment_colname = "ping file comment"
-    book = xlrd.open_workbook(basic_ignored_excel_file)
+    import openpyxl
+
+    sheet_column_indices = create_sheet_column_indices()
+
+    workbook  = openpyxl.load_workbook(filename=basic_ignored_excel_file, read_only=None)
+    worksheet = workbook['Sheet1']
     varlist = {}
-    for sheetname in book.sheet_names():
-        if sheetname.lower() in ["notes"]:
-            continue
-        sheet = book.sheet_by_name(sheetname)
-        header = sheet.row_values(0)
-        coldict = {}
-        for colname in [table_colname, var_colname, comment_colname, author_colname]:
-            if colname not in header:
-                log.error(
-                    "Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (
-                        colname, sheet, varlist))
-                continue
-            coldict[colname] = header.index(colname)
-        tablenames = [] if skip_tables else [c.value for c in
-                                             sheet.col_slice(colx=coldict[table_colname], start_rowx=1)]
-        varnames = [c.value for c in sheet.col_slice(colx=coldict[var_colname], start_rowx=1)]
-        comments = [c.value for c in sheet.col_slice(colx=coldict[comment_colname], start_rowx=1)]
-        authors = [c.value for c in sheet.col_slice(colx=coldict[author_colname], start_rowx=1)]
-        model, units, pingcomment = [], [], []
-        if with_pingfile:
-            if model_colname not in header:
-                # log.error("Could not find the column '%s' in sheet %s for file %s: skipping sheet" % (model_colname,
-                # sheet, varlist))
-                continue
-            coldict[model_colname] = header.index(model_colname)
-            model = [c.value for c in sheet.col_slice(colx=coldict[model_colname], start_rowx=1)]
-            coldict[units_colname] = header.index(units_colname)
-            units = [c.value for c in sheet.col_slice(colx=coldict[units_colname], start_rowx=1)]
-            coldict[pingcomment_colname] = header.index(pingcomment_colname)
-            pingcomment = [c.value for c in sheet.col_slice(colx=coldict[pingcomment_colname], start_rowx=1)]
-        if skip_tables:
-            for i in range(len(varnames)):
-                if with_pingfile:
-                    varlist[varnames[i]] = (comments[i], authors[i], model[i], units[i], pingcomment[i])
-                else:
-                    varlist[varnames[i]] = (comments[i], authors[i])
-        else:
-            for i in range(len(varnames)):
-                varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
+
+    # Create a dictionary with column names as keys and column numbers as values:
+    column_names   = {}
+    column_counter = 0
+    for column_name in worksheet.iter_cols(min_col=None, max_col=None, min_row=None, max_row=None, values_only=False):
+        column_names[column_name[0].value] = sheet_column_indices[column_counter]
+        column_counter += 1
+
+    table_colname       = "Table"
+    var_colname         = "variable"
+    comment_colname     = "comment"
+    author_colname      = "comment author"
+    model_colname       = "model component in ping file"
+    units_colname       = "units as in ping file"
+    pingcomment_colname = "ping file comment"
+
+    required_column_names = [table_colname, var_colname, comment_colname, author_colname]
+
+    for column_name in required_column_names:
+     if column_name not in list(column_names.keys()):
+      log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
+
+    if skip_tables:
+     tablenames      = []
+    else:
+     tablenames      = list_based_on_xlsx_column(worksheet, column_names, 'variable', table_colname      ) # CMOR table name
+    varnames         = list_based_on_xlsx_column(worksheet, column_names, 'variable', var_colname        ) # CMOR variable name
+    comments         = list_based_on_xlsx_column(worksheet, column_names, 'variable', comment_colname    ) # Identification comment by EC-Earth members
+    authors          = list_based_on_xlsx_column(worksheet, column_names, 'variable', author_colname     ) # Author(s) of comment
+    if with_pingfile:
+     pingfile_column_names = [model_colname, units_colname, pingcomment_colname]
+     for column_name in pingfile_column_names:
+      if column_name not in list(column_names.keys()):
+       log.error('Could not find the column {:30} in {:} in the file {:}'.format('"'+column_name+'"', worksheet.title, basic_ignored_excel_file))
+       pingfile_content_available = False
+      else:
+       model_component = list_based_on_xlsx_column(worksheet, column_names, 'variable', model_colname      ) # NEMO model component as in the ping files
+       ping_units      = list_based_on_xlsx_column(worksheet, column_names, 'variable', units_colname      ) # The units   as given in the ping files
+       ping_comment    = list_based_on_xlsx_column(worksheet, column_names, 'variable', pingcomment_colname) # The comment as given in the ping files
+       pingfile_content_available = True
+
+    if skip_tables:
+     for i in range(len(varnames)):
+         if with_pingfile and pingfile_content_available:
+          varlist[varnames[i]] = (comments[i], authors[i], model_component[i], ping_units[i], ping_comment[i])
+         else:
+          varlist[varnames[i]] = (comments[i], authors[i])
+    else:
+     for i in range(len(varnames)):
+         varlist[(tablenames[i], varnames[i])] = (comments[i], authors[i])
     return varlist
 
+def list_based_on_xlsx_column(sheet, column_names, varname_for_empty_check, column_name):
+    list_with_column_content = []
+    for cell in sheet[column_names[column_name]]:
+     cell_id_cmor_var = column_names[varname_for_empty_check] + str(cell.row)  # Construct the cell id of the corresponding cmor variable cell
+     if sheet[cell_id_cmor_var].value != None:                    # Only empty lines are deselected (based on an empty cmor variable cell
+     #list_with_column_content.append(str(cell.value))
+      list_with_column_content.append(cell.value)
+    del list_with_column_content[0]                               # Remove the first row, the header line
+    return list_with_column_content
+
+def create_sheet_column_indices():
+    import string
+    alphabet = list(string.ascii_uppercase)
+    alphabet_extended = ['A' + s for s in alphabet]
+    sheet_column_indices = alphabet + alphabet_extended
+    return sheet_column_indices
 
 def match_variables(targets, model_variables):
     global json_target_key
     # Return value: dictionary of models and lists of targets
-    matches = {m: [] for m in components.models.keys()}
+    matches = {m: [] for m in list(components.models.keys())}
     # Loop over requested variables
     for target in targets:
         # Loop over model components
-        for model, variable_mapping in model_variables.items():
+        for model, variable_mapping in list(model_variables.items()):
             # Loop over supported variables by the component
             for parblock in variable_mapping:
                 if matchvarpar(target, parblock):
@@ -493,12 +520,15 @@ def match_variables(targets, model_variables):
                         parmatch = parblock["table_override"]
                     else:
                         parmatch = parblock
-                    comment_string = model + ' code name = ' + parmatch.get(json_source_key, "?")
-                    if cmor_source.expression_key in parmatch.keys():
+                    if model == 'ifs':
+                     comment_string = '{:4} code name = {:>7}'.format(model, parmatch.get(json_source_key, "?"))
+                    else:
+                     comment_string = '{:4} code name = {:}'.format(model, parmatch.get(json_source_key, "?"))
+                    if cmor_source.expression_key in list(parmatch.keys()):
                         comment_string += ", expression = " + parmatch[cmor_source.expression_key]
                     comment = getattr(target, "ecearth_comment", None)
                     if comment is not None:
-                        setattr(target, "ecearth_comment", comment + '|' + comment_string)
+                        setattr(target, "ecearth_comment", comment + ' | ' + comment_string)
                     else:
                         setattr(target, "ecearth_comment", comment_string)
                     setattr(target, "comment_author", "automatic")
@@ -512,7 +542,7 @@ def matchvarpar(target, parblock):
     parvars = parblock.get(json_target_key, None)
     if isinstance(parvars, list) and target.variable in parvars:
         result = True
-    if isinstance(parvars, basestring) and target.variable == parvars:
+    if isinstance(parvars, str) and target.variable == parvars:
         result = True
     if hasattr(parblock, json_table_key) and target.table != parblock[json_table_key]:
         result = False
@@ -522,14 +552,14 @@ def matchvarpar(target, parblock):
 
 
 # Creates tasks for the considered requested targets, using the parameter tables in the resource folder
-def create_tasks(matches, active_components):
+def create_tasks(matches, active_components, masks):
     global log, ignored_vars_file, json_table_key, skip_tables
     result = []
     model_vars = load_model_vars()
-    for model, targets in matches.items():
+    for model, targets in list(matches.items()):
         if isinstance(active_components, list) and model not in active_components:
             continue
-        if isinstance(active_components, basestring) and model != active_components:
+        if isinstance(active_components, str) and model != active_components:
             continue
         parblocks = model_vars[model]
         for target in targets:
@@ -545,7 +575,7 @@ def create_tasks(matches, active_components):
                             "first match %s" % (model, target.variable, target.table, parmatch.get("source", None)))
             if parmatch.get("table_override", {}).get("table", "") == target.table:
                 parmatch = parmatch["table_override"]
-            task = create_cmor_task(parmatch, target, model)
+            task = create_cmor_task(parmatch, target, model, masks)
             if ece2cmorlib.add_task(task):
                 result.append(task)
     log.info("Created %d ece2cmor tasks from input variable list." % len(result))
@@ -567,6 +597,7 @@ def load_model_vars():
 
 # TODO: Delegate to components
 def load_masks(model_vars):
+    result = {}
     for par in model_vars["ifs"]:
         if json_mask_key in par:
             name = par[json_mask_key]
@@ -574,10 +605,19 @@ def load_masks(model_vars):
             if not expr:
                 log.error("No expression given for mask %s, ignoring mask definition" % name)
             else:
+                result[name] = expr
                 srcstr, func, val = parse_maskexpr(expr)
                 if srcstr:
                     src = create_cmor_source({json_source_key: srcstr}, "ifs")
                     ece2cmorlib.add_mask(name, src, func, val)
+    return result
+
+
+def load_scripts(model_vars):
+    for component in list(model_vars.keys()):
+        for par in model_vars[component]:
+            if json_script_key in par:
+                ece2cmorlib.add_script(component, name=par[json_script_key], attributes=par)
 
 
 # Parses the input mask expression
@@ -602,15 +642,17 @@ def parse_maskexpr(exprstring):
 
 
 # Creates a single task from the target and parameter table entry
-def create_cmor_task(pardict, target, component):
+def create_cmor_task(pardict, target, component, masks):
     global log, json_source_key
+    mask = pardict.get(json_masked_key, None)
+    if mask is not None and mask in masks:
+        pardict[cmor_source.mask_expression_key] = masks[mask]
     source = create_cmor_source(pardict, component)
     if source is None:
         raise ValueError("Failed to construct a source for target variable %s in table %s: task skipped."
                          % (target.variable, target.table))
     task = cmor_task.cmor_task(source, target)
-    mask = pardict.get(json_masked_key, None)
-    if mask:
+    if mask is not None:
         setattr(task.target, cmor_target.mask_key, mask)
     for par in pardict:
         if par not in [json_source_key, json_target_key, json_mask_key, json_masked_key, json_table_key, "expr"]:

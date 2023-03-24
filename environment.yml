@@ -1,48 +1,50 @@
 # For developers only:
-#  Remove the ece2cmor environment and clean the downloaded conda cache:
+#  Remove the ece2cmor environment:
 #   conda deactivate
-#   conda env remove -y -n ece2cmor3
-#   conda clean --all -y
+#   rm -rf ${mambapath}/envs/ece2cmor3
 #  Create the ece2cmor3 environment:
-#   conda update -y -n base -c defaults conda     # For updating conda itself if you like
-#   conda env create -f environment.yml
+#    activatemamba
+#    mamba update -y --name base mamba           # For updating mamba itself
+#    mamba env create -f environment.yml         # Create the ece2cmor3 environment
 #  Basic tests:
-#   cdo -V
-#   nosetests
-#  Miscelaneous relevant help commands:
-#   conda env list
-#   conda list
-#   conda update --all
-#  Investigate the effect of another drq version (run this when your ece2cmor3 environment is active):
-#   pip uninstall -y dreqPy==01.00.33; pip install dreqPy==01.0.32
-#  This dreq version stays (also in next sessions) as long the ece2cmor environment is not recreated.
+#   which python                                 # ${mambapath}/envs/ece2cmor3/bin/python
+#   python --version                             # Python 3.11
+#   cdo -V                                       # version 2.1.1
+#   drq -v                                       # version 01.02.00
+#   drq -h
+#   ece2cmor -V                                  # ece2cmor v2.0.1
+#
+#  The version of one of the packages can be adjusted manually, For instance change the
+#  data request version of the dreq package (ensure the ece2cmor3 environment is active):
+#   pip uninstall -y dreqPy==01.2.0; pip install dreqPy==01.0.33
 
 name: ece2cmor3
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - nodefaults
 dependencies:
-- cmor=3.5.0                                      # Depends on libnetcdf >=4.6.1,<4.7, hdf5 >=1.10.3,<2, python >=2.7,<2.8
-- cdo=1.9.6
-- pyngl
-- python-cdo
-- python-eccodes
-- netcdf4
-- nose=1.3.7
-- pip
-- requests
-- python=2.7.15
-- setuptools=39.2.0
-- numpy>=1.15.1
-- libiconv                                        # Unlisted dependency of cdo
-- pandas>=0.17.1
-- gitpython=2.1.11
-- pip:
-  - f90nml==0.20
-  - jsonschema==2.5.1
-  - testfixtures==5.3.1
-  - xlrd==1.1.0
-  - xlsxwriter==1.0.2
-  - dreqPy==01.00.33
-  - cython                                        # Unlisted dependency dreq 
-  - xarray                                        # Unlisted dependency dreq and/or drq
+  - cdo
+  - cmor
+  - dreqPy==01.2.0
+  - f90nml
+  - gitpython
+  - jsonschema
+  - netcdf4
+  - numpy
+  - openpyxl
+  - pandas
+  - pip
+  - pyngl
+  - pytest
+  - python
+  - python-cdo
+  - python-eccodes
+  - python-dateutil
+  - requests
+  - setuptools
+  - testfixtures
+  - xarray
+  - xlsxwriter
+  # Additionally required by tem-diag:
+  - nco
+  - scipy

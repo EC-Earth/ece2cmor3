@@ -16,6 +16,7 @@ import netCDF4
 import numpy
 import os
 import re
+import requests
 
 # Log object
 from ece2cmor3 import components
@@ -67,6 +68,11 @@ def date2num(times, ref_time):
     return numpy.vectorize(shift_times)(times), ' '.join(["hours", "since", str(ref_time)])
 
 
+# Fix for datetime.strftime("%Y%m%d") for years before 1900
+def date2str(dt):
+    return dt.isoformat().split('T')[0].replace('-', '')
+
+
 # Shifts the input times to the requested ref_time
 def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
     n = units.find(" since")
@@ -77,7 +83,7 @@ def num2num(times, ref_time, units, calendar, shift=datetime.timedelta(0)):
 def make_cmor_frequency(s):
     if isinstance(s, dateutil.relativedelta.relativedelta) or isinstance(s, datetime.timedelta):
         return s
-    if isinstance(s, basestring):
+    if isinstance(s, str):
         if s in ["yr", "yrPt", "dec"]:
             return dateutil.relativedelta.relativedelta(years=1)
         if s in ["mon", "monC", "monPt"]:
@@ -132,7 +138,7 @@ def find_ifs_output(path, expname=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile("^(ICMGG|ICMSH)" + subexpr + "\+[0-9]{6}$")
+    expr = re.compile(r"^(ICMGG|ICMSH)" + subexpr + r"\+[0-9]{6}$")
     result = []
     for root, dirs, files in os.walk(path):
         result.extend([os.path.join(root, f) for f in files if re.match(expr, f)])
@@ -143,7 +149,7 @@ def find_ifs_output(path, expname=None):
 def get_ifs_date(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.search("\+[0-9]{6}", fname)
+    regex = re.search(r"\+[0-9]{6}", fname)
     if not regex:
         log.error("Unable to parse time stamp from ifs file name %s" % fname)
         return None
@@ -156,7 +162,7 @@ def find_nemo_output(path, expname=None):
     subexpr = ".*"
     if expname:
         subexpr = expname
-    expr = re.compile(subexpr + "_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    expr = re.compile(subexpr + r"_.*_[0-9]{8}_[0-9]{8}_.*.nc$")
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 
@@ -165,7 +171,7 @@ def get_nemo_grid(filepath):
     global log
     f = os.path.basename(filepath)
     expname = f[:4]
-    expr = re.compile("(?<=^" + expname + "_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
+    expr = re.compile(r"(?<=^" + expname + r"_.{2}_[0-9]{8}_[0-9]{8}_).*.nc$")
     result = re.search(expr, f)
     if not result:
         log.error("File path %s does not contain a grid string" % filepath)
@@ -178,12 +184,12 @@ def get_nemo_grid(filepath):
 def get_nemo_frequency(filepath, expname):
     global log
     f = os.path.basename(filepath)
-    expr = re.compile("^" + expname + ".*_[0-9]{8}_[0-9]{8}_.*.nc$")
+    expr = re.compile(r"^" + expname + r".*_[0-9]{8}_[0-9]{8}_.*.nc$")
     if not re.match(expr, f):
         log.error("File path %s does not correspond to nemo output of experiment %s" % (filepath, expname))
         return None
     fstr = f[len(expname) + 1:].split("_")[0]
-    expr = re.compile("^(\d+)([hdmy])")
+    expr = re.compile(r"^(\d+)([hdmy])")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
@@ -197,7 +203,7 @@ def get_nemo_frequency(filepath, expname):
 def read_time_stamps(path):
     command = cdo.Cdo()
     times = command.showtimestamp(input=path)[0].split()
-    return map(lambda s: datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S"), times)
+    return [datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S") for s in times]
 
 
 def append_time_range(path):
@@ -237,11 +243,11 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
         # aspi
         # second quotation marks:
         # _*_185001-185012.nc to _*_185001010000-185012312300 [6-12 numbers in date]
-        expr = re.compile("(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + "_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
+        expr = re.compile(r"(([0-9A-Za-z]+)\w_AER.*)_" + subexpr + r"_.*_[0-9]{6,12}-[0-9]{6,12}\.nc$")
     elif varname is not None and freq == 'fx':
-        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(varname + r"_.*" + freq + r".*_" + subexpr + r"_.*.nc$")
     else:
-        expr = re.compile(varname + "_.*" + freq + ".*_" + subexpr + "_.*.nc$")
+        expr = re.compile(varname + r"_.*" + freq + r".*_" + subexpr + r"_.*.nc$")
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
@@ -250,14 +256,14 @@ def find_tm5_output(path, expname=None, varname=None, freq=None):
 def get_tm5_frequency(filepath, expname):
     global log
     f = os.path.basename(filepath)
-    expr = re.compile(".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
+    expr = re.compile(r".*_[0-9]{6,12}-[0-9]{6,12}.nc$")
     if not re.match(expr, f):
         log.error("File path %s does not correspond to tm5 output of experiment %s" % (filepath, expname))
         return None
 
     fstr = f.split("_")[1]
-    expr = re.compile("(AERhr|AER6hr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
-    # expr = re.compile("(AERhr|AERmon|AERday|Emon|Efx)")
+    expr = re.compile(r"(AERhr|AER6hr|AERmon|AERday|fx|Ahr|Amon|Aday|Emon|Efx)")
+    # expr = re.compile(r"(AERhr|AERmon|AERday|Emon|Efx)")
     if not re.match(expr, fstr):
         log.error("File path %s does not contain a valid frequency indicator" % filepath)
         return None
@@ -272,7 +278,7 @@ def get_tm5_frequency(filepath, expname):
 def get_tm5_interval(filepath):
     global log
     fname = os.path.basename(filepath)
-    regex = re.findall("[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
+    regex = re.findall(r"[0-9]{6,12}", fname)  # mon(6),day(8), hour(10)
     start, end = None, None
     if not regex or len(regex) != 2:
         log.error("Unable to parse dates from tm5 file name %s" % fname)
@@ -323,7 +329,7 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
             if timdim < 0:
                 vals = apply_mask(ncvar[:], factor, term, None, missval_in, missval)
             elif timdim == 0:
-                vals = apply_mask(ncvar[i:imax], factor, term, None, missval_in, missval)
+                vals = apply_mask(ncvar[time_slice], factor, term, None, missval_in, missval)
         elif ndims == 2:
             if timdim < 0:
                 if swaplatlon:
@@ -423,10 +429,17 @@ def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncps
         if psvarid is not None and ncpsvar is not None:
             spvals = None
             if len(ncpsvar.shape) == 3:
-                spvals = numpy.transpose(ncpsvar[i:imax, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                if time_slice is None:
+                    spvals = numpy.transpose(numpy.full((1,) + ncpsvar.shape[1:], missval),
+                                             axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                else:
+                    spvals = numpy.transpose(ncpsvar[time_slice, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             elif len(ncpsvar.shape) == 4:
-                projvar = ncpsvar[i:imax, 0, :, :]
-                spvals = numpy.transpose(projvar, axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
+                if time_slice is None:
+                    spvals = numpy.transpose(numpy.full((1,) + ncvar.shape[2:], missval),
+                                             axes=[2, 1, 0] if swaplatlon else [2, 1, 0])
+                else:
+                    spvals = numpy.transpose(ncpsvar[time_slice, 0, :, :], axes=[2, 1, 0] if swaplatlon else [1, 2, 0])
             if spvals is not None:
                 if fliplat:
                     spvals = numpy.flipud(spvals)
@@ -444,6 +457,29 @@ def apply_mask(array, factor, term, mask, missval_in, missval_out):
     if factor != 1.0 or term != 0.0:
         numpy.putmask(array, array != new_miss_val, factor * array + term)
     return array
+
+
+# Downloads a file from our EC-Earth b2share data stor
+def get_from_b2share(fname, fullpath):
+    site = "https://b2share.eudat.eu/api"
+    record = "f7de9a85cbd443269958f0b80e7bc654"
+    resp = requests.get('/'.join([site, "records", record]))
+    if not resp:
+        log.error("Problem getting record data from b2share server: %d" % resp.status_code)
+        return False
+    d = resp.json()
+    for f in d["files"]:
+        if f["key"] == fname:
+            url = '/'.join([site, "files", f["bucket"], f["key"]])
+            log.info("Downloading file %s from b2share archive..." % fname)
+            fresp = requests.get(url)
+            if not fresp:
+                log.error("Problem getting file %s from b2share server: %d" % (fname, resp.status_code))
+                return False
+            with open(fullpath, 'wb') as fd:
+                fd.write(fresp.content)
+            log.info("...success, file %s created" % fullpath)
+    return True
 
 
 class ScriptUtils:
@@ -485,7 +521,7 @@ class ScriptUtils:
         result = list(result)
         # If no flag was found, activate all components in configuration
         if len(result) == 0:
-            return components.ece_configs.get(conf, components.models.keys())
+            return components.ece_configs.get(conf, list(components.models.keys()))
         return result
 
     @staticmethod

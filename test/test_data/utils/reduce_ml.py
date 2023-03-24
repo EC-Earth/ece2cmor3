@@ -47,7 +47,7 @@ def example(ifile,ofile,levels):
 def main(ifile,ofile,levels):
     try:
         example(ifile,ofile,int(levels))
-    except GribInternalError,err:
+    except GribInternalError as err:
         if VERBOSE:
             traceback.print_exc(file=sys.stderr)
         else:

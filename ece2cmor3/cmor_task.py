@@ -8,6 +8,7 @@ conversion_key = "convert"
 filter_output_key = "filter_path"
 output_path_key = "path"
 output_frequency_key = "output_freq"
+postproc_script_key = "post-proc"
 
 status_initialized = 0
 status_postprocessing = 1

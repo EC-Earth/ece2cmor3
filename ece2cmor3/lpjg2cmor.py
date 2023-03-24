@@ -61,7 +61,7 @@ grids = {
           480, 480, 486, 486, 486, 500, 500, 500, 500, 500, 500, 500, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512,
           512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512],
 }
-grids = {i: j + j[::-1] for i, j in grids.items()}
+grids = {i: j + j[::-1] for i, j in list(grids.items())}
 
 
 def rnd(x, digits=3):
@@ -145,7 +145,7 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
         with open(coordfile) as f:
             data = json.loads(f.read())
         axis_entries = data.get("axis_entry", {})
-        axis_entries = {k.lower(): v for k, v in axis_entries.iteritems()}
+        axis_entries = {k.lower(): v for k, v in axis_entries.items()}
         if axis_entries['landuse']['requested']:
             landuse_requested_ = [entry.encode('ascii') for entry in axis_entries['landuse']['requested']]
 
@@ -170,7 +170,7 @@ def execute(tasks):
     log.info("Executing %d lpjg tasks..." % len(tasks))
     log.info("Cmorizing lpjg tasks...")
     taskdict = cmor_utils.group(tasks, lambda t: t.target.table)
-    for table, tasklist in taskdict.iteritems():
+    for table, tasklist in taskdict.items():
         try:
             tab_id = cmor.load_table("_".join([table_root_, table]) + ".json")
             cmor.set_table(tab_id)
@@ -539,7 +539,7 @@ def find_nemo_file(varname, nemo_freq):
         log.error("Cannot find any nemo output files in %s"
                   % (nemo_path))
         return ""
-    print(str(nemo_files))
+    print((str(nemo_files)))
     file_candidates = [f for f in nemo_files if cmor_utils.get_nemo_frequency(f, exp_name_) == nemo_freq]
     results = []
     for ncfile in file_candidates:

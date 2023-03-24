@@ -6,7 +6,7 @@ import os
 import re
 from dateutil import relativedelta
 
-from ece2cmor3 import cmor_target
+from ece2cmor3 import cmor_target, cmor_utils
 
 
 def get_table_path(tab_id=None):
@@ -44,7 +44,7 @@ class nemo_output_factory(object):
     def set_timeframe(self, startdate_, enddate_, frequency_):
         self.startdate = startdate_
         self.enddate = enddate_
-        expr = re.compile("^[1-9]([hdmy])$")
+        expr = re.compile(r"^[1-9]([hdmy])$")
         if re.match(expr, frequency_):
             self.frequency = frequency_
         else:
@@ -52,8 +52,8 @@ class nemo_output_factory(object):
 
     def get_path(self, dir_, prefix_):
         joinchar = '_'
-        startstr = self.startdate.strftime("%Y%m%d")
-        stopstr = self.enddate.strftime("%Y%m%d")
+        startstr = cmor_utils.date2str(self.startdate)
+        stopstr = cmor_utils.date2str(self.enddate)
         filename = joinchar.join([prefix_, self.frequency, startstr, stopstr, self.gridtype]) + ".nc"
         return os.path.join(dir_, filename)
 

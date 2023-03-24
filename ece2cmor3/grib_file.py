@@ -27,7 +27,7 @@ test_mode = False
 # Module initializer function
 def initialize():
     if not test_mode:
-        orig_path = str(subprocess.check_output(["codes_info", "-d"]))
+        orig_path = str(subprocess.check_output(["codes_info", "-d"]).decode('UTF-8'))
         ece_path = os.path.join(os.path.dirname(__file__), "resources", "grib-table")
         prepended_path = ":".join([ece_path, orig_path])
         os.environ["ECCODES_DEFINITION_PATH"] = prepended_path
@@ -104,8 +104,8 @@ class csv_grib_mock(grib_file):
         self.reader = csv.reader(file_object_, delimiter=',')
 
     def read_next(self, headers_only=False):
-        self.row = next(self.reader, None)
-        return self.row is not None
+        self.row = next(self.reader, [])
+        return any(self.row)
 
     def write(self, file_object_):
         writer = csv.writer(file_object_)

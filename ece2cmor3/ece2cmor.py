@@ -3,8 +3,7 @@ import time
 
 import argparse
 import datetime
-import dateutil.parser
-import dateutil.relativedelta
+import dateutil
 import logging
 import os
 import sys
@@ -37,7 +36,7 @@ def main(args=None):
     parser.add_argument("--odir", metavar="DIR", type=str, default=None, help="Output directory, by default the "
                                                                               "metadata \'outpath\' entry")
     cmor_utils.ScriptUtils.add_model_exclusive_options(parser, "ece2cmor")
-    parser.add_argument("--ececonf", metavar='|'.join(components.ece_configs.keys()), type=str,
+    parser.add_argument("--ececonf", metavar='|'.join(list(components.ece_configs.keys())), type=str,
                         help="EC-Earth configuration (only used with --drq option)")
     parser.add_argument("--refd", metavar="YYYY-mm-dd", type=str, default="1850-01-01",
                         help="Reference date for output time axes")
@@ -74,7 +73,8 @@ def main(args=None):
     cmor_utils.ScriptUtils.set_custom_tabfiles(args)
 
     logfile = None
-    logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+   #logformat = "%(asctime)s %(levelname)s:%(name)s: %(message)s"
+    logformat =             "%(levelname)s:%(name)s: %(message)s"
     logdateformat = "%Y-%m-%d %H:%M:%S"
     if getattr(args, "log", False):
         dirs = os.path.abspath(args.datadir).split(os.sep)
