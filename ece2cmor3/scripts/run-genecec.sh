@@ -46,11 +46,11 @@ if [ "$#" -eq 3 ]; then
 
   sed -e 's/output-control-files/~\/cmorize\/control-output-files\/output-control-files-v'${version}'/' config-genecec > ${config_genecec_run_file}
   if [ "${pextra_mode}" == 'pextra' ]; then
-   sed -i -e 's/activate_pextra_mode           = False/activate_pextra_mode           = True /' ${config_genecec_run_file}
-   sed -i -e 's/default/pextra/'                                                                ${config_genecec_run_file} # Adjust example in header
+   sed -i -e 's/activate_pextra_mode            = False/activate_pextra_mode            = True /' ${config_genecec_run_file}
+   sed -i -e 's/default/pextra/'                                                                  ${config_genecec_run_file} # Adjust example in header
   fi
-  sed -i -e "s/001/${version}/"                                                                 ${config_genecec_run_file} # Adjust example in header
-  sed -i -e "s/ece2cmor3/${ece2cmor3_dir}/"                                                     ${config_genecec_run_file}
+  sed -i -e "s/001/${version}/"                                                                   ${config_genecec_run_file} # Adjust example in header
+  sed -i -e "s/ece2cmor3/${ece2cmor3_dir}/"                                                       ${config_genecec_run_file}
 
   log_dir=~/cmorize/control-output-files/log-genecec
   log_file=${log_dir}/log-genecec-v${label}
