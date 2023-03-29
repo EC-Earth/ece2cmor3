@@ -4,6 +4,10 @@
         "target": "reffclws"
     },
     {
+        "source": "24.126",
+        "target": "reffclis"
+    },
+    {
         "source": "30.126",
         "target": "sftgrf"
     },
@@ -551,6 +555,12 @@
         "expr_order": "1"
     },
     {
+        "source": "26.129",
+        "target": "icnc",
+        "expr": " (var126025 > 1e-6 && var126023 > 0)? var126023/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
         "source": "43.129",
         "target": "mrso",
         "expr": "70*var39+210*var40+720*var41+1890*var42",
@@ -584,6 +594,36 @@
         "expr": "merge((var139>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var170>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var183>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var236>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0))",
         "masked": "land",
         "interpolate": "nn"
+    },
+    {
+        "source": "56.129",
+        "target": "icncpip",
+        "expr": " (var126025 > 1e-6 && var126056 > 0)? var126056/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "57.129",
+        "target": "icncsip",
+        "expr": " (var126025 > 1e-6 && var126057 > 0)? var126057/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "61.129",
+        "target": "icncullrichdn",
+        "expr": " (var126025 > 1e-6 && var126061 > 0)? var126061/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "64.129",
+        "target": "icncharrison",
+        "expr": " (var126025 > 1e-6 && var126064 > 0)? var126064/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "65.129",
+        "target": "icncwilson",
+        "expr": " (var126025 > 1e-6 && var126065 > 0)? var126065/var126025 : 0",
+        "expr_order": "1"
     },
     {
         "source": "74.129",
