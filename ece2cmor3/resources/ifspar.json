@@ -1,10 +1,12 @@
 [
     {
         "source": "21.126",
+        "convert": "micron2m",
         "target": "reffclws"
     },
     {
         "source": "24.126",
+        "convert": "micron2m",
         "target": "reffclis"
     },
     {
