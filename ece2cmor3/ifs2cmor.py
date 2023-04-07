@@ -689,6 +689,8 @@ def get_conversion_constants(conversion, output_frequency):
         return 1.0, -273.15
     if conversion == "degC2K":
         return 1.0, 273.15
+    if conversion == "micron2m":
+        return 1.0e-6, 0.0
     log.error("Unknown explicit unit conversion: %s" % conversion)
     return 1.0, 0.0
 
