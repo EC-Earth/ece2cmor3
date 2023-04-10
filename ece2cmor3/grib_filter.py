@@ -17,6 +17,7 @@ gridpoint_files = {}
 spectral_files = {}
 ini_gridpoint_file = None
 ini_spectral_file = None
+preceding_files = {}
 temp_dir = None
 accum_key = "ACCUMFLD"
 accum_codes = []
@@ -29,20 +30,23 @@ starttimes = {}
 
 # Initializes the module, looks up previous month files and inspects the first
 # day in the input files to set up an administration of the fields.
-def initialize(gpfiles, shfiles, tmpdir, ini_gpfile=None, ini_shfile=None):
-    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, temp_dir, varsfreq, accum_codes, \
-        record_keys
+def initialize(gpfiles, shfiles, ini_gpfile, ini_shfile, prev_files, tmpdir):
+    global gridpoint_files, spectral_files, ini_gridpoint_file, ini_spectral_file, preceding_files, temp_dir, \
+        varsfreq, accum_codes, record_keys
     grib_file.initialize()
-    gridpoint_files = {d: (get_prev_file(gpfiles[d]), gpfiles[d]) for d in list(gpfiles.keys())}
-    spectral_files = {d: (get_prev_file(shfiles[d]), shfiles[d]) for d in list(shfiles.keys())}
-    ini_gridpoint_file, ini_spectral_file = ini_gpfile, ini_shfile
+    gridpoint_files = gpfiles
+    spectral_files = shfiles
+    ini_gridpoint_file = ini_gpfile
+    ini_spectral_file = ini_shfile
+    preceding_files = prev_files
     temp_dir = tmpdir
+
     accum_codes = load_accum_codes(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "grib_codes.json"))
     gpdate = sorted(gridpoint_files.keys())[0] if any(gridpoint_files) else None
     shdate = sorted(spectral_files.keys())[0] if any(spectral_files) else None
-    gpfile = gridpoint_files[gpdate][1] if any(gridpoint_files) else None
-    shfile = spectral_files[shdate][1] if any(spectral_files) else None
+    gpfile = gridpoint_files[gpdate] if any(gridpoint_files) else None
+    shfile = spectral_files[shdate] if any(spectral_files) else None
     if gpfile is not None:
         with open(gpfile) as gpf:
             freqs, records = inspect_day(grib_file.create_grib_file(gpf), grid=cmor_source.ifs_grid.point)
@@ -166,7 +170,7 @@ def get_record_key(gribfile, gridtype):
             (codetab == 128 and codevar in [35, 36, 37, 38, 39, 40, 41, 42, 139, 170, 183, 236]):
         level = 0
         levtype = grib_file.depth_level_code
-    if (codetab == 128 and codevar in [49, 165, 166]):
+    if codetab == 128 and codevar in [49, 165, 166]:
         level = 10
         levtype = grib_file.height_level_code
     if codevar in [167, 168, 201, 202]:
@@ -250,41 +254,6 @@ def get_levels(task, code):
     log.error("Could not convert vertical axis type %s to grib vertical coordinate "
               "code for %s" % (zaxis, task.target.variable))
     return -1, []
-
-
-# Searches the file system for the previous month file, necessary for the 0-hour
-# fields.
-def get_prev_file(grb_file):
-    fname = os.path.basename(grb_file)
-    exp, year, mon = fname[5:9], int(fname[10:14]), int(fname[14:16])
-    if mon == 1:
-        prev_year, prev_mon = year - 1, 12
-    else:
-        prev_year, prev_mon = year, mon - 1
-    output_dir = os.path.abspath(os.path.join(os.path.dirname(grb_file), ".."))
-    output_files = cmor_utils.find_ifs_output(output_dir, exp)
-    ini_path = None
-    for output_path in output_files:
-        output_name = os.path.basename(output_path)
-        if output_name == fname[:9] + "+000000":
-            ini_path = output_path
-        if output_name[:10] == fname[:10] and int(output_name[10:14]) == prev_year and \
-                int(output_name[14:]) == prev_mon:
-            log.info("Found previous month file for %s: %s" % (grb_file, output_path))
-            return output_path
-    ece_leg = os.path.split(os.path.dirname(grb_file))[-1]
-    if re.match(r"^0*\d1$", ece_leg): # First leg
-        if ini_path is None:
-            log.error("Previous month file for %s could not be found because the initial state file hasn't been found"
-                      % grb_file)
-        else:
-            log.info("Assumed previous month file for %s: %s" % (grb_file, ini_path))
-    else:
-        if ini_path is None:
-            log.error("Previous month file for %s could not be found" % grb_file)
-        else:
-            log.error("Assumed previous month file for %s: %s, this is probably not correct!" % (grb_file, ini_path))
-    return ini_path
 
 
 # Splits the grib file for the given set of tasks
@@ -375,27 +344,30 @@ def execute_tasks(tasks, filter_files=True, multi_threaded=False, once=False):
         fxkeys2files = {k: keys2files[k] for k in fxkeys}
         if any(gridpoint_files):
             gridpoint_start_date = sorted(gridpoint_files.keys())[0]
-            first_gridpoint_file = gridpoint_files[gridpoint_start_date][0]
+            first_gridpoint_file = preceding_files[gridpoint_files[gridpoint_start_date]]
             if ini_gridpoint_file != first_gridpoint_file and ini_gridpoint_file is not None:
                 with open(str(ini_gridpoint_file), 'r') as fin:
-                    keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], gridpoint_start_date,
-                                                                filehandles)
+                    keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0],
+                                                                gridpoint_start_date, filehandles)
         elif ini_gridpoint_file is not None:
             with open(str(ini_gridpoint_file), 'r') as fin:
-                keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0], None, filehandles)
+                keys_gp, timestamp_gp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[0],
+                                                            None, filehandles)
         if any(spectral_files):
             spectral_start_date = sorted(spectral_files.keys())[0]
-            first_spectral_file = spectral_files[spectral_start_date][0]
+            first_spectral_file = preceding_files[spectral_files[spectral_start_date]]
             if ini_spectral_file != first_spectral_file and ini_spectral_file is not None:
                 with open(str(ini_spectral_file), 'r') as fin:
-                    keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], spectral_start_date,
-                                        filehandles)
+                    keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1],
+                                                                spectral_start_date, filehandles)
         elif ini_spectral_file is not None:
             with open(str(ini_spectral_file), 'r') as fin:
-                keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1], None, filehandles)
+                keys_sp, timestamp_sp = filter_fx_variables(grib_file.create_grib_file(fin), fxkeys2files, grids[1],
+                                                            None, filehandles)
         if multi_threaded:
             threads = []
-            for file_list, grid, keys, timestamp in zip([gridpoint_files, spectral_files], grids, [keys_gp, keys_sp], [timestamp_gp, timestamp_sp]):
+            for file_list, grid, keys, timestamp in zip([gridpoint_files, spectral_files], grids, [keys_gp, keys_sp],
+                                                        [timestamp_gp, timestamp_sp]):
                 thread = threading.Thread(target=filter_grib_files, 
                                           args=(file_list, keys2files, grid, filehandles, 0, 0, once, keys, timestamp))
                 threads.append(thread)
@@ -524,7 +496,8 @@ def build_fast_forward_cache(keys2files, grid):
 
 
 # Processes month of grib data, including 0-hour fields in the previous month file.
-def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False, prev_keys=(), prev_timestamp=-1):
+def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0, once=False, prev_keys=(),
+                      prev_timestamp=-1):
     dates = sorted(file_list.keys())
     cache = None if once else build_fast_forward_cache(keys2files, grid)
     keys, timestamp = prev_keys, prev_timestamp
@@ -532,7 +505,8 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
         date = dates[i]
         if month != 0 and year != 0 and (date.month, date.year) != (month, year):
             continue
-        prev_grib_file, cur_grib_file = file_list[date]
+        cur_grib_file = file_list[date]
+        prev_grib_file = preceding_files[cur_grib_file]
         prev_chained = i > 0 and (os.path.realpath(prev_grib_file) == os.path.realpath(file_list[dates[i - 1]][1]))
         if prev_grib_file is not None and not prev_chained:
             with open(prev_grib_file, 'r') as fin:
@@ -552,7 +526,8 @@ def filter_grib_files(file_list, keys2files, grid, handles=None, month=0, year=0
 
 
 # Function writing data from previous monthly file, writing the 0-hour fields
-def proc_initial_month(month, gribfile, keys2files, gridtype, handles, prev_keys=(), prev_timestamp=-1, once=False, ff_cache=None):
+def proc_initial_month(month, gribfile, keys2files, gridtype, handles, prev_keys=(), prev_timestamp=-1, once=False,
+                       ff_cache=None):
     timestamp = prev_timestamp
     keys = prev_keys
     fast_forward_count = 0

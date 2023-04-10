@@ -128,18 +128,6 @@ def make_time_intervals(start, end, delta):
     return result
 
 
-# Finds all ifs output in the given directory. If expname is given, matches according output files.
-def find_ifs_output(path, expname=None):
-    subexpr = ".*"
-    if expname:
-        subexpr = expname
-    expr = re.compile(r"^(ICMGG|ICMSH)" + subexpr + r"\+[0-9]{6}$")
-    result = []
-    for root, dirs, files in os.walk(path):
-        result.extend([os.path.join(root, f) for f in files if re.match(expr, f)])
-    return result
-
-
 # Returns the start date for the given file path
 def get_ifs_date(filepath):
     global log

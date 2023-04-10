@@ -28,6 +28,7 @@ ifs_gridpoint_files_ = None
 ifs_spectral_files_ = None
 ifs_init_gridpoint_file_ = None
 ifs_init_spectral_file_ = None
+ifs_preceding_files_ = None
 
 # IFS surface pressure grib codes
 surface_pressure = cmor_source.grib_code(134)
@@ -99,14 +100,31 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
     table_root_ = tableroot
     ref_date_ = refdate
     auto_filter_ = autofilter
+    find_grib_files(expname, path)
+    tmpdir_parent = os.getcwd() if tempdir is None else tempdir
+    # Apply timeshift
+    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time()) - timeshift
+    dirname = '-'.join([exp_name_, "ifs", start_date_.isoformat().split('-')[0]])
+    temp_dir_ = os.path.join(tmpdir_parent, dirname)
+    if not os.path.exists(temp_dir_):
+        os.makedirs(temp_dir_)
+    if auto_filter_:
+        ini_gpf = None if ifs_init_gridpoint_file_ == list(ifs_gridpoint_files_.values())[0] else ifs_init_gridpoint_file_
+        grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, ini_gpf, ifs_init_spectral_file_,
+                               ifs_preceding_files_, temp_dir_)
+    return True
+
+
+def find_grib_files(expname, path):
+    global ifs_init_spectral_file_, ifs_init_gridpoint_file_, ifs_gridpoint_files_, ifs_spectral_files_
+    global ifs_preceding_files_
 
     ifs_init_spectral_file_, ifs_init_gridpoint_file_ = find_init_files(path, expname)
-    file_pattern = expname + "+[0-9][0-9][0-9][0-9][0-9][0-9]"
-    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMGG" + file_pattern)
+    file_pattern = f'{expname}+[0-9][0-9][0-9][0-9][0-9][0-9]'
+    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob(f'{path}/ICMGG{file_pattern}')
                if not f.endswith("+000000")}
-    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob1(path, "ICMSH" + file_pattern)
+    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob(f'{path}/ICMSH{file_pattern}')
                if not f.endswith("+000000")}
-
     if any(shfiles) and any(gpfiles) and set(shfiles.keys()) != set(gpfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
         if not any(intersection):
@@ -129,24 +147,38 @@ def initialize(path, expname, tableroot, refdate, tempdir=None, autofilter=True)
             log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
                       (exp_name_, path))
             return False
-
-    tmpdir_parent = os.getcwd() if tempdir is None else tempdir
-    # Apply timeshift
-    start_date_ = datetime.combine(min(ifs_gridpoint_files_.keys()), datetime.min.time()) - timeshift
-    dirname = '-'.join([exp_name_, "ifs", start_date_.isoformat().split('-')[0]])
-    temp_dir_ = os.path.join(tmpdir_parent, dirname)
-    if not os.path.exists(temp_dir_):
-        os.makedirs(temp_dir_)
-    if auto_filter_:
-        ini_gpf = None if ifs_init_gridpoint_file_ == list(ifs_gridpoint_files_.values())[0] else ifs_init_gridpoint_file_
-        grib_filter.initialize(ifs_gridpoint_files_, ifs_spectral_files_, temp_dir_, ini_gpfile=ini_gpf,
-                               ini_shfile=ifs_init_spectral_file_)
+    ifs_preceding_files_ = {}
+    for file_pattern, file_dict, init_file in zip(["ICMGG", "ICMSH"],
+                                      [ifs_gridpoint_files_, ifs_spectral_files_],
+                                      [ifs_init_gridpoint_file_, ifs_init_spectral_file_]):
+        for date, filepath in file_dict.items():
+            preceding_timestamp = f'{date.year}{(date.month - 1):02}' if date.month > 1 else f'{date.year - 1}12'
+            fname = f'{file_pattern}{expname}+{preceding_timestamp}'
+            fpath = f'{path}/{fname}'
+            if fpath in file_dict.values() or glob.glob(fpath):
+                ifs_preceding_files_[filepath] = fpath
+            else:
+                pathdirs = path.split('/')
+                leg = pathdirs[-1]
+                residue = '/'.join(pathdirs[0:-1])
+                nchars = len(leg)
+                preceding_leg_file = None
+                try:
+                    preceding_leg_file = f'{residue}/{int(leg) - 1:0{nchars}}/{fname}'
+                except ValueError:
+                    log.info(f'IFS output path {path} does not seem to contain a leg directory, assuming the preceding '
+                             f'time stamp is the initial state...')
+                    ifs_preceding_files_[filepath] = init_file
+                if glob.glob(preceding_leg_file):
+                    ifs_preceding_files_[filepath] = preceding_leg_file
+                else:
+                    ifs_preceding_files_[filepath] = init_file
     return True
 
 
 def find_init_files(path, exp):
     def find_file(f):
-        for root, dirs, files in os.walk(os.path.abspath(os.path.join(path, ".."))):
+        for root, dirs, files in os.walk(os.path.abspath(os.path.join(path, "..")),):
             if f in files:
                 return os.path.join(root, f)
         return None
