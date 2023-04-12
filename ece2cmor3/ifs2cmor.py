@@ -121,9 +121,9 @@ def find_grib_files(expname, path):
 
     ifs_init_spectral_file_, ifs_init_gridpoint_file_ = find_init_files(path, expname)
     file_pattern = f'{expname}+[0-9][0-9][0-9][0-9][0-9][0-9]'
-    gpfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob(f'{path}/ICMGG{file_pattern}')
+    gpfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob(f'{path}/ICMGG{file_pattern}')
                if not f.endswith("+000000")}
-    shfiles = {cmor_utils.get_ifs_date(f): os.path.join(path, f) for f in glob.glob(f'{path}/ICMSH{file_pattern}')
+    shfiles = {cmor_utils.get_ifs_date(f): f for f in glob.glob(f'{path}/ICMSH{file_pattern}')
                if not f.endswith("+000000")}
     if any(shfiles) and any(gpfiles) and set(shfiles.keys()) != set(gpfiles.keys()):
         intersection = set(gpfiles.keys()).intersection(set(shfiles.keys()))
@@ -147,6 +147,7 @@ def find_grib_files(expname, path):
             log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
                       (exp_name_, path))
             return False
+    print(ifs_gridpoint_files_)
     ifs_preceding_files_ = {}
     for file_pattern, file_dict, init_file in zip(["ICMGG", "ICMSH"],
                                       [ifs_gridpoint_files_, ifs_spectral_files_],
