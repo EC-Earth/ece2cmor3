@@ -178,9 +178,30 @@ def find_grib_files(expname, path):
 
 def find_init_files(path, exp):
     def find_file(f):
-        for root, dirs, files in os.walk(os.path.abspath(os.path.join(path, "..")),):
-            if f in files:
-                return os.path.join(root, f)
+        local_matches = glob.glob(os.path.join(f))
+        if any(local_matches):
+            return local_matches[0]
+        parent_matches = glob.glob(os.path.abspath(os.path.join(path,'..',f)))
+        if any(parent_matches):
+            return parent_matches[0]
+        pathdirs = path.split('/')
+        leg = pathdirs[-1]
+        residue = '/'.join(pathdirs[0:-1])
+        nchars = len(leg)
+        first_leg_matches = glob.glob(os.path.join(residue, f'{1:0{nchars}}', f))
+        if any(first_leg_matches):
+            return first_leg_matches[0]
+        zero_leg_matches = glob.glob(os.path.join(residue, '0' * nchars, f))
+        if any(zero_leg_matches):
+            return zero_leg_matches[0]
+        try:
+            preceding_leg_file = os.path.join(residue, f'{int(leg) - 1:0{nchars}}', f)
+            preceding_leg_matches = glob.glob(preceding_leg_file)
+            if any(preceding_leg_matches):
+                return preceding_leg_matches[0]
+        except ValueError:
+            pass
+        log.warning(f'Initial state file {f} could not be found, this may result in errors upon cmorization')
         return None
     return find_file("ICMSH" + exp + "+000000"), find_file("ICMGG" + exp + "+000000")
 
