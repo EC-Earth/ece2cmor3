@@ -147,7 +147,6 @@ def find_grib_files(expname, path):
             log.error("No gridpoint files found for experiment %s in directory %s, exiting initialization" %
                       (exp_name_, path))
             return False
-    print(ifs_gridpoint_files_)
     ifs_preceding_files_ = {}
     for file_pattern, file_dict, init_file in zip(["ICMGG", "ICMSH"],
                                       [ifs_gridpoint_files_, ifs_spectral_files_],
