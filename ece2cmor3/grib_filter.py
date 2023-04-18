@@ -239,6 +239,10 @@ def get_levels(task, code):
             return grib_file.height_level_code, [10]
         if gc in [167, 168, 201, 202]:
             return grib_file.height_level_code, [2]
+    if code.tab_id == 228:
+        gc = code.var_id
+        if gc in [246, 247]:
+            return grib_file.surface_level_code, [0]
     # Normal cases
     zaxis, levels = cmor_target.get_z_axis(task.target)
     if zaxis is None:
