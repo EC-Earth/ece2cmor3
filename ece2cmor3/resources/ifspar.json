@@ -1,7 +1,13 @@
 [
     {
         "source": "21.126",
+        "convert": "micron2m",
         "target": "reffclws"
+    },
+    {
+        "source": "24.126",
+        "convert": "micron2m",
+        "target": "reffclis"
     },
     {
         "source": "30.126",
@@ -20,32 +26,54 @@
         "target": "areacellg"
     },
     {
-        "source": "40.126",
-        "target": "cllcalipso"
+        "source": "240.129",
+        "target": "cllcalipso",
+        "expr": "(var126040>=0) ? var126040 : 0/0"
     },
     {
-        "source": "41.126",
-        "target": "clmcalipso"
+        "source": "241.129",
+        "target": "clmcalipso",
+        "expr": "(var126041>=0) ? var126041 : 0/0"
     },
     {
-        "source": "42.126",
-        "target": "clhcalipso"
+        "source": "242.129",
+        "target": "clhcalipso",
+        "expr": "(var126042>=0) ? var126042 : 0/0"
     },
     {
-        "source": "43.126",
-        "target": "cltcalipso"
+        "source": "243.129",
+        "target": "cltcalipso",
+        "expr": "(var126043>=0) ? var126043 : 0/0"
     },
     {
-        "source": "44.126",
-        "target": "cltisccp"
+        "source": "244.129",
+        "target": "cltisccp",
+        "expr": "(var126044>=0) ? var126044 : 0/0"
     },
     {
-        "source": "45.126",
-        "target": "pctisccp"
+        "source": "245.129",
+        "target": "pctisccp",
+        "expr": "(var126045>=0) ? var126045 : 0/0"
     },
     {
-        "source": "46.126",
-        "target": "albisccp"
+        "source": "246.129",
+        "target": "albisccp",
+        "expr": "(var126046>=0) ? var126046 : 0/0"
+    },
+    {
+        "source": "247.129",
+        "target": "cltmodis",
+        "expr": "(var126047>=0) ? var126047 : 0/0"
+    },
+    {
+        "source": "248.129",
+        "target": "clwmodis",
+        "expr": "(var126048>=0) ? var126048 : 0/0"
+    },
+    {
+        "source": "249.129",
+        "target": "climodis",
+        "expr": "(var126049>=0) ? var126049 : 0/0"
     },
     {
         "source": "70.126",
@@ -495,9 +523,7 @@
     {
         "source": "235.128",
         "target": [
-            "tslsi",
-            "tsland",
-            "tr"
+            "tsland"
         ],
         "masked": "land"
     },
@@ -526,6 +552,12 @@
         "source": "23.129",
         "target": "cdnc",
         "expr": " (var126022 > 1e-6)? 1e+6*var126020/var126022 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "26.129",
+        "target": "icnc",
+        "expr": " (var126025 > 1e-6 && var126023 > 0)? var126023/var126025 : 0",
         "expr_order": "1"
     },
     {
@@ -562,6 +594,36 @@
         "expr": "merge((var139>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var170>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var183>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0),(var236>0)*((var43==1)*1.0+(var43==2)*0.6+(var43==3)*0.2+(var43==4)*0.0+(var43==5)*0.0+(var43==6)*0.2+(var43==7)*1.0/3.0))",
         "masked": "land",
         "interpolate": "nn"
+    },
+    {
+        "source": "56.129",
+        "target": "icncpip",
+        "expr": " (var126025 > 1e-6 && var126056 > 0)? var126056/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "57.129",
+        "target": "icncsip",
+        "expr": " (var126025 > 1e-6 && var126057 > 0)? var126057/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "61.129",
+        "target": "icncullrichdn",
+        "expr": " (var126025 > 1e-6 && var126061 > 0)? var126061/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "64.129",
+        "target": "icncharrison",
+        "expr": " (var126025 > 1e-6 && var126064 > 0)? var126064/var126025 : 0",
+        "expr_order": "1"
+    },
+    {
+        "source": "65.129",
+        "target": "icncwilson",
+        "expr": " (var126025 > 1e-6 && var126065 > 0)? var126065/var126025 : 0",
+        "expr_order": "1"
     },
     {
         "source": "74.129",
@@ -866,6 +928,13 @@
         "source": "222.129",
         "target": "utendwtem",
         "post-proc": "make_dynvars"
+    },
+    {
+        "source": "235.129",
+        "target": [
+            "tslsi"
+        ],
+        "expr": "var235/(var31>0 || var172>0.5)"
     },
     {
         "mask": "land",

@@ -166,7 +166,7 @@ def get_record_key(gribfile, gridtype):
             (codetab == 128 and codevar in [35, 36, 37, 38, 39, 40, 41, 42, 139, 170, 183, 236]):
         level = 0
         levtype = grib_file.depth_level_code
-    if codevar in [49, 165, 166]:
+    if (codetab == 128 and codevar in [49, 165, 166]):
         level = 10
         levtype = grib_file.height_level_code
     if codevar in [167, 168, 201, 202]:
@@ -235,6 +235,10 @@ def get_levels(task, code):
             return grib_file.height_level_code, [10]
         if gc in [167, 168, 201, 202]:
             return grib_file.height_level_code, [2]
+    if code.tab_id == 228:
+        gc = code.var_id
+        if gc in [246, 247]:
+            return grib_file.surface_level_code, [0]
     # Normal cases
     zaxis, levels = cmor_target.get_z_axis(task.target)
     if zaxis is None:
