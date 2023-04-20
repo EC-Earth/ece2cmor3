@@ -25,6 +25,31 @@ if [ "$#" -eq 0 ]; then
   cd ${table_path}
   git checkout ${table_file_cv}
 
+  sed -i  '/"ssp126":{/i \
+            "ssp119-lamaclima":{                                       \
+                "activity_id":[                                        \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "additional_allowed_model_components":[                \
+                    "AER"                                              \
+                ],                                                     \
+                "experiment":"Lamaclima experiment based upon SSP119", \
+                "experiment_id":"ssp119-lamaclima",                    \
+                "parent_activity_id":[                                 \
+                    "CMIP"                                             \
+                ],                                                     \
+                "parent_experiment_id":[                               \
+                    "historical"                                       \
+                ],                                                     \
+                "required_model_components":[                          \
+                    "AOGCM"                                            \
+                ],                                                     \
+                "sub_experiment_id":[                                  \
+                    "none"                                             \
+                ]                                                      \
+            },                                                         
+  ' ${table_file_cv}
+
   sed -i  '/"ssp585-withism":{/i \
             "ssp585-lamaclima":{                                       \
                 "activity_id":[                                        \
