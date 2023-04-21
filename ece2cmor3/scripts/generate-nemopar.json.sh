@@ -90,6 +90,7 @@ declare -a arr=(
 "rsntds"
 "sf6"
 "sfdsi"
+"sfdsi_2"
 "sftof"
 "sltbasin"
 "sltnortha"
