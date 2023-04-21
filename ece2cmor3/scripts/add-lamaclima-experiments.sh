@@ -31,7 +31,7 @@ if [ "$#" -eq 0 ]; then
                     "LAMACLIMA"                                        \
                 ],                                                     \
                 "additional_allowed_model_components":[                \
-                    "AER"                                              \
+                    "BGC"                                              \
                 ],                                                     \
                 "experiment":"Lamaclima experiment based upon SSP119", \
                 "experiment_id":"ssp119-lamaclima",                    \
