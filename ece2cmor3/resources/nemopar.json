@@ -285,6 +285,10 @@
         "target": "sfdsi"
     },
     {
+        "source": "sfdsi_2",
+        "target": "sfdsi_2"
+    },
+    {
         "source": "sftof",
         "target": "sftof"
     },
