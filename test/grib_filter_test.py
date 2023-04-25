@@ -20,13 +20,15 @@ class grib_filter_test(unittest.TestCase):
     gg_path = {date: os.path.join(test_data_path, gg_file)}
     sh_file = "ICMSHECE3+199001.csv" if test_mode else "ICMSHECE3+199001"
     sh_path = {date: os.path.join(test_data_path, sh_file)}
+    preceding_files = {list(gg_path.values())[0]: None, list(sh_path.values())[0]: None}
     grib_file.test_mode = test_mode
     if not os.path.exists(tmp_path):
         os.makedirs(tmp_path)
 
     @staticmethod
     def test_initialize():
-        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, None, None,
+                               grib_filter_test.preceding_files, tmp_path)
         assert grib_filter.varsfreq[(133, 128, grib_file.hybrid_level_code, 9, cmor_source.ifs_grid.point)] == 6
         assert grib_filter.varsfreq[
                    (133, 128, grib_file.pressure_level_Pa_code, 85000, cmor_source.ifs_grid.point)] == 6
@@ -34,7 +36,8 @@ class grib_filter_test(unittest.TestCase):
 
     @staticmethod
     def test_validate_tasks():
-        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, None, None,
+                               grib_filter_test.preceding_files, tmp_path)
         ece2cmorlib.initialize()
         tgt1 = ece2cmorlib.get_cmor_target("clwvi", "CFday")
         src1 = cmor_source.ifs_source.read("79.128")
@@ -55,7 +58,8 @@ class grib_filter_test(unittest.TestCase):
 
     @staticmethod
     def test_surf_var():
-        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, None, None,
+                               grib_filter_test.preceding_files, tmp_path)
         ece2cmorlib.initialize()
         tgt = ece2cmorlib.get_cmor_target("clwvi", "CFday")
         src = cmor_source.ifs_source.read("79.128")
@@ -81,7 +85,8 @@ class grib_filter_test(unittest.TestCase):
 
     @staticmethod
     def test_expr_var():
-        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, None, None,
+                               grib_filter_test.preceding_files, tmp_path)
         ece2cmorlib.initialize()
         tgt = ece2cmorlib.get_cmor_target("sfcWind", "Amon")
         src = cmor_source.ifs_source.read("214.128", "sqrt(sqr(var165)+sqr(var166))")
@@ -108,7 +113,8 @@ class grib_filter_test(unittest.TestCase):
 
     @staticmethod
     def test_pressure_var():
-        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, tmp_path)
+        grib_filter.initialize(grib_filter_test.gg_path, grib_filter_test.sh_path, None, None,
+                               grib_filter_test.preceding_files, tmp_path)
         ece2cmorlib.initialize()
         tgt = ece2cmorlib.get_cmor_target("ua", "Amon")
         src = cmor_source.ifs_source.read("131.128")
@@ -132,53 +138,3 @@ class grib_filter_test(unittest.TestCase):
                     assert newtime == (time + 600) % 2400
                     time = newtime
         os.remove(filepath)
-
-    @staticmethod
-    def test_prev_month_find():
-        exp = "pmt1"
-        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001", "184912"]]
-        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
-        if not os.path.exists(path1):
-            os.makedirs(path1)
-        for fname in fnames:
-            open(os.path.join(path1, fname), 'a').close()
-        path2 = os.path.join(tmp_path, "prev_mon_test_dst")
-        if not os.path.exists(path2):
-            os.makedirs(path2)
-        for fname in fnames:
-            if not os.path.exists(os.path.join(path2, fname)):
-                os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
-        inifile = grib_filter.get_prev_file(os.path.join(path2, "ICMGG" + exp + "+185001"))
-        assert inifile in [os.path.join(path2, "ICMGG" + exp + "+184912"),
-                           os.path.join(path1, "ICMGG" + exp + "+184912")]
-        for fname in fnames:
-            os.unlink(os.path.join(path2, fname))
-            os.remove(os.path.join(path1, fname))
-        os.rmdir(path1)
-        os.rmdir(os.path.join(tmp_path, "prev_mon_test_src"))
-        os.rmdir(path2)
-
-    @staticmethod
-    def test_ini_month_find():
-        exp = "pmt2"
-        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001"]]
-        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
-        if not os.path.exists(path1):
-            os.makedirs(path1)
-        for fname in fnames:
-            open(os.path.join(path1, fname), 'a').close()
-        path2 = os.path.join(tmp_path, "prev_mon_test_dst", "001")
-        if not os.path.exists(path2):
-            os.makedirs(path2)
-        for fname in fnames:
-            if not os.path.exists(os.path.join(path2, fname)):
-                os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
-        inifile = grib_filter.get_prev_file(os.path.join(path2, "ICMGG" + exp + "+185001"))
-        assert inifile == os.path.join(path2, "ICMGG" + exp + "+000000")
-        for fname in fnames:
-            os.unlink(os.path.join(path2, fname))
-            os.remove(os.path.join(path1, fname))
-        os.rmdir(path1)
-        os.rmdir(os.path.join(tmp_path, "prev_mon_test_src"))
-        os.rmdir(path2)
-        os.rmdir(os.path.join(tmp_path, "prev_mon_test_dst"))

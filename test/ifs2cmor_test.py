@@ -1,4 +1,5 @@
 import datetime
+import shutil
 
 import cmor
 import dateutil
@@ -13,6 +14,8 @@ from ece2cmor3 import ifs2cmor, ece2cmorlib
 logging.basicConfig(level=logging.DEBUG)
 
 calendar_ = "proleptic_gregorian"
+
+tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
 
 def write_postproc_timestamps(filename, startdate, refdate, interval, offset=0):
@@ -42,6 +45,77 @@ class ifs2cmor_tests(unittest.TestCase):
         self.refdate = datetime.datetime(1850, 1, 1)
         ece2cmorlib.initialize()
         cmor.set_cur_dataset_attribute("calendar", calendar_)
+
+    @staticmethod
+    def test_prev_month_find():
+        exp = "pmt1"
+        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001", "184912"]]
+        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
+        path2 = os.path.join(tmp_path, "prev_mon_test_dst")
+        try:
+            os.makedirs(path1, exist_ok=True)
+            for fname in fnames:
+                open(os.path.join(path1, fname), 'a').close()
+            os.makedirs(path2, exist_ok=True)
+            for fname in fnames:
+                os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
+            ifs2cmor.find_grib_files(exp, path1)
+            prevfile = ifs2cmor.ifs_preceding_files_[os.path.join(path1, "ICMGG" + exp + "+185001")]
+            assert prevfile in [os.path.join(path2, "ICMGG" + exp + "+184912"),
+                                os.path.join(path1, "ICMGG" + exp + "+184912")]
+            initfile = ifs2cmor.ifs_preceding_files_[os.path.join(path1, "ICMGG" + exp + "+184912")]
+            assert initfile == os.path.join(path1, "ICMGG" + exp + "+000000")
+        finally:
+            shutil.rmtree(os.path.join(tmp_path, "prev_mon_test_src"))
+            shutil.rmtree(path2)
+
+    @staticmethod
+    def test_ini_month_find():
+        exp = "pmt2"
+        fnames = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185001"]]
+        path1 = os.path.join(tmp_path, "prev_mon_test_src", "001")
+        path2 = os.path.join(tmp_path, "prev_mon_test_dst", "001")
+        try:
+            os.makedirs(path1, exist_ok=True)
+            for fname in fnames:
+                open(os.path.join(path1, fname), 'a').close()
+            os.makedirs(path2, exist_ok=True)
+            for fname in fnames:
+                if not os.path.exists(os.path.join(path2, fname)):
+                    os.symlink(os.path.join(path1, fname), os.path.join(path2, fname))
+            ifs2cmor.find_grib_files(exp, path2)
+            inifile = ifs2cmor.ifs_preceding_files_[os.path.join(path2, "ICMGG" + exp + "+185001")]
+            assert inifile == os.path.join(path2, "ICMGG" + exp + "+000000")
+        finally:
+            shutil.rmtree(path1)
+            shutil.rmtree(path2)
+
+    @staticmethod
+    def test_discard_exp_backups():
+        exp = "pmt2"
+        fnames_001 = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["000000", "185012"]]
+        fnames_002 = ["ICM" + t + exp + "+" + dt for t in ["GG", "SH"] for dt in ["185101"]]
+        try:
+            for leg, fnames in zip(['001', '002'], [fnames_001, fnames_002]):
+                path1 = os.path.join(tmp_path, leg)
+                path2 = os.path.join(tmp_path, f'{leg}_backup')
+                path3 = os.path.join(tmp_path, leg, "backup")
+                for p in [path1, path2, path3]:
+                    os.makedirs(p, exist_ok=True)
+                    for fname in fnames:
+                        open(os.path.join(p, fname), 'a').close()
+            ifs2cmor.find_grib_files(exp, os.path.join(tmp_path, '001'))
+            inifile = ifs2cmor.ifs_preceding_files_[os.path.join(tmp_path, '001', f'ICMGG{exp}+185012')]
+            assert inifile == os.path.join(tmp_path, '001', f'ICMGG{exp}+000000')
+            ifs2cmor.find_grib_files(exp, os.path.join(tmp_path, '002'))
+            inifile = ifs2cmor.ifs_preceding_files_[os.path.join(tmp_path, '002', f'ICMGG{exp}+185101')]
+            assert inifile == os.path.join(tmp_path, '001', f'ICMGG{exp}+185012')
+        finally:
+            for leg, fnames in zip(['001', '002'], [fnames_001, fnames_002]):
+                path1 = os.path.join(tmp_path, leg)
+                path2 = os.path.join(tmp_path, f'{leg}_backup')
+                for p in [path1, path2]:
+                    shutil.rmtree(p)
 
     def test_monthly_time_axis(self):
         ifs2cmor.temp_dir_ = self.temp_dir

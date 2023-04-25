@@ -39,19 +39,6 @@ class utils_tests(unittest.TestCase):
         assert intervals[-1][0] == datetime.datetime(2003, 8, 1, 23, 45, 20)
 
     @staticmethod
-    def test_find_ifs_output():
-        ofiles = find_ifs_output(os.path.join(os.path.dirname(__file__), "test_data", "ifs_dummy"))
-        assert len(ofiles) == 3
-        assert os.path.join(os.path.dirname(__file__), "test_data", "ifs_dummy", "ICMGGGbla+003456") in ofiles
-        assert os.path.join(os.path.dirname(__file__), "test_data", "ifs_dummy", "ICMSHok+004321") in ofiles
-
-    @staticmethod
-    def test_find_ifs_exp_output():
-        ofiles = find_ifs_output(os.path.join(os.path.dirname(__file__), "test_data", "ifs_dummy"), "ok")
-        assert len(ofiles) == 1
-        assert os.path.join(os.path.dirname(__file__), "test_data", "ifs_dummy", "ICMSHok+004321") in ofiles
-
-    @staticmethod
     def test_ifs_output_date():
         ofile = os.path.join(os.path.dirname(__file__), "test_data", "ICMGG+199011")
         assert get_ifs_date(ofile) == datetime.date(1990, 11, 1)
