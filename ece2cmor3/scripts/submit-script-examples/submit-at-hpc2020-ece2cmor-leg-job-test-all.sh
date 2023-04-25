@@ -35,7 +35,7 @@
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
   #VARLIST=${PWD}/../../resources/test-data-request/varlist-minimal-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
 
