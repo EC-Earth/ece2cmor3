@@ -350,10 +350,22 @@ if len(sys.argv) == 2:
    command_e  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/ppt* " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json " + cmip6_base_dir_name + "test-all-ece-mip-variables/volume-estimate-CMIP-piControl-EC-EARTH-AOGCM.txt " + cmip6_base_dir_name + "test-all-ece-mip-variables/request-overview*.txt"
    command_f  = "drq2ppt --allvars"
    command_g  = "mv -f ppt0000000000 pptdddddd* " + cmip6_base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
-   command_h  = "drq2varlist --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
-   command_i  = "drq2varlist --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json"
-   command_j  = "drq2varlist --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/ece-cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
+   command_h  = "drq2varlist --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
+   command_i  = "drq2varlist --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json"
+   command_j  = "drq2varlist --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
    command_k  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
+
+
+   command_l1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json'
+   command_m1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json'
+   command_n1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json'
+   command_l2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-AOGCM-flat.json'   + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences'
+   command_m2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-CC-flat.json'      + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences'
+   command_n2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-AerChem-flat.json' + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences'
+   command_o  = 'rm -f ' + 'cmip6-data-request-varlist-all-EC-EARTH-*-flat.json'
+   command_p  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences.available.txt   ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences.txt'
+   command_q  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.available.txt      ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt'
+   command_r  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences.available.txt ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences.txt'
 
    os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files
    os.system(command_b) # Switch on all available variables in the file_def files
@@ -366,71 +378,90 @@ if len(sys.argv) == 2:
    os.system(command_i) # Create the json data request file which includes all available variables for EC-Earth3-CC
    os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
    os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
+   os.system(command_l1) # Convert the json data request file which contains the EC-Earth AOGCM   components to a flat json data request file for checkvars
+   os.system(command_m1) # Convert the json data request file which contains the EC-Earth CC      components to a flat json data request file for checkvars
+   os.system(command_n1) # Convert the json data request file which contains the EC-Earth AerChem components to a flat json data request file for checkvars
+   os.system(command_l2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth AOGCM   preferences
+   os.system(command_m2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth CC      preferences
+   os.system(command_n2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth AerChem preferences
+   os.system(command_o ) # Remove the flat json files
+   os.system(command_p ) # Rename (omit the avilable label) the request-overview EC-Earth AOGCM   file
+   os.system(command_q ) # Rename (omit the avilable label) the request-overview EC-Earth CC      file
+   os.system(command_r ) # Rename (omit the avilable label) the request-overview EC-Earth AerChem file
 
    command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh " + cmip6_base_dir_name
    os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.
 
 
-   # Create and add the CovidMIP control output files:
-   command_covidmip_rm           = "rm -rf CovidMIP"
-   command_covidmip_baseline     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-baseline    "
-   command_covidmip_covid        = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid        EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-covid       "
-   command_covidmip_cov_strgreen = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-strgreen"
-   command_covidmip_cov_modgreen = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-modgreen"
-   command_covidmip_cov_fossil   = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil   EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-fossil  "
-   command_covidmip_cov_aer      = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer      EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-aer     "
-   command_covidmip_mv           = "mv -f CovidMIP " + cmip6_base_dir_name
+   include_covidmip = True
+  #include_covidmip = False # for a faster test
+   if include_covidmip:
+    # Create and add the CovidMIP control output files:
+    command_covidmip_rm           = "rm -rf CovidMIP"
+    command_covidmip_baseline     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-baseline    "
+    command_covidmip_covid        = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid        EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-covid       "
+    command_covidmip_cov_strgreen = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-strgreen"
+    command_covidmip_cov_modgreen = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-modgreen"
+    command_covidmip_cov_fossil   = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil   EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-fossil  "
+    command_covidmip_cov_aer      = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer      EC-EARTH-AOGCM CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-aer     "
+    command_covidmip_mv           = "mv -f CovidMIP " + cmip6_base_dir_name
 
-   os.system(command_covidmip_rm          )
-   os.system(command_covidmip_baseline    )
-   os.system(command_covidmip_covid       )
-   os.system(command_covidmip_cov_strgreen)
-   os.system(command_covidmip_cov_modgreen)
-   os.system(command_covidmip_cov_fossil  )
-   os.system(command_covidmip_cov_aer     )
-   os.system(command_covidmip_mv          )
+    os.system(command_covidmip_rm          )
+    os.system(command_covidmip_baseline    )
+    os.system(command_covidmip_covid       )
+    os.system(command_covidmip_cov_strgreen)
+    os.system(command_covidmip_cov_modgreen)
+    os.system(command_covidmip_cov_fossil  )
+    os.system(command_covidmip_cov_aer     )
+    os.system(command_covidmip_mv          )
 
 
    if not activate_pextra_mode:
-    # Create and add the compact request control output files:
-    command_compact_request_rm    = "rm -rf compact-request"
-    command_compact_request       = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request"
-    command_compact_request_mv    = "mv -f compact-request " + output_dir_name
+    include_compact_request = True
+   #include_compact_request = False # for a faster test
+    if include_compact_request:
+     # Create and add the compact request control output files:
+     command_compact_request_rm    = "rm -rf compact-request"
+     command_compact_request       = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM compact-request"
+     command_compact_request_mv    = "mv -f compact-request " + output_dir_name
 
-    os.system(command_compact_request_rm   )
-    os.system(command_compact_request      )
-    os.system(command_compact_request_mv   )
+     os.system(command_compact_request_rm   )
+     os.system(command_compact_request      )
+     os.system(command_compact_request_mv   )
 
-    # Create and add the rcm dynamic plev forcing control output files:
-    command_rcm_plev_rm           = "rm -rf rcm-dynamic-plev-forcing"
-    command_rcm_plev23_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
-    command_rcm_plev23_ssp119     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp119              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
-    command_rcm_plev23_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
-    command_rcm_plev23_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
-    command_rcm_plev23_ssp370     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp370              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
-    command_rcm_plev23_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
-    command_rcm_plev36_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
-    command_rcm_plev36_ssp119     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp119              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
-    command_rcm_plev36_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
-    command_rcm_plev36_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
-    command_rcm_plev36_ssp370     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp370              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
-    command_rcm_plev36_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
-    command_rcm_plev_mv           = "mv -f rcm-dynamic-plev23-forcing rcm-dynamic-plev36-forcing " + output_dir_name
+    include_rcm_dynamic_plev_forcing = True
+   #include_rcm_dynamic_plev_forcing = False # for a faster test
+    if include_rcm_dynamic_plev_forcing:
+     # Create and add the rcm dynamic plev forcing control output files:
+     command_rcm_plev_rm           = "rm -rf rcm-dynamic-plev-forcing"
+     command_rcm_plev23_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+     command_rcm_plev23_ssp119     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp119              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
+     command_rcm_plev23_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+     command_rcm_plev23_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+     command_rcm_plev23_ssp370     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp370              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
+     command_rcm_plev23_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+     command_rcm_plev36_histor     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+     command_rcm_plev36_ssp119     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp119              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
+     command_rcm_plev36_ssp126     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+     command_rcm_plev36_ssp245     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+     command_rcm_plev36_ssp370     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp370              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
+     command_rcm_plev36_ssp585     = "./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+     command_rcm_plev_mv           = "mv -f rcm-dynamic-plev23-forcing rcm-dynamic-plev36-forcing " + output_dir_name
 
-    os.system(command_rcm_plev_rm          )
-    os.system(command_rcm_plev23_histor    )
-   #os.system(command_rcm_plev23_ssp119    )
-    os.system(command_rcm_plev23_ssp126    )
-    os.system(command_rcm_plev23_ssp245    )
-   #os.system(command_rcm_plev23_ssp370    )
-    os.system(command_rcm_plev23_ssp585    )
-    os.system(command_rcm_plev36_histor    )
-   #os.system(command_rcm_plev36_ssp119    )
-    os.system(command_rcm_plev36_ssp126    )
-    os.system(command_rcm_plev36_ssp245    )
-   #os.system(command_rcm_plev36_ssp370    )
-    os.system(command_rcm_plev36_ssp585    )
-    os.system(command_rcm_plev_mv          )
+     os.system(command_rcm_plev_rm          )
+     os.system(command_rcm_plev23_histor    )
+    #os.system(command_rcm_plev23_ssp119    )
+     os.system(command_rcm_plev23_ssp126    )
+     os.system(command_rcm_plev23_ssp245    )
+    #os.system(command_rcm_plev23_ssp370    )
+     os.system(command_rcm_plev23_ssp585    )
+     os.system(command_rcm_plev36_histor    )
+    #os.system(command_rcm_plev36_ssp119    )
+     os.system(command_rcm_plev36_ssp126    )
+     os.system(command_rcm_plev36_ssp245    )
+    #os.system(command_rcm_plev36_ssp370    )
+     os.system(command_rcm_plev36_ssp585    )
+     os.system(command_rcm_plev_mv          )
 
    if activate_pextra_mode:
     os.system('./switch-on-off-pextra-mode.sh deactivate-pextra-mode')
