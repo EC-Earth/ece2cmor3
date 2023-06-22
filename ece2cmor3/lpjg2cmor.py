@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import date
 
+import os
 import cmor
 import netCDF4
 import numpy as np
