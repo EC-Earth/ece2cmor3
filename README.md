@@ -82,9 +82,9 @@ Some basic tests:
   which mamba                              # ${mambapath}/condabin/mamba
   which conda                              # ${mambapath}/condabin/conda
   which python                             # ${mambapath}/envs/ece2cmor3/bin/python
-  mamba --version                          # mamba 1.3.1 & conda 22.11.1
-  python --version                         # Python 3.11.0
-  cdo -V                                   # version 2.1.1
+  mamba --version                          # mamba 1.4.4 & conda 23.1.0
+  python --version                         # Python 3.11.4
+  cdo -V                                   # version 2.2.0
   drq -v                                   # version 01.02.00
   ece2cmor -V                              # ece2cmor v2.1.0
   ece2cmor -h
