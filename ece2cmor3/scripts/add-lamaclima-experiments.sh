@@ -42,8 +42,7 @@ if [ "$#" -eq 0 ]; then
                     "historical"                                       \
                 ],                                                     \
                 "required_model_components":[                          \
-                    "AOGCM",                                           \
-                    "BGC"                                              \
+                    "AOGCM"                                            \
                 ],                                                     \
                 "sub_experiment_id":[                                  \
                     "none"                                             \
@@ -68,8 +67,7 @@ if [ "$#" -eq 0 ]; then
                     "histctl"                                          \
                 ],                                                     \
                 "required_model_components":[                          \
-                    "AOGCM",                                           \
-                    "BGC"                                              \
+                    "AOGCM"                                            \
                 ],                                                     \
                 "sub_experiment_id":[                                  \
                     "none"                                             \
@@ -91,8 +89,7 @@ if [ "$#" -eq 0 ]; then
                     "histctl"                                          \
                 ],                                                     \
                 "required_model_components":[                          \
-                    "AOGCM",                                           \
-                    "BGC"                                              \
+                    "AOGCM"                                            \
                 ],                                                     \
                 "sub_experiment_id":[                                  \
                     "none"                                             \
@@ -114,8 +111,7 @@ if [ "$#" -eq 0 ]; then
                     "histctl"                                          \
                 ],                                                     \
                 "required_model_components":[                          \
-                    "AOGCM",                                           \
-                    "BGC"                                              \
+                    "AOGCM"                                            \
                 ],                                                     \
                 "sub_experiment_id":[                                  \
                     "none"                                             \
