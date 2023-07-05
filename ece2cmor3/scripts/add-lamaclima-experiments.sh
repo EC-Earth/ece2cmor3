@@ -17,7 +17,7 @@ if [ "$#" -eq 0 ]; then
   # See #739  https://github.com/EC-Earth/ece2cmor3/issues/739
   # See #853  https://dev.ec-earth.org/issues/853
 
-  # LAMACLIMA ssp585-lamaclima
+  # Add the four ssp119 BGC LAMACLIMA experiments and the ssp585 AOGCM LAMACLIMA experiment
 
   table_path=../resources/cmip6-cmor-tables/Tables/
   table_file_cv=CMIP6_CV.json
@@ -25,8 +25,8 @@ if [ "$#" -eq 0 ]; then
   cd ${table_path}
   git checkout ${table_file_cv}
 
-  sed -i  '/"ssp126":{/i \
-            "ssp119-lamaclima":{                                       \
+  sed -i  '/"histSST":{/i \
+            "histctl":{                                                \
                 "activity_id":[                                        \
                     "LAMACLIMA"                                        \
                 ],                                                     \
@@ -34,7 +34,7 @@ if [ "$#" -eq 0 ]; then
                     "BGC"                                              \
                 ],                                                     \
                 "experiment":"Lamaclima experiment based upon SSP119", \
-                "experiment_id":"ssp119-lamaclima",                    \
+                "experiment_id":"histctl",                             \
                 "parent_activity_id":[                                 \
                     "CMIP"                                             \
                 ],                                                     \
@@ -42,7 +42,80 @@ if [ "$#" -eq 0 ]; then
                     "historical"                                       \
                 ],                                                     \
                 "required_model_components":[                          \
-                    "AOGCM"                                            \
+                    "AOGCM",                                           \
+                    "BGC"                                              \
+                ],                                                     \
+                "sub_experiment_id":[                                  \
+                    "none"                                             \
+                ]                                                      \
+            },                                                         
+  ' ${table_file_cv}
+
+  sed -i  '/"ssp126":{/i \
+            "ssp119-futctl":{                                          \
+                "activity_id":[                                        \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "additional_allowed_model_components":[                \
+                    "BGC"                                              \
+                ],                                                     \
+                "experiment":"Lamaclima experiment based upon SSP119", \
+                "experiment_id":"ssp119-futctl",                       \
+                "parent_activity_id":[                                 \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "parent_experiment_id":[                               \
+                    "histctl"                                          \
+                ],                                                     \
+                "required_model_components":[                          \
+                    "AOGCM",                                           \
+                    "BGC"                                              \
+                ],                                                     \
+                "sub_experiment_id":[                                  \
+                    "none"                                             \
+                ]                                                      \
+            },                                                         \
+            "ssp119-futsust":{                                         \
+                "activity_id":[                                        \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "additional_allowed_model_components":[                \
+                    "BGC"                                              \
+                ],                                                     \
+                "experiment":"LAMACLIMA experiment based upon SSP119", \
+                "experiment_id":"ssp119-futsust",                      \
+                "parent_activity_id":[                                 \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "parent_experiment_id":[                               \
+                    "histctl"                                          \
+                ],                                                     \
+                "required_model_components":[                          \
+                    "AOGCM",                                           \
+                    "BGC"                                              \
+                ],                                                     \
+                "sub_experiment_id":[                                  \
+                    "none"                                             \
+                ]                                                      \
+            },                                                         \
+            "ssp119-futineq":{                                         \
+                "activity_id":[                                        \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "additional_allowed_model_components":[                \
+                    "BGC"                                              \
+                ],                                                     \
+                "experiment":"LAMACLIMA experiment based upon SSP119", \
+                "experiment_id":"ssp119-futineq",                      \
+                "parent_activity_id":[                                 \
+                    "LAMACLIMA"                                        \
+                ],                                                     \
+                "parent_experiment_id":[                               \
+                    "histctl"                                          \
+                ],                                                     \
+                "required_model_components":[                          \
+                    "AOGCM",                                           \
+                    "BGC"                                              \
                 ],                                                     \
                 "sub_experiment_id":[                                  \
                     "none"                                             \
@@ -58,7 +131,7 @@ if [ "$#" -eq 0 ]; then
                 "additional_allowed_model_components":[                \
                     "AER"                                              \
                 ],                                                     \
-                "experiment":"Lamaclima experiment based upon SSP585", \
+                "experiment":"LAMACLIMA experiment based upon SSP585", \
                 "experiment_id":"ssp585-lamaclima",                    \
                 "parent_activity_id":[                                 \
                     "CMIP"                                             \
