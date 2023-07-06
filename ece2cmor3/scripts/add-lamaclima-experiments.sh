@@ -148,6 +148,9 @@ if [ "$#" -eq 0 ]; then
             "LAMACLIMA":"LAnd MAnagement for CLImate Mitigation and Adaptation",
   ' ${table_file_cv}
 
+  # Set the TM5 34 levels to 10 levels:
+  sed -i -e 's/EC-Earth3-CC (2019): \\naerosol: none\\natmos: IFS cy36r4 (TL255, linearly reduced Gaussian grid equivalent to 512 x 256 longitude\/latitude; 91 levels; top level 0.01 hPa)\\natmosChem: TM5 (3 x 2 degrees; 120 x 90 longitude\/latitude; 34 levels/EC-Earth3-CC (2019): \\naerosol: none\\natmos: IFS cy36r4 (TL255, linearly reduced Gaussian grid equivalent to 512 x 256 longitude\/latitude; 91 levels; top level 0.01 hPa)\\natmosChem: TM5 (3 x 2 degrees; 120 x 90 longitude\/latitude; 10 levels/' ${table_file_cv}
+
   # Remove the trailing spaces of the inserted block above:
   sed -i 's/\s*$//g' ${table_file_cv}
 
