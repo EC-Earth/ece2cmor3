@@ -162,16 +162,17 @@ def find_grib_files(expname, path):
                 leg = pathdirs[-1]
                 residue = '/'.join(pathdirs[0:-1])
                 nchars = len(leg)
-                preceding_leg_file = None
                 try:
                     preceding_leg_file = f'{residue}/{int(leg) - 1:0{nchars}}/{fname}'
+                    if glob.glob(preceding_leg_file):
+                        ifs_preceding_files_[filepath] = preceding_leg_file
+                    else:
+                        log.info(f'Expected IFS preceding leg file {preceding_leg_file} does not exist, assuming the '
+                                 f'preceding time stamp is the initial state...')
+                        ifs_preceding_files_[filepath] = init_file
                 except ValueError:
                     log.info(f'IFS output path {path} does not seem to contain a leg directory, assuming the preceding '
                              f'time stamp is the initial state...')
-                    ifs_preceding_files_[filepath] = init_file
-                if glob.glob(preceding_leg_file):
-                    ifs_preceding_files_[filepath] = preceding_leg_file
-                else:
                     ifs_preceding_files_[filepath] = init_file
     return True
 
