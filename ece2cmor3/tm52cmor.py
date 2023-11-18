@@ -93,7 +93,7 @@ def initialize(path,expname,tabledir, prefix,refdate):
     # select all TM5 files with expname from path
     tm5_files_ = cmor_utils.find_tm5_output(path,expname)
     if len(tm5_files_) == 0:
-        log.error('no TM5 varibles found, exiting!')
+        log.error('no TM5 variables found, exiting!')
         exit()
     areacella_file = cmor_utils.find_tm5_output(path,expname,'areacella','fx')
     if len(areacella_file) == 0:
