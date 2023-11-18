@@ -264,10 +264,130 @@ if [ "$#" -eq 0 ]; then
   echo "  Which is part of a nested repository, therefore to view the diff, run:"
   echo "  cd ${table_path}; git diff; cd -"
   echo
+
+
+  # Create a foci-tm5par.json file. The code below is follwoing the code in the generate-tm5.json.sh script.
+  output_file=foci-tm5par.json
+
+  # Declare an array variable with all the nemo cmor variable names:
+  declare -a arr=(
+  "conccn_1"
+  "conccn_2"
+  "conccn_3"
+  "conccn_4"
+  "conccn_5"
+  "conccn_6"
+  "conccn_7"
+  "mmraerh2o_1"
+  "mmraerh2o_2"
+  "mmraerh2o_3"
+  "mmraerh2o_4"
+  "mmrbc_2"
+  "mmrbc_3"
+  "mmrbc_4"
+  "mmrbc_5"
+  "mmrdust_3"
+  "mmrdust_4"
+  "mmrdust_6"
+  "mmrdust_7"
+  "mmrnh4"
+  "mmrno3"
+  "mmroa_2"
+  "mmroa_3"
+  "mmroa_4"
+  "mmroa_5"
+  "mmrso4_1"
+  "mmrso4_2"
+  "mmrso4_3"
+  "mmrso4_4"
+  "mmrsoa_1"
+  "mmrsoa_2"
+  "mmrsoa_3"
+  "mmrsoa_4"
+  "mmrsoa_5"
+  "mmrss_3"
+  "mmrss_4"
+  "ald2"
+  "c2h4"
+  "c2h5oh"
+  "c2h6"
+  "c3h6"
+  "c3h8"
+  "ch3coch3"
+  "ch3cocho"
+  "ch3o2h"
+  "ch3o2no2"
+  "ch3oh"
+  "ch4"
+  "co"
+  "dms"
+  "h2o2"
+  "h2so4"
+  "hcho"
+  "hcooh"
+  "hno3"
+  "hno4"
+  "ho2"
+  "hono"
+  "isop"
+  "ispd"
+  "mcooh"
+  "msa"
+  "n2o5"
+  "nh3"
+  "no2"
+  "no3"
+  "no"
+  "o3"
+  "oh"
+  "ole"
+  "orgntr"
+  "pan"
+  "par"
+  "rooh"
+  "so2"
+  "terp"
+  )
+
+  function add_item {
+   echo '    {'                     >> ${output_file}
+   echo '        "source": "'$1'",' >> ${output_file}
+   echo '        "target": "'$1'"'  >> ${output_file}
+   echo '    },'                    >> ${output_file}
+  }
+
+  function add_last_item {
+   echo '    {'                     >> ${output_file}
+   echo '        "source": "'$1'",' >> ${output_file}
+   echo '        "target": "'$1'"'  >> ${output_file}
+   echo '    }'                     >> ${output_file}
+  }
+
+  echo '['                         > ${output_file}
+
+  # Loop through the array with all the TM5 cmor variable names:
+  # (Note individual array elements can be accessed by using "${arr[0]}", "${arr[1]}")
+
+  N=${#arr[@]} # array length
+  last_item="${arr[N-1]}"
+  for i in "${arr[@]}"
+  do
+     if [ "$i" == ${last_item} ]; then
+      add_last_item "$i"
+     else
+      add_item "$i"
+     fi
+  done
+
+  echo ']'                         >> ${output_file}
+
+  echo ' The file ' ${output_file} ' is created.'
+  echo
+
  else
-    echo
-    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
-    echo
+  echo
+  echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+  echo
  fi
 
 else
