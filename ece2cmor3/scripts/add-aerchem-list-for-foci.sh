@@ -246,7 +246,7 @@ if [ "$#" -eq 0 ]; then
   echo '            "valid_max": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "ok_min_mean_abs": "",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "ok_max_mean_abs": ""                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
-  echo '        },                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        }                                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
 
   # Add closing part of CMIP6 table json file:
   echo '    }                                                                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
@@ -391,10 +391,10 @@ if [ "$#" -eq 0 ]; then
  fi
 
 else
-    echo
-    echo " This scripts requires no argument:"
-    echo "  $0"
-    echo
+ echo
+ echo " This scripts requires no argument:"
+ echo "  $0"
+ echo
 fi
 
  # ls /ec/res4/scratch/nks/ecearth3/fot2/output/tm5/001/*downscaling* | sed -e 's/.*001.//' -e 's/downscaling_//' -e 's/_EC-Earth3.*//' -e 's/_AER6hr//'
