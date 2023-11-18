@@ -151,7 +151,7 @@ if [ "$#" -eq 1 ]; then
 
  echo '['                         > ${output_file}
 
- # Loop through the array with all the TM5 FOCI cmor variable names:
+ # Loop through the array with all the TM5 cmor variable names:
  # (Note individual array elements can be accessed by using "${arr[0]}", "${arr[1]}")
  
  N=${#arr[@]} # array length
