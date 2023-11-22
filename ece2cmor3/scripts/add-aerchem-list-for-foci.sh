@@ -266,8 +266,7 @@ if [ "$#" -eq 0 ]; then
   echo
 
 
-  # Create a foci-tm5par.json file. The code below is follwoing the code in the generate-tm5.json.sh script.
-  output_file=foci-tm5par.json
+  # Create a foci-tm5par.json file. The code below is following the code in the generate-tm5.json.sh script.
 
   # Declare an array variable with all the nemo cmor variable names:
   declare -a arr=(
@@ -349,6 +348,8 @@ if [ "$#" -eq 0 ]; then
   "terp"
   )
 
+  output_file=foci-tm5par.json
+
   function add_item {
    echo '    {'                     >> ${output_file}
    echo '        "source": "'$1'",' >> ${output_file}
@@ -383,6 +384,40 @@ if [ "$#" -eq 0 ]; then
 
   echo ' The file ' ${output_file} ' is created.'
   echo
+
+
+  # Create a foci-request.json file:
+  request_file=foci-request.json
+
+  function add_variable_item {
+   echo '            "'$1'",' >> ${request_file}
+  }
+
+  function add_variable_last_item {
+   echo '            "'$1'"' >> ${request_file}
+  }
+
+   echo '{'                      >  ${request_file}
+   echo '    "ifs": {},'         >> ${request_file}
+   echo '    "lpjg": {},'        >> ${request_file}
+   echo '    "nemo": {},'        >> ${request_file}
+   echo '    "tm5": {'           >> ${request_file}
+   echo '        "AER6hrPt": ['  >> ${request_file}
+
+   N=${#arr[@]} # array length
+   last_item="${arr[N-1]}"
+   for i in "${arr[@]}"
+   do
+      if [ "$i" == ${last_item} ]; then
+       add_variable_last_item "$i"
+      else
+       add_variable_item "$i"
+      fi
+   done
+
+   echo '        ]'              >> ${request_file}
+   echo '    }'                  >> ${request_file}
+   echo '}'                      >> ${request_file}
 
  else
   echo
