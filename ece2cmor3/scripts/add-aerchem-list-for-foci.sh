@@ -419,6 +419,9 @@ if [ "$#" -eq 0 ]; then
    echo '    }'                  >> ${request_file}
    echo '}'                      >> ${request_file}
 
+  echo ' The file ' ${request_file} ' is created.'
+  echo
+
  else
   echo
   echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
