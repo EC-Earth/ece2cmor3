@@ -159,7 +159,7 @@ if [ "$#" -eq 0 ]; then
    echo '            "frequency": "6hrPt",                                                                                                                                                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "modeling_realm": "aerosol",                                                                                                                                                                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    if [ "${i}" -eq 13 ] || [ "${i}" -eq 14 ]; then
-    echo '            "standard_name": "mass_fraction_of_'${standardname}'",                                                                                                                                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+    echo '            "standard_name": "mass_fraction_of_'${standardname}'_particles_in_air",                                                                                                                                                                                                                   ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    else
     echo '            "standard_name": "mass_fraction_of_'${standardname}'_for_mode_'${index}'",                                                                                                                                                                                                                ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    fi
@@ -238,7 +238,13 @@ if [ "$#" -eq 0 ]; then
    echo '            "units": "mol mol-1",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "cell_methods": "area: mean time: point",                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "cell_measures": "area: areacella",                                                                                                ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
-   echo '            "long_name": "Mole Fraction of '${longname}'",                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   if [ "${i}" -eq 14 ]; then
+    echo '            "long_name": "'${longname}' Mole Fraction",                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   elif  [ "${i}" -eq 12 ] || [ "${i}" -eq 32 ]; then
+    echo '            "long_name": "Mole Fraction of '${longname}'",                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   else
+     echo '           "long_name": "'${longname}' Volume Mixing Ratio",                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   fi
    echo '            "comment": "Mole fraction is used in the construction mole_fraction_of_X_in_Y, where X is a material constituent of Y. ",          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "dimensions": "longitude latitude alevel time",                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "out_name": "'${varname}'",                                                                                                        ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
