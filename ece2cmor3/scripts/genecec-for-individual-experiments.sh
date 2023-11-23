@@ -60,6 +60,11 @@ if [ "$#" -eq 5 ]; then
    ./add-lamaclima-experiments.sh
   fi
 
+  # SU climvar only:
+  if [ ${data_request_file##*/} = 'varlist-su-multi-centennial-climate-variability.json' ]; then
+   ./add-su-climvar-variables.sh
+  fi
+
   rm -rf   ${output_dir}
   mkdir -p ${output_dir}
 
@@ -179,6 +184,8 @@ if [ "$#" -eq 5 ]; then
 
   mv -f metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json ${output_dir}
 
+  # LAMACLIMA, SU-climvar only:
+ #if [ ${mip_name} = 'LAMACLIMA' ] || [ ${data_request_file##*/} = 'varlist-su-multi-centennial-climate-variability.json' ]; then
   # LAMACLIMA only:
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    ./revert-nested-cmor-table-branch.sh
