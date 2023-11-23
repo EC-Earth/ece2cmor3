@@ -55,6 +55,7 @@ if [ "$#" -eq 5 ]; then
    data_request_file=${PWD}/${data_request_file}
   fi
 
+  # LAMACLIMA only:
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    ./add-lamaclima-experiments.sh
   fi
@@ -62,6 +63,7 @@ if [ "$#" -eq 5 ]; then
   rm -rf   ${output_dir}
   mkdir -p ${output_dir}
 
+  # With the 23 or 36 pressure levels only:
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    ./add-variables-with-pressure-levels-for-rcm-forcing.sh
   fi
@@ -140,6 +142,7 @@ if [ "$#" -eq 5 ]; then
   # Produce the metadata files for this MIP experiment.
   ./modify-metadata-template.sh ${mip_name} ${experiment} ${ece_configuration};
 
+  # CovidMIP only:
   if [ ${mip_name} = 'CovidMIP' ]; then
    if [ ${experiment} = 'ssp245-baseline' ]; then
     sed -i -e 's/"activity_id":                  "CovidMIP"/"activity_id":                  "ScenarioMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -165,6 +168,7 @@ if [ "$#" -eq 5 ]; then
   fi
 
 
+  # LAMACLIMA only:
   if [ ${mip_name} = 'LAMACLIMA' ]; then
     sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "CMIP"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "historical"/' metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -175,10 +179,12 @@ if [ "$#" -eq 5 ]; then
 
   mv -f metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json ${output_dir}
 
+  # LAMACLIMA only:
   if [ ${mip_name} = 'LAMACLIMA' ]; then
    ./revert-nested-cmor-table-branch.sh
   fi
 
+  # With the 23 pressure levels only:
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2021)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -189,6 +195,7 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev23
   fi
 
+  # With the 36 pressure levels only:
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2021)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -199,16 +206,19 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-plev36
   fi
 
+  # With the 23 or 36 pressure levels only:
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx' ] || [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx' ]; then
    ./revert-nested-cmor-table-branch.sh
   fi
 
+  # Compact request, except CovidMIP:
   if [ ${data_request_file##*/} = 'cmvme_CMIP_ssp245_1_1-additional.xlsx' ] && [ ${mip_name} != 'CovidMIP' ]; then
    rm -f ${output_dir}/pptdddddd0300    # Prevent any 3 hourly raw output
   #sed -i -e 's/EC-Earth3/EC-Earth3-RT/' -e 's/(2019)/(2020)/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    mv -f ${xls_ece_dir} ${xls_ece_dir}-compact
   fi
 
+  # VAREX / LENTIS only:
   if [ ${data_request_file##*/} = 'varex-data-request-varlist-EC-Earth3.json' ]; then
    sed -i -e 's/"parent_variant_label":         "r1i1p1f1"/"parent_variant_label":         "r1i1p5f1"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    if [ ${output_dir##*/} = 'varex-control-CMIP-historical' ] || [ ${output_dir##*/} = 'varex-control-ScenarioMIP-ssp245' ]; then
@@ -237,6 +247,7 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-varex
   fi
 
+  # SOFIAMIP only:
   if [ ${data_request_file##*/} = 'sofiamip-extended.json' ]; then
    sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "CMIP"/'                                                                                        ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "piControl"/'                                                                                   ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -260,6 +271,8 @@ if [ "$#" -eq 5 ]; then
 else
   echo
   echo " This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:"
+  echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR su-multi-centennial-climvar                          "
+  echo
   echo "  $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip/faf-antwater-sofiamip                        "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg   lamaclima/ssp585-lamaclima-EC-EARTH-Veg               "
