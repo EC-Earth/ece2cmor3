@@ -3,7 +3,9 @@
 
 # Switch the old clear sky output implementation on or off
 
-# See the for further description the issues:
+# See the for further description the wiki:
+#  https://github.com/EC-Earth/ece2cmor3/wiki#activate-the-old-clear-sky-rsdscs--rldscs-output
+# And these issues:
 #  https://dev.ec-earth.org/issues/1237
 #  https://github.com/EC-Earth/ece2cmor3/issues/772
 
@@ -29,7 +31,7 @@ def main():
      output_file = "../resources/ifspar.json"
 
      if sys.argv[1] == "activate-old-clear-sky-output":
-      subprocess.run(["git", "checkout", input_file]) 
+      subprocess.run(["git", "checkout", input_file])
 
       file = open(input_file,"r+")
       input_text = file.read()
