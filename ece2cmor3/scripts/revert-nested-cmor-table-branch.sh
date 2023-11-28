@@ -12,12 +12,23 @@
 if [ "$#" -eq 0 ]; then
 
  cd ../resources/tables
+ # Check whether the directory change was succesful, if not exit the script:
+ if [ ! $? -eq 0 ]; then
+  echo
+  echo " Abort $0 because the correct CMIP6 table directory was not found."
+  echo
+  exit
+ fi
+
+ # Remove unversioned table files if present:
+ git clean -f
+ 
  git checkout *
  cd -
 
 else
-    echo '  '
-    echo '  This scripts requires no argument:'
-    echo '  ' $0
-    echo '  '
+ echo '  '
+ echo '  This scripts requires no argument:'
+ echo '  ' $0
+ echo '  '
 fi

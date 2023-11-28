@@ -337,15 +337,13 @@ function add_last_item {
 if [ "$#" -eq 1 ]; then
  output_file=$1
 
-
  echo '['                         > ${output_file}
 
- # Loop through the array with all the nemo cmor variable names:
+ # Loop through the array with all the NEMO cmor variable names:
  # (Note individual array elements can be accessed by using "${arr[0]}", "${arr[1]}")
  
  N=${#arr[@]} # array length
  last_item="${arr[N-1]}"
-#echo ${N} ${last_item}
  for i in "${arr[@]}"
  do
     if [ "$i" == ${last_item} ]; then
@@ -364,8 +362,8 @@ if [ "$#" -eq 1 ]; then
  echo ' The file ' ${output_file} ' is created.'
 
 else
-    echo '  '
-    echo '  This scripts requires one argument, e.g.:'
-    echo '  ' $0 new-nemopar.json
-    echo '  '
+ echo
+ echo "  This scripts requires one argument, e.g.:"
+ echo "  $0 new-nemopar.json"
+ echo
 fi

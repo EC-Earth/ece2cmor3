@@ -1,0 +1,30 @@
+{
+    "ifs": {
+        "Amon": [
+            "tas"
+        ]
+    },
+    "lpjg": {
+        "Emon": [
+            "cSoil"
+        ]
+    },
+    "nemo": {
+        "Omon": [
+            "tos"
+        ],
+        "Ofx": [
+            "basin"
+        ]
+    },
+    "tm5": {
+        "AERmon": [
+            "mmrss"
+        ],
+        "AER6hrPt": [
+            "conccn_1",
+            "mmraerh2o_1",
+            "ald2"
+        ]
+    }
+}
