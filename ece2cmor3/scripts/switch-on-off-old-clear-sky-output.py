@@ -4,7 +4,7 @@
 # Switch the old clear sky output implementation on or off
 
 # See the for further description the wiki:
-#  https://github.com/EC-Earth/ece2cmor3/wiki#activate-the-old-clear-sky-rsdscs--rldscs-output
+#  https://github.com/EC-Earth/ece2cmor3/wiki/Activate-the-old-clear-sky-output
 # And these issues:
 #  https://dev.ec-earth.org/issues/1237
 #  https://github.com/EC-Earth/ece2cmor3/issues/772
