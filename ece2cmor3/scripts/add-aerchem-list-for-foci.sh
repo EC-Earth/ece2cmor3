@@ -77,7 +77,7 @@ if [ "$#" -eq 0 ]; then
 
   # Add the block of concentration (conc) 6hrPt variables for the AER6hrPt CMIP6 table:
   for i in $(seq 7); do
-   echo '        "conccn_'${i}'": {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   echo '        "conccnM'${i}'": {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "frequency": "6hrPt",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "modeling_realm": "aerosol",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "standard_name": "number_concentration_of_ambient_aerosol_particles_in_air_for_mode_'${i}'",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
@@ -87,7 +87,7 @@ if [ "$#" -eq 0 ]; then
    echo '            "long_name": "Aerosol Number Concentration for Mode '${i}'",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "comment": "'Number concentration' means the number of particles or other specified objects per unit volume. 'Aerosol' means the system of suspended liquid or solid particles in air (except cloud droplets) and their carrier gas, the air itself. 'Ambient_aerosol' means that the aerosol is measured or modelled at the ambient state of pressure, temperature and relative humidity that exists in its immediate environment. 'Ambient aerosol particles' are aerosol particles that have taken up ambient water through hygroscopic growth. The extent of hygroscopic growth depends on the relative humidity and the composition of the particles. 'Mode' refers to the mode of the M7 aerosol scheme (Vignati et al., 2004).", ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "dimensions": "longitude latitude alevel time1",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
-   echo '            "out_name": "conccn_'${i}'",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+   echo '            "out_name": "conccnM'${i}'",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "type": "real",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "positive": "",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '            "valid_min": "",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
@@ -99,37 +99,37 @@ if [ "$#" -eq 0 ]; then
 
   # Add the block of mass mixing ratio (mmr) 6hrPt variables for the AER6hrPt CMIP6 table:
   # A one liner to generate script code block below:
-  #  for i in {1..29}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccn_1'; standardname=''; longname=''; fi"; done
+  #  for i in {1..29}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccnM1'; standardname=''; longname=''; fi"; done
   for i in $(seq 29); do
-   if [ "${i}" -eq  1 ]; then varname='mmraerh2o_1'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
-   if [ "${i}" -eq  2 ]; then varname='mmraerh2o_2'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
-   if [ "${i}" -eq  3 ]; then varname='mmraerh2o_3'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
-   if [ "${i}" -eq  4 ]; then varname='mmraerh2o_4'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
-   if [ "${i}" -eq  5 ]; then varname='mmrbc_2    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
-   if [ "${i}" -eq  6 ]; then varname='mmrbc_3    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
-   if [ "${i}" -eq  7 ]; then varname='mmrbc_4    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
-   if [ "${i}" -eq  8 ]; then varname='mmrbc_5    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
-   if [ "${i}" -eq  9 ]; then varname='mmrdust_3  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
-   if [ "${i}" -eq 10 ]; then varname='mmrdust_4  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
-   if [ "${i}" -eq 11 ]; then varname='mmrdust_6  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
-   if [ "${i}" -eq 12 ]; then varname='mmrdust_7  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
+   if [ "${i}" -eq  1 ]; then varname='mmraerh2oM1'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
+   if [ "${i}" -eq  2 ]; then varname='mmraerh2oM2'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
+   if [ "${i}" -eq  3 ]; then varname='mmraerh2oM3'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
+   if [ "${i}" -eq  4 ]; then varname='mmraerh2oM4'; standardname='water_in_ambient_aerosol                           '; longname='Aerosol Water               '; fi
+   if [ "${i}" -eq  5 ]; then varname='mmrbcM2    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
+   if [ "${i}" -eq  6 ]; then varname='mmrbcM3    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
+   if [ "${i}" -eq  7 ]; then varname='mmrbcM4    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
+   if [ "${i}" -eq  8 ]; then varname='mmrbcM5    '; standardname='elemental_carbon_dry_aerosol                       '; longname='Elemental Carbon            '; fi
+   if [ "${i}" -eq  9 ]; then varname='mmrdustM3  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
+   if [ "${i}" -eq 10 ]; then varname='mmrdustM4  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
+   if [ "${i}" -eq 11 ]; then varname='mmrdustM6  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
+   if [ "${i}" -eq 12 ]; then varname='mmrdustM7  '; standardname='dust_dry_aerosol                                   '; longname='Dust Aerosol                '; fi
    if [ "${i}" -eq 13 ]; then varname='mmrnh4     '; standardname='ammonium_dry_aerosol                               '; longname='NH4                         '; fi
    if [ "${i}" -eq 14 ]; then varname='mmrno3     '; standardname='nitrate_dry_aerosol                                '; longname='NO3 Aerosol                 '; fi
-   if [ "${i}" -eq 15 ]; then varname='mmroa_2    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
-   if [ "${i}" -eq 16 ]; then varname='mmroa_3    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
-   if [ "${i}" -eq 17 ]; then varname='mmroa_4    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
-   if [ "${i}" -eq 18 ]; then varname='mmroa_5    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
-   if [ "${i}" -eq 19 ]; then varname='mmrso4_1   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfate             '; fi
-   if [ "${i}" -eq 20 ]; then varname='mmrso4_2   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
-   if [ "${i}" -eq 21 ]; then varname='mmrso4_3   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
-   if [ "${i}" -eq 22 ]; then varname='mmrso4_4   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
-   if [ "${i}" -eq 23 ]; then varname='mmrsoa_1   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
-   if [ "${i}" -eq 24 ]; then varname='mmrsoa_2   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
-   if [ "${i}" -eq 25 ]; then varname='mmrsoa_3   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
-   if [ "${i}" -eq 26 ]; then varname='mmrsoa_4   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
-   if [ "${i}" -eq 27 ]; then varname='mmrsoa_5   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
-   if [ "${i}" -eq 28 ]; then varname='mmrss_3    '; standardname='sea_salt_dry_aerosol                               '; longname='Sea-Salt Aerosol            '; fi
-   if [ "${i}" -eq 29 ]; then varname='mmrss_4    '; standardname='sea_salt_dry_aerosol                               '; longname='Sea-Salt Aerosol            '; fi
+   if [ "${i}" -eq 15 ]; then varname='mmroaM2    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
+   if [ "${i}" -eq 16 ]; then varname='mmroaM3    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
+   if [ "${i}" -eq 17 ]; then varname='mmroaM4    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
+   if [ "${i}" -eq 18 ]; then varname='mmroaM5    '; standardname='particulate_organic_matter_dry_aerosol             '; longname='Total Organic Aerosol       '; fi
+   if [ "${i}" -eq 19 ]; then varname='mmrso4M1   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfate             '; fi
+   if [ "${i}" -eq 20 ]; then varname='mmrso4M2   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
+   if [ "${i}" -eq 21 ]; then varname='mmrso4M3   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
+   if [ "${i}" -eq 22 ]; then varname='mmrso4M4   '; standardname='sulfate_dry_aerosol                                '; longname='Aerosol Sulfatei            '; fi
+   if [ "${i}" -eq 23 ]; then varname='mmrsoaM1   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
+   if [ "${i}" -eq 24 ]; then varname='mmrsoaM2   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
+   if [ "${i}" -eq 25 ]; then varname='mmrsoaM3   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
+   if [ "${i}" -eq 26 ]; then varname='mmrsoaM4   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
+   if [ "${i}" -eq 27 ]; then varname='mmrsoaM5   '; standardname='secondary_particulate_organic_matter_dry_aerosol   '; longname='Secondary Organic Aerosol   '; fi
+   if [ "${i}" -eq 28 ]; then varname='mmrssM3    '; standardname='sea_salt_dry_aerosol                               '; longname='Sea-Salt Aerosol            '; fi
+   if [ "${i}" -eq 29 ]; then varname='mmrssM4    '; standardname='sea_salt_dry_aerosol                               '; longname='Sea-Salt Aerosol            '; fi
 
    if [ "${i}" -eq  1 ] || [ "${i}" -eq  2 ] || [ "${i}" -eq  3 ] || [ "${i}" -eq  4 ]; then
     shortcomment="'Aerosol' means the system of suspended liquid or solid particles in air (except cloud droplets) and their carrier gas, the air itself. 'Ambient_aerosol' means that the aerosol is measured or modelled at the ambient state of pressure, temperature and relative humidity that exists in its immediate environment. 'Ambient aerosol particles' are aerosol particles that have taken up ambient water through hygroscopic growth. The extent of hygroscopic growth depends on the relative humidity and the composition of the particles."
@@ -186,7 +186,7 @@ if [ "$#" -eq 0 ]; then
 
   # Add the block of volume mixing ratio (vmr) 6hrPt variables for the AER6hrPt CMIP6 table:
   # A one liner to generate script code block below:
-  #  for i in {1..40}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccn_1'; standardname=''; longname=''; fi"; done
+  #  for i in {1..40}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccnM1'; standardname=''; longname=''; fi"; done
   for i in $(seq 40); do
    if [ "${i}" -eq  1 ]; then varname='ald2    '; standardname='acetaldehyde_and_higher_aldehydes '; longname='ALD2                   '; fi
    if [ "${i}" -eq  2 ]; then varname='c2h4    '; standardname='ethene                            '; longname='C2H4                   '; fi
@@ -299,42 +299,42 @@ if [ "$#" -eq 0 ]; then
 
   # Declare an array variable with all the nemo cmor variable names:
   declare -a arr=(
-  "conccn_1"
-  "conccn_2"
-  "conccn_3"
-  "conccn_4"
-  "conccn_5"
-  "conccn_6"
-  "conccn_7"
-  "mmraerh2o_1"
-  "mmraerh2o_2"
-  "mmraerh2o_3"
-  "mmraerh2o_4"
-  "mmrbc_2"
-  "mmrbc_3"
-  "mmrbc_4"
-  "mmrbc_5"
-  "mmrdust_3"
-  "mmrdust_4"
-  "mmrdust_6"
-  "mmrdust_7"
+  "conccnM1"
+  "conccnM2"
+  "conccnM3"
+  "conccnM4"
+  "conccnM5"
+  "conccnM6"
+  "conccnM7"
+  "mmraerh2oM1"
+  "mmraerh2oM2"
+  "mmraerh2oM3"
+  "mmraerh2oM4"
+  "mmrbcM2"
+  "mmrbcM3"
+  "mmrbcM4"
+  "mmrbcM5"
+  "mmrdustM3"
+  "mmrdustM4"
+  "mmrdustM6"
+  "mmrdustM7"
   "mmrnh4"
   "mmrno3"
-  "mmroa_2"
-  "mmroa_3"
-  "mmroa_4"
-  "mmroa_5"
-  "mmrso4_1"
-  "mmrso4_2"
-  "mmrso4_3"
-  "mmrso4_4"
-  "mmrsoa_1"
-  "mmrsoa_2"
-  "mmrsoa_3"
-  "mmrsoa_4"
-  "mmrsoa_5"
-  "mmrss_3"
-  "mmrss_4"
+  "mmroaM2"
+  "mmroaM3"
+  "mmroaM4"
+  "mmroaM5"
+  "mmrso4M1"
+  "mmrso4M2"
+  "mmrso4M3"
+  "mmrso4M4"
+  "mmrsoaM1"
+  "mmrsoaM2"
+  "mmrsoaM3"
+  "mmrsoaM4"
+  "mmrsoaM5"
+  "mmrssM3"
+  "mmrssM4"
   "ald2"
   "c2h4"
   "c2h5oh"
