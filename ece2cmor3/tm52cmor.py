@@ -185,7 +185,7 @@ def check_freqid(task):
         log.error('Frequency %s of variable %s is unkonwn'%(task.target.frequency,task.target.variable))
         return False,None
     return True,freqid
-# Executes the processing loop.
+# The main routine called by the ece2cmorlib via: tm52cmor.execute(tm5_tasks). Executes the processing loop.
 def execute(tasks):
     """execute the cmorization tasks for TM5
     Description:
@@ -600,6 +600,7 @@ def create_time_axes(tasks):
         freq=task.target.frequency
         tgtdims = getattr(task.target, cmor_target.dims_key)
         if getattr(task, cmor_task.output_path_key)==None:
+            log.info('Suspicious: create_time_axes: No matching path for filename found, consequently no time_axes attribute is created for {:}'.format(task.target.variable))
             continue
         for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
             key=(task.target.table,time_dim)
@@ -793,7 +794,7 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
         axisid (cmor.axis-object): axis id for levels
         storewith (cmor.zfactor-object): surface pressure field for saving into same file. needed for calculation of pressure on model levels.
     """
-    global time_axes_,store_with_ps_,dim_ids_,zfactor_ids
+    global time_axes_,dim_ids_,zfactor_ids
     # define grid axes and time axis for hybrid levels
     axes=[getattr(task, 'lat'), getattr(task, 'lon'), getattr(task, "time_axis")]
 
