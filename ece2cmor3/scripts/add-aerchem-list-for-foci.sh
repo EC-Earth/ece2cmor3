@@ -375,6 +375,7 @@ if [ "$#" -eq 0 ]; then
   "rooh"
   "so2"
   "terp"
+  "ps"
   )
 
   output_file=foci-tm5par.json
@@ -427,7 +428,12 @@ if [ "$#" -eq 0 ]; then
   }
 
    echo '{'                      >  ${request_file}
-   echo '    "ifs": {},'         >> ${request_file}
+  #echo '    "ifs": {},'         >> ${request_file}
+   echo '    "ifs": {'           >> ${request_file}
+   echo '        "6hrPlevPt": [' >> ${request_file}
+   echo '            "tsl4sl"'   >> ${request_file}
+   echo '        ]'              >> ${request_file}
+   echo '    },'                 >> ${request_file}
    echo '    "lpjg": {},'        >> ${request_file}
    echo '    "nemo": {},'        >> ${request_file}
    echo '    "tm5": {'           >> ${request_file}
