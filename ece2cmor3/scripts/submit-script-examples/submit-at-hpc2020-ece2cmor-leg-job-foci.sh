@@ -4,7 +4,7 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=00:05:00
+#SBATCH --time=00:15:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
@@ -31,8 +31,9 @@
    EXP=$3
    VERSION=$4
 
-  #ECEDIR=${SCRATCH}/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
-   ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
+  #ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
+  #ECEDIR=/ec/res4/scratch/nktr/ec-earth-3/$EXP/output/$COMPONENT/$LEG
+   ECEDIR=${SCRATCH}/ec-earth-3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
    METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AerChem/cmip6-experiment-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
@@ -62,9 +63,11 @@
                     --odir              $ODIR     \
                     --npp               28        \
                     --overwritemode     replace   \
+                    --refd 1750-01-01 \
                     --tm5par.json       ../foci-tm5par.json \
                     --log
 #                   --skip_alevel_vars            \
+#                   --tm5par.json       ../foci-tm5par.json \
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
