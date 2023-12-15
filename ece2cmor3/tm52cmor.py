@@ -153,7 +153,8 @@ def set_freqid(freq):
     elif freq=='day':
         freqid='AERday'
     elif freq=='6hrPt':
-        freqid='AER6hr'
+       #freqid='AER6hr'
+        freqid='AER6hrPt'
     elif freq=='mon':
         freqid='AERmon'
     else:
@@ -840,6 +841,9 @@ def create_hybrid_level_axis(task,leveltype='alevel'):
         # for some reason defining their own confuses the cmor
         # to check in case of Half levels, for the ps from full levels
         if task.target.variable=='ec550aer':
+            psvarname='ps1'
+        elif task.target.table in ['AER6hrPt']:
+            # The case for the list of FOCI downscaling variables.
             psvarname='ps1'
         else:
             psvarname='ps'
