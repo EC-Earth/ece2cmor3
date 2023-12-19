@@ -1,25 +1,11 @@
 {
     "ifs": {
-        "Amon": [
-            "tas"
-        ],
         "6hrPlevPt": [
             "tsl4sl"
         ]
     },
-    "lpjg": {
-        "Emon": [
-            "cSoil"
-        ]
-    },
-    "nemo": {
-        "Omon": [
-            "tos"
-        ],
-        "Ofx": [
-            "basin"
-        ]
-    },
+    "lpjg": {},
+    "nemo": {},
     "tm5": {
         "AERmon": [
             "mmrss"
