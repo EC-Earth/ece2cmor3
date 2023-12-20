@@ -1,25 +1,11 @@
 {
     "ifs": {
-        "Amon": [
-            "tas"
-        ],
         "6hrPlevPt": [
             "tsl4sl"
         ]
     },
-    "lpjg": {
-        "Emon": [
-            "cSoil"
-        ]
-    },
-    "nemo": {
-        "Omon": [
-            "tos"
-        ],
-        "Ofx": [
-            "basin"
-        ]
-    },
+    "lpjg": {},
+    "nemo": {},
     "tm5": {
         "AERmon": [
             "mmrss"
@@ -29,81 +15,8 @@
         ],
         "AER6hrPt": [
             "conccnmode01",
-            "conccnmode02",
-            "conccnmode03",
-            "conccnmode04",
-            "conccnmode05",
-            "conccnmode06",
-            "conccnmode07",
-            "mmraerh2omode01",
             "mmraerh2omode02",
-            "mmraerh2omode03",
-            "mmraerh2omode04",
-            "mmrbcmode02",
-            "mmrbcmode03",
-            "mmrbcmode04",
-            "mmrbcmode05",
-            "mmrdustmode03",
-            "mmrdustmode04",
-            "mmrdustmode06",
-            "mmrdustmode07",
-            "mmrnh4",
-            "mmrno3",
-            "mmroamode02",
-            "mmroamode03",
-            "mmroamode04",
-            "mmroamode05",
-            "mmrso4mode01",
-            "mmrso4mode02",
-            "mmrso4mode03",
-            "mmrso4mode04",
-            "mmrsoamode01",
-            "mmrsoamode02",
-            "mmrsoamode03",
-            "mmrsoamode04",
-            "mmrsoamode05",
-            "mmrssmode03",
-            "mmrssmode04",
             "ald2",
-            "c2h4",
-            "c2h5oh",
-            "c2h6",
-            "c3h6",
-            "c3h8",
-            "ch3coch3",
-            "ch3cocho",
-            "ch3o2h",
-            "ch3o2no2",
-            "ch3oh",
-            "ch4",
-            "co",
-            "dms",
-            "h2o2",
-            "h2so4",
-            "hcho",
-            "hcooh",
-            "hno3",
-            "hno4",
-            "ho2",
-            "hono",
-            "isop",
-            "ispd",
-            "mcooh",
-            "msa",
-            "n2o5",
-            "nh3",
-            "no2",
-            "no3",
-            "no",
-            "o3",
-            "oh",
-            "ole",
-            "orgntr",
-            "pan",
-            "par",
-            "rooh",
-            "so2",
-            "terp",
             "ps"
         ]
     }
