@@ -20,11 +20,13 @@ if [ "$#" -eq 0 ]; then
   table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
   table_file_cv=CMIP6_CV.json
   table_file_AER6hrPt=CMIP6_AER6hrPt.json
+  table_file_aermon=CMIP6_AERmon.json
 
   cd ${table_path}
   rm -f ${table_file_AER6hrPt}
   git checkout ${table_file_6hrPlevPt}
   git checkout ${table_file_cv}
+  git checkout ${table_file_aermon}
 
   # Add tsl4sl (tsl) on 6hrPlevPt table:
   sed -i  '/"ua": {/i \
@@ -48,12 +50,92 @@ if [ "$#" -eq 0 ]; then
         },                                                                                      
   ' ${table_file_6hrPlevPt}
 
+  # rsscsaf  126070  CVEXTR2(11)='clear SW surf', grib 126.70 clear SW surf rsscsaf (r: radiation, s: short wave, s:surface, cs: clear sky, af: aerosol free)
+  # rssaf    126071  CVEXTR2(12)='total SW surf', grib 126.71 total SW surf rssaf
+  # rlscsaf  126074  CVEXTR2(15)='clear LW surf', grib 126.74 clear LW surf rlscsaf
+  # rlsaf    126075  CVEXTR2(16)='total LW surf', grib 126.75 total LW surf rlsaf
+  sed -i  '/"so2": {/i \
+        "rsscsaf": {                                                                                                            \
+            "frequency": "mon",                                                                                                 \
+            "modeling_realm": "aerosol",                                                                                        \
+            "standard_name": "surface_net_shortwave_flux_aerosol_free_clear_sky",                                               \
+            "units": "W m-2",                                                                                                   \
+            "cell_methods": "area: time: mean",                                                                                 \
+            "cell_measures": "area: areacella",                                                                                 \
+            "long_name": "Surface Net Aerosol-Free Clear-Sky Shortwave Radiation",                                              \
+            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",   \
+            "dimensions": "longitude latitude time",                                                                            \
+            "out_name": "rsscsaf",                                                                                              \
+            "type": "real",                                                                                                     \
+            "positive": "down",                                                                                                 \
+            "valid_min": "",                                                                                                    \
+            "valid_max": "",                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                              \
+            "ok_max_mean_abs": ""                                                                                               \
+        },                                                                                                                      \
+        "rssaf": {                                                                                                              \
+            "frequency": "mon",                                                                                                 \
+            "modeling_realm": "aerosol",                                                                                        \
+            "standard_name": "surface_net_shortwave_flux_aerosol_free",                                                         \
+            "units": "W m-2",                                                                                                   \
+            "cell_methods": "area: time: mean",                                                                                 \
+            "cell_measures": "area: areacella",                                                                                 \
+            "long_name": "Surface Net Aerosol-Free Shortwave Radiation",                                                        \
+            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",   \
+            "dimensions": "longitude latitude time",                                                                            \
+            "out_name": "rssaf",                                                                                                \
+            "type": "real",                                                                                                     \
+            "positive": "down",                                                                                                 \
+            "valid_min": "",                                                                                                    \
+            "valid_max": "",                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                              \
+            "ok_max_mean_abs": ""                                                                                               \
+        },                                                                                                                      \
+        "rlscsaf": {                                                                                                            \
+            "frequency": "mon",                                                                                                 \
+            "modeling_realm": "aerosol",                                                                                        \
+            "standard_name": "surface_net_longwave_flux_aerosol_free_clear_sky",                                                \
+            "units": "W m-2",                                                                                                   \
+            "cell_methods": "area: time: mean",                                                                                 \
+            "cell_measures": "area: areacella",                                                                                 \
+            "long_name": "Surface Net Aerosol-Free Clear-Sky Longwave Radiation",                                               \
+            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",   \
+            "dimensions": "longitude latitude time",                                                                            \
+            "out_name": "rlscsaf",                                                                                              \
+            "type": "real",                                                                                                     \
+            "positive": "down",                                                                                                 \
+            "valid_min": "",                                                                                                    \
+            "valid_max": "",                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                              \
+            "ok_max_mean_abs": ""                                                                                               \
+        },                                                                                                                      \
+        "rlsaf": {                                                                                                              \
+            "frequency": "mon",                                                                                                 \
+            "modeling_realm": "aerosol",                                                                                        \
+            "standard_name": "surface_net_longwave_flux_aerosol_free",                                                          \
+            "units": "W m-2",                                                                                                   \
+            "cell_methods": "area: time: mean",                                                                                 \
+            "cell_measures": "area: areacella",                                                                                 \
+            "long_name": "Surface Net Aerosol-Free Longwave Radiation",                                                         \
+            "comment": "Flux corresponding to rls resulting from aerosol-free call to radiation, following Ghan (ACP, 2013)",   \
+            "dimensions": "longitude latitude time",                                                                            \
+            "out_name": "rlsaf",                                                                                                \
+            "type": "real",                                                                                                     \
+            "positive": "down",                                                                                                 \
+            "valid_min": "",                                                                                                    \
+            "valid_max": "",                                                                                                    \
+            "ok_min_mean_abs": "",                                                                                              \
+            "ok_max_mean_abs": ""                                                                                               \
+        },
+  ' ${table_file_aermon}
+
   sed -i  '/"AERhr"/i \
             "AER6hrPt",
   ' ${table_file_cv}
 
   # Remove the trailing spaces of the inserted block above:
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlevPt}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_aermon}
   sed -i -e 's/\s*$//g' ${table_file_cv}
 
 

@@ -46,7 +46,11 @@
         "AERmon": [
             "cltc",
             "lwp",
-            "wa"
+            "wa",
+            "rsscsaf",
+            "rssaf",
+            "rlscsaf",
+            "rlsaf"
         ],
         "AERmonZ": [
             "ta"
