@@ -1,5 +1,5 @@
 
-The foci request is composed as follows:
+The foci request (the full-foci-varlist.json) is composed as follows:
 
 As basic request we have taken:
  ${HOME}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AerChem/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AerChem.json
@@ -9,4 +9,33 @@ but were not yet present in the historical request.
 
 On top of that combined request we have added the FOCI downscaling request:
  varlist-foci.json
+
+
+Table 126 requested variables listed by Philippe for FOCI:
+ MFP3DFS = 126020, 126021, 126022,    # 6-hourly only (ppt..0600 only) - ACI diag
+
+ MFPPHY = 126001, 126002, 126068, 126069, 126070, 126071, 126072, 126073, 126074,
+ 126075, # all ptt - aerosol-free rad, fluxes (dbl call to rad)
+
+Figuring out:
+AERmon      cdnc      using 126020, 126022       NOT YET         in full-foci-varlist.json
+Emon        reffclws  using 21.126 (thus 126021) NOT YET         in full-foci-varlist.json
+
+rsdscs 126001 in ppt's (1.126 in ifspar)         already present in full-foci-varlist.json but for 3hr, Amon, CFday  thus not for 6hr (only)
+rldscs 126002 in ppt's (2.126 in ifspar)         already present in full-foci-varlist.json but for 3hr, Amon         thus not for 6hr (only)
+AERmon      rsutcsaf  126068                     NOT YET         in full-foci-varlist.json 
+AERmon      rsutaf    126069                     NOT YET         in full-foci-varlist.json 
+AERmon      rlutcsaf  126072                     NOT YET         in full-foci-varlist.json 
+AERmon      rlutaf    126073                     NOT YET         in full-foci-varlist.json 
+??                    126070 not at al in test-all pextra, but: add-non-cmor-variables.sh:23:  # rsscsaf  126070  CVEXTR2(11)='clear SW surf', grib 126.70 clear SW surf rsscsaf (r: radiation, s: short wave, s:surface, cs: clear sky, af: aerosol free)
+??                    126071 not at al in test-all pextra, but: add-non-cmor-variables.sh:24:  # rssaf    126071  CVEXTR2(12)='total SW surf', grib 126.71 total SW surf rssaf
+??                    126074 not at al in test-all pextra, but: add-non-cmor-variables.sh:25:  # rlscsaf  126074  CVEXTR2(15)='clear LW surf', grib 126.74 clear LW surf rlscsaf
+??                    126075 not at al in test-all pextra, but: add-non-cmor-variables.sh:26:  # rlsaf    126075  CVEXTR2(16)='total LW surf', grib 126.75 total LW surf rlsaf
+
+Thus:
+ AERmon rsscsaf
+ AERmon rssaf
+ AERmon rlscsaf
+ AERmon rlsaf
+need to be added [DONE] to the add-aerchem-list-for-foci.sh script like these vars are added in the add-non-cmor-variables.sh script.
 
