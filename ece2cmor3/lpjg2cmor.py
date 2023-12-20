@@ -809,7 +809,16 @@ def create_sdepth_axis(task, lpjgfile, freq):
             depths = header[3:]
         else:
             depths = header[4:]
-    sdepthvals = np.array([float(d) for d in depths])
+
+    #ensure downward compatibility after output-headers from LPJG changed
+    pretxt = "Depth"
+    try:
+        depths[0].index(pretxt)
+        shift=len(pretxt)
+    except ValueError:
+        shift = 0
+        
+    sdepthvals = np.array([float(d[shift:]) for d in depths])
 
     sdepth_bnd_lower = np.append(0, sdepthvals[:-1])
     sdepth_bnd = np.stack((sdepth_bnd_lower, sdepthvals), axis=-1)
