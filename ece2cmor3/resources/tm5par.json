@@ -754,9 +754,5 @@
     {
         "source": "terp",
         "target": "terp"
-    },
-    {
-        "source": "ps",
-        "target": "ps"
     }
 ]
