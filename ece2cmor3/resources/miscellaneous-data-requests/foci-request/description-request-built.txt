@@ -1,0 +1,12 @@
+
+The foci request is composed as follows:
+
+As basic request we have taken:
+ ${HOME}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AerChem/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AerChem.json
+On top of that we have added by a meld all variables which are present in:
+ ${HOME}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/ScenarioMIP/EC-EARTH-AerChem/cmip6-experiment-ScenarioMIP-ssp370/cmip6-data-request-varlist-ScenarioMIP-ssp370-EC-EARTH-AerChem.json
+but were not yet present in the historical request.
+
+On top of that combined request we have added the FOCI downscaling request:
+ varlist-foci.json
+
