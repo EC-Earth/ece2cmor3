@@ -36,7 +36,9 @@
    ECEMODEL=EC-EARTH-AerChem
    METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AerChem/cmip6-experiment-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci.json
+  #VARLIST=${PWD}/../../resources/test-data-request/varlist-foci.json
+  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci.json
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json
    ODIR=${SCRATCH}/cmorised-results/foci/$EXP/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
