@@ -127,7 +127,8 @@
             "hus"
         ],
         "Emon": [
-            "mrsol"
+            "mrsol",
+            "reffclws"
         ],
         "LImon": [
             "snc",
@@ -426,6 +427,7 @@
             "c2h6",
             "c3h6",
             "c3h8",
+            "cdnc",
             "ch3coch3",
             "ch4",
             "cheaqpso4",
@@ -497,6 +499,10 @@
             "pan",
             "phalf",
             "ptp",
+            "rsutcsaf",
+            "rsutaf",
+            "rlutcsaf",
+            "rlutaf",
             "so2",
             "tatp",
             "toz",
@@ -526,9 +532,6 @@
             "co2mass",
             "ch4",
             "ch4global"
-        ],
-        "E3hrPt": [
-            "ch4"
         ]
     }
 }
