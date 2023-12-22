@@ -65,6 +65,12 @@ if [ "$#" -eq 5 ]; then
    ./add-su-climvar-variables.sh
   fi
 
+  # FOCI only:
+  if [ ${data_request_file##*/} = 'full-foci-varlist.json' ]; then
+   ./add-aerchem-list-for-foci.sh
+   ./switch-on-off-pextra-mode.sh activate-pextra-mode
+  fi
+
   rm -rf   ${output_dir}
   mkdir -p ${output_dir}
 
@@ -270,6 +276,14 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-sofiamip
   fi
 
+
+  # FOCI only:
+  if [ ${data_request_file##*/} = 'full-foci-varlist.json' ]; then
+   ./revert-nested-cmor-table-branch.sh
+   ./switch-on-off-pextra-mode.sh deactivate-pextra-mode
+  fi
+
+
   echo
   echo ' Finished:'
   echo ' '$0 "$@"
@@ -278,6 +292,9 @@ if [ "$#" -eq 5 ]; then
 else
   echo
   echo " This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:"
+  echo
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci"
+  echo
   echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR su-multi-centennial-climvar                          "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM sofiamip/faf-antwater-sofiamip                        "
