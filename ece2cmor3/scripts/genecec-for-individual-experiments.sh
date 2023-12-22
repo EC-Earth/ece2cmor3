@@ -276,6 +276,11 @@ if [ "$#" -eq 5 ]; then
    mv -f ${xls_ece_dir} ${xls_ece_dir}-sofiamip
   fi
 
+  # SU climvar only:
+  if [ ${data_request_file##*/} = 'varlist-su-multi-centennial-climate-variability.json' ]; then
+   ./revert-nested-cmor-table-branch.sh
+   git checkout ../resources/ifspar.json
+  fi
 
   # FOCI only:
   if [ ${data_request_file##*/} = 'full-foci-varlist.json' ]; then
