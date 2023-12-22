@@ -528,14 +528,6 @@
         "target": "mmrdustmode07"
     },
     {
-        "source": "mmrnh4",
-        "target": "mmrnh4"
-    },
-    {
-        "source": "mmrno3",
-        "target": "mmrno3"
-    },
-    {
         "source": "mmroamode02",
         "target": "mmroamode02"
     },
@@ -608,22 +600,6 @@
         "target": "c2h5oh"
     },
     {
-        "source": "c2h6",
-        "target": "c2h6"
-    },
-    {
-        "source": "c3h6",
-        "target": "c3h6"
-    },
-    {
-        "source": "c3h8",
-        "target": "c3h8"
-    },
-    {
-        "source": "ch3coch3",
-        "target": "ch3coch3"
-    },
-    {
         "source": "ch3cocho",
         "target": "ch3cocho"
     },
@@ -640,18 +616,6 @@
         "target": "ch3oh"
     },
     {
-        "source": "ch4",
-        "target": "ch4"
-    },
-    {
-        "source": "co",
-        "target": "co"
-    },
-    {
-        "source": "dms",
-        "target": "dms"
-    },
-    {
         "source": "h2o2",
         "target": "h2o2"
     },
@@ -660,32 +624,16 @@
         "target": "h2so4"
     },
     {
-        "source": "hcho",
-        "target": "hcho"
-    },
-    {
         "source": "hcooh",
         "target": "hcooh"
-    },
-    {
-        "source": "hno3",
-        "target": "hno3"
     },
     {
         "source": "hno4",
         "target": "hno4"
     },
     {
-        "source": "ho2",
-        "target": "ho2"
-    },
-    {
         "source": "hono",
         "target": "hono"
-    },
-    {
-        "source": "isop",
-        "target": "isop"
     },
     {
         "source": "ispd",
@@ -708,24 +656,8 @@
         "target": "nh3"
     },
     {
-        "source": "no2",
-        "target": "no2"
-    },
-    {
         "source": "no3",
         "target": "no3"
-    },
-    {
-        "source": "no",
-        "target": "no"
-    },
-    {
-        "source": "o3",
-        "target": "o3"
-    },
-    {
-        "source": "oh",
-        "target": "oh"
     },
     {
         "source": "ole",
@@ -736,20 +668,12 @@
         "target": "orgntr"
     },
     {
-        "source": "pan",
-        "target": "pan"
-    },
-    {
         "source": "par",
         "target": "par"
     },
     {
         "source": "rooh",
         "target": "rooh"
-    },
-    {
-        "source": "so2",
-        "target": "so2"
     },
     {
         "source": "terp",
