@@ -20,5 +20,9 @@
             "basin"
         ]
     },
-    "tm5": {}
+    "tm5": {
+        "AERmon": [
+            "mmrss"
+        ]
+    }
 }
