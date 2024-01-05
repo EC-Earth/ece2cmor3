@@ -81,5 +81,7 @@
   echo " Or use:"
   echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
   echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 lpjg \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 tm5  \$i t001 v001; done"
   echo
  fi
