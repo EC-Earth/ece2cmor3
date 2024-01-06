@@ -1,0 +1,33 @@
+{
+    "ifs": {
+        "6hrPlevPt": [
+            "ps",
+            "ta3",
+            "ua3",
+            "va3"
+        ],
+        "day": [
+            "tasmin",
+            "tasmax",
+            "tas",
+            "pr",
+            "psl",
+            "evspsbl",
+            "hfls",
+            "hfss",
+            "rlds",
+            "rlus",
+            "rsds",
+            "rsus",
+            "zg850",
+            "zg500",
+            "zg200",
+            "mrsos",
+            "mrso",
+            "mrsol"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {},
+    "tm5": {}
+}
