@@ -71,6 +71,11 @@ if [ "$#" -eq 5 ]; then
    ./switch-on-off-pextra-mode.sh activate-pextra-mode
   fi
 
+  # extremeX only:
+  if [ ${data_request_file##*/} = 'datarequest-extremeX-short-varlist.json' ]; then
+   ./add-variables-for-extremeX.sh
+  fi
+
   rm -rf   ${output_dir}
   mkdir -p ${output_dir}
 
@@ -288,6 +293,12 @@ if [ "$#" -eq 5 ]; then
    ./switch-on-off-pextra-mode.sh deactivate-pextra-mode
   fi
 
+  # extremeX only:
+  if [ ${data_request_file##*/} = 'datarequest-extremeX-short-varlist.json' ]; then
+   ./revert-nested-cmor-table-branch.sh
+   git checkout ../resources/ifspar.json
+  fi
+
 
   echo
   echo ' Finished:'
@@ -298,7 +309,9 @@ else
   echo
   echo " This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:"
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci"
+  echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                EC-EARTH-AOGCM extremeX-short                                        "
+  echo
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci                                                "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR su-multi-centennial-climvar                          "
   echo

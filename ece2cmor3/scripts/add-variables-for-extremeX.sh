@@ -26,7 +26,7 @@ if [ "$#" -eq 0 ]; then
   git checkout ifspar.json
   cd -
 
-  head --lines=-1 ../resources/ifspar.json                   > extended-ifspar.json
+  head --lines=-2 ../resources/ifspar.json                   > extended-ifspar.json
 
  #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
  #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
@@ -36,6 +36,7 @@ if [ "$#" -eq 0 ]; then
  #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
  #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
 
+  echo '    },                          ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '    {                           ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '        "source": "59.128",     ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '        "target": "cape"        ' | sed 's/\s*$//g' >> extended-ifspar.json
@@ -57,7 +58,7 @@ if [ "$#" -eq 0 ]; then
   echo '        "target": [             ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '          "vimd"                ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '        ]                       ' | sed 's/\s*$//g' >> extended-ifspar.json
-  echo '    },                          ' | sed 's/\s*$//g' >> extended-ifspar.json
+  echo '    }                           ' | sed 's/\s*$//g' >> extended-ifspar.json
 
   echo ']'                                                  >> extended-ifspar.json
 
