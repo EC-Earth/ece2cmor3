@@ -533,27 +533,6 @@ if [ "$#" -eq 0 ]; then
         },                                                                                          
   ' ${table_file_day}
 
-  sed -i  '/"tas": {/i \
-        "tas": {                                                          \
-            "frequency": "day",                                           \
-            "modeling_realm": "atmos",                                    \
-            "standard_name": "air_temperature",                           \
-            "units": "K",                                                 \
-            "cell_methods": "area: time: mean",                           \
-            "cell_measures": "area: areacella",                           \
-            "long_name": "Near-Surface Air Temperature",                  \
-            "comment": "near-surface (usually, 2 meter) air temperature", \
-            "dimensions": "longitude latitude time height2m",             \
-            "out_name": "tas",                                            \
-            "type": "real",                                               \
-            "positive": "",                                               \
-            "valid_min": "",                                              \
-            "valid_max": "",                                              \
-            "ok_min_mean_abs": "",                                        \
-            "ok_max_mean_abs": ""                                         \
-        },                                                                
-  ' ${table_file_day}
-
   sed -i  '/"uas": {/i \
         "ua9": {                                                         \
             "frequency": "day",                                          \
@@ -704,7 +683,7 @@ if [ "$#" -eq 0 ]; then
             "valid_max": "",                                                                                                                           \
             "ok_min_mean_abs": "",                                                                                                                     \
             "ok_max_mean_abs": ""                                                                                                                      \
-        }                                                                                                                                              
+        },                                                                                                                                             
   ' ${table_file_day}
 
 
@@ -750,7 +729,7 @@ if [ "$#" -eq 0 ]; then
             "valid_max": "",                                                     \
             "ok_min_mean_abs": "",                                               \
             "ok_max_mean_abs": ""                                                \
-        }                                                                        
+        },                                                                       
   ' ${table_file_Lmon}
 
 
