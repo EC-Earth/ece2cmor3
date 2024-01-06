@@ -4,7 +4,7 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=04:08:00
+#SBATCH --time=06:08:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
@@ -34,7 +34,7 @@
    ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
   #ECEDIR=${SCRATCH}/ec-earth-3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
-   METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AerChem/cmip6-experiment-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
+   METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
   #VARLIST=${PWD}/../../resources/test-data-request/varlist-foci.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci.json
@@ -81,8 +81,8 @@
   echo " For instance:"
   echo "  sbatch $0 ifs 001 fot3 v001"
   echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i fot3 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i fot3 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i fot3 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i fot6 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i fot6 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i fot6 v001; done"
   echo
  fi
