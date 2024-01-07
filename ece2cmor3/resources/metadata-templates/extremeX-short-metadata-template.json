@@ -1,0 +1,43 @@
+{
+    "activity_id":                  "CMIP",
+    "experiment_id":                "AISF",
+    "source_id":                    "EC-Earth3",
+    "source":                       "EC-Earth3 (2019)",
+    "source_type":                  "AGCM",
+    "grid":                         "T255L91",
+    "grid_label":                   "gr",
+    "nominal_resolution":           "100 km",
+
+    "sub_experiment":               "initialized in 1979",
+    "sub_experiment_id":            "c001",
+
+    "realization_index":            "1",
+    "initialization_index":         "2",
+    "physics_index":                "1",
+    "forcing_index":                "1",
+    "variant_info":                 "i=1 is start in 1979 i=2 is start in 2009",
+
+    "parent_activity_id":           "no parent",
+    "parent_experiment_id":         "no parent",
+    "parent_source_id":             "no parent",
+    "parent_variant_label":         "no parent",
+    "parent_time_units":            "no parent",
+
+    "branch_method":                "no parent",
+    "branch_time_in_child":         "58074.0D",
+    "branch_time_in_parent":        "0.0",
+
+    "comment":                      "Production: model configuration Philippe le Sager (KNMI), model run: Fei Luo (VU), cmorisation: Thomas Reerink (KNMI)",
+
+
+    "_control_vocabulary_file":     "CMIP6_CV.json",
+    "_cmip6_option":                "CMIP6",
+    "mip_era":                      "CMIP6",
+    "parent_mip_era":               "no parent",
+
+    "license":                      "CMIP6 model data produced by EC-Earth-Consortium is licensed under a Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file) and at http://www.ec-earth.org. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.",
+    "tracking_prefix":              "hdl:21.14100",
+
+    "institution_id":               "EC-Earth-Consortium",
+    "contact":                      "fei.luo@vu.nl"
+}
