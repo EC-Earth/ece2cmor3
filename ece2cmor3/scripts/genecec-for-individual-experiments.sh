@@ -291,6 +291,11 @@ if [ "$#" -eq 5 ]; then
   if [ ${data_request_file##*/} = 'full-foci-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
    ./switch-on-off-pextra-mode.sh deactivate-pextra-mode
+   if [ ${experiment} = 'amip' ] || [ ${experiment} = 'ssp370' ]; then
+    echo
+    echo " Additional tweaking for the metadata files has been done in the EC-Earth svn repository."
+    echo
+   fi
   fi
 
   # extremeX only:
@@ -311,7 +316,9 @@ else
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                EC-EARTH-AOGCM extremeX-short                                        "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci                                                "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-historical               "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        amip                EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-amip                     "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        ssp370              EC-EARTH-AerChem foci/EC-EARTH-AerChem-ScenarioMIP-ssp370            "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR su-multi-centennial-climvar                          "
   echo
