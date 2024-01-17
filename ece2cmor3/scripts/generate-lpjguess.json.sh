@@ -24,7 +24,7 @@ declare -a arr=(
 "cCwd"
 "cFluxYr"
 "cLand"
-"cLand1"
+"cLand_1st"
 "cLandYr"
 "cLeaf"
 "cLitter"

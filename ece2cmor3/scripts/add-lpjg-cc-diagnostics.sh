@@ -69,7 +69,7 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_Eyr}
 
   sed -i  '/"cLitterCwd": {/i \
-        "cLand1": {                                                                                                                    \
+        "cLand_1st": {                                                                                                                 \
             "frequency": "mon",                                                                                                        \
             "modeling_realm": "land",                                                                                                  \
             "standard_name": "mass_content_of_carbon_in_vegetation_and_litter_and_soil_and_forestry_and_agricultural_products",        \
@@ -79,7 +79,7 @@ if [ "$#" -eq 0 ]; then
             "long_name": "Total Carbon in All Terrestrial Carbon Pools",                                                               \
             "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction.", \
             "dimensions": "longitude latitude time",                                                                                   \
-            "out_name": "cLand1",                                                                                                      \
+            "out_name": "cLand_1st",                                                                                                   \
             "type": "real",                                                                                                            \
             "positive": "",                                                                                                            \
             "valid_min": "",                                                                                                           \
