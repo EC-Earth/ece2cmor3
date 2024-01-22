@@ -369,6 +369,7 @@ if [ "$#" -eq 0 ]; then
   echo " $0 reports:"
   echo "  The adjusted files are:"
   echo "   ${table_path}/${table_file_6hrPlevPt}"
+  echo "   ${table_path}/${table_file_aermon}"
   echo "   ${table_path}/${table_file_cv}"
   echo "  One added file is:"
   echo "   ${table_path}/${table_file_AER6hrPt}"
