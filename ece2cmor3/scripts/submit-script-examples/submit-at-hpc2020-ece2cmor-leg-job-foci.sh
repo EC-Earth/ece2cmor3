@@ -34,9 +34,9 @@
    ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
   #ECEDIR=${SCRATCH}/ec-earth-3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
-  #METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
+  #METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
    METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
-  #METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
+  #METADATA=${PERM}/ec-earth-3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci-minimal-test.json
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json
