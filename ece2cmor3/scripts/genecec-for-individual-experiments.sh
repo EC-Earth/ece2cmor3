@@ -328,9 +328,9 @@ else
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                EC-EARTH-AOGCM   extremeX-short                                        "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-historical                 "
   echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        amip                EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-amip                       "
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        ssp370              EC-EARTH-AerChem foci/EC-EARTH-AerChem-ScenarioMIP-ssp370              "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-historical                 "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               ScenarioMIP ssp370              EC-EARTH-AerChem foci/EC-EARTH-AerChem-ScenarioMIP-ssp370              "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR  su-multi-centennial-climvar                           "
   echo
