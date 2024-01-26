@@ -492,6 +492,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         if outname == "tsl":
             variable[:] = df_normalised[0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
         else:
+            # For fluxes the missing values are replaced by zero before the remapping:
             dumvar = df_normalised[0].values.T
             variable[:] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
@@ -505,6 +506,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
             if outname == "tsl":
                 variable[:, l, :, :] = df_normalised[l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
             else:
+                # For fluxes the missing values are replaced by zero before the remapping:
                 dumvar = df_normalised[l].values.T
                 variable[:, l, :, :] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
