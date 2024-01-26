@@ -130,14 +130,7 @@
             "fco2nat"
         ],
         "Eday": [
-            "evspsblpot",
-            "lai",
-            "mrros",
-            "mrsll",
-            "prCrop",
-            "prveg",
-            "tran",
-            "tsl"
+            "lai"
         ],
         "Emon": [
             "cLand",
@@ -150,7 +143,6 @@
             "cSoil",
             "cStem",
             "cTotFireLut",
-            "evspsblpot",
             "fAnthDisturb",
             "fBNF",
             "fCLandToOcean",
@@ -185,14 +177,10 @@
             "gppTree",
             "grassFracC3",
             "grassFracC4",
-            "irrLut",
             "laiLut",
-            "mrroLut",
-            "mrsll",
-            "mrsoLut",
-            "mrsosLut",
             "necbLut",
             "nep",
+            "netAtmosLandCO2Flux",
             "nLand",
             "nLeaf",
             "nLitter",
@@ -214,7 +202,6 @@
             "nwdFracLut",
             "pastureFracC3",
             "pastureFracC4",
-            "prCrop",
             "raGrass",
             "raLeaf",
             "raLut",
@@ -266,7 +253,6 @@
             "cSoilMedium",
             "cSoilSlow",
             "cVeg",
-            "evspsblsoi",
             "fFire",
             "fLitterSoil",
             "fVegLitter",
@@ -276,16 +262,14 @@
             "landCoverFrac",
             "nbp",
             "npp",
-            "prveg",
+            "pastureFrac",
             "ra",
             "residualFrac",
             "rGrowth",
             "rh",
             "rMaint",
             "shrubFrac",
-            "tran",
-            "treeFrac",
-            "tsl"
+            "treeFrac"
         ]
     },
     "nemo": {
