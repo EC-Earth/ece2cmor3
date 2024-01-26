@@ -114,7 +114,7 @@ def coords(df, root, meta):
     run_lons = [rnd(i) for i in (df.index.levels[0].values + 360.0) % 360.0]
     run_lats = [rnd(i) for i in df.index.levels[1]]
 
-    df.index.set_levels([run_lons, run_lats], inplace=True)
+    df.index = df.index.set_levels([run_lons[:], run_lats[:]])
     df = df.reindex([(rnd(i), rnd(j)) for i, j in zip(lons, lats)], fill_value=meta['missing'])
 
     return df, ('j', 'i')
