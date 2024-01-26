@@ -148,7 +148,7 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
         axis_entries = data.get("axis_entry", {})
         axis_entries = {k.lower(): v for k, v in axis_entries.items()}
         if axis_entries['landuse']['requested']:
-            landuse_requested_ = [entry.encode('ascii') for entry in axis_entries['landuse']['requested']]
+            landuse_requested_ = [entry for entry in axis_entries['landuse']['requested']]
 
     return True
 
@@ -183,7 +183,7 @@ def execute(tasks):
         lon_id = None
         lat_id = None
         for task in tasklist:
-            freq = task.target.frequency.encode()
+            freq = task.target.frequency
             freqstr = get_lpj_freq(task.target.frequency)
             if freqstr is None:
                 log.error("The frequency %s for variable %s in table %s is not supported by lpj2cmor" %
