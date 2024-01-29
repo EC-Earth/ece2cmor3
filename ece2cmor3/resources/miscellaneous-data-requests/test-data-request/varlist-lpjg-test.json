@@ -1,0 +1,25 @@
+{
+    "ifs": {},
+    "lpjg": {
+        "Eyr": [
+            "cVeg",
+            "cLitterLut",
+            "treeFrac"
+        ],
+        "Eday": [
+            "tran",
+            "tsl"
+        ],
+        "Emon": [
+            "cSoil",
+            "cLand"
+        ],
+        "Lmon": [
+            "treeFrac",
+            "tran",
+            "tsl"
+        ]
+    },
+    "nemo": {},
+    "tm5": {}
+}

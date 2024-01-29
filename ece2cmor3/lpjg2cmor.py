@@ -114,7 +114,7 @@ def coords(df, root, meta):
     run_lons = [rnd(i) for i in (df.index.levels[0].values + 360.0) % 360.0]
     run_lats = [rnd(i) for i in df.index.levels[1]]
 
-    df.index.set_levels([run_lons, run_lats], inplace=True)
+    df.index = df.index.set_levels([run_lons[:], run_lats[:]])
     df = df.reindex([(rnd(i), rnd(j)) for i, j in zip(lons, lats)], fill_value=meta['missing'])
 
     return df, ('j', 'i')
@@ -148,7 +148,7 @@ def initialize(path, ncpath, expname, tabledir, prefix, refdate):
         axis_entries = data.get("axis_entry", {})
         axis_entries = {k.lower(): v for k, v in axis_entries.items()}
         if axis_entries['landuse']['requested']:
-            landuse_requested_ = [entry.encode('ascii') for entry in axis_entries['landuse']['requested']]
+            landuse_requested_ = [entry for entry in axis_entries['landuse']['requested']]
 
     return True
 
@@ -183,7 +183,7 @@ def execute(tasks):
         lon_id = None
         lat_id = None
         for task in tasklist:
-            freq = task.target.frequency.encode()
+            freq = task.target.frequency
             freqstr = get_lpj_freq(task.target.frequency)
             if freqstr is None:
                 log.error("The frequency %s for variable %s in table %s is not supported by lpj2cmor" %
@@ -327,7 +327,7 @@ def check_time_resolution(lpjgfile, freq):
 
 # Returns first and last year present in the .out data file
 def find_timespan(lpjgfile):
-    df = pd.read_csv(lpjgfile, delim_whitespace=True, usecols=['Year'], dtype=np.int32)
+    df = pd.read_csv(lpjgfile, sep='\s+', usecols=['Year'], dtype=np.int32)
 
     firstyr = df['Year'].min()
     lastyr = df['Year'].max()
@@ -387,7 +387,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     else:
         idx_col = [0, 1, 2]
 
-    df = pd.read_csv(inputfile, delim_whitespace=True, index_col=idx_col, dtype=np.float64, compression='infer')
+    df = pd.read_csv(inputfile, sep='\s+', index_col=idx_col, dtype=np.float64, compression='infer')
     df.rename(columns=lambda x: x.lower(), inplace=True)
 
     if is_land_use:
@@ -492,6 +492,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         if outname == "tsl":
             variable[:] = df_normalised[0].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
         else:
+            # For fluxes the missing values are replaced by zero before the remapping:
             dumvar = df_normalised[0].values.T
             variable[:] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
@@ -505,6 +506,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
             if outname == "tsl":
                 variable[:, l, :, :] = df_normalised[l].values.T  # TODO: see out2nc for what to do here if you have the LPJG regular grid
             else:
+                # For fluxes the missing values are replaced by zero before the remapping:
                 dumvar = df_normalised[l].values.T
                 variable[:, l, :, :] = np.where(dumvar < 1.e+20, dumvar, 0.)   # TODO: see out2nc for what to do here if you have the LPJG regular grid
 
@@ -674,7 +676,7 @@ def execute_single_task(dataset, task):
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
 
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
-    log.info("CMORizing variable %s in table %s form %s in "
+    log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.out_name, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval),
