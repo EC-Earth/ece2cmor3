@@ -676,7 +676,7 @@ def execute_single_task(dataset, task):
     missval = getattr(ncvar, "missing_value", getattr(ncvar, "fill_value", np.nan))
 
     factor = get_conversion_factor(getattr(task, cmor_task.conversion_key, None))
-    log.info("CMORizing variable %s in table %s form %s in "
+    log.info("CMORizing variable %s in table %s from %s in "
              "file %s..." % (task.target.out_name, task.target.table, task.source.variable(),
                              getattr(task, cmor_task.output_path_key)))
     cmor_utils.netcdf2cmor(varid, ncvar, 0, factor, missval=getattr(task.target, cmor_target.missval_key, missval),
