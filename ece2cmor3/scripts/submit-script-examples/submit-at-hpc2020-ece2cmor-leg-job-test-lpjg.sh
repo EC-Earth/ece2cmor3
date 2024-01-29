@@ -8,7 +8,7 @@
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
-#SBATCH --qos=nf
+#SBATCH --qos=np
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -79,11 +79,8 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 t001 v001"
+  echo "  sbatch $0 lpjg 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 lpjg \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 tm5  \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-lpjg-\$i $0 lpjg \$i t001 v001; done"
   echo
  fi
