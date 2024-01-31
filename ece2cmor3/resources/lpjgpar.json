@@ -224,6 +224,14 @@
         "target": "fNAnthDisturb"
     },
     {
+        "source": "fN2O",
+        "target": "fN2O"
+    },
+    {
+        "source": "fNOx",
+        "target": "fNOx"
+    },
+    {
         "source": "fNdep",
         "target": "fNdep"
     },

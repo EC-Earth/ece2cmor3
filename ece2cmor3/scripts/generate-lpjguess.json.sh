@@ -74,6 +74,8 @@ declare -a arr=(
 "fLulccProductLut"
 "fLulccResidueLut"
 "fNAnthDisturb"
+"fN2O"
+"fNOx"
 "fNdep"
 "fNfert"
 "fNgas"
