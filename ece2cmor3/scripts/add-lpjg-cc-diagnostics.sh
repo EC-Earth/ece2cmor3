@@ -12,9 +12,9 @@
 
 if [ "$#" -eq 0 ]; then
 
- add_the_lpjg-cc-diagnostics=True
+ add_the_lpjg_cc_diagnostics=True
 
- if [ add_the_lpjg-cc-diagnostics ]; then
+ if [ add_the_lpjg_cc_diagnostics ]; then
   # See #778      https://github.com/EC-Earth/ece2cmor3/issues/#778
   # See #1312-11  https://dev.ec-earth.org/issues/1312-11
 
