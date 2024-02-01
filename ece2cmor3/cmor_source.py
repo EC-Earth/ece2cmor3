@@ -46,6 +46,10 @@ def create_cmor_source(attributes, component):
         if src is None:
             log.error("Could not find a TM5 source variable within attributes %s" % (str(attributes.__dict__)))
         result = tm5_source(src)
+    if component == "co2box":
+        if src is None:
+            log.error("Could not find a co2box source variable within attributes %s" % (str(attributes.__dict__)))
+        result = co2box_source(src)
     # if component == NEWCOMPONENT:
     # create some source here, if NEWCOMPONENT has nc files as output, the NEMO case can be copied
     return result
@@ -270,6 +274,18 @@ class tm5_source(cmor_source):
 
     def model_component(self):
         return "tm5"
+
+    def variable(self):
+        return self.colname_
+
+class co2box_source(cmor_source):
+
+    def __init__(self, colname):
+        super(co2box_source, self).__init__()
+        self.colname_ = colname
+
+    def model_component(self):
+        return "co2box"
 
     def variable(self):
         return self.colname_

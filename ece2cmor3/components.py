@@ -16,13 +16,15 @@ models = {"ifs": {realms: ["atmos", "atmosChem", "land", "landIce", "ocean", "se
           "lpjg": {realms: ["land", "atmos"],
                    table_file: os.path.join(os.path.dirname(__file__), "resources", "lpjgpar.json")},
           "tm5": {realms: ["aerosol", "atmosChem", "atmos"],
-                  table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json")}
+                  table_file: os.path.join(os.path.dirname(__file__), "resources", "tm5par.json")},
+          "co2box": {realms: ["atmosChem"],
+                  table_file: os.path.join(os.path.dirname(__file__), "resources", "co2boxpar.json")}
           }
 
 ece_configs = {'EC-EARTH-AOGCM'   : ["ifs", "nemo"               ],
                'EC-EARTH-HR'      : ["ifs", "nemo"               ],
                'EC-EARTH-LR'      : ["ifs", "nemo"               ],
-               'EC-EARTH-CC'      : ["ifs", "nemo", "tm5", "lpjg"],
+               'EC-EARTH-CC'      : ["ifs", "nemo", "tm5", "lpjg", "co2box"],
                'EC-EARTH-GrisIS'  : ["ifs", "nemo"               ], # If a PISM component is added to ece2cmor3 it needs here to be added as well.
                'EC-EARTH-AerChem' : ["ifs", "nemo", "tm5"        ],
                'EC-EARTH-Veg'     : ["ifs", "nemo", "lpjg"       ],
