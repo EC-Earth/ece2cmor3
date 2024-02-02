@@ -28,6 +28,16 @@ if [ "$#" -eq 0 ]; then
   # Add all water related variables and tsl to new created LPJG CMOR tables,
   # because the same variables delivered by HTESSEL have the preference as
   # they are consistant with the atmosphere.
+
+  #  Eday  ec          => LPJGday  prio 1, in ignore file because IFS can't deliver
+  #        mrsll       => LPJGday
+  #  Eday  mrso        => LPJGday
+  #  Eday  mrsol       => LPJGday
+  #  Eday  mrsos       => LPJGday
+  #  Eday  mrro        => LPJGday
+  #        tran        => LPJGday
+  #        tsl         => LPJGday
+
   #  Amon  evspsbl     => LPJGmon
   #  Emon  evspsblpot  => LPJGmon
   #        evspsblsoi  => LPJGmon
@@ -46,15 +56,6 @@ if [ "$#" -eq 0 ]; then
   #  Llmon snw         => LPJGmon
   #        tran        => LPJGmon
   #        tsl         => LPJGmon
-
-  #  Eday  ec          => LPJGday  prio 1, in ignore file because IFS can't deliver
-  #        mrsll       => LPJGday
-  #  Eday  mrso        => LPJGday
-  #  Eday  mrsol       => LPJGday
-  #  Eday  mrsos       => LPJGday
-  #  Eday  mrro        => LPJGday
-  #        tran        => LPJGday
-  #        tsl         => LPJGday
 
   # Eyr    pastureFrac => LPJGyr
 
@@ -160,53 +161,19 @@ if [ "$#" -eq 0 ]; then
   echo '    },                                         ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
   echo '    "variable_entry": {                        ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
 
-  # A one liner to generate script code block below:
-  #  for i in {1..8}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccnmode01'; standardname=''; longname=''; fi"; done
-  for i in $(seq 8); do
-   if [ "${i}" -eq  1 ]; then varname='ec   '; unit='kg m-2 s-1'; standardname='water_evaporation_flux_from_canopy'; longname='Interception Evaporation          '; fi
-   if [ "${i}" -eq  2 ]; then varname='mrsll'; unit='kg m-2    '; standardname='liquid_water_content_of_soil_layer'; longname='Liquid Water Content of Soil Layer'; fi
-   if [ "${i}" -eq  3 ]; then varname='mrso '; unit='          '; standardname='          '; longname='            '; fi
-   if [ "${i}" -eq  4 ]; then varname='mrsol'; unit='          '; standardname='          '; longname='            '; fi
-   if [ "${i}" -eq  5 ]; then varname='mrsos'; unit='          '; standardname='          '; longname='            '; fi
-   if [ "${i}" -eq  6 ]; then varname='mrro '; unit='          '; standardname='          '; longname='            '; fi
-   if [ "${i}" -eq  7 ]; then varname='tran '; unit='          '; standardname='          '; longname='            '; fi
-   if [ "${i}" -eq  8 ]; then varname='tsl  '; unit='          '; standardname='          '; longname='            '; fi
-
-   varname=$(echo -e "${varname}" | tr -d '[:space:]')
-   standardname=$(echo -e "${standardname}" | tr -d '[:space:]')
-   longname=$(echo -e "${longname}" | awk '{$1=$1};1')
-   unit=$(echo -e "${unit}" | awk '{$1=$1};1')
-   echo '        "'${varname}'": {                                       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "frequency": "day",                                 ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "modeling_realm": "land",                           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "standard_name": "'${standardname}'",               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "units": "'${unit}'",                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "cell_methods": "area: mean where land time: mean", ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "cell_measures": "area: areacella",                 ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "long_name": "'${longname}'",                       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "comment": "",                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "dimensions": "longitude latitude time",            ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "out_name": "'${varname}'",                         ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "type": "real",                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "positive": "",                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "valid_min": "",                                    ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "valid_max": "",                                    ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "ok_min_mean_abs": "",                              ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   echo '            "ok_max_mean_abs": ""                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   if [ "${i}" -eq  8 ]; then
-    echo '        }                                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   else
-    echo '        },                                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-   fi
-  done
+  grep -A 17 -e '"ec":'    CMIP6_Eday.json                                 >> ${table_file_LPJGday}
+  grep -A 17 -e '"mrsll":' CMIP6_Eday.json                                 >> ${table_file_LPJGday}
+  grep -A 17 -e '"mrso":'  CMIP6_day.json                                  >> ${table_file_LPJGday}
+  grep -A 17 -e '"mrsol":' CMIP6_Eday.json                                 >> ${table_file_LPJGday}
+  grep -A 17 -e '"mrsos":' CMIP6_day.json                                  >> ${table_file_LPJGday}
+  grep -A 17 -e '"mrro":'  CMIP6_day.json                                  >> ${table_file_LPJGday}
+  grep -A 17 -e '"tran":'  CMIP6_Eday.json                                 >> ${table_file_LPJGday}
+  grep -A 16 -e '"tsl":'   CMIP6_Eday.json                                 >> ${table_file_LPJGday}
 
   # Add closing part of CMIP6 table json file:
-  echo '    }                                                           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-  echo '}                                                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
-
-
-
-
+  echo '        }                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
 
   # Remove the trailing spaces of the inserted block above:
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Eyr}
