@@ -272,6 +272,32 @@
             "rMaint",
             "shrubFrac",
             "treeFrac"
+        ],
+        "LPJGday": [
+            "mrsll",
+            "mrso",
+            "mrsol",
+            "mrsos",
+            "mrro",
+            "tran",
+            "tsl"
+        ],
+        "LPJGmon": [
+            "evspsbl",
+            "evspsblpot",
+            "evspsblsoi",
+            "mrroLut",
+            "mrsll",
+            "mrsol",
+            "mrsoLut",
+            "mrsosLut",
+            "mrro",
+            "mrros",
+            "mrso",
+            "mrfso",
+            "mrsos",
+            "tran",
+            "tsl"
         ]
     },
     "nemo": {
