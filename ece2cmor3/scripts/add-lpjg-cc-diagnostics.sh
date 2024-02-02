@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to the Eyr cmor table.
+# the CMIP6 data request) to the Eyr & Emon CMOR tables.
 #
 # This script requires no arguments.
 #
@@ -18,8 +18,10 @@ if [ "$#" -eq 0 ]; then
   # See #778      https://github.com/EC-Earth/ece2cmor3/issues/#778
   # See #1312-11  https://dev.ec-earth.org/issues/1312-11
 
-  # rsscsaf  
-  # rssaf    
+  # Add:
+  #  Eyr  cFluxYr
+  #  Eyr  cLandYr
+  #  Emon cLand_1st
 
   table_path=../resources/cmip6-cmor-tables/Tables/
   table_file_Eyr=CMIP6_Eyr.json
@@ -38,7 +40,7 @@ if [ "$#" -eq 0 ]; then
             "cell_methods": "area: mean where land time: mean",                                                                        \
             "cell_measures": "area: areacella",                                                                                        \
             "long_name": "cFluxYr",                                                                                                    \
-            "comment": "cFluxYr",                                                                                                      \
+            "comment": "Non CMOR standard, but added by the EC-Earth Consortium within the OptimESM project.",                         \
             "dimensions": "longitude latitude time",                                                                                   \
             "out_name": "cFluxYr",                                                                                                     \
             "type": "real",                                                                                                            \
@@ -56,7 +58,7 @@ if [ "$#" -eq 0 ]; then
             "cell_methods": "area: mean where land time: mean",                                                                        \
             "cell_measures": "area: areacella",                                                                                        \
             "long_name": "Total Carbon in All Terrestrial Carbon Pools",                                                               \
-            "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction.", \
+            "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction. Non CMOR standard, but added by the EC-Earth Consortium within the OptimESM project.", \
             "dimensions": "longitude latitude time",                                                                                   \
             "out_name": "cLandYr",                                                                                                     \
             "type": "real",                                                                                                            \
@@ -77,7 +79,7 @@ if [ "$#" -eq 0 ]; then
             "cell_methods": "area: mean where land time: mean",                                                                        \
             "cell_measures": "area: areacella",                                                                                        \
             "long_name": "Total Carbon in All Terrestrial Carbon Pools",                                                               \
-            "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction.", \
+            "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction. Non CMOR standard, but added by the EC-Earth Consortium within the OptimESM project.", \
             "dimensions": "longitude latitude time",                                                                                   \
             "out_name": "cLand_1st",                                                                                                   \
             "type": "real",                                                                                                            \
@@ -95,9 +97,12 @@ if [ "$#" -eq 0 ]; then
 
   cd -
 
+
   echo
   echo " $0 reports:"
-  echo "  The adjusted file is:  ${table_path}/${table_file_Eyr}"
+  echo "  The adjusted files are:"
+  echo "   ${table_path}/${table_file_Eyr}"
+  echo "   ${table_path}/${table_file_Emon}"
   echo "  Which is part of a nested repository, therefore to view the diff, run:"
   echo "  cd ${table_path}; git diff; cd -"
   echo
