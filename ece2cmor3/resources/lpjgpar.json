@@ -132,6 +132,14 @@
         "target": "cWood"
     },
     {
+        "source": "ec",
+        "target": "ec"
+    },
+    {
+        "source": "evspsbl",
+        "target": "evspsbl"
+    },
+    {
         "source": "evspsblpot",
         "target": "evspsblpot"
     },
@@ -360,6 +368,10 @@
         "target": "landCoverFrac"
     },
     {
+        "source": "mrfso",
+        "target": "mrfso"
+    },
+    {
         "source": "mrro",
         "target": "mrro"
     },
@@ -580,6 +592,18 @@
         "source": "shrubFrac",
         "convert": "frac2percent",
         "target": "shrubFrac"
+    },
+    {
+        "source": "snc",
+        "target": "snc"
+    },
+    {
+        "source": "snd",
+        "target": "snd"
+    },
+    {
+        "source": "snw",
+        "target": "snw"
     },
     {
         "source": "tran",
