@@ -16,7 +16,9 @@ if [ "$#" -eq 0 ]; then
 
  if [ add_the_lpjg_cc_diagnostics ]; then
   # See #778      https://github.com/EC-Earth/ece2cmor3/issues/#778
-  # See #1312-11  https://dev.ec-earth.org/issues/1312-11
+  # See #794      https://github.com/EC-Earth/ece2cmor3/issues/794
+  # See #1312-11  https://dev.ec-earth.org/issues/1312#note-11
+  # See #1312-76  https://dev.ec-earth.org/issues/1312#note-76
 
   # Add:
   #  Eyr  cFluxYr
