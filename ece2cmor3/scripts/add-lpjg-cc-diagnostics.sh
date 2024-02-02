@@ -140,6 +140,7 @@ if [ "$#" -eq 0 ]; then
             "LPJGyr",
   ' ${table_file_cv}
 
+
   # Add CMIP6 LPJGday table header:
   echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGday}
   echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
@@ -172,6 +173,50 @@ if [ "$#" -eq 0 ]; then
   echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
   echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
 
+
+  # Add CMIP6 LPJGmon table header:
+  echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGmon}
+  echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "data_specs_version": "01.00.33",      ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "cmor_version": "3.5",                 ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "table_id": "Table LPJGmon",           ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "realm": "land",                       ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "table_date": "18 November 2020",      ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "missing_value": "1e20",               ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "int_missing_value": "-999",           ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "product": "model-output",             ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "approx_interval": "30.00000",         ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "generic_levels": "",                  ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "mip_era": "CMIP6",                    ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '        "Conventions": "CF-1.7 CMIP-6.2"       ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '    },                                         ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '    "variable_entry": {                        ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+
+  grep -A 17 -e '"evspsbl":'    CMIP6_Amon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"evspsblpot":' CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"evspsblsoi":' CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrroLut":'    CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrsll":'      CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrsol":'      CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrsoLut":'    CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrsosLut":'   CMIP6_Emon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrro":'       CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrros":'      CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrso":'       CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrfso":'      CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"mrsos":'      CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"snc":'        CMIP6_LImon.json                           >> ${table_file_LPJGmon}
+  grep -A 17 -e '"snd":'        CMIP6_LImon.json                           >> ${table_file_LPJGmon}
+  grep -A 17 -e '"snw":'        CMIP6_LImon.json                           >> ${table_file_LPJGmon}
+  grep -A 17 -e '"tran":'       CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 16 -e '"tsl":'        CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+
+  # Add closing part of CMIP6 table json file:
+  echo '        }                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+  echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_LPJGmon}
+
+
   # Add CMIP6 LPJGyr table header:
   echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGyr}
   echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
@@ -203,7 +248,7 @@ if [ "$#" -eq 0 ]; then
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Eyr}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Emon}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGday}
- #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGmon}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGmon}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGyr}
   sed -i -e 's/\s*$//g'                ${table_file_cv}
 
