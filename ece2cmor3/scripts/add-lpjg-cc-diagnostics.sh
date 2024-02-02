@@ -23,6 +23,39 @@ if [ "$#" -eq 0 ]; then
   #  Eyr  cLandYr
   #  Emon cLand_1st
 
+  # Add all water related variables and tsl to new created LPJG CMOR tables,
+  # because the same variables delivered by HTESSEL have the preference as
+  # they are consistant with the atmosphere.
+  #  Amon  evspsbl     => LPJGmon
+  #  Emon  evspsblpot  => LPJGmon
+  #        evspsblsoi  => LPJGmon
+  #  Emon  mrroLut     => LPJGmon
+  #        mrsll       => LPJGmon
+  #        mrsol       => LPJGmon
+  #        mrsoLut     => LPJGmon
+  #        mrsosLut    => LPJGmon
+  #        mrro        => LPJGmon
+  #        mrros       => LPJGmon
+  #        mrso        => LPJGmon
+  #        mrfso       => LPJGmon
+  #        mrsos       => LPJGmon
+  #  Llmon snc         => LPJGmon
+  #  Llmon snd         => LPJGmon
+  #  Llmon snw         => LPJGmon
+  #        tran        => LPJGmon
+  #        tsl         => LPJGmon
+
+  #  Eday  ec          => LPJGday  prio 1, in ignore file because IFS can't deliver
+  #        mrsll       => LPJGday
+  #  Eday  mrso        => LPJGday
+  #  Eday  mrsol       => LPJGday
+  #  Eday  mrsos       => LPJGday
+  #  Eday  mrro        => LPJGday
+  #        tran        => LPJGday
+  #        tsl         => LPJGday
+
+  # Eyr    pastureFrac => LPJGyr
+
   table_path=../resources/cmip6-cmor-tables/Tables/
   table_file_Eyr=CMIP6_Eyr.json
   table_file_Emon=CMIP6_Emon.json
@@ -31,6 +64,7 @@ if [ "$#" -eq 0 ]; then
   git checkout ${table_file_Eyr}
   git checkout ${table_file_Emon}
 
+  # CHECK metadata: comment - ocean cells
   sed -i  '/"cLitter": {/i \
         "cFluxYr": {                                                                                                                   \
             "frequency": "yr",                                                                                                         \
@@ -96,7 +130,6 @@ if [ "$#" -eq 0 ]; then
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Emon}
 
   cd -
-
 
   echo
   echo " $0 reports:"
