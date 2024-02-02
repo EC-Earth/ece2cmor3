@@ -61,10 +61,16 @@ if [ "$#" -eq 0 ]; then
   table_path=../resources/cmip6-cmor-tables/Tables/
   table_file_Eyr=CMIP6_Eyr.json
   table_file_Emon=CMIP6_Emon.json
+  table_file_cv=CMIP6_CV.json
+  table_file_LPJGday=CMIP6_LPJGday.json
+  table_file_LPJGday=CMIP6_LPJGmon.json
+  table_file_LPJGday=CMIP6_LPJGyr.json
 
   cd ${table_path}
+  rm -f ${table_file_LPJGday} ${table_file_LPJGmon} ${table_file_LPJGyr}
   git checkout ${table_file_Eyr}
   git checkout ${table_file_Emon}
+  git checkout ${table_file_cv}
 
   # CHECK metadata: comment - ocean cells
   sed -i  '/"cLitter": {/i \
@@ -127,9 +133,88 @@ if [ "$#" -eq 0 ]; then
         },
   ' ${table_file_Emon}
 
+
+
+  sed -i  '/"Lmon"/i \
+            "LPJGday", \
+            "LPJGmon", \
+            "LPJGyr",
+  ' ${table_file_cv}
+
+
+  # Add CMIP6 LPJGday table header:
+  echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGday}
+  echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "data_specs_version": "01.00.33",      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "cmor_version": "3.5",                 ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "table_id": "Table LPJGday",           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "realm": "land",                       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "table_date": "18 November 2020",      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "missing_value": "1e20",               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "int_missing_value": "-999",           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "product": "model-output",             ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "approx_interval": "1.00000",          ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "generic_levels": "",                  ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "mip_era": "CMIP6",                    ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '        "Conventions": "CF-1.7 CMIP-6.2"       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '    },                                         ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '    "variable_entry": {                        ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+
+  # A one liner to generate script code block below:
+  #  for i in {1..8}; do echo "   if [ \"\${i}\" -eq ${i} ]; then varname='conccnmode01'; standardname=''; longname=''; fi"; done
+  for i in $(seq 8); do
+   if [ "${i}" -eq  1 ]; then varname='ec   '; unit='kg m-2 s-1'; standardname='water_evaporation_flux_from_canopy'; longname='Interception Evaporation          '; fi
+   if [ "${i}" -eq  2 ]; then varname='mrsll'; unit='kg m-2    '; standardname='liquid_water_content_of_soil_layer'; longname='Liquid Water Content of Soil Layer'; fi
+   if [ "${i}" -eq  3 ]; then varname='mrso '; unit='          '; standardname='          '; longname='            '; fi
+   if [ "${i}" -eq  4 ]; then varname='mrsol'; unit='          '; standardname='          '; longname='            '; fi
+   if [ "${i}" -eq  5 ]; then varname='mrsos'; unit='          '; standardname='          '; longname='            '; fi
+   if [ "${i}" -eq  6 ]; then varname='mrro '; unit='          '; standardname='          '; longname='            '; fi
+   if [ "${i}" -eq  7 ]; then varname='tran '; unit='          '; standardname='          '; longname='            '; fi
+   if [ "${i}" -eq  8 ]; then varname='tsl  '; unit='          '; standardname='          '; longname='            '; fi
+
+   varname=$(echo -e "${varname}" | tr -d '[:space:]')
+   standardname=$(echo -e "${standardname}" | tr -d '[:space:]')
+   longname=$(echo -e "${longname}" | awk '{$1=$1};1')
+   unit=$(echo -e "${unit}" | awk '{$1=$1};1')
+   echo '        "'${varname}'": {                                       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "frequency": "day",                                 ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "modeling_realm": "land",                           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "standard_name": "'${standardname}'",               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "units": "'${unit}'",                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "cell_methods": "area: mean where land time: mean", ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "cell_measures": "area: areacella",                 ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "long_name": "'${longname}'",                       ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "comment": "",                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "dimensions": "longitude latitude time",            ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "out_name": "'${varname}'",                         ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "type": "real",                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "positive": "",                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "valid_min": "",                                    ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "valid_max": "",                                    ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "ok_min_mean_abs": "",                              ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   echo '            "ok_max_mean_abs": ""                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   if [ "${i}" -eq  8 ]; then
+    echo '        }                                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   else
+    echo '        },                                                     ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+   fi
+  done
+
+  # Add closing part of CMIP6 table json file:
+  echo '    }                                                           ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+  echo '}                                                               ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
+
+
+
+
+
   # Remove the trailing spaces of the inserted block above:
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Eyr}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Emon}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGday}
+ #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGmon}
+ #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGyr}
+  sed -i -e 's/\s*$//g'                ${table_file_cv}
 
   cd -
 
@@ -138,6 +223,10 @@ if [ "$#" -eq 0 ]; then
   echo "  The adjusted files are:"
   echo "   ${table_path}/${table_file_Eyr}"
   echo "   ${table_path}/${table_file_Emon}"
+  echo "  Added files are:"
+  echo "   ${table_path}/${table_file_LPJGday}"
+  echo "   ${table_path}/${table_file_LPJGmon}"
+  echo "   ${table_path}/${table_file_LPJGyr}"
   echo "  Which is part of a nested repository, therefore to view the diff, run:"
   echo "  cd ${table_path}; git diff; cd -"
   echo
