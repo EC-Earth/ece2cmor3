@@ -64,8 +64,8 @@ if [ "$#" -eq 0 ]; then
   table_file_Emon=CMIP6_Emon.json
   table_file_cv=CMIP6_CV.json
   table_file_LPJGday=CMIP6_LPJGday.json
-  table_file_LPJGday=CMIP6_LPJGmon.json
-  table_file_LPJGday=CMIP6_LPJGyr.json
+  table_file_LPJGmon=CMIP6_LPJGmon.json
+  table_file_LPJGyr=CMIP6_LPJGyr.json
 
   cd ${table_path}
   rm -f ${table_file_LPJGday} ${table_file_LPJGmon} ${table_file_LPJGyr}
@@ -134,14 +134,11 @@ if [ "$#" -eq 0 ]; then
         },
   ' ${table_file_Emon}
 
-
-
   sed -i  '/"Lmon"/i \
             "LPJGday", \
             "LPJGmon", \
             "LPJGyr",
   ' ${table_file_cv}
-
 
   # Add CMIP6 LPJGday table header:
   echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGday}
@@ -175,12 +172,39 @@ if [ "$#" -eq 0 ]; then
   echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
   echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_LPJGday}
 
+  # Add CMIP6 LPJGyr table header:
+  echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_LPJGyr}
+  echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "data_specs_version": "01.00.33",      ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "cmor_version": "3.5",                 ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "table_id": "Table LPJGyr",            ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "realm": "land",                       ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "table_date": "18 November 2020",      ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "missing_value": "1e20",               ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "int_missing_value": "-999",           ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "product": "model-output",             ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "approx_interval": "365",              ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "generic_levels": "",                  ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "mip_era": "CMIP6",                    ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '        "Conventions": "CF-1.7 CMIP-6.2"       ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '    },                                         ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '    "variable_entry": {                        ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+
+  grep -A 16 -e '"pastureFrac":' CMIP6_Lmon.json                           >> ${table_file_LPJGyr}
+  sed -i -e 's/mon/yr/'                                                       ${table_file_LPJGyr}
+
+  # Add closing part of CMIP6 table json file:
+  echo '        }                                      ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+  echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_LPJGyr}
+
+
   # Remove the trailing spaces of the inserted block above:
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Eyr}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Emon}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGday}
  #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGmon}
- #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGyr}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGyr}
   sed -i -e 's/\s*$//g'                ${table_file_cv}
 
   cd -
