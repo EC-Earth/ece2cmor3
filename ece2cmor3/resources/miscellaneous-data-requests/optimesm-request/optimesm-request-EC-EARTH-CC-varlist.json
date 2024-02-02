@@ -275,6 +275,7 @@
             "treeFrac"
         ],
         "LPJGday": [
+            "ec",
             "mrsll",
             "mrso",
             "mrsol",
@@ -297,8 +298,14 @@
             "mrso",
             "mrfso",
             "mrsos",
+            "snc"
+            "snd"
+            "snw"
             "tran",
             "tsl"
+        ],
+        "LPJGyr": [
+            "pastureFrac"
         ]
     },
     "nemo": {
