@@ -89,6 +89,8 @@ if [ "$#" -eq 0 ]; then
   sed -i  '/"wap",/i \
             "wap850",      '                                   extended-ifspar.json
 
+  # Remove the trailing spaces of the inserted blocks:
+  sed -i -e 's/\s*$//g' -e 's/,$/,/g' extended-ifspar.json
   mv -f extended-ifspar.json ../resources/ifspar.json
 
 
