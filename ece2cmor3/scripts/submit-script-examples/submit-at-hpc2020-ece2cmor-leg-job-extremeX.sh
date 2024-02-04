@@ -37,18 +37,20 @@
  #                                         ...
  #  /scratch/rufl/ecearth3/s100/output/ifs/008
 
- if [ "$#" -eq 4 ]; then
+ if [ "$#" -eq 3 ]; then
 
    COMPONENT=$1
-   LEG=$2
-   EXP=$3
-   MEMBER=$4
+   EXPNR=$2
+   LEG=$3
+   EXP=s$EXPNR
+   MEMBER=$s$((10#$EXPNR))
 
    ECEDIR=/scratch/rufl/ecearth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PWD}/../../resources/metadata-templates/extremeX-AISF-metadata-template.json
-   git checkout $METADATA
-   sed -i -e 's/"realization_index":            "1"/"realization_index":            "'$MEMBER'"/' $METADATA
+   METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISF-metadata-template.json
+   mkdir -p metadata-files
+   METADATA=metadata-files/metadata-extremeX-AISF-$COMPONENT-$EXP-$MEMBER-$LEG.json
+   sed -e 's/"realization_index":            "1"/"realization_index":            "'$MEMBER'"/' $METADATAbase > $METADATA
    TEMPDIR=${SCRATCH}/temp-cmor-dir/extremeX/$EXP/$COMPONENT/$LEG
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-full-varlist.json
    ODIR=${SCRATCH}/cmorised-results/extremeX
@@ -85,16 +87,14 @@
 
  else
   echo
-  echo " Illegal number of arguments: the script requires four arguments:"
+  echo " Illegal number of arguments: the script requires three arguments:"
   echo "  1st argument: model component"
-  echo "  2nd argument: leg"
-  echo "  3rd argument: experiment ID"
-  echo "  4th argument: ensemble member number"
+  echo "  2nd argument: member"
+  echo "  3rd argument: leg"
   echo " For instance:"
   echo "  sbatch $0 ifs 001 s001 1"
   echo " Or use:"
-  echo "  for i in {001..008}; do echo sbatch --job-name=cmorise-s001-ifs-\$i  $0 ifs  \$i s001 1; done"
-  echo "  for s in {1..10}; do for i in {001..008}; do echo sbatch --job-name=cmorise-s001-ifs-\$i  $0 ifs  \$i s001 \$s; done; done"
+  echo "  for member in {001..010}; do for leg in {001..008}; do echo sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
   echo
 
  fi
