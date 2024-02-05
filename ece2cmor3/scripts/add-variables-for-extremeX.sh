@@ -1194,7 +1194,7 @@ if [ "$#" -eq 0 ]; then
                     "CHEM",                                                                          \
                     "BGC"                                                                            \
                 ],                                                                                   \
-                "experiment":"Atmosphere Interactive ERA_Land SM climatology Fixed ",                \
+                "experiment":"Atmosphere Interactive ERA_Land SM climatology Fixed",                 \
                 "experiment_id":"AISC",                                                              \
                 "parent_activity_id":[                                                               \
                     "no parent"                                                                      \
@@ -1451,7 +1451,7 @@ if [ "$#" -eq 0 ]; then
                     "CHEM",                                                                          \
                     "BGC"                                                                            \
                 ],                                                                                   \
-                "experiment":"Atmosphere Interactive EC-Earth3 AISI ensemble SM climatology Fixed ", \
+                "experiment":"Atmosphere Interactive EC-Earth3 AISI ensemble SM climatology Fixed",  \
                 "experiment_id":"AISE",                                                              \
                 "parent_activity_id":[                                                               \
                     "no parent"                                                                      \
