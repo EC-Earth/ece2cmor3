@@ -6,15 +6,11 @@ import json
 import logging
 import netCDF4
 import cmor
-import cmor_utils
-import cmor_source
-import cmor_target
-import cmor_task
 import cdo
-from ece2cmor3 import cdoapi
 import Ngl
 import warnings
 from cdo import *
+from ece2cmor3 import cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
 
 # Logger object
 log = logging.getLogger(__name__)
