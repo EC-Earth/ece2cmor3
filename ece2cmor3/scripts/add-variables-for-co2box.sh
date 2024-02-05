@@ -73,7 +73,8 @@ if [ "$#" -eq 0 ]; then
 
   echo
   echo " $0 reports:"
-  echo "  The adjusted file is:  ${table_path}/${table_file_day}"
+  echo "  The adjusted file is:"
+  echo "   ${table_path}/${table_file_day}"
   echo "  Which is part of a nested repository, therefore to view the diff, run:"
   echo "  cd ${table_path}; git diff; cd -"
   echo

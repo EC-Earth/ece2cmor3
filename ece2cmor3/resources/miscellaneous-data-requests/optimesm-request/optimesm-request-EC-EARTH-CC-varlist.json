@@ -492,5 +492,17 @@
             "snmassacrossline"
         ]
     },
-    "tm5": {}
+    "tm5": {},
+    "co2box": {
+        "Amon": [
+            "co2mass"
+        ],
+        "Emon": [
+            "co2s"
+        ],
+        "day": [
+            "co2s",
+            "co2mass"
+        ]
+    }
 }

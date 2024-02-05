@@ -79,6 +79,7 @@ if [ "$#" -eq 5 ]; then
   # optimesm only:
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
    ./add-lpjg-cc-diagnostics.sh
+   ./add-variables-for-co2box.sh
   fi
 
   rm -rf   ${output_dir}
