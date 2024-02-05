@@ -1,6 +1,6 @@
 {
     "activity_id":                  "CMIP",
-    "experiment_id":                "AISF",
+    "experiment_id":                "AISE",
     "source_id":                    "EC-Earth3",
     "source":                       "EC-Earth3 (2019)",
     "source_type":                  "AGCM",
@@ -9,7 +9,7 @@
     "nominal_resolution":           "100 km",
 
     "sub_experiment":               "initialized in 2009",
-    "sub_experiment_id":            "e001",
+    "sub_experiment_id":            "s001",
 
     "realization_index":            "1",
     "initialization_index":         "2",
