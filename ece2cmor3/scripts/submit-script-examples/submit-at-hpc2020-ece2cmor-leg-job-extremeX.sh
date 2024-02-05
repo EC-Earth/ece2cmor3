@@ -47,10 +47,13 @@
 
    ECEDIR=/scratch/rufl/ecearth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISF-metadata-template.json
+   METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISE-metadata-template.json
+  #METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISC-metadata-template.json
    mkdir -p metadata-files
-   METADATA=metadata-files/metadata-extremeX-AISF-$COMPONENT-$EXP-$MEMBER-$LEG.json
+   METADATA=metadata-files/metadata-extremeX-AISE-$COMPONENT-$EXP-$MEMBER-$LEG.json
+  #METADATA=metadata-files/metadata-extremeX-AISC-$COMPONENT-$EXP-$MEMBER-$LEG.json
    sed -e 's/"realization_index":            "1"/"realization_index":            "'$MEMBER'"/' $METADATAbase > $METADATA
+   sed -i 's/"sub_experiment_id":            "s001"/"sub_experiment_id":            "'$EXP'"/'                 $METADATA
    TEMPDIR=${SCRATCH}/temp-cmor-dir/extremeX/$EXP/$COMPONENT/$LEG
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-full-varlist.json
    ODIR=${SCRATCH}/cmorised-results/extremeX
