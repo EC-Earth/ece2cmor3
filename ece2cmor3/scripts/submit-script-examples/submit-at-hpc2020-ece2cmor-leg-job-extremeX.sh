@@ -27,19 +27,36 @@
  # Submitdir for ensemble runs s001-s100: /perm/rufl/ecearth3.3.1_SM/AISF_EN/classic
  # Prior submit script for cmorisation: /perm/rufl/cmorize/extremeX/scripts/submit_leg_cmorization_6hr.sh
 
- if [ "$#" -eq 4 ]; then
+ # Data description of raw ECE of entire 100-member ensemble where each enseble has 8 legs (2009-2016):
+ #  /scratch/rufl/ecearth3/s001/output/ifs/001
+ #                                         ...
+ #  /scratch/rufl/ecearth3/s001/output/ifs/008
+ #                          ...               
+ #                          ...               
+ #  /scratch/rufl/ecearth3/s100/output/ifs/001
+ #                                         ...
+ #  /scratch/rufl/ecearth3/s100/output/ifs/008
+
+ if [ "$#" -eq 3 ]; then
 
    COMPONENT=$1
-   LEG=$2
-   EXP=$3
-   VERSION=$4
+   EXPNR=$2
+   LEG=$3
+   EXP=s$EXPNR
+   MEMBER=$s$((10#$EXPNR))
 
    ECEDIR=/scratch/rufl/ecearth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PWD}/../../resources/metadata-templates/extremeX-short-metadata-template.json
-   TEMPDIR=${SCRATCH}/temp-cmor-dir/extremeX-short/$EXP/$COMPONENT/$LEG
-   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json
-   ODIR=${SCRATCH}/cmorised-results/extremeX-short/$EXP/$VERSION
+   METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISE-metadata-template.json
+  #METADATAbase=${PWD}/../../resources/metadata-templates/extremeX-AISC-metadata-template.json
+   mkdir -p metadata-files
+   METADATA=metadata-files/metadata-extremeX-AISE-$COMPONENT-$EXP-$MEMBER-$LEG.json
+  #METADATA=metadata-files/metadata-extremeX-AISC-$COMPONENT-$EXP-$MEMBER-$LEG.json
+   sed -e 's/"realization_index":            "1"/"realization_index":            "'$MEMBER'"/' $METADATAbase > $METADATA
+   sed -i 's/"sub_experiment_id":            "s001"/"sub_experiment_id":            "'$EXP'"/'                 $METADATA
+   TEMPDIR=${SCRATCH}/temp-cmor-dir/extremeX/$EXP/$COMPONENT/$LEG
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-full-varlist.json
+   ODIR=${SCRATCH}/cmorised-results/extremeX
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi
@@ -73,15 +90,14 @@
 
  else
   echo
-  echo " Illegal number of arguments: the script requires four arguments:"
+  echo " Illegal number of arguments: the script requires three arguments:"
   echo "  1st argument: model component"
-  echo "  2nd argument: leg"
-  echo "  3rd argument: experiment ID"
-  echo "  4th argument: version label"
+  echo "  2nd argument: member"
+  echo "  3rd argument: leg"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 s001 v001"
+  echo "  sbatch $0 ifs 001 s001 1"
   echo " Or use:"
-  echo "  for i in {001..008}; do sbatch --job-name=cmorise-s001-ifs-\$i  $0 ifs  \$i s001 v001; done"
+  echo "  for member in {001..010}; do for leg in {001..008}; do echo sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
   echo
 
  fi

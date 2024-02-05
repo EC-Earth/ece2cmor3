@@ -89,6 +89,8 @@ if [ "$#" -eq 0 ]; then
   sed -i  '/"wap",/i \
             "wap850",      '                                   extended-ifspar.json
 
+  # Remove the trailing spaces of the inserted blocks:
+  sed -i -e 's/\s*$//g' -e 's/,$/,/g' extended-ifspar.json
   mv -f extended-ifspar.json ../resources/ifspar.json
 
 
@@ -534,6 +536,27 @@ if [ "$#" -eq 0 ]; then
         },                                                                                          
   ' ${table_file_day}
 
+  sed -i  '/"tas": {/i \
+        "ta9": {                                           \
+            "frequency": "day",                            \
+            "modeling_realm": "atmos",                     \
+            "standard_name": "air_temperature",            \
+            "units": "K",                                  \
+            "cell_methods": "time: mean",                  \
+            "cell_measures": "area: areacella",            \
+            "long_name": "Air Temperature",                \
+            "comment": "Air Temperature",                  \
+            "dimensions": "longitude latitude plev9 time", \
+            "out_name": "ta",                              \
+            "type": "real",                                \
+            "positive": "",                                \
+            "valid_min": "",                               \
+            "valid_max": "",                               \
+            "ok_min_mean_abs": "",                         \
+            "ok_max_mean_abs": ""                          \
+        },                                                 
+  ' ${table_file_day}
+
   sed -i  '/"uas": {/i \
         "ua9": {                                                         \
             "frequency": "day",                                          \
@@ -955,345 +978,793 @@ if [ "$#" -eq 0 ]; then
             "e097":"initialized in 2009",                  \
             "e098":"initialized in 2009",                  \
             "e099":"initialized in 2009",                  \
-            "e100":"initialized in 2009",                  
+            "e100":"initialized in 2009",                  \
+            "AISC":"initialized in 1979",                  \
+            "S001":"initialized in 2009",                  \
+            "S002":"initialized in 2009",                  \
+            "S003":"initialized in 2009",                  \
+            "S004":"initialized in 2009",                  \
+            "S005":"initialized in 2009",                  \
+            "S006":"initialized in 2009",                  \
+            "S007":"initialized in 2009",                  \
+            "S008":"initialized in 2009",                  \
+            "S009":"initialized in 2009",                  \
+            "S010":"initialized in 2009",                  \
+            "S011":"initialized in 2009",                  \
+            "S012":"initialized in 2009",                  \
+            "S013":"initialized in 2009",                  \
+            "S014":"initialized in 2009",                  \
+            "S015":"initialized in 2009",                  \
+            "S016":"initialized in 2009",                  \
+            "S017":"initialized in 2009",                  \
+            "S018":"initialized in 2009",                  \
+            "S019":"initialized in 2009",                  \
+            "S020":"initialized in 2009",                  \
+            "S021":"initialized in 2009",                  \
+            "S022":"initialized in 2009",                  \
+            "S023":"initialized in 2009",                  \
+            "S024":"initialized in 2009",                  \
+            "S025":"initialized in 2009",                  \
+            "S026":"initialized in 2009",                  \
+            "S027":"initialized in 2009",                  \
+            "S028":"initialized in 2009",                  \
+            "S029":"initialized in 2009",                  \
+            "S030":"initialized in 2009",                  \
+            "S031":"initialized in 2009",                  \
+            "S032":"initialized in 2009",                  \
+            "S033":"initialized in 2009",                  \
+            "S034":"initialized in 2009",                  \
+            "S035":"initialized in 2009",                  \
+            "S036":"initialized in 2009",                  \
+            "S037":"initialized in 2009",                  \
+            "S038":"initialized in 2009",                  \
+            "S039":"initialized in 2009",                  \
+            "S040":"initialized in 2009",                  \
+            "S041":"initialized in 2009",                  \
+            "S042":"initialized in 2009",                  \
+            "S043":"initialized in 2009",                  \
+            "S044":"initialized in 2009",                  \
+            "S045":"initialized in 2009",                  \
+            "S046":"initialized in 2009",                  \
+            "S047":"initialized in 2009",                  \
+            "S048":"initialized in 2009",                  \
+            "S049":"initialized in 2009",                  \
+            "S050":"initialized in 2009",                  \
+            "S051":"initialized in 2009",                  \
+            "S052":"initialized in 2009",                  \
+            "S053":"initialized in 2009",                  \
+            "S054":"initialized in 2009",                  \
+            "S055":"initialized in 2009",                  \
+            "S056":"initialized in 2009",                  \
+            "S057":"initialized in 2009",                  \
+            "S058":"initialized in 2009",                  \
+            "S059":"initialized in 2009",                  \
+            "S060":"initialized in 2009",                  \
+            "S061":"initialized in 2009",                  \
+            "S062":"initialized in 2009",                  \
+            "S063":"initialized in 2009",                  \
+            "S064":"initialized in 2009",                  \
+            "S065":"initialized in 2009",                  \
+            "S066":"initialized in 2009",                  \
+            "S067":"initialized in 2009",                  \
+            "S068":"initialized in 2009",                  \
+            "S069":"initialized in 2009",                  \
+            "S070":"initialized in 2009",                  \
+            "S071":"initialized in 2009",                  \
+            "S072":"initialized in 2009",                  \
+            "S073":"initialized in 2009",                  \
+            "S074":"initialized in 2009",                  \
+            "S075":"initialized in 2009",                  \
+            "S076":"initialized in 2009",                  \
+            "S077":"initialized in 2009",                  \
+            "S078":"initialized in 2009",                  \
+            "S079":"initialized in 2009",                  \
+            "S080":"initialized in 2009",                  \
+            "S081":"initialized in 2009",                  \
+            "S082":"initialized in 2009",                  \
+            "S083":"initialized in 2009",                  \
+            "S084":"initialized in 2009",                  \
+            "S085":"initialized in 2009",                  \
+            "S086":"initialized in 2009",                  \
+            "S087":"initialized in 2009",                  \
+            "S088":"initialized in 2009",                  \
+            "S089":"initialized in 2009",                  \
+            "S090":"initialized in 2009",                  \
+            "S091":"initialized in 2009",                  \
+            "S092":"initialized in 2009",                  \
+            "S093":"initialized in 2009",                  \
+            "S094":"initialized in 2009",                  \
+            "S095":"initialized in 2009",                  \
+            "S096":"initialized in 2009",                  \
+            "S097":"initialized in 2009",                  \
+            "S098":"initialized in 2009",                  \
+            "S099":"initialized in 2009",                  \
+            "S100":"initialized in 2009",                  \
+            "s001":"initialized in 2009",                  \
+            "s002":"initialized in 2009",                  \
+            "s003":"initialized in 2009",                  \
+            "s004":"initialized in 2009",                  \
+            "s005":"initialized in 2009",                  \
+            "s006":"initialized in 2009",                  \
+            "s007":"initialized in 2009",                  \
+            "s008":"initialized in 2009",                  \
+            "s009":"initialized in 2009",                  \
+            "s010":"initialized in 2009",                  \
+            "s011":"initialized in 2009",                  \
+            "s012":"initialized in 2009",                  \
+            "s013":"initialized in 2009",                  \
+            "s014":"initialized in 2009",                  \
+            "s015":"initialized in 2009",                  \
+            "s016":"initialized in 2009",                  \
+            "s017":"initialized in 2009",                  \
+            "s018":"initialized in 2009",                  \
+            "s019":"initialized in 2009",                  \
+            "s020":"initialized in 2009",                  \
+            "s021":"initialized in 2009",                  \
+            "s022":"initialized in 2009",                  \
+            "s023":"initialized in 2009",                  \
+            "s024":"initialized in 2009",                  \
+            "s025":"initialized in 2009",                  \
+            "s026":"initialized in 2009",                  \
+            "s027":"initialized in 2009",                  \
+            "s028":"initialized in 2009",                  \
+            "s029":"initialized in 2009",                  \
+            "s030":"initialized in 2009",                  \
+            "s031":"initialized in 2009",                  \
+            "s032":"initialized in 2009",                  \
+            "s033":"initialized in 2009",                  \
+            "s034":"initialized in 2009",                  \
+            "s035":"initialized in 2009",                  \
+            "s036":"initialized in 2009",                  \
+            "s037":"initialized in 2009",                  \
+            "s038":"initialized in 2009",                  \
+            "s039":"initialized in 2009",                  \
+            "s040":"initialized in 2009",                  \
+            "s041":"initialized in 2009",                  \
+            "s042":"initialized in 2009",                  \
+            "s043":"initialized in 2009",                  \
+            "s044":"initialized in 2009",                  \
+            "s045":"initialized in 2009",                  \
+            "s046":"initialized in 2009",                  \
+            "s047":"initialized in 2009",                  \
+            "s048":"initialized in 2009",                  \
+            "s049":"initialized in 2009",                  \
+            "s050":"initialized in 2009",                  \
+            "s051":"initialized in 2009",                  \
+            "s052":"initialized in 2009",                  \
+            "s053":"initialized in 2009",                  \
+            "s054":"initialized in 2009",                  \
+            "s055":"initialized in 2009",                  \
+            "s056":"initialized in 2009",                  \
+            "s057":"initialized in 2009",                  \
+            "s058":"initialized in 2009",                  \
+            "s059":"initialized in 2009",                  \
+            "s060":"initialized in 2009",                  \
+            "s061":"initialized in 2009",                  \
+            "s062":"initialized in 2009",                  \
+            "s063":"initialized in 2009",                  \
+            "s064":"initialized in 2009",                  \
+            "s065":"initialized in 2009",                  \
+            "s066":"initialized in 2009",                  \
+            "s067":"initialized in 2009",                  \
+            "s068":"initialized in 2009",                  \
+            "s069":"initialized in 2009",                  \
+            "s070":"initialized in 2009",                  \
+            "s071":"initialized in 2009",                  \
+            "s072":"initialized in 2009",                  \
+            "s073":"initialized in 2009",                  \
+            "s074":"initialized in 2009",                  \
+            "s075":"initialized in 2009",                  \
+            "s076":"initialized in 2009",                  \
+            "s077":"initialized in 2009",                  \
+            "s078":"initialized in 2009",                  \
+            "s079":"initialized in 2009",                  \
+            "s080":"initialized in 2009",                  \
+            "s081":"initialized in 2009",                  \
+            "s082":"initialized in 2009",                  \
+            "s083":"initialized in 2009",                  \
+            "s084":"initialized in 2009",                  \
+            "s085":"initialized in 2009",                  \
+            "s086":"initialized in 2009",                  \
+            "s087":"initialized in 2009",                  \
+            "s088":"initialized in 2009",                  \
+            "s089":"initialized in 2009",                  \
+            "s090":"initialized in 2009",                  \
+            "s091":"initialized in 2009",                  \
+            "s092":"initialized in 2009",                  \
+            "s093":"initialized in 2009",                  \
+            "s094":"initialized in 2009",                  \
+            "s095":"initialized in 2009",                  \
+            "s096":"initialized in 2009",                  \
+            "s097":"initialized in 2009",                  \
+            "s098":"initialized in 2009",                  \
+            "s099":"initialized in 2009",                  \
+            "s100":"initialized in 2009",                  
   ' ${table_file_CV}
 
 
 
   sed -i  '/"1pctCO2-4xext":{/i \
-            "AISI":{                                                    \
-                "activity_id":[                                         \
-                    "CMIP"                                              \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER",                                              \
-                    "CHEM",                                             \
-                    "BGC"                                               \
-                ],                                                      \
-                "experiment":"Atmosphere Interactive Soil Interactive", \
-                "experiment_id":"AISI",                                 \
-                "parent_activity_id":[                                  \
-                    "no parent"                                         \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "no parent"                                         \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AGCM"                                              \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "C001",                                             \
-                    "C002",                                             \
-                    "C003",                                             \
-                    "C004",                                             \
-                    "C005",                                             \
-                    "C006",                                             \
-                    "C007",                                             \
-                    "C008",                                             \
-                    "C009",                                             \
-                    "C010",                                             \
-                    "E001",                                             \
-                    "E002",                                             \
-                    "E003",                                             \
-                    "E004",                                             \
-                    "E005",                                             \
-                    "E006",                                             \
-                    "E007",                                             \
-                    "E008",                                             \
-                    "E009",                                             \
-                    "E010",                                             \
-                    "E011",                                             \
-                    "E012",                                             \
-                    "E013",                                             \
-                    "E014",                                             \
-                    "E015",                                             \
-                    "E016",                                             \
-                    "E017",                                             \
-                    "E018",                                             \
-                    "E019",                                             \
-                    "E020",                                             \
-                    "E021",                                             \
-                    "E022",                                             \
-                    "E023",                                             \
-                    "E024",                                             \
-                    "E025",                                             \
-                    "E026",                                             \
-                    "E027",                                             \
-                    "E028",                                             \
-                    "E029",                                             \
-                    "E030",                                             \
-                    "E031",                                             \
-                    "E032",                                             \
-                    "E033",                                             \
-                    "E034",                                             \
-                    "E035",                                             \
-                    "E036",                                             \
-                    "E037",                                             \
-                    "E038",                                             \
-                    "E039",                                             \
-                    "E040",                                             \
-                    "E041",                                             \
-                    "E042",                                             \
-                    "E043",                                             \
-                    "E044",                                             \
-                    "E045",                                             \
-                    "E046",                                             \
-                    "E047",                                             \
-                    "E048",                                             \
-                    "E049",                                             \
-                    "E050",                                             \
-                    "E051",                                             \
-                    "E052",                                             \
-                    "E053",                                             \
-                    "E054",                                             \
-                    "E055",                                             \
-                    "E056",                                             \
-                    "E057",                                             \
-                    "E058",                                             \
-                    "E059",                                             \
-                    "E060",                                             \
-                    "E061",                                             \
-                    "E062",                                             \
-                    "E063",                                             \
-                    "E064",                                             \
-                    "E065",                                             \
-                    "E066",                                             \
-                    "E067",                                             \
-                    "E068",                                             \
-                    "E069",                                             \
-                    "E070",                                             \
-                    "E071",                                             \
-                    "E072",                                             \
-                    "E073",                                             \
-                    "E074",                                             \
-                    "E075",                                             \
-                    "E076",                                             \
-                    "E077",                                             \
-                    "E078",                                             \
-                    "E079",                                             \
-                    "E080",                                             \
-                    "E081",                                             \
-                    "E082",                                             \
-                    "E083",                                             \
-                    "E084",                                             \
-                    "E085",                                             \
-                    "E086",                                             \
-                    "E087",                                             \
-                    "E088",                                             \
-                    "E089",                                             \
-                    "E090",                                             \
-                    "E091",                                             \
-                    "E092",                                             \
-                    "E093",                                             \
-                    "E094",                                             \
-                    "E095",                                             \
-                    "E096",                                             \
-                    "E097",                                             \
-                    "E098",                                             \
-                    "E099",                                             \
-                    "E100"                                              \
-                ]                                                       \
-            },                                                          \
-            "AISF":{                                                    \
-                "activity_id":[                                         \
-                    "CMIP"                                              \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER",                                              \
-                    "CHEM",                                             \
-                    "BGC"                                               \
-                ],                                                      \
-                "experiment":"Atmosphere Interactive Soil Fixed",       \
-                "experiment_id":"AISF",                                 \
-                "parent_activity_id":[                                  \
-                    "no parent"                                         \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "no parent"                                         \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AGCM"                                              \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "c001",                                             \
-                    "c002",                                             \
-                    "c003",                                             \
-                    "c004",                                             \
-                    "c005",                                             \
-                    "e001",                                             \
-                    "e002",                                             \
-                    "e003",                                             \
-                    "e004",                                             \
-                    "e005",                                             \
-                    "e006",                                             \
-                    "e007",                                             \
-                    "e008",                                             \
-                    "e009",                                             \
-                    "e010",                                             \
-                    "e011",                                             \
-                    "e012",                                             \
-                    "e013",                                             \
-                    "e014",                                             \
-                    "e015",                                             \
-                    "e016",                                             \
-                    "e017",                                             \
-                    "e018",                                             \
-                    "e019",                                             \
-                    "e020",                                             \
-                    "e021",                                             \
-                    "e022",                                             \
-                    "e023",                                             \
-                    "e024",                                             \
-                    "e025",                                             \
-                    "e026",                                             \
-                    "e027",                                             \
-                    "e028",                                             \
-                    "e029",                                             \
-                    "e030",                                             \
-                    "e031",                                             \
-                    "e032",                                             \
-                    "e033",                                             \
-                    "e034",                                             \
-                    "e035",                                             \
-                    "e036",                                             \
-                    "e037",                                             \
-                    "e038",                                             \
-                    "e039",                                             \
-                    "e040",                                             \
-                    "e041",                                             \
-                    "e042",                                             \
-                    "e043",                                             \
-                    "e044",                                             \
-                    "e045",                                             \
-                    "e046",                                             \
-                    "e047",                                             \
-                    "e048",                                             \
-                    "e049",                                             \
-                    "e050",                                             \
-                    "e051",                                             \
-                    "e052",                                             \
-                    "e053",                                             \
-                    "e054",                                             \
-                    "e055",                                             \
-                    "e056",                                             \
-                    "e057",                                             \
-                    "e058",                                             \
-                    "e059",                                             \
-                    "e060",                                             \
-                    "e061",                                             \
-                    "e062",                                             \
-                    "e063",                                             \
-                    "e064",                                             \
-                    "e065",                                             \
-                    "e066",                                             \
-                    "e067",                                             \
-                    "e068",                                             \
-                    "e069",                                             \
-                    "e070",                                             \
-                    "e071",                                             \
-                    "e072",                                             \
-                    "e073",                                             \
-                    "e074",                                             \
-                    "e075",                                             \
-                    "e076",                                             \
-                    "e077",                                             \
-                    "e078",                                             \
-                    "e079",                                             \
-                    "e080",                                             \
-                    "e081",                                             \
-                    "e082",                                             \
-                    "e083",                                             \
-                    "e084",                                             \
-                    "e085",                                             \
-                    "e086",                                             \
-                    "e087",                                             \
-                    "e088",                                             \
-                    "e089",                                             \
-                    "e090",                                             \
-                    "e091",                                             \
-                    "e092",                                             \
-                    "e093",                                             \
-                    "e094",                                             \
-                    "e095",                                             \
-                    "e096",                                             \
-                    "e097",                                             \
-                    "e098",                                             \
-                    "e099",                                             \
-                    "e100"                                              \
-                ]                                                       \
-            },                                                          \
-            "AFSI":{                                                    \
-                "activity_id":[                                         \
-                    "CMIP"                                              \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER",                                              \
-                    "CHEM",                                             \
-                    "BGC"                                               \
-                ],                                                      \
-                "experiment":"Atmosphere Fixed Soil Interactive",       \
-                "experiment_id":"AFSI",                                 \
-                "parent_activity_id":[                                  \
-                    "no parent"                                         \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "no parent"                                         \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AGCM"                                              \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "AFSI"                                              \
-                ]                                                       \
-            },                                                          \
-            "AFSF":{                                                    \
-                "activity_id":[                                         \
-                    "CMIP"                                              \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER",                                              \
-                    "CHEM",                                             \
-                    "BGC"                                               \
-                ],                                                      \
-                "experiment":"Atmosphere Fixed, Soil Fixed",            \
-                "experiment_id":"AFSF",                                 \
-                "parent_activity_id":[                                  \
-                    "no parent"                                         \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "no parent"                                         \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AGCM"                                              \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "afsf"                                              \
-                ]                                                       \
-            },                                                          \
-            "AFSC":{                                                    \
-                "activity_id":[                                         \
-                    "CMIP"                                              \
-                ],                                                      \
-                "additional_allowed_model_components":[                 \
-                    "AER",                                              \
-                    "CHEM",                                             \
-                    "BGC"                                               \
-                ],                                                      \
-                "experiment":"Atmosphere Fixed , Soil Climate Fixed",   \
-                "experiment_id":"AFSC",                                 \
-                "parent_activity_id":[                                  \
-                    "no parent"                                         \
-                ],                                                      \
-                "parent_experiment_id":[                                \
-                    "no parent"                                         \
-                ],                                                      \
-                "required_model_components":[                           \
-                    "AGCM"                                              \
-                ],                                                      \
-                "sub_experiment_id":[                                   \
-                    "afsc"                                              \
-                ]                                                       \
-            },                                                          
+            "AISC":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Interactive ERA_Land SM climatology Fixed",                 \
+                "experiment_id":"AISC",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "AISC",                                                                          \
+                    "S001",                                                                          \
+                    "S002",                                                                          \
+                    "S003",                                                                          \
+                    "S004",                                                                          \
+                    "S005",                                                                          \
+                    "S006",                                                                          \
+                    "S007",                                                                          \
+                    "S008",                                                                          \
+                    "S009",                                                                          \
+                    "S010",                                                                          \
+                    "S011",                                                                          \
+                    "S012",                                                                          \
+                    "S013",                                                                          \
+                    "S014",                                                                          \
+                    "S015",                                                                          \
+                    "S016",                                                                          \
+                    "S017",                                                                          \
+                    "S018",                                                                          \
+                    "S019",                                                                          \
+                    "S020",                                                                          \
+                    "S021",                                                                          \
+                    "S022",                                                                          \
+                    "S023",                                                                          \
+                    "S024",                                                                          \
+                    "S025",                                                                          \
+                    "S026",                                                                          \
+                    "S027",                                                                          \
+                    "S028",                                                                          \
+                    "S029",                                                                          \
+                    "S030",                                                                          \
+                    "S031",                                                                          \
+                    "S032",                                                                          \
+                    "S033",                                                                          \
+                    "S034",                                                                          \
+                    "S035",                                                                          \
+                    "S036",                                                                          \
+                    "S037",                                                                          \
+                    "S038",                                                                          \
+                    "S039",                                                                          \
+                    "S040",                                                                          \
+                    "S041",                                                                          \
+                    "S042",                                                                          \
+                    "S043",                                                                          \
+                    "S044",                                                                          \
+                    "S045",                                                                          \
+                    "S046",                                                                          \
+                    "S047",                                                                          \
+                    "S048",                                                                          \
+                    "S049",                                                                          \
+                    "S050",                                                                          \
+                    "S051",                                                                          \
+                    "S052",                                                                          \
+                    "S053",                                                                          \
+                    "S054",                                                                          \
+                    "S055",                                                                          \
+                    "S056",                                                                          \
+                    "S057",                                                                          \
+                    "S058",                                                                          \
+                    "S059",                                                                          \
+                    "S060",                                                                          \
+                    "S061",                                                                          \
+                    "S062",                                                                          \
+                    "S063",                                                                          \
+                    "S064",                                                                          \
+                    "S065",                                                                          \
+                    "S066",                                                                          \
+                    "S067",                                                                          \
+                    "S068",                                                                          \
+                    "S069",                                                                          \
+                    "S070",                                                                          \
+                    "S071",                                                                          \
+                    "S072",                                                                          \
+                    "S073",                                                                          \
+                    "S074",                                                                          \
+                    "S075",                                                                          \
+                    "S076",                                                                          \
+                    "S077",                                                                          \
+                    "S078",                                                                          \
+                    "S079",                                                                          \
+                    "S080",                                                                          \
+                    "S081",                                                                          \
+                    "S082",                                                                          \
+                    "S083",                                                                          \
+                    "S084",                                                                          \
+                    "S085",                                                                          \
+                    "S086",                                                                          \
+                    "S087",                                                                          \
+                    "S088",                                                                          \
+                    "S089",                                                                          \
+                    "S090",                                                                          \
+                    "S091",                                                                          \
+                    "S092",                                                                          \
+                    "S093",                                                                          \
+                    "S094",                                                                          \
+                    "S095",                                                                          \
+                    "S096",                                                                          \
+                    "S097",                                                                          \
+                    "S098",                                                                          \
+                    "S099",                                                                          \
+                    "S100"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AISI":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Interactive Soil Interactive",                              \
+                "experiment_id":"AISI",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "C001",                                                                          \
+                    "C002",                                                                          \
+                    "C003",                                                                          \
+                    "C004",                                                                          \
+                    "C005",                                                                          \
+                    "C006",                                                                          \
+                    "C007",                                                                          \
+                    "C008",                                                                          \
+                    "C009",                                                                          \
+                    "C010",                                                                          \
+                    "E001",                                                                          \
+                    "E002",                                                                          \
+                    "E003",                                                                          \
+                    "E004",                                                                          \
+                    "E005",                                                                          \
+                    "E006",                                                                          \
+                    "E007",                                                                          \
+                    "E008",                                                                          \
+                    "E009",                                                                          \
+                    "E010",                                                                          \
+                    "E011",                                                                          \
+                    "E012",                                                                          \
+                    "E013",                                                                          \
+                    "E014",                                                                          \
+                    "E015",                                                                          \
+                    "E016",                                                                          \
+                    "E017",                                                                          \
+                    "E018",                                                                          \
+                    "E019",                                                                          \
+                    "E020",                                                                          \
+                    "E021",                                                                          \
+                    "E022",                                                                          \
+                    "E023",                                                                          \
+                    "E024",                                                                          \
+                    "E025",                                                                          \
+                    "E026",                                                                          \
+                    "E027",                                                                          \
+                    "E028",                                                                          \
+                    "E029",                                                                          \
+                    "E030",                                                                          \
+                    "E031",                                                                          \
+                    "E032",                                                                          \
+                    "E033",                                                                          \
+                    "E034",                                                                          \
+                    "E035",                                                                          \
+                    "E036",                                                                          \
+                    "E037",                                                                          \
+                    "E038",                                                                          \
+                    "E039",                                                                          \
+                    "E040",                                                                          \
+                    "E041",                                                                          \
+                    "E042",                                                                          \
+                    "E043",                                                                          \
+                    "E044",                                                                          \
+                    "E045",                                                                          \
+                    "E046",                                                                          \
+                    "E047",                                                                          \
+                    "E048",                                                                          \
+                    "E049",                                                                          \
+                    "E050",                                                                          \
+                    "E051",                                                                          \
+                    "E052",                                                                          \
+                    "E053",                                                                          \
+                    "E054",                                                                          \
+                    "E055",                                                                          \
+                    "E056",                                                                          \
+                    "E057",                                                                          \
+                    "E058",                                                                          \
+                    "E059",                                                                          \
+                    "E060",                                                                          \
+                    "E061",                                                                          \
+                    "E062",                                                                          \
+                    "E063",                                                                          \
+                    "E064",                                                                          \
+                    "E065",                                                                          \
+                    "E066",                                                                          \
+                    "E067",                                                                          \
+                    "E068",                                                                          \
+                    "E069",                                                                          \
+                    "E070",                                                                          \
+                    "E071",                                                                          \
+                    "E072",                                                                          \
+                    "E073",                                                                          \
+                    "E074",                                                                          \
+                    "E075",                                                                          \
+                    "E076",                                                                          \
+                    "E077",                                                                          \
+                    "E078",                                                                          \
+                    "E079",                                                                          \
+                    "E080",                                                                          \
+                    "E081",                                                                          \
+                    "E082",                                                                          \
+                    "E083",                                                                          \
+                    "E084",                                                                          \
+                    "E085",                                                                          \
+                    "E086",                                                                          \
+                    "E087",                                                                          \
+                    "E088",                                                                          \
+                    "E089",                                                                          \
+                    "E090",                                                                          \
+                    "E091",                                                                          \
+                    "E092",                                                                          \
+                    "E093",                                                                          \
+                    "E094",                                                                          \
+                    "E095",                                                                          \
+                    "E096",                                                                          \
+                    "E097",                                                                          \
+                    "E098",                                                                          \
+                    "E099",                                                                          \
+                    "E100"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AISE":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Interactive EC-Earth3 AISI ensemble SM climatology Fixed",  \
+                "experiment_id":"AISE",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "s001",                                                                          \
+                    "s002",                                                                          \
+                    "s003",                                                                          \
+                    "s004",                                                                          \
+                    "s005",                                                                          \
+                    "s006",                                                                          \
+                    "s007",                                                                          \
+                    "s008",                                                                          \
+                    "s009",                                                                          \
+                    "s010",                                                                          \
+                    "s011",                                                                          \
+                    "s012",                                                                          \
+                    "s013",                                                                          \
+                    "s014",                                                                          \
+                    "s015",                                                                          \
+                    "s016",                                                                          \
+                    "s017",                                                                          \
+                    "s018",                                                                          \
+                    "s019",                                                                          \
+                    "s020",                                                                          \
+                    "s021",                                                                          \
+                    "s022",                                                                          \
+                    "s023",                                                                          \
+                    "s024",                                                                          \
+                    "s025",                                                                          \
+                    "s026",                                                                          \
+                    "s027",                                                                          \
+                    "s028",                                                                          \
+                    "s029",                                                                          \
+                    "s030",                                                                          \
+                    "s031",                                                                          \
+                    "s032",                                                                          \
+                    "s033",                                                                          \
+                    "s034",                                                                          \
+                    "s035",                                                                          \
+                    "s036",                                                                          \
+                    "s037",                                                                          \
+                    "s038",                                                                          \
+                    "s039",                                                                          \
+                    "s040",                                                                          \
+                    "s041",                                                                          \
+                    "s042",                                                                          \
+                    "s043",                                                                          \
+                    "s044",                                                                          \
+                    "s045",                                                                          \
+                    "s046",                                                                          \
+                    "s047",                                                                          \
+                    "s048",                                                                          \
+                    "s049",                                                                          \
+                    "s050",                                                                          \
+                    "s051",                                                                          \
+                    "s052",                                                                          \
+                    "s053",                                                                          \
+                    "s054",                                                                          \
+                    "s055",                                                                          \
+                    "s056",                                                                          \
+                    "s057",                                                                          \
+                    "s058",                                                                          \
+                    "s059",                                                                          \
+                    "s060",                                                                          \
+                    "s061",                                                                          \
+                    "s062",                                                                          \
+                    "s063",                                                                          \
+                    "s064",                                                                          \
+                    "s065",                                                                          \
+                    "s066",                                                                          \
+                    "s067",                                                                          \
+                    "s068",                                                                          \
+                    "s069",                                                                          \
+                    "s070",                                                                          \
+                    "s071",                                                                          \
+                    "s072",                                                                          \
+                    "s073",                                                                          \
+                    "s074",                                                                          \
+                    "s075",                                                                          \
+                    "s076",                                                                          \
+                    "s077",                                                                          \
+                    "s078",                                                                          \
+                    "s079",                                                                          \
+                    "s080",                                                                          \
+                    "s081",                                                                          \
+                    "s082",                                                                          \
+                    "s083",                                                                          \
+                    "s084",                                                                          \
+                    "s085",                                                                          \
+                    "s086",                                                                          \
+                    "s087",                                                                          \
+                    "s088",                                                                          \
+                    "s089",                                                                          \
+                    "s090",                                                                          \
+                    "s091",                                                                          \
+                    "s092",                                                                          \
+                    "s093",                                                                          \
+                    "s094",                                                                          \
+                    "s095",                                                                          \
+                    "s096",                                                                          \
+                    "s097",                                                                          \
+                    "s098",                                                                          \
+                    "s099",                                                                          \
+                    "s100"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AISF":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Interactive Soil Fixed",                                    \
+                "experiment_id":"AISF",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "c001",                                                                          \
+                    "c002",                                                                          \
+                    "c003",                                                                          \
+                    "c004",                                                                          \
+                    "c005",                                                                          \
+                    "e001",                                                                          \
+                    "e002",                                                                          \
+                    "e003",                                                                          \
+                    "e004",                                                                          \
+                    "e005",                                                                          \
+                    "e006",                                                                          \
+                    "e007",                                                                          \
+                    "e008",                                                                          \
+                    "e009",                                                                          \
+                    "e010",                                                                          \
+                    "e011",                                                                          \
+                    "e012",                                                                          \
+                    "e013",                                                                          \
+                    "e014",                                                                          \
+                    "e015",                                                                          \
+                    "e016",                                                                          \
+                    "e017",                                                                          \
+                    "e018",                                                                          \
+                    "e019",                                                                          \
+                    "e020",                                                                          \
+                    "e021",                                                                          \
+                    "e022",                                                                          \
+                    "e023",                                                                          \
+                    "e024",                                                                          \
+                    "e025",                                                                          \
+                    "e026",                                                                          \
+                    "e027",                                                                          \
+                    "e028",                                                                          \
+                    "e029",                                                                          \
+                    "e030",                                                                          \
+                    "e031",                                                                          \
+                    "e032",                                                                          \
+                    "e033",                                                                          \
+                    "e034",                                                                          \
+                    "e035",                                                                          \
+                    "e036",                                                                          \
+                    "e037",                                                                          \
+                    "e038",                                                                          \
+                    "e039",                                                                          \
+                    "e040",                                                                          \
+                    "e041",                                                                          \
+                    "e042",                                                                          \
+                    "e043",                                                                          \
+                    "e044",                                                                          \
+                    "e045",                                                                          \
+                    "e046",                                                                          \
+                    "e047",                                                                          \
+                    "e048",                                                                          \
+                    "e049",                                                                          \
+                    "e050",                                                                          \
+                    "e051",                                                                          \
+                    "e052",                                                                          \
+                    "e053",                                                                          \
+                    "e054",                                                                          \
+                    "e055",                                                                          \
+                    "e056",                                                                          \
+                    "e057",                                                                          \
+                    "e058",                                                                          \
+                    "e059",                                                                          \
+                    "e060",                                                                          \
+                    "e061",                                                                          \
+                    "e062",                                                                          \
+                    "e063",                                                                          \
+                    "e064",                                                                          \
+                    "e065",                                                                          \
+                    "e066",                                                                          \
+                    "e067",                                                                          \
+                    "e068",                                                                          \
+                    "e069",                                                                          \
+                    "e070",                                                                          \
+                    "e071",                                                                          \
+                    "e072",                                                                          \
+                    "e073",                                                                          \
+                    "e074",                                                                          \
+                    "e075",                                                                          \
+                    "e076",                                                                          \
+                    "e077",                                                                          \
+                    "e078",                                                                          \
+                    "e079",                                                                          \
+                    "e080",                                                                          \
+                    "e081",                                                                          \
+                    "e082",                                                                          \
+                    "e083",                                                                          \
+                    "e084",                                                                          \
+                    "e085",                                                                          \
+                    "e086",                                                                          \
+                    "e087",                                                                          \
+                    "e088",                                                                          \
+                    "e089",                                                                          \
+                    "e090",                                                                          \
+                    "e091",                                                                          \
+                    "e092",                                                                          \
+                    "e093",                                                                          \
+                    "e094",                                                                          \
+                    "e095",                                                                          \
+                    "e096",                                                                          \
+                    "e097",                                                                          \
+                    "e098",                                                                          \
+                    "e099",                                                                          \
+                    "e100"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AFSI":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Fixed Soil Interactive",                                    \
+                "experiment_id":"AFSI",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "AFSI"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AFSF":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Fixed, Soil Fixed",                                         \
+                "experiment_id":"AFSF",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "afsf"                                                                           \
+                ]                                                                                    \
+            },                                                                                       \
+            "AFSC":{                                                                                 \
+                "activity_id":[                                                                      \
+                    "CMIP"                                                                           \
+                ],                                                                                   \
+                "additional_allowed_model_components":[                                              \
+                    "AER",                                                                           \
+                    "CHEM",                                                                          \
+                    "BGC"                                                                            \
+                ],                                                                                   \
+                "experiment":"Atmosphere Fixed , Soil Climate Fixed",                                \
+                "experiment_id":"AFSC",                                                              \
+                "parent_activity_id":[                                                               \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "parent_experiment_id":[                                                             \
+                    "no parent"                                                                      \
+                ],                                                                                   \
+                "required_model_components":[                                                        \
+                    "AGCM"                                                                           \
+                ],                                                                                   \
+                "sub_experiment_id":[                                                                \
+                    "afsc"                                                                           \
+                ]                                                                                    \
+            },                                                                                       
   ' ${table_file_CV}
 
   # Remove the trailing spaces of the inserted block above:
