@@ -31,8 +31,9 @@
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=/lustre3/projects/CMIP6/reerink/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-all-EC-EARTH-AOGCM-subset-14.json
+  #VARLIST=/nfs/home/users/reerink/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-all-EC-EARTH-AOGCM.json
+  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-all-EC-EARTH-AOGCM-subset-2.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    ODIR=/lustre3/projects/CMIP6/reerink/cmorised-results/test-all-trunk/$EXP/$VERSION
 
@@ -64,7 +65,7 @@
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
-  #if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
+   if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
  else
   echo
@@ -76,10 +77,10 @@
   echo " For instance:"
   echo "  sbatch $0 ifs 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t006 v001; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t006 v001; done"
   echo
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t006 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t006 v001; done"
   echo
  fi
