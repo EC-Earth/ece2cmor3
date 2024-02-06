@@ -248,6 +248,10 @@
     },
     {
         "source": "129.128",
+        "target": "areacella"
+    },
+    {
+        "source": "129.128",
         "convert": "pot2alt",
         "target": [
             "zg",
@@ -255,7 +259,6 @@
             "zg27",
             "zg500",
             "zg1000",
-            "areacella",
             "orog",
             "orogIs"
         ]

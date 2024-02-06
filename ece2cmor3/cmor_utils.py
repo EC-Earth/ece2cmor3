@@ -185,7 +185,11 @@ def get_nemo_frequency(filepath, expname):
 
 def read_time_stamps(path):
     command = cdo.Cdo()
-    times = command.showtimestamp(input=path)[0].split()
+    time_slice_string = command.showtimestamp(input=path)
+    if not any(time_slice_string):
+     return time_slice_string
+    else:
+     times = time_slice_string[0].split()
     return [datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S") for s in times]
 
 
