@@ -86,7 +86,7 @@ Some basic tests:
   python --version                         # Python 3.11.4
   cdo -V                                   # version 2.2.0
   drq -v                                   # version 01.02.00
-  ece2cmor -V                              # ece2cmor v2.1.0
+  ece2cmor -V                              # ece2cmor v2.2.0
   ece2cmor -h
   drq -h
   checkvars -h
