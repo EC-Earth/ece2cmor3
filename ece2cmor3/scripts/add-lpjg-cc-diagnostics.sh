@@ -30,7 +30,7 @@ if [ "$#" -eq 0 ]; then
   # Add:
   #  Eyr  cFluxYr
   #  Eyr  cLandYr
-  #  Emon cLand_1st
+  #  Emon cLand1st
 
   # Add all water related variables and tsl to new created LPJG CMOR tables,
   # because the same variables delivered by HTESSEL have the preference as
@@ -121,7 +121,7 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_Eyr}
 
   sed -i  '/"cLitterCwd": {/i \
-        "cLand_1st": {                                                                                                                 \
+        "cLand1st": {                                                                                                                  \
             "frequency": "mon",                                                                                                        \
             "modeling_realm": "land",                                                                                                  \
             "standard_name": "mass_content_of_carbon_in_vegetation_and_litter_and_soil_and_forestry_and_agricultural_products",        \
@@ -131,7 +131,7 @@ if [ "$#" -eq 0 ]; then
             "long_name": "Total Carbon in All Terrestrial Carbon Pools",                                                               \
             "comment": "Report missing data over ocean grid cells. For fractional land report value averaged over the land fraction. Non CMOR standard, but added by the EC-Earth Consortium within the OptimESM project.", \
             "dimensions": "longitude latitude time",                                                                                   \
-            "out_name": "cLand_1st",                                                                                                   \
+            "out_name": "cLand1st",                                                                                                    \
             "type": "real",                                                                                                            \
             "positive": "",                                                                                                            \
             "valid_min": "",                                                                                                           \
