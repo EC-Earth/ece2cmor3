@@ -315,7 +315,7 @@ def check_time_resolution(lpjgfile, freq):
         return 'mth' in header or header[-12:] == _months
     elif freq == "day":
         return 'day' in header
-    elif freq.startswith("yr"):
+    elif freq == "yr" or freq == "yrPt":
         # to find out if it is yearly data have to check that it is neither monthly nor daily
         if 'mth' in header or header[-12:] == _months or 'day' in header:
             return False
