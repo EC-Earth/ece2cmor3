@@ -4,10 +4,6 @@
         "target": "co2s"
     },
     {
-        "source": "co2",
-        "target": "co2s"
-    },
-    {
         "source": "co2mass",
         "target": "co2mass"
     }
