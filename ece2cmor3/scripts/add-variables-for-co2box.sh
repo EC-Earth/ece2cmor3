@@ -46,7 +46,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                     \
             "ok_max_mean_abs": ""                                      \
         },                                                             \
-       "co2s": {                                                       \
+        "co2s": {                                                      \
             "frequency": "day",                                        \
             "modeling_realm": "atmos",                                 \
             "standard_name": "mole_fraction_of_carbon_dioxide_in_air", \
