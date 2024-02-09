@@ -131,7 +131,7 @@ if [ "$#" -eq 5 ]; then
   drq2ppt ${request_option} ${data_request_file}
   drq2ins ${request_option} ${data_request_file}
   if [ ${request_option} = '--drq' ]; then
-   drq2varlist ${request_option} ${data_request_file} --ececonf EC-EARTH-AOGCM --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
+   drq2varlist ${request_option} ${data_request_file} --ececonf ${ece_configuration} --varlist cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    convert_component_to_flat_json cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}.json
    checkvars -v --asciionly --drq cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json --output request-overview
    rm -f cmip6-data-request-varlist-${mip_name}-${experiment}-${ece_configuration}-flat.json
