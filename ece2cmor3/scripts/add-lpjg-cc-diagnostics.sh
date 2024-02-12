@@ -202,6 +202,7 @@ if [ "$#" -eq 0 ]; then
   grep -A 17 -e '"evspsbl":'    CMIP6_Amon.json                            >> ${table_file_LPJGmon}
   grep -A 17 -e '"evspsblpot":' CMIP6_Emon.json                            >> ${table_file_LPJGmon}
   grep -A 17 -e '"evspsblsoi":' CMIP6_Lmon.json                            >> ${table_file_LPJGmon}
+  grep -A 17 -e '"fco2nat":'    CMIP6_Amon.json                            >> ${table_file_LPJGmon}
   grep -A 17 -e '"mrroLut":'    CMIP6_Emon.json                            >> ${table_file_LPJGmon}
   grep -A 17 -e '"mrsll":'      CMIP6_Emon.json                            >> ${table_file_LPJGmon}
   grep -A 17 -e '"mrsol":'      CMIP6_Emon.json                            >> ${table_file_LPJGmon}
