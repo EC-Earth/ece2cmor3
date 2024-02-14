@@ -25,8 +25,9 @@ def keep_variable(target, model_component, ecearth_config):
         else:
             return model_component == "ifs"
 
-    # Soil moisture etc: prefer ifs over lpjguess in all cases (?)
-    if variable in ["mrso", "mrsol", "mrsos", "mrro", "mrros", "tsl"]:
+    # All watercycle related variables and Temperature of Soil (tsl) from IFS/HTESSEL have preference above the ones from LPJG
+    # because they form a consistant set with other IFS variables:
+    if variable in ["evspsbl", "mrfso", "mrso", "mrsol", "mrsos", "mrro", "mrros", "snc", "snd", "snw", "tsl"]:
         return model_component == "ifs"
 
     # Carbon-cycle variables only activated in EC-EARTH-CC
