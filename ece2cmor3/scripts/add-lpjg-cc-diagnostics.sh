@@ -10,13 +10,6 @@
 #  ./add-lpjg-cc-diagnostics.sh
 #
 
-# Potential preference issues after adding the LPJG table variables (to be checked and tested):
-# Amon        evspsbl       ifs  code name = 182.128 | lpjg code name = evspsbl
-# Lmon        mrfso         ifs  code name =  85.129, expression = 1000*(0.07*var39*((var139<270.16)+0.5*(var139<274.16 && var139>270.16)*(1-sin(0.785*(var139-272.16)))) + 0.21*var40*((var170<270.16)+0.5*(var170<274.16 && var170>270.16)*(1-sin(0.785*(var170-272.16)))) + 0.72*var41*((var183<270.16)+0.5*(var183<274.16 && var183>270.16)*(1-sin(0.785*(var183-272.16)))) + 1.89*var42*((var236<270.16)+0.5*(var236<274.16 && var236>270.16)*(1-sin(0.785*(var236-272.16))))) | lpjg code name = mrfso
-# LImon       snc           ifs  code name = 119.129, expression = 100*(var141>0) | lpjg code name = snc
-# LImon       snd           ifs  code name = 115.129, expression = 1000*var141/var33 | lpjg code name = snd
-# LImon       snw           ifs  code name = 141.128 | lpjg code name = snw
-
 if [ "$#" -eq 0 ]; then
 
  add_the_lpjg_cc_diagnostics=True
