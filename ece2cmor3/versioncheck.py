@@ -19,6 +19,7 @@ def main(args=None):
     # Set your test case:
     case=2
 
+    print('\nTest case {}:'.format(case))
     if case == 1:
      from setup import get_git_hash
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version + ' with sha: ' + get_git_hash())

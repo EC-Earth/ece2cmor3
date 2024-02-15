@@ -20,8 +20,6 @@ json_filepath_key = "filepath"
 json_script_key   = "script"
 json_src_key      = "src"
 
-variable_prefs_file          = os.path.join(os.path.dirname(__file__), "resources",                               "varprefs.csv")
-
 omit_vars_file_01            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-01.xlsx")
 omit_vars_file_02            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-02.xlsx")
 omit_vars_file_03            = os.path.join(os.path.dirname(__file__), "resources", "lists-of-omitted-variables", "list-of-omitted-variables-03.xlsx")
