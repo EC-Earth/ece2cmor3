@@ -49,6 +49,12 @@ def keep_variable(target, model_component, ecearth_config):
         # The list above from the second line on is created by using:
         #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' |sort |uniq > pisces-vars.txt
 
+    if variable == "co2mass":
+        if ecearth_config == "EC-EARTH-ESM":
+            return model_component == "co2box"
+        else:
+            return model_component == "tm5"
+
     return True
 
 def choose_variable(target_list, model_component, ecearth_config):
