@@ -48,13 +48,17 @@ def get_git_revision_hash() -> str:
 def get_git_revision_short_hash() -> str:
     return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
 
+def get_git_branch_name() -> str:
+    return subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
+
 # Initialization function without using the cmor library, must be called before starting
 def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
                             tableprefix=prefix_default):
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-    log.info('ece2cmor3 version {} with ece2cmor_git_revision {} with the long hash: {}'.format(__version__.version, get_git_revision_short_hash(), get_git_revision_hash()))
+    log.info('ece2cmor3 version {} based on the {} branch'.format(__version__.version, get_git_branch_name()))
+    log.info('ece2cmor_git_revision {} with the long hash: {}'.format(get_git_revision_short_hash(), get_git_revision_hash()))
     log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
    #log.info('Python version info: {:}'.format(os.sys.version_info))
     log.info('cdo {:}'.format(cdo.Cdo().version()))
@@ -77,7 +81,8 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
-    log.info('ece2cmor3 version {} with ece2cmor_git_revision {} with the long hash: {}'.format(__version__.version, get_git_revision_short_hash(), get_git_revision_hash()))
+    log.info('ece2cmor3 version {} based on the {} branch'.format(__version__.version, get_git_branch_name()))
+    log.info('ece2cmor_git_revision {} with the long hash: {}'.format(get_git_revision_short_hash(), get_git_revision_hash()))
     log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
    #log.info('Python version info: {:}'.format(os.sys.version_info))
     log.info('cdo {:}'.format(cdo.Cdo().version()))
