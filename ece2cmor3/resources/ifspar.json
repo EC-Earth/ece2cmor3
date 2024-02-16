@@ -196,6 +196,36 @@
         "masked": "land"
     },
     {
+        "source": "27.128",
+        "target": "cvl",
+        "masked": "land"
+    },
+    {
+        "source": "28.128",
+        "target": "cvh",
+        "masked": "land"
+    },
+    {
+        "source": "29.128",
+        "target": "tvl",
+        "masked": "land"
+    },
+    {
+        "source": "30.128",
+        "target": "tvh",
+        "masked": "land"
+    },
+    {
+        "source": "66.128",
+        "target": "lai_lv",
+        "masked": "land"
+    },
+    {
+        "source": "67.128",
+        "target": "lai_hv",
+        "masked": "land"
+    },
+    {
         "source": "9.128",
         "convert": "vol2flux",
         "target": "mrrob",
