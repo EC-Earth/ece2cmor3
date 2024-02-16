@@ -8,7 +8,7 @@
 # third   argument is the ec-earth model configuration
 # fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
 #
-# Run this script without arguments for examples how to call this script.
+# For examples how to call this script, run it without arguments.
 #
 # With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment for all active components.
 #
@@ -479,11 +479,11 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  echo
 
 else
-    echo '  '
-    echo '  This scripts requires three or four arguments, e.g.:'
-    echo '  ' $0 CMIP historical EC-EARTH-Veg
-    echo '  ' $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
-    echo '  '
+ echo
+ echo "  This scripts requires three or four arguments, e.g.:"
+ echo "   $0 CMIP historical EC-EARTH-Veg"
+ echo "   $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json"
+ echo
 fi
 
 
