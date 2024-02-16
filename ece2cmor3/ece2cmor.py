@@ -146,6 +146,8 @@ def main(args=None):
         ece2cmorlib.perform_lpjg_tasks(args.datadir, args.tmpdir, args.exp, refdate)
     if "tm5" in active_components:
         ece2cmorlib.perform_tm5_tasks(args.datadir, args.tmpdir, args.exp, refdate)
+    if "co2box" in active_components:
+        ece2cmorlib.perform_co2box_tasks(args.datadir, args.tmpdir, args.exp, refdate)
 
 #   if procNEWCOMPONENT in active_components:
 #       ece2cmorlib.perform_NEWCOMPONENT_tasks(args.datadir, args.exp, refdate)

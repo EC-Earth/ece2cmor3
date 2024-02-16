@@ -1,0 +1,10 @@
+[
+    {
+        "source": "co2s",
+        "target": "co2s"
+    },
+    {
+        "source": "co2mass",
+        "target": "co2mass"
+    }
+]

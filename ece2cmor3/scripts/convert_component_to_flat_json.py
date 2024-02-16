@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script converts a component json file produced by genecec including the preferences
-# into a flat json without the component structue (ifs, nemo, lpjg & tm5) such that it can be
+# into a flat json without the component structue (ifs, nemo, lpjg, tm5 & co2box) such that it can be
 # read with: checkvars -v --asciionly --drq flat-json-file.json --output request-overview
 #
 # Note that when a flat json file is given (instead of a component json file) the produced json
@@ -45,6 +45,8 @@ def main():
         nemo_request = data_request["nemo"]
         lpjg_request = data_request["lpjg"]
         tm5_request  = data_request["tm5"]
+        co2box_request = data_request["co2box"]
+       #NEWCOMPONENT_request = data_request["NEWCOMPONENT"]
 
 
         # Determine whether a same table is present in the nemo dictionary as in the ifs dictionary:
@@ -70,6 +72,22 @@ def main():
            ifs_request[x].append(tm5_request[x][i])
          else:
           ifs_request.update({x: tm5_request[x]})
+
+        # Determine whether a same table is present in the co2box dictionary as in the ifs dictionary:
+        for x in co2box_request:
+         if x in ifs_request:
+          for i in range(0, len(co2box_request[x])):
+           ifs_request[x].append(co2box_request[x][i])
+         else:
+          ifs_request.update({x: co2box_request[x]})
+
+       ## Determine whether a same table is present in the NEWCOMPONENT dictionary as in the ifs dictionary:
+       #for x in NEWCOMPONENT_request:
+       # if x in ifs_request:
+       #  for i in range(0, len(NEWCOMPONENT_request[x])):
+       #   ifs_request[x].append(NEWCOMPONENT_request[x][i])
+       # else:
+       #  ifs_request.update({x: NEWCOMPONENT_request[x]})
 
         with open(output_json_file, 'w') as outfile:
             json.dump(ifs_request, outfile, sort_keys=True, indent=4)

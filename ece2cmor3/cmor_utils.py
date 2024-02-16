@@ -274,6 +274,28 @@ def get_tm5_interval(filepath):
         log.error("Date string in filename %s not supported." % fname)
     return start, end
 
+def find_co2box_output(path, expname, varname=None, freq=None):
+    """
+    Finds co2box outputfiles, which consist of varname_freq_expname_date.nc
+    inputs:
+    Path (mandatory)
+    expname (mandatory)
+    varname (optional)
+    freq (optional)
+    output:
+    list of full paths to files
+    """
+    if expname is None:
+        expname = "[a-zA-Z0-9]*"
+    if varname is None:
+        varname = "[a-zA-Z0-9]*"
+    if freq is None:
+        freq = "[a-zA-Z0-9]*"
+    date = "[0-9]{8}-[0-9]{8}"
+    rexp = "^%s_%s_%s_%s\.nc$"%(varname,freq,expname,date)
+    expr = re.compile(rexp)
+    a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
+    return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
 
 # Writes the ncvar (numpy array or netcdf variable) to CMOR variable with id varid
 def netcdf2cmor(varid, ncvar, timdim=0, factor=1.0, term=0.0, psvarid=None, ncpsvar=None, swaplatlon=False,

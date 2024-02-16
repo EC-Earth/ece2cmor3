@@ -9,7 +9,7 @@ import tempfile
 import cdo       # Only for version printing
 import dreqPy    # Only for version printing
 
-from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
+from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, co2box2cmor, postproc, \
     cmor_utils, cmor_source
 
 # Logger instance
@@ -267,6 +267,16 @@ def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
         return
     tm52cmor.execute(tm5_tasks)
 
+# Performs a co2box cmorization processing:
+def perform_co2box_tasks(datadir, ncdir, expname, refdate=None):
+    global log, tasks, table_dir, prefix
+    validate_setup_settings()
+    validate_run_settings(datadir, expname)
+    co2box_tasks = [t for t in tasks if t.source.model_component() == "co2box"]
+    log.info("Selected %d co2box tasks from %d input tasks" % (len(co2box_tasks), len(tasks)))
+    if (not co2box2cmor.initialize(datadir, expname, table_dir, prefix, refdate)):
+        return
+    co2box2cmor.execute(co2box_tasks)
 
 # def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix
