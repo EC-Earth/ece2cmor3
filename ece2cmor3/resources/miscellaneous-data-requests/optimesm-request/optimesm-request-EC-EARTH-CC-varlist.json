@@ -69,6 +69,14 @@
         "Emon": [
             "mrsol"
         ],
+        "HTESSELmon": [
+            "cvl",
+            "cvh",
+            "tvl",
+            "tvh",
+            "lai_lv",
+            "lai_hv"
+        ],
         "LImon": [
             "snc",
             "snd",
