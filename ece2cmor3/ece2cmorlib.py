@@ -4,12 +4,12 @@ import cmor
 import json
 import logging
 import os
-#import subprocess
+import subprocess
 import tempfile
 import cdo       # Only for version printing
 import dreqPy    # Only for version printing
 
-from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, postproc, \
+from ece2cmor3 import __version__, cmor_target, cmor_task, nemo2cmor, ifs2cmor, lpjg2cmor, tm52cmor, co2box2cmor, postproc, \
     cmor_utils, cmor_source
 
 # Logger instance
@@ -42,6 +42,14 @@ REPLACE_NC3 = cmor.CMOR_REPLACE_3
 PRESERVE = cmor.CMOR_PRESERVE
 PRESERVE_NC3 = cmor.CMOR_PRESERVE_3
 
+def get_git_revision_hash() -> str:
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('ascii').strip()
+
+def get_git_revision_short_hash() -> str:
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+
+def get_git_branch_name() -> str:
+    return subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('ascii').strip()
 
 # Initialization function without using the cmor library, must be called before starting
 def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir=table_dir_default,
@@ -49,6 +57,8 @@ def initialize_without_cmor(metadata_path=conf_path_default, mode=cmor_mode_defa
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
+    log.info('ece2cmor3 version {} based on the {} branch'.format(__version__.version, get_git_branch_name()))
+    log.info('ece2cmor_git_revision {} with the long hash: {}'.format(get_git_revision_short_hash(), get_git_revision_hash()))
     log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
    #log.info('Python version info: {:}'.format(os.sys.version_info))
     log.info('cdo {:}'.format(cdo.Cdo().version()))
@@ -71,6 +81,8 @@ def initialize(metadata_path=conf_path_default, mode=cmor_mode_default, tabledir
     global prefix, table_dir, targets, metadata, cmor_mode
     with open(metadata_path, 'r') as f:
         metadata = json.load(f)
+    log.info('ece2cmor3 version {} based on the {} branch'.format(__version__.version, get_git_branch_name()))
+    log.info('ece2cmor_git_revision {} with the long hash: {}'.format(get_git_revision_short_hash(), get_git_revision_hash()))
     log.info('Python {:} {:}'.format(os.sys.version[0:68], os.sys.version[69:80]))
    #log.info('Python version info: {:}'.format(os.sys.version_info))
     log.info('cdo {:}'.format(cdo.Cdo().version()))
@@ -255,6 +267,16 @@ def perform_tm5_tasks(datadir, ncdir, expname, refdate=None):
         return
     tm52cmor.execute(tm5_tasks)
 
+# Performs a co2box cmorization processing:
+def perform_co2box_tasks(datadir, ncdir, expname, refdate=None):
+    global log, tasks, table_dir, prefix
+    validate_setup_settings()
+    validate_run_settings(datadir, expname)
+    co2box_tasks = [t for t in tasks if t.source.model_component() == "co2box"]
+    log.info("Selected %d co2box tasks from %d input tasks" % (len(co2box_tasks), len(tasks)))
+    if (not co2box2cmor.initialize(datadir, expname, table_dir, prefix, refdate)):
+        return
+    co2box2cmor.execute(co2box_tasks)
 
 # def perform_NEWCOMPONENT_tasks(datadir, expname, startdate, interval):
 #    global log, tasks, table_dir, prefix

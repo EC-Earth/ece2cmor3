@@ -8,7 +8,7 @@
 # third   argument is the ec-earth model configuration
 # fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
 #
-# Run this script without arguments for examples how to call this script.
+# For examples how to call this script, run it without arguments.
 #
 # With this script it is possible to generate a dedicated metadata template json file for each ec-earth3 cmip6 MIP experiment for all active components.
 #
@@ -50,6 +50,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
   source_type_index=7  # The usual AOGCM case
  fi
 
+ # Add your NEWCOMPONENT to this if-blocks if you want to extend ece2cmor3 for more model components.
  if [ "${ececonf}" = 'EC-EARTH-AOGCM'   ]; then declare -a model_components=('ifs' 'nemo'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a model_components=('ifs' 'nemo'             ); fi
@@ -434,11 +435,13 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
      echo ' Running ' $0 ${mip} ${experiment} ${ececonf}                   '  for ' ${component}
     fi
 
+    # Add your NEWCOMPONENT to this check if you want to extend ece2cmor3 for more model components.
     if [ "${component}" != 'ifs' ] && [ "${component}" != 'nemo' ] && [ "${component}" != 'tm5' ] && [ "${component}" != 'lpjg' ]; then
      echo ' Error in ' $0 ': unkown ec-earth component: '  ${component} '  Valid options: ifs, nemo, tm5, or lpjg'
      exit
     fi
 
+    # Add your NEWCOMPONENT to this if-block if you want to extend ece2cmor3 for more model components.
     if [ "${component}" = 'ifs' ]; then
      grid_label='gr'
      res_index=1
@@ -476,11 +479,11 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  echo
 
 else
-    echo '  '
-    echo '  This scripts requires three or four arguments, e.g.:'
-    echo '  ' $0 CMIP historical EC-EARTH-Veg
-    echo '  ' $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
-    echo '  '
+ echo
+ echo "  This scripts requires three or four arguments, e.g.:"
+ echo "   $0 CMIP historical EC-EARTH-Veg"
+ echo "   $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json"
+ echo
 fi
 
 

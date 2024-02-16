@@ -69,6 +69,14 @@
         "Emon": [
             "mrsol"
         ],
+        "HTESSELmon": [
+            "cvl",
+            "cvh",
+            "tvl",
+            "tvh",
+            "lai_lv",
+            "lai_hv"
+        ],
         "LImon": [
             "snc",
             "snd",
@@ -288,6 +296,7 @@
             "evspsbl",
             "evspsblpot",
             "evspsblsoi",
+            "fco2nat",
             "mrroLut",
             "mrsll",
             "mrsol",
@@ -492,5 +501,17 @@
             "snmassacrossline"
         ]
     },
-    "tm5": {}
+    "tm5": {},
+    "co2box": {
+        "Amon": [
+            "co2mass"
+        ],
+        "Emon": [
+            "co2s"
+        ],
+        "day": [
+            "co2s",
+            "co2mass"
+        ]
+    }
 }
