@@ -6,7 +6,7 @@
 import argparse
 import os
 
-from ece2cmor3 import ece2cmorlib, __version__, cmor_utils
+from ece2cmor3 import ece2cmorlib, __version__
 
 def main(args=None):
 
@@ -24,13 +24,13 @@ def main(args=None):
      from setup import get_git_hash
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version + ' with sha: ' + get_git_hash())
     elif case == 2:
-     from cmor_utils import get_git_hash
+     from ece2cmor3.cmor_utils import get_git_hash
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version + ' with sha: ' + get_git_hash())
     elif case == 3:
      from setup import get_git_hash
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version + ' ........................................ ece2cmor_git_revision: ' + get_git_hash())
     elif case == 4:
-     from cmor_utils import get_git_hash
+     from ece2cmor3.cmor_utils import get_git_hash
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version + ' ........................................ ece2cmor_git_revision: ' + get_git_hash())
     elif case == 5:
      parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + __version__.version)
