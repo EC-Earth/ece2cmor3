@@ -80,7 +80,7 @@ if [ "$#" -eq 5 ]; then
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
    ./add-lpjg-cc-diagnostics.sh
    ./add-variables-for-co2box.sh
-   ./add-htessel-vegetation-variables.sh
+   ./add-htessel-vegetation-variables.sh no-clean-before
   fi
 
   rm -rf   ${output_dir}

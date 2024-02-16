@@ -2,19 +2,18 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to the Eyr & Emon CMOR tables.
+# the CMIP6 data request) to a new HTESEELmon CMOR table.
 #
-# This script requires no arguments.
+# This script requires one argument.
 #
-# Run example:
-#  ./add-htessel-vegetation-variables.sh
+# For examples how to call this script, run it without arguments.
 #
 
-if [ "$#" -eq 0 ]; then
+if [ "$#" -eq 1 ]; then
 
- add_the_htessel_vegetation_variables=True
+ do_clean=$1
 
- if [ add_the_htessel_vegetation_variables ]; then
+ if [ ${do_clean} == 'clean-before' ] || [ ${do_clean} == 'no-clean-before' ]; then
   # See #802       https://github.com/EC-Earth/ece2cmor3/issues/#802
   # See #1312-106  https://dev.ec-earth.org/issues/1312#note-106
 
@@ -31,8 +30,10 @@ if [ "$#" -eq 0 ]; then
   table_file_HTESSELmon=CMIP6_HTESSELmon.json
 
   cd ${table_path}
-  rm -f ${table_file_HTESSELmon}
-  git checkout ${table_file_cv}
+  if [ ${do_clean} == 'clean-before' ]; then
+   rm -f ${table_file_HTESSELmon}
+   git checkout ${table_file_cv}
+  fi
 
   sed -i  '/"IfxAnt"/i \
             "HTESSELmon",
@@ -88,14 +89,17 @@ if [ "$#" -eq 0 ]; then
   echo
 
  else
-    echo
-    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
-    echo
+  echo
+  echo " This scripts requires one argument: There are only two options:"
+  echo "  $0 clean-before"
+  echo "  $0 no-clean-before"
+  echo
  fi
 
 else
-    echo
-    echo " This scripts requires no argument:"
-    echo "  $0"
-    echo
+  echo
+  echo " This scripts requires one argument: There are only two options:"
+  echo "  $0 clean-before"
+  echo "  $0 no-clean-before"
+  echo
 fi
