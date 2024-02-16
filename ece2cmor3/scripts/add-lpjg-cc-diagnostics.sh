@@ -2,7 +2,8 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to the Eyr & Emon CMOR tables.
+# the CMIP6 data request) to the Eyr & Emon CMOR tables. In addition three
+# non-cmor tables (LPJGday, LPJGmon & LPJGyr) and their 18 variables are added.
 #
 # This script requires no arguments.
 #
