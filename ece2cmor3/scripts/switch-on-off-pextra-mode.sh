@@ -5,7 +5,7 @@
 #
 # This scripts requires one argument: activate-pextra-mode or deactivate-pextra-mode
 #
-# Run this script without arguments for examples how to call this script.
+# For examples how to call this script, run it without arguments.
 #
 
 if [ "$#" -eq 1 ]; then
