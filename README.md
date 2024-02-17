@@ -103,6 +103,8 @@ git submodule update --init --recursive
 The nested CMOR tables update after _17 Februari 2024_ requires a bit more care than normal as a consequence of the renaming of the `master` => `main` branch in that nested CMOR tables repositroy (see [this #804 post](https://github.com/EC-Earth/ece2cmor3/issues/804#issuecomment-1950254377)):
 
 ```shell
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/          # This revert is only necesarry (never harms) if the
+./revert-nested-cmor-table-branch.sh                     # CMOR Tables where modified by an ./add*.sh script. 
 cd ${HOME}/cmorize/ece2cmor3/
 git submodule update --init --recursive
 cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
