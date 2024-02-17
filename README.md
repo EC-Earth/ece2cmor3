@@ -68,7 +68,7 @@ In the ece2cmor3 git checkout directory, type
 ```shell
 activatemamba                             # The mamba-activate alias (as defined above)
 cd ${HOME}/cmorize/ece2cmor3              # Navigate to the ece2cmor3 root directory
-mamba env create -f environment.yml       # Create the python environment (for linux & mac os)
+mamba env create -f environment.yml       # Create the python environment (for linux & mac os)
 conda activate ece2cmor3                  # Here conda is still used instead of mamba
 pip install .                             # Install the ece2cmor3 package
 conda deactivate                          # Deactivating the active (here ece2cmor3) environment
@@ -81,7 +81,7 @@ Some basic tests:
  activateece2cmor3
   which mamba                              # ${mambapath}/condabin/mamba
   which conda                              # ${mambapath}/condabin/conda
-  which python                             # ${mambapath}/envs/ece2cmor3/bin/python
+  which python                             # ${mambapath}/envs/ece2cmor3/bin/python
   mamba --version                          # mamba 1.4.4 & conda 23.1.0
   python --version                         # Python 3.11.4
   cdo -V                                   # version 2.2.0
@@ -93,17 +93,26 @@ Some basic tests:
  conda deactivate
 ```
 
-#### Note that the nested CMOR tables require an update once in a while: 
+#### Note that the nested CMOR tables require an update once in a while:
 
-The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. 
-Once in a while one of the ece2cmor3 developers will update the nested repository of the CMOR tables. 
-This will be visible from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. 
-In that case one has to repeat the following inside the git checkout directory:
+The CMOR tables are maintained via a nested git repository inside the ece2cmor3 git repository. Once in a while one of the ece2cmor3 developers will update the nested repository of the CMOR tables. This will be visible from the ece2cmor3 repository by a git status call, it will tell that there are "new updates" in these tables. In that case one has to repeat the following inside the git checkout directory:
 ```shell
 git submodule update --init --recursive
 ```
 
-#### Note for developers: 
+The nested CMOR tables update after _17 Februari 2024_ requires a bit more care than normal as a consequence of the renaming of the `master` => `main` branch in that nested CMOR tables repositroy (see [this #804 post](https://github.com/EC-Earth/ece2cmor3/issues/804#issuecomment-1950254377)):
+
+```shell
+cd ${HOME}/cmorize/ece2cmor3/
+git submodule update --init --recursive
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
+git checkout main
+git fetch -p
+git branch -D master
+```
+
+
+#### Note for developers:
 
 Use the `-e` for the developer mode, i.e. code changes are immediately active:
 ```shell
@@ -116,7 +125,7 @@ pip install -e .
 Navigate to your git checkout directory and execute
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
-git pull origin master
+git pull origin main
 cd ../; git add cmip6-cmor-tables
 git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'
 git push
