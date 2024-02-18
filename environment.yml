@@ -8,8 +8,8 @@
 #    mamba env create -f environment.yml         # Create the ece2cmor3 environment
 #  Basic tests:
 #   which python                                 # ${mambapath}/envs/ece2cmor3/bin/python
-#   python --version                             # Python 3.11
-#   cdo -V                                       # version 2.1.1
+#   python --version                             # Python 3.11.8
+#   cdo -V                                       # version 2.3.0
 #   drq -v                                       # version 01.02.00
 #   drq -h
 #   ece2cmor -V                                  # ece2cmor v2.2.0

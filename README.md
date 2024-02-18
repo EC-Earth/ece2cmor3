@@ -4,11 +4,11 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Required python packages:
 
-* cmor-3.7.1 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
+* cmor-3.7.3 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
 * eccodes/gribapi (for filtering IFS output GRIB files)
 * dreq (the CMIP6 data request tool drq)
 * netCDF4
-* cdo (version 2.1.1; only for atmosphere post-processing)
+* cdo version 2.3.0
 * pip (for installing python packages)
 * f90nml (only for fortran namelist I/O)
 * openpyxl (for reading *.xlsx excel sheets)
@@ -82,9 +82,9 @@ Some basic tests:
   which mamba                              # ${mambapath}/condabin/mamba
   which conda                              # ${mambapath}/condabin/conda
   which python                             # ${mambapath}/envs/ece2cmor3/bin/python
-  mamba --version                          # mamba 1.4.4 & conda 23.1.0
-  python --version                         # Python 3.11.4
-  cdo -V                                   # version 2.2.0
+  mamba --version                          # mamba 1.5.6 & conda 23.11.0
+  python --version                         # Python 3.11.8
+  cdo -V                                   # version 2.3.0
   drq -v                                   # version 01.02.00
   ece2cmor -V                              # ece2cmor v2.2.0
   ece2cmor -h
