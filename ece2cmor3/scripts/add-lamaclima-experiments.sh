@@ -19,7 +19,7 @@ if [ "$#" -eq 0 ]; then
 
   # Add the four ssp119 BGC LAMACLIMA experiments and the ssp585 AOGCM LAMACLIMA experiment
 
-  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_path=../resources/cmip6-cmor-tables/Tables
   table_file_cv=CMIP6_CV.json
 
   cd ${table_path}
@@ -157,21 +157,25 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   echo
-  echo " $0 reports:"
-  echo "  The adjusted file is:  ${table_path}/${table_file_cv}"
-  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo " Running:"
+  echo "  $0"
+  echo " has adjusted the file:"
+  echo "  ${table_path}/${table_file_cv}"
+  echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
+  echo " This changes can be reverted by running:"
+  echo "  ./revert-nested-cmor-table-branch.sh"
   echo
 
  else
-    echo
-    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
-    echo
+  echo
+  echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+  echo
  fi
 
 else
-    echo
-    echo " This scripts requires no argument:"
-    echo "  $0"
-    echo
+ echo
+ echo " This scripts requires no argument:"
+ echo "  $0"
+ echo
 fi

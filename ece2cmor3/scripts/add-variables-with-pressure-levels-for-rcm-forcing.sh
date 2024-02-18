@@ -16,7 +16,7 @@ if [ "$#" -eq 0 ]; then
 
   # Add two sets of dynamic RCM forcing variables on dedicated pressure levels.
 
-  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_path=../resources/cmip6-cmor-tables/Tables
   table_file_coordinate=CMIP6_coordinate.json
   table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
   table_file_6hrPlev=CMIP6_6hrPlev.json
@@ -375,24 +375,27 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   echo
-  echo " $0 reports:"
-  echo "  The adjusted files are:"
-  echo "   ${table_path}/${table_file_coordinate}"
-  echo "   ${table_path}/${table_file_6hrPlevPt}"
-  echo "   ${table_path}/${table_file_6hrPlev}"
-  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo " Running:"
+  echo "  $0"
+  echo " has adjusted the file:"
+  echo "  ${table_path}/${table_file_coordinate}"
+  echo "  ${table_path}/${table_file_6hrPlevPt}"
+  echo "  ${table_path}/${table_file_6hrPlev}"
+  echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
+  echo " This changes can be reverted by running:"
+  echo "  ./revert-nested-cmor-table-branch.sh"
   echo
 
  else
-    echo
-    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
-    echo
+  echo
+  echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+  echo
  fi
 
 else
-    echo
-    echo " This scripts requires no argument:"
-    echo "  $0"
-    echo
+ echo
+ echo " This scripts requires no argument:"
+ echo "  $0"
+ echo
 fi

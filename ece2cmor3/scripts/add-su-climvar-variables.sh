@@ -21,7 +21,7 @@ if [ "$#" -eq 0 ]; then
 
   # Also add the AerChem related Ice Crystal variables (see https://dev.ec-earth.org/issues/1079)
 
-  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_path=../resources/cmip6-cmor-tables/Tables
   table_file_amon=CMIP6_Amon.json
 
 
@@ -30,14 +30,6 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   head --lines=-2 ../resources/ifspar.json                   > extended-ifspar.json
-
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
- #echo '  ' | sed 's/\s*$//g' >> extended-ifspar.json
 
   echo '    },                          ' | sed 's/\s*$//g' >> extended-ifspar.json
   echo '    {                           ' | sed 's/\s*$//g' >> extended-ifspar.json
@@ -81,21 +73,30 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   echo
-  echo " $0 reports:"
-  echo "  The adjusted file is:  ${table_path}/${table_file_amon}"
-  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo " Running:"
+  echo "  $0"
+  echo " has adjusted the file:"
+  echo "  ${table_path}/${table_file_amon}"
+  echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
+  echo " This changes can be reverted by running:"
+  echo "  ./revert-nested-cmor-table-branch.sh"
+  echo
+  echo " In addition the file:"
+  echo "  ../resources/ifspar.json"
+  echo " has been adjusted. This one can be reverted by:"
+  echo "  git checkout ../resources/ifspar.json"
   echo
 
  else
-    echo
-    echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
-    echo
+  echo
+  echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+  echo
  fi
 
 else
-    echo
-    echo " This scripts requires no argument:"
-    echo "  $0"
-    echo
+ echo
+ echo " This scripts requires no argument:"
+ echo "  $0"
+ echo
 fi

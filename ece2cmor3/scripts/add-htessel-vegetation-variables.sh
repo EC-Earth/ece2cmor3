@@ -25,7 +25,7 @@ if [ "$#" -eq 1 ]; then
   # https://codes.ecmwf.int/grib/param-db/66 66.128 Leaf area index, low vegetation (lai_lv)   HTESSSELmon lai_lv  Lmon lai       is taken as basis
   # https://codes.ecmwf.int/grib/param-db/67 67.128 Leaf area index, high vegetation (lai_hv)  HTESSSELmon lai_hv  Lmon lai       is taken as basis
 
-  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_path=../resources/cmip6-cmor-tables/Tables
   table_file_cv=CMIP6_CV.json
   table_file_HTESSELmon=CMIP6_HTESSELmon.json
 
@@ -79,13 +79,16 @@ if [ "$#" -eq 1 ]; then
   cd -
 
   echo
-  echo " $0 reports:"
-  echo "  The adjusted files are:"
-  echo "   ${table_path}/${table_file_cv}"
-  echo "  Added files are:"
-  echo "   ${table_path}/${table_file_HTESSELmon}"
-  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo " Running:"
+  echo "  $0 ${do_clean}"
+  echo " has adjusted the file:"
+  echo "  ${table_path}/${table_file_cv}"
+  echo " and added the file:"
+  echo "  ${table_path}/${table_file_HTESSELmon}"
+  echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
+  echo " This changes can be reverted by running:"
+  echo "  ./revert-nested-cmor-table-branch.sh"
   echo
 
  else
@@ -97,9 +100,9 @@ if [ "$#" -eq 1 ]; then
  fi
 
 else
-  echo
-  echo " This scripts requires one argument: There are only two options:"
-  echo "  $0 clean-before"
-  echo "  $0 no-clean-before"
-  echo
+ echo
+ echo " This scripts requires one argument: There are only two options:"
+ echo "  $0 clean-before"
+ echo "  $0 no-clean-before"
+ echo
 fi

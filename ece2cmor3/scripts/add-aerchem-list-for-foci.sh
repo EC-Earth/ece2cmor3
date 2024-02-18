@@ -16,7 +16,7 @@ if [ "$#" -eq 0 ]; then
 
   # Add 77 TM5 AERchem variables for downscaling within the FOCI project.
 
-  table_path=../resources/cmip6-cmor-tables/Tables/
+  table_path=../resources/cmip6-cmor-tables/Tables
   table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
   table_file_cv=CMIP6_CV.json
   table_file_AER6hrPt=CMIP6_AER6hrPt.json
@@ -366,15 +366,18 @@ if [ "$#" -eq 0 ]; then
   cd -
 
   echo
-  echo " $0 reports:"
-  echo "  The adjusted files are:"
-  echo "   ${table_path}/${table_file_6hrPlevPt}"
-  echo "   ${table_path}/${table_file_aermon}"
-  echo "   ${table_path}/${table_file_cv}"
-  echo "  One added file is:"
-  echo "   ${table_path}/${table_file_AER6hrPt}"
-  echo "  Which is part of a nested repository, therefore to view the diff, run:"
+  echo " Running:"
+  echo "  $0"
+  echo " has adjusted the files:"
+  echo "  ${table_path}/${table_file_cv}"
+  echo "  ${table_path}/${table_file_6hrPlevPt}"
+  echo "  ${table_path}/${table_file_aermon}"
+  echo " and added the file:"
+  echo "  ${table_path}/${table_file_AER6hrPt}"
+  echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
+  echo " This changes can be reverted by running:"
+  echo "  ./revert-nested-cmor-table-branch.sh"
   echo
 
 
@@ -552,6 +555,3 @@ else
  echo "  $0"
  echo
 fi
-
- # ls /ec/res4/scratch/nks/ecearth3/fot2/output/tm5/001/*downscaling* | sed -e 's/.*001.//' -e 's/downscaling_//' -e 's/_EC-Earth3.*//' -e 's/_AER6hr//'
- # Sligtly reordered version of this ls:
