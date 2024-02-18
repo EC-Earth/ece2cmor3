@@ -73,7 +73,7 @@ if [ "$#" -eq 0 ]; then
 
   echo
   echo " Running:"
-  echo "  $0 ${do_clean}"
+  echo "  $0"
   echo " has adjusted the file:"
   echo "  ${table_path}/${table_file_day}"
   echo " which is part of the nested CMOR Table repository. View the diff by running:"
