@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to a new HTESEELmon CMOR table.
+# the CMIP6 data request) to the new HTESEELday & HTESEELmon CMOR tables.
 #
 # This script requires one argument.
 #
@@ -27,17 +27,53 @@ if [ "$#" -eq 1 ]; then
 
   table_path=../resources/cmip6-cmor-tables/Tables
   table_file_cv=CMIP6_CV.json
+  table_file_HTESSELday=CMIP6_HTESSELday.json
   table_file_HTESSELmon=CMIP6_HTESSELmon.json
 
   cd ${table_path}
   if [ ${do_clean} == 'clean-before' ]; then
+   rm -f ${table_file_HTESSELday}
    rm -f ${table_file_HTESSELmon}
    git checkout ${table_file_cv}
   fi
 
   sed -i  '/"IfxAnt"/i \
+            "HTESSELday",
             "HTESSELmon",
   ' ${table_file_cv}
+
+
+  # Add CMIP6 HTESSELday table header:
+  echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_HTESSELday}
+  echo '    "Header": {                                ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "data_specs_version": "01.00.33",      ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "cmor_version": "3.5",                 ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "table_id": "Table HTESSELday",        ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "realm": "land",                       ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "table_date": "18 November 2020",      ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "missing_value": "1e20",               ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "int_missing_value": "-999",           ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "product": "model-output",             ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "approx_interval": "1.00000",          ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "generic_levels": "",                  ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "mip_era": "CMIP6",                    ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '        "Conventions": "CF-1.7 CMIP-6.2"       ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '    },                                         ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '    "variable_entry": {                        ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+
+  grep -A 17 -e '"c3PftFrac":' CMIP6_Lmon.json | sed -e 's/c3PftFrac/cvl/g' -e 's/area_fraction/cvl/'                               -e 's/"long_name": ".*"/"long_name": "Low vegetation cover"/'              -e 's/"units": ".*"/"units": "0-1"/'    -e 's/"comment": ".*"/"comment": "This parameter is the fraction of the grid box (0-1) that is covered with vegetation that is classified as low (see https:\/\/codes.ecmwf.int\/grib\/param-db\/27)."/g'                  >> ${table_file_HTESSELday}
+  grep -A 17 -e '"c3PftFrac":' CMIP6_Lmon.json | sed -e 's/c3PftFrac/cvh/g' -e 's/area_fraction/cvh/'                               -e 's/"long_name": ".*"/"long_name": "High vegetation cover"/'             -e 's/"units": ".*"/"units": "0-1"/'    -e 's/"comment": ".*"/"comment": "This parameter is the fraction of the grid box (0-1) that is covered with vegetation that is classified as high (see https:\/\/codes.ecmwf.int\/grib\/param-db\/28)."/g'                 >> ${table_file_HTESSELday}
+  grep -A 17 -e '"lai":'       CMIP6_Lmon.json | sed -e 's/lai/lai_lv/g'    -e 's/leaf_area_index/leaf_area_index_low_vegetation/'  -e 's/"long_name": ".*"/"long_name": "Leaf area index, low vegetation"/'   -e 's/"units": ".*"/"units": "m2 m-2"/' -e 's/"comment": ".*"/"comment": "This parameter is the surface area of one side of all the leaves found over an area of land for vegetation classified as low (see https:\/\/codes.ecmwf.int\/grib\/param-db\/66)."/g'    >> ${table_file_HTESSELday}
+  grep -A 16 -e '"lai":'       CMIP6_Lmon.json | sed -e 's/lai/lai_hv/g'    -e 's/leaf_area_index/leaf_area_index_high_vegetation/' -e 's/"long_name": ".*"/"long_name": "Leaf area index, high vegetation"/'  -e 's/"units": ".*"/"units": "m2 m-2"/' -e 's/"comment": ".*"/"comment": "This parameter is the surface area of one side of all the leaves found over an area of land for vegetation classified as high (see https:\/\/codes.ecmwf.int\/grib\/param-db\/67)."/g'   >> ${table_file_HTESSELday}
+
+  sed -i -e 's/typec3pft/type/' ${table_file_HTESSELday}
+  sed -i -e 's/"mon"/"day"/'    ${table_file_HTESSELday}
+
+  # Add closing part of CMIP6 table json file:
+  echo '        }                                      ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '    }                                          ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+  echo '}                                              ' | sed 's/\s*$//g' >> ${table_file_HTESSELday}
+
 
   # Add CMIP6 HTESSELmon table header:
   echo '{                                              ' | sed 's/\s*$//g' >  ${table_file_HTESSELmon}
@@ -73,6 +109,7 @@ if [ "$#" -eq 1 ]; then
 
 
   # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_HTESSELday}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_HTESSELmon}
   sed -i -e 's/\s*$//g'                ${table_file_cv}
 
@@ -83,7 +120,8 @@ if [ "$#" -eq 1 ]; then
   echo "  $0 ${do_clean}"
   echo " has adjusted the file:"
   echo "  ${table_path}/${table_file_cv}"
-  echo " and added the file:"
+  echo " and added the files:"
+  echo "  ${table_path}/${table_file_HTESSELday}"
   echo "  ${table_path}/${table_file_HTESSELmon}"
   echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
