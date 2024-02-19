@@ -208,12 +208,14 @@
     {
         "source": "29.128",
         "target": "tvl",
-        "masked": "land"
+        "masked": "land",
+        "interpolate": "nn"
     },
     {
         "source": "30.128",
         "target": "tvh",
-        "masked": "land"
+        "masked": "land",
+        "interpolate": "nn"
     },
     {
         "source": "66.128",
