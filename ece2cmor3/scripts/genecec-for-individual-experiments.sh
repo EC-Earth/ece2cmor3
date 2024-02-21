@@ -316,7 +316,6 @@ if [ "$#" -eq 5 ]; then
    ./revert-nested-cmor-table-branch.sh
   fi
 
-
   # carcyclim only:
   if [ ${data_request_file##*/} = 'carcyclim-data-request-EC-EARTH-CC-varlist.json' ]; then
    sed -i -e 's/"parent_activity_id":           "CMIP"/"parent_activity_id":           "ScenarioMIP"/'                                                                              ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
@@ -328,18 +327,11 @@ if [ "$#" -eq 5 ]; then
    sed -i -e 's/"initialization_index":         "1"/"initialization_index":         "2"/'                                                                                           ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "62822.0D"/'                                                                                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "62822.0D"/'                                                                                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-   sed -i -e 's/"#variant_info.*/"variant_info":                 "The i2 label refers to the 2022 ssp245 state from which is started. ",/'                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"#variant_info.*/"variant_info":                 "The i2 label refers to the 2022 ssp245 state from which is started.",/'                                           ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    if [ ${experiment} != 'abrupt-4xCO2' ]; then
     sed -i -e 's/"parent_activity_id":           ""/"parent_activity_id":           "ScenarioMIP"/'                                                                                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     sed -i -e 's/"parent_experiment_id":         ""/"parent_experiment_id":         "ssp245"/'                                                                                      ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    fi
-  #if [ ${experiment} = 'abrupt-4xCO2' ]; then
-  #  sed -i -e 's/"#variant_info.*/"variant_info":                 "The i2 label refers to the 2022 ssp245 state from which is started. ",/'                                        ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-  #fi
-  #if [ ${experiment} = 'abrupt-2xCO2' ]; then
-  #  sed -i -e 's/"physics_index":                "1"/"physics_index":                "2"/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-  #  sed -i -e 's/"#variant_info.*/"variant_info":                 "The i2 label refers to the 2022 ssp245 state from which is started. The p2 label refers to the 2xCO2 forcing instead of 4xCO2.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-  #fi
   fi
 
   echo
@@ -351,55 +343,55 @@ else
   echo
   echo " This scripts requires five arguments: path/data-request-filename, MIP name, MIP experiment, EC-Earth3 configuration, output directory, e.g.:"
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CMIP        abrupt-4xCO2        EC-EARTH-CC      carcyclim/abrupt-4xCO2  "
-  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CMIP        abrupt-2xCO2        EC-EARTH-CC      carcyclim/abrupt-2xCO2  "
-  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CMIP        abrupt-1xCO2        EC-EARTH-CC      carcyclim/abrupt-1xCO2  "
-  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CMIP        abrupt-0.8xCO2      EC-EARTH-CC      carcyclim/abrupt-0.8xCO2"
-  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CMIP        abrupt-0.5xCO2      EC-EARTH-CC      carcyclim/abrupt-0.5xCO2"
+  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-0p5xCO2 EC-EARTH-CC      carcyclim/carcyclim-abrupt-0p5xCO2"
+  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-0p8xCO2 EC-EARTH-CC      carcyclim/carcyclim-abrupt-0p8xCO2"
+  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-1xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-1xCO2  "
+  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-2xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-2xCO2  "
+  echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-4xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-4xCO2  "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-CC-varlist.json        CMIP        historical          EC-EARTH-CC      optimesm "
+  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-CC-varlist.json        CMIP        historical               EC-EARTH-CC      optimesm "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                EC-EARTH-AOGCM   extremeX-short                          "
+  echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                     EC-EARTH-AOGCM   extremeX-short                          "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        amip                EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-amip         "
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical          EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-historical   "
-  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               ScenarioMIP ssp370              EC-EARTH-AerChem foci/EC-EARTH-AerChem-ScenarioMIP-ssp370"
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        amip                     EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-amip         "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               CMIP        historical               EC-EARTH-AerChem foci/EC-EARTH-AerChem-CMIP-historical   "
+  echo "  $0 ../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json                               ScenarioMIP ssp370                   EC-EARTH-AerChem foci/EC-EARTH-AerChem-ScenarioMIP-ssp370"
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl           EC-EARTH-Veg-LR  su-multi-centennial-climvar             "
+  echo "  $0 ../resources/miscellaneous-data-requests/su-climvar/varlist-su-multi-centennial-climate-variability.json   CMIP        piControl                EC-EARTH-Veg-LR  su-multi-centennial-climvar             "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater        EC-EARTH-AOGCM   sofiamip/faf-antwater-sofiamip          "
+  echo "  $0 ../resources/miscellaneous-data-requests/sofiamip/sofiamip-extended.json                                   SOFIAMIP    faf-antwater             EC-EARTH-AOGCM   sofiamip/faf-antwater-sofiamip          "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima    EC-EARTH-Veg     lamaclima/ssp585-lamaclima-EC-EARTH-Veg "
-  echo "  $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima    EC-EARTH-CC      lamaclima/ssp119-lamaclima-EC-EARTH-CC  "
+  echo "  $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json        LAMACLIMA   ssp585-lamaclima         EC-EARTH-Veg     lamaclima/ssp585-lamaclima-EC-EARTH-Veg "
+  echo "  $0 ../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-CC.json         LAMACLIMA   ssp119-lamaclima         EC-EARTH-CC      lamaclima/ssp119-lamaclima-EC-EARTH-CC  "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM   varex/varex-control-CMIP-historical                   "
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM   varex/varex-control-ScenarioMIP-ssp245                "
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM   varex/varex-perturbed-soil-moisture-CMIP-historical   "
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM   varex/varex-perturbed-soil-moisture-ScenarioMIP-ssp245"
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical          EC-EARTH-AOGCM   varex/varex-perturbed-convection-CMIP-historical      "
-  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245              EC-EARTH-AOGCM   varex/varex-perturbed-convection-ScenarioMIP-ssp245   "
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical               EC-EARTH-AOGCM   varex/varex-control-CMIP-historical                   "
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245                   EC-EARTH-AOGCM   varex/varex-control-ScenarioMIP-ssp245                "
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical               EC-EARTH-AOGCM   varex/varex-perturbed-soil-moisture-CMIP-historical   "
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245                   EC-EARTH-AOGCM   varex/varex-perturbed-soil-moisture-ScenarioMIP-ssp245"
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      CMIP        historical               EC-EARTH-AOGCM   varex/varex-perturbed-convection-CMIP-historical      "
+  echo "  $0 ../resources/miscellaneous-data-requests/varex-data-request/varex-data-request-varlist-EC-Earth3.json      ScenarioMIP ssp245                   EC-EARTH-AOGCM   varex/varex-perturbed-convection-ScenarioMIP-ssp245   "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl           EC-EARTH-AOGCM   compact-request                                       "
+  echo "  $0 ../resources/miscellaneous-data-requests/compact-request/cmvme_CMIP_ssp245_1_1-additional.xlsx             CMIP        piControl                EC-EARTH-AOGCM   compact-request                                       "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical          EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp119              EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126              EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245              EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp370              EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585              EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical          EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp119              EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126              EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245              EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp370              EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
-  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585              EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  CMIP        historical               EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp119                   EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp126                   EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp245                   EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp370                   EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev23r.xlsx  ScenarioMIP ssp585                   EC-EARTH-AOGCM   rcm-dynamic-plev23-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   CMIP        historical               EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical   "
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp119                   EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp119"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp126                   EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp126"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp245                   EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp245"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp370                   EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp370"
+  echo "  $0 ../resources/miscellaneous-data-requests/knmi23-dutch-scenarios/cmvme_CMIP_ssp245_1_1-knmi23-plev36.xlsx   ScenarioMIP ssp585                   EC-EARTH-AOGCM   rcm-dynamic-plev36-forcing/EC-EARTH-AOGCM/cmip6-experiment-ScenarioMIP-ssp585"
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline     EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-baseline    "
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid        EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-covid       "
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-strgreen"
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-modgreen"
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil   EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-fossil  "
-  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer      EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-aer     "
- #echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-GHG      EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-sssp245-cov-GHG    "
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-baseline          EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-baseline    "
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-covid             EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-covid       "
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-strgreen      EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-strgreen"
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-modgreen      EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-modgreen"
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-fossil        EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-fossil  "
+  echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-aer           EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-ssp245-cov-aer     "
+ #echo "  $0 ../resources/miscellaneous-data-requests/cmip6-data-request-CovidMIP/cmvme_CMIP_ssp245_1_1-additional.xlsx CovidMIP    ssp245-cov-GHG           EC-EARTH-AOGCM   CovidMIP/cmip6-experiment-CovidMIP-sssp245-cov-GHG    "
   echo
 fi
