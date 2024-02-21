@@ -69,6 +69,12 @@
         "Emon": [
             "mrsol"
         ],
+        "HTESSELday": [
+            "cvl",
+            "cvh",
+            "lai_lv",
+            "lai_hv"
+        ],
         "HTESSELmon": [
             "cvl",
             "cvh",
