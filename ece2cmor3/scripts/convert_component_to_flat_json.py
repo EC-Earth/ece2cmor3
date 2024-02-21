@@ -35,74 +35,91 @@ def main():
            data_request = json.load(json_file)
        json_file.close()
 
-       output_json_file = os.path.basename(input_json_file).replace('.json','-flat.json')
+       output_flat_json_file = os.path.basename(input_json_file).replace('.json','-flat.json')
 
        print('\n Running {:} with:\n  {:} {:}\n'.format(os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]), sys.argv[1]))
 
+       ece2cmor_components = ["ifs", "nemo", "lpjg", "tm5", "co2box"]
+      #ece2cmor_components = ["ifs", "nemo", "lpjg", "tm5", "co2box", "NEWCOMPONENT"]
+
        # Check whether the input json file is a component json or a flat json file:
-       if "ifs" in data_request:
-        ifs_request  = data_request["ifs"]
-        nemo_request = data_request["nemo"]
-        lpjg_request = data_request["lpjg"]
-        tm5_request  = data_request["tm5"]
-        co2box_request = data_request["co2box"]
-       #NEWCOMPONENT_request = data_request["NEWCOMPONENT"]
+       if any(x in ece2cmor_components for x in data_request):
+        flat_request = {}
 
+        if "ifs" in data_request:
+         ifs_request  = data_request["ifs"]
+         # Determine whether a same table is present in the ifs dictionary as in the ifs dictionary:
+         for x in ifs_request:
+          if x in flat_request:
+           for i in range(0, len(ifs_request[x])):
+            flat_request[x].append(ifs_request[x][i])
+          else:
+           flat_request.update({x: ifs_request[x]})
 
-        # Determine whether a same table is present in the nemo dictionary as in the ifs dictionary:
-        for x in nemo_request:
-         if x in ifs_request:
-          for i in range(0, len(nemo_request[x])):
-           ifs_request[x].append(nemo_request[x][i])
-         else:
-          ifs_request.update({x: nemo_request[x]})
+        if "nemo" in data_request:
+         nemo_request = data_request["nemo"]
+         # Determine whether a same table is present in the nemo dictionary as in the ifs dictionary:
+         for x in nemo_request:
+          if x in flat_request:
+           for i in range(0, len(nemo_request[x])):
+            flat_request[x].append(nemo_request[x][i])
+          else:
+           flat_request.update({x: nemo_request[x]})
 
-        # Determine whether a same table is present in the lpjg dictionary as in the ifs dictionary:
-        for x in lpjg_request:
-         if x in ifs_request:
-          for i in range(0, len(lpjg_request[x])):
-           ifs_request[x].append(lpjg_request[x][i])
-         else:
-          ifs_request.update({x: lpjg_request[x]})
+        if "lpjg" in data_request:
+         lpjg_request = data_request["lpjg"]
+         # Determine whether a same table is present in the lpjg dictionary as in the ifs dictionary:
+         for x in lpjg_request:
+          if x in flat_request:
+           for i in range(0, len(lpjg_request[x])):
+            flat_request[x].append(lpjg_request[x][i])
+          else:
+           flat_request.update({x: lpjg_request[x]})
 
-        # Determine whether a same table is present in the tm5 dictionary as in the ifs dictionary:
-        for x in tm5_request:
-         if x in ifs_request:
-          for i in range(0, len(tm5_request[x])):
-           ifs_request[x].append(tm5_request[x][i])
-         else:
-          ifs_request.update({x: tm5_request[x]})
+        if "tm5" in data_request:
+         tm5_request = data_request["tm5"]
+         # Determine whether a same table is present in the tm5 dictionary as in the ifs dictionary:
+         for x in tm5_request:
+          if x in flat_request:
+           for i in range(0, len(tm5_request[x])):
+            flat_request[x].append(tm5_request[x][i])
+          else:
+           flat_request.update({x: tm5_request[x]})
 
-        # Determine whether a same table is present in the co2box dictionary as in the ifs dictionary:
-        for x in co2box_request:
-         if x in ifs_request:
-          for i in range(0, len(co2box_request[x])):
-           ifs_request[x].append(co2box_request[x][i])
-         else:
-          ifs_request.update({x: co2box_request[x]})
+        if "co2box" in data_request:
+         co2box_request = data_request["co2box"]
+         # Determine whether a same table is present in the co2box dictionary as in the ifs dictionary:
+         for x in co2box_request:
+          if x in flat_request:
+           for i in range(0, len(co2box_request[x])):
+            flat_request[x].append(co2box_request[x][i])
+          else:
+           flat_request.update({x: co2box_request[x]})
 
-       ## Determine whether a same table is present in the NEWCOMPONENT dictionary as in the ifs dictionary:
-       #for x in NEWCOMPONENT_request:
-       # if x in ifs_request:
-       #  for i in range(0, len(NEWCOMPONENT_request[x])):
-       #   ifs_request[x].append(NEWCOMPONENT_request[x][i])
-       # else:
-       #  ifs_request.update({x: NEWCOMPONENT_request[x]})
+       #if "NEWCOMPONENT" in data_request:
+       # NEWCOMPONENT_request = data_request["NEWCOMPONENT"]
+       # # Determine whether a same table is present in the NEWCOMPONENT dictionary as in the ifs dictionary:
+       # for x in NEWCOMPONENT_request:
+       #  if x in flat_request:
+       #   for i in range(0, len(NEWCOMPONENT_request[x])):
+       #    flat_request[x].append(NEWCOMPONENT_request[x][i])
+       #  else:
+       #   flat_request.update({x: NEWCOMPONENT_request[x]})
 
-        with open(output_json_file, 'w') as outfile:
-            json.dump(ifs_request, outfile, sort_keys=True, indent=4)
+        with open(output_flat_json_file, 'w') as outfile:
+            json.dump(flat_request, outfile, sort_keys=True, indent=4)
         outfile.close()
 
        else:
         print(warning_message, 'The file', sys.argv[1], 'is a flat json already, thefore it is not converted but copied instead.')
-        command = 'rsync -a ' + input_json_file + ' ' + output_json_file
+        command = 'rsync -a ' + input_json_file + ' ' + output_flat_json_file
         os.system(command)
 
-       command = 'sed -i "s/\s*$//g"' + ' ' + output_json_file
+       command = 'sed -i "s/\s*$//g"' + ' ' + output_flat_json_file
        os.system(command)
 
        print(' which produced the file:')
-       print('  ', output_json_file)
+       print('  ', output_flat_json_file)
        print()
 
     else:
