@@ -707,6 +707,8 @@ if len(sys.argv) == 2:
       # Avoid None's by setting a space just before writing:
       total_pinglist_text[index_in_ping_list] = ' '
 
+     # See e.g. the sfdsi case: https://github.com/EC-Earth/ece2cmor3/issues/762
+     post_label=''
      include_variable = True
      # Checking whether duplicate IDs are produced, in case add an extension "_2" in order to prevent duplicate IDs:
      test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
@@ -718,6 +720,7 @@ if len(sys.argv) == 2:
        print(' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var])
        include_variable = False
       test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
+      post_label='_2'
      var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
      # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
@@ -733,7 +736,7 @@ if len(sys.argv) == 2:
       #                                     1     2     3     4     5     6    7     8     9    10    11    12    13    14    15    16    17    18    19    20     21     22      23      24    25    26   27    28   29 30     if dr_varname[i] in vars_with_duplicate_id_definition_total: print(' \n WARNING: A variable is used with an id which is used twice in an id definition. The variable = ', dr_varname[i], ' the id = ', var_id_in_created_file_def[i])
       flat_nemo_file_def_xml_file.write('{:41} {:25} {:40} {:32} {:20} {:15} {:2} {:25} {:32} {:30} {:30} {:20} {:15} {:30} {:17} {:50} {:15} {:22} {:31} {:14} {:125} {:125} {:1030} {:1280} {:80} {:80} {:4} {:65} {:9}{}'.format( \
         '     <field id="'+var_id_in_created_file_def[i]+'" ', \
-        'name="'+dr_varname[i]+'"', \
+        'name="'+dr_varname[i]+post_label+'"', \
         '  field_ref="'+total_pinglist_field_ref[index_in_ping_list]+'"', \
         grid_ref, \
          dr_output_frequency[i], \
