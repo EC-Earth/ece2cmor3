@@ -794,9 +794,9 @@ if len(sys.argv) == 2:
    ###################################    6     ###################################
    ################################################################################
    if produce_varlistjson_file:
-    drqlistjson_file_name = '../resources/test-data-request/drqlist-nemo-all.json'
-    file_name_varlistjson_ece_cc    = '../resources/test-data-request/varlist-nemo-all-ec-earth-cc.json'
-    file_name_varlistjson_ece_aogcm = '../resources/test-data-request/varlist-nemo-all-ec-earth-aogcm.json'
+    drqlistjson_file_name = '../resources/miscellaneous-data-requests/test-data-request/drqlist-nemo-all.json'
+    file_name_varlistjson_ece_cc    = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-cc.json'
+    file_name_varlistjson_ece_aogcm = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-aogcm.json'
 
     drqlistjson = open(drqlistjson_file_name,'w')
     drqlistjson.write('{}{}'.format('{','\n'))
