@@ -50,21 +50,36 @@ for child in field_elements_Ocean:
  if child.attrib["field_ref"].startswith('dummy_'):
   continue
  else:
-  pinglistOcean.append(child.attrib["id"][6:])
+  if child.attrib["id"][0:4] == 'CMIP':
+   pinglistOcean.append(child.attrib["id"][6:])
+  elif child.attrib["id"][0:4] == 'NEMO':
+   pinglistOcean.append(child.attrib["id"][5:])
+  else:
+   print(' Unkown prefix: {} in id: {} in Ocean ping file'.format(child.attrib["id"][0:4], child.attrib["id"]))
 
 pinglistSeaIce = []
 for child in field_elements_SeaIce:
  if child.attrib["field_ref"].startswith('dummy_'):
   continue
  else:
-  pinglistSeaIce.append(child.attrib["id"][6:])
+  if child.attrib["id"][0:4] == 'CMIP':
+   pinglistSeaIce.append(child.attrib["id"][6:])
+  elif child.attrib["id"][0:4] == 'NEMO':
+   pinglistSeaIce.append(child.attrib["id"][5:])
+  else:
+   print(' Unkown prefix: {} in id: {} in SeaIce ping file'.format(child.attrib["id"][0:4], child.attrib["id"]))
 
 pinglistOcnBgChem = []
 for child in field_elements_OcnBgChem:
  if child.attrib["field_ref"].startswith('dummy_'):
   continue
  else:
-  pinglistOcnBgChem.append(child.attrib["id"][6:])
+  if child.attrib["id"][0:4] == 'CMIP':
+   pinglistOcnBgChem.append(child.attrib["id"][6:])
+  elif child.attrib["id"][0:4] == 'NEMO':
+   pinglistOcnBgChem.append(child.attrib["id"][5:])
+  else:
+   print(' Unkown prefix: {} in id: {} in OcnBgChem ping file'.format(child.attrib["id"][0:4], child.attrib["id"]))
 
 total_pinglist = pinglistOcean + pinglistSeaIce + pinglistOcnBgChem
 
@@ -78,6 +93,7 @@ for d in data:
 #print(targets)
 print('\n The ', len(set(targets) - set(total_pinglist)), ' variables which are in ece2cmor3\'s nemopar.json file but not in the ping file:\n ', set(targets) - set(total_pinglist))
 print('\n The ', len(set(total_pinglist) - set(targets)), ' variables which are in the ping file but not in the ece2cmor3 json file:\n ', set(total_pinglist) - set(targets))
+print(' This concerns for instance the ones with the NEMO prefix in their id.')
 print('\n There are ', len(targets), ' variables in the ece2cmor3 nemopar.json file, and ', len(total_pinglist), 'non-dummy variables in the shaconemo ping file')
 print('\n There are ', len(set(targets) & set(total_pinglist)), ' variables with the same name in both files\n')
 
