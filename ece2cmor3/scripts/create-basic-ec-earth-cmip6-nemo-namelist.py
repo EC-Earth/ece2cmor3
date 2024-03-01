@@ -707,20 +707,28 @@ if len(sys.argv) == 2:
       # Avoid None's by setting a space just before writing:
       total_pinglist_text[index_in_ping_list] = ' '
 
-     # See e.g. the sfdsi case: https://github.com/EC-Earth/ece2cmor3/issues/762
-     post_label=''
      include_variable = True
+
      # Checking whether duplicate IDs are produced, in case add an extension "_2" in order to prevent duplicate IDs:
      test_var_id_in_created_file_def = 'id_'+dr_output_frequency[i][13:15]+'_'+dr_varname[i]
-     if test_var_id_in_created_file_def in var_id_in_created_file_def:
-      print(' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.')
+
+     post_label=''
+     if dr_table[i] == 'Omon' and dr_varname[i] == 'sfdsi':
+      # See e.g. the sfdsi case: https://github.com/EC-Earth/ece2cmor3/issues/762
+      test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
+      post_label='_2'
+      print(' Add the _2 postfix for OPA output to {} {} in order to distinguish between the LIM & OPA output.'.format(dr_table[i], dr_varname[i]))
+     elif test_var_id_in_created_file_def in var_id_in_created_file_def:
       # Check in addtion in this block for Oclim variables which are already asked by Omon, skip them to prevent a netcdf file with two equal variable names:
       index_var =  var_id_in_created_file_def.index(test_var_id_in_created_file_def)
       if dr_table[index_var] in ['Omon', 'Oclim'] and dr_table[i] in ['Omon', 'Oclim']:
        print(' SKIP: ', dr_varname[index_var], dr_table[i], ' because this variable - table combination is also asked for table', dr_table[index_var])
        include_variable = False
-      test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
-      post_label='_2'
+      else:
+       print(' \n WARNING: A duplicate id definition for ' + test_var_id_in_created_file_def + ' is made unique by adding an extension.')
+       test_var_id_in_created_file_def = test_var_id_in_created_file_def + '_2'
+       print(' Add the _2 postfix to {} {} for the second occurence in order to distinguish between them and prevent a clash.'.format(dr_table[i], dr_varname[i]))
+       post_label='_2'
      var_id_in_created_file_def[i] = test_var_id_in_created_file_def
 
      # Check whether the model component matches with the SImon, SIday table, if mismatch set model component equal to "lim":
