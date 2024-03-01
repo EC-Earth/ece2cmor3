@@ -958,6 +958,19 @@ if len(sys.argv) == 2:
     elif iterable_object == 'grid_T_SFC'           : return  3
     else:                                            return  4
 
+   def tweakedorder_table(iterable_object):
+    if   iterable_object.attrib["table"] == '3hr'   : return  1
+    elif iterable_object.attrib["table"] == 'Oday'  : return  2
+    elif iterable_object.attrib["table"] == 'Eday'  : return  3
+    elif iterable_object.attrib["table"] == 'EmonZ' : return  4
+    elif iterable_object.attrib["table"] == 'Omon'  : return  5
+    elif iterable_object.attrib["table"] == 'Emon'  : return  6
+    elif iterable_object.attrib["table"] == 'Oclim' : return  7
+    elif iterable_object.attrib["table"] == 'Oyr'   : return  8
+    elif iterable_object.attrib["table"] == 'Ofx'   : return  9
+    elif iterable_object.attrib["table"] == 'SIday' : return 10
+    elif iterable_object.attrib["table"] == 'SImon' : return 11
+    else:                                             return 12
 
    #for field in root_basic_file_def.findall('.//field[@component="opa"]'):
    #for field in root_basic_file_def.findall('.//field[@component="opa"][@output_freq="1mo"][@grid_ref="grid_T_2D"]'):
@@ -1005,7 +1018,7 @@ if len(sys.argv) == 2:
       #basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value[0:3], grid_ref_value, output_freq_value)) # Shorten model component label to 3 characters
        basic_nemo_file_def_xml_file.write('\n\n    <file id="file{}" name_suffix="_{}_{}" output_freq="{}">\n\n'.format(file_counter, component_value     , grid_ref_value, output_freq_value))
        # Now we know in which case we have not an empty list of fields for a certain combination, we write a file element by repeating the same search loop:
-       for written_field in root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'):
+       for written_field in sorted(root_basic_file_def.findall('.//field[@component="'+component_value+'"][@output_freq="'+output_freq_value+'"][@grid_ref="'+grid_ref_value+'"]'), key=tweakedorder_table):
        #print('{:6} {:30} {:21} {:}'.format(written_field.tag, written_field.attrib['id'], written_field.attrib['grid_ref'], written_field.attrib['output_freq']))
        #print('tttt'+written_field.text+'tttt')  # To figure out the spaces in the string around None
        #basic_nemo_file_def_xml_file.write(  '     <field id={:37} name={:25} table={:15} field_ref={:40} grid_ref={:32} unit={:20} enabled="False"                                  > {:70} </field>\n'.format('"'+written_field.attrib["id"]+'"', '"'+written_field.attrib["name"]+'"', '"'+written_field.attrib["table"]+'"', '"'+written_field.attrib["field_ref"]+'"', '"'+written_field.attrib["grid_ref"]+'"', '"'+written_field.attrib["cmor_table_units"]+'"'                                                                                    , written_field.text))
