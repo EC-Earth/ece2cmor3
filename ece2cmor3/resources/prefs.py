@@ -40,7 +40,7 @@ def keep_variable(target, model_component, ecearth_config):
                     "fbddtdin", "fbddtdip", "fbddtdisi", "fgco2", "fgo2", "fric", "frn", "froc", "fsfe", \
                     "fsn", "graz", "intdic", "intdoc", "intpbfe", "intpbsi", "intpcalcite", "intpn2", \
                     "intpp", "intppcalc", "intppdiat", "intppmisc", "intppnitrate", "limfediat", "limfemisc", \
-                    "limirrdiat", "limirrmisc", "limndiaz", "limnmisc", "nh4", "nh4os", "no3", "no3os", "o2", \
+                    "limirrdiat", "limirrmisc", "limndiat", "limndiaz", "limnmisc", "nh4", "nh4os", "no3", "no3os", "o2", \
                     "o2min", "o2os", "pbfe", "pbsi", "pcalc", "ph", "phos", "phyc", "phycos", "phydiat", \
                     "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
                     "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
