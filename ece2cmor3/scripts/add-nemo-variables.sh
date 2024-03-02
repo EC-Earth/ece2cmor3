@@ -26,13 +26,19 @@ if [ "$#" -eq 1 ]; then
   #  SIday sidmassth  field_ref="dmithd"   SImon sidmassth  is taken as basis
 
   table_path=../resources/cmip6-cmor-tables/Tables
+  table_file_cv=CMIP6_CV.json
   table_file_SIday=CMIP6_SIday.json
   tmp_file_SIday=CMIP6_SIday_tmp.json
 
   cd ${table_path}
   if [ ${do_clean} == 'clean-before' ]; then
+   git checkout ${table_file_cv}
    git checkout ${table_file_SIday}
   fi
+
+  sed -i  '/"dec":"decadal mean samples"/i \
+            "dayPt":"sampled monthly, at specified time point within the time period",
+  ' ${table_file_cv}
 
   # Add all of the CMIP6_SIday.json except its last 3 lines to the tmp file:
   head -n -3 ${table_file_SIday}                                                                       >  ${tmp_file_SIday}
@@ -53,6 +59,7 @@ if [ "$#" -eq 1 ]; then
   mv -f ${tmp_file_SIday} ${table_file_SIday}
 
   # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g'                ${table_file_cv}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_SIday}
 
   cd -
@@ -60,7 +67,8 @@ if [ "$#" -eq 1 ]; then
   echo
   echo " Running:"
   echo "  $0 ${do_clean}"
-  echo " has adjusted the file:"
+  echo " has adjusted the files:"
+  echo "  ${table_path}/${table_file_cv}"
   echo "  ${table_path}/${table_file_SIday}"
  #echo " and added the files:"
  #echo "  ${table_path}/${table_file_SIday}"
