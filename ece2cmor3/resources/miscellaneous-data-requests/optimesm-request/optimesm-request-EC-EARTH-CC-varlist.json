@@ -432,7 +432,13 @@
             "sithick",
             "sitimefrac",
             "siu",
-            "siv"
+            "siv",
+            "sishevel",
+            "sidconcdyn",
+            "sidconcth",
+            "sidivvel",
+            "sidmassdyn",
+            "sidmassth"
         ],
         "SImon": [
             "sfdsi",

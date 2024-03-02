@@ -81,6 +81,19 @@ if [ "$#" -eq 5 ]; then
    ./add-lpjg-cc-diagnostics.sh
    ./add-variables-for-co2box.sh
    ./add-htessel-vegetation-variables.sh no-clean-before
+   ./add-nemo-variables.sh clean-before
+
+   basic_cmip6_file_def_nemo=../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml
+   # The file_def content below can be obtained by the following grep (manual remove of last backslah at last line though):
+   #  grep -e sishevel -e sidconcdyn -e sidconcth -e sidivvel -e sidmassdyn -e sidmassth  ../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml | sed -e 's/$/\\/'
+   sed -i  '/id_1d_siconc/i \
+     <field id="id_1m_sidconcdyn"                    name="sidconcdyn"              table="SImon"         field_ref="afxdyn"                                 grid_ref="grid_T_2D"                      unit="s-1"                enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
+     <field id="id_1m_sidconcth"                     name="sidconcth"               table="SImon"         field_ref="afxthd"                                 grid_ref="grid_T_2D"                      unit="s-1"                enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
+     <field id="id_1m_sidivvel"                      name="sidivvel"                table="SImon"         field_ref="idive"                                  grid_ref="grid_T_2D"                      unit="s-1"                enabled="False"   operation="instant"    freq_op="1mo"  >                                                                        </field>\
+     <field id="id_1m_sidmassdyn"                    name="sidmassdyn"              table="SImon"         field_ref="dmidyn"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
+     <field id="id_1m_sidmassth"                     name="sidmassth"               table="SImon"         field_ref="dmithd"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
+     <field id="id_1m_sishevel"                      name="sishevel"                table="SImon"         field_ref="ishear"                                 grid_ref="grid_T_2D"                      unit="s-1"                enabled="False"   operation="instant"    freq_op="1mo"  >                                                                        </field>
+   ' ${basic_cmip6_file_def_nemo}
   fi
 
   rm -rf   ${output_dir}
@@ -314,6 +327,7 @@ if [ "$#" -eq 5 ]; then
   # optimesm only:
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
+   git checkout ${basic_cmip6_file_def_nemo}
   fi
 
   # carcyclim only:
