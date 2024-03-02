@@ -120,7 +120,11 @@ def main():
         layer_number_due_to_freq = 1
        elif task.target.frequency == 'mon':
         layer_number_due_to_freq = 12
+       elif task.target.frequency == 'monPt':
+        layer_number_due_to_freq = 12
        elif task.target.frequency == 'day':
+        layer_number_due_to_freq = 365
+       elif task.target.frequency == 'dayPt':
         layer_number_due_to_freq = 365
        elif task.target.frequency == '3hrPt':
         layer_number_due_to_freq = 365.25 * 8.
