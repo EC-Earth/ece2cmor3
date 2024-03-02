@@ -41,20 +41,20 @@ if [ "$#" -eq 1 ]; then
   ' ${table_file_cv}
 
   # Add all of the CMIP6_SIday.json except its last 3 lines to the tmp file:
-  head -n -3 ${table_file_SIday}                                                                       >  ${tmp_file_SIday}
-  echo '        }, '                                                                                   >> ${tmp_file_SIday}
+  head -n -3 ${table_file_SIday}                                                                         >  ${tmp_file_SIday}
+  echo '        }, '                                                                                     >> ${tmp_file_SIday}
 
-  grep -A 17 '"sishevel":'   CMIP6_SImon.json  | sed -e 's/"frequency": "monPt"/"frequency": "day"/g'  >> ${tmp_file_SIday}
-  grep -A 17 '"sidconcdyn":' CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'    >> ${tmp_file_SIday}
-  grep -A 17 '"sidconcth":'  CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'    >> ${tmp_file_SIday}
-  grep -A 17 '"sidivvel":'   CMIP6_SImon.json  | sed -e 's/"frequency": "monPt"/"frequency": "day"/g'  >> ${tmp_file_SIday}
-  grep -A 17 '"sidmassdyn":' CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'    >> ${tmp_file_SIday}
-  grep -A 16 '"sidmassth":'  CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'    >> ${tmp_file_SIday}
+  grep -A 17 '"sishevel":'   CMIP6_SImon.json  | sed -e 's/"frequency": "monPt"/"frequency": "dayPt"/g'  >> ${tmp_file_SIday}
+  grep -A 17 '"sidconcdyn":' CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'      >> ${tmp_file_SIday}
+  grep -A 17 '"sidconcth":'  CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'      >> ${tmp_file_SIday}
+  grep -A 17 '"sidivvel":'   CMIP6_SImon.json  | sed -e 's/"frequency": "monPt"/"frequency": "dayPt"/g'  >> ${tmp_file_SIday}
+  grep -A 17 '"sidmassdyn":' CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'      >> ${tmp_file_SIday}
+  grep -A 16 '"sidmassth":'  CMIP6_SImon.json  | sed -e 's/"frequency": "mon"/"frequency": "day"/g'      >> ${tmp_file_SIday}
 
   # Add closing part of CMIP6 table json file:
-  echo '        } '                                                                                    >> ${tmp_file_SIday}
-  echo '    } '                                                                                        >> ${tmp_file_SIday}
-  echo '} '                                                                                            >> ${tmp_file_SIday}
+  echo '        } '                                                                                      >> ${tmp_file_SIday}
+  echo '    } '                                                                                          >> ${tmp_file_SIday}
+  echo '} '                                                                                              >> ${tmp_file_SIday}
 
   mv -f ${tmp_file_SIday} ${table_file_SIday}
 
