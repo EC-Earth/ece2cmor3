@@ -38,7 +38,7 @@ if [ "$#" -eq 1 ]; then
   fi
 
   sed -i  '/"IfxAnt"/i \
-            "HTESSELday",
+            "HTESSELday", \
             "HTESSELmon",
   ' ${table_file_cv}
 
