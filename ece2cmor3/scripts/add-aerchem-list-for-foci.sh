@@ -381,167 +381,172 @@ if [ "$#" -eq 0 ]; then
   echo
 
 
-  # Create a foci-tm5par.json file. The code below is following the code in the generate-tm5.json.sh script.
+  # Create the foci-tm5par.json & foci-request.json files if desired (used at time of implementing this work).
+  do_create_foci_tm5par_and_request_files=False
 
-  # Declare an array variable with all the nemo cmor variable names:
-  declare -a arr=(
-  "conccnmode01"
-  "conccnmode02"
-  "conccnmode03"
-  "conccnmode04"
-  "conccnmode05"
-  "conccnmode06"
-  "conccnmode07"
-  "mmraerh2omode01"
-  "mmraerh2omode02"
-  "mmraerh2omode03"
-  "mmraerh2omode04"
-  "mmrbcmode02"
-  "mmrbcmode03"
-  "mmrbcmode04"
-  "mmrbcmode05"
-  "mmrdustmode03"
-  "mmrdustmode04"
-  "mmrdustmode06"
-  "mmrdustmode07"
-  "mmrnh4"
-  "mmrno3"
-  "mmroamode02"
-  "mmroamode03"
-  "mmroamode04"
-  "mmroamode05"
-  "mmrso4mode01"
-  "mmrso4mode02"
-  "mmrso4mode03"
-  "mmrso4mode04"
-  "mmrsoamode01"
-  "mmrsoamode02"
-  "mmrsoamode03"
-  "mmrsoamode04"
-  "mmrsoamode05"
-  "mmrssmode03"
-  "mmrssmode04"
-  "ald2"
-  "c2h4"
-  "c2h5oh"
-  "c2h6"
-  "c3h6"
-  "c3h8"
-  "ch3coch3"
-  "ch3cocho"
-  "ch3o2h"
-  "ch3o2no2"
-  "ch3oh"
-  "ch4"
-  "co"
-  "dms"
-  "h2o2"
-  "h2so4"
-  "hcho"
-  "hcooh"
-  "hno3"
-  "hno4"
-  "ho2"
-  "hono"
-  "isop"
-  "ispd"
-  "mcooh"
-  "msa"
-  "n2o5"
-  "nh3"
-  "no2"
-  "no3"
-  "no"
-  "o3"
-  "oh"
-  "ole"
-  "orgntr"
-  "pan"
-  "par"
-  "rooh"
-  "so2"
-  "terp"
-  "ps"
-  )
+  if [ "$do_create_foci_tm5par_and_request_files" = "True" ]; then
+   # Create a foci-tm5par.json file. The code below is following the code in the generate-tm5.json.sh script.
 
-  output_file=foci-tm5par.json
+   # Declare an array variable with all the nemo cmor variable names:
+   declare -a arr=(
+   "conccnmode01"
+   "conccnmode02"
+   "conccnmode03"
+   "conccnmode04"
+   "conccnmode05"
+   "conccnmode06"
+   "conccnmode07"
+   "mmraerh2omode01"
+   "mmraerh2omode02"
+   "mmraerh2omode03"
+   "mmraerh2omode04"
+   "mmrbcmode02"
+   "mmrbcmode03"
+   "mmrbcmode04"
+   "mmrbcmode05"
+   "mmrdustmode03"
+   "mmrdustmode04"
+   "mmrdustmode06"
+   "mmrdustmode07"
+   "mmrnh4"
+   "mmrno3"
+   "mmroamode02"
+   "mmroamode03"
+   "mmroamode04"
+   "mmroamode05"
+   "mmrso4mode01"
+   "mmrso4mode02"
+   "mmrso4mode03"
+   "mmrso4mode04"
+   "mmrsoamode01"
+   "mmrsoamode02"
+   "mmrsoamode03"
+   "mmrsoamode04"
+   "mmrsoamode05"
+   "mmrssmode03"
+   "mmrssmode04"
+   "ald2"
+   "c2h4"
+   "c2h5oh"
+   "c2h6"
+   "c3h6"
+   "c3h8"
+   "ch3coch3"
+   "ch3cocho"
+   "ch3o2h"
+   "ch3o2no2"
+   "ch3oh"
+   "ch4"
+   "co"
+   "dms"
+   "h2o2"
+   "h2so4"
+   "hcho"
+   "hcooh"
+   "hno3"
+   "hno4"
+   "ho2"
+   "hono"
+   "isop"
+   "ispd"
+   "mcooh"
+   "msa"
+   "n2o5"
+   "nh3"
+   "no2"
+   "no3"
+   "no"
+   "o3"
+   "oh"
+   "ole"
+   "orgntr"
+   "pan"
+   "par"
+   "rooh"
+   "so2"
+   "terp"
+   "ps"
+   )
 
-  function add_item {
-   echo '    {'                     >> ${output_file}
-   echo '        "source": "'$1'",' >> ${output_file}
-   echo '        "target": "'$1'"'  >> ${output_file}
-   echo '    },'                    >> ${output_file}
-  }
+   output_file=foci-tm5par.json
 
-  function add_last_item {
-   echo '    {'                     >> ${output_file}
-   echo '        "source": "'$1'",' >> ${output_file}
-   echo '        "target": "'$1'"'  >> ${output_file}
-   echo '    }'                     >> ${output_file}
-  }
+   function add_item {
+    echo '    {'                     >> ${output_file}
+    echo '        "source": "'$1'",' >> ${output_file}
+    echo '        "target": "'$1'"'  >> ${output_file}
+    echo '    },'                    >> ${output_file}
+   }
 
-  echo '['                         > ${output_file}
+   function add_last_item {
+    echo '    {'                     >> ${output_file}
+    echo '        "source": "'$1'",' >> ${output_file}
+    echo '        "target": "'$1'"'  >> ${output_file}
+    echo '    }'                     >> ${output_file}
+   }
 
-  # Loop through the array with all the TM5 cmor variable names:
-  # (Note individual array elements can be accessed by using "${arr[0]}", "${arr[1]}")
+   echo '['                         > ${output_file}
 
-  N=${#arr[@]} # array length
-  last_item="${arr[N-1]}"
-  for i in "${arr[@]}"
-  do
-     if [ "$i" == ${last_item} ]; then
-      add_last_item "$i"
-     else
-      add_item "$i"
-     fi
-  done
-
-  echo ']'                         >> ${output_file}
-
-  echo ' The file ' ${output_file} ' is created.'
-  echo
-
-
-  # Create a foci-request.json file:
-  request_file=foci-request.json
-
-  function add_variable_item {
-   echo '            "'$1'",' >> ${request_file}
-  }
-
-  function add_variable_last_item {
-   echo '            "'$1'"' >> ${request_file}
-  }
-
-   echo '{'                      >  ${request_file}
-  #echo '    "ifs": {},'         >> ${request_file}
-   echo '    "ifs": {'           >> ${request_file}
-   echo '        "6hrPlevPt": [' >> ${request_file}
-   echo '            "tsl4sl"'   >> ${request_file}
-   echo '        ]'              >> ${request_file}
-   echo '    },'                 >> ${request_file}
-   echo '    "lpjg": {},'        >> ${request_file}
-   echo '    "nemo": {},'        >> ${request_file}
-   echo '    "tm5": {'           >> ${request_file}
-   echo '        "AER6hrPt": ['  >> ${request_file}
+   # Loop through the array with all the TM5 cmor variable names:
+   # (Note individual array elements can be accessed by using "${arr[0]}", "${arr[1]}")
 
    N=${#arr[@]} # array length
    last_item="${arr[N-1]}"
    for i in "${arr[@]}"
    do
       if [ "$i" == ${last_item} ]; then
-       add_variable_last_item "$i"
+       add_last_item "$i"
       else
-       add_variable_item "$i"
+       add_item "$i"
       fi
    done
 
-   echo '        ]'              >> ${request_file}
-   echo '    }'                  >> ${request_file}
-   echo '}'                      >> ${request_file}
+   echo ']'                         >> ${output_file}
 
-  echo ' The file ' ${request_file} ' is created.'
-  echo
+   echo ' The file ' ${output_file} ' is created.'
+   echo
+
+
+   # Create a foci-request.json file:
+   request_file=foci-request.json
+
+   function add_variable_item {
+    echo '            "'$1'",' >> ${request_file}
+   }
+
+   function add_variable_last_item {
+    echo '            "'$1'"' >> ${request_file}
+   }
+
+    echo '{'                      >  ${request_file}
+   #echo '    "ifs": {},'         >> ${request_file}
+    echo '    "ifs": {'           >> ${request_file}
+    echo '        "6hrPlevPt": [' >> ${request_file}
+    echo '            "tsl4sl"'   >> ${request_file}
+    echo '        ]'              >> ${request_file}
+    echo '    },'                 >> ${request_file}
+    echo '    "lpjg": {},'        >> ${request_file}
+    echo '    "nemo": {},'        >> ${request_file}
+    echo '    "tm5": {'           >> ${request_file}
+    echo '        "AER6hrPt": ['  >> ${request_file}
+
+    N=${#arr[@]} # array length
+    last_item="${arr[N-1]}"
+    for i in "${arr[@]}"
+    do
+       if [ "$i" == ${last_item} ]; then
+        add_variable_last_item "$i"
+       else
+        add_variable_item "$i"
+       fi
+    done
+
+    echo '        ]'              >> ${request_file}
+    echo '    }'                  >> ${request_file}
+    echo '}'                      >> ${request_file}
+
+   echo ' The file ' ${request_file} ' is created.'
+   echo
+  fi
 
  else
   echo
