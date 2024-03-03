@@ -274,6 +274,7 @@ declare -a arr=(
 "siflcondtop"
 "siflfwbot"
 "siflfwdrain"
+"siflsaltbot"
 "siflsensupbot"
 "siflswdtop"
 "siforcecoriolx"
