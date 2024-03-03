@@ -677,6 +677,10 @@
         "target": "intdoc"
     },
     {
+        "source": "intpoc",
+        "target": "intpoc"
+    },
+    {
         "source": "intpbfe",
         "target": "intpbfe"
     },

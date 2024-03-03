@@ -188,6 +188,7 @@ declare -a arr=(
 "graz"
 "intdic"
 "intdoc"
+"intpoc"
 "intpbfe"
 "intpbsi"
 "intpcalcite"
