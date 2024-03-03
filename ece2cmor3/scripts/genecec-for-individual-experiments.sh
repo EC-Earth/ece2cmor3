@@ -94,6 +94,11 @@ if [ "$#" -eq 5 ]; then
      <field id="id_1d_sidmassth"                     name="sidmassth"               table="SIday"         field_ref="dmithd"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
      <field id="id_1d_sishevel"                      name="sishevel"                table="SIday"         field_ref="ishear"                                 grid_ref="grid_T_2D"                      unit="s-1"                enabled="False"   operation="instant"    freq_op="1d"  >                                                                        </field>
    ' ${basic_cmip6_file_def_nemo}
+
+   sed -i  '/id_1m_sidmassdyn/i \
+     <field id="id_1m_siflsaltbot"                   name="siflsaltbot"             table="SImon"         field_ref="sfx_mv"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
+   ' ${basic_cmip6_file_def_nemo}
+
   fi
 
   rm -rf   ${output_dir}
