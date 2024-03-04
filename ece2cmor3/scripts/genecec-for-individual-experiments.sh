@@ -100,6 +100,19 @@ if [ "$#" -eq 5 ]; then
      <field id="id_1m_siflsaltbot"                   name="siflsaltbot"             table="SImon"         field_ref="sfx_mv"                                 grid_ref="grid_T_2D"                      unit="kg m-2 s-1"         enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
    ' ${basic_cmip6_file_def_nemo}
 
+   sed -i  '/id_1m_hfx/i \
+     <field id="id_1m_ubar"                          name="ubar"                    table="Omon"          field_ref="ubar"                                   grid_ref="grid_U_2D"                      unit="m s-1"              enabled="False"   operation="instant"    freq_op="1ts"  >                                                                        </field>
+   ' ${basic_cmip6_file_def_nemo}
+
+   sed -i  '/id_1m_hfy/i \
+     <field id="id_1m_vbar"                          name="vbar"                    table="Omon"          field_ref="vbar"                                   grid_ref="grid_V_2D"                      unit="m s-1"              enabled="False"   operation="instant"    freq_op="1ts"  >                                                                        </field>
+   ' ${basic_cmip6_file_def_nemo}
+
+   sed -i  '/id_1m_evs/i \
+     <field id="id_1m_mlddzt"                        name="mlddzt"                  table="Omon"          field_ref="mlddzt"                                 grid_ref="grid_T_2D"                      unit="m"                  enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
+     <field id="id_1m_hcont300"                      name="hcont300"                table="Omon"          field_ref="hcont300"                               grid_ref="grid_T_2D"                      unit="J m-2"              enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
+   ' ${basic_cmip6_file_def_nemo}
+
   fi
 
   rm -rf   ${output_dir}
