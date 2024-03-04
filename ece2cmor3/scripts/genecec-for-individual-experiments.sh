@@ -106,7 +106,7 @@ if [ "$#" -eq 5 ]; then
 
    sed -i  '/id_1m_evs/i \
      <field id="id_1m_mlddzt"                        name="mlddzt"                  table="Omon"          field_ref="mlddzt"                                 grid_ref="grid_T_2D"                      unit="m"                  enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
-     <field id="id_1m_hcont300"                      name="hcont300"                table="Omon"          field_ref="hcont300"                               grid_ref="grid_T_2D"                      unit="J m-2"              enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
+     <field id="id_1m_hcont300"                      name="hcont300"                table="Omon"          field_ref="hc300"                                  grid_ref="grid_T_2D"                      unit="J m-2"              enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
    ' ${basic_cmip6_file_def_nemo}
 
   fi
