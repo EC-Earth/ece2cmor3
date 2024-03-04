@@ -78,11 +78,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm only:
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
-   ./revert-nested-cmor-table-branch.sh
-   ./add-variables-for-co2box.sh
-   ./add-lpjg-cc-diagnostics.sh
-   ./add-htessel-vegetation-variables.sh no-clean-before
-   ./add-nemo-variables.sh no-clean-before
+   ./add-optimesm-variables.sh
 
    basic_cmip6_file_def_nemo=../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml
    # The file_def content below can be obtained by the following grep (manual remove of last backslah at last line though):
