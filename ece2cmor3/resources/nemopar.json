@@ -185,6 +185,10 @@
         "target": "mfo"
     },
     {
+        "source": "mlddzt",
+        "target": "mlddzt"
+    },
+    {
         "source": "mlotst",
         "target": "mlotst"
     },
@@ -401,12 +405,20 @@
         "target": "tossq"
     },
     {
+        "source": "ubar",
+        "target": "ubar"
+    },
+    {
         "source": "umo",
         "target": "umo"
     },
     {
         "source": "uo",
         "target": "uo"
+    },
+    {
+        "source": "vbar",
+        "target": "vbar"
     },
     {
         "source": "vmo",
