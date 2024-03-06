@@ -38,7 +38,7 @@ def keep_variable(target, model_component, ecearth_config):
                     "dissoc", "dissocos", "dpco2", "dpo2", "epc100", "epcalc100", "epfe100", "epsi100", \
                     "expc", "expcalc", "expfe", "expn", "expp", "expsi", "fbddtalk", "fbddtdic", "fbddtdife", \
                     "fbddtdin", "fbddtdip", "fbddtdisi", "fgco2", "fgo2", "fric", "frn", "froc", "fsfe", \
-                    "fsn", "graz", "intdic", "intdoc", "intpbfe", "intpbsi", "intpcalcite", "intpn2", \
+                    "fsn", "graz", "intdic", "intdoc", "intpbfe", "intpbsi", "intpcalcite", "intpn2", "intpoc", \
                     "intpp", "intppcalc", "intppdiat", "intppmisc", "intppnitrate", "limfediat", "limfemisc", \
                     "limirrdiat", "limirrmisc", "limndiat", "limndiaz", "limnmisc", "nh4", "nh4os", "no3", "no3os", "o2", \
                     "o2min", "o2os", "pbfe", "pbsi", "pcalc", "ph", "phos", "phyc", "phycos", "phydiat", \
@@ -47,7 +47,7 @@ def keep_variable(target, model_component, ecearth_config):
                     "talknat", "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
         # The list above from the second line on is created by using:
-        #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' |sort |uniq > pisces-vars.txt
+        #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' | sort | uniq | sed -e 's/$/ \\/' > pisces-vars.txt
 
     if variable == "co2mass":
         if ecearth_config == "EC-EARTH-ESM":
