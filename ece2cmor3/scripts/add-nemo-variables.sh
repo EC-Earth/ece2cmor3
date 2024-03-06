@@ -76,7 +76,7 @@ if [ "$#" -eq 1 ]; then
             "long_name": "Total flux from water into sea ice",                                  \
             "comment": "Total flux of salt from water into sea ice divided by grid-cell area; salt flux is upward (negative) during ice growth when salt is embedded into the ice and downward (positive) during melt when salt from sea ice is again released to the ocean.",                                                               \
             "dimensions": "longitude latitude time",                                            \
-            "out_name": "sfdsi",                                                                \
+            "out_name": "siflsaltbot",                                                          \
             "type": "real",                                                                     \
             "positive": "down",                                                                 \
             "valid_min": "",                                                                    \
