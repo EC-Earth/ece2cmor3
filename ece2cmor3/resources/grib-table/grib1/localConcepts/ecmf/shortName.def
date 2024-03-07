@@ -375,12 +375,12 @@
 	 indicatorOfParameter = 65 ;
 	}
 #Leaf area index, low vegetation
-'lai_lv' = {
+'laiLv' = {
 	 table2Version = 128 ;
 	 indicatorOfParameter = 66 ;
 	}
 #Leaf area index, high vegetation
-'lai_hv' = {
+'laiHv' = {
 	 table2Version = 128 ;
 	 indicatorOfParameter = 67 ;
 	}

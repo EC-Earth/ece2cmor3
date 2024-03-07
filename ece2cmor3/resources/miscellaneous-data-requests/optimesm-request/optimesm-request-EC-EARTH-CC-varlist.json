@@ -72,16 +72,16 @@
         "HTESSELday": [
             "cvl",
             "cvh",
-            "lai_lv",
-            "lai_hv"
+            "laiLv",
+            "laiHv"
         ],
         "HTESSELmon": [
             "cvl",
             "cvh",
             "tvl",
             "tvh",
-            "lai_lv",
-            "lai_hv"
+            "laiLv",
+            "laiHv"
         ],
         "LImon": [
             "snc",

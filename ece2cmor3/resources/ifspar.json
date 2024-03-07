@@ -219,12 +219,12 @@
     },
     {
         "source": "66.128",
-        "target": "lai_lv",
+        "target": "laiLv",
         "masked": "land"
     },
     {
         "source": "67.128",
-        "target": "lai_hv",
+        "target": "laiHv",
         "masked": "land"
     },
     {

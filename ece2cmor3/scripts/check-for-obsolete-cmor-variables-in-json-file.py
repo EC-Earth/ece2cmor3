@@ -42,7 +42,7 @@ def check_obsolete(fname):
                  log.info("Non-cmor target found (see #778 & #782) in %s: %s" % (fname, tvar))
                 elif tvar in ["conccnmode01", "conccnmode02", "conccnmode03", "conccnmode04", "conccnmode05", "conccnmode06", "conccnmode07", "mmraerh2omode01", "mmraerh2omode02", "mmraerh2omode03", "mmraerh2omode04", "mmrbcmode02", "mmrbcmode03", "mmrbcmode04", "mmrbcmode05", "mmrdustmode03", "mmrdustmode04", "mmrdustmode06", "mmrdustmode07", "mmroamode02", "mmroamode03", "mmroamode04", "mmroamode05", "mmrso4mode01", "mmrso4mode02", "mmrso4mode03", "mmrso4mode04", "mmrsoamode01", "mmrsoamode02", "mmrsoamode03", "mmrsoamode04", "mmrsoamode05", "mmrssmode03", "mmrssmode04", "ald2", "c2h4", "c2h5oh", "ch3cocho", "ch3o2h", "ch3o2no2", "ch3oh", "h2o2", "h2so4", "hcooh", "hno4", "hono", "ispd", "mcooh", "msa", "n2o5", "nh3", "ole", "orgntr", "par", "rooh", "terp"]:
                  log.info("Non-cmor target found (see #775) in %s: %s" % (fname, tvar))
-                elif tvar in ["cvl", "cvh", "tvl", "tvh", "lai_lv", "lai_hv"]:
+                elif tvar in ["cvl", "cvh", "tvl", "tvh", "laiLv", "laiHv"]:
                  log.info("Non-cmor target found (see #802) in %s: %s" % (fname, tvar))
                 elif tvar in ["sfdsi_2"]:
                  log.info("Non-cmor target found (see #762) in %s: %s" % (fname, tvar))
