@@ -66,7 +66,7 @@ if [ "$#" -eq 1 ]; then
   grep -A 17 -e '"lai":'       CMIP6_Lmon.json | sed -e 's/lai/laiLv/g'     -e 's/leaf_area_index/leaf_area_index_low_vegetation/'  -e 's/"long_name": ".*"/"long_name": "Leaf area index, low vegetation"/'   -e 's/"units": ".*"/"units": "m2 m-2"/' -e 's/"comment": ".*"/"comment": "This parameter is the surface area of one side of all the leaves found over an area of land for vegetation classified as low (see https:\/\/codes.ecmwf.int\/grib\/param-db\/66)."/g'    >> ${table_file_HTESSELday}
   grep -A 16 -e '"lai":'       CMIP6_Lmon.json | sed -e 's/lai/laiHv/g'     -e 's/leaf_area_index/leaf_area_index_high_vegetation/' -e 's/"long_name": ".*"/"long_name": "Leaf area index, high vegetation"/'  -e 's/"units": ".*"/"units": "m2 m-2"/' -e 's/"comment": ".*"/"comment": "This parameter is the surface area of one side of all the leaves found over an area of land for vegetation classified as high (see https:\/\/codes.ecmwf.int\/grib\/param-db\/67)."/g'   >> ${table_file_HTESSELday}
 
-  sed -i -e 's/typec3pft/type/' ${table_file_HTESSELday}
+  sed -i -e 's/typec3pft/typeveg/' ${table_file_HTESSELday}
   sed -i -e 's/"mon"/"day"/'    ${table_file_HTESSELday}
 
   # Add closing part of CMIP6 table json file:
