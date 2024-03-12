@@ -119,6 +119,10 @@ def main():
              # See issue #267 & #810 and ECE portal issue 518:
              log.info(" Variable {:6} {:17} is listed in the omit list of drq2varlist and therefore skipped. See https://github.com/EC-Earth/ece2cmor3/issues/267 & https://github.com/EC-Earth/ece2cmor3/issues/810".format(target.table, target.variable))
              skip_case = True
+            if target.table in ['Oclim', 'Odec', 'monC', 'Esubhr', 'E1hr', 'E1hrClimMon']:
+             # See issue #817:
+             log.info(" Variable {:6} {:17} is listed in the omit list of drq2varlist and therefore skipped. See https://github.com/EC-Earth/ece2cmor3/issues/817".format(target.table, target.variable))
+             skip_case = True
             if table in ['Oyr'] and target.variable in ['cfc11', 'ocontempdiff', 'ocontemppadvect', 'ocontemppmdiff', 'ocontemprmadvect', 'ocontemptend', 'osaltdiff', 'osaltpadvect', 'osaltpmdiff', 'osaltrmadvect', 'osalttend']:
              # See issue #493 & #542:
              log.info(" Variable {:6} {:17} is listed in the omit list of drq2varlist and therefore skipped. See https://github.com/EC-Earth/ece2cmor3/issues/493 & https://github.com/EC-Earth/ece2cmor3/issues/542".format(target.table, target.variable))
