@@ -448,7 +448,6 @@
         "SImon": [
             "sfdsi",
             "siage",
-            "siareaacrossline",
             "siarean",
             "siareas",
             "sicompstren",
@@ -487,7 +486,6 @@
             "siitdsnthick",
             "siitdthick",
             "simass",
-            "simassacrossline",
             "sisali",
             "sisaltmass",
             "sishevel",
@@ -515,8 +513,7 @@
             "sndmassmelt",
             "sndmasssi",
             "sndmasssnf",
-            "sndmasssubl",
-            "snmassacrossline"
+            "sndmasssubl"
         ]
     },
     "tm5": {},
