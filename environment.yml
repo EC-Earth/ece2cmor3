@@ -12,7 +12,7 @@
 #   cdo -V                                       # version 2.3.0
 #   drq -v                                       # version 01.02.00
 #   drq -h
-#   ece2cmor -V                                  # ece2cmor v2.3.0
+#   ece2cmor -V                                  # ece2cmor v2.4.0
 #
 #  The version of one of the packages can be adjusted manually, For instance change the
 #  data request version of the dreq package (ensure the ece2cmor3 environment is active):
