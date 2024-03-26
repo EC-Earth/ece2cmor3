@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to the new HTESEELday & HTESEELmon CMOR tables.
+# the CMIP6 data request) to a few CMOR tables. And add the dayPt frequency.
 #
 # This script requires one argument.
 #
@@ -42,7 +42,7 @@ if [ "$#" -eq 1 ]; then
   fi
 
   sed -i  '/"dec":"decadal mean samples"/i \
-            "dayPt":"sampled monthly, at specified time point within the time period",
+            "dayPt":"sampled daily, at specified time point within the time period",
   ' ${table_file_cv}
 
   # Add all of the CMIP6_SIday.json except its last 3 lines to the tmp file:

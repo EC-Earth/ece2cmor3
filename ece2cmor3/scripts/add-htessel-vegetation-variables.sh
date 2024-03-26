@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script adds some non-cmor variables (which thus do not exit in
-# the CMIP6 data request) to the new HTESEELday & HTESEELmon CMOR tables.
+# the CMIP6 data request) to the new HTESSELday & HTESSELmon CMOR tables.
 #
 # This script requires one argument.
 #
