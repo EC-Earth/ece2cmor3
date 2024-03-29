@@ -41,6 +41,7 @@ if [ "$#" -eq 1 ]; then
    git checkout ${table_file_Omon}
   fi
 
+  # Add the dayPt frequency:
   sed -i  '/"dec":"decadal mean samples"/i \
             "dayPt":"sampled daily, at specified time point within the time period",
   ' ${table_file_cv}
