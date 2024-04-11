@@ -1,0 +1,650 @@
+[
+    {
+        "source": "baresoilFrac",
+        "convert": "frac2percent",
+        "target": "baresoilFrac"
+    },
+    {
+        "source": "burntFractionAll",
+        "target": "burntFractionAll"
+    },
+    {
+        "source": "cCwd",
+        "target": "cCwd"
+    },
+    {
+        "source": "cFluxYr",
+        "target": "cFluxYr"
+    },
+    {
+        "source": "cLand",
+        "target": "cLand"
+    },
+    {
+        "source": "cLand1st",
+        "target": "cLand1st"
+    },
+    {
+        "source": "cLandYr",
+        "target": "cLandYr"
+    },
+    {
+        "source": "cLeaf",
+        "target": "cLeaf"
+    },
+    {
+        "source": "cLitter",
+        "target": "cLitter"
+    },
+    {
+        "source": "cLitterAbove",
+        "target": "cLitterAbove"
+    },
+    {
+        "source": "cLitterBelow",
+        "target": "cLitterBelow"
+    },
+    {
+        "source": "cLitterCwd",
+        "target": "cLitterCwd"
+    },
+    {
+        "source": "cLitterLut",
+        "target": "cLitterLut"
+    },
+    {
+        "source": "cLitterSubSurf",
+        "target": "cLitterSubSurf"
+    },
+    {
+        "source": "cLitterSurf",
+        "target": "cLitterSurf"
+    },
+    {
+        "source": "cOther",
+        "target": "cOther"
+    },
+    {
+        "source": "cProduct",
+        "target": "cProduct"
+    },
+    {
+        "source": "cProductLut",
+        "target": "cProductLut"
+    },
+    {
+        "source": "cRoot",
+        "target": "cRoot"
+    },
+    {
+        "source": "cropFrac",
+        "convert": "frac2percent",
+        "target": "cropFrac"
+    },
+    {
+        "source": "cropFracC3",
+        "convert": "frac2percent",
+        "target": "cropFracC3"
+    },
+    {
+        "source": "cropFracC4",
+        "convert": "frac2percent",
+        "target": "cropFracC4"
+    },
+    {
+        "source": "cSoil",
+        "target": "cSoil"
+    },
+    {
+        "source": "cSoilFast",
+        "target": "cSoilFast"
+    },
+    {
+        "source": "cSoilLut",
+        "target": "cSoilLut"
+    },
+    {
+        "source": "cSoilMedium",
+        "target": "cSoilMedium"
+    },
+    {
+        "source": "cSoilSlow",
+        "target": "cSoilSlow"
+    },
+    {
+        "source": "cStem",
+        "target": "cStem"
+    },
+    {
+        "source": "cTotFireLut",
+        "target": "cTotFireLut"
+    },
+    {
+        "source": "cVeg",
+        "target": "cVeg"
+    },
+    {
+        "source": "cVegLut",
+        "target": "cVegLut"
+    },
+    {
+        "source": "cWood",
+        "target": "cWood"
+    },
+    {
+        "source": "ec",
+        "target": "ec"
+    },
+    {
+        "source": "evspsbl",
+        "target": "evspsbl"
+    },
+    {
+        "source": "evspsblpot",
+        "target": "evspsblpot"
+    },
+    {
+        "source": "evspsblsoi",
+        "target": "evspsblsoi"
+    },
+    {
+        "source": "evspsblveg",
+        "target": "evspsblveg"
+    },
+    {
+        "source": "fAnthDisturb",
+        "target": "fAnthDisturb"
+    },
+    {
+        "source": "fBNF",
+        "target": "fBNF"
+    },
+    {
+        "source": "fCLandToOcean",
+        "target": "fCLandToOcean"
+    },
+    {
+        "source": "fco2antt",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2nat",
+        "target": "fco2nat"
+    },
+    {
+        "source": "fDeforestToAtmos",
+        "target": "fDeforestToAtmos"
+    },
+    {
+        "source": "fDeforestToProduct",
+        "target": "fDeforestToProduct"
+    },
+    {
+        "source": "fFire",
+        "target": "fFire"
+    },
+    {
+        "source": "fFireAll",
+        "target": "fFireAll"
+    },
+    {
+        "source": "fFireNat",
+        "target": "fFireNat"
+    },
+    {
+        "source": "fGrazing",
+        "target": "fGrazing"
+    },
+    {
+        "source": "fHarvest",
+        "target": "fHarvest"
+    },
+    {
+        "source": "fHarvestToAtmos",
+        "target": "fHarvestToAtmos"
+    },
+    {
+        "source": "fLitterFire",
+        "target": "fLitterFire"
+    },
+    {
+        "source": "fLitterSoil",
+        "target": "fLitterSoil"
+    },
+    {
+        "source": "fLuc",
+        "target": "fLuc"
+    },
+    {
+        "source": "fLulccAtmLut",
+        "target": "fLulccAtmLut"
+    },
+    {
+        "source": "fLulccProductLut",
+        "target": "fLulccProductLut"
+    },
+    {
+        "source": "fLulccResidueLut",
+        "target": "fLulccResidueLut"
+    },
+    {
+        "source": "fNAnthDisturb",
+        "target": "fNAnthDisturb"
+    },
+    {
+        "source": "fN2O",
+        "target": "fN2O"
+    },
+    {
+        "source": "fNOx",
+        "target": "fNOx"
+    },
+    {
+        "source": "fNdep",
+        "target": "fNdep"
+    },
+    {
+        "source": "fNfert",
+        "target": "fNfert"
+    },
+    {
+        "source": "fNgas",
+        "target": "fNgas"
+    },
+    {
+        "source": "fNgasFire",
+        "target": "fNgasFire"
+    },
+    {
+        "source": "fNgasNonFire",
+        "target": "fNgasNonFire"
+    },
+    {
+        "source": "fNLandToOcean",
+        "target": "fNLandToOcean"
+    },
+    {
+        "source": "fNleach",
+        "target": "fNleach"
+    },
+    {
+        "source": "fNLitterSoil",
+        "target": "fNLitterSoil"
+    },
+    {
+        "source": "fNloss",
+        "target": "fNloss"
+    },
+    {
+        "source": "fNnetmin",
+        "target": "fNnetmin"
+    },
+    {
+        "source": "fNProduct",
+        "target": "fNProduct"
+    },
+    {
+        "source": "fNup",
+        "target": "fNup"
+    },
+    {
+        "source": "fNVegLitter",
+        "target": "fNVegLitter"
+    },
+    {
+        "source": "fProductDecomp",
+        "target": "fProductDecomp"
+    },
+    {
+        "source": "fProductDecompLut",
+        "target": "fProductDecompLut"
+    },
+    {
+        "source": "fracInLut",
+        "target": "fracInLut"
+    },
+    {
+        "source": "fracLut",
+        "target": "fracLut"
+    },
+    {
+        "source": "fracOutLut",
+        "target": "fracOutLut"
+    },
+    {
+        "source": "fVegFire",
+        "target": "fVegFire"
+    },
+    {
+        "source": "fVegLitter",
+        "target": "fVegLitter"
+    },
+    {
+        "source": "gpp",
+        "target": "gpp"
+    },
+    {
+        "source": "gppGrass",
+        "target": "gppGrass"
+    },
+    {
+        "source": "gppLut",
+        "target": "gppLut"
+    },
+    {
+        "source": "gppTree",
+        "target": "gppTree"
+    },
+    {
+        "source": "grassFrac",
+        "convert": "frac2percent",
+        "target": "grassFrac"
+    },
+    {
+        "source": "grassFracC3",
+        "convert": "frac2percent",
+        "target": "grassFracC3"
+    },
+    {
+        "source": "grassFracC4",
+        "convert": "frac2percent",
+        "target": "grassFracC4"
+    },
+    {
+        "source": "irrLut",
+        "target": "irrLut"
+    },
+    {
+        "source": "lai",
+        "target": "lai"
+    },
+    {
+        "source": "laiLut",
+        "target": "laiLut"
+    },
+    {
+        "source": "landCoverFrac",
+        "convert": "frac2percent",
+        "target": "landCoverFrac"
+    },
+    {
+        "source": "mrfso",
+        "target": "mrfso"
+    },
+    {
+        "source": "mrro",
+        "target": "mrro"
+    },
+    {
+        "source": "mrroLut",
+        "target": "mrroLut"
+    },
+    {
+        "source": "mrros",
+        "target": "mrros"
+    },
+    {
+        "source": "mrsll",
+        "target": "mrsll"
+    },
+    {
+        "source": "mrso",
+        "target": "mrso"
+    },
+    {
+        "source": "mrsol",
+        "target": "mrsol"
+    },
+    {
+        "source": "mrsoLut",
+        "target": "mrsoLut"
+    },
+    {
+        "source": "mrsos",
+        "target": "mrsos"
+    },
+    {
+        "source": "mrsosLut",
+        "target": "mrsosLut"
+    },
+    {
+        "source": "nbp",
+        "target": "nbp"
+    },
+    {
+        "source": "necbLut",
+        "target": "necbLut"
+    },
+    {
+        "source": "nep",
+        "target": "nep"
+    },
+    {
+        "source": "netAtmosLandCO2Flux",
+        "target": "netAtmosLandCO2Flux"
+    },
+    {
+        "source": "nLand",
+        "target": "nLand"
+    },
+    {
+        "source": "nLeaf",
+        "target": "nLeaf"
+    },
+    {
+        "source": "nLitter",
+        "target": "nLitter"
+    },
+    {
+        "source": "nLitterCwd",
+        "target": "nLitterCwd"
+    },
+    {
+        "source": "nLitterSubSurf",
+        "target": "nLitterSubSurf"
+    },
+    {
+        "source": "nLitterSurf",
+        "target": "nLitterSurf"
+    },
+    {
+        "source": "nMineral",
+        "target": "nMineral"
+    },
+    {
+        "source": "nMineralNH4",
+        "target": "nMineralNH4"
+    },
+    {
+        "source": "nMineralNO3",
+        "target": "nMineralNO3"
+    },
+    {
+        "source": "nOther",
+        "target": "nOther"
+    },
+    {
+        "source": "npp",
+        "target": "npp"
+    },
+    {
+        "source": "nppGrass",
+        "target": "nppGrass"
+    },
+    {
+        "source": "nppLut",
+        "target": "nppLut"
+    },
+    {
+        "source": "nppTree",
+        "target": "nppTree"
+    },
+    {
+        "source": "nProduct",
+        "target": "nProduct"
+    },
+    {
+        "source": "nRoot",
+        "target": "nRoot"
+    },
+    {
+        "source": "nSoil",
+        "target": "nSoil"
+    },
+    {
+        "source": "nStem",
+        "target": "nStem"
+    },
+    {
+        "source": "nVeg",
+        "target": "nVeg"
+    },
+    {
+        "source": "nwdFracLut",
+        "convert": "frac2percent",
+        "target": "nwdFracLut"
+    },
+    {
+        "source": "pastureFrac",
+        "convert": "frac2percent",
+        "target": "pastureFrac"
+    },
+    {
+        "source": "pastureFracC3",
+        "convert": "frac2percent",
+        "target": "pastureFracC3"
+    },
+    {
+        "source": "pastureFracC4",
+        "convert": "frac2percent",
+        "target": "pastureFracC4"
+    },
+    {
+        "source": "prCrop",
+        "target": "prCrop"
+    },
+    {
+        "source": "prveg",
+        "target": "prveg"
+    },
+    {
+        "source": "ra",
+        "target": "ra"
+    },
+    {
+        "source": "raGrass",
+        "target": "raGrass"
+    },
+    {
+        "source": "raLeaf",
+        "target": "raLeaf"
+    },
+    {
+        "source": "raLut",
+        "target": "raLut"
+    },
+    {
+        "source": "raOther",
+        "target": "raOther"
+    },
+    {
+        "source": "raRoot",
+        "target": "raRoot"
+    },
+    {
+        "source": "raStem",
+        "target": "raStem"
+    },
+    {
+        "source": "raTree",
+        "target": "raTree"
+    },
+    {
+        "source": "residualFrac",
+        "convert": "frac2percent",
+        "target": "residualFrac"
+    },
+    {
+        "source": "rGrowth",
+        "target": "rGrowth"
+    },
+    {
+        "source": "rh",
+        "target": "rh"
+    },
+    {
+        "source": "rhLitter",
+        "target": "rhLitter"
+    },
+    {
+        "source": "rhLut",
+        "target": "rhLut"
+    },
+    {
+        "source": "rhSoil",
+        "target": "rhSoil"
+    },
+    {
+        "source": "rMaint",
+        "target": "rMaint"
+    },
+    {
+        "source": "shrubFrac",
+        "convert": "frac2percent",
+        "target": "shrubFrac"
+    },
+    {
+        "source": "snc",
+        "target": "snc"
+    },
+    {
+        "source": "snd",
+        "target": "snd"
+    },
+    {
+        "source": "snw",
+        "target": "snw"
+    },
+    {
+        "source": "tran",
+        "target": "tran"
+    },
+    {
+        "source": "treeFrac",
+        "convert": "frac2percent",
+        "target": "treeFrac"
+    },
+    {
+        "source": "treeFracBdlDcd",
+        "convert": "frac2percent",
+        "target": "treeFracBdlDcd"
+    },
+    {
+        "source": "treeFracBdlEvg",
+        "convert": "frac2percent",
+        "target": "treeFracBdlEvg"
+    },
+    {
+        "source": "treeFracNdlDcd",
+        "convert": "frac2percent",
+        "target": "treeFracNdlDcd"
+    },
+    {
+        "source": "treeFracNdlEvg",
+        "convert": "frac2percent",
+        "target": "treeFracNdlEvg"
+    },
+    {
+        "source": "tsl",
+        "target": "tsl"
+    },
+    {
+        "source": "vegFrac",
+        "convert": "frac2percent",
+        "target": "vegFrac"
+    },
+    {
+        "source": "vegHeightTree",
+        "target": "vegHeightTree"
+    }
+]
