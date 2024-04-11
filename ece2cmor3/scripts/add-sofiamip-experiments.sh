@@ -46,6 +46,30 @@ if [ "$#" -eq 0 ]; then
                 "sub_experiment_id":[                                                                                                                         \
                     "none"                                                                                                                                    \
                 ]                                                                                                                                             \
+            },                                                                                                                                                \
+            "antwater":{                                                                                                                                      \
+                "activity_id":[                                                                                                                               \
+                    "SOFIAMIP"                                                                                                                                \
+                ],                                                                                                                                            \
+                "additional_allowed_model_components":[                                                                                                       \
+                    "AER",                                                                                                                                    \
+                    "CHEM",                                                                                                                                   \
+                    "BGC"                                                                                                                                     \
+                ],                                                                                                                                            \
+                "experiment":"control plus perturbative surface fluxes of freshwater into ocean, the latter around the coast of Antarctica only",             \
+                "experiment_id":"antwater",                                                                                                                   \
+                "parent_activity_id":[                                                                                                                        \
+                    "CMIP"                                                                                                                                    \
+                ],                                                                                                                                            \
+                "parent_experiment_id":[                                                                                                                      \
+                    "piControl"                                                                                                                               \
+                ],                                                                                                                                            \
+                "required_model_components":[                                                                                                                 \
+                    "AOGCM"                                                                                                                                   \
+                ],                                                                                                                                            \
+                "sub_experiment_id":[                                                                                                                         \
+                    "none"                                                                                                                                    \
+                ]                                                                                                                                             \
             },                                                                                                                                                
   ' ${table_file_cv}
 
@@ -59,7 +83,7 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_cv}
 
   # Adjust the license such that it matches with the production institute KNMI.
-  sed -i -e 's/CMIP6 model data/The SOFIAMIP model data/' -e 's/Consult.*acknowledgment//' ${table_file_cv}
+ #sed -i -e 's/CMIP6 model data/The SOFIAMIP model data/' -e 's/Consult.*acknowledgment//' ${table_file_cv}
 
   # Allow KNMI on it self to be a institute which produces EC-Earth3 experiments:
   # This insert is vulnerable for upstream table changes within 20 lines after the match:
