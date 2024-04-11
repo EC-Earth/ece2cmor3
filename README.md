@@ -4,7 +4,7 @@ ECE2CMOR3 Python code to CMORize and post-process EC-Earth output data.
 
 ## Required python packages:
 
-* cmor-3.7.3 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
+* cmor-3.8.0 (see cmor [dependencies](https://anaconda.org/conda-forge/cmor/files))
 * eccodes/gribapi (for filtering IFS output GRIB files)
 * dreq (the CMIP6 data request tool drq)
 * netCDF4
