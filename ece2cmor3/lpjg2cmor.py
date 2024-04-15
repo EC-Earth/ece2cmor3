@@ -518,10 +518,10 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     cdo = Cdo()
 
     if target_grid_ == "T159":
-        cdo.remapycon('n80', input="-setgrid," + gridfile_ + " " + temp_ncfile,
+        cdo.remapycon('n80', input="-setvrange,-1e16,1e16 -setgrid," + gridfile_ + " " + temp_ncfile,
                       output=ncfile)
     else:
-        cdo.remapycon('n128',input="-setgrid," + gridfile_ + " " + temp_ncfile,
+        cdo.remapycon('n128',input="-setvrange,-1e16,1e16 -setgrid," + gridfile_ + " " + temp_ncfile,
                       output=ncfile)  # TODO: add remapping for possible other grids
 
     os.remove(temp_ncfile)
