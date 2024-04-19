@@ -28,6 +28,27 @@ if [ "$#" -eq 0 ]; then
   git checkout ${table_file_cv}
   git checkout ${table_file_aermon}
 
+  sed -i  '/"ts": {/i \
+        "tosa": {                                                                                                                           \
+            "frequency": "6hrPt",                                                                                                           \
+            "modeling_realm": "ocean",                                                                                                      \
+            "standard_name": "sea_surface_temperature",                                                                                     \
+            "units": "degC",                                                                                                                \
+            "cell_methods": "area: mean where sea time: point",                                                                             \
+            "cell_measures": "area: areacella",                                                                                             \
+            "long_name": "Sea Surface Temperature",                                                                                         \
+            "comment": "Temperature of upper boundary of the liquid ocean, including temperatures below sea-ice and floating ice shelves.", \
+            "dimensions": "longitude latitude time1",                                                                                       \
+            "out_name": "tos",                                                                                                              \
+            "type": "real",                                                                                                                 \
+            "positive": "",                                                                                                                 \
+            "valid_min": "",                                                                                                                \
+            "valid_max": "",                                                                                                                \
+            "ok_min_mean_abs": "",                                                                                                          \
+            "ok_max_mean_abs": ""                                                                                                           \
+        },                                                                                                                                  
+  ' ${table_file_6hrPlevPt}
+
   # Add tsl4sl (tsl) on 6hrPlevPt table:
   sed -i  '/"ua": {/i \
         "tsl4sl": {                                                                             \
