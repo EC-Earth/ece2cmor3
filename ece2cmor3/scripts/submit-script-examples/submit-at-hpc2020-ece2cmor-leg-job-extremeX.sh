@@ -4,10 +4,10 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=01:25:00
+#SBATCH --time=00:55:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
+#SBATCH --cpus-per-task=78
 #SBATCH --qos=np
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
@@ -79,7 +79,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               28        \
+                    --npp               78        \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
@@ -97,7 +97,14 @@
   echo " For instance:"
   echo "  sbatch $0 ifs 001 s001 1"
   echo " Or use:"
-  echo "  for member in {001..010}; do for leg in {001..008}; do echo sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {001..005}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {006..010}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {011..015}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {016..020}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {021..025}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo "  for member in {026..030}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
+  echo
+  echo "  for member in {001..002}; do for leg in {001..008}; do echo sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
   echo
 
  fi
