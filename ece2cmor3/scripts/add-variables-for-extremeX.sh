@@ -62,7 +62,7 @@ if [ "$#" -eq 0 ]; then
 
   echo ']'                                                  >> extended-ifspar.json
 
-  sed -i  '/"areacella",/i \
+  sed -i  '/"zg1000",/a \
             "zg9",         \
             "zg200",       \
             "zg850",       '                                   extended-ifspar.json
