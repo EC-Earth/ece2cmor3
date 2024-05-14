@@ -47,10 +47,11 @@ def keep_variable(target, model_component, ecearth_config):
                     "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
                     "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
                     "talknat", "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
-        if ecearth_config == "EC-EARTH-CC":
-         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
-        if ecearth_config == "EC-EARTH-ESM-1":
-         return model_component == "nemo" and ecearth_config == "EC-EARTH-ESM-1"
+       #if ecearth_config == "EC-EARTH-CC":
+       # return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
+       #if ecearth_config == "EC-EARTH-ESM-1":
+       # return model_component == "nemo" and ecearth_config == "EC-EARTH-ESM-1"
+        return model_component == "nemo" and (ecearth_config == "EC-EARTH-CC" or ecearth_config == "EC-EARTH-ESM-1")
 
     if variable == "co2mass":
         if ecearth_config == "EC-EARTH-ESM":
