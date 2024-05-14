@@ -30,7 +30,9 @@ def keep_variable(target, model_component, ecearth_config):
     if variable in ["evspsbl", "mrfso", "mrso", "mrsol", "mrsos", "mrro", "mrros", "snc", "snd", "snw", "tsl"]:
         return model_component == "ifs"
 
-    # Carbon-cycle variables only activated in EC-EARTH-CC
+    # Carbon-cycle variables only activated in EC-EARTH-CC & EC-EARTH-ESM-1:
+    # The list below from the second line on is created by using:
+    #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' | sort | uniq | sed -e 's/$/ \\/' > pisces-vars.txt
     if variable in ["cfc12", "cfc13", "c14", "sf6", \
                     "bfe", "bfeos", "bsi", "bsios", "calc", "calcos", "chl", "chldiat", "chldiatos", \
                     "chlmisc", "chlmiscos", "chlos", "co3", "co3os", "co3satcalc", "co3satcalcos", \
@@ -45,9 +47,10 @@ def keep_variable(target, model_component, ecearth_config):
                     "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
                     "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
                     "talknat", "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
-        return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
-        # The list above from the second line on is created by using:
-        #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' | sort | uniq | sed -e 's/$/ \\/' > pisces-vars.txt
+        if ecearth_config == "EC-EARTH-CC":
+         return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
+        if ecearth_config == "EC-EARTH-ESM-1":
+         return model_component == "nemo" and ecearth_config == "EC-EARTH-ESM-1"
 
     if variable == "co2mass":
         if ecearth_config == "EC-EARTH-ESM":

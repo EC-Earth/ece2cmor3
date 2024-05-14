@@ -808,6 +808,7 @@ if len(sys.argv) == 2:
     drqlistjson_file_name = '../resources/miscellaneous-data-requests/test-data-request/drqlist-nemo-all.json'
     file_name_varlistjson_ece_cc    = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-cc.json'
     file_name_varlistjson_ece_aogcm = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-aogcm.json'
+    file_name_varlistjson_ece_esm_1 = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-esm-1.json'
 
     drqlistjson = open(drqlistjson_file_name,'w')
     drqlistjson.write('{}{}'.format('{','\n'))
@@ -842,13 +843,15 @@ if len(sys.argv) == 2:
 
     command_2 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + file_name_varlistjson_ece_cc    + " --ececonf EC-EARTH-CC "
     command_3 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + file_name_varlistjson_ece_aogcm + " --ececonf EC-EARTH-AOGCM "
-   #os.system(command_1)
+    command_4 = " drq2varlist --drq " + drqlistjson_file_name + " --varlist " + file_name_varlistjson_ece_esm_1 + " --ececonf EC-EARTH-ESM-1 "
     os.system(command_2)
     os.system(command_3)
+    os.system(command_4)
 
     print('\n The produced {:67} contains {:} variables.'.format(drqlistjson_file_name, i))
     print(' The produced {:67} is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'.format(file_name_varlistjson_ece_cc   ))
     print(' The produced {:67} is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'.format(file_name_varlistjson_ece_aogcm))
+    print(' The produced {:67} is a variant: ordened by model component, the ignored fields are dropped and the preferences are applied.'.format(file_name_varlistjson_ece_esm_1))
 
    ################################################################################
    ###################################    7     ###################################

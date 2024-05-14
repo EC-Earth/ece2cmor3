@@ -91,6 +91,7 @@ if len(sys.argv) == 2:
     'EC-EARTH-HR'      : 'CMIP,DCPP,HighResMIP',
     'EC-EARTH-LR'      : 'CMIP,PMIP',
     'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
+    'EC-EARTH-ESM-1'   : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
     'EC-EARTH-GrisIS'  : 'CMIP,ISMIP6,PMIP',
     'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,RFMIP',
     'EC-EARTH-Veg'     : 'CDRMIP,CMIP,LUMIP,LS3MIP,ScenarioMIP',
@@ -102,6 +103,7 @@ if len(sys.argv) == 2:
    scenario_ece_configurations = {
     'EC-EARTH-AOGCM'   : 'CMIP,DCPP,LS3MIP,ScenarioMIP,CORDEX,DynVarMIP,VIACSAB',
     'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
+    'EC-EARTH-ESM-1'   : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
     'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,RFMIP,ScenarioMIP',
     'EC-EARTH-Veg'     : 'CMIP,LUMIP,LS3MIP,ScenarioMIP',
     'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
@@ -123,12 +125,12 @@ if len(sys.argv) == 2:
 
    # Define a dictionary which lists/maps for each MIP which EC-Earth3 model configurations are used to run the MIP:
    ece_conf_mip_map = {
-   #'CMIP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR','EC-EARTH-LR','EC-EARTH-CC','EC-EARTH-GrisIS','EC-EARTH-AerChem','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
+   #'CMIP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR','EC-EARTH-LR','EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-GrisIS','EC-EARTH-AerChem','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
     'DCPP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR'],
     'LS3MIP'      : ['EC-EARTH-AOGCM','EC-EARTH-Veg'],
     'PAMIP'       : ['EC-EARTH-AOGCM'],
     'RFMIP'       : ['EC-EARTH-AOGCM','EC-EARTH-AerChem'],
-    'ScenarioMIP' : ['EC-EARTH-AOGCM','EC-EARTH-CC','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
+    'ScenarioMIP' : ['EC-EARTH-AOGCM','EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
     'VolMIP'      : ['EC-EARTH-AOGCM'],
     'CORDEX'      : ['EC-EARTH-AOGCM'],
     'DynVarMIP'   : ['EC-EARTH-AOGCM'],
@@ -136,10 +138,10 @@ if len(sys.argv) == 2:
     'VIACSAB'     : ['EC-EARTH-AOGCM'],
     'HighResMIP'  : ['EC-EARTH-HR'],
     'PMIP'        : ['EC-EARTH-LR','EC-EARTH-GrisIS','EC-EARTH-Veg-LR'],
-    'C4MIP'       : ['EC-EARTH-CC'],
-    'CDRMIP'      : ['EC-EARTH-CC','EC-EARTH-Veg'],
-    'LUMIP'       : ['EC-EARTH-CC','EC-EARTH-Veg'],
-    'OMIP'        : ['EC-EARTH-CC'],
+    'C4MIP'       : ['EC-EARTH-CC','EC-EARTH-ESM-1'],
+    'CDRMIP'      : ['EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-Veg'],
+    'LUMIP'       : ['EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-Veg'],
+    'OMIP'        : ['EC-EARTH-CC','EC-EARTH-ESM-1'],
     'ISMIP6'      : ['EC-EARTH-GrisIS'],
     'AerChemMIP'  : ['EC-EARTH-AerChem']
    }

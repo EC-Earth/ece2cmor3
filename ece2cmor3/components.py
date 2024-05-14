@@ -25,7 +25,7 @@ ece_configs = {'EC-EARTH-AOGCM'   : ["ifs", "nemo"                         ],
                'EC-EARTH-HR'      : ["ifs", "nemo"                         ],
                'EC-EARTH-LR'      : ["ifs", "nemo"                         ],
                'EC-EARTH-CC'      : ["ifs", "nemo", "tm5", "lpjg"          ],
-               'EC-EARTH-ESM'     : ["ifs", "nemo",        "lpjg", "co2box"], # If a PISM component is added to ece2cmor3 it needs here to be added as well.
+               'EC-EARTH-ESM-1'   : ["ifs", "nemo",        "lpjg", "co2box"], # If a PISM component is added to ece2cmor3 it needs here to be added as well.
                'EC-EARTH-GrisIS'  : ["ifs", "nemo"                         ], # If a PISM component is added to ece2cmor3 it needs here to be added as well.
                'EC-EARTH-AerChem' : ["ifs", "nemo", "tm5"                  ],
                'EC-EARTH-Veg'     : ["ifs", "nemo",        "lpjg"          ],
