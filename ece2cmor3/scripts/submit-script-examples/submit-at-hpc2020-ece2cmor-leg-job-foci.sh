@@ -34,8 +34,8 @@
    ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
   #ECEDIR=${SCRATCH}/ec-earth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
-  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
-   METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
+   METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
+  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
   #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci-minimal-test.json
@@ -80,10 +80,10 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 foct v002"
+  echo "  sbatch $0 ifs 001 foct v003"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i foct v002; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i foct v002; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i foct v002; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i foct v003; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i foct v003; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i foct v003; done"
   echo
  fi
