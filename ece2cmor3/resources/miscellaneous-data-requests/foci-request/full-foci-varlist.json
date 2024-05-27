@@ -44,6 +44,9 @@
             "ta",
             "psl"
         ],
+        "6hrPlev": [
+            "siconca"
+        ],
         "AERday": [
             "zg1000",
             "zg500"
@@ -112,8 +115,7 @@
             "hus",
             "hur",
             "wap",
-            "zg",
-            "pfull"
+            "zg"
         ],
         "CF3hr": [
             "pfull",

@@ -21,6 +21,7 @@ if [ "$#" -eq 0 ]; then
   table_file_3hr=CMIP6_3hr.json
   table_file_6hrLev=CMIP6_6hrLev.json
   table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
+  table_file_6hrPlev=CMIP6_6hrPlev.json
   table_file_AER6hrPt=CMIP6_AER6hrPt.json
   table_file_aermon=CMIP6_AERmon.json
 
@@ -30,6 +31,7 @@ if [ "$#" -eq 0 ]; then
   git checkout ${table_file_3hr}
   git checkout ${table_file_6hrLev}
   git checkout ${table_file_6hrPlevPt}
+  git checkout ${table_file_6hrPlev}
   git checkout ${table_file_aermon}
 
 
@@ -117,6 +119,28 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
   ' ${table_file_6hrPlevPt}
+
+  # Add siconca on 6hrPlev table:
+  sed -i  '/"tas": {/i \
+        "siconca": {                                                    \
+            "frequency": "6hr",                                         \
+            "modeling_realm": "seaIce",                                 \
+            "standard_name": "sea_ice_area_fraction",                   \
+            "units": "%",                                               \
+            "cell_methods": "area: time: mean",                         \
+            "cell_measures": "area: areacella",                         \
+            "long_name": "Sea-Ice Area Percentage (Atmospheric Grid)",  \
+            "comment": "Percentage of grid cell covered by sea ice",    \
+            "dimensions": "longitude latitude time typesi",             \
+            "out_name": "siconca",                                      \
+            "type": "real",                                             \
+            "positive": "",                                             \
+            "valid_min": "",                                            \
+            "valid_max": "",                                            \
+            "ok_min_mean_abs": "",                                      \
+            "ok_max_mean_abs": ""                                       \
+        },                                                              
+  ' ${table_file_6hrPlev}
 
   # rsscsaf  126070  CVEXTR2(11)='clear SW surf', grib 126.70 clear SW surf rsscsaf (r: radiation, s: short wave, s:surface, cs: clear sky, af: aerosol free)
   # rssaf    126071  CVEXTR2(12)='total SW surf', grib 126.71 total SW surf rssaf
@@ -206,6 +230,7 @@ if [ "$#" -eq 0 ]; then
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_3hr}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrLev}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlevPt}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlev}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_aermon}
 
 
@@ -443,6 +468,7 @@ if [ "$#" -eq 0 ]; then
   echo "  ${table_path}/${table_file_3hr}"
   echo "  ${table_path}/${table_file_6hrLev}"
   echo "  ${table_path}/${table_file_6hrPlevPt}"
+  echo "  ${table_path}/${table_file_6hrPlev}"
   echo "  ${table_path}/${table_file_aermon}"
   echo " and added the file:"
   echo "  ${table_path}/${table_file_AER6hrPt}"
