@@ -326,9 +326,43 @@ if [ "$#" -eq 5 ]; then
   if [ ${data_request_file##*/} = 'full-foci-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
    ./switch-on-off-pextra-mode.sh deactivate-pextra-mode
-   if [ ${experiment} = 'amip' ] || [ ${experiment} = 'ssp370' ]; then
+   if [ ${experiment} = 'amip'       ]; then
     echo
-    echo " Additional tweaking for the metadata files has been done in the EC-Earth svn repository."
+    echo " Tweaking the metadata files for experiment ${experiment}"
+    echo
+    rm -f ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-nemo-template.json
+    rm -f ${output_dir}/file_def_nemo-*.xml
+    rm -f ${output_dir}/lpjg_cmip6_output.ins
+    sed -i -e 's/"realization_index":            "1"/"realization_index":            "9"/'                                                                                               ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "r=9 is used as a test dataset for FOCI RCM downscaling",/'                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_source_id":             "EC-Earth3-AerChem"/"parent_source_id":             "no parent"/'                                                                       ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_variant_label":         "r1i1p1f1"/"parent_variant_label":         "no parent"/'                                                                                ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_time_units":            "days since 1850-01-01"/"parent_time_units":            "no parent"/'                                                                   ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_method":                "standard"/"branch_method":                "no parent"/'                                                                                ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "0.0"/'                                                                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "0.0"/'                                                                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"comment":                      ""/"comment":                      "Production: Twan van Noije \& Thomas Reerink at KNMI"/'                                             ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_mip_era":               "CMIP6"/"parent_mip_era":               "no parent"/'                                                                                   ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+   if [ ${experiment} = 'historical' ]; then
+    echo
+    echo " Tweaking the metadata files for experiment ${experiment}"
+    echo
+    sed -i -e 's/"initialization_index":         "1"/"initialization_index":         "2"/'                                                                                               ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "The initialization (i2) of the parent experiment at 2004-01-01 introduces a small perturbation in the atmosphere.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "0.0"/'                                                                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "0.0"/'                                                                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"comment":                      ""/"comment":                      "Production: Twan van Noije \& Philippe Le Sager at KNMI"/'                                          ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   fi
+   if [ ${experiment} = 'ssp370'     ]; then
+    echo
+    echo " Tweaking the metadata files for experiment ${experiment}"
+    echo
+    sed -i -e 's/"initialization_index":         "1"/"initialization_index":         "2"/'                                                                                               ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"#variant_info.*/"variant_info":                 "The initialization (i2) of the parent experiment at 2004-01-01 introduces a small perturbation in the atmosphere.",/' ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"parent_variant_label":         "r1i1p1f1"/"parent_variant_label":         "r1i2p1f1"/'                                                                                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_child":         "0.0D"/"branch_time_in_child":         "60265."/'                                                                                       ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+    sed -i -e 's/"branch_time_in_parent":        "0.0D"/"branch_time_in_parent":        "60265."/'                                                                                       ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
     echo
    fi
   fi
