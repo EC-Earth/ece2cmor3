@@ -56,15 +56,16 @@ For example we create the directoy `${HOME}/cmorize/` for the ece2cmor tool:
 
 ```shell
 cd ${HOME}/cmorize/
-git clone https://github.com/EC-Earth/ece2cmor3.git
+git clone https://github.com/EC-Earth/ece2cmor3.git  # For a simple HTTPS checkout
+git clone git@github.com:EC-Earth/ece2cmor3.git      # For a SSH checkout (enabling "git push")
 cd ece2cmor3
 git submodule update --init --recursive
 ./download-b2share-dataset.sh ./ece2cmor3/resources/b2share-data
 ```
-Note that Github depricates the `https` clone method, therefore see how to [migrate from https to ssh](https://github.com/EC-Earth/ece2cmor3/wiki/instruction-how-to-change-from-https-to-ssh).
+For those who want to commit contributions the `SSH` clone method is obligatory. If one needs to switch from a `HTTPS` to an `SSH` checkout one can follow the [migrate from https to ssh](https://github.com/EC-Earth/ece2cmor3/wiki/instruction-how-to-change-from-https-to-ssh) guidelines.
 
-##### Creating ece2cmor3 environment via mamba:
-In the ece2cmor3 git checkout directory, type
+##### Creating the ece2cmor3 environment via mamba:
+
 ```shell
 activatemamba                             # The mamba-activate alias (as defined above)
 cd ${HOME}/cmorize/ece2cmor3              # Navigate to the ece2cmor3 root directory

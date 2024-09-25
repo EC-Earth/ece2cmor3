@@ -12,21 +12,71 @@ if [ "$#" -eq 0 ]; then
 
  if [ add_aerchem_foci_variables ]; then
   # See #775  https://github.com/EC-Earth/ece2cmor3/issues/775
+  # See #830  https://github.com/EC-Earth/ece2cmor3/issues/830
 
 
   # Add 77 TM5 AERchem variables for downscaling within the FOCI project.
 
   table_path=../resources/cmip6-cmor-tables/Tables
-  table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
   table_file_cv=CMIP6_CV.json
+  table_file_3hr=CMIP6_3hr.json
+  table_file_6hrLev=CMIP6_6hrLev.json
+  table_file_6hrPlevPt=CMIP6_6hrPlevPt.json
+  table_file_6hrPlev=CMIP6_6hrPlev.json
   table_file_AER6hrPt=CMIP6_AER6hrPt.json
   table_file_aermon=CMIP6_AERmon.json
 
   cd ${table_path}
   rm -f ${table_file_AER6hrPt}
-  git checkout ${table_file_6hrPlevPt}
   git checkout ${table_file_cv}
+  git checkout ${table_file_3hr}
+  git checkout ${table_file_6hrLev}
+  git checkout ${table_file_6hrPlevPt}
+  git checkout ${table_file_6hrPlev}
   git checkout ${table_file_aermon}
+
+
+  sed -i  '/"tslsi": {/i \
+        "tosa": {                                                                                                                           \
+            "frequency": "3hr",                                                                                                             \
+            "modeling_realm": "ocean",                                                                                                      \
+            "standard_name": "sea_surface_temperature",                                                                                     \
+            "units": "degC",                                                                                                                \
+            "cell_methods": "area: mean where sea time: point",                                                                             \
+            "cell_measures": "area: areacella",                                                                                             \
+            "long_name": "Sea Surface Temperature",                                                                                         \
+            "comment": "Temperature of upper boundary of the liquid ocean, including temperatures below sea-ice and floating ice shelves.", \
+            "dimensions": "longitude latitude time1",                                                                                       \
+            "out_name": "tosa",                                                                                                             \
+            "type": "real",                                                                                                                 \
+            "positive": "",                                                                                                                 \
+            "valid_min": "",                                                                                                                \
+            "valid_max": "",                                                                                                                \
+            "ok_min_mean_abs": "",                                                                                                          \
+            "ok_max_mean_abs": ""                                                                                                           \
+        },                                                                                                                                  
+  ' ${table_file_3hr}
+
+  sed -i  '/"va": {/i \
+        "zg": {                                                                                                                                                                                                                                                                                                                                                                                                         \
+            "frequency": "6hrPt",                                                                                                                                                                                                                                                                                                                                                                                       \
+            "modeling_realm": "atmos",                                                                                                                                                                                                                                                                                                                                                                                  \
+            "standard_name": "geopotential_height",                                                                                                                                                                                                                                                                                                                                                                     \
+            "units": "m",                                                                                                                                                                                                                                                                                                                                                                                               \
+            "cell_methods": "time: mean",                                                                                                                                                                                                                                                                                                                                                                               \
+            "cell_measures": "area: areacella",                                                                                                                                                                                                                                                                                                                                                                         \
+            "long_name": "Geopotential Height",                                                                                                                                                                                                                                                                                                                                                                         \
+            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.", \
+            "dimensions": "longitude latitude alevel time1",                                                                                                                                                                                                                                                                                                                                                            \
+            "out_name": "zg",                                                                                                                                                                                                                                                                                                                                                                                           \
+            "type": "real",                                                                                                                                                                                                                                                                                                                                                                                             \
+            "positive": "",                                                                                                                                                                                                                                                                                                                                                                                             \
+            "valid_min": "",                                                                                                                                                                                                                                                                                                                                                                                            \
+            "valid_max": "",                                                                                                                                                                                                                                                                                                                                                                                            \
+            "ok_min_mean_abs": "",                                                                                                                                                                                                                                                                                                                                                                                      \
+            "ok_max_mean_abs": ""                                                                                                                                                                                                                                                                                                                                                                                       \
+        },
+  ' ${table_file_6hrLev}
 
   sed -i  '/"ts": {/i \
         "tosa": {                                                                                                                           \
@@ -39,7 +89,7 @@ if [ "$#" -eq 0 ]; then
             "long_name": "Sea Surface Temperature",                                                                                         \
             "comment": "Temperature of upper boundary of the liquid ocean, including temperatures below sea-ice and floating ice shelves.", \
             "dimensions": "longitude latitude time1",                                                                                       \
-            "out_name": "tos",                                                                                                              \
+            "out_name": "tosa",                                                                                                             \
             "type": "real",                                                                                                                 \
             "positive": "",                                                                                                                 \
             "valid_min": "",                                                                                                                \
@@ -70,6 +120,28 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                                               \
         },                                                                                      
   ' ${table_file_6hrPlevPt}
+
+  # Add siconca on 6hrPlev table:
+  sed -i  '/"tas": {/i \
+        "siconca": {                                                    \
+            "frequency": "6hr",                                         \
+            "modeling_realm": "seaIce",                                 \
+            "standard_name": "sea_ice_area_fraction",                   \
+            "units": "%",                                               \
+            "cell_methods": "area: time: mean",                         \
+            "cell_measures": "area: areacella",                         \
+            "long_name": "Sea-Ice Area Percentage (Atmospheric Grid)",  \
+            "comment": "Percentage of grid cell covered by sea ice",    \
+            "dimensions": "longitude latitude time typesi",             \
+            "out_name": "siconca",                                      \
+            "type": "real",                                             \
+            "positive": "",                                             \
+            "valid_min": "",                                            \
+            "valid_max": "",                                            \
+            "ok_min_mean_abs": "",                                      \
+            "ok_max_mean_abs": ""                                       \
+        },                                                              
+  ' ${table_file_6hrPlev}
 
   # rsscsaf  126070  CVEXTR2(11)='clear SW surf', grib 126.70 clear SW surf rsscsaf (r: radiation, s: short wave, s:surface, cs: clear sky, af: aerosol free)
   # rssaf    126071  CVEXTR2(12)='total SW surf', grib 126.71 total SW surf rssaf
@@ -155,9 +227,12 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_cv}
 
   # Remove the trailing spaces of the inserted block above:
+  sed -i -e 's/\s*$//g'                ${table_file_cv}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_3hr}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrLev}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlevPt}
+  sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_6hrPlev}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_aermon}
-  sed -i -e 's/\s*$//g' ${table_file_cv}
 
 
   # Add CMIP6 AER6hrPt table header:
@@ -360,7 +435,27 @@ if [ "$#" -eq 0 ]; then
    echo '        },                                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   done
 
-  # Add surface air pressure (ps) 6hrPt variables for the AER6hrPt CMIP6 table:
+  # Add 3D Specific Humidity (hus) 6hrPt variable for the AER6hrPt CMIP6 table:
+  echo '        "hus": {                                                                                                                                ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "frequency": "6hrPt",                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "modeling_realm": "atmos",                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "standard_name": "specific_humidity",                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "units": "1",                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_methods": "area: mean time: point",                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_measures": "area: areacella",                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "long_name": "Specific Humidity",                                                                                                   ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "comment": "Specific humidity is the mass fraction of water vapor in (moist) air.",                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "dimensions": "longitude latitude alevel time1",                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "out_name": "hus",                                                                                                                  ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "type": "real",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "positive": "",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_min": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_max": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_min_mean_abs": "",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_max_mean_abs": ""                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        },                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+
+  # Add surface air pressure (ps) 6hrPt variable for the AER6hrPt CMIP6 table:
   echo '        "ps": {                                                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "frequency": "6hrPt",                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "modeling_realm": "atmos",                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
@@ -378,7 +473,47 @@ if [ "$#" -eq 0 ]; then
   echo '            "valid_max": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "ok_min_mean_abs": "",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   echo '            "ok_max_mean_abs": ""                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
-  echo '        }                                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        },                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+
+  # Add 3D Air Temperature (ta) 6hrPt variable for the AER6hrPt CMIP6 table:
+  echo '        "ta": {                                                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "frequency": "6hrPt",                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "modeling_realm": "atmos",                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "standard_name": "air_temperature",                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "units": "K",                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_methods": "area: mean time: point",                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_measures": "area: areacella",                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "long_name": "Air Temperature",                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "comment": "Air Temperature",                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "dimensions": "longitude latitude alevel time1",                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "out_name": "ta",                                                                                                                   ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "type": "real",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "positive": "",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_min": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_max": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_min_mean_abs": "",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_max_mean_abs": ""                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        },                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+
+  # Add 3D Geopotential Height (zg) 6hrPt variable for the AER6hrPt CMIP6 table:
+  echo '        "zg": {                                                                                                                                                                                                                                                                                                                                                                                                         ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "frequency": "6hrPt",                                                                                                                                                                                                                                                                                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "modeling_realm": "atmos",                                                                                                                                                                                                                                                                                                                                                                                  ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "standard_name": "geopotential_height",                                                                                                                                                                                                                                                                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "units": "m",                                                                                                                                                                                                                                                                                                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_methods": "time: mean",                                                                                                                                                                                                                                                                                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_measures": "area: areacella",                                                                                                                                                                                                                                                                                                                                                                         ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "long_name": "Geopotential Height",                                                                                                                                                                                                                                                                                                                                                                         ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "comment": "Geopotential is the sum of the specific gravitational potential energy relative to the geoid and the specific centripetal potential energy. Geopotential height is the geopotential divided by the standard acceleration due to gravity. It is numerically similar to the altitude (or geometric height) and not to the quantity with standard name height, which is relative to the surface.", ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "dimensions": "longitude latitude alevel time1",                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "out_name": "zg",                                                                                                                                                                                                                                                                                                                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "type": "real",                                                                                                                                                                                                                                                                                                                                                                                             ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "positive": "",                                                                                                                                                                                                                                                                                                                                                                                             ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_min": "",                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_max": "",                                                                                                                                                                                                                                                                                                                                                                                            ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_min_mean_abs": "",                                                                                                                                                                                                                                                                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_max_mean_abs": ""                                                                                                                                                                                                                                                                                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        }                                                                                                                                                                                                                                                                                                                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
 
   # Add closing part of CMIP6 table json file:
   echo '    }                                                                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
@@ -391,7 +526,10 @@ if [ "$#" -eq 0 ]; then
   echo "  $0"
   echo " has adjusted the files:"
   echo "  ${table_path}/${table_file_cv}"
+  echo "  ${table_path}/${table_file_3hr}"
+  echo "  ${table_path}/${table_file_6hrLev}"
   echo "  ${table_path}/${table_file_6hrPlevPt}"
+  echo "  ${table_path}/${table_file_6hrPlev}"
   echo "  ${table_path}/${table_file_aermon}"
   echo " and added the file:"
   echo "  ${table_path}/${table_file_AER6hrPt}"

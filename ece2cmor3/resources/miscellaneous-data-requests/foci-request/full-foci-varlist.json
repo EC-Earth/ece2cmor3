@@ -21,7 +21,8 @@
             "rsdscs",
             "rsuscs",
             "ps",
-            "clt"
+            "clt",
+            "tosa"
         ],
         "6hrLev": [
             "ta",
@@ -42,6 +43,9 @@
             "va",
             "ta",
             "psl"
+        ],
+        "6hrPlev": [
+            "siconca"
         ],
         "AERday": [
             "zg1000",
@@ -111,8 +115,7 @@
             "hus",
             "hur",
             "wap",
-            "zg",
-            "pfull"
+            "zg"
         ],
         "CF3hr": [
             "pfull",
@@ -414,7 +417,10 @@
             "rooh",
             "so2",
             "terp",
-            "ps"
+            "hus",
+            "ps",
+            "ta",
+            "zg"
         ],
         "AERday": [
             "maxpblz",
