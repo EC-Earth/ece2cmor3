@@ -12,6 +12,7 @@ if [ "$#" -eq 0 ]; then
 
  if [ add_aerchem_foci_variables ]; then
   # See #775  https://github.com/EC-Earth/ece2cmor3/issues/775
+  # See #830  https://github.com/EC-Earth/ece2cmor3/issues/830
 
 
   # Add 77 TM5 AERchem variables for downscaling within the FOCI project.
@@ -433,6 +434,26 @@ if [ "$#" -eq 0 ]; then
    echo '            "ok_max_mean_abs": ""                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
    echo '        },                                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
   done
+
+  # Add 3D Specific Humidity (hus) 6hrPt variable for the AER6hrPt CMIP6 table:
+  echo '        "hus": {                                                                                                                                ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "frequency": "6hrPt",                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "modeling_realm": "atmos",                                                                                                          ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "standard_name": "specific_humidity",                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "units": "1",                                                                                                                       ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_methods": "area: mean time: point",                                                                                           ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "cell_measures": "area: areacella",                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "long_name": "Specific Humidity",                                                                                                   ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "comment": "Specific humidity is the mass fraction of water vapor in (moist) air.",                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "dimensions": "longitude latitude alevel time1",                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "out_name": "hus",                                                                                                                  ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "type": "real",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "positive": "",                                                                                                                     ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_min": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "valid_max": "",                                                                                                                    ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_min_mean_abs": "",                                                                                                              ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '            "ok_max_mean_abs": ""                                                                                                               ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
+  echo '        },                                                                                                                                      ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
 
   # Add surface air pressure (ps) 6hrPt variable for the AER6hrPt CMIP6 table:
   echo '        "ps": {                                                                                                                                 ' | sed 's/\s*$//g' >> ${table_file_AER6hrPt}
