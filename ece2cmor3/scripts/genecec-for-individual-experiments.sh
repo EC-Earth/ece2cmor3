@@ -77,7 +77,7 @@ if [ "$#" -eq 5 ]; then
   fi
 
   # optimesm only:
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./add-optimesm-variables.sh
 
    basic_cmip6_file_def_nemo=../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml
@@ -374,7 +374,7 @@ if [ "$#" -eq 5 ]; then
   fi
 
   # optimesm only:
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
    git checkout ${basic_cmip6_file_def_nemo}
   fi
@@ -412,7 +412,7 @@ else
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-2xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-2xCO2  "
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-4xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-4xCO2  "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-CC-varlist.json        CMIP        historical               EC-EARTH-CC      optimesm "
+  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        historical               EC-EARTH-ESM-1   optimesm                                "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                     EC-EARTH-AOGCM   extremeX-short                          "
   echo
