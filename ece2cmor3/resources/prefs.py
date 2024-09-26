@@ -54,7 +54,7 @@ def keep_variable(target, model_component, ecearth_config):
         return model_component == "nemo" and (ecearth_config == "EC-EARTH-CC" or ecearth_config == "EC-EARTH-ESM-1")
 
     if variable == "co2mass":
-        if ecearth_config == "EC-EARTH-ESM":
+        if ecearth_config == "EC-EARTH-ESM-1":
             return model_component == "co2box"
         else:
             return model_component == "tm5"
