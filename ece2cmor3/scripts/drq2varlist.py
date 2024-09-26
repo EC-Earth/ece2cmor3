@@ -76,7 +76,7 @@ def main():
         else:
             matches, omitted = taskloader.load_drq(args.drq, config=args.ececonf, check_prefs=True)
             # Here we load extra permanent tasks for LPJ-GUESS because the LPJ_GUESS community likes to output these variables at any time independent wheter they are requested by the data request:
-            if args.ececonf in ["EC-EARTH-CC", "EC-EARTH-Veg", "EC-EARTH-Veg-LR"]:
+            if args.ececonf in ["EC-EARTH-CC", "EC-EARTH-ESM-1", "EC-EARTH-Veg", "EC-EARTH-Veg-LR"]:
                matches_permanent, omitted_permanent = taskloader.load_drq(os.path.join(os.path.dirname(__file__), "..", "resources", "permanent-tasks.json"), config=args.ececonf, check_prefs=True)
                for model, targetlist in list(matches_permanent.items()):
                    if model in matches:
