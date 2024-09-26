@@ -367,6 +367,11 @@ if [ "$#" -eq 5 ]; then
    fi
   fi
 
+  # optimesm only:
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
+   sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX "/'                ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+  fi
+
   # extremeX only:
   if [ ${data_request_file##*/} = 'datarequest-extremeX-short-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
