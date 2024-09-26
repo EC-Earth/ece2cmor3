@@ -88,7 +88,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  if [ "${ececonf}" = 'EC-EARTH-HR'      ]; then declare -a ece_res=('EC-Earth3-HR'       'T511L91'  'ORCA025L75'  'none'                                        'none'      'none'         'none'      'none'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-LR'      ]; then declare -a ece_res=('EC-Earth3-LR'       'T159L62'  'ORCA1L75'    'none'                                        'none'      'none'         'none'      'none'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-CC'      ]; then declare -a ece_res=('EC-Earth3-CC'       'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid L10'  'T255L91'   'ORCA1L75'     'none'      'none'             ); fi
- if [ "${ececonf}" = 'EC-EARTH-ESM-1'   ]; then declare -a ece_res=('EC-Earth3-ESM-1'    'T255L91'  'ORCA1L75'    'none'                                        'T255L91'   'ORCA1L75'     '5 x 5 km'  'global box model' ); fi
+ if [ "${ececonf}" = 'EC-EARTH-ESM-1'   ]; then declare -a ece_res=('EC-Earth3-ESM-1'    'T255L91'  'ORCA1L75'    'none'                                        'T255L91'   'ORCA1L75'     '5 x 5 km'  'box model'        ); fi
  if [ "${ececonf}" = 'EC-EARTH-GrisIS'  ]; then declare -a ece_res=('EC-Earth3-GrIS'     'T255L91'  'ORCA1L75'    'none'                                        'none'      'none'         '5 x 5 km'  'none'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-AerChem' ]; then declare -a ece_res=('EC-Earth3-AerChem'  'T255L91'  'ORCA1L75'    'native regular 2x3 degree latxlon grid L34'  'none'      'none'         'none'      'none'             ); fi
  if [ "${ececonf}" = 'EC-EARTH-Veg'     ]; then declare -a ece_res=('EC-Earth3-Veg'      'T255L91'  'ORCA1L75'    'none'                                        'T255L91'   'none'         'none'      'none'             ); fi
@@ -485,7 +485,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
      grid_label='gr'
      res_index=6
     elif [ "${component}" = 'co2box' ]; then
-     grid_label='gn'
+     grid_label='gm'
      res_index=7
     fi
 
