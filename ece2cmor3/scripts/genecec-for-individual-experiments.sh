@@ -369,7 +369,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm only:
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
-   sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX "/'                ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX"/'                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   fi
 
   # extremeX only:
