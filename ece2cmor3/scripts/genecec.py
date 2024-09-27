@@ -3,7 +3,7 @@
 #
 # Run examples:
 #  ./genecec.py config-genecec
-#  ./run-genecec.sh default 001 ece2cmor3
+#  ./run-genecec.sh default 001
 #
 # Looping over all MIPs and within each MIP over all its MIP experiments.
 # The experiment tier can be selected. For each selected experiment the

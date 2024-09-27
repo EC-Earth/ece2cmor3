@@ -10,7 +10,7 @@
 #
 # Note that this script calls genecec.py
 
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 2 ]; then
 
   if ! type "ece2cmor" > /dev/null; then
    echo; tput setaf 1;
@@ -34,7 +34,6 @@ if [ "$#" -eq 3 ]; then
 
   pextra_mode=$1
   version=$2
-  ece2cmor3_dir=$3
 
   config_genecec_run_file=config-genecec-run
 
@@ -46,11 +45,10 @@ if [ "$#" -eq 3 ]; then
 
   sed -e 's/output-control-files/~\/cmorize\/control-output-files\/output-control-files-v'${version}'/' config-genecec > ${config_genecec_run_file}
   if [ "${pextra_mode}" == 'pextra' ]; then
-   sed -i -e 's/activate_pextra_mode            = False/activate_pextra_mode            = True /' ${config_genecec_run_file}
-   sed -i -e 's/default/pextra/'                                                                  ${config_genecec_run_file} # Adjust example in header
+   sed -i -e 's/activate_pextra_mode            = False/activate_pextra_mode            = True/' ${config_genecec_run_file}
+   sed -i -e 's/default/pextra/'                                                                 ${config_genecec_run_file} # Adjust example in header
   fi
-  sed -i -e "s/001/${version}/"                                                                   ${config_genecec_run_file} # Adjust example in header
-  sed -i -e "s/ece2cmor3/${ece2cmor3_dir}/"                                                       ${config_genecec_run_file}
+  sed -i -e "s/001/${version}/"                                                                  ${config_genecec_run_file} # Adjust example in header
 
   log_dir=~/cmorize/control-output-files/log-genecec
   log_file=${log_dir}/log-genecec-v${label}
@@ -59,8 +57,8 @@ if [ "$#" -eq 3 ]; then
 
 else
   echo
-  echo " This scripts requires three arguments, e.g.:"
-  echo "  $0 default 420 ece2cmor3"
-  echo "  $0 pextra  420 ece2cmor3"
+  echo " This scripts requires two arguments, e.g.:"
+  echo "  $0 default 450"
+  echo "  $0 pextra  450"
   echo
 fi
