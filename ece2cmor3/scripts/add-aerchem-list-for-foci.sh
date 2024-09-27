@@ -624,7 +624,10 @@ if [ "$#" -eq 0 ]; then
    "rooh"
    "so2"
    "terp"
+   "hus"
    "ps"
+   "ta"
+   "zg"
    )
 
    output_file=foci-tm5par.json

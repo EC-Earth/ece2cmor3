@@ -19,11 +19,24 @@ def keep_variable(target, model_component, ecearth_config):
             return model_component == "ifs"
 
     # For these basic meteorological variables, let them be produced by tm5 for the AER* tables and otherwise ifs
-    if variable in ["pfull", "zg", "ps", "tas", "ua", "va", "o3"]:
-        if table.startswith("AER"):
-            return model_component == "tm5"
-        else:
-            return model_component == "ifs"
+    # TM5 cases:
+    #            pfull ??
+    #            tas   ??
+    #            ua    ??
+    #            va    ??
+    #            o3    AER6hrPt AERmon AERmonZ  BUT o3 is only in TM5 available (not in IFS), so doesn't require a rule
+    #
+    #            zg    AER6hrPt
+    #            ps    AER6hrPt AERhr AERmon
+    #            ta    AER6hrPt AERmonZ
+    #            hus   AER6hrPt
+    if variable == "zg"  and table in ["AER6hrPt"]                    or \
+       variable == "ps"  and table in ["AER6hrPt", "AERhr", "AERmon"] or \
+       variable == "ta"  and table in ["AER6hrPt", "AERmonZ"]         or \
+       variable == "hus" and table in ["AER6hrPt"]:
+        return model_component == "tm5"
+    else:
+        return model_component == "ifs"
 
     # All watercycle related variables and Temperature of Soil (tsl) from IFS/HTESSEL have preference above the ones from LPJG
     # because they form a consistant set with other IFS variables:
