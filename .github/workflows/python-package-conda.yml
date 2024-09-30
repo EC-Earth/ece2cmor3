@@ -21,7 +21,7 @@ jobs:
         environment-file: environment.yml
         python-version: ${{ matrix.python-version }}
         miniforge-version: "latest"
-        miniforge-variant: Mambaforge
+        miniforge-variant: Miniforge3
         use-mamba: true
         auto-update-conda: true
        #auto-activate-base: false

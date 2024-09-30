@@ -41,8 +41,8 @@ Download [mamba](https://github.com/conda-forge/miniforge/releases/latest/) by u
  
  # Download & install mamba:
  mkdir -p ${HOME}/Downloads; cd ${HOME}/Downloads/
- wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
- bash Mambaforge-$(uname)-$(uname -m).sh -b -u -p ${mambapath}
+ wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+ bash Miniforge3-$(uname)-$(uname -m).sh -b -u -p ${mambapath}
  
  # Update mamba:
  activatemamba
