@@ -30,13 +30,14 @@ def keep_variable(target, model_component, ecearth_config):
     #            ps    AER6hrPt AERhr AERmon
     #            ta    AER6hrPt AERmonZ
     #            hus   AER6hrPt
-    if variable == "zg"  and table in ["AER6hrPt"]                    or \
-       variable == "ps"  and table in ["AER6hrPt", "AERhr", "AERmon"] or \
-       variable == "ta"  and table in ["AER6hrPt", "AERmonZ"]         or \
-       variable == "hus" and table in ["AER6hrPt"]:
-        return model_component == "tm5"
-    else:
-        return model_component == "ifs"
+    if variable in ["zg", "ps", "ta", "hus"]:                                 # "pfull", "tas", "ua", "va", "o3"
+     if (variable == "zg"  and table in ["AER6hrPt"]                   ) or \
+        (variable == "ps"  and table in ["AER6hrPt", "AERhr", "AERmon"]) or \
+        (variable == "ta"  and table in ["AER6hrPt", "AERmonZ"]        ) or \
+        (variable == "hus" and table in ["AER6hrPt"]                   ):
+         return model_component == "tm5"
+     else:
+         return model_component == "ifs"
 
     # All watercycle related variables and Temperature of Soil (tsl) from IFS/HTESSEL have preference above the ones from LPJG
     # because they form a consistant set with other IFS variables:
