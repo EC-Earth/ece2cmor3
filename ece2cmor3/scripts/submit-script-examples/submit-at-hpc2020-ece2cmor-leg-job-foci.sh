@@ -80,10 +80,10 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 foct v003"
+  echo "  sbatch $0 ifs 001 for1 v001"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i foct v003; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i foct v003; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i foct v003; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i for1 v001; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i for1 v001; done"
+  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i for1 v001; done"
   echo
  fi
