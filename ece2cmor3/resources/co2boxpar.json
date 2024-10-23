@@ -6,5 +6,13 @@
     {
         "source": "co2mass",
         "target": "co2mass"
+    },
+    {
+        "source": "cDACCS",
+        "target": "cDACCS"
+    },
+    {
+        "source": "fDACCS",
+        "target": "fDACCS"
     }
 ]
