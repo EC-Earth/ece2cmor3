@@ -321,9 +321,9 @@
         ],
         "LPJGyr": [
             "pastureFrac",
-            "rescueA",
-            "rescueB",
-            "rescueC"
+            "cBECCS",
+            "fBECCS",
+            "fBECCSatm"
         ]
     },
     "nemo": {
@@ -528,8 +528,8 @@
             "co2s"
         ],
         "Eyr": [
-            "rescueC",
-            "rescueD"
+            "cDACCS",
+            "fDACCS"
         ],
         "day": [
             "co2s",
