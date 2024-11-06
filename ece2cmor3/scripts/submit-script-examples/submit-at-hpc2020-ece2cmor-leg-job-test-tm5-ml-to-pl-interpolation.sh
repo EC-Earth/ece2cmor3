@@ -31,6 +31,11 @@
    EXP=$3
    VERSION=$4
 
+  #/ec/res4/scratch/nktr/cmorised-results/foci/fot9/v001/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-AerChem/amip/r9i1p1f1/Amon/ch4/gn/v20240124/
+  #/ec/res4/scratch/nktr/cmorised-results/foci/fot9/v001/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-AerChem/amip/r9i1p1f1/AERmonZ/ch4/gn/v20240124/
+  #/ec/res4/scratch/nktr/cmorised-results/foci/fot9/v001/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-AerChem/amip/r9i1p1f1/AERmon/ch4/gn/v20240124/
+  #3D 19 pressure levels/ Zonal mean 39 pressure levels / 3D model levels
+
    ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
   #ECEDIR=${SCRATCH}/ec-earth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
@@ -38,9 +43,8 @@
   #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
   #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci-minimal-test.json
-   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json
-   ODIR=${SCRATCH}/cmorised-results/foci/$EXP/$VERSION
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-test-tm5-ml-to-pl-interpolation.json
+   ODIR=${SCRATCH}/cmorised-results/test-tm5-ml-to-pl-interpolation/$EXP/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi

@@ -191,3 +191,4 @@ class nemo2cmor_tests(unittest.TestCase):
         assert nemo2cmor.get_grid_type("lim_grid_T_3D_ncatice") == 't'
         assert nemo2cmor.get_grid_type("opa_vert_sum") == 't'
         assert nemo2cmor.get_grid_type("opa_zoom_700_sum") == 't'
+        assert nemo2cmor.get_grid_type("pisces_grid_T_SFC") == 't'
