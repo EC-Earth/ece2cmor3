@@ -15,7 +15,8 @@ if [ "$#" -eq 0 ]; then
  add_rescue_variables=True
 
  if [ add_rescue_variables ]; then
-  # See #1377  https://github.com/EC-Earth/ece2cmor3/issues/1377
+  # See #835   https://github.com/EC-Earth/ece2cmor3/issues/835
+  # See #1377  https://dev.ec-earth.org/issues/1377
 
   #  Added variables:
   #  From LPJ-GUESS:
@@ -72,7 +73,7 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                                                      \
         },                                                                                             \
         "fBECCS": {                                                                                    \
-            "frequency": "mon",                                                                        \
+            "frequency": "yr",                                                                         \
             "modeling_realm": "land",                                                                  \
             "standard_name": "carbon_flux_from_bioenergy_crops_harvested_into_ccs",                    \
             "units": "kg m-2 s-1",                                                                     \
@@ -90,7 +91,7 @@ if [ "$#" -eq 0 ]; then
             "ok_max_mean_abs": ""                                                                      \
         },                                                                                             \
         "fBECCSatm": {                                                                                 \
-            "frequency": "mon",                                                                        \
+            "frequency": "yr",                                                                         \
             "modeling_realm": "land",                                                                  \
             "standard_name": "carbon_flux_from_bioenergy_crops_harvested_but_not_stored",              \
             "units": "kg m-2 s-1",                                                                     \
