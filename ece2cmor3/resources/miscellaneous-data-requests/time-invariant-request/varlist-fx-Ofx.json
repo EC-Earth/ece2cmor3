@@ -1,0 +1,21 @@
+{
+    "co2box": {},
+    "ifs": {
+        "fx": [
+            "areacella",
+            "orog",
+            "sftlf"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {
+        "Ofx": [
+            "areacello",
+            "basin",
+            "deptho",
+            "hfgeou",
+            "sftof"
+        ]
+    },
+    "tm5": {}
+}

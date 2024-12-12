@@ -1,0 +1,28 @@
+{
+    "co2box": {},
+    "ifs": {
+        "Efx": [
+            "clayfrac",
+            "ps",
+            "sandfrac",
+            "siltfrac",
+            "slthick"
+        ],
+        "fx": [
+            "areacella",
+            "orog",
+            "sftlf"
+        ]
+    },
+    "lpjg": {},
+    "nemo": {
+        "Ofx": [
+            "areacello",
+            "basin",
+            "deptho",
+            "hfgeou",
+            "sftof"
+        ]
+    },
+    "tm5": {}
+}
