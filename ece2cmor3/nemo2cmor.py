@@ -634,7 +634,7 @@ def get_grid_type(grid_name):
     result = re.search(expr, grid_name)
     if result is not None:
         return 't'
-    expr = re.compile(r"(?i)grid_((T|U|V|W)_(2|3)D)|((T|U|V|W)$)")
+    expr = re.compile(r"(?i)grid_((T|U|V|W)_((2|3)D|SFC))|((T|U|V|W)$)")
     result = re.search(expr, grid_name)
     if not result:
         return None

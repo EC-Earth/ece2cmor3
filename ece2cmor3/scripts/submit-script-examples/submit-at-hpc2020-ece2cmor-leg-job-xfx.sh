@@ -4,11 +4,11 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=06:08:00
+#SBATCH --time=00:05:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
-#SBATCH --qos=np
+#SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -31,16 +31,18 @@
    EXP=$3
    VERSION=$4
 
-   ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
-  #ECEDIR=${SCRATCH}/ec-earth3/$EXP/output/$COMPONENT/$LEG
-   ECEMODEL=EC-EARTH-AerChem
-   METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
-  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
-  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
+   ece_branch_root_dir=ec-earth-3/trunk
+   ECEMODEL=EC-EARTH-AOGCM
+   MIP_ERA=cmip6
+   MIP=CMIP
+   EXPERIMENT_NAME=piControl
+
+   ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXP/output/$COMPONENT/$LEG
+   METADATA=${PERM}/${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/${MIP_ERA}/${MIP}/${ECEMODEL}/${MIP_ERA}-experiment-${MIP}-${EXPERIMENT_NAME}/metadata-${MIP_ERA}-${MIP}-${EXPERIMENT_NAME}-${ECEMODEL}-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci-minimal-test.json
-   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json
-   ODIR=${SCRATCH}/cmorised-results/foci/$EXP/$VERSION
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/time-invariant-request/varlist-fx-Ofx-Efx.json
+  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/time-invariant-request/varlist-fx-Ofx.json
+   ODIR=${SCRATCH}/cmorised-results/time-invariant-output/$EXP/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi
@@ -65,8 +67,15 @@
                     --odir              $ODIR     \
                     --npp               28        \
                     --overwritemode     replace   \
-                    --refd              1750-01-01 \
+                    --skip_alevel_vars            \
                     --log
+
+   # Run the additional sfstof.py script, see:
+   #  https://github.com/EC-Earth/ece2cmor3/wiki/Recommended-strategies#post-ece2cmor3-production--correction-of-ofx-sftof
+   search_path=${ODIR}/CMIP6/${MIP}/EC-Earth-Consortium/EC-Earth3/${EXPERIMENT_NAME}/r*i*p*f*/Ofx/sftof
+   for i in `find ${search_path} -name 'sftof_Ofx*.nc'`; do ../data-qa/scripts/sftof.py ${i}; done
+   # sftof_Ofx_EC-Earth3_${EXPERIMENT_NAME}_*_gn.nc
+   for i in `find ${search_path} -name 'sftof_Ofx*.nc.bak'`; do rm -f ${i}; done
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
@@ -80,10 +89,11 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 for1 v001"
+  echo "  sbatch $0 ifs 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i for1 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i for1 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i for1 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 lpjg \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 tm5  \$i t001 v001; done"
   echo
  fi

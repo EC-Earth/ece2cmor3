@@ -1,5 +1,5 @@
 # This config file can be used with:
-#  ./run-genecec.sh default 001 ece2cmor3
+#  ./run-genecec.sh default 001
 
 output_dir_name                 = 'output-control-files/'
 activate_pextra_mode            = False

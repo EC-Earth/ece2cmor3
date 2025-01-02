@@ -19,18 +19,34 @@ def keep_variable(target, model_component, ecearth_config):
             return model_component == "ifs"
 
     # For these basic meteorological variables, let them be produced by tm5 for the AER* tables and otherwise ifs
-    if variable in ["pfull", "zg", "ps", "tas", "ua", "va", "o3"]:
-        if table.startswith("AER"):
-            return model_component == "tm5"
-        else:
-            return model_component == "ifs"
+    # TM5 cases:
+    #            pfull ??
+    #            tas   ??
+    #            ua    ??
+    #            va    ??
+    #            o3    AER6hrPt AERmon AERmonZ  BUT o3 is only in TM5 available (not in IFS), so doesn't require a rule
+    #
+    #            zg    AER6hrPt
+    #            ps    AER6hrPt AERhr AERmon
+    #            ta    AER6hrPt AERmonZ
+    #            hus   AER6hrPt
+    if variable in ["zg", "ps", "ta", "hus"]:                                 # "pfull", "tas", "ua", "va", "o3"
+     if (variable == "zg"  and table in ["AER6hrPt"]                   ) or \
+        (variable == "ps"  and table in ["AER6hrPt", "AERhr", "AERmon"]) or \
+        (variable == "ta"  and table in ["AER6hrPt", "AERmonZ"]        ) or \
+        (variable == "hus" and table in ["AER6hrPt"]                   ):
+         return model_component == "tm5"
+     else:
+         return model_component == "ifs"
 
     # All watercycle related variables and Temperature of Soil (tsl) from IFS/HTESSEL have preference above the ones from LPJG
     # because they form a consistant set with other IFS variables:
     if variable in ["evspsbl", "mrfso", "mrso", "mrsol", "mrsos", "mrro", "mrros", "snc", "snd", "snw", "tsl"]:
         return model_component == "ifs"
 
-    # Carbon-cycle variables only activated in EC-EARTH-CC
+    # Carbon-cycle variables only activated in EC-EARTH-CC & EC-EARTH-ESM-1:
+    # The list below from the second line on is created by using:
+    #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' | sort | uniq | sed -e 's/$/ \\/' > pisces-vars.txt
     if variable in ["cfc12", "cfc13", "c14", "sf6", \
                     "bfe", "bfeos", "bsi", "bsios", "calc", "calcos", "chl", "chldiat", "chldiatos", \
                     "chlmisc", "chlmiscos", "chlos", "co3", "co3os", "co3satcalc", "co3satcalcos", \
@@ -45,12 +61,14 @@ def keep_variable(target, model_component, ecearth_config):
                     "phydiatos", "phyfe", "phyfeos", "phymisc", "phymiscos", "physi", "physios", "pnitrate", \
                     "po4", "po4os", "pp", "ppdiat", "ppmisc", "ppos", "remoc", "si", "sios", "spco2", "talk", \
                     "talknat", "talknatos", "talkos", "zmeso", "zmesoos", "zmicro", "zmicroos", "zo2min", "zooc", "zoocos"]:
-        return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
-        # The list above from the second line on is created by using:
-        #  more basic-flat-cmip6-file_def_nemo.xml |grep pisces| sed -e 's/field_ref.*//' -e 's/^.*name=//' | sed -e 's/" .*$/",/' | sort | uniq | sed -e 's/$/ \\/' > pisces-vars.txt
+       #if ecearth_config == "EC-EARTH-CC":
+       # return model_component == "nemo" and ecearth_config == "EC-EARTH-CC"
+       #if ecearth_config == "EC-EARTH-ESM-1":
+       # return model_component == "nemo" and ecearth_config == "EC-EARTH-ESM-1"
+        return model_component == "nemo" and (ecearth_config == "EC-EARTH-CC" or ecearth_config == "EC-EARTH-ESM-1")
 
     if variable == "co2mass":
-        if ecearth_config == "EC-EARTH-ESM":
+        if ecearth_config == "EC-EARTH-ESM-1":
             return model_component == "co2box"
         else:
             return model_component == "tm5"

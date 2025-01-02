@@ -77,9 +77,17 @@ if [ "$#" -eq 5 ]; then
   fi
 
   # optimesm only:
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./add-optimesm-variables.sh
+  fi
 
+  # rescue only:
+  if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
+   ./add-rescue-variables.sh
+  fi
+
+  # optimesm & rescue only:
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ] ; then
    basic_cmip6_file_def_nemo=../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml
    # The file_def content below can be obtained by the following grep (manual remove of last backslah at last line though):
    #  grep -e sishevel -e sidconcdyn -e sidconcth -e sidivvel -e sidmassdyn -e sidmassth  ../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml | sed -e 's/"1mo"/"1d"/' -e 's/SImon/SIday/' -e 's/id_1m/id_1d/' -e 's/$/\\/'
@@ -108,7 +116,6 @@ if [ "$#" -eq 5 ]; then
      <field id="id_1m_mlddzt"                        name="mlddzt"                  table="Omon"          field_ref="mlddzt"                                 grid_ref="grid_T_2D"                      unit="m"                  enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>\
      <field id="id_1m_hcont300"                      name="hcont300"                table="Omon"          field_ref="hc300"                                  grid_ref="grid_T_2D"                      unit="J m-2"              enabled="False"   operation="average"    freq_op="1ts"  >                                                                        </field>
    ' ${basic_cmip6_file_def_nemo}
-
   fi
 
   rm -rf   ${output_dir}
@@ -367,6 +374,16 @@ if [ "$#" -eq 5 ]; then
    fi
   fi
 
+  # optimesm only:
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
+   sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX"/'                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+  fi
+
+  # rescue only:
+  if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
+   sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of RESCUE (https:\/\/www.rescue-climate.eu) by XXXX"/'              ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+  fi
+
   # extremeX only:
   if [ ${data_request_file##*/} = 'datarequest-extremeX-short-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
@@ -374,7 +391,13 @@ if [ "$#" -eq 5 ]; then
   fi
 
   # optimesm only:
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-CC-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
+   ./revert-nested-cmor-table-branch.sh
+   git checkout ${basic_cmip6_file_def_nemo}
+  fi
+
+  # rescue only:
+  if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
    git checkout ${basic_cmip6_file_def_nemo}
   fi
@@ -412,7 +435,9 @@ else
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-2xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-2xCO2  "
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-4xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-4xCO2  "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-CC-varlist.json        CMIP        historical               EC-EARTH-CC      optimesm "
+  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        esm-hist                 EC-EARTH-ESM-1   optimesm                                "
+  echo
+  echo "  $0 ../resources/miscellaneous-data-requests/rescue-request/rescue-request-EC-EARTH-ESM-1-varlist.json         CMIP        esm-hist                 EC-EARTH-ESM-1   rescue                                  "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                     EC-EARTH-AOGCM   extremeX-short                          "
   echo
