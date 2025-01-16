@@ -81,7 +81,7 @@ if len(sys.argv) == 2:
    # Specify in the list below which tier experiments should be included. For
    # instance [1,2] means tier 1 and tier 2 experiments are included:
    experiment_tiers_included = [1]
-   ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
+   ec_earth_mips  = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP',                   'DCPP',                              'HighResMIP', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 19 EC-Earth MIPs
 
 
    # The list of MIPs for each of the eight EC-Earth3 model configurations which run CMIP in an iterable dictionary. This lists are needed in order
@@ -92,7 +92,6 @@ if len(sys.argv) == 2:
     'EC-EARTH-LR'      : 'CMIP,PMIP',
     'EC-EARTH-CC'      : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
     'EC-EARTH-ESM-1'   : 'C4MIP,CDRMIP,CMIP,LUMIP,OMIP,ScenarioMIP',
-    'EC-EARTH-GrisIS'  : 'CMIP,ISMIP6,PMIP',
     'EC-EARTH-AerChem' : 'AerChemMIP,CMIP,RFMIP',
     'EC-EARTH-Veg'     : 'CDRMIP,CMIP,LUMIP,LS3MIP,ScenarioMIP',
     'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
@@ -109,7 +108,7 @@ if len(sys.argv) == 2:
     'EC-EARTH-Veg-LR'  : 'CMIP,PMIP,ScenarioMIP'
    }
 
-   #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'ISMIP6', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
+   #ec_earth_mips = ['CMIP', 'AerChemMIP', 'CDRMIP', 'C4MIP', 'CFMIP', 'DAMIP', 'DCPP', 'FAFMIP', 'GeoMIP', 'GMMIP', 'HighResMIP', 'LS3MIP', 'LUMIP', 'OMIP', 'PAMIP', 'PMIP', 'RFMIP', 'ScenarioMIP', 'VolMIP', 'CORDEX', 'DynVarMIP', 'SIMIP', 'VIACSAB'] # All 24 CMIP6 MIPs
    #ec_earth_mips = ['CMIP']        # for a faster test
    #ec_earth_mips = ['ScenarioMIP'] # for a faster test
    #ec_earth_mips = ['AerChemMIP']  # for a faster test
@@ -125,7 +124,7 @@ if len(sys.argv) == 2:
 
    # Define a dictionary which lists/maps for each MIP which EC-Earth3 model configurations are used to run the MIP:
    ece_conf_mip_map = {
-   #'CMIP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR','EC-EARTH-LR','EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-GrisIS','EC-EARTH-AerChem','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
+   #'CMIP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR','EC-EARTH-LR','EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-AerChem','EC-EARTH-Veg','EC-EARTH-Veg-LR'],
     'DCPP'        : ['EC-EARTH-AOGCM','EC-EARTH-HR'],
     'LS3MIP'      : ['EC-EARTH-AOGCM','EC-EARTH-Veg'],
     'PAMIP'       : ['EC-EARTH-AOGCM'],
@@ -137,12 +136,11 @@ if len(sys.argv) == 2:
     'SIMIP'       : ['EC-EARTH-AOGCM'],
     'VIACSAB'     : ['EC-EARTH-AOGCM'],
     'HighResMIP'  : ['EC-EARTH-HR'],
-    'PMIP'        : ['EC-EARTH-LR','EC-EARTH-GrisIS','EC-EARTH-Veg-LR'],
+    'PMIP'        : ['EC-EARTH-LR','EC-EARTH-Veg-LR'],
     'C4MIP'       : ['EC-EARTH-CC','EC-EARTH-ESM-1'],
     'CDRMIP'      : ['EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-Veg'],
     'LUMIP'       : ['EC-EARTH-CC','EC-EARTH-ESM-1','EC-EARTH-Veg'],
     'OMIP'        : ['EC-EARTH-CC','EC-EARTH-ESM-1'],
-    'ISMIP6'      : ['EC-EARTH-GrisIS'],
     'AerChemMIP'  : ['EC-EARTH-AerChem']
    }
 
