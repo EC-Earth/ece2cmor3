@@ -733,6 +733,7 @@ def create_time_axis(ds, task):
 
     # CLN fix issue 836 on github
     if time_dim[0] == "time":
+        print (time_dim)
         tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
                         coord_vals=timevals, cell_bounds=time_bnd)
     elif time_dim[0] == "time1":
