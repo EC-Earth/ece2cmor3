@@ -4,10 +4,10 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=00:05:00
+#SBATCH --time=00:30:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
+#SBATCH --cpus-per-task=5
 #SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
@@ -65,17 +65,28 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               28        \
+                    --npp               5         \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
 
-   # Run the additional sfstof.py script, see:
-   #  https://github.com/EC-Earth/ece2cmor3/wiki/Recommended-strategies#post-ece2cmor3-production--correction-of-ofx-sftof
-   search_path=${ODIR}/CMIP6/${MIP}/EC-Earth-Consortium/EC-Earth3/${EXPERIMENT_NAME}/r*i*p*f*/Ofx/sftof
-   for i in `find ${search_path} -name 'sftof_Ofx*.nc'`; do ../data-qa/scripts/sftof.py ${i}; done
-   # sftof_Ofx_EC-Earth3_${EXPERIMENT_NAME}_*_gn.nc
-   for i in `find ${search_path} -name 'sftof_Ofx*.nc.bak'`; do rm -f ${i}; done
+   if [ "$COMPONENT" = "nemo" ]; then
+    # Run the additional sftof.py script, see:
+    #  https://github.com/EC-Earth/ece2cmor3/wiki/Recommended-strategies#post-ece2cmor3-production--correction-of-ofx-sftof
+    search_path=${ODIR}/CMIP6/${MIP}/EC-Earth-Consortium/EC-Earth3/${EXPERIMENT_NAME}/r*i*p*f*/Ofx/sftof
+    for i in `find ${search_path} -name 'sftof_Ofx*.nc'`; do
+     echo
+     echo ' Run the Ofx sftof correction:'
+     echo "  ../data-qa/scripts/sftof.py ${i}"
+     ../data-qa/scripts/sftof.py ${i}
+     echo
+     echo ' The corrected sftof file:'
+     for f in `find ${search_path} -name 'sftof_Ofx*.nc'`; do ls -lrt $f; done
+     echo
+    done
+    # sftof_Ofx_EC-Earth3_${EXPERIMENT_NAME}_*_gn.nc
+    for i in `find ${search_path} -name 'sftof_Ofx*.nc.bak'`; do rm -f ${i}; done
+   fi
 
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
