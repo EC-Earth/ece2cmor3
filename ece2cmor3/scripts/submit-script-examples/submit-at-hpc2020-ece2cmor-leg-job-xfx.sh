@@ -31,7 +31,7 @@
    EXP=$3
    VERSION=$4
 
-   ece_branch_root_dir=ec-earth-3/trunk
+   ece_branch_root_dir=ecearth3/trunk
    ECEMODEL=EC-EARTH-AOGCM
    MIP_ERA=cmip6
    MIP=CMIP
@@ -89,11 +89,7 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 t001 v001"
-  echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 lpjg \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 tm5  \$i t001 v001; done"
+  echo "  sbatch --job-name=cmorise-ifs-fx   $0 ifs  001 t001 v001"
+  echo "  sbatch --job-name=cmorise-nemo-Ofx $0 nemo 001 t001 v001"
   echo
  fi
