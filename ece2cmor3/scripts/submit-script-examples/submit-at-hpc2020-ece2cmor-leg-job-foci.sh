@@ -7,8 +7,8 @@
 #SBATCH --time=06:08:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
-#SBATCH --qos=np
+#SBATCH --cpus-per-task=64
+#SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -32,11 +32,11 @@
    VERSION=$4
 
    ECEDIR=/ec/res4/scratch/nks/ecearth3/$EXP/output/$COMPONENT/$LEG
-  #ECEDIR=${SCRATCH}/ec-earth3/$EXP/output/$COMPONENT/$LEG
+  #ECEDIR=${SCRATCH}/ecearth3/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AerChem
-   METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
-  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
-  #METADATA=${PERM}/ec-earth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
+   METADATA=${PERM}/ecearth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-amip/metadata-cmip6-CMIP-amip-EC-EARTH-AerChem-$COMPONENT-template.json
+  #METADATA=${PERM}/ecearth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-CMIP-historical/metadata-cmip6-CMIP-historical-EC-EARTH-AerChem-$COMPONENT-template.json
+  #METADATA=${PERM}/ecearth3/r9728-foci-output/runtime/classic/ctrl/output-control-files/foci/EC-EARTH-AerChem-ScenarioMIP-ssp370/metadata-cmip6-ScenarioMIP-ssp370-EC-EARTH-AerChem-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/varlist-foci-minimal-test.json
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/foci-request/full-foci-varlist.json
@@ -63,7 +63,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               28        \
+                    --npp               64        \
                     --overwritemode     replace   \
                     --refd              1750-01-01 \
                     --log
@@ -82,8 +82,8 @@
   echo " For instance:"
   echo "  sbatch $0 ifs 001 for1 v001"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i for1 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i for1 v001; done"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-tm5-\$i  $0 tm5  \$i for1 v001; done"
+  echo "  for i in {001..001}; do sbatch --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 ifs  \$i for1 v001; done"
+  echo "  for i in {001..001}; do sbatch --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0 nemo \$i for1 v001; done"
+  echo "  for i in {001..001}; do sbatch --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0 tm5  \$i for1 v001; done"
   echo
  fi
