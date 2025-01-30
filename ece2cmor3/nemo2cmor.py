@@ -342,7 +342,12 @@ def create_time_axes(ds, tasks, table):
     table_time_axes = time_axes_[table]
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key)
-        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+        #for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+        try:
+            time_dim_list=[d for d in list(set(tgtdims.split())) if d.startswith("time")]
+        except:
+            time_dim_list=[d for d in tgtdims if d.startswith("time")]
+        for time_dim in time_dim_list:
             if time_dim in table_time_axes:
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 nc_operator = getattr(ds.variables[task.source.variable()], "online_operation", "instant")
@@ -432,7 +437,10 @@ def create_type_axes(ds, tasks, table):
     log.info("Creating extra axes for table %s using file %s..." % (table, ds.filepath()))
     table_type_axes = type_axes_[table]
     for task in tasks:
-        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
+        try:
+            tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
+        except:
+            tgtdims = set(getattr(task.target, cmor_target.dims_key)).intersection(list(extra_axes.keys()))
         for dim in tgtdims:
             if dim in table_type_axes:
                 axis_id = table_type_axes[dim]
