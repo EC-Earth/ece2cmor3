@@ -120,11 +120,13 @@ def create_targets_for_file(filepath, prefix):
             setattr(target, key, v2)
             if key == dims_key.lower():
                 try:
-                    spacedims = list(set([s for s in v2.split() if not (s.lower().startswith("time") or
-                                                                    s.lower().startswith("type") )])
-                                 - extra_dims)
+                    spacedims = list(set([s for s in v2.split()
+                        if not (s.lower().startswith("time") or
+                                s.lower().startswith("type") )]) - extra_dims)
                 except:
-                    spacedims = list(set(v2) - extra_dims)
+                    spacedims = list(set([s for s in v2
+                        if not (s.lower().startswith("time") or
+                                s.lower().startswith("type") )]) - extra_dims)
                 setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
                 zdims = list(set(spacedims) - xydims)

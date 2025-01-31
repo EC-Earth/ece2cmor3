@@ -67,12 +67,6 @@ def create_command(task):
     add_grid_operators(result, task)
     add_expr_operators(result, task)
     add_time_operators(result, task)
-
-    # really uggly fix for CMIP6Plus, needs to be addressed differently
-    if hasattr(task.target,"z_dims"):
-        if len(task.target.z_dims)>1:
-            setattr(task.target,"z_dims",[task.target.z_dims[0]])
-
     add_level_operators(result, task)
 
     return result
