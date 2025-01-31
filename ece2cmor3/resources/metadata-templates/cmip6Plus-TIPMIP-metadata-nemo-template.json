@@ -1,0 +1,47 @@
+{
+    "activity_id":                  "TIPMIP",
+    "experiment_id":                "esm-up2p0-gwl2p0",
+    "source_id":                    "EC-Earth3-ESM-1",
+    "source":                       "EC-Earth3-ESM-1 (2024)",
+    "source_type":                  "AOGCM BGC",
+    "grid":                         "ORCA1L75",
+    "grid_label":                   "gn",
+    "nominal_resolution":           "100 km",
+
+    "sub_experiment":               "none",
+    "sub_experiment_id":            "none",
+
+    "realization_index":            "1",
+    "initialization_index":         "1",
+    "physics_index":                "1",
+    "forcing_index":                "1",
+    "#variant_info":                "uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)",
+
+    "parent_activity_id":           "TIPMIP",
+    "parent_experiment_id":         "esm-up2p0",
+    "parent_source_id":             "EC-Earth3-ESM-1",
+    "parent_variant_label":         "r1i1p1f1",
+    "parent_time_units":            "days since 1850-01-01",
+
+    "branch_method":                "standard",
+    "branch_time_in_child":         "0.0D",
+    "branch_time_in_parent":        "0.0D",
+
+    "comment":                      "This experiment was done as part of OptimESM (https://optimesm-he.eu/) by XXXX",
+
+
+    "_controlled_vocabulary_file":  "CMIP6Plus_CV.json",
+    "_cmip6_option":                "CMIP6Plus",
+    "mip_era":                      "CMIP6Plus",
+    "parent_mip_era":               "CMIP6Plus",
+
+    "license":                      "CMIP6Plus model data produced by EC-Earth-Consortium is licensed under a Creative Commons 4.0 (CC BY 4.0) License (https://creativecommons.org/). Consult https://pcmdi.llnl.gov/CMIP6Plus/TermsOfUse for terms of use governing CMIP6Plus output, including citation requirements and proper acknowledgment. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.",
+    "tracking_prefix":              "hdl:21.14100",
+
+    "institution_id":               "EC-Earth-Consortium",
+    "contact":                      "cmip6-data@ec-earth.org",
+
+    "_AXIS_ENTRY_FILE":             "MIP_coordinate.json",
+    "_FORMULA_VAR_FILE":            "MIP_formula_terms.json"
+
+}
