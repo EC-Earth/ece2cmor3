@@ -67,7 +67,13 @@ def create_command(task):
     add_grid_operators(result, task)
     add_expr_operators(result, task)
     add_time_operators(result, task)
+
+    # really uggly fix for CMIP6Plus, needs to be addressed differently
+    if len(task.target.z_dims)>1:
+       setattr(task.target,"z_dims",[task.target.z_dims[0]])
+
     add_level_operators(result, task)
+
     return result
 
 
@@ -178,7 +184,10 @@ def add_grid_operators(cdo, task):
         if getattr(task, "interpolate", "linear") == "nn":
             grid_type = cdoapi.cdo_command.regular_grid_type_nn
         cdo.add_operator(cdoapi.cdo_command.gridtype_operator, grid_type)
-    tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
+    try:
+        tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
+    except:
+        tgtdims = getattr(task.target, cmor_target.dims_key, "")
     if "longitude" not in tgtdims:
         operators = [str(o) for o in getattr(task.target, "longitude_operator", [])]
         if len(operators) == 1 and operators[0] in list(operator_mapping.keys()):

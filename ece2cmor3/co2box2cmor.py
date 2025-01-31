@@ -156,7 +156,10 @@ def execute(tasks):
         for task in tasklist:
             tmpfile = None
             ncf=getattr(task,cmor_task.output_path_key)
-            tgtdims = getattr(task.target, cmor_target.dims_key).split()
+            try:
+                tgtdims = getattr(task.target, cmor_target.dims_key).split()
+            except:
+                tgtdims = getattr(task.target, cmor_target.dims_key)
             if "latitude" in tgtdims and "longitude" in tgtdims:
                 setattr(task, 'lon', dim_ids_['lon'])
                 setattr(task, 'lat', dim_ids_['lat'])
@@ -344,7 +347,11 @@ def create_time_axes(tasks):
         tgtdims = getattr(task.target, cmor_target.dims_key)
         if getattr(task, cmor_task.output_path_key)==None:
             continue
-        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+        try:
+            time_dim_list = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+        except:
+            time_dim_list = [d for d in tgtdims if d.startswith("time")]
+        for time_dim in time_dim_list:
             key=(task.target.table,time_dim)
             if key in time_axes:
                 tid = time_axes[key]

@@ -483,7 +483,10 @@ def filter_tasks(tasks):
     log.info("Inspecting %d tasks." % len(tasks))
     result = []
     for task in tasks:
-        tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
+        try:
+            tgtdims = getattr(task.target, cmor_target.dims_key, "").split()
+        except:
+            tgtdims = getattr(task.target, cmor_target.dims_key, "")
         haslat = "latitude" in tgtdims
         haslon = "longitude" in tgtdims
         # 2D horizontal variables, zonal means and global means
@@ -503,7 +506,10 @@ def get_sp_tasks(tasks):
                                                           '_'.join(getattr(task.target, "time_operator", ["mean"]))))
     existing, new = [], []
     for freq, task_group in tasks_by_freq.items():
-        tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
+        try:
+            tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key).split()]
+        except:
+            tasks3d = [t for t in task_group if "alevel" in getattr(t.target, cmor_target.dims_key)]
         if not any(tasks3d):
             continue
         surf_pressure_tasks = [t for t in task_group if t.source.get_grib_code() == surface_pressure]
@@ -567,7 +573,10 @@ depth_axis_ids = {}
 
 def define_cmor_axes(task):
     global global_grid_id, local_grid_ids
-    tgtdims = getattr(task.target, cmor_target.dims_key).split()
+    try:
+        tgtdims = getattr(task.target, cmor_target.dims_key).split()
+    except:
+        tgtdims = getattr(task.target, cmor_target.dims_key)
     grid_id = -1
     has_lats, has_lons = "latitude" in tgtdims, "longitude" in tgtdims
     if use_2d_grid() and has_lats and has_lons:
@@ -754,7 +763,10 @@ def create_time_axes(task):
     global log, time_axis_ids, time_axis_bnds
     tgtdims = getattr(task.target, cmor_target.dims_key)
     # TODO: better to check in the table axes if the standard name of the dimension equals "time"
-    time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    try:
+        time_dims = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    except:
+        time_dims = [d for d in tgtdims if d.startswith("time")]
     if not any(time_dims):
         return
     if len(time_dims) > 1:
