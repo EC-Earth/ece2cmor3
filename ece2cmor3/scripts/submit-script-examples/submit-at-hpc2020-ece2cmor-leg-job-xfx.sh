@@ -100,7 +100,7 @@
   echo "  3rd argument: experiment ID"
   echo "  4th argument: version label"
   echo " For instance:"
-  echo "  sbatch --job-name=cmorise-ifs-fx   $0 ifs  001 t001 v001"
-  echo "  sbatch --job-name=cmorise-nemo-Ofx $0 nemo 001 t001 v001"
+  echo "  sbatch --cpus-per-task=5 --job-name=cmorise-ifs-fx   $0 ifs  001 t001 v001"
+  echo "  sbatch --cpus-per-task=1 --job-name=cmorise-nemo-Ofx $0 nemo 001 t001 v001"
   echo
  fi

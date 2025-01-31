@@ -7,8 +7,8 @@
 #SBATCH --time=01:05:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
-#SBATCH --qos=np
+#SBATCH --cpus-per-task=1
+#SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -31,12 +31,12 @@
    EXP=$3
    VERSION=$4
 
-  #ECEDIR=${SCRATCH}/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
+  #ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
    ECEDIR=/scratch/nktr/test-data/lpjg-test-data/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
+   METADATA=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-  #VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+  #VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-lpjg-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
@@ -62,7 +62,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               28        \
+                    --npp               1         \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log

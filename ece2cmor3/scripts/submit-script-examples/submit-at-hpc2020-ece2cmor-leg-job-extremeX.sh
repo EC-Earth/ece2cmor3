@@ -8,7 +8,7 @@
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=78
-#SBATCH --qos=np
+#SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
