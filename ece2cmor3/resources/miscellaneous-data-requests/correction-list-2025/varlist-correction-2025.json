@@ -1,0 +1,36 @@
+{
+    "co2box": {},
+    "ifs": {},
+    "lpjg": {
+        "Eyr": [
+            "fracLut",
+            "cLitterLut",
+            "cSoilLut",
+            "cSoil",
+            "cVeg",
+            "cProduct",
+            "cProductLut",
+            "cVegLut",
+            "cLitter"
+        ]
+    },
+    "nemo": {
+        "Omon": [
+            "o2os",
+            "chldiatos",
+            "limfediat",
+            "sios",
+            "chlos",
+            "limirrdiat",
+            "limirrmisc",
+            "chlmiscos",
+            "limfemisc",
+            "po4os",
+            "no3os",
+            "dfeos",
+            "limnmisc",
+            "limndiat"
+        ]
+    },
+    "tm5": {}
+}
