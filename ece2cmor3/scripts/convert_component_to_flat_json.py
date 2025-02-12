@@ -111,7 +111,7 @@ def main():
         outfile.close()
 
        else:
-        print(warning_message, 'The file', sys.argv[1], 'is a flat json already, thefore it is not converted but copied instead.')
+        print(warning_message, 'The file', sys.argv[1], 'is a flat json already, therefore it is not converted but copied instead.')
         command = 'rsync -a ' + input_json_file + ' ' + output_flat_json_file
         os.system(command)
 
@@ -125,9 +125,9 @@ def main():
     else:
        print()
        print('  This scripts requires one argument, a json file, e.g.:')
-       print('  ', os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
-       print('  ', os.path.basename(sys.argv[0]), '../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json')
-       print('  ', os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/cmip6-data-request-varlist-CMIP-historical-EC-EARTH-AOGCM.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../resources/miscellaneous-data-requests/lamaclima/lamaclima-data-request-varlist-EC-EARTH-Veg.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '~/cmorize/control-output-files/output-control-files-v196/cmip6/AerChemMIP/cmip6-experiment-AerChemMIP-hist-1950HC/cmip6-data-request-varlist-AerChemMIP-hist-1950HC-EC-EARTH-AerChem.json')
        print()
 
 if __name__ == "__main__":
