@@ -8,7 +8,7 @@
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
-#SBATCH --qos=nf
+#SBATCH --qos=np
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -24,12 +24,13 @@
 # COMPONENT is the name of the model component for the current job to cmorise
 # LEG       is the leg number for the current job to cmorise. Note for instance leg number one is written as 001.
 
- if [ "$#" -eq 4 ]; then
+ if [ "$#" -eq 5 ]; then
 
-   COMPONENT=$1
-   LEG=$2
-   EXP=$3
-   VERSION=$4
+   NPP=$1
+   COMPONENT=$2
+   LEG=$3
+   EXP=$4
+   VERSION=$5
 
    ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
@@ -60,7 +61,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               64        \
+                    --npp               $NPP      \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
@@ -72,16 +73,17 @@
  else
   echo
   echo " Illegal number of arguments: the script requires four arguments:"
-  echo "  1st argument: model component"
-  echo "  2nd argument: leg"
-  echo "  3rd argument: experiment ID"
-  echo "  4th argument: version label"
+  echo "  1st argument: number of processors"
+  echo "  2nd argument: model component"
+  echo "  3rd argument: leg"
+  echo "  4th argument: experiment ID"
+  echo "  5th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 t001 v001"
+  echo "  sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-001 $0 64 ifs 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0 lpjg \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0 tm5  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 64 ifs  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0  1 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0  1 lpjg \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0  1 tm5  \$i t001 v001; done"
   echo
  fi
