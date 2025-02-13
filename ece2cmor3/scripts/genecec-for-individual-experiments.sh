@@ -377,11 +377,13 @@ if [ "$#" -eq 5 ]; then
   # optimesm only:
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
    sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX"/'                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"source_type":                  "AOGCM BGC ISM"/"source_type":                  "AOGCM BGC"/'                                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   fi
 
   # rescue only:
   if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of RESCUE (https:\/\/www.rescue-climate.eu) by XXXX"/'              ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+   sed -i -e 's/"source_type":                  "AOGCM BGC ISM"/"source_type":                  "AOGCM BGC"/'                                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   fi
 
   # extremeX only:
@@ -435,9 +437,9 @@ else
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-2xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-2xCO2  "
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-4xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-4xCO2  "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        historical               EC-EARTH-ESM-1   optimesm                                "
+  echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        esm-hist                 EC-EARTH-ESM-1   optimesm                                "
   echo
-  echo "  $0 ../resources/miscellaneous-data-requests/rescue-request/rescue-request-EC-EARTH-ESM-1-varlist.json         CMIP        historical               EC-EARTH-ESM-1   rescue                                  "
+  echo "  $0 ../resources/miscellaneous-data-requests/rescue-request/rescue-request-EC-EARTH-ESM-1-varlist.json         CMIP        esm-hist                 EC-EARTH-ESM-1   rescue                                  "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/extremeX/datarequest-extremeX-short-varlist.json                  CMIP        AISF                     EC-EARTH-AOGCM   extremeX-short                          "
   echo

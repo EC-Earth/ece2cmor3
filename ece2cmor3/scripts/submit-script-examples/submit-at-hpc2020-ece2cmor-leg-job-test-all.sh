@@ -4,10 +4,10 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=00:05:00
+#SBATCH --time=03:05:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
+#SBATCH --cpus-per-task=64
 #SBATCH --qos=nf
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
@@ -31,11 +31,11 @@
    EXP=$3
    VERSION=$4
 
-   ECEDIR=${SCRATCH}/ec-earth-3/trunk/$EXP/output/$COMPONENT/$LEG
+   ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
+   METADATA=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PERM}/ec-earth-3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
 
@@ -60,7 +60,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               28        \
+                    --npp               64        \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
@@ -79,9 +79,9 @@
   echo " For instance:"
   echo "  sbatch $0 ifs 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 lpjg \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --job-name=cmorise-nemo-\$i $0 tm5  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 ifs  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0 lpjg \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0 tm5  \$i t001 v001; done"
   echo
  fi

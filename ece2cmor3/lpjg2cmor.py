@@ -461,13 +461,18 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     refyear = int(ref_date_.year)
     if freq == "mon":
         curyear, tres = int(df_list[0].columns[0][1]), 'month'
-        t_since_fyear = (curyear - refyear) * 12
+        t_since_fyear = float((curyear - refyear)) * 12.
     elif freq == "day":
         curyear, tres = int(df_list[0].columns[0][1]), 'day'
-        t_since_fyear = (date(curyear, 1, 1) - date(refyear, 1, 1)).days
+        t_since_fyear = float((date(curyear, 1, 1) - date(refyear, 1, 1)).days)
+    elif freq == "yrPt":
+        # last day of year 12 noon datum
+        curyear, tres = int(df_list[0].columns[0]), 'day'
+        t_since_fyear = float((date(curyear,12,31) - date(refyear, 1, 1)).days)+0.5
     else:
         curyear, tres = int(df_list[0].columns[0]), 'year'
-        t_since_fyear = curyear - refyear
+        t_since_fyear = float(curyear - refyear)
+
     timev[:] = np.arange(t_since_fyear, t_since_fyear + df_list[0].shape[1])
     timev.units = '{}s since {}-01-01'.format(tres, refyear)
     timev.calendar = "proleptic_gregorian"
@@ -719,15 +724,24 @@ def create_time_axis(ds, task):
     #  the length of the time_dim list will be 1
     tgtdims = getattr(task.target, cmor_target.dims_key)
     time_dim = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
-
+       
     timevals = ds.variables["time"][:]  # time variable in the netcdf-file from create_lpjg_netcdf is "time"
     # time requires bounds as well, the following should simply set them to be from start to end of each
     # year/month/day (as appropriate for current data)
     f = np.vectorize(lambda x: x + 1)
     time_bnd = np.stack((timevals, f(timevals)), axis=-1)
 
-    tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
-                    coord_vals=timevals, cell_bounds=time_bnd)
+    # CLN fix issue 836 on github
+    if time_dim[0] == "time":
+        tid = cmor.axis(table_entry=str(time_dim[0]), units=getattr(ds.variables["time"], "units"),
+                        coord_vals=timevals, cell_bounds=time_bnd)
+    elif time_dim[0] == "time1":
+        tid = cmor.axis(table_entry=str("time1"), units=getattr(ds.variables["time"], "units"),
+                    coord_vals=timevals)
+    else:
+        print("ERROR: lpjg2cmor.py, axis "+str(time_dim[0])+" not implemented.")
+        exit(1)
+
     setattr(task, "time_axis", tid)
 
     return
