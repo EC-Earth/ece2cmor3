@@ -18,6 +18,7 @@
     "nemo": {
         "OPfx": [
             "areacello",
+            "basin",
             "deptho",
             "hfgeou",
             "sftof"
