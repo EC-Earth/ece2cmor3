@@ -4,11 +4,11 @@
 #
 # Cmorise per model component the EC-Earth3 raw output with ece2cmor3 for multipe legs
 #
-#SBATCH --time=00:30:00
+#SBATCH --time=03:05:00
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=5
-#SBATCH --qos=nf
+#SBATCH --cpus-per-task=64
+#SBATCH --qos=np
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -41,8 +41,9 @@
    ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXP/output/$COMPONENT/$LEG
    METADATA=${PWD}/../../resources/metadata-templates/cmip6Plus-${MIP}-metadata-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/cmip6Plus/time-invariant-request/varlist-APfx-LPfx-OPfx.json
-   ODIR=${SCRATCH}/cmorised-results/time-invariant-output/$EXP/$VERSION
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/cmip6Plus/test-all/cmip6-data-request-varlist-all-EC-EARTH-AOGCM-cmip6Plus.json
+  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/cmip6Plus/time-invariant-request/varlist-APfx-LPfx-OPfx.json
+   ODIR=${SCRATCH}/cmorised-results/test-all-trunk-cmip6Plus/$EXP/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi
@@ -72,23 +73,6 @@
                     --skip_alevel_vars                                      \
                     --log
 
-   if [ "$COMPONENT" = "nemo" ]; then
-    # Run the additional sftof.py script, see:
-    #  https://github.com/EC-Earth/ece2cmor3/wiki/Recommended-strategies#post-ece2cmor3-production--correction-of-ofx-sftof
-    search_path=${ODIR}/${MIP_ERA}/${MIP}/EC-Earth-Consortium/EC-Earth3-ESM-1/${EXPERIMENT_NAME}/r*i*p*f*/OPfx/sftof
-    for i in `find ${search_path} -name 'sftof_OPfx*.nc'`; do
-     echo
-     echo ' Run the Ofx sftof correction:'
-     echo "  ../data-qa/scripts/sftof.py ${i}"
-     ../data-qa/scripts/sftof.py ${i}
-     echo
-     echo ' The corrected sftof file:'
-     for f in `find ${search_path} -name 'sftof_OPfx*.nc'`; do ls -lrt $f; done
-     echo
-    done
-    for i in `find ${search_path} -name 'sftof_OPfx*.nc.bak'`; do rm -f ${i}; done
-   fi
-
    mkdir -p $ODIR/logs
    mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
@@ -102,7 +86,11 @@
   echo "  4th argument: experiment ID"
   echo "  5th argument: version label"
   echo " For instance:"
-  echo "  sbatch --qos=nf --cpus-per-task=5 --job-name=cmorise-ifs-LPfx  $0 5 ifs  001 t001 v010"
-  echo "  sbatch --qos=nf --cpus-per-task=1 --job-name=cmorise-nemo-OPfx $0 1 nemo 001 t001 v010"
+  echo "  sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-001 $0 64 ifs 001 t001 v001"
+  echo " Or use:"
+  echo "  for i in {001..002}; do sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 64 ifs  \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0  1 nemo \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0  1 lpjg \$i t001 v001; done"
+  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0  1 tm5  \$i t001 v001; done"
   echo
  fi
