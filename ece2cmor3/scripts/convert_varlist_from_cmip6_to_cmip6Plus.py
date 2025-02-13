@@ -43,19 +43,27 @@ def main():
 
         print('\n Creating the {} neat columnwise ascii file by applying:'.format(file_name_mapping_table))
         command_2 = "sed -e '/| CMIP6 table |/,$!d' -e 's/|/ /g' " + wiki_table_file + " | column -t > " + file_name_mapping_table
-        print('  ' + command_2 + '\n')
+        print('  ' + command_2)
         os.system(command_2)
+        command_3 = "sed -i -e 's/CMIP6.*/CMIP6 table  CMIP6 variable       CMIP6Plus Table CMIP6Plus  variable   Notes/' " + file_name_mapping_table
+        print('  ' + command_3 + '\n')
+        os.system(command_3)
 
        if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False: print(error_message, ' The file ', cmip6_cmip6plus_map_table_file_name, '  does not exist.\n'); sys.exit()
+
+       print(' Fix an error in the mip-cmor-tables repo content:')
+       command_4 = "sed -i -e 's/Apmon/APmon/g' " + file_name_mapping_table
+       print('  ' + command_4 + '\n')
+       os.system(command_4)
 
        # Loading the cmip6-cmip6plus-mapping file
        cmip6_cmip6plus_map_table = np.loadtxt(cmip6_cmip6plus_map_table_file_name, skiprows=2, usecols=(0,1,2,3), dtype='str')
 
        # Clean:
-       command_3 = "rm -rf mip-cmor-tables.wiki"
-       command_4 = "rm -f " + file_name_mapping_table
-       os.system(command_3)
-      #os.system(command_4)
+       command_5 = "rm -rf mip-cmor-tables.wiki"
+       command_6 = "rm -f " + file_name_mapping_table
+       os.system(command_5)
+      #os.system(command_6)
 
        return cmip6_cmip6plus_map_table
 
