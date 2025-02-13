@@ -29,7 +29,8 @@ def main():
        cmip6_cmip6plus_map_table_file_name = os.path.expanduser(file_name_mapping_table)
 
        # Checking if the cmip6-cmip6plus-mapping file exist, if not try to create it:
-       if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False:
+#       if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False:
+       if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == True:
 
         # Git checkout of the github wiki table of the mip-cmor-tables if not available
         # for converting the github wiki table to an ascii file with columns:
@@ -48,14 +49,19 @@ def main():
 
        if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False: print(error_message, ' The file ', cmip6_cmip6plus_map_table_file_name, '  does not exist.\n'); sys.exit()
 
+       print(' Fix an error in the mip-cmor-tables repo content:')
+       command_3 = "sed -i -e 's/Apmon/APmon/g' " + file_name_mapping_table
+       print('  ' + command_3 + '\n')
+       os.system(command_3)
+
        # Loading the cmip6-cmip6plus-mapping file
        cmip6_cmip6plus_map_table = np.loadtxt(cmip6_cmip6plus_map_table_file_name, skiprows=2, usecols=(0,1,2,3), dtype='str')
 
        # Clean:
-       command_3 = "rm -rf mip-cmor-tables.wiki"
-       command_4 = "rm -f " + file_name_mapping_table
-       os.system(command_3)
+       command_4 = "rm -rf mip-cmor-tables.wiki"
+       command_5 = "rm -f " + file_name_mapping_table
       #os.system(command_4)
+      #os.system(command_5)
 
        return cmip6_cmip6plus_map_table
 
