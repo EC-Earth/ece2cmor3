@@ -117,8 +117,11 @@ def main():
 
               else:
                if cmip6plus_table in converted_request:
-                # Add a another cmip6Plus variable to an already created cmip6Plus table:
-                converted_request[cmip6plus_table].append(cmip6plus_variable)
+                if cmip6plus_variable in converted_request[cmip6plus_table]:
+                 print(warning_message, ' Skip dublicate {} {} due non bijective cmip6 - cmip6Plus mapping (cmip6 source: {} {})'.format(cmip6plus_table, cmip6plus_variable, cmip6_table, cmip6_variable))
+                else:
+                 # Add a another cmip6Plus variable to an already created cmip6Plus table:
+                 converted_request[cmip6plus_table].append(cmip6plus_variable)
                else:
                 # Add a first cmip6Plus variable for a first encounterd cmip6Plus table:
                 converted_request.update({cmip6plus_table: [cmip6plus_variable]})
