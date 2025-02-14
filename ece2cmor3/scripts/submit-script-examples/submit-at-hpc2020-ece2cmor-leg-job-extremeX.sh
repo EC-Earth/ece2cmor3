@@ -8,7 +8,7 @@
 #SBATCH --job-name=cmorise
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=78
-#SBATCH --qos=nf
+#SBATCH --qos=np
 #SBATCH --output=stdout-cmorisation.%j.out
 #SBATCH --error=stderr-cmorisation.%j.out
 #SBATCH --account=nlchekli
@@ -95,7 +95,7 @@
   echo "  2nd argument: member"
   echo "  3rd argument: leg"
   echo " For instance:"
-  echo "  sbatch $0 ifs 001 s001 1"
+  echo "  sbatch --qos=np --cpus-per-task=78 --job-name=cmorise-ifs-001 $0 ifs 001 s001 1"
   echo " Or use:"
   echo "  for member in {001..010}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"
   echo "  for member in {011..020}; do for leg in {001..008}; do      sbatch --job-name=cmorise-ifs-\${member}-\${leg} $0 ifs \${member} \${leg}; done; done"

@@ -32,13 +32,18 @@
    EXP=$4
    VERSION=$5
 
-   ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
-   ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
+   ece_branch_root_dir=ecearth3/trunk
+   ECEMODEL=EC-EARTH-ESM-1
+   MIP_ERA=CMIP6Plus
+   MIP=TIPMIP
+   EXPERIMENT_NAME=esm-up2p0-gwl2p0
+
+   ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXP/output/$COMPONENT/$LEG
+   METADATA=${PWD}/../../resources/metadata-templates/cmip6Plus-${MIP}-metadata-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
-   ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
+   VARLIST=${PWD}/../../resources/miscellaneous-data-requests/cmip6Plus/test-all/cmip6-data-request-varlist-all-EC-EARTH-AOGCM-cmip6Plus.json
+  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/cmip6Plus/time-invariant-request/varlist-APfx-LPfx-OPfx.json
+   ODIR=${SCRATCH}/cmorised-results/test-all-trunk-cmip6Plus/$EXP/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi
@@ -54,16 +59,18 @@
    export UVCDAT_ANONYMOUS_LOG=false
   #export ECE2CMOR3_IFS_CLEANUP=FALSE
 
-   ece2cmor $ECEDIR --exp               $EXP      \
-                    --ececonf           $ECEMODEL \
-                    --$COMPONENT                  \
-                    --meta              $METADATA \
-                    --varlist           $VARLIST  \
-                    --tmpdir            $TEMPDIR  \
-                    --odir              $ODIR     \
-                    --npp               $NPP      \
-                    --overwritemode     replace   \
-                    --skip_alevel_vars            \
+   ece2cmor $ECEDIR --exp               $EXP                                \
+                    --ececonf           $ECEMODEL                           \
+                    --$COMPONENT                                            \
+                    --meta              $METADATA                           \
+                    --varlist           $VARLIST                            \
+                    --tabledir          /home/nktr/cmorize/cmip6plus-tables \
+                    --tableprefix       MIP                                 \
+                    --tmpdir            $TEMPDIR                            \
+                    --odir              $ODIR                               \
+                    --npp               $NPP                                \
+                    --overwritemode     replace                             \
+                    --skip_alevel_vars                                      \
                     --log
 
    mkdir -p $ODIR/logs

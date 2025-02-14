@@ -99,8 +99,12 @@ def create_targets_for_file(filepath, prefix):
         modlevs = get_lowercase(header, levs_key, None)
     axes_entries = get_lowercase(data, axis_key, {})
     if modlevs:
-        for modlev in modlevs.split():
-            axes_entries[modlev] = {"requested": "all"}
+        try:
+            for modlev in modlevs.split():
+                axes_entries[modlev] = {"requested": "all"}
+        except:
+            for modlev in modlevs:
+                axes_entries[modlev] = {"requested": "all"}
     axes[tabid] = axes_entries
     var_entries = get_lowercase(data, var_key, {})
     for k, v in var_entries.items():
@@ -115,9 +119,14 @@ def create_targets_for_file(filepath, prefix):
             key = k2.lower()
             setattr(target, key, v2)
             if key == dims_key.lower():
-                spacedims = list(set([s for s in v2.split() if not (s.lower().startswith("time") or
-                                                                    s.lower().startswith("type"))])
-                                 - extra_dims)
+                try:
+                    spacedims = list(set([s for s in v2.split()
+                        if not (s.lower().startswith("time") or
+                                s.lower().startswith("type") )]) - extra_dims)
+                except:
+                    spacedims = list(set([s for s in v2
+                        if not (s.lower().startswith("time") or
+                                s.lower().startswith("type") )]) - extra_dims)
                 setattr(target, "space_dims", spacedims)
                 target.dims = len(spacedims)
                 zdims = list(set(spacedims) - xydims)

@@ -24,20 +24,19 @@
 # COMPONENT is the name of the model component for the current job to cmorise
 # LEG       is the leg number for the current job to cmorise. Note for instance leg number one is written as 001.
 
- if [ "$#" -eq 4 ]; then
+ if [ "$#" -eq 5 ]; then
 
-   COMPONENT=$1
-   LEG=$2
-   EXP=$3
-   VERSION=$4
+   NPP=$1
+   COMPONENT=$2
+   LEG=$3
+   EXP=$4
+   VERSION=$5
 
   #ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
    ECEDIR=/scratch/nktr/test-data/lpjg-test-data/$COMPONENT/$LEG
    ECEMODEL=EC-EARTH-AOGCM
    METADATA=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-  #VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
-  #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-lpjg-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
 
@@ -62,7 +61,7 @@
                     --varlist           $VARLIST  \
                     --tmpdir            $TEMPDIR  \
                     --odir              $ODIR     \
-                    --npp               1         \
+                    --npp               $NPP      \
                     --overwritemode     replace   \
                     --skip_alevel_vars            \
                     --log
@@ -74,13 +73,14 @@
  else
   echo
   echo " Illegal number of arguments: the script requires four arguments:"
-  echo "  1st argument: model component"
-  echo "  2nd argument: leg"
-  echo "  3rd argument: experiment ID"
-  echo "  4th argument: version label"
+  echo "  1st argument: number of processors"
+  echo "  2nd argument: model component"
+  echo "  3rd argument: leg"
+  echo "  4th argument: experiment ID"
+  echo "  5th argument: version label"
   echo " For instance:"
-  echo "  sbatch $0 lpjg 001 t001 v001"
+  echo "  sbatch --qos=nf --cpus-per-task=1 --job-name=cmorise-lpjg-001 $0 1 lpjg 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..001}; do sbatch --job-name=cmorise-lpjg-\$i $0 lpjg \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --qos=nf --cpus-per-task=1 --job-name=cmorise-lpjg-\$i $0 1 lpjg \$i t001 v001; done"
   echo
  fi
