@@ -88,7 +88,7 @@ def initialize(path, expname, tableroot, refdate, testmode=False):
         # Look in env or ec-earth run directory
         bathy_file_ = os.environ.get("ECE2CMOR3_NEMO_BATHY_METER", os.path.join(expdir, "bathy_meter.nc"))
     if not os.path.isfile(bathy_file_):
-        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx will be dismissed "
+        log.warning("Nemo bathymetry file %s does not exist...variable deptho in Ofx or in OPfx will be dismissed "
                     "whenever encountered" % bathy_file_)
         bathy_file_ = None
     basin_file_ = os.path.join(ofxdir, "subbasins.nc")
@@ -96,7 +96,7 @@ def initialize(path, expname, tableroot, refdate, testmode=False):
         # Look in env or ec-earth run directory
         basin_file_ = os.environ.get("ECE2CMOR3_NEMO_SUBBASINS", os.path.join(expdir, "subbasins.nc"))
     if not os.path.isfile(basin_file_):
-        log.warning("Nemo subbasin file %s does not exist...variable basin in Ofx will be dismissed "
+        log.warning("Nemo subbasin file %s does not exist...variable basin in Ofx or in OPfx will be dismissed "
                     "whenever encountered" % basin_file_)
         basin_file_ = None
     return True
@@ -152,7 +152,7 @@ def execute(tasks):
 def lookup_variables(tasks):
     valid_tasks = []
     for task in tasks:
-        if (task.target.table, task.target.variable) == ("Ofx", "deptho"):
+        if (task.target.table, task.target.variable) == ("Ofx", "deptho") or (task.target.table, task.target.variable) == ("OPfx", "deptho"):
             if bathy_file_ is None:
                 log.error("Could not use bathymetry file for variable deptho in table Ofx: task skipped.")
                 task.set_failed()
@@ -160,9 +160,9 @@ def lookup_variables(tasks):
                 setattr(task, cmor_task.output_path_key, bathy_file_)
                 valid_tasks.append(task)
             continue
-        if (task.target.table, task.target.variable) == ("Ofx", "basin"):
+        if (task.target.table, task.target.variable) == ("Ofx", "basin") or (task.target.table, task.target.variable) == ("OPfx", "basin"):
             if basin_file_ is None:
-                log.error("Could not use subbasin file for variable basin in table Ofx: task skipped.")
+                log.error("Could not use subbasin file for variable basin in table %s: task skipped." % (task.target.table))
                 task.set_failed()
             else:
                 setattr(task, cmor_task.output_path_key, basin_file_)
@@ -334,7 +334,7 @@ def create_depth_axes(ds, tasks, table):
 
 def create_time_axes(ds, tasks, table):
     global time_axes_
-    if table == "Ofx":
+    if table == "Ofx" or table == "OPfx":
         return
     if table not in time_axes_:
         time_axes_[table] = {}
@@ -342,7 +342,12 @@ def create_time_axes(ds, tasks, table):
     table_time_axes = time_axes_[table]
     for task in tasks:
         tgtdims = getattr(task.target, cmor_target.dims_key)
-        for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+        #for time_dim in [d for d in list(set(tgtdims.split())) if d.startswith("time")]:
+        try:
+            time_dim_list=[d for d in list(set(tgtdims.split())) if d.startswith("time")]
+        except:
+            time_dim_list=[d for d in tgtdims if d.startswith("time")]
+        for time_dim in time_dim_list:
             if time_dim in table_time_axes:
                 time_operator = getattr(task.target, "time_operator", ["point"])
                 nc_operator = getattr(ds.variables[task.source.variable()], "online_operation", "instant")
@@ -432,7 +437,10 @@ def create_type_axes(ds, tasks, table):
     log.info("Creating extra axes for table %s using file %s..." % (table, ds.filepath()))
     table_type_axes = type_axes_[table]
     for task in tasks:
-        tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
+        try:
+            tgtdims = set(getattr(task.target, cmor_target.dims_key).split()).intersection(list(extra_axes.keys()))
+        except:
+            tgtdims = set(getattr(task.target, cmor_target.dims_key)).intersection(list(extra_axes.keys()))
         for dim in tgtdims:
             if dim in table_type_axes:
                 axis_id = table_type_axes[dim]

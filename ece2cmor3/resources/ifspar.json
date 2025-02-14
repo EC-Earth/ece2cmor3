@@ -288,6 +288,8 @@
         "target": [
             "zg",
             "zg7h",
+            "zg8",
+            "zg19",
             "zg27",
             "zg500",
             "zg1000",
@@ -300,6 +302,8 @@
         "target": [
             "ta",
             "ta7h",
+            "ta8",
+            "ta19",
             "ta23r",
             "ta36",
             "ta27",
@@ -313,6 +317,8 @@
         "target": [
             "ua",
             "ua7h",
+            "ua8",
+            "ua19",
             "ua23r",
             "ua36",
             "ua27"
@@ -323,6 +329,8 @@
         "target": [
             "va",
             "va7h",
+            "va8",
+            "va19",
             "va23r",
             "va36",
             "va27"
@@ -345,7 +353,9 @@
         "target": [
             "hus",
             "hus4",
+            "hus8",
             "hus7h",
+            "hus19",
             "hus23r",
             "hus36",
             "hus27",
@@ -362,6 +372,8 @@
             "wap",
             "wap2",
             "wap4",
+            "wap8",
+            "wap19",
             "wap500"
         ]
     },

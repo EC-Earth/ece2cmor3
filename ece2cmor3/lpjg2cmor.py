@@ -234,7 +234,11 @@ def execute(tasks):
                 ncfile = create_lpjg_netcdf(freq, yearfile, outname, outdims)
 
                 if ncfile is None:
-                    if "landUse" in outdims.split():
+                    try:
+                        outdims_list = outdims.split()
+                    except:
+                        outdims_list = outdims
+                    if "landUse" in outdims_list:
                         log.error("Land use columns in file %s do not contain all of the requested land use types. "
                                   "Skipping CMORization of variable %s" % (
                                       getattr(task, cmor_task.output_path_key), task.source.variable()))
@@ -265,22 +269,26 @@ def execute(tasks):
                 create_time_axis(dataset, task)
 
                 # if this is a land use variable create cmor land use axis
-                if "landUse" in outdims.split():
+                try:
+                    outdims_list = outdims.split()
+                except:
+                    outdims_list = outdims
+                if "landUse" in outdims_list:
                     create_landuse_axis(task, lpjgfile, freq)
 
                 # if this is a pft variable (e.g. landCoverFrac) create cmor vegtype axis
-                if "vegtype" in outdims.split():
+                if "vegtype" in outdims_list:
                     create_vegtype_axis(task, lpjgfile, freq)
 
                 # if this variable has the soil depth dimension sdepth 
                 # (NB! not sdepth1 or sdepth10) create cmor sdepth axis
-                if "sdepth" in outdims.split():
+                if "sdepth" in outdims_list:
                     create_sdepth_axis(task, lpjgfile, freq)
 
                 # if this variable has one or more "singleton axes" (i.e. axes 
                 # of length 1) which can be those dimensions 
                 # named "type*", these will be created here
-                for lpjgcol in outdims.split():                    
+                for lpjgcol in outdims_list:
                     if lpjgcol.startswith("type"): 
                         # THIS SHOULD BE LINKED TO CIP6_coordinate.json!
                         if lpjgcol == "typenwd":
@@ -370,9 +378,13 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
 
     # checks for additional dimensions besides lon,lat&time (for those dimensions where the dimension actually exists
     #  in lpjg data)
-    is_land_use = "landUse" in outdims.split()
-    is_veg_type = "vegtype" in outdims.split()
-    is_sdepth = "sdepth" in outdims.split()
+    try:
+        outdims_list = outdims.split()
+    except:
+        outdims_list = outdims
+    is_land_use = "landUse" in outdims_list
+    is_veg_type = "vegtype" in outdims_list
+    is_sdepth = "sdepth" in outdims_list
 
     # assigns a flag to handle two different possible monthly LPJ-Guess formats
     months_as_cols = False
@@ -396,7 +408,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         # will be treated when creating the .out-files
         if not landuse_requested_:  # no specific request for land use types, pick all types present in the .out-file
             landuse_types = list(df.columns.values)
-        elif cmor_prefix_ == "CMIP6":
+        elif cmor_prefix_ == "CMIP6" or cmor_prefix_ == "MIP":
             # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
             # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
             landuse_types = ['psl', 'pst', 'crp', 'urb']
@@ -723,7 +735,10 @@ def create_time_axis(ds, task):
     # finding the time dimension name: adapted from nemo2cmor, presumably there is always only one time dimension and
     #  the length of the time_dim list will be 1
     tgtdims = getattr(task.target, cmor_target.dims_key)
-    time_dim = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    try:
+        time_dim = [d for d in list(set(tgtdims.split())) if d.startswith("time")]
+    except:
+        time_dim = [d for d in tgtdims if d.startswith("time")]
        
     timevals = ds.variables["time"][:]  # time variable in the netcdf-file from create_lpjg_netcdf is "time"
     # time requires bounds as well, the following should simply set them to be from start to end of each
