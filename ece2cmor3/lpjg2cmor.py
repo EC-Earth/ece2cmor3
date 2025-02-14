@@ -408,7 +408,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
         # will be treated when creating the .out-files
         if not landuse_requested_:  # no specific request for land use types, pick all types present in the .out-file
             landuse_types = list(df.columns.values)
-        elif cmor_prefix_ == "CMIP6":
+        elif cmor_prefix_ == "CMIP6" or cmor_prefix_ == "MIP":
             # NOTE: the land use files in the .out-files should match the CMIP6 requested ones (in content if not in
             # name) for future CMIP6 runs this is just a temporary placeholder solution for testing purposes!
             landuse_types = ['psl', 'pst', 'crp', 'urb']
