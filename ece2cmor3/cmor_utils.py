@@ -292,7 +292,7 @@ def find_co2box_output(path, expname, varname=None, freq=None):
     if freq is None:
         freq = "[a-zA-Z0-9]*"
     date = "[0-9]{8}-[0-9]{8}"
-    rexp = "^%s_%s_%s_%s\.nc$"%(varname,freq,expname,date)
+    rexp = r'^%s_%s_%s_%s\.nc$'%(varname,freq,expname,date)
     expr = re.compile(rexp)
     a = [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]
     return [os.path.join(path, f) for f in os.listdir(path) if re.match(expr, f)]

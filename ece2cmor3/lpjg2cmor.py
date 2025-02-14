@@ -336,7 +336,7 @@ def check_time_resolution(lpjgfile, freq):
 
 # Returns first and last year present in the .out data file
 def find_timespan(lpjgfile):
-    df = pd.read_csv(lpjgfile, sep='\s+', usecols=['Year'], dtype=np.int32)
+    df = pd.read_csv(lpjgfile, sep=r'\s+', usecols=['Year'], dtype=np.int32)
 
     firstyr = df['Year'].min()
     lastyr = df['Year'].max()
@@ -400,7 +400,7 @@ def create_lpjg_netcdf(freq, inputfile, outname, outdims):
     else:
         idx_col = [0, 1, 2]
 
-    df = pd.read_csv(inputfile, sep='\s+', index_col=idx_col, dtype=np.float64, compression='infer')
+    df = pd.read_csv(inputfile, sep=r'\s+', index_col=idx_col, dtype=np.float64, compression='infer')
     df.rename(columns=lambda x: x.lower(), inplace=True)
 
     if is_land_use:
