@@ -49,12 +49,12 @@ def main():
         print('  ' + command_3 + '\n')
         os.system(command_3)
 
-       if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False: print(error_message, ' The file ', cmip6_cmip6plus_map_table_file_name, '  does not exist.\n'); sys.exit()
+        print(' Fix an error in the mip-cmor-tables repo content:')
+        command_4 = "sed -i -e 's/Apmon/APmon/g' " + file_name_mapping_table
+        print('  ' + command_4 + '\n')
+        os.system(command_4)
 
-       print(' Fix an error in the mip-cmor-tables repo content:')
-       command_4 = "sed -i -e 's/Apmon/APmon/g' " + file_name_mapping_table
-       print('  ' + command_4 + '\n')
-       os.system(command_4)
+       if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False: print(error_message, ' The file ', cmip6_cmip6plus_map_table_file_name, '  does not exist.\n'); sys.exit()
 
        # Loading the cmip6-cmip6plus-mapping file
        cmip6_cmip6plus_map_table = np.loadtxt(cmip6_cmip6plus_map_table_file_name, skiprows=2, usecols=(0,1,2,3), dtype='str')
@@ -181,15 +181,18 @@ def main():
        print()
 
 
-       # Naming the cmip6Plus varlist by adding a label:
-       converted_request_file = os.path.basename(input_json_file).replace('.json','-cmip6Plus.json')
+       # Naming the cmip6Plus varlist and unidentified file by adding a label:
+       if 'cmip6' in os.path.basename(input_json_file):
+        converted_request_file = os.path.basename(input_json_file).replace('cmip6','cmip6Plus')
+        unidientified_request_file = os.path.basename(input_json_file).replace('cmip6','cmip6Plus').replace('.json','-unidentified.json')
+       else:
+        converted_request_file = os.path.basename(input_json_file).replace('.json','-cmip6Plus.json')
+        unidientified_request_file = os.path.basename(input_json_file).replace('.json','-cmip6Plus-unidentified.json')
+
        with open(converted_request_file, 'w') as outfile:
            json.dump(coposed_converted_request, outfile, sort_keys=True, indent=4)
        outfile.close()
 
-
-       # Naming the cmip6Plus varlist by adding a label:
-       unidientified_request_file = os.path.basename(input_json_file).replace('.json','-cmip6Plus-unidentified.json')
        with open(unidientified_request_file, 'w') as outfile:
            json.dump(coposed_unidentified_request, outfile, sort_keys=True, indent=4)
        outfile.close()
@@ -206,6 +209,7 @@ def main():
        print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json')
        print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json')
        print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/CMIP/EC-EARTH-ESM-1/cmip6-experiment-CMIP-esm-hist/cmip6-data-request-varlist-CMIP-esm-hist-EC-EARTH-ESM-1.json')
        print('  ./' + os.path.basename(sys.argv[0]), 'optimesm/optimesm-request-EC-EARTH-ESM-1-varlist.json')
        print()
 
