@@ -352,19 +352,23 @@ if len(sys.argv) == 2:
    command_g  = "mv -f ppt0000000000 pptdddddd* " + cmip6_base_dir_name + "test-all-ece-mip-variables/; rm -f volume-estimate-ifs.txt"
    command_h  = "drq2varlist --allvars --ececonf EC-EARTH-AOGCM   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json"
    command_i  = "drq2varlist --allvars --ececonf EC-EARTH-CC      --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json"
+   command_s  = "drq2varlist --allvars --ececonf EC-EARTH-ESM-1   --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-ESM-1.json"
    command_j  = "drq2varlist --allvars --ececonf EC-EARTH-AerChem --varlist " + cmip6_base_dir_name + "test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json"
    command_k  = "rm -f " + cmip6_base_dir_name + "test-all-ece-mip-variables/lpjg_cmip6_output.ins; ln -s ../../../lpjg_cmip6_output.ins lpjg_cmip6_output.ins; mv -f lpjg_cmip6_output.ins " + cmip6_base_dir_name + "test-all-ece-mip-variables/"
 
 
    command_l1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json'
    command_m1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json'
+   command_t1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-ESM-1.json'
    command_n1 = 'convert_component_to_flat_json ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json'
    command_l2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-AOGCM-flat.json'   + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences'
    command_m2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-CC-flat.json'      + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences'
+   command_t2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-ESM-1-flat.json'   + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-ESM-1-preferences'
    command_n2 = 'checkvars --asciionly -v --drq ' + 'cmip6-data-request-varlist-all-EC-EARTH-AerChem-flat.json' + ' --output ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences'
    command_o  = 'rm -f ' + 'cmip6-data-request-varlist-all-EC-EARTH-*-flat.json'
    command_p  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences.available.txt   ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AOGCM-preferences.txt'
    command_q  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.available.txt      ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt'
+   command_u  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-ESM-1-preferences.available.txt   ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-ESM-1-preferences.txt'
    command_r  = ' mv -f ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences.available.txt ' + cmip6_base_dir_name + 'test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-AerChem-preferences.txt'
 
    os.system(command_a) # Create a new subdirectory for testing all available variables in the file_def files
@@ -376,18 +380,22 @@ if len(sys.argv) == 2:
    os.system(command_g) # Move the ppt files which include all IFS available variables to the test-all-ece-mip-variables directory and remove the volume estimate file.
    os.system(command_h) # Create the json data request file which includes all available variables for EC-Earth3-AOGCM
    os.system(command_i) # Create the json data request file which includes all available variables for EC-Earth3-CC
+   os.system(command_s) # Create the json data request file which includes all available variables for EC-Earth3-ESM-1
    os.system(command_j) # Create the json data request file which includes all available variables for EC-Earth3-AerChem
    os.system(command_k) # Remove the piControl LPJG instruction file, and add a link to the instruction file which includes all available LPJG variables.
-   os.system(command_l1) # Convert the json data request file which contains the EC-Earth AOGCM   components to a flat json data request file for checkvars
-   os.system(command_m1) # Convert the json data request file which contains the EC-Earth CC      components to a flat json data request file for checkvars
-   os.system(command_n1) # Convert the json data request file which contains the EC-Earth AerChem components to a flat json data request file for checkvars
-   os.system(command_l2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth AOGCM   preferences
-   os.system(command_m2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth CC      preferences
-   os.system(command_n2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth AerChem preferences
+   os.system(command_l1) # Convert the json data request file which contains the EC-Earth3-AOGCM   components to a flat json data request file for checkvars
+   os.system(command_m1) # Convert the json data request file which contains the EC-Earth3-CC      components to a flat json data request file for checkvars
+   os.system(command_t1) # Convert the json data request file which contains the EC-Earth3-ESM-1   components to a flat json data request file for checkvars
+   os.system(command_n1) # Convert the json data request file which contains the EC-Earth3-AerChem components to a flat json data request file for checkvars
+   os.system(command_l2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth3-AOGCM   preferences
+   os.system(command_m2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth3-CC      preferences
+   os.system(command_t2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth3-ESM-1   preferences
+   os.system(command_n2) # Execute checkvars --asciionly for the flat json data request file which includes the EC-Earth3-AerChem preferences
    os.system(command_o ) # Remove the flat json files
-   os.system(command_p ) # Rename (omit the avilable label) the request-overview EC-Earth AOGCM   file
-   os.system(command_q ) # Rename (omit the avilable label) the request-overview EC-Earth CC      file
-   os.system(command_r ) # Rename (omit the avilable label) the request-overview EC-Earth AerChem file
+   os.system(command_p ) # Rename (omit the avilable label) the request-overview EC-Earth3-AOGCM   file
+   os.system(command_q ) # Rename (omit the avilable label) the request-overview EC-Earth3-CC      file
+   os.system(command_u ) # Rename (omit the avilable label) the request-overview EC-Earth3-ESM-1   file
+   os.system(command_r ) # Rename (omit the avilable label) the request-overview EC-Earth3-AerChem file
 
    command_fix_s245_s370 = "./apply-the-s126-s585-request-for-s245-370.sh " + cmip6_base_dir_name
    os.system(command_fix_s245_s370) # See issue 517: ScenarioMIP requests for s245 & s370 are taken equal to the ones of s585 & s126.
