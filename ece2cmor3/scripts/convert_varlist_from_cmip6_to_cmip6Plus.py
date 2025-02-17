@@ -206,10 +206,11 @@ def main():
     else:
        print()
        print('  This scripts requires one argument, a json file, e.g.:')
-       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json')
-       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json')
-       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json')
-       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v458/cmip6/CMIP/EC-EARTH-ESM-1/cmip6-experiment-CMIP-esm-hist/cmip6-data-request-varlist-CMIP-esm-hist-EC-EARTH-ESM-1.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v459/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v459/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-CC.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v459/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-ESM-1.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v459/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AerChem.json')
+       print('  ./' + os.path.basename(sys.argv[0]), '../../../control-output-files/output-control-files-v459/cmip6/CMIP/EC-EARTH-ESM-1/cmip6-experiment-CMIP-esm-hist/cmip6-data-request-varlist-CMIP-esm-hist-EC-EARTH-ESM-1.json')
        print('  ./' + os.path.basename(sys.argv[0]), 'optimesm/optimesm-request-EC-EARTH-ESM-1-varlist.json')
        print()
 
