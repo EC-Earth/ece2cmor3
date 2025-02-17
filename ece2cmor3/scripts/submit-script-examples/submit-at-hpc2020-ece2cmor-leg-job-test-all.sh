@@ -15,7 +15,7 @@
 #SBATCH --mail-type=FAIL
 
 # ECEDIR    is the directory with the raw ec-earth output results, for instance: t001/output/nemo/001
-# EXP       is the 4-digit ec-earth experiment ID or label, for instance: t001
+# EXPID     is the 4-digit ec-earth experiment ID or label, for instance: t001
 # ECEMODEL  is the name of the ec-earth model configuration, for instance: EC-EARTH-AOGCM
 # METADATA  is the name of the meta data file, for instance: ece2cmor3/resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
 # VARLIST   is the name of the variable list, in this case the so called json cmip6 data request file, for instance: cmip6-data-request-varlist-CMIP-piControl-EC-EARTH-AOGCM.json
@@ -29,16 +29,24 @@
    NPP=$1
    COMPONENT=$2
    LEG=$3
-   EXP=$4
+   EXPID=$4
    VERSION=$5
 
-   ECEDIR=${SCRATCH}/ecearth3/trunk/$EXP/output/$COMPONENT/$LEG
+   ece_branch_root_dir=ecearth3/trunk
    ECEMODEL=EC-EARTH-AOGCM
-   METADATA=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-piControl/metadata-cmip6-CMIP-piControl-EC-EARTH-AOGCM-$COMPONENT-template.json
-   TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
-   VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
+   MIP_ERA=CMIP6
+   MIP=CMIP
+   EXPERIMENT_NAME=piControl
+
+  #TABLEDIR=../../resources/cmip6-cmor-tables/Tables
+  #TABLEPREFIX=CMIP6
+
+   ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXPID/output/$COMPONENT/$LEG
+   METADATA=${PERM}/${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/cmip6/$MIP/$ECEMODEL/cmip6-experiment-$MIP-${EXPERIMENT_NAME}/metadata-cmip6-$MIP-${EXPERIMENT_NAME}-$ECEMODEL-$COMPONENT-template.json
+   TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXPID/$COMPONENT/$LEG
+   VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-$ECEMODEL.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
-   ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXP/$VERSION
+   ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXPID/$VERSION
 
    if [ ! -d "$ECEDIR"       ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR doesn't exist. Aborting job: $0" >&2; exit 1; fi
    if [ ! "$(ls -A $ECEDIR)" ]; then echo "Error: EC-Earth3 data output directory: $ECEDIR is empty.      Aborting job: $0" >&2; exit 1; fi
@@ -54,20 +62,20 @@
    export UVCDAT_ANONYMOUS_LOG=false
   #export ECE2CMOR3_IFS_CLEANUP=FALSE
 
-   ece2cmor $ECEDIR --exp               $EXP      \
-                    --ececonf           $ECEMODEL \
-                    --$COMPONENT                  \
-                    --meta              $METADATA \
-                    --varlist           $VARLIST  \
-                    --tmpdir            $TEMPDIR  \
-                    --odir              $ODIR     \
-                    --npp               $NPP      \
-                    --overwritemode     replace   \
-                    --skip_alevel_vars            \
+   ece2cmor $ECEDIR --exp               $EXPID       \
+                    --ececonf           $ECEMODEL    \
+                    --$COMPONENT                     \
+                    --meta              $METADATA    \
+                    --varlist           $VARLIST     \
+                    --tmpdir            $TEMPDIR     \
+                    --odir              $ODIR        \
+                    --npp               $NPP         \
+                    --overwritemode     replace      \
+                    --skip_alevel_vars               \
                     --log
 
    mkdir -p $ODIR/logs
-   mv -f $EXP-$COMPONENT-$LEG-*.log $ODIR/logs/
+   mv -f $EXPID-$COMPONENT-$LEG-*.log $ODIR/logs/
    if [ -d $TEMPDIR ]; then rm -rf $TEMPDIR; fi
 
  else
@@ -81,9 +89,9 @@
   echo " For instance:"
   echo "  sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-001 $0 64 ifs 001 t001 v001"
   echo " Or use:"
-  echo "  for i in {001..002}; do sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 64 ifs  \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0  1 nemo \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0  1 lpjg \$i t001 v001; done"
-  echo "  for i in {001..002}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0  1 tm5  \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --qos=np --cpus-per-task=64 --job-name=cmorise-ifs-\$i  $0 64 ifs  \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-nemo-\$i $0  1 nemo \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-lpjg-\$i $0  1 lpjg \$i t001 v001; done"
+  echo "  for i in {001..001}; do sbatch --qos=nf --cpus-per-task=1  --job-name=cmorise-tm5-\$i  $0  1 tm5  \$i t001 v001; done"
   echo
  fi
