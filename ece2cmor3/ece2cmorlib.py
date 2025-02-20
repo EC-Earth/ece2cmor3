@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Module configuration defaults
 conf_path_default = os.path.join(os.path.dirname(__file__), "resources", "metadata-templates",
-                                 "cmip6-CMIP-piControl-metadata-template.json")
+                                 "metadata-cmip6-CMIP-piControl-template.json")
 cmor_mode_default = cmor.CMOR_PRESERVE
 prefix_default = "CMIP6"
 table_dir_default = os.path.join(os.path.dirname(__file__), "resources", "tables")
