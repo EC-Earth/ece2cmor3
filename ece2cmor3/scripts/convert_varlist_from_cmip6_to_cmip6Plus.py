@@ -49,10 +49,18 @@ def main():
         print('  ' + command_3 + '\n')
         os.system(command_3)
 
-        print(' Fix an error in the mip-cmor-tables repo content:')
-        command_4 = "sed -i -e 's/Apmon/APmon/g' " + file_name_mapping_table
+        print(' Remove trailing spaces:')
+        command_4 = "sed -i -e 's/ *$//g' " + file_name_mapping_table
         print('  ' + command_4 + '\n')
         os.system(command_4)
+
+        print(' Improve readability of notes:')
+        command_5 = "sed -i -e 's/Note       Variable  name       change/Note Variable name change/' " + file_name_mapping_table
+        print('  ' + command_5)
+        os.system(command_5)
+        command_6 = "sed -i -e 's/Note       change    in         cell_methods/Note change incell_methods/' " + file_name_mapping_table
+        print('  ' + command_6 + '\n')
+        os.system(command_6)
 
        if os.path.isfile(cmip6_cmip6plus_map_table_file_name) == False: print(error_message, ' The file ', cmip6_cmip6plus_map_table_file_name, '  does not exist.\n'); sys.exit()
 
@@ -60,10 +68,8 @@ def main():
        cmip6_cmip6plus_map_table = np.loadtxt(cmip6_cmip6plus_map_table_file_name, skiprows=2, usecols=(0,1,2,3), dtype='str')
 
        # Clean:
-       command_5 = "rm -rf mip-cmor-tables.wiki"
-       command_6 = "rm -f " + file_name_mapping_table
-       os.system(command_5)
-      #os.system(command_6)
+       command_7 = "rm -rf mip-cmor-tables.wiki"
+       os.system(command_7)
 
        return cmip6_cmip6plus_map_table
 
