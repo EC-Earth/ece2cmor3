@@ -6,7 +6,7 @@
 # first   argument is the MIP name
 # second  argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # third   argument is the ec-earth model configuration
-# fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
+# fourth  OPTIONAL argument is the meta data template json file which is used as input, the file, e.g. (default): ../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json
 #
 # For examples how to call this script, run it without arguments.
 #
@@ -22,7 +22,7 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  mip=$1
  experiment=$2
  ececonf=$3
- input_template=../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json
+ input_template=../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json
  if [ "$#" -eq 4 ]; then input_template=$4; fi
 
 
@@ -510,7 +510,7 @@ else
  echo
  echo "  This scripts requires three or four arguments, e.g.:"
  echo "   $0 CMIP historical EC-EARTH-Veg"
- echo "   $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/cmip6-CMIP-piControl-metadata-template.json"
+ echo "   $0 CMIP historical EC-EARTH-CC  ../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json"
  echo
 fi
 
