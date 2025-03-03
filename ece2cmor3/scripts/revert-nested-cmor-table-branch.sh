@@ -27,8 +27,8 @@ if [ "$#" -eq 0 ]; then
  cd -
 
 else
- echo '  '
- echo '  This scripts requires no argument:'
- echo '  ' $0
- echo '  '
+ echo
+ echo " This scripts requires no argument:"
+ echo "  $0"
+ echo
 fi

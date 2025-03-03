@@ -55,9 +55,9 @@ if [ "$#" -eq 1 ]; then
  echo
 
 else
-  echo
-  echo " This scripts requires one argument (the path of the dir of the new tables), e.g.:"
-  echo "  $0 \${HOME}/cmorize/"
-  echo "  $0 \${PERM}/cmorize/"
-  echo
+ echo
+ echo " This scripts requires one argument (the path of the dir of the new tables), e.g.:"
+ echo "  $0 \${HOME}/cmorize/"
+ echo "  $0 \${PERM}/cmorize/"
+ echo
 fi
