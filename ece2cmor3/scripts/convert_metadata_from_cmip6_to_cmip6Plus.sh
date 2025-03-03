@@ -25,8 +25,8 @@ if [ "$#" -eq 1 ]; then
  sed -i -e "s/license.:.*/license\":                      \"${license}\",/"                                                                      ${metadata_filename_cmip6plus}
 
  sed -i  '/"_controlled_vocabulary_file"/i \
-   "_AXIS_ENTRY_FILE":             "MIP_coordinate.json",\
-   "_FORMULA_VAR_FILE":            "MIP_formula_terms.json",
+    "_AXIS_ENTRY_FILE":             "MIP_coordinate.json",\
+    "_FORMULA_VAR_FILE":            "MIP_formula_terms.json",
  ' ${metadata_filename_cmip6plus}
 
 else
