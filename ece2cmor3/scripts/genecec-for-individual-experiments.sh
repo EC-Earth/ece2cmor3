@@ -378,19 +378,23 @@ if [ "$#" -eq 5 ]; then
   if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
    sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX"/'                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"source_type":                  "AOGCM BGC ISM"/"source_type":                  "AOGCM BGC"/'                                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
-   for i in {ifs,nemo,lpjg,co2box,pism}; do 
-    ./convert_metadata_from_cmip6_to_cmip6Plus.sh ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-${i}-template.json
-   done
-   ./convert_varlist_from_cmip6_to_cmip6Plus.py ${data_request_file}
-   cmip6plus_data_request_file=${data_request_file##*/}
-   mv -f ${cmip6plus_data_request_file/-varlist.json/-varlist-cmip6Plus.json}              ${output_dir}/
-   mv -f ${cmip6plus_data_request_file/-varlist.json/-varlist-cmip6Plus-unidentified.json} ${output_dir}/
   fi
 
   # rescue only:
   if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of RESCUE (https:\/\/www.rescue-climate.eu) by XXXX"/'              ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"source_type":                  "AOGCM BGC ISM"/"source_type":                  "AOGCM BGC"/'                                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
+  fi
+
+  # optimesm & rescue only:
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ] ; then
+   for i in {ifs,nemo,lpjg,co2box,pism}; do 
+    ./convert_metadata_from_cmip6_to_cmip6Plus.sh ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-${i}-template.json
+   done
+   ./convert_varlist_from_cmip6_to_cmip6Plus.py ${data_request_file}
+   cmip6plus_data_request_file=${data_request_file##*/}
+   mv -f ${cmip6plus_data_request_file/-varlist.json/-varlist-cmip6Plus.json} ${output_dir}/
+   mv -f ${cmip6plus_data_request_file/-varlist.json/-varlist-cmip6Plus-unidentified.json} ${output_dir}/
   fi
 
   # extremeX only:
