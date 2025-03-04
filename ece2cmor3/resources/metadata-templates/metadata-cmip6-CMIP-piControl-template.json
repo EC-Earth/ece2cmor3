@@ -30,7 +30,7 @@
     "comment":                      "",
 
 
-    "_control_vocabulary_file":     "CMIP6_CV.json",
+    "_controlled_vocabulary_file":  "CMIP6_CV.json",
     "_cmip6_option":                "CMIP6",
     "mip_era":                      "CMIP6",
     "parent_mip_era":               "CMIP6",
