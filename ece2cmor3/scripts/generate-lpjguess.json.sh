@@ -190,7 +190,7 @@ function add_item {
       #echo '        "convert": "frac2percent",' >> ${output_file}   # is alreay in percentage, therefore omitting for the
 	 ;;                                                          # variable burntFractionAll the conversion (see#546).
      *Frac* )
-       echo '        "convert": "frac2percent",' >> ${output_file}
+      #echo '        "convert": "frac2percent",' >> ${output_file}   # is alreay in percentage, therefore omitting for the
 	 ;;
  esac
  echo '        "target": "'$1'"'  >> ${output_file}
@@ -202,7 +202,7 @@ function add_last_item {
  echo '        "source": "'$1'",' >> ${output_file}
  case $1 in
      *Frac* )
-       echo '        "convert": "frac2percent",' >> ${output_file}
+      #echo '        "convert": "frac2percent",' >> ${output_file}   # is alreay in percentage, therefore omitting for the
 	 ;;
  esac
  echo '        "target": "'$1'"'  >> ${output_file}
