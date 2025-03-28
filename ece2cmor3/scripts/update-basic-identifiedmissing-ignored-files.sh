@@ -36,14 +36,14 @@ if [ "$#" -eq -2 ]; then
         # into the "arr" list of generate-nemopar.json.sh.
   # Therafter run generate-nemopar.json.sh:
   ./generate-nemopar.json.sh  new-nemopar.json
-  ./generate-tm5.json.sh      new-tm5par.json
-  ./generate-lpjguess.json.sh new-lpjguesspar.json
+  ./generate-tm5par.json.sh   new-tm5par.json
+  ./generate-lpjgpar.json.sh  new-lpjgpar.json
   diff new-nemopar.json       ${ece2cmor_root_directory}/ece2cmor3/resources/nemopar.json
   diff new-tm5par.json        ${ece2cmor_root_directory}/ece2cmor3/resources/tm5par.json
-  diff new-lpjguesspar.json   ${ece2cmor_root_directory}/ece2cmor3/resources/lpjgpar.json
+  diff new-lpjgpar.json       ${ece2cmor_root_directory}/ece2cmor3/resources/lpjgpar.json
   mv -f new-nemopar.json      ${ece2cmor_root_directory}/ece2cmor3/resources/nemopar.json
   mv -f new-tm5par.json       ${ece2cmor_root_directory}/ece2cmor3/resources/tm5par.json
-  mv -f new-lpjguesspar.json  ${ece2cmor_root_directory}/ece2cmor3/resources/lpjgpar.json
+  mv -f new-lpjgpar.json      ${ece2cmor_root_directory}/ece2cmor3/resources/lpjgpar.json
   git diff                    ${ece2cmor_root_directory}/ece2cmor3/resources/nemopar.json
   git diff                    ${ece2cmor_root_directory}/ece2cmor3/resources/tm5par.json
   git diff                    ${ece2cmor_root_directory}/ece2cmor3/resources/lpjgpar.json

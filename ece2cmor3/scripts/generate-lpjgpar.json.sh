@@ -5,8 +5,7 @@
 #
 # ${1} the first argument is the ouput file: the new lpj-guess.json file.
 #
-# Run example:
-#  ./generate-lpjguess.json.sh new-lpjguess.json
+# Run this script without arguments for examples how to call this script.
 #
 
 # The current list is in the arr array is compiled by considering all variables
@@ -236,6 +235,6 @@ if [ "$#" -eq 1 ]; then
 else
  echo
  echo "  This scripts requires one argument, e.g.:"
- echo "  $0 new-lpjguesspar.json"
+ echo "  $0 new-lpjgpar.json"
  echo
 fi

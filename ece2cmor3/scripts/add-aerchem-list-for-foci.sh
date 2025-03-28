@@ -544,7 +544,7 @@ if [ "$#" -eq 0 ]; then
   do_create_foci_tm5par_and_request_files=False
 
   if [ "$do_create_foci_tm5par_and_request_files" = "True" ]; then
-   # Create a foci-tm5par.json file. The code below is following the code in the generate-tm5.json.sh script.
+   # Create a foci-tm5par.json file. The code below is following the code in the generate-tm5par.json.sh script.
 
    # Declare an array variable with all the nemo cmor variable names:
    declare -a arr=(

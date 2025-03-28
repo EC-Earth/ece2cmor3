@@ -5,8 +5,7 @@
 #
 # ${1} the first argument is the ouput file: the new tm5.json file.
 #
-# Run example:
-#  ./generate-tm5.json.sh new-tm5.json
+# Run this script without arguments for examples how to call this script.
 #
 
 # The current list is in the arr array is compiled by considering all variables
