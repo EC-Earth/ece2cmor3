@@ -808,6 +808,8 @@ def get_conversion_factor(conversion):
         return 100.0
     if conversion == "percent2frac":
         return 0.01
+    if conversion == "daily2persecond":
+        return 1./86400.
     log.error("Unknown explicit unit conversion %s will be ignored" % conversion)
     return 1.0
 
