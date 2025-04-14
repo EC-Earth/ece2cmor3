@@ -212,6 +212,10 @@
         "target": "fHarvestToAtmos"
     },
     {
+        "source": "fHarvestToProduct",
+        "target": "fHarvestToProduct"
+    },
+    {
         "source": "fLitterFire",
         "target": "fLitterFire"
     },
@@ -326,6 +330,10 @@
     {
         "source": "fVegLitter",
         "target": "fVegLitter"
+    },
+    {
+        "source": "fVegOther",
+        "target": "fVegOther"
     },
     {
         "source": "gpp",
