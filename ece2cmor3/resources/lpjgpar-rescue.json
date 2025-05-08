@@ -1,0 +1,741 @@
+[
+    {
+        "source": "baresoilFrac",
+        "target": "baresoilFrac"
+    },
+    {
+        "source": "burntFractionAll",
+        "target": "burntFractionAll"
+    },
+    {
+        "source": "cCwd",
+        "target": "cCwd"
+    },
+    {
+        "source": "cFluxYr",
+        "target": "cFluxYr"
+    },
+    {
+        "source": "cLand",
+        "target": "cLand"
+    },
+    {
+        "source": "cLand1st",
+        "target": "cLand1st"
+    },
+    {
+        "source": "cLandYr",
+        "target": "cLandYr"
+    },
+    {
+        "source": "cLeaf",
+        "target": "cLeaf"
+    },
+    {
+        "source": "cBECCS",
+        "target": "cBECCS"
+    },
+    {
+        "source": "fBECCS",
+        "convert": "daily2persecond",
+        "target": "fBECCS"
+    },
+    {
+        "source": "fBEatm",
+        "convert": "daily2persecond",
+        "target": "fBEatm"
+    },
+    {
+        "source": "cLitter",
+        "target": "cLitter"
+    },
+    {
+        "source": "cLitterAbove",
+        "target": "cLitterAbove"
+    },
+    {
+        "source": "cLitterBelow",
+        "target": "cLitterBelow"
+    },
+    {
+        "source": "cLitterCwd",
+        "target": "cLitterCwd"
+    },
+    {
+        "source": "cLitterLut",
+        "target": "cLitterLut"
+    },
+    {
+        "source": "cLitterSubSurf",
+        "target": "cLitterSubSurf"
+    },
+    {
+        "source": "cLitterSurf",
+        "target": "cLitterSurf"
+    },
+    {
+        "source": "cOther",
+        "target": "cOther"
+    },
+    {
+        "source": "cProduct",
+        "target": "cProduct"
+    },
+    {
+        "source": "cProductLut",
+        "target": "cProductLut"
+    },
+    {
+        "source": "cRoot",
+        "target": "cRoot"
+    },
+    {
+        "source": "cropFrac",
+        "target": "cropFrac"
+    },
+    {
+        "source": "cropFracC3",
+        "target": "cropFracC3"
+    },
+    {
+        "source": "cropFracC4",
+        "target": "cropFracC4"
+    },
+    {
+        "source": "cSoil",
+        "target": "cSoil"
+    },
+    {
+        "source": "cSoilFast",
+        "target": "cSoilFast"
+    },
+    {
+        "source": "cSoilLut",
+        "target": "cSoilLut"
+    },
+    {
+        "source": "cSoilMedium",
+        "target": "cSoilMedium"
+    },
+    {
+        "source": "cSoilSlow",
+        "target": "cSoilSlow"
+    },
+    {
+        "source": "cStem",
+        "target": "cStem"
+    },
+    {
+        "source": "cTotFireLut",
+        "convert": "daily2persecond",
+        "target": "cTotFireLut"
+    },
+    {
+        "source": "cVeg",
+        "target": "cVeg"
+    },
+    {
+        "source": "cVegLut",
+        "target": "cVegLut"
+    },
+    {
+        "source": "cWood",
+        "target": "cWood"
+    },
+    {
+        "source": "ec",
+        "target": "ec"
+    },
+    {
+        "source": "evspsbl",
+        "convert": "daily2persecond",
+        "target": "evspsbl"
+    },
+    {
+        "source": "evspsblpot",
+        "convert": "daily2persecond",
+        "target": "evspsblpot"
+    },
+    {
+        "source": "evspsblsoi",
+        "convert": "daily2persecond",
+        "target": "evspsblsoi"
+    },
+    {
+        "source": "evspsblveg",
+        "convert": "daily2persecond",
+        "target": "evspsblveg"
+    },
+    {
+        "source": "fAnthDisturb",
+        "convert": "daily2persecond",
+        "target": "fAnthDisturb"
+    },
+    {
+        "source": "fBNF",
+        "convert": "daily2persecond",
+        "target": "fBNF"
+    },
+    {
+        "source": "fCLandToOcean",
+        "convert": "daily2persecond",
+        "target": "fCLandToOcean"
+    },
+    {
+        "source": "fco2antt",
+        "convert": "daily2persecond",
+        "target": "fco2antt"
+    },
+    {
+        "source": "fco2nat",
+        "convert": "daily2persecond",
+        "target": "fco2nat"
+    },
+    {
+        "source": "fDeforestToAtmos",
+        "convert": "daily2persecond",
+        "target": "fDeforestToAtmos"
+    },
+    {
+        "source": "fDeforestToProduct",
+        "convert": "daily2persecond",
+        "target": "fDeforestToProduct"
+    },
+    {
+        "source": "fFire",
+        "convert": "daily2persecond",
+        "target": "fFire"
+    },
+    {
+        "source": "fFireAll",
+        "convert": "daily2persecond",
+        "target": "fFireAll"
+    },
+    {
+        "source": "fFireNat",
+        "convert": "daily2persecond",
+        "target": "fFireNat"
+    },
+    {
+        "source": "fGrazing",
+        "convert": "daily2persecond",
+        "target": "fGrazing"
+    },
+    {
+        "source": "fHarvest",
+        "convert": "daily2persecond",
+        "target": "fHarvest"
+    },
+    {
+        "source": "fHarvestToAtmos",
+        "convert": "daily2persecond",
+        "target": "fHarvestToAtmos"
+    },
+    {
+        "source": "fHarvestToProduct",
+        "target": "fHarvestToProduct"
+    },
+    {
+        "source": "fLitterFire",
+        "convert": "daily2persecond",
+        "target": "fLitterFire"
+    },
+    {
+        "source": "fLitterSoil",
+        "convert": "daily2persecond",
+        "target": "fLitterSoil"
+    },
+    {
+        "source": "fLuc",
+        "convert": "daily2persecond",
+        "target": "fLuc"
+    },
+    {
+        "source": "fLulccAtmLut",
+        "convert": "daily2persecond",
+        "target": "fLulccAtmLut"
+    },
+    {
+        "source": "fLulccProductLut",
+        "convert": "daily2persecond",
+        "target": "fLulccProductLut"
+    },
+    {
+        "source": "fLulccResidueLut",
+        "convert": "daily2persecond",
+        "target": "fLulccResidueLut"
+    },
+    {
+        "source": "fNAnthDisturb",
+        "convert": "daily2persecond",
+        "target": "fNAnthDisturb"
+    },
+    {
+        "source": "fN2O",
+        "convert": "daily2persecond",
+        "target": "fN2O"
+    },
+    {
+        "source": "fNOx",
+        "convert": "daily2persecond",
+        "target": "fNOx"
+    },
+    {
+        "source": "fNdep",
+        "convert": "daily2persecond",
+        "target": "fNdep"
+    },
+    {
+        "source": "fNfert",
+        "convert": "daily2persecond",
+        "target": "fNfert"
+    },
+    {
+        "source": "fNgas",
+        "convert": "daily2persecond",
+        "target": "fNgas"
+    },
+    {
+        "source": "fNgasFire",
+        "convert": "daily2persecond",
+        "target": "fNgasFire"
+    },
+    {
+        "source": "fNgasNonFire",
+        "convert": "daily2persecond",
+        "target": "fNgasNonFire"
+    },
+    {
+        "source": "fNLandToOcean",
+        "convert": "daily2persecond",
+        "target": "fNLandToOcean"
+    },
+    {
+        "source": "fNleach",
+        "convert": "daily2persecond",
+        "target": "fNleach"
+    },
+    {
+        "source": "fNLitterSoil",
+        "convert": "daily2persecond",
+        "target": "fNLitterSoil"
+    },
+    {
+        "source": "fNloss",
+        "convert": "daily2persecond",
+        "target": "fNloss"
+    },
+    {
+        "source": "fNnetmin",
+        "convert": "daily2persecond",
+        "target": "fNnetmin"
+    },
+    {
+        "source": "fNProduct",
+        "convert": "daily2persecond",
+        "target": "fNProduct"
+    },
+    {
+        "source": "fNup",
+        "convert": "daily2persecond",
+        "target": "fNup"
+    },
+    {
+        "source": "fNVegLitter",
+        "convert": "daily2persecond",
+        "target": "fNVegLitter"
+    },
+    {
+        "source": "fProductDecomp",
+        "convert": "daily2persecond",
+        "target": "fProductDecomp"
+    },
+    {
+        "source": "fProductDecompLut",
+        "convert": "daily2persecond",
+        "target": "fProductDecompLut"
+    },
+    {
+        "source": "fracInLut",
+        "convert": "daily2persecond",
+        "target": "fracInLut"
+    },
+    {
+        "source": "fracLut",
+        "convert": "daily2persecond",
+        "target": "fracLut"
+    },
+    {
+        "source": "fracOutLut",
+        "convert": "daily2persecond",
+        "target": "fracOutLut"
+    },
+    {
+        "source": "fVegFire",
+        "convert": "daily2persecond",
+        "target": "fVegFire"
+    },
+    {
+        "source": "fVegLitter",
+        "convert": "daily2persecond",
+        "target": "fVegLitter"
+    },
+    {
+        "source": "fVegOther",
+        "target": "fVegOther"
+    },
+    {
+        "source": "gpp",
+        "convert": "daily2persecond",
+        "target": "gpp"
+    },
+    {
+        "source": "gppGrass",
+        "convert": "daily2persecond",
+        "target": "gppGrass"
+    },
+    {
+        "source": "gppLut",
+        "convert": "daily2persecond",
+        "target": "gppLut"
+    },
+    {
+        "source": "gppTree",
+        "convert": "daily2persecond",
+        "target": "gppTree"
+    },
+    {
+        "source": "grassFrac",
+        "target": "grassFrac"
+    },
+    {
+        "source": "grassFracC3",
+        "target": "grassFracC3"
+    },
+    {
+        "source": "grassFracC4",
+        "target": "grassFracC4"
+    },
+    {
+        "source": "irrLut",
+        "convert": "daily2persecond",
+        "target": "irrLut"
+    },
+    {
+        "source": "lai",
+        "target": "lai"
+    },
+    {
+        "source": "laiLut",
+        "target": "laiLut"
+    },
+    {
+        "source": "landCoverFrac",
+        "target": "landCoverFrac"
+    },
+    {
+        "source": "mrfso",
+        "target": "mrfso"
+    },
+    {
+        "source": "mrro",
+        "convert": "daily2persecond",
+        "target": "mrro"
+    },
+    {
+        "source": "mrroLut",
+        "convert": "daily2persecond",
+        "target": "mrroLut"
+    },
+    {
+        "source": "mrros",
+        "convert": "daily2persecond",
+        "target": "mrros"
+    },
+    {
+        "source": "mrsll",
+        "target": "mrsll"
+    },
+    {
+        "source": "mrso",
+        "target": "mrso"
+    },
+    {
+        "source": "mrsol",
+        "target": "mrsol"
+    },
+    {
+        "source": "mrsoLut",
+        "target": "mrsoLut"
+    },
+    {
+        "source": "mrsos",
+        "target": "mrsos"
+    },
+    {
+        "source": "mrsosLut",
+        "target": "mrsosLut"
+    },
+    {
+        "source": "nbp",
+        "convert": "daily2persecond",
+        "target": "nbp"
+    },
+    {
+        "source": "necbLut",
+        "convert": "daily2persecond",
+        "target": "necbLut"
+    },
+    {
+        "source": "nep",
+        "convert": "daily2persecond",
+        "target": "nep"
+    },
+    {
+        "source": "netAtmosLandCO2Flux",
+        "convert": "daily2persecond",
+        "target": "netAtmosLandCO2Flux"
+    },
+    {
+        "source": "nLand",
+        "target": "nLand"
+    },
+    {
+        "source": "nLeaf",
+        "target": "nLeaf"
+    },
+    {
+        "source": "nLitter",
+        "target": "nLitter"
+    },
+    {
+        "source": "nLitterCwd",
+        "target": "nLitterCwd"
+    },
+    {
+        "source": "nLitterSubSurf",
+        "target": "nLitterSubSurf"
+    },
+    {
+        "source": "nLitterSurf",
+        "target": "nLitterSurf"
+    },
+    {
+        "source": "nMineral",
+        "target": "nMineral"
+    },
+    {
+        "source": "nMineralNH4",
+        "target": "nMineralNH4"
+    },
+    {
+        "source": "nMineralNO3",
+        "target": "nMineralNO3"
+    },
+    {
+        "source": "nOther",
+        "target": "nOther"
+    },
+    {
+        "source": "npp",
+        "convert": "daily2persecond",
+        "target": "npp"
+    },
+    {
+        "source": "nppGrass",
+        "convert": "daily2persecond",
+        "target": "nppGrass"
+    },
+    {
+        "source": "nppLut",
+        "convert": "daily2persecond",
+        "target": "nppLut"
+    },
+    {
+        "source": "nppTree",
+        "convert": "daily2persecond",
+        "target": "nppTree"
+    },
+    {
+        "source": "nProduct",
+        "target": "nProduct"
+    },
+    {
+        "source": "nRoot",
+        "target": "nRoot"
+    },
+    {
+        "source": "nSoil",
+        "target": "nSoil"
+    },
+    {
+        "source": "nStem",
+        "target": "nStem"
+    },
+    {
+        "source": "nVeg",
+        "target": "nVeg"
+    },
+    {
+        "source": "nwdFracLut",
+        "target": "nwdFracLut"
+    },
+    {
+        "source": "pastureFrac",
+        "target": "pastureFrac"
+    },
+    {
+        "source": "pastureFracC3",
+        "target": "pastureFracC3"
+    },
+    {
+        "source": "pastureFracC4",
+        "target": "pastureFracC4"
+    },
+    {
+        "source": "prCrop",
+        "convert": "daily2persecond",
+        "target": "prCrop"
+    },
+    {
+        "source": "prveg",
+        "convert": "daily2persecond",
+        "target": "prveg"
+    },
+    {
+        "source": "ra",
+        "convert": "daily2persecond",
+        "target": "ra"
+    },
+    {
+        "source": "raGrass",
+        "convert": "daily2persecond",
+        "target": "raGrass"
+    },
+    {
+        "source": "raLeaf",
+        "convert": "daily2persecond",
+        "target": "raLeaf"
+    },
+    {
+        "source": "raLut",
+        "convert": "daily2persecond",
+        "target": "raLut"
+    },
+    {
+        "source": "raOther",
+        "convert": "daily2persecond",
+        "target": "raOther"
+    },
+    {
+        "source": "raRoot",
+        "convert": "daily2persecond",
+        "target": "raRoot"
+    },
+    {
+        "source": "raStem",
+        "convert": "daily2persecond",
+        "target": "raStem"
+    },
+    {
+        "source": "raTree",
+        "convert": "daily2persecond",
+        "target": "raTree"
+    },
+    {
+        "source": "residualFrac",
+        "target": "residualFrac"
+    },
+    {
+        "source": "rGrowth",
+        "convert": "daily2persecond",
+        "target": "rGrowth"
+    },
+    {
+        "source": "rh",
+        "convert": "daily2persecond",
+        "target": "rh"
+    },
+    {
+        "source": "rhLitter",
+        "convert": "daily2persecond",
+        "target": "rhLitter"
+    },
+    {
+        "source": "rhLut",
+        "convert": "daily2persecond",
+        "target": "rhLut"
+    },
+    {
+        "source": "rhSoil",
+        "convert": "daily2persecond",
+        "target": "rhSoil"
+    },
+    {
+        "source": "rMaint",
+        "convert": "daily2persecond",
+        "target": "rMaint"
+    },
+    {
+        "source": "shrubFrac",
+        "target": "shrubFrac"
+    },
+    {
+        "source": "snc",
+        "target": "snc"
+    },
+    {
+        "source": "snd",
+        "target": "snd"
+    },
+    {
+        "source": "snw",
+        "target": "snw"
+    },
+    {
+        "source": "tran",
+        "convert": "daily2persecond",
+        "target": "tran"
+    },
+    {
+        "source": "treeFrac",
+        "target": "treeFrac"
+    },
+    {
+        "source": "treeFracBdlDcd",
+        "target": "treeFracBdlDcd"
+    },
+    {
+        "source": "treeFracBdlEvg",
+        "target": "treeFracBdlEvg"
+    },
+    {
+        "source": "treeFracNdlDcd",
+        "target": "treeFracNdlDcd"
+    },
+    {
+        "source": "treeFracNdlEvg",
+        "target": "treeFracNdlEvg"
+    },
+    {
+        "source": "tsl",
+        "target": "tsl"
+    },
+    {
+        "source": "vegFrac",
+        "target": "vegFrac"
+    },
+    {
+        "source": "fStemManaf",
+        "convert": "daily2persecond",
+        "target": "fStemManaf"
+    },
+    {
+        "source": "cStemManaf",
+        "target": "cStemManaf"
+    },
+    {
+        "source": "vegHeightTree",
+        "target": "vegHeightTree"
+    }
+]
