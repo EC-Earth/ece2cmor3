@@ -22,7 +22,7 @@ if [ "$#" -eq 0 ]; then
   #  From LPJ-GUESS:
   #  cBECCS                 Carbon content in CCS from Bioenergy crops (Carbon mass from BE in storage)
   #  fBECCS                 Carbon flux from Bioenergy crops harvested into CCS
-  #  fBECCSatm              Carbon Flux from Bioenergy crops harvested but not stored (going back into the atmosphere)
+  #  fBEatm                 Carbon Flux from Bioenergy crops harvested but not stored (going back into the atmosphere)
 
   #  From the CO2-Boxmodel:
   #  cDACCS                 Carbon content in CCS from direct Air capture
@@ -35,7 +35,7 @@ if [ "$#" -eq 0 ]; then
   #  Template variables:
   #  cBECCS:    cVeg  (annual)
   #  fBECCS:    fFire (annual)
-  #  fBECCSatm: fFire (annual)
+  #  fBEatm:    fFire (annual)
   #  cDACCS:    co2mass
   #  fDACCS:    This one is a global single value no template yet
 
@@ -90,7 +90,7 @@ if [ "$#" -eq 0 ]; then
             "ok_min_mean_abs": "",                                                                     \
             "ok_max_mean_abs": ""                                                                      \
         },                                                                                             \
-        "fBECCSatm": {                                                                                 \
+        "fBEatm": {                                                                                    \
             "frequency": "yr",                                                                         \
             "modeling_realm": "land",                                                                  \
             "standard_name": "carbon_flux_from_bioenergy_crops_harvested_but_not_stored",              \
@@ -100,7 +100,7 @@ if [ "$#" -eq 0 ]; then
             "long_name": "Carbon Flux from Bioenergy crops harvested but not stored (going back into the atmosphere) [kgC m-2 s-1]", \
             "comment": "",                                                                             \
             "dimensions": "longitude latitude time",                                                   \
-            "out_name": "fBECCSatm",                                                                   \
+            "out_name": "fBEatm",                                                                      \
             "type": "real",                                                                            \
             "positive": "up",                                                                          \
             "valid_min": "",                                                                           \
