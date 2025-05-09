@@ -53,52 +53,47 @@ if [ "$#" -eq 0 ]; then
   cp -f ../resources/lpjgpar-rescue.json ../resources/lpjgpar.json
 
   table_path=../resources/cmip6-cmor-tables/Tables
- #table_file_LPJGyr=CMIP6_LPJGyr.json
   table_file_Eyr=CMIP6_Eyr.json
 
   cd ${table_path}
- #rm -f ${table_file_LPJGyr}      # Do not apply because of the optimes modifications
  #git checkout ${table_file_Eyr}  # Do not apply because of the optimes modifications
 
- #sed -i  '/"pastureFrac": {/i \
- #' ${table_file_LPJGyr}
-
   sed -i  '/"cLitter": {/i \
-        "cDACCS": {                                                           \
-            "frequency": "yr",                                                \
-            "modeling_realm": "atmos",                                        \
-            "standard_name": "carbon_content_in_ccs_from_direct_air_capture", \
-            "units": "kg",                                                    \
-            "cell_methods": "area: time: mean",                               \
-            "cell_measures": "",                                              \
-            "long_name": "Carbon content in CCS from direct Air capture",     \
-            "comment": "Direct Air-Carbon Capture and Storage (DACCS)",       \
-            "dimensions": "time",                                             \
-            "out_name": "cDACCS",                                             \
-            "type": "real",                                                   \
-            "positive": "",                                                   \
-            "valid_min": "",                                                  \
-            "valid_max": "",                                                  \
-            "ok_min_mean_abs": "",                                            \
-            "ok_max_mean_abs": ""                                             \
-        },                                                                    \
-        "fDACCS": {                                                           \
-            "frequency": "yr",                                                \
-            "modeling_realm": "atmos",                                        \
-            "standard_name": "carbon_flux_into_ccs_from_direct_air_capture",  \
-            "units": "1e-06",                                                 \
-            "cell_methods": "time: mean",                                     \
-            "cell_measures": "area: areacella",                               \
-            "long_name": "Carbon flux into CCS from direct Air capture",      \
-            "comment": "Direct Air-Carbon Capture and Storage (DACCS)",       \
-            "dimensions": "longitude latitude time",                          \
-            "out_name": "fDACCS",                                             \
-            "type": "real",                                                   \
-            "positive": "",                                                   \
-            "valid_min": "",                                                  \
-            "valid_max": "",                                                  \
-            "ok_min_mean_abs": "",                                            \
-            "ok_max_mean_abs": ""                                             \
+        "cDACCS": {                                                                                    \
+            "frequency": "yr",                                                                         \
+            "modeling_realm": "atmos",                                                                 \
+            "standard_name": "carbon_content_in_ccs_from_direct_air_capture",                          \
+            "units": "kg",                                                                             \
+            "cell_methods": "area: time: mean",                                                        \
+            "cell_measures": "",                                                                       \
+            "long_name": "Carbon content in CCS from direct Air capture",                              \
+            "comment": "Direct Air-Carbon Capture and Storage (DACCS)",                                \
+            "dimensions": "time",                                                                      \
+            "out_name": "cDACCS",                                                                      \
+            "type": "real",                                                                            \
+            "positive": "",                                                                            \
+            "valid_min": "",                                                                           \
+            "valid_max": "",                                                                           \
+            "ok_min_mean_abs": "",                                                                     \
+            "ok_max_mean_abs": ""                                                                      \
+        },                                                                                             \
+        "fDACCS": {                                                                                    \
+            "frequency": "yr",                                                                         \
+            "modeling_realm": "atmos",                                                                 \
+            "standard_name": "carbon_flux_into_ccs_from_direct_air_capture",                           \
+            "units": "1e-06",                                                                          \
+            "cell_methods": "time: mean",                                                              \
+            "cell_measures": "area: areacella",                                                        \
+            "long_name": "Carbon flux into CCS from direct Air capture",                               \
+            "comment": "Direct Air-Carbon Capture and Storage (DACCS)",                                \
+            "dimensions": "longitude latitude time",                                                   \
+            "out_name": "fDACCS",                                                                      \
+            "type": "real",                                                                            \
+            "positive": "",                                                                            \
+            "valid_min": "",                                                                           \
+            "valid_max": "",                                                                           \
+            "ok_min_mean_abs": "",                                                                     \
+            "ok_max_mean_abs": ""                                                                      \
         },                                                                                             \
         "cBECCS": {                                                                                    \
             "frequency": "yrPt",                                                                       \
@@ -193,7 +188,6 @@ if [ "$#" -eq 0 ]; then
   ' ${table_file_Eyr}
 
   # Remove the trailing spaces of the inserted block above:
- #sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_LPJGyr}
   sed -i -e 's/\s*$//g' -e 's/,$/, /g' ${table_file_Eyr}
 
   cd -
@@ -202,7 +196,6 @@ if [ "$#" -eq 0 ]; then
   echo " Running:"
   echo "  $0"
   echo " has adjusted the file:"
- #echo "  ${table_path}/${table_file_LPJGyr}"
   echo "  ${table_path}/${table_file_Eyr}"
   echo " which is part of the nested CMOR Table repository. View the diff by running:"
   echo "  cd ${table_path}; git diff; cd -"
