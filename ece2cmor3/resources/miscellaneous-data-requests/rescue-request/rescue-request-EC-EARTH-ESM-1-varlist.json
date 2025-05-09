@@ -256,7 +256,12 @@
             "residualFrac",
             "shrubFrac",
             "treeFrac",
-            "vegFrac"
+            "vegFrac",
+            "cBECCS",
+            "fBECCS",
+            "fBEatm",
+            "cStemManaf",
+            "fStemManaf"
         ],
         "Lmon": [
             "baresoilFrac",
@@ -321,9 +326,6 @@
         ],
         "LPJGyr": [
             "pastureFrac",
-            "cBECCS",
-            "fBECCS",
-            "fBECCSatm"
         ]
     },
     "nemo": {
