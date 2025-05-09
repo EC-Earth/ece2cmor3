@@ -412,6 +412,7 @@ if [ "$#" -eq 5 ]; then
   # rescue only:
   if [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
+   git checkout ../resources/lpjgpar.json
    git checkout ${basic_cmip6_file_def_nemo}
   fi
 
