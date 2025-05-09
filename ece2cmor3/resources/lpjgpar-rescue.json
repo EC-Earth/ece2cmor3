@@ -233,6 +233,7 @@
     },
     {
         "source": "fHarvestToProduct",
+        "convert": "daily2persecond",
         "target": "fHarvestToProduct"
     },
     {
@@ -382,6 +383,7 @@
     },
     {
         "source": "fVegOther",
+        "convert": "daily2persecond",
         "target": "fVegOther"
     },
     {
