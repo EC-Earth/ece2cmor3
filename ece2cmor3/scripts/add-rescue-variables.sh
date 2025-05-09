@@ -48,6 +48,10 @@ if [ "$#" -eq 0 ]; then
   # Apply first all optimesm additions:
   ./add-optimesm-variables.sh
 
+  # Use the lpjgpar-rescue.json with the "convert": "daily2persecond" because of the ECE LPJG code change in r10447 in the rescue branch:
+  git ../resources/lpjgpar-rescue.json
+  cp -f ../resources/lpjgpar-rescue.json ../resources/lpjgpar.json
+
   table_path=../resources/cmip6-cmor-tables/Tables
  #table_file_LPJGyr=CMIP6_LPJGyr.json
   table_file_Eyr=CMIP6_Eyr.json
@@ -121,7 +125,7 @@ if [ "$#" -eq 0 ]; then
             "units": "kg m-2 s-1",                                                                     \
             "cell_methods": "area: mean where land time: mean",                                        \
             "cell_measures": "area: areacella",                                                        \
-            "long_name": "Carbon flux from Bioenergy crops harvested into CCS [kgC m-2 s-1]",          \
+            "long_name": "Carbon flux from Bioenergy crops harvested into CCS",                        \
             "comment": "",                                                                             \
             "dimensions": "longitude latitude time",                                                   \
             "out_name": "fBECCS",                                                                      \
@@ -139,7 +143,7 @@ if [ "$#" -eq 0 ]; then
             "units": "kg m-2 s-1",                                                                     \
             "cell_methods": "area: mean where land time: mean",                                        \
             "cell_measures": "area: areacella",                                                        \
-            "long_name": "Carbon Flux from Bioenergy crops harvested but not stored (going back into the atmosphere) [kgC m-2 s-1]", \
+            "long_name": "Carbon Flux from Bioenergy crops harvested but not stored (going back into the atmosphere)", \
             "comment": "",                                                                             \
             "dimensions": "longitude latitude time",                                                   \
             "out_name": "fBEatm",                                                                      \
@@ -149,7 +153,7 @@ if [ "$#" -eq 0 ]; then
             "valid_max": "",                                                                           \
             "ok_min_mean_abs": "",                                                                     \
             "ok_max_mean_abs": ""                                                                      \
-        },
+        },                                                                                             \
         "cStemManaf": {                                                                                \
             "frequency": "yrPt",                                                                       \
             "modeling_realm": "land",                                                                  \
