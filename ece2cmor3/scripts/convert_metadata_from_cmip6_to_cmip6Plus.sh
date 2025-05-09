@@ -18,7 +18,11 @@ if [ "$#" -eq 1 ]; then
 
  license="CMIP6Plus model data produced by EC-Earth-Consortium is licensed under a Creative Commons 4.0 (CC BY 4.0) License (https:\/\/creativecommons.org\/). Consult https:\/\/pcmdi.llnl.gov\/CMIP6Plus\/TermsOfUse for terms of use governing CMIP6Plus output, including citation requirements and proper acknowledgment. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law."
 
+ # Try for the case the old incorrect attribute name is used:
  sed    -e 's/"_control_vocabulary_file":     "CMIP6_CV.json"/"_controlled_vocabulary_file":  "CMIP6Plus_CV.json"/' ${metadata_filename_cmip6} > ${metadata_filename_cmip6plus}
+ # Also try for the case the new correct attribute name is used:
+ sed    -e 's/"_controlled_vocabulary_file":  "CMIP6_CV.json"/"_controlled_vocabulary_file":  "CMIP6Plus_CV.json"/' ${metadata_filename_cmip6} > ${metadata_filename_cmip6plus}
+
  sed -i -e 's/"_cmip6_option":                "CMIP6"/"_cmip6_option":                "CMIP6Plus"/'                                              ${metadata_filename_cmip6plus}
  sed -i -e 's/"mip_era":                      "CMIP6"/"mip_era":                      "CMIP6Plus"/'                                              ${metadata_filename_cmip6plus}
  sed -i -e 's/"parent_mip_era":               "CMIP6"/"parent_mip_era":               "CMIP6Plus"/'                                              ${metadata_filename_cmip6plus}
