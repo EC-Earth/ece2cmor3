@@ -99,7 +99,7 @@ if [ "$#" -eq 0 ]; then
             "valid_max": "",                                                  \
             "ok_min_mean_abs": "",                                            \
             "ok_max_mean_abs": ""                                             \
-        },
+        },                                                                                             \
         "cBECCS": {                                                                                    \
             "frequency": "yrPt",                                                                       \
             "modeling_realm": "land",                                                                  \
