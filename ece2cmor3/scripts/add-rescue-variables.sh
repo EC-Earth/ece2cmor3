@@ -49,7 +49,6 @@ if [ "$#" -eq 0 ]; then
   ./add-optimesm-variables.sh
 
   # Use the lpjgpar-rescue.json with the "convert": "daily2persecond" because of the ECE LPJG code change in r10447 in the rescue branch:
-  git ../resources/lpjgpar-rescue.json
   cp -f ../resources/lpjgpar-rescue.json ../resources/lpjgpar.json
 
   table_path=../resources/cmip6-cmor-tables/Tables
