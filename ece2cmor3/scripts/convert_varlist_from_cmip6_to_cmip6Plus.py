@@ -134,7 +134,7 @@ def main():
                 if cmip6plus_variable in converted_request[cmip6plus_table]:
                  print(warning_message, ' Skip dublicate {} {} due non bijective cmip6 - cmip6Plus mapping (cmip6 source: {} {})'.format(cmip6plus_table, cmip6plus_variable, cmip6_table, cmip6_variable))
                 else:
-                 # Add a another cmip6Plus variable to an already created cmip6Plus table:
+                 # Add another cmip6Plus variable to an already created cmip6Plus table:
                  converted_request[cmip6plus_table].append(cmip6plus_variable)
                else:
                 # Add a first cmip6Plus variable for a first encounterd cmip6Plus table:
@@ -178,12 +178,12 @@ def main():
        if any(x in ece2cmor_components for x in data_request):
         print(' The cmip6 varlist input file is a component based file:')
 
-       coposed_converted_request = {}
-       coposed_unidentified_request = {}
+       composed_converted_request = {}
+       composed_unidentified_request = {}
        for component in ece2cmor_components:
         if component in data_request: print('  {:6} in request'.format(component))
-        coposed_converted_request.update(convert_component_request(component, data_request)[0])
-        coposed_unidentified_request.update(convert_component_request(component, data_request)[1])
+        composed_converted_request.update(convert_component_request(component, data_request)[0])
+        composed_unidentified_request.update(convert_component_request(component, data_request)[1])
        print()
 
 
@@ -196,11 +196,11 @@ def main():
         unidientified_request_file = os.path.basename(input_json_file).replace('.json','-cmip6Plus-unidentified.json')
 
        with open(converted_request_file, 'w') as outfile:
-           json.dump(coposed_converted_request, outfile, sort_keys=True, indent=4)
+           json.dump(composed_converted_request, outfile, sort_keys=True, indent=4)
        outfile.close()
 
        with open(unidientified_request_file, 'w') as outfile:
-           json.dump(coposed_unidentified_request, outfile, sort_keys=True, indent=4)
+           json.dump(composed_unidentified_request, outfile, sort_keys=True, indent=4)
        outfile.close()
 
 
