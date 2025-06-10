@@ -56,10 +56,15 @@ def main():
                         help="Cmorization table directory")
     parser.add_argument("--tabid", metavar="PREFIX", type=str, default=ece2cmorlib.prefix_default,
                         help="Cmorization table prefix string")
+    parser.add_argument("--basic_file_def_file", metavar="FILE", type=str, default='../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml',
+                        help="Specify the path and name of the basic_file_def file")
     parser.add_argument("--compact", action="store_true", default=False,
                         help="Add the compact file_def files as well")
 
     args = parser.parse_args()
+
+    if args.basic_file_def_file is not None:
+     basic_file_def_file_name = args.basic_file_def_file
 
     # Echo the exact call of the script in the log messages:
     logging.info('Running {:} with:\n\n {:} {:}\n'.format(parser.prog, parser.prog, ' '.join(sys.argv[1:])))
