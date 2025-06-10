@@ -15,8 +15,8 @@ import json
 from os.path import expanduser
 
 #ping_file_directory = expanduser("~")+"/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/"
-#ping_file_directory = expanduser("~")+"/ec-earth-3/branch-r6874-control-output-files/runtime/classic/ctrl/"
-ping_file_directory = expanduser("~")+"/ec-earth-3/trunk/runtime/classic/ctrl/"
+#ping_file_directory = expanduser("~")+"/ec-earth/ecearth3/branch-r6874-control-output-files/runtime/classic/ctrl/"
+ping_file_directory = expanduser("~")+"/ec-earth/ecearth3/trunk/runtime/classic/ctrl/"
 
 treeOcean     = xmltree.parse(ping_file_directory + "ping_ocean_DR1.00.27.xml"    )
 treeSeaIce    = xmltree.parse(ping_file_directory + "ping_seaIce_DR1.00.27.xml"   )

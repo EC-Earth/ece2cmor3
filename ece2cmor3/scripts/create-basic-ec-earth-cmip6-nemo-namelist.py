@@ -68,10 +68,10 @@ if len(sys.argv) == 2:
 
    # Take the config variables:
    ece2cmor_root_directory        = os.path.expanduser(config['ece2cmor_root_directory'       ]) # ece2cmor_root_directory         = '~/cmorize/ece2cmor3/'
-   ping_file_name_ocean           = os.path.expanduser(config['ping_file_name_ocean'          ]) # ping_file_name_ocean            = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
-   ping_file_name_seaIce          = os.path.expanduser(config['ping_file_name_seaIce'         ]) # ping_file_name_seaIce           = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
-   ping_file_name_ocnBgchem       = os.path.expanduser(config['ping_file_name_ocnBgchem'      ]) # ping_file_name_ocnBgchem        = '~/ec-earth-3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
-   field_def_file_directory       = os.path.expanduser(config['field_def_file_directory'      ]) # field_def_file_directory        = '~/ec-earth-3/trunk/runtime/classic/ctrl/'
+   ping_file_name_ocean           = os.path.expanduser(config['ping_file_name_ocean'          ]) # ping_file_name_ocean            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
+   ping_file_name_seaIce          = os.path.expanduser(config['ping_file_name_seaIce'         ]) # ping_file_name_seaIce           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
+   ping_file_name_ocnBgchem       = os.path.expanduser(config['ping_file_name_ocnBgchem'      ]) # ping_file_name_ocnBgchem        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
+   field_def_file_directory       = os.path.expanduser(config['field_def_file_directory'      ]) # field_def_file_directory        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/'
    nemo_only_dr_nodummy_file_xlsx = os.path.expanduser(config['nemo_only_dr_nodummy_file_xlsx']) # nemo_only_dr_nodummy_file_xlsx  =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
    nemo_only_dr_nodummy_file_txt  = os.path.expanduser(config['nemo_only_dr_nodummy_file_txt' ]) # nemo_only_dr_nodummy_file_txt   =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
    basic_flat_file_def_file_name  = os.path.expanduser(config['basic_flat_file_def_file_name' ]) # basic_flat_file_def_file_name   =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
