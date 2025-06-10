@@ -15,7 +15,7 @@ jobs:
       with:
         submodules: true
     - name: Mamba install
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: ece2cmor3
         environment-file: environment.yml
