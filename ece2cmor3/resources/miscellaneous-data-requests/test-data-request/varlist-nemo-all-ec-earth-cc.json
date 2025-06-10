@@ -88,21 +88,6 @@
         "EmonZ": [
             "sltbasin"
         ],
-        "Oclim": [
-            "diftrblo2d",
-            "diftrelo2d",
-            "diftrxylo2d",
-            "difvho",
-            "difvmo",
-            "difvmto",
-            "difvso",
-            "difvtrto",
-            "dispkevfo",
-            "dispkexyfo2d",
-            "tnkebto2d",
-            "tnpeo",
-            "zhalfo"
-        ],
         "Oday": [
             "chlos",
             "omldamax",
@@ -343,7 +328,6 @@
         "SImon": [
             "sfdsi",
             "siage",
-            "siareaacrossline",
             "siarean",
             "siareas",
             "sicompstren",
@@ -381,7 +365,6 @@
             "siitdsnthick",
             "siitdthick",
             "simass",
-            "simassacrossline",
             "sisali",
             "sisaltmass",
             "sishevel",
@@ -409,8 +392,7 @@
             "sndmassmelt",
             "sndmasssi",
             "sndmasssnf",
-            "sndmasssubl",
-            "snmassacrossline"
+            "sndmasssubl"
         ]
     },
     "tm5": {}

@@ -32,21 +32,6 @@
         "EmonZ": [
             "sltbasin"
         ],
-        "Oclim": [
-            "diftrblo2d",
-            "diftrelo2d",
-            "diftrxylo2d",
-            "difvho",
-            "difvmo",
-            "difvmto",
-            "difvso",
-            "difvtrto",
-            "dispkevfo",
-            "dispkexyfo2d",
-            "tnkebto2d",
-            "tnpeo",
-            "zhalfo"
-        ],
         "Oday": [
             "omldamax",
             "sos",
@@ -64,7 +49,6 @@
         "Omon": [
             "bigthetao",
             "bigthetaoga",
-            "dissicnat",
             "evs",
             "fgcfc11",
             "friver",
@@ -81,7 +65,6 @@
             "hfy",
             "htovgyre",
             "htovovrt",
-            "intpoc",
             "masscello",
             "masso",
             "mlotst",
@@ -104,7 +87,6 @@
             "sos",
             "sosga",
             "sossq",
-            "talknat",
             "tauuo",
             "tauvo",
             "thetao",
@@ -131,9 +113,7 @@
         "Oyr": [
             "difvho",
             "difvso",
-            "dissicnat",
             "somint",
-            "talknat",
             "tnpeo"
         ],
         "SIday": [
@@ -149,7 +129,6 @@
         "SImon": [
             "sfdsi",
             "siage",
-            "siareaacrossline",
             "siarean",
             "siareas",
             "sicompstren",
@@ -187,7 +166,6 @@
             "siitdsnthick",
             "siitdthick",
             "simass",
-            "simassacrossline",
             "sisali",
             "sisaltmass",
             "sishevel",
@@ -215,8 +193,7 @@
             "sndmassmelt",
             "sndmasssi",
             "sndmasssnf",
-            "sndmasssubl",
-            "snmassacrossline"
+            "sndmasssubl"
         ]
     },
     "tm5": {}
