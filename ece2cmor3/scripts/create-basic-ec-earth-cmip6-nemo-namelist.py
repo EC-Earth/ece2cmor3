@@ -438,7 +438,7 @@ if len(sys.argv) == 2:
          grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_child]])
         #print(indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]])
         if not check_all_list_elements_are_identical(id_list)      : print(' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list)
-        if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+        if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
         if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
         if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
        return list(set(list_of_duplicate_variables))
@@ -905,7 +905,7 @@ if len(sys.argv) == 2:
     elif iterable_object == 'pisces' : return  3
     else:                              return  4
 
-   # The three lists below have been dtected with the following grep:
+   # The three lists below have been detected with the following grep:
    # grep name_suffix ${HOME}/cmorize/ece2cmor3-python-2/ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml| sed -e "s/^.*lim_/l '/" -e "s/^.*opa_/o '/" -e "s/^.*pisces_/p '/" -e "s/grid.*freq..//" -e "s/zoom.*freq..//" -e "s/vert.*freq..//" -e "s/.>$/'/" | uniq
    def tweakedorder_freq_lim(iterable_object):
     if   iterable_object == '1d'                   : return  1
