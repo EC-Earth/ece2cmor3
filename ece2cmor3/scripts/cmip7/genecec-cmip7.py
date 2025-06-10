@@ -62,6 +62,7 @@ def parse_args():
     parser.add_argument('--all_opportunities', action='store_true', help="respond to all opportunities")
     parser.add_argument('--experiments', nargs='+', type=str, help='limit output to the specified experiments (space-delimited list, case sensitive)')
     parser.add_argument('--priority_cutoff', default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
+    parser.add_argument('--ececonfs', nargs='+', type=str, help='limit output to the specified EC-Earth3 configurations (space-delimited list, case sensitive)')
     parser.add_argument('output_file', help='file to write JSON output to')
 
     def _var_metadata_check(arg):
@@ -84,8 +85,8 @@ def main():
 
 
     # Define a dictionary with the EC-Earth3 configurations: normal configuration names related to the predfined ece2cmor configuration names:
-    ece_configurations = {
-       "EC-Earth3-AOGCM"   : "EC-EARTH-AOGCM",
+    valid_ece_configurations = {
+       "EC-Earth3"         : "EC-EARTH-AOGCM",
        "EC-Earth3-HR"      : "EC-EARTH-HR",
        "EC-Earth3-LR"      : "EC-EARTH-LR",
        "EC-Earth3-CC"      : "EC-EARTH-CC",
@@ -315,68 +316,81 @@ def main():
             # Add a first variable as the first element of a list for a new encounterd table:
             flat_request.update({cmip6_table: [cmip6_variable]})
 
+        #print('flat_request: {}'.format(flat_request))
+
 
          # The genecec part (continuing with and based on the flat CMIP7 request file):
 
-        #print('flat_request: {}'.format(flat_request))
+         # Read the list of specified EC-Earth3 configurations:
+         if args.ececonfs:
+          ececonfs = args.ececonfs
+          print('TEST', ececonfs)
+          if ececonfs == ['all']:
+           ececonfs = valid_ece_configurations
+          else:
+             valid_ececonfs   = [entry for entry in ececonfs if entry     in valid_ece_configurations]
+             invalid_ececonfs = [entry for entry in ececonfs if entry not in valid_ece_configurations]
+             if invalid_ececonfs:
+                 raise ValueError('\n Invalid EC-Earth3 configuration names: ' + ', '.join(sorted(invalid_ececonfs, key=str.lower)) +
+                                  '\n Valid   EC-Earth3 configuration names: ' + ', '.join(sorted(valid_ececonfs  , key=str.lower)))
 
          # Selected the EC-Earth3 configuration:
-         ececonf = "EC-Earth3-ESM-1"
-         ececonf_in_ece2cmor = ece_configurations[ececonf]
+         for ececonf in ececonfs:
+          ececonf_in_ece2cmor = valid_ece_configurations[ececonf]
 
-         flat_request_file_name = 'flat-request-cmip7-' + experiment + '-' + args.priority_cutoff + '-' + ececonf + '.json'
-         dir_name = 'cmip7/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
-         previous_working_dir = os.getcwd()
-         subprocess.run(["mkdir", "-p", dir_name])
-         os.chdir(dir_name)
-         with open(flat_request_file_name, 'w') as outfile:
-             json.dump(flat_request, outfile, sort_keys=True, indent=4)
-         outfile.close()
+          flat_request_file_name = 'flat-request-cmip7-' + experiment + '-' + args.priority_cutoff + '-' + ececonf + '.json'
+          dir_name = 'cmip7/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
+          previous_working_dir = os.getcwd()
+          subprocess.run(["mkdir", "-p", dir_name])
+          os.chdir(dir_name)
+          with open(flat_request_file_name, 'w') as outfile:
+              json.dump(flat_request, outfile, sort_keys=True, indent=4)
+          outfile.close()
 
-         component_request_file_name = flat_request_file_name.replace("flat-request-cmip7","component-request-cmip7")
-         subprocess.run(["drq2varlist", "--drq", flat_request_file_name, "--ececonf", ececonf_in_ece2cmor, "--varlist", component_request_file_name])
-         request_overview_filename = 'request-overview-cmip7-' + experiment + '-' + args.priority_cutoff + '-including-' + ececonf + '-preferences.txt'
-         subprocess.run(["checkvars", "-v", "--asciionly", "--drq", flat_request_file_name, "--output", request_overview_filename])
-        #subprocess.run(["checkvars", "-v",                "--drq", flat_request_file_name, "--output", request_overview_filename])
+          component_request_file_name = flat_request_file_name.replace("flat-request-cmip7","component-request-cmip7")
+          subprocess.run(["drq2varlist", "--drq", flat_request_file_name, "--ececonf", ececonf_in_ece2cmor, "--varlist", component_request_file_name])
+          request_overview_filename = 'request-overview-cmip7-' + experiment + '-' + args.priority_cutoff + '-including-' + ececonf + '-preferences.txt'
+          subprocess.run(["checkvars", "-v", "--asciionly", "--drq", flat_request_file_name, "--output", request_overview_filename])
+         #subprocess.run(["checkvars", "-v",                "--drq", flat_request_file_name, "--output", request_overview_filename])
 
-         subprocess.run(["drq2file_def", "--basic_file_def_file", "../../../../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml", "--vars", component_request_file_name])
-         command_01 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' file_def_nemo-opa.xml"
-         command_02 = "sed -i -e '/deptho/d' file_def_nemo-opa.xml"
-         command_03 = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' file_def_nemo*"
-         os.system(command_01)
-         os.system(command_02)
-         os.system(command_03)
-         subprocess.run(["rm", "-f", "cmip6-file_def_nemo.xml"])
+          subprocess.run(["drq2file_def", "--basic_file_def_file", "../../../../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml", "--vars", component_request_file_name])
+          command_01 = "sed -i -e 's/uoce_e3u_vsum_e2u_cumul. freq_op=.1ts/uoce_e3u_vsum_e2u_cumul/' file_def_nemo-opa.xml"
+          command_02 = "sed -i -e '/deptho/d' file_def_nemo-opa.xml"
+          command_03 = "sed -i 's/enabled=\"True\" field_ref=\"transport/enabled=\"False\" field_ref=\"transport/' file_def_nemo*"
+          os.system(command_01)
+          os.system(command_02)
+          os.system(command_03)
+          subprocess.run(["rm", "-f", "cmip6-file_def_nemo.xml"])
 
-         subprocess.run(["drq2ppt", "--vars", component_request_file_name])
-         subprocess.run(["drq2ins", "--vars", component_request_file_name])
+          subprocess.run(["drq2ppt", "--vars", component_request_file_name])
+          subprocess.run(["drq2ins", "--vars", component_request_file_name])
 
-         # Estimating the Volume of the TM5 output:
-         subprocess.run(["estimate_tm5_volume", "--vars", component_request_file_name])
+          # Estimating the Volume of the TM5 output:
+          subprocess.run(["estimate_tm5_volume", "--vars", component_request_file_name])
 
-         command_04 = "cat request-overview-cmip7-*.available.txt volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > " + request_overview_filename
-         command_05 = "rm -f volume-estimate-*.txt *txt.available.txt"
-         command_06 = "if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi" # Removing the hourly / sub hourly table variables.
-         os.system(command_04)
-         os.system(command_05)
-         os.system(command_06)
+          command_04 = "cat request-overview-cmip7-*.available.txt volume-estimate-ifs.txt volume-estimate-nemo.txt volume-estimate-tm5.txt volume-estimate-lpj-guess.txt > " + request_overview_filename
+          command_05 = "rm -f volume-estimate-*.txt *txt.available.txt"
+          command_06 = "if [ -f pptdddddd0100 ]; then rm -f pptdddddd0100 ; fi" # Removing the hourly / sub hourly table variables.
+          os.system(command_04)
+          os.system(command_05)
+          os.system(command_06)
 
-         # Produce the metadata files for this MIP experiment:
-         mip_name = experiment_mip_relation[experiment]
-         subprocess.run(["../../../modify-metadata-template.sh", mip_name, experiment, ececonf_in_ece2cmor, "../../../../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json"])
-         # This could be considered to do right a way from here (at the python level).
-         # For CMIP7 it would be nice to be able to request the parent_experiment for each experiment (same as for the MIP).
-         # It would be pretty to be able to drop the licence from the mtadata template - however to be able to adjust it at a certain level remains fafourable
+          # Produce the metadata files for this MIP experiment:
+          mip_name = experiment_mip_relation[experiment]
+          subprocess.run(["../../../modify-metadata-template.sh", mip_name, experiment, ececonf_in_ece2cmor, "../../../../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json"])
+          # This could be considered to do right a way from here (at the python level).
+          # For CMIP7 it would be nice to be able to request the parent_experiment for each experiment (same as for the MIP).
+          # It would be pretty to be able to drop the licence from the mtadata template - however to be able to adjust it at a certain level remains fafourable
 
-         # Rename the metadata files such that the cmip6 label becomes cmip7:
-         for filename in os.listdir("."):
-          if filename.startswith("metadata-cmip6"):
-           os.rename(filename, filename.replace("cmip6", "cmip7").replace("EC-EARTH", "EC-Earth3"))
+          # Rename the metadata files such that the cmip6 label becomes cmip7:
+          for filename in os.listdir("."):
+           if filename.startswith("metadata-cmip6"):
+            os.rename(filename, filename.replace("cmip6", "cmip7").replace("EC-EARTH", "EC-Earth3"))
 
-         command_07 = "sed -i -e 's/cmip6-data@ec-earth.org/ec-earth-data-questions@ec-earth.org/'  -e 's/CMIP6/CMIP7/g' -e /cmip6_option/d  metadata-cmip*-template.json"
-         os.system(command_07)
+          command_07 = "sed -i -e 's/cmip6-data@ec-earth.org/ec-earth-data-questions@ec-earth.org/'  -e 's/CMIP6/CMIP7/g' -e /cmip6_option/d  metadata-cmip*-template.json"
+          os.system(command_07)
 
-         os.chdir(previous_working_dir)
+          os.chdir(previous_working_dir)
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')

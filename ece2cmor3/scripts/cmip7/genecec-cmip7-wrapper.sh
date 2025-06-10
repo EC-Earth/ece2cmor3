@@ -10,7 +10,7 @@
 #
 # Note that this script calls genecec-cmip7.py
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -eq 3 ]; then
 
   if ! type "ece2cmor" > /dev/null; then
    echo; tput setaf 1;
@@ -45,6 +45,7 @@ if [ "$#" -eq 2 ]; then
 
   priority_cutoff=$1
   experiment_list=$2
+  ececonf_list=$3
 
   if [ "${experiment_list}" == 'all' ]; then
    experiment_option=''
@@ -63,6 +64,7 @@ if [ "$#" -eq 2 ]; then
   rm -rf cmip7
   ./genecec-cmip7.py --all_opportunities                          \
                      --variables_metadata ${metadata_filename}    \
+                     --ececonfs           ${ececonf_list}         \
                      ${experiment_option}                         \
                      --priority_cutoff    ${priority_cutoff}      \
                      ${drq_version}                               \
@@ -76,11 +78,12 @@ if [ "$#" -eq 2 ]; then
 
 else
   echo
-  echo " This scripts requires two arguments:"
+  echo " This scripts requires three arguments:"
   echo "  - Argument 1: The cutoff priority [core, high, medium, low]"
   echo "  - Argument 2: A comma seperated list of CMIP7 experiments [all, historical,piControl]"
+  echo "  - Argument 3: A comma seperated list of EC-Earth3 configurations [all, EC-Earth3,EC-Earth3-ESM-1]"
   echo " For instance:"
-  echo "  $0 high historical,piControl"
-  echo "  $0 core all"
+  echo "  $0 high historical,piControl EC-Earth3-ESM-1"
+  echo "  $0 core all all"
   echo
 fi
