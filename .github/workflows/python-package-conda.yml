@@ -23,6 +23,7 @@ jobs:
         miniforge-version: "latest"
         miniforge-variant: Miniforge3
         use-mamba: true
+        channels: conda-forge
         auto-update-conda: true
        #auto-activate-base: false
     - name: Test with pytest
