@@ -324,7 +324,6 @@ def main():
          # Read the list of specified EC-Earth3 configurations:
          if args.ececonfs:
           ececonfs = args.ececonfs
-          print('TEST', ececonfs)
           if ececonfs == ['all']:
            ececonfs = valid_ece_configurations
           else:
@@ -337,6 +336,7 @@ def main():
          # Selected the EC-Earth3 configuration:
          for ececonf in ececonfs:
           ececonf_in_ece2cmor = valid_ece_configurations[ececonf]
+          print('\n Creating the output-control-files for EC-Earth configuration: {}'.format(ececonf))
 
           flat_request_file_name = 'flat-request-cmip7-' + experiment + '-' + args.priority_cutoff + '-' + ececonf + '.json'
           dir_name = 'cmip7/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
