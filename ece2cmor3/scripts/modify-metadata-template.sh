@@ -26,7 +26,14 @@ if [ "$#" -eq 3 ] || [ "$#" -eq 4 ]; then
  if [ "$#" -eq 4 ]; then input_template=$4; fi
 
 
- if [ "${ececonf}" != 'EC-EARTH-AOGCM' ] && [ "${ececonf}" != 'EC-EARTH-HR' ] && [ "${ececonf}" != 'EC-EARTH-LR' ] && [ "${ececonf}" != 'EC-EARTH-CC' ] && [ "${ececonf}" != 'EC-EARTH-ESM-1' ] && [ "${ececonf}" != 'EC-EARTH-AerChem' ] && [ "${ececonf}" != 'EC-EARTH-Veg' ] && [ "${ececonf}" != 'EC-EARTH-Veg-LR' ]; then
+ if [ "${ececonf}" != 'EC-EARTH-AOGCM'   ] && \
+    [ "${ececonf}" != 'EC-EARTH-HR'      ] && \
+    [ "${ececonf}" != 'EC-EARTH-LR'      ] && \
+    [ "${ececonf}" != 'EC-EARTH-CC'      ] && \
+    [ "${ececonf}" != 'EC-EARTH-ESM-1'   ] && \
+    [ "${ececonf}" != 'EC-EARTH-AerChem' ] && \
+    [ "${ececonf}" != 'EC-EARTH-Veg'     ] && \
+    [ "${ececonf}" != 'EC-EARTH-Veg-LR'  ]; then
   echo ' Error in ' $0 ': unkown ec-earth configuration: '  ${ececonf}
   echo ' Valid options: ' 'EC-EARTH-AOGCM' 'EC-EARTH-HR' 'EC-EARTH-LR' 'EC-EARTH-CC' 'EC-EARTH-ESM-1' 'EC-EARTH-AerChem' 'EC-EARTH-Veg' 'EC-EARTH-Veg-LR'
   exit
