@@ -48,3 +48,6 @@ dependencies:
   # Additionally required by tem-diag:
   - nco
   - scipy
+
+  - pip:
+     - CMIP7-data-request-api
