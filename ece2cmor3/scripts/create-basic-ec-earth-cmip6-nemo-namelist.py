@@ -40,7 +40,7 @@
 # 8. A basic file_def is created by selecting on model component, output frequency and grid. For
 # each sub selection a file element is defined.
 #
-# 9. Produce a nemopar.sjon file with all the non-dummy ping file variables.
+# 9. Produce a nemopar.json file with all the non-dummy ping file variables.
 #
 # 10. Just read the basic file_def in order to check in case of modifications to the script whether
 # the basic file_def file is still a valid xml file.
@@ -71,7 +71,12 @@ if len(sys.argv) == 2:
    ping_file_name_ocean           = os.path.expanduser(config['ping_file_name_ocean'          ]) # ping_file_name_ocean            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
    ping_file_name_seaIce          = os.path.expanduser(config['ping_file_name_seaIce'         ]) # ping_file_name_seaIce           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
    ping_file_name_ocnBgchem       = os.path.expanduser(config['ping_file_name_ocnBgchem'      ]) # ping_file_name_ocnBgchem        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
-   field_def_file_directory       = os.path.expanduser(config['field_def_file_directory'      ]) # field_def_file_directory        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/'
+
+   field_def_file_ocean           = os.path.expanduser(config['field_def_file_ocean'          ]) # field_def_file_ocean            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
+   field_def_file_seaice          = os.path.expanduser(config['field_def_file_seaice'         ]) # field_def_file_seaice           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
+   field_def_file_ocnchem         = os.path.expanduser(config['field_def_file_ocnchem'        ]) # field_def_file_ocnchem          = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-pisces.xml'
+   field_def_file_innerttrc       = os.path.expanduser(config['field_def_file_innerttrc'      ]) # field_def_file_innerttrc        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
+
    nemo_only_dr_nodummy_file_xlsx = os.path.expanduser(config['nemo_only_dr_nodummy_file_xlsx']) # nemo_only_dr_nodummy_file_xlsx  =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
    nemo_only_dr_nodummy_file_txt  = os.path.expanduser(config['nemo_only_dr_nodummy_file_txt' ]) # nemo_only_dr_nodummy_file_txt   =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
    basic_flat_file_def_file_name  = os.path.expanduser(config['basic_flat_file_def_file_name' ]) # basic_flat_file_def_file_name   =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
@@ -377,10 +382,10 @@ if len(sys.argv) == 2:
        return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
 
-   field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_directory + "field_def_nemo-opa.xml"     , "id", "grid_ref")
-   field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_directory + "field_def_nemo-lim.xml"     , "id", "grid_ref")
-   field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(field_def_file_directory + "field_def_nemo-pisces.xml"  , "id", "grid_ref")
-   field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(field_def_file_directory + "field_def_nemo-inerttrc.xml", "id", "grid_ref")
+   field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
+   field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
+   field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(field_def_file_ocnchem  , "id", "grid_ref")
+   field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(field_def_file_innerttrc, "id", "grid_ref")
 
 
    total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
