@@ -576,7 +576,7 @@ def create_tasks(matches, active_components, masks):
             task = create_cmor_task(parmatch, target, model, masks)
             if ece2cmorlib.add_task(task):
                 result.append(task)
-    log.info("Created %d ece2cmor tasks from input variable list." % len(result))
+    log.info('Created {:4} ece2cmor tasks from input variable list for component {}.'.format(len(result), active_components[0]))
     return result
 
 
