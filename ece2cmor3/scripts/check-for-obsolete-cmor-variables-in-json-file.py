@@ -54,11 +54,14 @@ def check_obsolete(fname):
                  log.info("Non-cmor target found (see #814) in %s: %s" % (fname, tvar))
                 elif tvar in ["cBECCS", "fBECCS", "fBECCSatm", "cDACCS", "fDACCS"]:
                  log.info("Non-cmor target found (see #835) in %s: %s" % (fname, tvar))
+                elif tvar in ["fBEatm", "fVegOther"]:
+                 log.info("Non-cmor target found (see #855) in %s: %s" % (fname, tvar))
+                elif tvar in ["swvl4sl"]:
+                 log.info("Non-cmor target found (see #851) in %s: %s" % (fname, tvar))
+                elif tvar in ["wap8", "wap19", "hus8", "hus19", "ua8", "ua19", "va8", "va19", "ta8", "ta19", "zg8", "zg19"]:
+                 log.info("Non-cmor target found (see #848) in %s: %s" % (fname, tvar))
                 else:
                  log.info("Obsolete target found            in %s: %s" % (fname, tvar))
-
-
-
 
 # Main program
 def main():
