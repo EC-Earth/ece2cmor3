@@ -56,6 +56,13 @@ from os.path import expanduser
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
+def print_next_step_message(step, comment):
+    print('\n')
+    print(' ################################################################################')
+    print(' ###  Step {}:  {:60}   ###'.format(step, comment))
+    print(' ################################################################################\n')
+
+
 if len(sys.argv) == 2:
 
    if __name__ == "__main__": config = {}                       # python config syntax
@@ -118,8 +125,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    1     ###################################
    ################################################################################
-
-   # READING THE PING FILES:
+   print_next_step_message(1, 'READING THE PING FILES')
 
    # Checking whether the ping files exist:
    if os.path.isfile(ping_file_name_ocean    ) == False: print(' The file ', ping_file_name_ocean    , '  does not exist.'); sys.exit(' stop')
@@ -138,11 +144,7 @@ if len(sys.argv) == 2:
    field_elements_SeaIce    = rootSeaIce   [0][:]
    field_elements_OcnBgchem = rootOcnBgchem[0][:]
 
-   #field_elements_Ocean     = treeOcean.getroot()    [0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   #field_elements_SeaIce    = treeSeaIce.getroot()   [0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   #field_elements_OcnBgchem = treeOcnBgchem.getroot()[0][:]     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-
-   #Exclude the dummy_ variables from the ping list and removes the CMIP6_ prefix.
+   # Optional exclude the dummy_ variables from the ping list and remove the CMIP6_ prefix from the id attribute:
    pinglistOcean_id        = []
    pinglistOcean_field_ref = []
    pinglistOcean_text      = []
@@ -191,12 +193,12 @@ if len(sys.argv) == 2:
    total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgchem_expr
 
    # Check whether all list  have the same lenth:
-   #print( '\n Consistency check whether all total ping lists are equal long: ', len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr))
+   print( '\n Consistency check whether all total ping lists are equal long: {} {} {} {}.'.format(len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr)))
 
    if exclude_dummy_fields:
-    print('\n There are ', len(total_pinglist_id), 'non-dummy variables taken from the shaconemo ping files.\n')
+    print('\n There are {} non-dummy variables taken from the shaconemo ping files.\n'.format(len(total_pinglist_id)))
    else:
-    print('\n There are ', len(total_pinglist_id), 'variables taken from the shaconemo ping files.\n')
+    print('\n There are {} variables taken from the shaconemo ping files.\n'.format(len(total_pinglist_id)))
 
    # Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
    # in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
@@ -263,8 +265,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    2     ###################################
    ################################################################################
-
-   # READING THE FIELD_DEF FILES:
+   print_next_step_message(2, 'READING THE FIELD_DEF FILES')
 
    def create_element_lists(file_name, attribute_1, attribute_2):
        if os.path.isfile(file_name) == False: print(' The file ', file_name, '  does not exist.'); sys.exit(' stop')
@@ -381,6 +382,7 @@ if len(sys.argv) == 2:
        if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
        return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
+   print('\n Step 2: Reading the field_def_files:\n')
 
    field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
    field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
@@ -401,7 +403,7 @@ if len(sys.argv) == 2:
 
    #for item in range(0,len(total_no_id_field_def_nemo_name)):
    # print(' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item]))
-   print(' The length of the list with fields without an id is: ', len(total_no_id_field_def_nemo_name), '\n')
+   print(' The length of the list with fields without an id is: {}\n'.format(len(total_no_id_field_def_nemo_name)))
 
    print(' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n')
 
@@ -470,8 +472,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    3     ###################################
    ################################################################################
-
-   # READING THE NEMO DATA REQUEST FILES:
+   print_next_step_message(3, 'READING THE NEMO DATA REQUEST FILES')
 
    # This function can be used to read the nemo_only_dr_nodummy_file_xlsx (the nemo-only-list-cmip6-requested-variables.xlsx)
    # file which has been produced by the ./create-nemo-only-list/create-nemo-only-list.sh script guidelines.
@@ -538,8 +539,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    4     ###################################
    ################################################################################
-
-   # MANUPULATION, CREATION OF SOME LISTS:
+   print_next_step_message(4, 'MANUPULATION, CREATION OF SOME LISTS')
 
    ################################################################################
    # Convert the model component labeling in the ping file naming to the model component name in NEMO:
@@ -582,8 +582,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    5     ###################################
    ################################################################################
-
-   # WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
+   print_next_step_message(5, 'WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH')
 
    # Below 'flat' means all fields are defined within one file element definition.
    flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
@@ -809,8 +808,10 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    6     ###################################
    ################################################################################
+   print_next_step_message(6, 'PRODUCE NEMO VARLIST FILES')
+
    if produce_varlistjson_file:
-    drqlistjson_file_name = '../resources/miscellaneous-data-requests/test-data-request/drqlist-nemo-all.json'
+    drqlistjson_file_name           = '../resources/miscellaneous-data-requests/test-data-request/drqlist-nemo-all.json'
     file_name_varlistjson_ece_cc    = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-cc.json'
     file_name_varlistjson_ece_aogcm = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-aogcm.json'
     file_name_varlistjson_ece_esm_1 = '../resources/miscellaneous-data-requests/test-data-request/varlist-nemo-all-ec-earth-esm-1.json'
@@ -861,8 +862,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    7     ###################################
    ################################################################################
-
-   # READING THE BASIC FLAT FILE_DEF FILE:
+   print_next_step_message(7, 'READING THE BASIC FLAT FILE_DEF FILE')
 
    if os.path.isfile(basic_flat_file_def_file_name) == False: print(' The file ', basic_flat_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
@@ -898,8 +898,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    8     ###################################
    ################################################################################
-
-   # WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH:
+   print_next_step_message(8, 'WRITING THE BASIC NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH')
 
    # Alternatively this ordering can be later also used to achieve a preserved preferred order instead of the python2 order.
    # Five order help functions which are used by sorted in order to match the previous python2 ordering of the thirty file blocks
@@ -1063,8 +1062,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    9     ###################################
    ################################################################################
-
-   # PRODUCE A nemopar.json FILE WITH ALL THE NON-DUMMY PING FILE VARIABLES:
+   print_next_step_message(9, 'PRODUCE nemopar.json WITH ALL THE NON-DUMMY PING FILE VARIABLES')
 
    if produce_nemopar_json:
     nemopar = open('new-nemopar.json','w')
@@ -1091,8 +1089,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################   10     ###################################
    ################################################################################
-
-   # TEST THE RESULT: READING THE BASIC FILE_DEF FILE:
+   print_next_step_message(10, 'TEST THE RESULT: READING THE BASIC FILE_DEF FILE')
 
    if os.path.isfile(basic_file_def_file_name) == False: print(' The file ', basic_file_def_file_name, '  does not exist.'); sys.exit(' stop')
 
