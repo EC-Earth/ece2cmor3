@@ -539,14 +539,14 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    4     ###################################
    ################################################################################
-   print_next_step_message(4, 'MANUPULATION, CREATION OF SOME LISTS')
+   print_next_step_message(4, 'MANUPULATION & CREATION OF SOME LISTS')
 
    ################################################################################
    # Convert the model component labeling in the ping file naming to the model component name in NEMO:
    for element_counter in range(0,len(dr_ping_component)):
-    if dr_ping_component[element_counter] == "ocean"    : dr_ping_component[element_counter] = "opa"
-    if dr_ping_component[element_counter] == "seaIce"   : dr_ping_component[element_counter] = "lim"
-    if dr_ping_component[element_counter] == "ocnBgchem": dr_ping_component[element_counter] = "pisces"
+    if   dr_ping_component[element_counter] in ["ocean"    ]: dr_ping_component[element_counter] = "opa"
+    elif dr_ping_component[element_counter] in ["seaIce"   ]: dr_ping_component[element_counter] = "lim"
+    elif dr_ping_component[element_counter] in ["ocnBgchem"]: dr_ping_component[element_counter] = "pisces"
    ################################################################################
 
 
@@ -559,20 +559,29 @@ if len(sys.argv) == 2:
    # Creating a list with the output_freq attribute and its value if a relevant value is known, otherwise omit attribute definiton:
    dr_output_frequency = dr_table[:]  # Take care here: a slice copy is needed.
    for table in range(0,len(dr_table)):
-    if dr_table[table] == "SImon" or dr_table[table] == "Omon" or dr_table[table] == "Emon" or dr_table[table] == "EmonZ" : dr_output_frequency[table] = 'output_freq="1mo"'  # mo stands in XIOS for monthly output
-    if dr_table[table] == "SIday" or dr_table[table] == "Oday" or dr_table[table] == "Eday"                               : dr_output_frequency[table] = 'output_freq="1d"'   # d  stands in XIOS for dayly   output
-    if                               dr_table[table] == "Oyr"                                                             : dr_output_frequency[table] = 'output_freq="1y"'   # y  stands in XIOS for yearly  output
-    if                               dr_table[table] == "Oclim"                                                           : dr_output_frequency[table] = 'output_freq="1mo"'  # Save "mo", then in post process average it over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
-    if                               dr_table[table] == "Ofx"                                                             : dr_output_frequency[table] = 'output_freq="1y"'   # fx fixed: time invariant: operation=once thus time unit might not matter
-    if                               dr_table[table] == "Odec"                                                            : dr_output_frequency[table] = 'output_freq="1y"'   # Save "y", then in post process average it over the decadal intervals
-    if                               dr_table[table] == "3hr"                                                             : dr_output_frequency[table] = 'output_freq="3h"'   # h  stands in XIOS for hourly  output
+    if   dr_table[table] in ["SImon", "Omon", "Emon", "EmonZ"]: dr_output_frequency[table] = 'output_freq="1mo"' # mo stands in XIOS for monthly output
+    elif dr_table[table] in ["SIday", "Oday", "Eday"         ]: dr_output_frequency[table] = 'output_freq="1d"'  # d  stands in XIOS for dayly   output
+    elif dr_table[table] in ["Oyr"                           ]: dr_output_frequency[table] = 'output_freq="1y"'  # y  stands in XIOS for yearly  output
+    elif dr_table[table] in ["Oclim"                         ]: dr_output_frequency[table] = 'output_freq="1mo"' # Save "mo", then in a post process averaging step it can be averaged over the climatology intervals (e.g. 30 year intervals). See: ece2cmor3/resources/tables/CMIP6_Oclim.json ece2cmor3/resources/tables/CMIP6_CV.json
+    elif dr_table[table] in ["Ofx"                           ]: dr_output_frequency[table] = 'output_freq="1y"'  # fx fixed: time invariant: operation=once thus time unit might not matter
+    elif dr_table[table] in ["Odec"                          ]: dr_output_frequency[table] = 'output_freq="1y"'  # Save "y", then in a post process averaging step it can be averaged over the decadal intervals
+    elif dr_table[table] in ["3hr"                           ]: dr_output_frequency[table] = 'output_freq="3h"'  # h  stands in XIOS for hourly  output
    ################################################################################
 
+   # Check whether all fields got a proper output_freq attribute value assigned:
+   all_output_freq_available = True
+   for outputfreq in dr_output_frequency:
+    if outputfreq not in ['output_freq="3h"','output_freq="1mo"','output_freq="1d"','output_freq="1y"']:
+     unexpected_catch = False
+     print(' The output_freq attribute has an unknown assigned value: {}'.format(outputfreq))
+   if all_output_freq_available: print(' All fields have a proper known output_freq attribute value.')
 
    ################################################################################
    # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
    if include_root_field_group_attributes:
     root_field_group_attributes ='level="1" prec="4" default_value="1.e20" detect_missing_value="true"'
+   #root_field_group_attributes ='level="1" prec="4" default_value="1.e20"'
+   # For ECE4: The  detect_missing_value="true"  is specified in ECE4 per field element
    else:
     root_field_group_attributes =''
    ################################################################################
@@ -582,7 +591,7 @@ if len(sys.argv) == 2:
    ################################################################################
    ###################################    5     ###################################
    ################################################################################
-   print_next_step_message(5, 'WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC_EARTH')
+   print_next_step_message(5, 'WRITING THE FLAT NEMO FILE_DEF FILE FOR CMIP6 FOR EC-EARTH')
 
    # Below 'flat' means all fields are defined within one file element definition.
    flat_nemo_file_def_xml_file = open(basic_flat_file_def_file_name,'w')
