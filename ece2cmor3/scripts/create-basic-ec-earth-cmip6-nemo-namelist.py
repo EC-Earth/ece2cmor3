@@ -58,9 +58,9 @@ warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning
 
 def print_next_step_message(step, comment):
     print('\n')
-    print(' ################################################################################')
-    print(' ###  Step {}:  {:60}   ###'.format(step, comment))
-    print(' ################################################################################\n')
+    print(' ####################################################################################')
+    print(' ###  Step {:<2}:  {:63}   ###'.format(step, comment))
+    print(' ####################################################################################\n')
 
 
 if len(sys.argv) == 2:
@@ -381,8 +381,6 @@ if len(sys.argv) == 2:
        if not len(field_elements_attribute_1) == len(field_elements_attribute_2 ): print(' ERROR: The id and grid_ref list are not of equal length\n')
        if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
        return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
-
-   print('\n Step 2: Reading the field_def_files:\n')
 
    field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
    field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
