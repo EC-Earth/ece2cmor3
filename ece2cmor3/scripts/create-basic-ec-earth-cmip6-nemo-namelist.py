@@ -5,11 +5,11 @@
 
 # 1. This script reads the shaconemo xml ping files (the files which relate NEMO code variable
 # names with CMOR names. NEMO code names which are labeled by 'dummy_' have not been identified by
-# the Shaconemo comunity.
+# the Shaconemo and EC-Earth comunity.
 #
 # 2. This script reads the four NEMO xml field_def files (the files which contain the basic info
 # about the fields required by XIOS. These field_def files can either be taken from the shaconemo
-# repository or from the EC-Earth repository. The four field_def files contain nearly 1200 variables
+# repository or from the EC-Earth repository. The four field_def files for ECE3 contain nearly 1200 variables
 # with an id (15 id's occur twice, one of them bn2 is direct problematic because of a different
 # grid_def) and about 100 variables without an id but with a field_ref (most of the latter one have an
 # name attribute, but not all of them).
@@ -101,20 +101,17 @@ if len(sys.argv) == 2:
    os.system('pip install -e .')
    os.chdir(previous_working_dir)
 
-   message_occurence_identical_id = True
+   message_ping_expression_selection = False
+
    message_occurence_identical_id = False
 
-   include_root_field_group_attributes = True
    include_root_field_group_attributes = False
 
    exclude_dummy_fields = True
-   #exclude_dummy_fields = False
 
    give_preference_to_pingfile_expression_attribute = True
-   #give_preference_to_pingfile_expression_attribute = False
 
    include_grid_ref_from_field_def_files = True
-   #include_grid_ref_from_field_def_files = False
 
    produce_varlistjson_file = True
 
@@ -213,7 +210,7 @@ if len(sys.argv) == 2:
    if give_preference_to_pingfile_expression_attribute:
     for i in range(len(total_pinglist_id)):
       if total_pinglist_expr[i] != 'None':
-      #print(' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i]))
+       message_ping_expression_selection: print(' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i]))
        total_pinglist_text[i] = total_pinglist_expr[i]
 
    #print(pinglistOcean_id       , '\n ')
@@ -268,7 +265,9 @@ if len(sys.argv) == 2:
    print_next_step_message(2, 'READING THE FIELD_DEF FILES')
 
    def create_element_lists(file_name, attribute_1, attribute_2):
-       if os.path.isfile(file_name) == False: print(' The file ', file_name, '  does not exist.'); sys.exit(' stop')
+       if os.path.isfile(file_name) == False:
+        print(' The file {} does not exist.'.format(file_name))
+        sys.exit(' stop')
 
        tree = xmltree.parse(file_name)
        roottree = tree.getroot()
@@ -278,9 +277,9 @@ if len(sys.argv) == 2:
        fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
        attribute_overview          = []
 
-       text_elements               = []    # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
-       unit_elements               = []    # A list corresponding with the id list containing the unit        attribute values
-       freq_offset_elements        = []    # A list corresponding with the id list containing the freq_offset attribute values
+       text_elements               = []   # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
+       unit_elements               = []   # A list corresponding with the id list containing the unit        attribute values
+       freq_offset_elements        = []   # A list corresponding with the id list containing the freq_offset attribute values
       #print(' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name)
       #for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
      ##eelements = roottree.findall('.//field[@id]')                                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
