@@ -1,7 +1,7 @@
 # This config file can be used with:
 #  ./create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth4-cmip6-nemo-namelist
 
-ece2cmor_root_directory         = '~/cmorize/ece2cmor3/'
+ece2cmor_root_directory                          = '~/cmorize/ece2cmor3/'
 
 # The most accurate ping files are available within ec-earth3, those include the latest updates from the EC-Earth community.
 # However, other versions can be taken from the Shaconemo repository in ~/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ or the
@@ -23,11 +23,11 @@ nemo_only_dr_nodummy_file_txt                    =  ece2cmor_root_directory + "e
 basic_flat_file_def_file_name                    =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-ece4-cmip6-file_def_nemo.xml"
 basic_file_def_file_name                         =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-ece4-cmip6-file_def_nemo.xml"
 
+exclude_dummy_fields                             = True   # Keep this on True.  Exlude the fields with dummy in the ID in th eping files
+give_preference_to_pingfile_expression_attribute = True   # Default taken True. The ping text content is overrided by the "expr"-attribute if the latter is specified
 message_ping_expression_selection                = False
-message_occurence_identical_id                   = False
+message_occurence_identical_id                   = True
 include_root_field_group_attributes              = False
-exclude_dummy_fields                             = True   # Keep this on True
-give_preference_to_pingfile_expression_attribute = True
 include_grid_ref_from_field_def_files            = True
 produce_varlistjson_file                         = True
 produce_nemopar_json                             = False

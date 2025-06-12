@@ -374,22 +374,22 @@ if len(sys.argv) == 2:
        if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
        return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
-   field_def_nemo_opa_id     , field_def_nemo_opa_grid_ref     , no_id_field_def_nemo_opa_name     , no_id_field_def_nemo_opa_field_ref     , attribute_overview_nemo_opa     , texts_opa     , units_opa     , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
-   field_def_nemo_lim_id     , field_def_nemo_lim_grid_ref     , no_id_field_def_nemo_lim_name     , no_id_field_def_nemo_lim_field_ref     , attribute_overview_nemo_lim     , texts_lim     , units_lim     , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
-   field_def_nemo_pisces_id  , field_def_nemo_pisces_grid_ref  , no_id_field_def_nemo_pisces_name  , no_id_field_def_nemo_pisces_field_ref  , attribute_overview_nemo_pisces  , texts_pisces  , units_pisces  , freq_offsets_pisces   = create_element_lists(field_def_file_ocnchem  , "id", "grid_ref")
-   field_def_nemo_inerttrc_id, field_def_nemo_inerttrc_grid_ref, no_id_field_def_nemo_inerttrc_name, no_id_field_def_nemo_inerttrc_field_ref, attribute_overview_nemo_inerttrc, texts_inerttrc, units_inerttrc, freq_offsets_inerttrc = create_element_lists(field_def_file_innerttrc, "id", "grid_ref")
+   field_def_nemo_opa_id   , field_def_nemo_opa_grid_ref   , no_id_field_def_nemo_opa_name   , no_id_field_def_nemo_opa_field_ref   , attribute_overview_nemo_opa   , texts_opa   , units_opa   , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
+   field_def_nemo_lim_id   , field_def_nemo_lim_grid_ref   , no_id_field_def_nemo_lim_name   , no_id_field_def_nemo_lim_field_ref   , attribute_overview_nemo_lim   , texts_lim   , units_lim   , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
+   field_def_nemo_pisces_id, field_def_nemo_pisces_grid_ref, no_id_field_def_nemo_pisces_name, no_id_field_def_nemo_pisces_field_ref, attribute_overview_nemo_pisces, texts_pisces, units_pisces, freq_offsets_pisces   = create_element_lists(field_def_file_ocnchem  , "id", "grid_ref")
+   field_def_nemo_innert_id, field_def_nemo_innert_grid_ref, no_id_field_def_nemo_innert_name, no_id_field_def_nemo_innert_field_ref, attribute_overview_nemo_innert, texts_innert, units_innert, freq_offsets_innert = create_element_lists(field_def_file_innerttrc, "id", "grid_ref")
 
 
-   total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_inerttrc_id
-   total_field_def_nemo_grid_ref        = field_def_nemo_opa_grid_ref        + field_def_nemo_lim_grid_ref        + field_def_nemo_pisces_grid_ref        + field_def_nemo_inerttrc_grid_ref
+   total_field_def_nemo_id              = field_def_nemo_opa_id              + field_def_nemo_lim_id              + field_def_nemo_pisces_id              + field_def_nemo_innert_id
+   total_field_def_nemo_grid_ref        = field_def_nemo_opa_grid_ref        + field_def_nemo_lim_grid_ref        + field_def_nemo_pisces_grid_ref        + field_def_nemo_innert_grid_ref
    # Note that the total name & field_ref ones are not used yet, because these cases did not occur in the set of CMIP6 data requested variables so far.
-   total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_inerttrc_name
-   total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_inerttrc_field_ref
-   total_attribute_overview_nemo_opa    = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_inerttrc
+   total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_innert_name
+   total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_innert_field_ref
+   total_attribute_overview_nemo_opa    = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_innert
    # Take care the units are detected for field elements which have an id attribute:
-   total_texts                          = texts_opa        + texts_lim        + texts_pisces        + texts_inerttrc
-   total_units                          = units_opa        + units_lim        + units_pisces        + units_inerttrc
-   total_freq_offsets                   = freq_offsets_opa + freq_offsets_lim + freq_offsets_pisces + freq_offsets_inerttrc
+   total_texts                          = texts_opa        + texts_lim        + texts_pisces        + texts_innert
+   total_units                          = units_opa        + units_lim        + units_pisces        + units_innert
+   total_freq_offsets                   = freq_offsets_opa + freq_offsets_lim + freq_offsets_pisces + freq_offsets_innert
 
    #for item in range(0,len(total_no_id_field_def_nemo_name)):
    # print(' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item]))
@@ -440,11 +440,11 @@ if len(sys.argv) == 2:
         if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
        return list(set(list_of_duplicate_variables))
 
-   #vars_with_duplicate_id_definition_nemo_opa      = check_which_list_elements_are_identical(field_def_nemo_opa_id      , field_def_nemo_opa_grid_ref      )
-   #vars_with_duplicate_id_definition_nemo_lim      = check_which_list_elements_are_identical(field_def_nemo_lim_id      , field_def_nemo_lim_grid_ref      )
-   #vars_with_duplicate_id_definition_nemo_pisces   = check_which_list_elements_are_identical(field_def_nemo_pisces_id   , field_def_nemo_pisces_grid_ref   )
-   #vars_with_duplicate_id_definition_nemo_inerttrc = check_which_list_elements_are_identical(field_def_nemo_inerttrc_id , field_def_nemo_inerttrc_grid_ref )
-   vars_with_duplicate_id_definition_total         = check_which_list_elements_are_identical(total_field_def_nemo_id    , total_field_def_nemo_grid_ref    )
+   #vars_with_duplicate_id_definition_nemo_opa    = check_which_list_elements_are_identical(field_def_nemo_opa_id   , field_def_nemo_opa_grid_ref   )
+   #vars_with_duplicate_id_definition_nemo_lim    = check_which_list_elements_are_identical(field_def_nemo_lim_id   , field_def_nemo_lim_grid_ref   )
+   #vars_with_duplicate_id_definition_nemo_pisces = check_which_list_elements_are_identical(field_def_nemo_pisces_id, field_def_nemo_pisces_grid_ref)
+   #vars_with_duplicate_id_definition_nemo_innert = check_which_list_elements_are_identical(field_def_nemo_innert_id, field_def_nemo_innert_grid_ref)
+   vars_with_duplicate_id_definition_total        = check_which_list_elements_are_identical(total_field_def_nemo_id , total_field_def_nemo_grid_ref)
    #print(vars_with_duplicate_id_definition_total)
 
    #x = [ 'w', 'e', 's', 's', 's', 'z','z', 's']
@@ -1121,7 +1121,7 @@ else:
 #   sub group a file element in the file_def file. DONE.
 #  Is it possible to read the field_def files and pull the grid_ref for each field element from the parent element? DONE
 #  Add script which reads ping file xml files and write the nemo only pre basic xmls file. DONE (within this script)
-#  Does the added field_def_nemo-inerttrc.xml for pisces need any additional action? DONE (not realy, just include it)
+#  Does the added field_def_nemo-innerttrc.xml for pisces need any additional action? DONE (not realy, just include it)
 #  Actually the units of the data request should be added in the excel files, and then the dr_unit should also be included in the xml file. DONE
 #  Add link from dr TRIED (rejected, too much effort due to string conversion.)
 #  Check whether the xml field_def text, which contains the arithmetic expression, is consistent with the expression given in the ping files. DONE, i.e. this data is added in fdf_expression attribute
