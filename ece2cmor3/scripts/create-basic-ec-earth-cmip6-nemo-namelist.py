@@ -74,20 +74,30 @@ if len(sys.argv) == 2:
    exec(open(config_filename).read(), config)                   # Reading the config file
 
    # Take the config variables:
-   ece2cmor_root_directory        = os.path.expanduser(config['ece2cmor_root_directory'       ]) # ece2cmor_root_directory         = '~/cmorize/ece2cmor3/'
-   ping_file_name_ocean           = os.path.expanduser(config['ping_file_name_ocean'          ]) # ping_file_name_ocean            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
-   ping_file_name_seaIce          = os.path.expanduser(config['ping_file_name_seaIce'         ]) # ping_file_name_seaIce           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
-   ping_file_name_ocnBgchem       = os.path.expanduser(config['ping_file_name_ocnBgchem'      ]) # ping_file_name_ocnBgchem        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
+   ece2cmor_root_directory                          = os.path.expanduser(config['ece2cmor_root_directory'                         ]) # ece2cmor_root_directory                          = '~/cmorize/ece2cmor3/'
+   ping_file_name_ocean                             = os.path.expanduser(config['ping_file_name_ocean'                            ]) # ping_file_name_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
+   ping_file_name_seaIce                            = os.path.expanduser(config['ping_file_name_seaIce'                           ]) # ping_file_name_seaIce                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
+   ping_file_name_ocnBgchem                         = os.path.expanduser(config['ping_file_name_ocnBgchem'                        ]) # ping_file_name_ocnBgchem                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
 
-   field_def_file_ocean           = os.path.expanduser(config['field_def_file_ocean'          ]) # field_def_file_ocean            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
-   field_def_file_seaice          = os.path.expanduser(config['field_def_file_seaice'         ]) # field_def_file_seaice           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
-   field_def_file_ocnchem         = os.path.expanduser(config['field_def_file_ocnchem'        ]) # field_def_file_ocnchem          = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-pisces.xml'
-   field_def_file_innerttrc       = os.path.expanduser(config['field_def_file_innerttrc'      ]) # field_def_file_innerttrc        = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
+   field_def_file_ocean                             = os.path.expanduser(config['field_def_file_ocean'                            ]) # field_def_file_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
+   field_def_file_seaice                            = os.path.expanduser(config['field_def_file_seaice'                           ]) # field_def_file_seaice                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
+   field_def_file_ocnchem                           = os.path.expanduser(config['field_def_file_ocnchem'                          ]) # field_def_file_ocnchem                           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-pisces.xml'
+   field_def_file_innerttrc                         = os.path.expanduser(config['field_def_file_innerttrc'                        ]) # field_def_file_innerttrc                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
 
-   nemo_only_dr_nodummy_file_xlsx = os.path.expanduser(config['nemo_only_dr_nodummy_file_xlsx']) # nemo_only_dr_nodummy_file_xlsx  =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
-   nemo_only_dr_nodummy_file_txt  = os.path.expanduser(config['nemo_only_dr_nodummy_file_txt' ]) # nemo_only_dr_nodummy_file_txt   =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
-   basic_flat_file_def_file_name  = os.path.expanduser(config['basic_flat_file_def_file_name' ]) # basic_flat_file_def_file_name   =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
-   basic_file_def_file_name       = os.path.expanduser(config['basic_file_def_file_name'      ]) # basic_file_def_file_name        =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+   nemo_only_dr_nodummy_file_xlsx                   = os.path.expanduser(config['nemo_only_dr_nodummy_file_xlsx'                  ]) # nemo_only_dr_nodummy_file_xlsx                   =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx"
+   nemo_only_dr_nodummy_file_txt                    = os.path.expanduser(config['nemo_only_dr_nodummy_file_txt'                   ]) # nemo_only_dr_nodummy_file_txt                    =  ece2cmor_root_directory + "ece2cmor3/scripts/create-nemo-only-list/nemo-only-list-cmip6-requested-variables.txt"
+   basic_flat_file_def_file_name                    = os.path.expanduser(config['basic_flat_file_def_file_name'                   ]) # basic_flat_file_def_file_name                    =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
+   basic_file_def_file_name                         = os.path.expanduser(config['basic_file_def_file_name'                        ]) # basic_file_def_file_name                         =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
+
+   message_ping_expression_selection                =                    config['message_ping_expression_selection'               ]  # message_ping_expression_selection                = False
+   message_occurence_identical_id                   =                    config['message_occurence_identical_id'                  ]  # message_occurence_identical_id                   = False
+   include_root_field_group_attributes              =                    config['include_root_field_group_attributes'             ]  # include_root_field_group_attributes              = False
+   exclude_dummy_fields                             =                    config['exclude_dummy_fields'                            ]  # exclude_dummy_fields                             = True   # Keep this on True
+   give_preference_to_pingfile_expression_attribute =                    config['give_preference_to_pingfile_expression_attribute']  # give_preference_to_pingfile_expression_attribute = True
+   include_grid_ref_from_field_def_files            =                    config['include_grid_ref_from_field_def_files'           ]  # include_grid_ref_from_field_def_files            = True
+   produce_varlistjson_file                         =                    config['produce_varlistjson_file'                        ]  # produce_varlistjson_file                         = True
+   produce_nemopar_json                             =                    config['produce_nemopar_json'                            ]  # produce_nemopar_json                             = False
+
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
    previous_working_dir = os.getcwd()
@@ -100,23 +110,6 @@ if len(sys.argv) == 2:
    os.chdir(ece2cmor_root_directory)
    os.system('pip install -e .')
    os.chdir(previous_working_dir)
-
-   message_ping_expression_selection = False
-
-   message_occurence_identical_id = False
-
-   include_root_field_group_attributes = False
-
-   exclude_dummy_fields = True
-
-   give_preference_to_pingfile_expression_attribute = True
-
-   include_grid_ref_from_field_def_files = True
-
-   produce_varlistjson_file = True
-
-   produce_nemopar_json = True
-   produce_nemopar_json = False
 
 
    ################################################################################
@@ -210,7 +203,7 @@ if len(sys.argv) == 2:
    if give_preference_to_pingfile_expression_attribute:
     for i in range(len(total_pinglist_id)):
       if total_pinglist_expr[i] != 'None':
-       message_ping_expression_selection: print(' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i]))
+       if message_ping_expression_selection: print(' For {:11} overwrite the expression in the ping file by the "expr"-attribute: {:60} -> {}'.format(total_pinglist_id[i], total_pinglist_text[i], total_pinglist_expr[i]))
        total_pinglist_text[i] = total_pinglist_expr[i]
 
    #print(pinglistOcean_id       , '\n ')
