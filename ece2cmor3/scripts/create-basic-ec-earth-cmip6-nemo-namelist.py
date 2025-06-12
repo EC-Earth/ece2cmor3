@@ -436,7 +436,7 @@ if len(sys.argv) == 2:
         #print(indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]])
         if not check_all_list_elements_are_identical(id_list)      : print(' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list)
         if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
-        if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {:20} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+        if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
         if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
        return list(set(list_of_duplicate_variables))
 
