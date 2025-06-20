@@ -273,13 +273,19 @@ if len(sys.argv) == 2:
        text_elements               = []   # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
        unit_elements               = []   # A list corresponding with the id list containing the unit        attribute values
        freq_offset_elements        = []   # A list corresponding with the id list containing the freq_offset attribute values
-      #print(' Number of field elements across all levels: ', len(roottree.findall('.//field[@id]')), 'for file', file_name)
+      #print(' Number of field elements across all levels: {} for file {}'.format(len(roottree.findall('.//field[@id]')), file_name))
       #for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
-     ##eelements = roottree.findall('.//field[@id]')                                  # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+     ##eelements = roottree.findall('.//field[@id]')     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
      ##for i in range(0, len(eelements)):
+
+       print(' roottree.tag: {}; roottree.attrib: {}'.format(roottree.tag, roottree.attrib))
+      #print(' roottree.tag: {}; roottree.attrib: {}; roottree.text: {}'.format(roottree.tag, roottree.attrib, roottree.text))
+      #print(xmltree.tostring(roottree, encoding='utf8').decode('utf8'))
+
+
        for group in range(0, len(roottree)):
           #print(' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name)
-           elements = roottree[group][:]                                             # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+           elements = roottree[group][:]                 # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
            # If the field element is defined outside the field_group element, i.e. one level higher in the tree:
            if roottree[group].tag != "field_group":
@@ -336,9 +342,8 @@ if len(sys.argv) == 2:
              #print(' ', attribute_2, ' = ', child.attrib[attribute_2])
              else:
               if attribute_2 in roottree[group].attrib:
-               # In case the attribute is not present in th element definition, it is taken from its parent element:
-              #field_elements_attribute_2.append('GRID_REF="'+roottree[group].attrib[attribute_2]+'"');
-               field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"');
+               # In case the attribute is not present in the element definition, it is taken from its parent element:
+               field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
               #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib)
               else:
               #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
@@ -385,7 +390,7 @@ if len(sys.argv) == 2:
    # Note that the total name & field_ref ones are not used yet, because these cases did not occur in the set of CMIP6 data requested variables so far.
    total_no_id_field_def_nemo_name      = no_id_field_def_nemo_opa_name      + no_id_field_def_nemo_lim_name      + no_id_field_def_nemo_pisces_name      + no_id_field_def_nemo_innert_name
    total_no_id_field_def_nemo_field_ref = no_id_field_def_nemo_opa_field_ref + no_id_field_def_nemo_lim_field_ref + no_id_field_def_nemo_pisces_field_ref + no_id_field_def_nemo_innert_field_ref
-   total_attribute_overview_nemo_opa    = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_innert
+   total_attribute_overview_nemo        = attribute_overview_nemo_opa        + attribute_overview_nemo_lim        + attribute_overview_nemo_pisces        + attribute_overview_nemo_innert
    # Take care the units are detected for field elements which have an id attribute:
    total_texts                          = texts_opa        + texts_lim        + texts_pisces        + texts_innert
    total_units                          = units_opa        + units_lim        + units_pisces        + units_innert
@@ -393,11 +398,11 @@ if len(sys.argv) == 2:
 
    #for item in range(0,len(total_no_id_field_def_nemo_name)):
    # print(' This variable {:15} has no id but it has a field_ref = {}'.format(total_no_id_field_def_nemo_name[item], total_field_def_nemo_grid_ref[item]))
-   print(' The length of the list with fields without an id is: {}\n'.format(len(total_no_id_field_def_nemo_name)))
+   print('\n The length of the list with fields without an id is: {}\n'.format(len(total_no_id_field_def_nemo_name)))
 
    print(' In total there are', len(total_field_def_nemo_id), 'fields defined with an id in the field_def files,', len(total_field_def_nemo_id) - len(list(set(total_field_def_nemo_id))), 'of these id\'s occur twice.\n')
 
-   print(' The atribute overview of all field_def files:\n ', sorted(list(set(total_attribute_overview_nemo_opa))), '\n')
+   print(' The atribute overview of all field_def files:\n ', sorted(list(set(total_attribute_overview_nemo))), '\n')
 
    for text in total_texts:
     if text == None: total_texts[total_texts.index(text)] = "None"
@@ -423,29 +428,51 @@ if len(sys.argv) == 2:
 
    get_indices = lambda x, xs: [i for (y, i) in zip(xs, list(range(len(xs)))) if x == y]
 
-   def check_which_list_elements_are_identical(list_of_attribute_1, list_of_attribute_2):
+   def check_for_identical_field_ids(list_of_attribute_1, list_of_attribute_2):
+       messages_same_grid = []
+       messages_diff_grid = []
+      #print('list_of_attribute_1: ', list_of_attribute_1)
+      #print('list_of_attribute_2: ', list_of_attribute_2)
        list_of_duplicate_variables = []
-       for child in list_of_attribute_1:
-        indices_identical_ids = get_indices(child, list_of_attribute_1)
-       #print(len(indices_identical_ids), indices_identical_ids)
+       for field_id in list_of_attribute_1:
+        # This returns a list for each considered field_id with the indices (corresponding to the list_of_attribute_1) of equal field_id's. Usually the list contains only one item, but with a dublicate field_id two (or more):
+        indices_identical_ids = get_indices(field_id, list_of_attribute_1)
+        number_of_duplicates = len(indices_identical_ids)
+       #print(number_of_duplicates, indices_identical_ids)
         id_list       = []
         grid_ref_list = []
-        for identical_child in range(0,len(indices_identical_ids)):
-         id_list      .append(list_of_attribute_1[indices_identical_ids[identical_child]])
-         grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_child]])
-        #print(indices_identical_ids[identical_child], list_of_attribute_1[indices_identical_ids[identical_child]], list_of_attribute_2[indices_identical_ids[identical_child]])
-        if not check_all_list_elements_are_identical(id_list)      : print(' WARNING: Different ids in sublist [should never occur] at positions:', indices_identical_ids, id_list)
-        if not check_all_list_elements_are_identical(grid_ref_list): print(' WARNING: The variable {:22} has different grid definitions, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
-        if message_occurence_identical_id and len(indices_identical_ids) > 1: print(' The variable {:22} occurs more than once, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
-        if len(indices_identical_ids) > 1:  list_of_duplicate_variables.append(id_list[0])
-       return list(set(list_of_duplicate_variables))
+        if number_of_duplicates > 1:
+         for identical_field_id in range(0,number_of_duplicates):
+          id_list      .append(list_of_attribute_1[indices_identical_ids[identical_field_id]])
+          grid_ref_list.append(list_of_attribute_2[indices_identical_ids[identical_field_id]])
+         #print(' {:3} {:28} {}'.format(indices_identical_ids[identical_field_id], list_of_attribute_1[indices_identical_ids[identical_field_id]], list_of_attribute_2[indices_identical_ids[identical_field_id]]))
+         if number_of_duplicates == 2:
+          if grid_ref_list[0] == grid_ref_list[1]:
+           messages_same_grid.append(' WARNING: The field_id {:15} has been defined twice with the same {}'.format(field_id, grid_ref_list[0]))
+          else:
+           messages_diff_grid.append(' WARNING: The field_id {:15} has been defined twice with various  {:25} & {}'.format(field_id, grid_ref_list[0], grid_ref_list[1]))
+         else:
+          print(' WARNING: The field_id {:15} has more than two duplicates with the following grid_ref: {}'.format(field_id, grid_ref_list))
 
-   #vars_with_duplicate_id_definition_nemo_opa    = check_which_list_elements_are_identical(field_def_nemo_opa_id   , field_def_nemo_opa_grid_ref   )
-   #vars_with_duplicate_id_definition_nemo_lim    = check_which_list_elements_are_identical(field_def_nemo_lim_id   , field_def_nemo_lim_grid_ref   )
-   #vars_with_duplicate_id_definition_nemo_pisces = check_which_list_elements_are_identical(field_def_nemo_pisces_id, field_def_nemo_pisces_grid_ref)
-   #vars_with_duplicate_id_definition_nemo_innert = check_which_list_elements_are_identical(field_def_nemo_innert_id, field_def_nemo_innert_grid_ref)
-   vars_with_duplicate_id_definition_total        = check_which_list_elements_are_identical(total_field_def_nemo_id , total_field_def_nemo_grid_ref)
-   #print(vars_with_duplicate_id_definition_total)
+         if message_occurence_identical_id:
+          if not check_all_list_elements_are_identical(grid_ref_list):
+           print(' WARNING: The variable {:15} has different grid definitions, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+          if number_of_duplicates > 1:
+           print(' WARNING: The variable {:15} occurs more than once, at positions: {} with grid: {}'.format(id_list[0] , indices_identical_ids, grid_ref_list))
+         if number_of_duplicates > 1:  list_of_duplicate_variables.append(id_list[0])
+
+       # After collecting the messages during the loop, now the messages are printed block by block:
+       print()
+       for message_same_grid in sorted(list(set(messages_same_grid))):
+        print('{}'.format(message_same_grid))
+       print()
+       for message_diff_grid in sorted(list(set(messages_diff_grid))):
+        print('{}'.format(message_diff_grid))
+       return sorted(list(set(list_of_duplicate_variables)))
+
+   vars_with_duplicate_id_definition_total = check_for_identical_field_ids(total_field_def_nemo_id , total_field_def_nemo_grid_ref)
+   if len(vars_with_duplicate_id_definition_total) > 0:
+    print('\n Variables with dublicate ID definitions: {}'.format(vars_with_duplicate_id_definition_total))
 
    #x = [ 'w', 'e', 's', 's', 's', 'z','z', 's']
    #print([i for i, n in enumerate(x) if n == 's'])
