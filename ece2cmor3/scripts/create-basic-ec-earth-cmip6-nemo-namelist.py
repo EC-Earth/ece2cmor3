@@ -257,6 +257,78 @@ if len(sys.argv) == 2:
    ################################################################################
    print_next_step_message(2, 'READING THE FIELD_DEF FILES')
 
+
+   # Function to tweak the sorted order for the attribute list (XIOS attributes):
+   def tweakedorder_attributes(iterable_object):
+    if   iterable_object == 'id'                   : return  1
+    elif iterable_object == 'field_ref'            : return  2
+    elif iterable_object == 'grid_ref'             : return  3
+    elif iterable_object == 'unit'                 : return  4
+    elif iterable_object == 'name'                 : return  5
+    elif iterable_object == 'operation'            : return  6
+    elif iterable_object == 'freq_offset'          : return  7
+    elif iterable_object == 'freq_op'              : return  8
+    elif iterable_object == 'long_name'            : return  9
+    elif iterable_object == 'standard_name'        : return 10
+    elif iterable_object == 'axis_ref'             : return 15
+    elif iterable_object == 'detect_missing_value' : return 16
+    elif iterable_object == 'comment'              : return 17
+    elif iterable_object == 'enabled'              : return 18
+    elif iterable_object == 'expr'                 : return 19
+    elif iterable_object == 'prec'                 : return 20
+    elif iterable_object == 'read_access'          : return 21
+    else                                           : return 30
+
+
+   def complement_lacking_attributes(xml_field):
+    for xml_att in ['grid_ref'            , \
+                    'unit'                , \
+                    'long_name'           , \
+                    'standard_name'       , \
+                    'name'                , \
+                    'operation'           , \
+                    'freq_offset'         , \
+                    'freq_op'             , \
+                    'axis_ref'            , \
+                    'detect_missing_value', \
+                    'comment'             , \
+                    'enabled'             , \
+                    'expr'                , \
+                    'prec'                , \
+                    'read_access'           \
+               ]:
+     if xml_field.get(xml_att) == None:
+     #xml_field.set(xml_att, str('unknown_' + str(xml_att) + 'at_field_level'))
+      xml_field.set(xml_att, 'unknown')
+    return
+
+
+   def print_field_def_attributes(xml_field):
+          print('  {:30} | {:46}'.format(str(xml_field.get('id')), str(xml_field.text)), end=' ')
+          for att in sorted(xml_field.attrib, key=tweakedorder_attributes):
+           if   att == 'long_name':
+            att_format='{:135}'
+           elif att == 'standard_name':
+            att_format='{:135}'
+           elif att == 'id':
+            att_format='{:45}'
+           elif att == 'field_ref':
+            att_format='{:45}'
+           elif att == 'grid_ref':
+            att_format='{:45}'
+           elif att == 'unit':
+            att_format='{:35}'
+           elif att == 'name':
+            att_format='{:45}'
+           elif att == 'expr':
+            att_format='{:45}'
+           else:
+            att_format='{:20}'
+           print(att_format.format(str(att + '="' + xml_field.get(att)) + '"'), end=' ')
+          print('')
+         #print('Test: {:30} | {:46} | {}'.format(str(xml_field.get('id')), str(xml_field.text), xml_field.attrib))
+
+
    def create_element_lists(file_name, attribute_1, attribute_2):
        if os.path.isfile(file_name) == False:
         print(' The file {} does not exist.'.format(file_name))
@@ -281,6 +353,14 @@ if len(sys.argv) == 2:
        print(' roottree.tag: {}; roottree.attrib: {}'.format(roottree.tag, roottree.attrib))
       #print(' roottree.tag: {}; roottree.attrib: {}; roottree.text: {}'.format(roottree.tag, roottree.attrib, roottree.text))
       #print(xmltree.tostring(roottree, encoding='utf8').decode('utf8'))
+
+       complement_and_print_field_def_attributes = False
+       if complement_and_print_field_def_attributes:
+        for field_group in roottree:
+         for field in field_group:
+          # This adds many attributes with a value `unknown`, but this might have consequences.
+          complement_lacking_attributes(field)
+          print_field_def_attributes(field)
 
 
        for group in range(0, len(roottree)):
