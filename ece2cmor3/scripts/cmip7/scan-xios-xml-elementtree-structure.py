@@ -17,9 +17,9 @@ from collections import OrderedDict
 
 def print_next_step_message(step, comment):
     print('\n')
-    print(' ####################################################################################')
-    print(' ###  Test {:<2}:  {:63}   ###'.format(step, comment))
-    print(' ####################################################################################\n')
+    print(' ##############################################################################################')
+    print(' ###  Test {:<2}:  {:73}   ###'.format(step, comment))
+    print(' ##############################################################################################\n')
 
 
 def main():
@@ -57,9 +57,9 @@ def main():
    detected_elements = []
    for child in root:
     if child.tag == 'field':
-     i = i + 1
+     i += 1
     if child.tag == 'field_group':
-     j = j + 1
+     j += 1
     if child.tag not in detected_elements:
      detected_elements.append(child.tag)
      print(' level 1: {}'.format(child.tag))
@@ -71,9 +71,9 @@ def main():
    for child in root:
     for grandchild in child:
      if grandchild.tag == 'field':
-      i = i + 1
+      i += 1
      if grandchild.tag == 'field_group':
-      j = j + 1
+      j += 1
      if grandchild.tag not in detected_elements:
       detected_elements.append(grandchild.tag)
       print(' level 2: {}'.format(grandchild.tag))
@@ -86,9 +86,9 @@ def main():
     for grandchild in child:
      for ggrandchild in grandchild:
       if ggrandchild.tag == 'field':
-       i = i + 1
+       i += 1
       if ggrandchild.tag == 'field_group':
-       j = j + 1
+       j += 1
       if ggrandchild.tag not in detected_elements:
        detected_elements.append(ggrandchild.tag)
        print(' level 3: {}'.format(ggrandchild.tag))
@@ -102,9 +102,9 @@ def main():
      for ggrandchild in grandchild:
       for gggrandchild in ggrandchild:
        if gggrandchild.tag == 'field':
-        i = i + 1
+        i += 1
        if gggrandchild.tag == 'field_group':
-        j = j + 1
+        j += 1
        if gggrandchild.tag not in detected_elements:
         detected_elements.append(gggrandchild.tag)
         print(' level 4: {}'.format(gggrandchild.tag))
@@ -143,7 +143,7 @@ def main():
 
    i = 0
    for element in root.findall(xpath_expression):
-    i = i + 1
+    i += 1
     print('{:4} {} {:25} {}'.format(i, element.tag, element.get(selected_attribute), element.attrib))
 
 
@@ -154,6 +154,7 @@ def main():
 
   tags = ['field', 'field_group']
   for tag in tags:
+   xpath_expression = ".//" + tag
    i_total = 0
 
    # Loop again over the various field_def files:
@@ -168,16 +169,15 @@ def main():
 
     # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
     # In a few cases when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
-    i_f           = 0
-    i_id_or_fr    = 0
-    i_no_id_or_fr = 0
-    xpath_expression = ".//" + tag
+    i_f           = 0  # The number of field elements
+    i_id_or_fr    = 0  # The number of field elements with    a field_ref attribute or an id attribute
+    i_no_id_or_fr = 0  # The number of field elements without a field_ref attribute and without an id attribute. This should not occur and thus be zero
     for element in root.findall(xpath_expression):
-     i_f = i_f + 1                           # Numbering the total amount of field elements
+     i_f += 1
      if element.get('id') or element.get('field_ref'):
-      i_id_or_fr = i_id_or_fr + 1
+      i_id_or_fr += 1
      else:
-      i_no_id_or_fr = i_no_id_or_fr + 1
+      i_no_id_or_fr += 1
       print(' ERROR: A {} element without an id attribute and without a field_ref attribute has been detecetd. This should never occur!'.format(element.tag))
     print(' {:4} {:12} elements in the field_def file {}'.format(i_f, element.tag, field_def_file))
     i_total = i_total + i_f
@@ -194,6 +194,7 @@ def main():
 
   tags = ['field', 'field_group']
   for tag in tags:
+   xpath_expression = ".//" + tag
    i_total_fr        = 0
    i_total_fr_and_id = 0
 
@@ -209,22 +210,23 @@ def main():
 
     # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
     # In a few cases when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
-    i_f         = 0
-    i_fr        = 0
-    i_no_fr     = 0
-    i_fr_and_id = 0
-    xpath_expression = ".//" + tag
+    i_f         = 0  # The number of field elements
+    i_fr        = 0  # The number of field elements with    a field_ref attribute
+    i_no_fr     = 0  # The number of field elements without a field_ref attribute
+    i_fr_and_id = 0  # The number of field elements with    a field_ref attribute and an id attribute
     for element in root.findall(xpath_expression):
-     i_f = i_f + 1                           # Numbering the total amount of field elements
+     i_f += 1
      if element.get('field_ref'):
-      i_fr = i_fr + 1
+      # The field elements with a field_ref attribute (some have an id attribute as well)
+      i_fr += 1
       if element.get('id'):
-       i_fr_and_id = i_fr_and_id + 1
+       i_fr_and_id += 1
        if verbose_level > 0: print(' A {} element has a field_ref {:27} and an id {}'.format(element.tag, element.get('field_ref'), element.get('id')))
       else:
-       if verbose_level > 0: print(' A {} element has a field_ref {:27}'.format(element.tag, element.get('field_ref')))
+       if verbose_level > 0: print(' A {} element has a field_ref {:27}'             .format(element.tag, element.get('field_ref')))
      else:
-      i_no_fr = i_no_fr + 1
+      # The field elements without a field_ref attribute, they all have an id attribute:
+      i_no_fr += 1
       if element.get('id'):
        if verbose_level > 1: print(' A {} element has an id {:27} but no field_ref attribute'.format(element.tag, element.get('id')))
       else:
@@ -248,52 +250,58 @@ def main():
  if False:
   print_next_step_message(5, 'Grid_ref check - under construction')
 
-  # Loop again over the various field_def files:
-  for field_def_file in field_def_file_collection:
+  verbose_level = 0
 
-   # Split in path pf[0] & file pf[1]:
-   pf = os.path.split(field_def_file)
-   print('\n\n {}\n'.format(pf[1]))
+  tags = ['field', 'field_group']
+  for tag in tags:
+   xpath_expression = ".//" + tag
 
-   # Load the xml file:
-   tree = ET.parse(field_def_file)
-   root = tree.getroot()
+   # Loop again over the various field_def files:
+   for field_def_file in field_def_file_collection:
 
-   # For every field element either an id or a field_ref attribute is present in all field_def files.
-   # If a field_ref is present than only sometimes an id is specified in the field_def files for a field element
-   i_f  = 0
-   i_id = 0
-   i_fr = 0
-   i_gr = 0
-   for element in root.findall(".//field"):
-    i_f = i_f + 1                           # Numbering the total amount of field elements
-    if   element.get('id'):
-     i_id = i_id + 1                        # Numbering the total amount of field elements with an id attribute
-     # Check if any field element with an id attribute has  field_ref attribute:
-     if element.get('field_ref'):
-      print(' A {} element with an id {:27} does have a field_ref attribute {:27}, this situation has been detected in few cases!'.format(element.tag, element.get('id'), element.get('field_ref')))
-    elif element.get('field_ref'):
-     i_fr = i_fr + 1                        # Numbering the total amount of field elements with an field_ref attribute
-     # Check if indeed any field element with a field_ref attribute has no id attribute:
-     if element.get('id'):
-      print(' A {} element with a field_ref {:27} does have an id attribute {:27}, this situation has not been detected before!'.format(element.tag, element.get('field_ref'), element.get('id')))
-     else:
-      pass
-     #print(' A {} element with a field_ref {:27} does not have an id attribute'.format(element.tag, element.get('field_ref')))
+    # Split in path pf[0] & file pf[1]:
+    pf = os.path.split(field_def_file)
+    print('\n\n {}\n'.format(pf[1]))
 
-     if element.get('grid_ref'):
-      i_gr = i_gr + 1
-     else:
+    # Load the xml file:
+    tree = ET.parse(field_def_file)
+    root = tree.getroot()
+
+    # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
+    # If a field_ref is present than only sometimes an id is specified in the field_def files for a field element
+    i_f  = 0  # The number of field elements
+    i_id = 0  # The number of field elements with an id        attribute
+    i_fr = 0  # The number of field elements with an field_ref attribute
+    i_gr = 0  # The number of field elements with an grid_ref  attribute
+    for element in root.findall(xpath_expression):
+     i_f += 1
+     if   element.get('id'):
+      i_id += 1
+      # Check if any field element with an id attribute has  field_ref attribute:
       if element.get('field_ref'):
-       print(' No grid_ref attribute and no field_ref attribute for field_ref = {}'.format(element.get('field_ref')))
+       print(' A {} element with an id {:27} does have a field_ref attribute {:27}, this situation has been detected in few cases!'.format(element.tag, element.get('id'), element.get('field_ref')))
+     elif element.get('field_ref'):
+      i_fr += 1
+      # Check if indeed any field element with a field_ref attribute has no id attribute:
+      if element.get('id'):
+       print(' A {} element with a field_ref {:27} does have an id attribute {:27}, this situation has not been detected before!'.format(element.tag, element.get('field_ref'), element.get('id')))
       else:
-       # Does not occur currently:
-       print(' No grid_ref attribute and no field_ref attribute for id        = {}'.format(element.get('field_ref')))
-    else:
-     # This situation actually does not occur in the current ece4 field_def files.
-     print('A {} element without an id and without a field_ref, this situation has not been detected before!'.format(element.tag))
+       pass
+      #print(' A {} element with a field_ref {:27} does not have an id attribute'.format(element.tag, element.get('field_ref')))
 
-   print('{:4} field tags have no id but do have a field_ref'.format(i_fr))
+      if element.get('grid_ref'):
+       i_gr += 1
+      else:
+       if element.get('field_ref'):
+        print(' No grid_ref attribute and no field_ref attribute for field_ref = {}'.format(element.get('field_ref')))
+       else:
+        # Does not occur currently:
+        print(' No grid_ref attribute and no field_ref attribute for id        = {}'.format(element.get('field_ref')))
+     else:
+      # This situation actually does not occur in the current ece4 field_def files.
+      print('A {} element without an id and without a field_ref, this situation has not been detected before!'.format(element.tag))
+
+    print('{:4} {:12} tags have no id but do have a field_ref'.format(i_fr, element.tag))
 
  #print(ET.dump(root))
 
