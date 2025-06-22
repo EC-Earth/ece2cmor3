@@ -280,6 +280,10 @@ def main():
   tree_main = ET.parse(field_def_file_first)
   root_main = tree_main.getroot()
 
+  pf = os.path.split(field_def_file_first)
+  print('\n\n {}\n'.format(pf[1]))
+  print(' {} {}'.format(root_main.tag, root_main.attrib))
+
 
   # Loop again over the various field_def files:
   for field_def_file in field_def_file_collection[1:]:
@@ -293,12 +297,6 @@ def main():
    root = tree.getroot()
 
    print(' {} {}'.format(root.tag, root.attrib))
-
-   tag = 'field_definition'
-   xpath_expression = ".//" + tag
-   for element in root.findall(xpath_expression):
-    print(' Detected: {}'.format(element.tag))
-
 
   print('\n\n\n Dump of XML file content:\n')
   print(ET.dump(root_main))
