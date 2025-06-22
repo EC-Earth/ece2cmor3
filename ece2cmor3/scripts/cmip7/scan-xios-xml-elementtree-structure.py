@@ -271,23 +271,37 @@ def main():
 
 
 
+ if True:
   print_next_step_message(5, 'Combine sevaral field_def files - under construction')
 
-  root = None
+  field_def_file_first = field_def_file_collection[0]
+
+  # Load the xml file:
+  tree_main = ET.parse(field_def_file_first)
+  root_main = tree_main.getroot()
 
 
- # Load the xml file:
- root_1 = ET.parse(field_def_file_collection[0]).getroot()
- root_2 = ET.parse(field_def_file_collection[1]).getroot()
- 
- root_all = root_1.append(root_2)
- #print(ET.dump(root_1))
+  # Loop again over the various field_def files:
+  for field_def_file in field_def_file_collection[1:]:
 
- #print(dir(root))
+   # Split in path pf[0] & file pf[1]:
+   pf = os.path.split(field_def_file)
+   print('\n\n {}\n'.format(pf[1]))
+
+   # Load the xml file:
+   tree = ET.parse(field_def_file)
+   root = tree.getroot()
+
+   print(' {} {}'.format(root.tag, root.attrib))
+
+   tag = 'field_definition'
+   xpath_expression = ".//" + tag
+   for element in root.findall(xpath_expression):
+    print(' Detected: {}'.format(element.tag))
 
 
-
- #print(ET.dump(root))
+  print('\n\n\n Dump of XML file content:\n')
+  print(ET.dump(root_main))
 
 
 
