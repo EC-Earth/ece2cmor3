@@ -272,21 +272,43 @@ def main():
 
 
  if True:
-  print_next_step_message(5, 'Combine sevaral field_def files - under construction')
+  print_next_step_message(5, 'Combine the field_def files')
 
-  field_def_file_first = field_def_file_collection[0]
+  ecearth_field_def_file = 'ec-earth-definition.xml'
+
+
+  new_root = ET.Element('ecearth_field_definition')
+  ET.SubElement(new_root, 'ecearth4_nemo_field_definition')
+  ET.SubElement(new_root, 'ecearth4_oifs_field_definition')
+  ET.SubElement(new_root, 'ecearth4_lpjg_field_definition')
+
+  ET.indent(new_root, space='  ')
+  ET.dump(new_root)
+
+ # I am not able to create a new_root_tree from the new_root and therefore I am not able to write it to a
+ # file and/or to continue extending this tree. There fore manually creating a file with this content abd reading it in.
+ #new_root_tree = ET.TreeBuilder(new_root)
+ #new_root_tree = ET.parse(new_root)
+ #new_root.write('new-root.xml')
+ #new_root.ET.write('new-root.xml')
+ #new_root_tree.write('new-root.xml')
+
+  # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+ #with open("ec-earth-definition-canonicalized.xml", mode='w', encoding='utf-8') as out_file:
+ # ET.canonicalize(from_file= ecearth_field_def_file, with_comments=True, out=out_file)
+
+
+  pf = os.path.split(ecearth_field_def_file)
+  print('\n\n {}\n'.format(pf[1]))
 
   # Load the xml file:
-  tree_main = ET.parse(field_def_file_first)
+  tree_main = ET.parse(ecearth_field_def_file)
   root_main = tree_main.getroot()
-
-  pf = os.path.split(field_def_file_first)
-  print('\n\n {}\n'.format(pf[1]))
-  print(' {} {}'.format(root_main.tag, root_main.attrib))
+ #print(' {} {}'.format(root_main.tag, root_main.attrib))
 
 
   # Loop again over the various field_def files:
-  for field_def_file in field_def_file_collection[1:]:
+  for field_def_file in field_def_file_collection:
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(field_def_file)
@@ -295,14 +317,24 @@ def main():
    # Load the xml file:
    tree = ET.parse(field_def_file)
    root = tree.getroot()
+  #print(' {} {}'.format(root.tag, root.attrib))
 
-   print(' {} {}'.format(root.tag, root.attrib))
+   # Add a new attribute original_file to each field_definition tag:
+   root.set("original_file", pf[1])
 
-  print('\n\n\n Dump of XML file content:\n')
-  print(ET.dump(root_main))
+   # Append the root element of each field_def file to the level of ecearth4_nemo_field_definition in the new field_def file:
+   for element in root_main.findall(".//ecearth4_nemo_field_definition"):
+    element.append(root)
 
+  # For neat indentation, but also for circumventing the newline trouble:
+  ET.indent(tree_main, space='  ')
 
+  # Writing the combined result to a new xml file:
+  tree_main.write('test.xml')
 
+  # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+  with open("test-canonicalized.xml", mode='w', encoding='utf-8') as out_file:
+   ET.canonicalize(from_file="test.xml", with_comments=True, out=out_file)
 
 
 if __name__ == '__main__':
