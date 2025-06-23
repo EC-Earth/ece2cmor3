@@ -278,6 +278,10 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
+  ecearth_field_def_file         = 'ec-earth-definition.xml'           # The one which is not canonicalized
+  ecearth_field_def_file_canonic = 'ec-earth-definition-canonic.xml'   # The one which is     canonicalized
+
+
   # Create the basic mian structure which will be populated with the elements of the various field_def files later on:
   root_main = ET.Element('ecearth_field_definition')
   ET.SubElement(root_main, 'ecearth4_nemo_field_definition')
@@ -291,8 +295,8 @@ def main():
 
   if False:
    # The xml file with the basic structure can be optionally written:
-   ecearth_field_def_file_tmp = 'ec-earth-definition-tmp.xml'  # The one which is not canonicalized
-   ecearth_field_def_file     = 'ec-earth-definition.xml'      # The one which is     canonicalized
+   ecearth_field_def_file_tmp = 'ec-earth-main-structure-tmp.xml'  # The one which is not canonicalized
+   ecearth_field_def_file     = 'ec-earth-main-structure.xml'      # The one which is     canonicalized
 
    # Write the basic xml structure to a file:
    tree_main.write(ecearth_field_def_file_tmp)
@@ -334,11 +338,11 @@ def main():
   ET.indent(tree_main, space='  ')
 
   # Writing the combined result to a new xml file:
-  tree_main.write('test.xml')
+  tree_main.write(ecearth_field_def_file)
 
   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-  with open("test-canonicalized.xml", mode='w', encoding='utf-8') as out_file:
-   ET.canonicalize(from_file="test.xml", with_comments=True, out=out_file)
+  with open(ecearth_field_def_file_canonic, mode='w', encoding='utf-8') as out_file:
+   ET.canonicalize(from_file=ecearth_field_def_file, with_comments=True, out=out_file)
 
 
 if __name__ == '__main__':
