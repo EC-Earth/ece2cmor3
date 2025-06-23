@@ -278,37 +278,35 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
-  ecearth_field_def_file = 'ec-earth-definition.xml'
+  # First create an xml file with the basic structure:
+  ecearth_field_def_file_tmp = 'ec-earth-definition-tmp.xml'  # The one which is not canonicalized
+  ecearth_field_def_file     = 'ec-earth-definition.xml'      # The one which is     canonicalized
 
+  root_main = ET.Element('ecearth_field_definition')
+  ET.SubElement(root_main, 'ecearth4_nemo_field_definition')
+  ET.SubElement(root_main, 'ecearth4_oifs_field_definition')
+  ET.SubElement(root_main, 'ecearth4_lpjg_field_definition')
+  ET.indent(root_main, space='  ')
+ #ET.dump(root_main)
 
-  new_root = ET.Element('ecearth_field_definition')
-  ET.SubElement(new_root, 'ecearth4_nemo_field_definition')
-  ET.SubElement(new_root, 'ecearth4_oifs_field_definition')
-  ET.SubElement(new_root, 'ecearth4_lpjg_field_definition')
+  # Create the tree object for the fresh created root for our main structure:
+  tree_main = ET.ElementTree(root_main)
 
-  ET.indent(new_root, space='  ')
-  ET.dump(new_root)
+  if False:
+   # Write the basic xml structure to a file:
+   tree_main.write(ecearth_field_def_file_tmp)
+   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+   with open(ecearth_field_def_file, mode='w', encoding='utf-8') as out_file:
+    ET.canonicalize(from_file=ecearth_field_def_file_tmp, with_comments=True, out=out_file)
 
- # I am not able to create a new_root_tree from the new_root and therefore I am not able to write it to a
- # file and/or to continue extending this tree. There fore manually creating a file with this content abd reading it in.
- #new_root_tree = ET.TreeBuilder(new_root)
- #new_root_tree = ET.parse(new_root)
- #new_root.write('new-root.xml')
- #new_root.ET.write('new-root.xml')
- #new_root_tree.write('new-root.xml')
+   if False:
+    # And optionally read it from this file
+    pf = os.path.split(ecearth_field_def_file)
+    print('\n\n {}\n'.format(pf[1]))
 
-  # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
- #with open("ec-earth-definition-canonicalized.xml", mode='w', encoding='utf-8') as out_file:
- # ET.canonicalize(from_file= ecearth_field_def_file, with_comments=True, out=out_file)
-
-
-  pf = os.path.split(ecearth_field_def_file)
-  print('\n\n {}\n'.format(pf[1]))
-
-  # Load the xml file:
-  tree_main = ET.parse(ecearth_field_def_file)
-  root_main = tree_main.getroot()
- #print(' {} {}'.format(root_main.tag, root_main.attrib))
+    # Load the xml file:
+    tree_main = ET.parse(ecearth_field_def_file)
+    root_main = tree_main.getroot()
 
 
   # Loop again over the various field_def files:
