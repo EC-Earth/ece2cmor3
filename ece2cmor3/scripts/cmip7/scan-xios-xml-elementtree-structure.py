@@ -278,10 +278,7 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
-  # First create an xml file with the basic structure:
-  ecearth_field_def_file_tmp = 'ec-earth-definition-tmp.xml'  # The one which is not canonicalized
-  ecearth_field_def_file     = 'ec-earth-definition.xml'      # The one which is     canonicalized
-
+  # Create the basic mian structure which will be populated with the elements of the various field_def files later on:
   root_main = ET.Element('ecearth_field_definition')
   ET.SubElement(root_main, 'ecearth4_nemo_field_definition')
   ET.SubElement(root_main, 'ecearth4_oifs_field_definition')
@@ -293,6 +290,10 @@ def main():
   tree_main = ET.ElementTree(root_main)
 
   if False:
+   # The xml file with the basic structure can be optionally written:
+   ecearth_field_def_file_tmp = 'ec-earth-definition-tmp.xml'  # The one which is not canonicalized
+   ecearth_field_def_file     = 'ec-earth-definition.xml'      # The one which is     canonicalized
+
    # Write the basic xml structure to a file:
    tree_main.write(ecearth_field_def_file_tmp)
    # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
@@ -300,7 +301,7 @@ def main():
     ET.canonicalize(from_file=ecearth_field_def_file_tmp, with_comments=True, out=out_file)
 
    if False:
-    # And optionally read it from this file
+    # And optionally read the basic main structure from this file:
     pf = os.path.split(ecearth_field_def_file)
     print('\n\n {}\n'.format(pf[1]))
 
