@@ -191,7 +191,7 @@ if len(sys.argv) == 2:
     print('\n There are {} variables taken from the shaconemo ping files.\n'.format(len(total_pinglist_id)))
 
    # Consistency check between the ping file xml content field and the ping file "expr"-attribute. They are not the same,
-   # in the "expr"-attribute the time average operator @ is aplied on each variable. So here spaces and the @ operator are
+   # in the "expr"-attribute the time average operator @ is applied on each variable. So here spaces and the @ operator are
    # removed and only thereafter both are compared:
    for i in range(len(total_pinglist_id)):
      if total_pinglist_expr[i] != 'None':
@@ -298,7 +298,6 @@ if len(sys.argv) == 2:
                     'read_access'           \
                ]:
      if xml_field.get(xml_att) == None:
-     #xml_field.set(xml_att, str('unknown_' + str(xml_att) + 'at_field_level'))
       xml_field.set(xml_att, 'unknown')
     return
 
@@ -330,9 +329,16 @@ if len(sys.argv) == 2:
 
 
    def create_element_lists(file_name, attribute_1, attribute_2):
+       # Currently this is only clled like:
+       #  create_element_lists(field_def_file_* , "id", "grid_ref")
+       # Thus always:
+       #  attribute_1 = "id"
+       #  attribute_2 = "grid_ref"
        if os.path.isfile(file_name) == False:
         print(' The file {} does not exist.'.format(file_name))
         sys.exit(' stop')
+
+       verbose = True
 
        tree = xmltree.parse(file_name)
        roottree = tree.getroot()
@@ -345,32 +351,36 @@ if len(sys.argv) == 2:
        text_elements               = []   # A list corresponding with the id list containing the text                  values (i.e. the arithmic expressions as defined in the field_def file)
        unit_elements               = []   # A list corresponding with the id list containing the unit        attribute values
        freq_offset_elements        = []   # A list corresponding with the id list containing the freq_offset attribute values
+
+       deviate_tag_message         = []   # A list collecting the deviate tag messages in order to print them afterwards for pretty printing
+       via_field_ref_message       = []   # A list collecting the deviate tag messages in order to print them afterwards for pretty printing
+
       #print(' Number of field elements across all levels: {} for file {}'.format(len(roottree.findall('.//field[@id]')), file_name))
       #for field in roottree.findall('.//field[@id]'): print(field.attrib[attribute_1])
      ##eelements = roottree.findall('.//field[@id]')     # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
      ##for i in range(0, len(eelements)):
 
-       print(' roottree.tag: {}; roottree.attrib: {}'.format(roottree.tag, roottree.attrib))
-      #print(' roottree.tag: {}; roottree.attrib: {}; roottree.text: {}'.format(roottree.tag, roottree.attrib, roottree.text))
+      #print(' roottree.tag: {}; roottree.attrib: {}'.format(roottree.tag, roottree.attrib))
       #print(xmltree.tostring(roottree, encoding='utf8').decode('utf8'))
 
        complement_and_print_field_def_attributes = False
        if complement_and_print_field_def_attributes:
         for field_group in roottree:
+         # For ECE3 this works, for ECE4 this does not cover the zero & double nested field_group cases:
          for field in field_group:
-          # This adds many attributes with a value `unknown`, but this might have consequences.
+          # This adds many attributes with a value `unknown`, but this might have consequences in case a check depends on whether the attribute is present or not
           complement_lacking_attributes(field)
           print_field_def_attributes(field)
 
-
        for group in range(0, len(roottree)):
-          #print(' Group [', roottree[group].tag, ']', group, 'of', len(roottree) - 1, 'in file:', file_name)
+           if verbose: print(' {:12} {:2} of {:2} in file: {}'.format(roottree[group].tag, group, len(roottree) - 1, file_name))
            elements = roottree[group][:]                 # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
            # If the field element is defined outside the field_group element, i.e. one level higher in the tree:
            if roottree[group].tag != "field_group":
             if "grid_ref" in roottree[group].attrib:
-            #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has the grid_ref:', roottree[group].attrib[attribute_2])
+             # In  this case the field element is at the root level and it has the grid_ref attribute
+             deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has a  grid_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib[attribute_2]))
              field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
              field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
              text_elements             .append(roottree[group].text)
@@ -380,8 +390,9 @@ if len(sys.argv) == 2:
              else:                                       freq_offset_elements.append("no freq_offset")
 
             else:
+             # In this case the field element is at the root level and it has no grid_ref attribute
              if "field_ref" in roottree[group].attrib:
-             #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has no grid_ref attribute but it has an field_ref attribute:', roottree[group].attrib["field_ref"])
+              deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has no grid_ref attribute but it has an field_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib["field_ref"]))
               detected_field_ref = roottree[group].attrib["field_ref"]
               for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
                detected_grid_ref = field.attrib["grid_ref"]
@@ -389,7 +400,7 @@ if len(sys.argv) == 2:
                else:                             detected_unit = "no unit definition"
                if "freq_offset" in field.attrib: detected_freq_offset = field.attrib["freq_offset"]
                else:                             detected_freq_offset = "no freq_offset"
-              #print(' A deviating tag ', roottree[group].tag, ' is detected, and has the id:', roottree[group].attrib[attribute_1], 'and has via the field_ref:', detected_field_ref, 'the grid_ref:', detected_grid_ref, 'with unit:', detected_unit)
+               via_field_ref_message.append(' {} {:2} with id: {:35} has via the field_ref: {:20} a grid_ref: {:15} with unit:'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_field_ref, detected_grid_ref, detected_unit))
                field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
                field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
                text_elements             .append(roottree[group].text)
@@ -399,7 +410,7 @@ if len(sys.argv) == 2:
                else:                                       freq_offset_elements.append(detected_freq_offset)
 
              else:
-              print(' ERROR: No field_ref and no grid_ref attribute for this variable ', roottree[group].attrib[attribute_1], ' which has no field_group element level. This element has the attributes: ', roottree[group].attrib)
+              print(' ERROR: No field_ref and no grid_ref attribute for this id {:35} which has no field_group element level. This element has the attributes: '.format(roottree[group].attrib[attribute_1], roottree[group].attrib))
 
            # If field_group element level exists:
            for child in elements:
@@ -450,6 +461,13 @@ if len(sys.argv) == 2:
              else:
               print(' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib)
 
+       if verbose:
+        for message in deviate_tag_message:
+         print(message)
+        for message in via_field_ref_message:
+         print(message)
+        print('')
+
       #for item in range(0,len(fields_without_id_name)):
       # print(' This variable {:15} has no id but it has a field_ref = {}'.format(fields_without_id_name[item], fields_without_id_field_ref[item]))
       #print(' The length of the list with fields without an id is: ', len(fields_without_id_name))
@@ -459,9 +477,9 @@ if len(sys.argv) == 2:
        if not len(fields_without_id_name    ) == len(fields_without_id_field_ref): print(' ERROR: The name and field_ref list are not of equal length\n')
        return field_elements_attribute_1, field_elements_attribute_2, fields_without_id_name, fields_without_id_field_ref, attribute_overview, text_elements, unit_elements, freq_offset_elements
 
-   field_def_nemo_opa_id   , field_def_nemo_opa_grid_ref   , no_id_field_def_nemo_opa_name   , no_id_field_def_nemo_opa_field_ref   , attribute_overview_nemo_opa   , texts_opa   , units_opa   , freq_offsets_opa      = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
-   field_def_nemo_lim_id   , field_def_nemo_lim_grid_ref   , no_id_field_def_nemo_lim_name   , no_id_field_def_nemo_lim_field_ref   , attribute_overview_nemo_lim   , texts_lim   , units_lim   , freq_offsets_lim      = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
-   field_def_nemo_pisces_id, field_def_nemo_pisces_grid_ref, no_id_field_def_nemo_pisces_name, no_id_field_def_nemo_pisces_field_ref, attribute_overview_nemo_pisces, texts_pisces, units_pisces, freq_offsets_pisces   = create_element_lists(field_def_file_ocnchem  , "id", "grid_ref")
+   field_def_nemo_opa_id   , field_def_nemo_opa_grid_ref   , no_id_field_def_nemo_opa_name   , no_id_field_def_nemo_opa_field_ref   , attribute_overview_nemo_opa   , texts_opa   , units_opa   , freq_offsets_opa    = create_element_lists(field_def_file_ocean    , "id", "grid_ref")
+   field_def_nemo_lim_id   , field_def_nemo_lim_grid_ref   , no_id_field_def_nemo_lim_name   , no_id_field_def_nemo_lim_field_ref   , attribute_overview_nemo_lim   , texts_lim   , units_lim   , freq_offsets_lim    = create_element_lists(field_def_file_seaice   , "id", "grid_ref")
+   field_def_nemo_pisces_id, field_def_nemo_pisces_grid_ref, no_id_field_def_nemo_pisces_name, no_id_field_def_nemo_pisces_field_ref, attribute_overview_nemo_pisces, texts_pisces, units_pisces, freq_offsets_pisces = create_element_lists(field_def_file_ocnchem  , "id", "grid_ref")
    field_def_nemo_innert_id, field_def_nemo_innert_grid_ref, no_id_field_def_nemo_innert_name, no_id_field_def_nemo_innert_field_ref, attribute_overview_nemo_innert, texts_innert, units_innert, freq_offsets_innert = create_element_lists(field_def_file_innerttrc, "id", "grid_ref")
 
 
