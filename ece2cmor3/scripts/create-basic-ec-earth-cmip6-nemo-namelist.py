@@ -393,14 +393,17 @@ if len(sys.argv) == 2:
              # In this case the field element is at the root level and it has no grid_ref attribute
              if "field_ref" in roottree[group].attrib:
               deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has no grid_ref attribute but it has an field_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib["field_ref"]))
+
+              # Here the crucial part of tracing the inheritance and assign those inheritted values happens:
               detected_field_ref = roottree[group].attrib["field_ref"]
+              counter = 0 # Couting the number of matches with the field_ref, it would be an ambiguity if it is more than 1: which indeed currently does not occur
               for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
+               counter += 1
                detected_grid_ref = field.attrib["grid_ref"]
                if "unit"        in field.attrib: detected_unit = field.attrib["unit"]
                else:                             detected_unit = "no unit definition"
                if "freq_offset" in field.attrib: detected_freq_offset = field.attrib["freq_offset"]
                else:                             detected_freq_offset = "no freq_offset"
-               via_field_ref_message.append(' {} {:2} with id: {:35} has via the field_ref: {:20} a grid_ref: {:15} with unit:'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_field_ref, detected_grid_ref, detected_unit))
                field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
                field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
                text_elements             .append(roottree[group].text)
@@ -408,6 +411,8 @@ if len(sys.argv) == 2:
                else:                                       unit_elements.append(detected_unit)
                if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
                else:                                       freq_offset_elements.append(detected_freq_offset)
+               via_field_ref_message.append(' {} {:2} with id: {:35} has via the field_ref: {:20} a grid_ref: {:15} with unit:'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_field_ref, detected_grid_ref, detected_unit))
+               if counter > 1: print(' WARNING: Ambiguity because {:2} times an id is found which matches the field_ref {}'.format(counter, detected_field_ref))
 
              else:
               print(' ERROR: No field_ref and no grid_ref attribute for this id {:35} which has no field_group element level. This element has the attributes: '.format(roottree[group].attrib[attribute_1], roottree[group].attrib))
