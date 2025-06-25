@@ -329,7 +329,7 @@ if len(sys.argv) == 2:
 
 
    def create_element_lists(file_name, attribute_1, attribute_2):
-       # Currently this is only clled like:
+       # Currently this is only called like:
        #  create_element_lists(field_def_file_* , "id", "grid_ref")
        # Thus always:
        #  attribute_1 = "id"
@@ -376,8 +376,8 @@ if len(sys.argv) == 2:
            if verbose: print(' {:12} {:2} of {:2} in file: {}'.format(roottree[group].tag, group, len(roottree) - 1, file_name))
            elements = roottree[group][:]                 # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
 
-           # If the field element is defined outside the field_group element, i.e. one level higher in the tree:
            if roottree[group].tag != "field_group":
+            # The field element is defined outside the field_group element, i.e. one level higher in the tree
             if "grid_ref" in roottree[group].attrib:
              # In  this case the field element is at the root level and it has the grid_ref attribute
              deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has a  grid_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib[attribute_2]))
@@ -392,79 +392,92 @@ if len(sys.argv) == 2:
             else:
              # In this case the field element is at the root level and it has no grid_ref attribute
              if "field_ref" in roottree[group].attrib:
-              deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has no grid_ref attribute but it has an field_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib["field_ref"]))
+              deviate_tag_message.append(' A deviating tag {} {:2} is detected at this root  level and has the id: {:35} and has no grid_ref attribute, but it has          the field_ref attribute: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], roottree[group].attrib["field_ref"]))
 
               # Here the crucial part of tracing the inheritance and assign those inheritted values happens:
               detected_field_ref = roottree[group].attrib["field_ref"]
               counter = 0 # Couting the number of matches with the field_ref, it would be an ambiguity if it is more than 1: which indeed currently does not occur
               for field in roottree.findall('.//field[@id="'+detected_field_ref+'"]'):
                counter += 1
-               detected_grid_ref = field.attrib["grid_ref"]
-               if "unit"        in field.attrib: detected_unit = field.attrib["unit"]
-               else:                             detected_unit = "no unit definition"
-               if "freq_offset" in field.attrib: detected_freq_offset = field.attrib["freq_offset"]
-               else:                             detected_freq_offset = "no freq_offset"
-               field_elements_attribute_1.append(roottree[group].attrib[attribute_1])
-               field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')
-               text_elements             .append(roottree[group].text)
-               if "unit"        in roottree[group].attrib: unit_elements.append(roottree[group].attrib["unit"])
-               else:                                       unit_elements.append(detected_unit)
-               if "freq_offset" in roottree[group].attrib: freq_offset_elements.append(roottree[group].attrib["freq_offset"])
-               else:                                       freq_offset_elements.append(detected_freq_offset)
-               via_field_ref_message.append(' {} {:2} with id: {:35} has via the field_ref: {:20} a grid_ref: {:15} with unit:'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_field_ref, detected_grid_ref, detected_unit))
+
+               detected_grid_ref                 = field.attrib["grid_ref"]      #  Inheriting the grid_ref    from the match with the field_ref field
+               if "unit" in field.attrib:
+                detected_unit                    = field.attrib["unit"]          #  Inheriting the unit        from the match with the field_ref field
+               else:
+                detected_unit                    = "no unit definition"
+               if "freq_offset" in field.attrib:
+                detected_freq_offset             = field.attrib["freq_offset"]   #  Inheriting the freq_offset from the match with the field_ref field
+               else:
+                detected_freq_offset             = "no freq_offset"
+
+               if "unit" in roottree[group].attrib:
+                unit_elements.append(roottree[group].attrib["unit"])
+               else:
+                unit_elements.append(detected_unit)
+               if "freq_offset" in roottree[group].attrib:
+                freq_offset_elements.append(roottree[group].attrib["freq_offset"])
+               else:
+                freq_offset_elements.append(detected_freq_offset)
+
+               field_elements_attribute_1.append(roottree[group].attrib[attribute_1]) #  Add the            id       of the considered element
+               field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')  #  Add the inheriting grid_ref from the match with the field_ref field. Adding the attribute name itself as well
+               text_elements             .append(roottree[group].text)                #  Add the            text     of the considered element
+
+               via_field_ref_message.append('                 {} {:2}                                        with id: {:35}     has a  grid_ref attribute: {:15} via the field_ref attribute: {:20} with unit: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_grid_ref, detected_field_ref, detected_unit))
                if counter > 1: print(' WARNING: Ambiguity because {:2} times an id is found which matches the field_ref {}'.format(counter, detected_field_ref))
 
              else:
               print(' ERROR: No field_ref and no grid_ref attribute for this id {:35} which has no field_group element level. This element has the attributes: '.format(roottree[group].attrib[attribute_1], roottree[group].attrib))
 
-           # If field_group element level exists:
-           for child in elements:
-            if child.tag != "field": print(' At expected "field" element level, a deviating tag ',  child.tag, ' is detected.', list(child.attrib.keys()))
-            attribute_overview = attribute_overview + list(child.attrib.keys())  # Merge each step the next list of attribute keys with the overview list
+           else:
+            # The field_group element level exists: The field element is defined intside the field_group element
+            for child in elements:
+             if child.tag != "field": print(' WARNING: At expected "field" element level a deviating tag {} is detected.'.format(child.tag, list(child.attrib.keys())))
+             attribute_overview = attribute_overview + list(child.attrib.keys())  # Merge each step the next list of attribute keys with the overview list
 
-            # If id attribute exits:
-            if attribute_1 in child.attrib:
-             field_elements_attribute_1.append(child.attrib[attribute_1])
-            #print(' ', attribute_1, ' = ', child.attrib[attribute_1])
+             if attribute_1 in child.attrib:
+              # The field element has an id attribute
+              field_elements_attribute_1.append(child.attrib[attribute_1])
+             #print(' ', attribute_1, ' = ', child.attrib[attribute_1])
 
-             text_elements.append(child.text)
-             if "unit"        in child.attrib: unit_elements.append(child.attrib["unit"])
-             else:                             unit_elements.append("no unit definition")
-             if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]); #print(child.attrib["freq_offset"], child.attrib["id"], file_name)
-             else:                             freq_offset_elements.append("no freq_offset")
+              text_elements.append(child.text)
+              if "unit"        in child.attrib: unit_elements.append(child.attrib["unit"])
+              else:                             unit_elements.append("no unit definition")
+              if "freq_offset" in child.attrib: freq_offset_elements.append(child.attrib["freq_offset"]);#print(' freq_offset: {:10} {:35} {}'.format(child.attrib["freq_offset"], child.attrib["id"], file_name))
+              else:                             freq_offset_elements.append("no freq_offset")
 
-             if attribute_2 in child.attrib:
-              field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
-             #print(' ', attribute_2, ' = ', child.attrib[attribute_2])
-             else:
-              if attribute_2 in roottree[group].attrib:
-               # In case the attribute is not present in the element definition, it is taken from its parent element:
-               field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
-              #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib)
+              if attribute_2 in child.attrib:
+               field_elements_attribute_2.append('grid_ref="'+child.attrib[attribute_2]+'"')
+              #print(' ', attribute_2, ' = ', child.attrib[attribute_2])
               else:
-              #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
-               if 'do include domain ref' == 'do include domain ref':
-               #print('do include domain ref')
-                if "domain_ref" in roottree[group].attrib:
-                 field_elements_attribute_2.append('domain_ref="'+roottree[group].attrib["domain_ref"]+'"')
-                else:
-                 print(' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
-                 field_elements_attribute_2.append(None)
+               if attribute_2 in roottree[group].attrib:
+                # In case the attribute is not present in the element definition, it is taken from its parent element:
+                field_elements_attribute_2.append('grid_ref="'+roottree[group].attrib[attribute_2]+'"')
+               #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', child.attrib)
                else:
-                field_elements_attribute_2.append(None)
-            else:
-             # If the element has no id it should have a field_ref attribute, so checking for that:
-             if "field_ref" in child.attrib:
-              if "name" in child.attrib:
-               fields_without_id_name.append(child.attrib["name"])
-               fields_without_id_field_ref.append(child.attrib["field_ref"])
-              #print(' This variable {:15} has no id but it has a field_ref = {}'.format(child.attrib["name"], child.attrib["field_ref"]))
-              else:
-               fields_without_id_name.append(child.attrib["field_ref"])      # ASSUMPTION about XIOS logic: in case no id and no name attribute are defined inside an element, it is assumed that the value of the field_ref attribute is taken as the value of the name attribute
-               fields_without_id_field_ref.append(child.attrib["field_ref"])
-              #print(' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib))
+               #print(' WARNING: No ', attribute_2, ' attribute for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
+                if 'do include domain ref' == 'do include domain ref':
+                #print('do include domain ref')
+                 if "domain_ref" in roottree[group].attrib:
+                  field_elements_attribute_2.append('domain_ref="'+roottree[group].attrib["domain_ref"]+'"')
+                 else:
+                  print(' ERROR: No ', 'domain_ref', ' attribute either for this variable: ', child.attrib[attribute_1], ' This element has the attributes: ', roottree[group].attrib)
+                  field_elements_attribute_2.append(None)
+                else:
+                 field_elements_attribute_2.append(None)
              else:
-              print(' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib)
+              # If the element has no id it should have a field_ref attribute, so checking for that:
+              if "field_ref" in child.attrib:
+               if "name" in child.attrib:
+                fields_without_id_name.append(child.attrib["name"])
+                fields_without_id_field_ref.append(child.attrib["field_ref"])
+               #print(' This variable {:15} has no id but it has a field_ref = {}'.format(child.attrib["name"], child.attrib["field_ref"]))
+               else:
+                fields_without_id_name.append(child.attrib["field_ref"])      # ASSUMPTION about XIOS logic: in case no id and no name attribute are defined inside an element, it is assumed that the value of the field_ref attribute is taken as the value of the name attribute
+                fields_without_id_field_ref.append(child.attrib["field_ref"])
+               #print(' This variable {:15} has no id and no name, but it has a field_ref = {:15} Its full attribute list: {}'.format('', child.attrib["field_ref"], child.attrib))
+              else:
+               print(' ERROR: No ', attribute_1, 'and no field_ref attribute either for this variable. This element has the attributes: ', child.attrib)
 
        if verbose:
         for message in deviate_tag_message:
