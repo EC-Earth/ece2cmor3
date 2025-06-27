@@ -272,9 +272,6 @@ def main():
 
 
 
-
-
-
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
@@ -343,6 +340,180 @@ def main():
   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
   with open(ecearth_field_def_file_canonic, mode='w', encoding='utf-8') as out_file:
    ET.canonicalize(from_file=ecearth_field_def_file, with_comments=True, out=out_file)
+
+
+
+ if True:
+  print_next_step_message(6, 'Checking the field elements by using the combined field_def files')
+
+  # Duplicate checking on field attributes:
+  tags = ['field', 'field_group']
+  for tag in tags:
+
+   recorded_ids            = []
+   recorded_field_refs     = []
+   recorded_names          = []
+   duplicated_ids          = []
+   duplicated_field_refs   = []
+   duplicated_names        = []
+   field_refs_with_id      = {}
+   field_refs_with_name    = {}
+   field_refs_without_name = []
+
+   xpath_expression = ".//" + tag
+
+   # Check whether there are duplicate id's or duplicate field_ref cases:
+   i = 0
+   for element in root_main.findall(xpath_expression):
+    i += 1
+
+    if element.get('id'):
+     # Select all field elements with an id attribute
+     if element.get('id') in recorded_ids:
+      duplicated_ids.append(element.get('id'))
+     #print(' WARNING: Duplicate {:12} id: {}'.format(tag, element.get('id')))
+     else:
+      recorded_ids.append(element.get('id'))
+
+    if element.get('field_ref'):
+     # Select all field elements with an field_ref attribute
+     if element.get('field_ref') in recorded_field_refs:
+      duplicated_field_refs.append(element.get('field_ref'))
+     #print(' WARNING: Duplicate {:12} field_ref: {}'.format(tag, element.get('field_ref')))
+     else:
+      recorded_field_refs.append(element.get('field_ref'))
+     if element.get('id'):
+      field_refs_with_id[element.get('field_ref')] = element.get('id')
+     if element.get('name'):
+      field_refs_with_name[element.get('field_ref')] = element.get('name')
+     else:
+      field_refs_without_name.append(element.get('field_ref'))
+
+    if element.get('name'):
+     # Select all field elements with an name attribute
+     if element.get('name') in recorded_names:
+      duplicated_names.append(element.get('name'))
+     #print(' WARNING: Duplicate {:12} name: {}'.format(tag, element.get('name')))
+     else:
+      recorded_names.append(element.get('name'))
+
+   if True : print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
+  #if True : print('\n WARNING: Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
+   if False: print(  ' WARNING: Duplicate {:12} field_ref attributes: {}\n'.format(tag, sorted(set(duplicated_field_refs))))
+   if True : print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
+   if True : print(  ' WARNING: {:12} elements with a field_ref but without a name {}\n'.format(tag, sorted(set(field_refs_without_name))))
+
+   if True:
+    if len(field_refs_with_id) > 0:
+     print('\n The {} field_ref elements which also have an id:'.format(tag))
+     print('  {:37} {}'.format('field_ref', 'id'))
+     for key, value in field_refs_with_id.items():
+      print('  {:37} {}'.format(key, value))
+     print()
+   if False:
+    if len(field_refs_with_name) > 0:
+     print('\n The {} field_ref elements which also have a name:'.format(tag))
+     print('  {:37} {}'.format('field_ref', 'name'))
+     for key, value in field_refs_with_name.items():
+      print('  {:37} {}'.format(key, value))
+     print()
+
+   print(' In total we have {:3} {} elements\n'.format(i, tag))
+
+
+
+  # Inherit field element properties (i.e. attributes) via field_def references:
+  i    = 0
+  i_fr = 0
+
+  xpath_path       = ".//field"                              # Looping over all field elements in any layer
+  xpath_expression = xpath_path
+ #xpath_expression = xpath_path + "[@" + selected_attribute + "]"
+
+  for element in root_main.findall(xpath_expression):
+   i += 1
+
+   if element.get('field_ref'):
+    # Select all field elements with a field_ref
+    i_fr += 1
+
+    # Find and inherit via the field_ref the field id (remember our check that any field has a field_ref or an id attribute, some have both):
+    list_of_matching_ids_with_field_ref = []
+    for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
+     # Check whether there are multiple matching id's for a given field_ref, collect each match in the list below:
+     list_of_matching_ids_with_field_ref.append(elem)
+
+     # Check whether a unique id match is detected for a given field_ref:
+     if   len(list_of_matching_ids_with_field_ref) == 1:
+      matched_field_ref_id = list_of_matching_ids_with_field_ref[0]
+      # This is the correct case: a single id match for the speciefied field_ref is found:
+      print(' For {} element {:3} with field_ref {:27} the id {} is detected'.format(element.tag, i, element.get('field_ref'), list_of_matching_ids_with_field_ref[0].attrib['id']))
+
+      # Inheriting the grid_ref from the match with the field_ref field:
+      element.set('grid_ref', elem.get('grid_ref'))
+
+     elif len(list_of_matching_ids_with_field_ref) == 0:
+      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
+     else:
+      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
+
+     # Find the element to which the field_ref is pointing, and find & inherit its id attribute:
+     # and the assignment of the available inheritted attributes values:
+
+
+
+
+    if element.get('grid_ref'):
+     # Select all field elements with a field_ref and with a grid_ref attribute:
+     pass
+     print(' The element {} {:3} has field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+    else:
+     # Select all field elements with a field_ref but without a direct grid_ref attribute in the actual field element. The grid_ref has
+     # to be detected and inheritted via the field_ref element field:
+
+
+     pass
+     print(' The element {} {:3} has field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+   elif element.get('id'):
+    # Select all field elements without a field_ref (they should all have an id attribute):
+    pass
+   else:
+    print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
+
+
+
+
+
+
+
+#              detected_grid_ref                 = elem.attrib["grid_ref"]              # Inheriting the grid_ref    from the match with the field_ref field
+
+#              if "unit" in elem.attrib:
+#               detected_unit                    = elem.attrib["unit"]                  # Inheriting the unit        from the match with the field_ref field
+#              else:
+#               detected_unit                    = "no unit definition"
+#              if "freq_offset" in elem.attrib:
+#               detected_freq_offset             = elem.attrib["freq_offset"]           # Inheriting the freq_offset from the match with the field_ref field
+#              else:
+#               detected_freq_offset             = "no freq_offset"
+
+#              if "unit" in roottree[group].attrib:
+#               unit_elements.append(roottree[group].attrib["unit"])
+#              else:
+#               unit_elements.append(detected_unit)
+#              if "freq_offset" in roottree[group].attrib:
+#               freq_offset_elements.append(roottree[group].attrib["freq_offset"])
+#              else:
+#               freq_offset_elements.append(detected_freq_offset)
+
+#              field_elements_attribute_1.append(roottree[group].attrib[attribute_1]) # Add the            id       of the considered element
+#              field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')  # Add the inheriting grid_ref from the match with the field_ref field. Adding the attribute name itself as well
+#              text_elements             .append(roottree[group].text)                # Add the            text     of the considered element
+
+#              via_field_ref_message.append('                 {} {:2}                                        with id: {:35}     has a  grid_ref attribute: {:15} via the field_ref attribute: {:20} with unit: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_grid_ref, element.get('field_ref'), detected_unit))
+#              if i_match > 1: print(' WARNING: Ambiguity because {:2} times an id is found which matches the field_ref {}'.format(i_match, element.get('field_ref')))
+
+
 
 
 if __name__ == '__main__':
