@@ -306,7 +306,7 @@ def main():
            #print('flat_request: {}'.format(flat_request))
            #print('flat_request[cmip6_table]: {}'.format(flat_request[cmip6_table]))
             if cmip6_variable in flat_request[cmip6_table]:
-             print(' Skip dublicate cmip6 table - variable combination: {:10} {:10} coming from the cmip7 request: {:18} {}'.format(cmip6_table, cmip6_variable, compound_var, experiment))
+             print(' Skip duplicate cmip6 table - variable combination: {:10} {:10} coming from the cmip7 request: {:18} {}'.format(cmip6_table, cmip6_variable, compound_var, experiment))
             else:
              # Add another variable to an already created table:
              flat_request[cmip6_table].append(cmip6_variable)

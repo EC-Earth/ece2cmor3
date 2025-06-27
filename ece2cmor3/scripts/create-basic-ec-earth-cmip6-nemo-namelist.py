@@ -551,7 +551,7 @@ if len(sys.argv) == 2:
       #print('list_of_attribute_2: ', list_of_attribute_2)
        list_of_duplicate_variables = []
        for field_id in list_of_attribute_1:
-        # This returns a list for each considered field_id with the indices (corresponding to the list_of_attribute_1) of equal field_id's. Usually the list contains only one item, but with a dublicate field_id two (or more):
+        # This returns a list for each considered field_id with the indices (corresponding to the list_of_attribute_1) of equal field_id's. Usually the list contains only one item, but with a duplicate field_id two (or more):
         indices_identical_ids = get_indices(field_id, list_of_attribute_1)
         number_of_duplicates = len(indices_identical_ids)
        #print(number_of_duplicates, indices_identical_ids)
@@ -588,7 +588,7 @@ if len(sys.argv) == 2:
 
    vars_with_duplicate_id_definition_total = check_for_identical_field_ids(total_field_def_nemo_id , total_field_def_nemo_grid_ref)
    if len(vars_with_duplicate_id_definition_total) > 0:
-    print('\n Variables with dublicate ID definitions: {}'.format(vars_with_duplicate_id_definition_total))
+    print('\n Variables with duplicate ID definitions: {}'.format(vars_with_duplicate_id_definition_total))
 
    #x = [ 'w', 'e', 's', 's', 's', 'z','z', 's']
    #print([i for i, n in enumerate(x) if n == 's'])
