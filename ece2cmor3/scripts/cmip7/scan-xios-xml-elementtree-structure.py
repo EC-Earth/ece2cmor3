@@ -437,43 +437,57 @@ def main():
     # Select all field elements with a field_ref
     i_fr += 1
 
-    # Find and inherit via the field_ref the field id (remember our check that any field has a field_ref or an id attribute, some have both):
+    # Check whether the field_ref has a unique match with one field id (remember our check that any field has either a field_ref attribute or an id attribute, some have both):
     list_of_matching_ids_with_field_ref = []
     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
      # Check whether there are multiple matching id's for a given field_ref, collect each match in the list below:
      list_of_matching_ids_with_field_ref.append(elem)
 
-     # Check whether a unique id match is detected for a given field_ref:
-     if   len(list_of_matching_ids_with_field_ref) == 1:
-      matched_field_ref_id = list_of_matching_ids_with_field_ref[0]
-      # This is the correct case: a single id match for the speciefied field_ref is found:
-      print(' For {} element {:3} with field_ref {:27} the id {} is detected'.format(element.tag, i, element.get('field_ref'), list_of_matching_ids_with_field_ref[0].attrib['id']))
-
-      # Inheriting the grid_ref from the match with the field_ref field:
-      element.set('grid_ref', elem.get('grid_ref'))
-
-     elif len(list_of_matching_ids_with_field_ref) == 0:
-      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
-     else:
-      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
-
-     # Find the element to which the field_ref is pointing, and find & inherit its id attribute:
-     # and the assignment of the available inheritted attributes values:
-
-
-
+    # Check whether a correct unique id match is detected for a given field_ref:
+    if   len(list_of_matching_ids_with_field_ref) == 1:
+     pass
+    #print(' For {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) the id {} is detected'.format(element.tag, i, element.get('field_ref'), i_fr, list_of_matching_ids_with_field_ref[0].attrib['id']))
+    elif len(list_of_matching_ids_with_field_ref) == 0:
+     print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
+    else:
+     print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
 
     if element.get('grid_ref'):
      # Select all field elements with a field_ref and with a grid_ref attribute:
+     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
      pass
-     print(' The element {} {:3} has field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
     else:
      # Select all field elements with a field_ref but without a direct grid_ref attribute in the actual field element. The grid_ref has
-     # to be detected and inheritted via the field_ref element field:
+     # to be detected and inheritted via the field_ref element field within the attributes of its parent:
+
+     # Find the grid_ref within the attribute list of the parent of the field_ref field:
+     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
+      pass
+     #print(' {:27} {:27} {:27} {:27} {:27} {}'.format(elem.get('id'), str(elem.get('field_ref')), str(elem.get('grid_ref')), str(element.get('id')), element.get('field_ref'), str(element.get('grid_ref'))))
+
+     # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
+     element.set('grid_ref', elem.get('grid_ref'))
 
 
+    if element.get('operation'):
+     # Select all field elements with a field_ref and with a grid_ref attribute:
+     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('operation')))
      pass
-     print(' The element {} {:3} has field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+    else:
+     # Select all field elements with a field_ref but without a direct grid_ref attribute in the actual field element. The grid_ref has
+     # to be detected and inheritted via the field_ref element field within the attributes of its parent:
+
+     # Find the grid_ref within the attribute list of the parent of the field_ref field:
+     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
+      pass
+     #print(' {:27} {:27} {:27} {:27} {:27} {}'.format(elem.get('id'), str(elem.get('field_ref')), str(elem.get('grid_ref')), str(element.get('id')), element.get('field_ref'), str(element.get('grid_ref'))))
+
+     # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
+     if elem.get('operation'):
+      element.set('operation', elem.get('operation'))
+
+
+      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, str(element.get('operation'))))
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
     pass
@@ -485,8 +499,6 @@ def main():
 
 
 
-
-#              detected_grid_ref                 = elem.attrib["grid_ref"]              # Inheriting the grid_ref    from the match with the field_ref field
 
 #              if "unit" in elem.attrib:
 #               detected_unit                    = elem.attrib["unit"]                  # Inheriting the unit        from the match with the field_ref field
