@@ -452,42 +452,33 @@ def main():
     else:
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
 
+    # Inherit grid_ref attribute if applicable:
     if element.get('grid_ref'):
      # Select all field elements with a field_ref and with a grid_ref attribute:
-     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
      pass
     else:
-     # Select all field elements with a field_ref but without a direct grid_ref attribute in the actual field element. The grid_ref has
-     # to be detected and inheritted via the field_ref element field within the attributes of its parent:
-
-     # Find the grid_ref within the attribute list of the parent of the field_ref field:
+     # For those field elements which do not have a direct grid_ref attribute: Find the grid_ref within the attribute list of the parent of the field_ref field:
      for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
       pass
-     #print(' {:27} {:27} {:27} {:27} {:27} {}'.format(elem.get('id'), str(elem.get('field_ref')), str(elem.get('grid_ref')), str(element.get('id')), element.get('field_ref'), str(element.get('grid_ref'))))
-
      # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
      element.set('grid_ref', elem.get('grid_ref'))
+     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
 
-
+    # Inherit operation attribute if applicable:
     if element.get('operation'):
-     # Select all field elements with a field_ref and with a grid_ref attribute:
+     # Select all field elements with a field_ref and with an operation attribute:
      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('operation')))
-     pass
     else:
-     # Select all field elements with a field_ref but without a direct grid_ref attribute in the actual field element. The grid_ref has
-     # to be detected and inheritted via the field_ref element field within the attributes of its parent:
-
-     # Find the grid_ref within the attribute list of the parent of the field_ref field:
+     # For those field elements which do not have a direct operation attribute:  Find the operation within the attribute list of the parent of the field_ref field:
      for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
       pass
-     #print(' {:27} {:27} {:27} {:27} {:27} {}'.format(elem.get('id'), str(elem.get('field_ref')), str(elem.get('grid_ref')), str(element.get('id')), element.get('field_ref'), str(element.get('grid_ref'))))
-
      # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
      if elem.get('operation'):
       element.set('operation', elem.get('operation'))
-
-
       print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, str(element.get('operation'))))
+
+
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
     pass
