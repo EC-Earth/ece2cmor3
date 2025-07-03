@@ -511,32 +511,32 @@ def main():
      if True:
       # Inherit attribute if applicable:
       if element.get(attribute):
-               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                                          an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                          {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'  .format(element.tag, i, element.get('field_ref'), i_fr,         ''               , attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
       else:
        for field_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
         if field_element.get(attribute):
                  # Inherit the attribute from the parent of the field which matched with the field_ref field:
                  element.set(attribute, field_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from     field_ref {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, field_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from      field_ref {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,         field_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
         else:
          # For those field elements which do not have a direct operation attribute:  Find the operation within the attribute list of the parent of the field_ref field:
          for parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
           if parent_element.get(attribute):
                  # Inherit the attribute from the parent of the field which matched with the field_ref field:
                  element.set(attribute, parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from        parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from         parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,        parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
           else:
            for grand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../...'):
             if grand_parent_element.get(attribute):
                  # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
                  element.set(attribute, grand_parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from  grand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, grand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from   grand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,  grand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
             else:
              for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../...'):
               if ggrand_parent_element.get(attribute):
                  # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
                  element.set(attribute, ggrand_parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from ggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from  ggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
               else:
                for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../...'):
                 if gggrand_parent_element.get(attribute):
