@@ -459,22 +459,6 @@ def main():
 
   # Inherit field element properties (i.e. attributes) via field_def references:
 
-  def inherit_attribute_from_parent(loc_root, loc_element, attribute):
-    # Inherit attribute from the parent of a field_ref field if applicable:
-    if loc_element.get(attribute):
-     # Select a field element with a field_ref and with the attribute:
-     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct {:9} attribute: {}'.format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute, loc_element.get(attribute)))
-    else:
-     # For those field elements which do not have the direct attribute:  Find the attribute within the attribute list of the parent of the field_ref field:
-     for elem in loc_root.findall('.//field[@id="'+loc_element.get('field_ref')+'"]...'):
-      pass
-     # Inheriting the attribute from the parent field_group which matched with the field_ref field:
-     if elem.get(attribute):
-      loc_element.set(attribute, elem.get(attribute))
-      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect {:9} attribute: {}'.format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute, loc_element.get(attribute)))
-    #else:
-    # print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has no  indirect {:9} attribute'    .format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute))
-
   i    = 0
   i_fr = 0
 
@@ -504,9 +488,28 @@ def main():
     else:
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
 
-    if True:
-     # Inherit attribute if applicable:
-     for attribute in ['grid_ref']:
+
+
+  # Inherit field element properties (i.e. attributes) via field_def references:
+
+  xpath_path       = ".//field"                              # Looping over all field elements in any layer
+  xpath_expression = xpath_path
+ #xpath_expression = xpath_path + "[@" + selected_attribute + "]"
+
+ #for attribute in ['grid_ref', 'operation', 'domain_ref']:
+  for attribute in ['grid_ref', 'operation']:
+   i    = 0
+   i_fr = 0
+
+   for element in root_main.findall(xpath_expression):
+    i += 1
+
+    if element.get('field_ref'):
+     # Select all field elements with a field_ref
+     i_fr += 1
+
+     if True:
+      # Inherit attribute if applicable:
       if element.get(attribute):
                print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                                          an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
       else:
@@ -541,34 +544,16 @@ def main():
                  element.set(attribute, gggrand_parent_element.get(attribute))
                  print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from gggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
                 else:
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) does not inherit up to level gggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
-
-#   inherit_attribute_from_parent(root_main, element, 'grid_ref')
-   #inherit_attribute_from_parent(root_main, element, 'domain_ref')
-#   inherit_attribute_from_parent(root_main, element, 'operation')
-   #inherit_attribute_from_parent(root_main, element, 'unit')
-
-    if False:
-     # Inherit grid_ref attribute if applicable:
-     if element.get('grid_ref'):
-      # Select all field elements with a field_ref and with a grid_ref attribute:
-      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
-      pass
-     else:
-      # For those field elements which do not have a direct grid_ref attribute: Find the grid_ref within the attribute list of the parent of the field_ref field:
-      for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
-       # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
-       element.set('grid_ref', elem.get('grid_ref'))
-       print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) does not inherit up to level gggrand parent {:31} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
 
 
-   elif element.get('id'):
-    # Select all field elements without a field_ref (they should all have an id attribute):
-    pass
-   else:
-    print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
+    elif element.get('id'):
+     # Select all field elements without a field_ref (they should all have an id attribute):
+     pass
+    else:
+     print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
 
-
+   print()
 
 
 
