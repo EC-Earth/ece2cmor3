@@ -422,7 +422,59 @@ def main():
 
 
 
+  # Check which list of attributes are part of the two field_group levels:
+  tags = ['.//field', './ecearth4_nemo_field_definition/field_definition/field_group', './ecearth4_nemo_field_definition/field_definition/field_group/field_group']
+  for tag in tags:
+
+   list_of_attributes = []
+   xpath_expression = tag
+   print(' At least one time encountered attributes within the xpath search: {}'.format(xpath_expression))
+   for element in root_main.findall(xpath_expression):
+    for attribute in element.attrib.keys():
+     list_of_attributes.append(attribute)
+   print(' {}\n'.format(sorted(list(set(list_of_attributes)))))
+
+
+
+  # Check how many tags have a certian attribute:
+  for att in ['long_name', 'standard_name']:
+   i_1 = 0
+   i_2 = 0
+
+   tags = ['.//field']
+   for tag in tags:
+
+    list_of_attributes = []
+    xpath_expression = tag
+   #print(' No {} for:'.format(att))
+    for element in root_main.findall(xpath_expression):
+     if att in element.attrib.keys():
+      i_1 += 1
+     else:
+      i_2 += 1
+     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
+    print(' The {} is available in {} {} elements and {} times this is not the case.\n'.format(att, i_1, element.tag, i_2))
+
+
+
   # Inherit field element properties (i.e. attributes) via field_def references:
+
+  def inherit_attribute_from_parent(loc_root, loc_element, attribute):
+    # Inherit attribute from the parent of a field_ref field if applicable:
+    if loc_element.get(attribute):
+     # Select a field element with a field_ref and with the attribute:
+     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct {:9} attribute: {}'.format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute, loc_element.get(attribute)))
+    else:
+     # For those field elements which do not have the direct attribute:  Find the attribute within the attribute list of the parent of the field_ref field:
+     for elem in loc_root.findall('.//field[@id="'+loc_element.get('field_ref')+'"]...'):
+      pass
+     # Inheriting the attribute from the parent field_group which matched with the field_ref field:
+     if elem.get(attribute):
+      loc_element.set(attribute, elem.get(attribute))
+      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect {:9} attribute: {}'.format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute, loc_element.get(attribute)))
+    #else:
+    # print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has no  indirect {:9} attribute'    .format(loc_element.tag, i, loc_element.get('field_ref'), i_fr, attribute))
+
   i    = 0
   i_fr = 0
 
@@ -446,37 +498,68 @@ def main():
     # Check whether a correct unique id match is detected for a given field_ref:
     if   len(list_of_matching_ids_with_field_ref) == 1:
      pass
-    #print(' For {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) the id {} is detected'.format(element.tag, i, element.get('field_ref'), i_fr, list_of_matching_ids_with_field_ref[0].attrib['id']))
+    #print(' For {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) the id {} is detected with attributes: {}'.format(element.tag, i, element.get('field_ref'), i_fr, list_of_matching_ids_with_field_ref[0].attrib['id'], elem.attrib))
     elif len(list_of_matching_ids_with_field_ref) == 0:
      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
     else:
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
 
-    # Inherit grid_ref attribute if applicable:
-    if element.get('grid_ref'):
-     # Select all field elements with a field_ref and with a grid_ref attribute:
-     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
-     pass
-    else:
-     # For those field elements which do not have a direct grid_ref attribute: Find the grid_ref within the attribute list of the parent of the field_ref field:
-     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
-      pass
-     # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
-     element.set('grid_ref', elem.get('grid_ref'))
-     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
+    if True:
+     # Inherit attribute if applicable:
+     for attribute in ['grid_ref']:
+      if element.get(attribute):
+               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                                          an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+      else:
+       for field_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
+        if field_element.get(attribute):
+                 # Inherit the attribute from the parent of the field which matched with the field_ref field:
+                 element.set(attribute, field_element.get(attribute))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from     field_ref {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, field_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+        else:
+         # For those field elements which do not have a direct operation attribute:  Find the operation within the attribute list of the parent of the field_ref field:
+         for parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
+          if parent_element.get(attribute):
+                 # Inherit the attribute from the parent of the field which matched with the field_ref field:
+                 element.set(attribute, parent_element.get(attribute))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from        parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+          else:
+           for grand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../...'):
+            if grand_parent_element.get(attribute):
+                 # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
+                 element.set(attribute, grand_parent_element.get(attribute))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from  grand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, grand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+            else:
+             for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../...'):
+              if ggrand_parent_element.get(attribute):
+                 # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
+                 element.set(attribute, ggrand_parent_element.get(attribute))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from ggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+              else:
+               for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../...'):
+                if gggrand_parent_element.get(attribute):
+                 # Inherit the attribute from the grand grand grand parent of the field which matched with the field_ref field:
+                 element.set(attribute, gggrand_parent_element.get(attribute))
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from gggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                else:
+                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) does not inherit up to level gggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
 
-    # Inherit operation attribute if applicable:
-    if element.get('operation'):
-     # Select all field elements with a field_ref and with an operation attribute:
-     print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('operation')))
-    else:
-     # For those field elements which do not have a direct operation attribute:  Find the operation within the attribute list of the parent of the field_ref field:
-     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
+#   inherit_attribute_from_parent(root_main, element, 'grid_ref')
+   #inherit_attribute_from_parent(root_main, element, 'domain_ref')
+#   inherit_attribute_from_parent(root_main, element, 'operation')
+   #inherit_attribute_from_parent(root_main, element, 'unit')
+
+    if False:
+     # Inherit grid_ref attribute if applicable:
+     if element.get('grid_ref'):
+      # Select all field elements with a field_ref and with a grid_ref attribute:
+      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with a    direct grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
       pass
-     # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
-     if elem.get('operation'):
-      element.set('operation', elem.get('operation'))
-      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect operation attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, str(element.get('operation'))))
+     else:
+      # For those field elements which do not have a direct grid_ref attribute: Find the grid_ref within the attribute list of the parent of the field_ref field:
+      for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
+       # Inheriting the grid_ref from the parent field_group which matched with the field_ref field:
+       element.set('grid_ref', elem.get('grid_ref'))
+       print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) with an indirect grid_ref  attribute: {}'.format(element.tag, i, element.get('field_ref'), i_fr, element.get('grid_ref')))
 
 
    elif element.get('id'):
