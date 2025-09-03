@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Command line interface for retrieving EC-Earth3 configuration files based on the CMIP7 variaiable request per CMIP7 experiment.
+Command line interface for retrieving EC-Earth3 configuration files based on the CMIP7 variable request per CMIP7 experiment.
 
 Call example:
  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip7
