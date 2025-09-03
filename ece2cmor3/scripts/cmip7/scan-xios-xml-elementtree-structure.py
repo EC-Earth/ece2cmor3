@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 
- Scanning the XML structure of a set of XIOS file_def files:
+ Scanning the XML structure of a set of XIOS field_def files:
 
  Call example:
   ./scan-xios-xml-elementtree-structure.py > scan.log
@@ -63,7 +63,7 @@ def main():
      j += 1
     if child.tag not in detected_elements:
      detected_elements.append(child.tag)
-     print(' level 1: {}'.format(child.tag))
+     print(' Detected another element at level 1: {}'.format(child.tag))
    print('                        Number of field is {:3} & number of field_group is {:3} for level 1'.format(i, j))
 
    i = 0
@@ -77,7 +77,7 @@ def main():
       j += 1
      if grandchild.tag not in detected_elements:
       detected_elements.append(grandchild.tag)
-      print(' level 2: {}'.format(grandchild.tag))
+      print(' Detected another element at level 2: {}'.format(grandchild.tag))
    print('                        Number of field is {:3} & number of field_group is {:3} for level 2'.format(i, j))
 
    i = 0
@@ -92,7 +92,7 @@ def main():
        j += 1
       if ggrandchild.tag not in detected_elements:
        detected_elements.append(ggrandchild.tag)
-       print(' level 3: {}'.format(ggrandchild.tag))
+       print(' Detected another element at level 3: {}'.format(ggrandchild.tag))
    print('                        Number of field is {:3} & number of field_group is {:3} for level 3'.format(i, j))
 
    i = 0
@@ -108,7 +108,7 @@ def main():
         j += 1
        if gggrandchild.tag not in detected_elements:
         detected_elements.append(gggrandchild.tag)
-        print(' level 4: {}'.format(gggrandchild.tag))
+        print(' Detected another element at level 4: {}'.format(gggrandchild.tag))
    print('                        Number of field is {:3} & number of field_group is {:3} for level 4'.format(i, j))
 
 
@@ -151,7 +151,7 @@ def main():
 
 
  if True:
-  # Loop over all field elements at all levels and check whether they have at least a field_ref or an id. And count the number of field elements.
+  # Loop over all field & field_group elements at all levels and check whether they have at least a field_ref or an id. And count the number of field elements.
   print_next_step_message(3, 'Check if at least a field_ref or an id attribute is present')
 
   tags = ['field', 'field_group']
@@ -170,7 +170,7 @@ def main():
     tree = ET.parse(field_def_file)
     root = tree.getroot()
 
-    # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
+    # Conclusion after running this: For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
     # In a few cases when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
     i_f           = 0  # The number of field elements
     i_id_or_fr    = 0  # The number of field elements with    a field_ref attribute or an id attribute
@@ -190,7 +190,7 @@ def main():
 
 
  if True:
-  # Loop over all field elements at all levels and check whether they have at least a field_ref or an id. And count the number of field elements.
+  # Loop over all field & field_group elements at all levels and check more about the explicit field_ref and grid_ref attribute iclusion for the elements (leaving out inheritage here)
   print_next_step_message(4, 'Loop over all tags with a field_ref attribute, check if id is present')
 
   verbose_level = 0
@@ -216,13 +216,13 @@ def main():
     root = tree.getroot()
 
     # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
-    # In a few cfieases when a field_ref attribute is present an id attribute is specified as well in the ld_def files for a field element.
+    # In a few caseses when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
     i_f            = 0  # The number of field elements
     i_fr           = 0  # The number of field elements with    a field_ref attribute
     i_no_fr        = 0  # The number of field elements without a field_ref attribute
-    i_fr_and_id    = 0  # The number of field elements with    a field_ref attribute and an id attribute
-    i_fr_and_gr    = 0  # The number of field elements with    a field_ref attribute and a  grid_ref attribute
-    i_no_fr_and_gr = 0  # The number of field elements without a field_ref attribute and a  grid_ref attribute
+    i_fr_and_id    = 0  # The number of field elements with    a field_ref attribute and with an id attribute
+    i_fr_and_gr    = 0  # The number of field elements with    a field_ref attribute and with a  grid_ref attribute
+    i_no_fr_and_gr = 0  # The number of field elements without a field_ref attribute and with a  grid_ref attribute
     for element in root.findall(xpath_expression):
      i_f += 1
      if element.get('field_ref'):
@@ -279,7 +279,7 @@ def main():
   ecearth_field_def_file_canonic = 'ec-earth-definition-canonic.xml'   # The one which is     canonicalized
 
 
-  # Create the basic mian structure which will be populated with the elements of the various field_def files later on:
+  # Create the basic main structure which will be populated with the elements of the various field_def files later on:
   root_main = ET.Element('ecearth_field_definition')
   ET.SubElement(root_main, 'ecearth4_nemo_field_definition')
   ET.SubElement(root_main, 'ecearth4_oifs_field_definition')
@@ -291,7 +291,7 @@ def main():
   tree_main = ET.ElementTree(root_main)
 
   if False:
-   # The xml file with the basic structure can be optionally written:
+   # The xml file with the basic structure can be optionally written to a file now:
    ecearth_field_def_file_tmp = 'ec-earth-main-structure-tmp.xml'  # The one which is not canonicalized
    ecearth_field_def_file     = 'ec-earth-main-structure.xml'      # The one which is     canonicalized
 
@@ -356,8 +356,8 @@ def main():
    duplicated_ids          = []
    duplicated_field_refs   = []
    duplicated_names        = []
-   field_refs_with_id      = {}
-   field_refs_with_name    = {}
+   field_refs_with_id      = {} # dictionary
+   field_refs_with_name    = {} # dictionary
    field_refs_without_name = []
 
    xpath_expression = ".//" + tag
@@ -376,7 +376,7 @@ def main():
       recorded_ids.append(element.get('id'))
 
     if element.get('field_ref'):
-     # Select all field elements with an field_ref attribute
+     # Select all field elements with a field_ref attribute
      if element.get('field_ref') in recorded_field_refs:
       duplicated_field_refs.append(element.get('field_ref'))
      #print(' WARNING: Duplicate {:12} field_ref: {}'.format(tag, element.get('field_ref')))
@@ -398,7 +398,7 @@ def main():
       recorded_names.append(element.get('name'))
 
    if True : print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
-  #if True : print('\n WARNING: Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
+  #if True : print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
    if False: print(  ' WARNING: Duplicate {:12} field_ref attributes: {}\n'.format(tag, sorted(set(duplicated_field_refs))))
    if True : print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
    if True : print(  ' WARNING: {:12} elements with a field_ref but without a name {}\n'.format(tag, sorted(set(field_refs_without_name))))
@@ -422,7 +422,7 @@ def main():
 
 
 
-  # Check which list of attributes are part of the two field_group levels:
+  # Check which list of attributes are part of the field elements and of the two field_group elements levels:
   tags = ['.//field', './ecearth4_nemo_field_definition/field_definition/field_group', './ecearth4_nemo_field_definition/field_definition/field_group/field_group']
   for tag in tags:
 
@@ -436,8 +436,26 @@ def main():
 
 
 
-  # Check how many tags have a certian attribute:
-  for att in ['long_name', 'standard_name']:
+  # Check how many tags have a certain attribute:
+  for att in ['axis_ref'             , \
+              'comment'              , \
+              'detect_missing_value' , \
+              'enabled'              , \
+              'expr'                 , \
+              'field_ref'            , \
+              'freq_offset'          , \
+              'freq_op'              , \
+              'grid_ref'             , \
+              'id'                   , \
+              'long_name'            , \
+              'name'                 , \
+              'operation'            , \
+              'prec'                 , \
+              'read_access'          , \
+              'standard_name'        , \
+              'unit'                   \
+             ]:
+
    i_1 = 0
    i_2 = 0
 
@@ -453,11 +471,71 @@ def main():
      else:
       i_2 += 1
      #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
-    print(' The {} is available in {} {} elements and {} times this is not the case.\n'.format(att, i_1, element.tag, i_2))
+    print(' The {:25} is available in {:4} {} elements and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
+  print()
 
 
 
-  # Inherit field element properties (i.e. attributes) via field_def references:
+  # Check how many tags have a certain attribute:
+  for att in ['chunking_blocksize_target', \
+              'grid_ref'                 , \
+              'id'                         \
+             ]:
+
+   i_1 = 0
+   i_2 = 0
+
+   tags = ['./ecearth4_nemo_field_definition/field_definition/field_group']
+   for tag in tags:
+
+    list_of_attributes = []
+    xpath_expression = tag
+   #print(' No {} for:'.format(att))
+    for element in root_main.findall(xpath_expression):
+     if att in element.attrib.keys():
+      i_1 += 1
+     else:
+      i_2 += 1
+     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
+    print(' The {:25} is available in {:4} {} elements (level 1) and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
+  print()
+
+
+
+  # Check how many tags have a certain attribute:
+  for att in ['domain_ref'               , \
+              'enabled'                  , \
+              'grid_ref'                 , \
+              'id'                       , \
+              'operation'                  \
+             ]:
+
+   i_1 = 0
+   i_2 = 0
+
+   tags = ['./ecearth4_nemo_field_definition/field_definition/field_group/field_group']
+   for tag in tags:
+
+    list_of_attributes = []
+    xpath_expression = tag
+   #print(' No {} for:'.format(att))
+    for element in root_main.findall(xpath_expression):
+     if att in element.attrib.keys():
+      i_1 += 1
+     else:
+      i_2 += 1
+     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
+    print(' The {:25} is available in {:4} {} elements (level 2) and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
+  print('\n')
+
+
+
+  # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
+
+
+  def inherit_message(attribute, predecessor_element, element, i, i_fr, ancessor_label):
+      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:} {:16} an {:11} attribute: {:30} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancessor_label, predecessor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+
 
   i    = 0
   i_fr = 0
@@ -487,7 +565,7 @@ def main():
      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
     else:
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
-
+  print('\n')
 
 
   # Inherit field element properties (i.e. attributes) via field_def references:
@@ -497,7 +575,7 @@ def main():
  #xpath_expression = xpath_path + "[@" + selected_attribute + "]"
 
  #for attribute in ['grid_ref', 'operation', 'domain_ref']:
-  for attribute in ['grid_ref', 'operation']:
+  for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
    i    = 0
    i_fr = 0
 
@@ -506,45 +584,55 @@ def main():
 
     if element.get('field_ref'):
      # Select all field elements with a field_ref
+     # Inherit the attribute via the field_ref element (directly or from its parent, grand parent, etc) if applicable:
      i_fr += 1
 
      if True:
       # Inherit attribute if applicable:
       if element.get(attribute):
-               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                          {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'  .format(element.tag, i, element.get('field_ref'), i_fr,         ''               , attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                          {:16} an {:11} attribute: {:30} id: {:27} name: {:20} standard_name: {:15} long_name: {}'  .format(element.tag, i, element.get('field_ref'), i_fr,         ''               , attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
       else:
        for field_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
         if field_element.get(attribute):
-                 # Inherit the attribute from the parent of the field which matched with the field_ref field:
-                 element.set(attribute, field_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from      field_ref {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,         field_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                   # Inherit the attribute from the parent of the field which matched with the field_ref field:
+                   element.set(    attribute, field_element.get(attribute))
+                   inherit_message(attribute, field_element, element, i, i_fr, 'inherits from      field_ref')
         else:
-         # For those field elements which do not have a direct operation attribute:  Find the operation within the attribute list of the parent of the field_ref field:
+         # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of the parent of the field_ref field:
          for parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
           if parent_element.get(attribute):
-                 # Inherit the attribute from the parent of the field which matched with the field_ref field:
-                 element.set(attribute, parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from         parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,        parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                   # Inherit the attribute from the parent of the field which matched with the field_ref field:
+                   element.set(    attribute,          parent_element.get(attribute))
+                   inherit_message(attribute,          parent_element, element, i, i_fr, 'inherits from          parent')
           else:
+           # For those field elements which neither have the attribute in their direct attribute list or in the attribute list of their parent: Searchzs for the attribute within the attribute list of the grand parent of the field_ref field:
            for grand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../...'):
             if grand_parent_element.get(attribute):
-                 # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
-                 element.set(attribute, grand_parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from   grand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr,  grand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                   # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
+                   element.set(    attribute,    grand_parent_element.get(attribute))
+                   inherit_message(attribute,    grand_parent_element, element, i, i_fr, 'inherits from    grand parent')
             else:
              for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../...'):
               if ggrand_parent_element.get(attribute):
-                 # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
-                 element.set(attribute, ggrand_parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from  ggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                   # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
+                   element.set(    attribute,   ggrand_parent_element.get(attribute))
+                   inherit_message(attribute,   ggrand_parent_element, element, i, i_fr, 'inherits from   ggrand parent')
               else:
                for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../...'):
                 if gggrand_parent_element.get(attribute):
-                 # Inherit the attribute from the grand grand grand parent of the field which matched with the field_ref field:
-                 element.set(attribute, gggrand_parent_element.get(attribute))
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) inherits from gggrand parent {:16} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                   # Inherit the attribute from the grand grand grand parent of the field which matched with the field_ref field:
+                   element.set(    attribute,  gggrand_parent_element.get(attribute))
+                   inherit_message(attribute,  gggrand_parent_element, element, i, i_fr, 'inherits from  gggrand parent')
                 else:
-                 print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) does not inherit up to level gggrand parent {:31} an {:11} attribute: {:30} id: {:27} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, gggrand_parent_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('long_name'))))
+                 for ggggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../.../...'):
+                  if ggggrand_parent_element.get(attribute):
+                   # Inherit the attribute from the grand grand grand grand parent of the field which matched with the field_ref field:
+                   element.set(    attribute, ggggrand_parent_element.get(attribute))
+                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'inherits from ggggrand parent')
+                  else:
+                  #pass
+                  #inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'does not inherit up to level ggggrand parent')
+                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'no inheritance up to')
 
 
     elif element.get('id'):
@@ -556,35 +644,29 @@ def main():
    print()
 
 
+# Multiple inherincing levels:
+# CASE: A field_ref references to a field which also uses a field_ref.
+# Example?
+
+# Also parent inheriting for non field_ref cases.
+
+# inherit before: unit, freq_offset, grid_ref;  add: id, text
 
 
+# From the basic flat ece4 file_def file, giving an idea which attributes were expkicitly taken to the file_def file
+#   <file id="file8" name_suffix="_opa_grid_T_2D" output_freq="3h">
 
-#              if "unit" in elem.attrib:
-#               detected_unit                    = elem.attrib["unit"]                  # Inheriting the unit        from the match with the field_ref field
-#              else:
-#               detected_unit                    = "no unit definition"
-#              if "freq_offset" in elem.attrib:
-#               detected_freq_offset             = elem.attrib["freq_offset"]           # Inheriting the freq_offset from the match with the field_ref field
-#              else:
-#               detected_freq_offset             = "no freq_offset"
+#    <field id="id_3h_tos"                                      # id_<cmip6 var name>_<cmip6 table name>
+#           name="tos"                                          # <cmip6 var name>
+#           table="3hr"                                         # <cmip6 table name>
+#           field_ref="sst_pot"
+#           grid_ref="grid_T_2D"
+#           unit="degC"
+#           enabled="False"
+#           operation="instant"
+#           freq_op="3h"   >                                                                        </field>
 
-#              if "unit" in roottree[group].attrib:
-#               unit_elements.append(roottree[group].attrib["unit"])
-#              else:
-#               unit_elements.append(detected_unit)
-#              if "freq_offset" in roottree[group].attrib:
-#               freq_offset_elements.append(roottree[group].attrib["freq_offset"])
-#              else:
-#               freq_offset_elements.append(detected_freq_offset)
-
-#              field_elements_attribute_1.append(roottree[group].attrib[attribute_1]) # Add the            id       of the considered element
-#              field_elements_attribute_2.append('grid_ref="'+detected_grid_ref+'"')  # Add the inheriting grid_ref from the match with the field_ref field. Adding the attribute name itself as well
-#              text_elements             .append(roottree[group].text)                # Add the            text     of the considered element
-
-#              via_field_ref_message.append('                 {} {:2}                                        with id: {:35}     has a  grid_ref attribute: {:15} via the field_ref attribute: {:20} with unit: {}'.format(roottree[group].tag, group, roottree[group].attrib[attribute_1], detected_grid_ref, element.get('field_ref'), detected_unit))
-#              if i_match > 1: print(' WARNING: Ambiguity because {:2} times an id is found which matches the field_ref {}'.format(i_match, element.get('field_ref')))
-
-
+#   </file>
 
 
 if __name__ == '__main__':
