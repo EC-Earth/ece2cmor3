@@ -430,7 +430,7 @@ if len(sys.argv) == 2:
               print(' ERROR: No field_ref and no grid_ref attribute for this id {:35} which has no field_group element level. This element has the attributes: '.format(roottree[group].attrib[attribute_1], roottree[group].attrib))
 
            else:
-            # The field_group element level exists: The field element is defined intside the field_group element
+            # The field_group element level exists: The field element is defined inside the field_group element
             for child in elements:
              if child.tag != "field": print(' WARNING: At expected "field" element level a deviating tag {} is detected.'.format(child.tag, list(child.attrib.keys())))
              attribute_overview = attribute_overview + list(child.attrib.keys())  # Merge each step the next list of attribute keys with the overview list
