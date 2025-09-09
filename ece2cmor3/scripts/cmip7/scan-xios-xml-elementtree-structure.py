@@ -534,10 +534,10 @@ def main():
 
 
   def inherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
-      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:} {:16} a {:11} attribute: {:30} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+      print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
-  def multiple_reference_level_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
-      print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:}                 id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label,                                                               str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+  def id_inherit_message(attribute, ancestor_element, element, i, ancestor_label):
+      print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
 
   i    = 0
@@ -598,7 +598,6 @@ def main():
      for element_ref_level_1 in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
       if element_ref_level_1.get('field_ref'):
          print(' WARNING 1: The detected 1st level field_ref is pointing itself to a           field_ref as well for: via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref')))
-        #multiple_reference_level_message('field_ref', element_ref_level_1, element, i, i_fr, 'points to another field_ref field: ' + element_ref_level_1.get('field_ref') + ' [WARNING: a second level of field_ref reference]')
 
          # Check whether the second level field_ref field itself also points again to another field_ref:
          for element_ref_level_2 in root_main.findall('.//field[@id="'+element_ref_level_1.get('field_ref')+'"]'):
@@ -635,54 +634,94 @@ def main():
 
       # Inherit attribute if applicable:
       if element.get(attribute):
-               print(' The {} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has                           {:16} an {:11} attribute: {:30} id: {:27} name: {:20} standard_name: {:15} long_name: {}'  .format(element.tag, i, element.get('field_ref'), i_fr,         ''               , attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+              #print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) has for                                            {:16} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'  .format(element.tag, i, element.get('field_ref'), i_fr,         ''               , attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+               inherit_message(attribute, element, element, i, i_fr, 'has for                             ')
       else:
        for field_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
         if field_element.get(attribute):
-                   # Inherit the attribute from the parent of the field which matched with the field_ref field:
-                   element.set(    attribute, field_element.get(attribute))
-                   inherit_message(attribute, field_element, element, i, i_fr, 'inherits from       field_ref')
+                   # Inherit the attribute from the field which matched with the field_ref field:
+                   element.set(    attribute,           field_element.get(attribute))
+                   inherit_message(attribute,           field_element, element, i, i_fr, 'inherits from              field_ref')
         else:
          # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of the parent of the field_ref field:
          for parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]...'):
           if parent_element.get(attribute):
                    # Inherit the attribute from the parent of the field which matched with the field_ref field:
                    element.set(    attribute,          parent_element.get(attribute))
-                   inherit_message(attribute,          parent_element, element, i, i_fr, 'inherits from          parent')
+                   inherit_message(attribute,          parent_element, element, i, i_fr, 'inherits from                 parent')
           else:
            # For those field elements which neither have the attribute in their direct attribute list or in the attribute list of their parent: Searchzs for the attribute within the attribute list of the grand parent of the field_ref field:
            for grand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../...'):
             if grand_parent_element.get(attribute):
                    # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
                    element.set(    attribute,    grand_parent_element.get(attribute))
-                   inherit_message(attribute,    grand_parent_element, element, i, i_fr, 'inherits from    grand parent')
+                   inherit_message(attribute,    grand_parent_element, element, i, i_fr, 'inherits from           grand parent')
             else:
              for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../...'):
               if ggrand_parent_element.get(attribute):
                    # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
                    element.set(    attribute,   ggrand_parent_element.get(attribute))
-                   inherit_message(attribute,   ggrand_parent_element, element, i, i_fr, 'inherits from   ggrand parent')
+                   inherit_message(attribute,   ggrand_parent_element, element, i, i_fr, 'inherits from          ggrand parent')
               else:
                for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../...'):
                 if gggrand_parent_element.get(attribute):
                    # Inherit the attribute from the grand grand grand parent of the field which matched with the field_ref field:
                    element.set(    attribute,  gggrand_parent_element.get(attribute))
-                   inherit_message(attribute,  gggrand_parent_element, element, i, i_fr, 'inherits from  gggrand parent')
+                   inherit_message(attribute,  gggrand_parent_element, element, i, i_fr, 'inherits from         gggrand parent')
                 else:
                  for ggggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../.../...'):
                   if ggggrand_parent_element.get(attribute):
                    # Inherit the attribute from the grand grand grand grand parent of the field which matched with the field_ref field:
                    element.set(    attribute, ggggrand_parent_element.get(attribute))
-                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'inherits from ggggrand parent')
+                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'inherits from        ggggrand parent')
                   else:
-                  #pass
-                  #inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'does not inherit up to level ggggrand parent')
-                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'no inheritance up to ')
+                   inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'no inheritance up to                ')
 
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
-    pass
+
+    print()
+
+    for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
+
+     if element.get(attribute):
+          id_inherit_message(attribute, element, element, i, 'has for                             ')
+     else:
+         # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of their parent:
+         for parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"]...'):
+          if parent_element.get(attribute):
+                   # Inherit the attribute from their parent:
+                   element.set(    attribute,          parent_element.get(attribute))
+                   id_inherit_message(attribute,          parent_element, element, i, 'inherits from                 parent')
+          else:
+           # For those field elements which neither have the attribute in their direct attribute list or in the attribute list of their parent: Searchzs for the attribute within the attribute list of the grand parent:
+           for grand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../...'):
+            if grand_parent_element.get(attribute):
+                   # Inherit the attribute from the grand parent:
+                   element.set(    attribute,    grand_parent_element.get(attribute))
+                   id_inherit_message(attribute,    grand_parent_element, element, i, 'inherits from           grand parent')
+            else:
+             for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../...'):
+              if ggrand_parent_element.get(attribute):
+                   # Inherit the attribute from the grand grand parent:
+                   element.set(    attribute,   ggrand_parent_element.get(attribute))
+                   id_inherit_message(attribute,   ggrand_parent_element, element, i, 'inherits from          ggrand parent')
+              else:
+               for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../.../...'):
+                if gggrand_parent_element.get(attribute):
+                   # Inherit the attribute from the grand grand grand parent:
+                   element.set(    attribute,  gggrand_parent_element.get(attribute))
+                   id_inherit_message(attribute,  gggrand_parent_element, element, i, 'inherits from         gggrand parent')
+                else:
+                 for ggggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../.../.../...'):
+                  if ggggrand_parent_element.get(attribute):
+                   # Inherit the attribute from the grand grand grand grand parent:
+                   element.set(    attribute, ggggrand_parent_element.get(attribute))
+                   id_inherit_message(attribute, ggggrand_parent_element, element, i, 'inherits from        ggggrand parent')
+                  else:
+                   id_inherit_message(attribute, ggggrand_parent_element, element, i, 'no inheritance up to                ')
+
    else:
     print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
 
