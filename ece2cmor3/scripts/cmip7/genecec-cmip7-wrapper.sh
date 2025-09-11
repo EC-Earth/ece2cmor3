@@ -50,8 +50,7 @@ if [ "$#" -eq 3 ]; then
   if [ "${experiment_list}" == 'all' ]; then
    experiment_option=''
   else
-   # Relplace the comma delimeters with spaces:
-   experiment_option='--experiment '${experiment_list//,/ }
+   experiment_option='--experiment '${experiment_list}
   fi
 
   log_dir=./
@@ -71,19 +70,18 @@ if [ "$#" -eq 3 ]; then
                      cmip7-requested-varlist-per-experiment.json  \
    &> ${log_file}
 
-  sed -i -e '/Retaining only these compound names/d' ${log_file}
-  grep Skip ${log_file} > ${sum_file}
-  echo '' >> ${sum_file}; grep -e 'Created' ${log_file}                   >> ${sum_file}
-  echo '' >> ${sum_file}; grep -e 'json'    ${log_file} | grep -v -e INFO >> ${sum_file}
+  grep -e 'Skip'    ${log_file}                   >  ${sum_file}; echo '' >> ${sum_file}
+  grep -e 'Created' ${log_file}                   >> ${sum_file}; echo '' >> ${sum_file}
+  grep -e 'json'    ${log_file} | grep -v -e INFO >> ${sum_file}
 
 else
   echo
   echo " This scripts requires three arguments:"
   echo "  - Argument 1: The cutoff priority [core, high, medium, low]"
-  echo "  - Argument 2: A comma seperated list of CMIP7 experiments [all, historical,piControl]"
+  echo "  - Argument 2: A comma seperated list of CMIP7 experiments [all, piControlhistorical,historical]"
   echo "  - Argument 3: A comma seperated list of EC-Earth3 configurations [all, EC-Earth3,EC-Earth3-ESM-1]"
   echo " For instance:"
-  echo "  $0 high historical,piControl EC-Earth3-ESM-1"
+  echo "  $0 high piControl,historical EC-Earth3-ESM-1"
   echo "  $0 core all all"
   echo
 fi

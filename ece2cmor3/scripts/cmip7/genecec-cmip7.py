@@ -4,12 +4,13 @@ Command line interface for retrieving EC-Earth3 configuration files based on the
 
 Call example:
  cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip7
- rm -f -r cmip7; ./genecec-cmip7.py --all_opportunities --experiment historical piControl --variables_metadata metadata-of-requested-cmip7-variables.json --priority_cutoff high v1.2.1 cmip7-requested-varlist-per-experiment.json &> genecec-cmip7.log ; sed -i -e '/Retaining only these compound names/d' genecec-cmip7.log; grep Skip genecec-cmip7.log > skipped-variables.txt; echo '' >> skipped-variables.txt; grep -e 'Created' genecec-cmip7.log >> skipped-variables.txt; echo '' >> skipped-variables.txt; grep -e 'json' genecec-cmip7.log | grep -v -e INFO >> skipped-variables.txt
+ rm -f -r cmip7; ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --variables_metadata metadata-of-requested-cmip7-variables.json --priority_cutoff high v1.2.2 --ececonf EC-Earth3-ESM-1 cmip7-requested-varlist-per-experiment.json &> genecec-cmip7.log
+ grep Skip genecec-cmip7.log > summarize.log; echo '' >> summarize.log; grep -e 'Created' genecec-cmip7.log >> summarize.log; echo '' >> summarize.log; grep -e 'json' genecec-cmip7.log | grep -v -e INFO >> summarize.log
 
 This script generates:
  for each CMIP7 requested experiment (or a list of CMIP7 experiments)
  for a given cutoff priority
- for all opportunities (default) or for a selection of oppertunities
+ for all opportunities (default) or for a selection of oppertunities (or a list of oppertunities IDs)
  for a specified EC-Earth3 configuration (or a list of them)
 the CMIP7 request including the mapping of the CMIP7 compound variables to the CMIP6 table - variable
 combinations. All EC-Earth3 (CMIP6) identified variables are kept in the remaining request including
@@ -49,29 +50,39 @@ from collections import OrderedDict
 import data_request_api
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
-#import data_request_api.query.data_request as dr
+
 
 def parse_args():
     """
-    Parse command line arguments
+    Parse command-line arguments
     """
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('dreq_version', choices=dc.get_versions(), help="data request version")
-    parser.add_argument('--opportunities_file', type=str, help="path to JSON file listing opportunities to respond to. If it doesn't exist a template will be created")
-    parser.add_argument('--all_opportunities', action='store_true', help="respond to all opportunities")
-    parser.add_argument('--experiments', nargs='+', type=str, help='limit output to the specified experiments (space-delimited list, case sensitive)')
-    parser.add_argument('--priority_cutoff', default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
-    parser.add_argument('--ececonfs', nargs='+', type=str, help='limit output to the specified EC-Earth3 configurations (space-delimited list, case sensitive)')
-    parser.add_argument('output_file', help='file to write JSON output to')
+    parser = argparse.ArgumentParser(
+        description='Retrieving EC-Earth3 configuration files based on the CMIP7 variable request per CMIP7 experiment.'
+    )
 
-    def _var_metadata_check(arg):
-        if arg.endswith('.json') or arg.endswith('.csv'):
-            return arg
-        else:
-            raise ValueError()
-    parser.register('type', 'json_or_csv_file', _var_metadata_check)
-    parser.add_argument('-vm', '--variables_metadata', nargs='+', type='json_or_csv_file', help='output files containing variable metadata of requested variables, files with ".json" or ".csv" will be produced')
+    # Positional (mandatory) input arguments
+    parser.add_argument('dreq_version', choices=dc.get_versions(), help="data request version")
+    parser.add_argument('output_file'                            , help='file to write JSON output to')
+
+    sep = ','
+
+    def parse_input_list(input_str: str, sep=sep) -> list:
+        '''Create list of input args separated by separator "sep" (str)'''
+        input_args = input_str.split(sep)
+        # Guard against leading, trailing, or repeated instances of the separator
+        input_args = [s for s in input_args if s not in ['']]
+        return input_args
+
+    # Optional input arguments
+    parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help="respond to all opportunities")
+    parser.add_argument('-f', '--opportunities_file', type=str                                 , help="path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
+    parser.add_argument('-i', '--opportunity_ids'   , type=parse_input_list                    , help=f'opportunity ids (integers) of opportunities to respond to, example: -i 69{sep}22{sep}37')
+    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}piControl')
+    parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
+    parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
+    parser.add_argument('-c', '--ececonfs'          , type=parse_input_list                    , help='limit output to the specified EC-Earth3 configurations (space-delimited list, case sensitive)')
+
     return parser.parse_args()
 
 
@@ -200,11 +211,12 @@ def main():
 
     # Deal with opportunities
     if args.opportunities_file:
+        # Select opportunities by their title, as given in a user-specified json file
         opportunities_file = args.opportunities_file
-        Opps = base['Opportunity']
+        dreq_opps = base['Opportunity']
         if not os.path.exists(opportunities_file):
             # create opportunities file template
-            use_opps = sorted([opp.title for opp in Opps.records.values()], key=str.lower)
+            use_opps = sorted([opp.title for opp in dreq_opps.records.values()], key=str.lower)
             default_opportunity_dict = OrderedDict({
                 'Header': OrderedDict({
                     'Description': 'Opportunities template file for use with export_dreq_lists_json. Set supported/unsupported Opportunities to true/false.',
@@ -232,7 +244,7 @@ def main():
 
             # validate opportunities
             # (mismatches can occur if an opportunities file created with an earlier data request version is loaded)
-            valid_opps = [opp.title for opp in Opps.records.values()]
+            valid_opps = [opp.title for opp in dreq_opps.records.values()]
             invalid_opps = [title for title in opportunity_dict if title not in valid_opps]
             if invalid_opps:
                 raise ValueError(f'\nInvalid opportunities were found in {opportunities_file}:\n' + '\n'.join(sorted(invalid_opps, key=str.lower)))
@@ -240,15 +252,41 @@ def main():
             # filter opportunities
             use_opps = [title for title in opportunity_dict if opportunity_dict[title]]
 
+    elif args.opportunity_ids:
+        # Select opportunities by their integer IDs, specified from the command line
+        dreq_opps = base['Opportunity']
+        all_opp_ids = [opp.opportunity_id for opp in dreq_opps.records.values()]
+        if len(all_opp_ids) != len(set(all_opp_ids)):
+            raise ValueError(f'Opportunity IDs (integers) in data request {use_dreq_version} are not unique!')
+        oppid2title = {int(opp.opportunity_id): opp.title for opp in dreq_opps.records.values()}
+        use_opps = []
+        invalid_opp_ids = set()
+        for opp_id in args.opportunity_ids:
+            try:
+                opp_id = int(opp_id)
+            except BaseException:
+                ValueError('Opportunity ID should be an integer')
+            if opp_id in oppid2title:
+                use_opps.append(oppid2title[opp_id])
+            else:
+                invalid_opp_ids.add(opp_id)
+        if len(invalid_opp_ids) > 0:
+            raise ValueError(f'The following Opportunity IDs were not found in data request {use_dreq_version}: '
+                             + ', '.join([str(opp_id) for opp_id in sorted(invalid_opp_ids)]))
+
     elif args.all_opportunities:
+        # Use all available opportunities in the data request
         use_opps = 'all'
+
     else:
         print("Please use one of the opportunities arguments")
         sys.exit(1)
 
     # Get the requested variables for each opportunity and aggregate them into variable lists by experiment
     # (i.e., for every experiment, a list of the variables that should be produced to support all of the specified opportunities)
-    expt_vars = dq.get_requested_variables(base, use_opps, priority_cutoff=args.priority_cutoff, verbose=False)
+    expt_vars = dq.get_requested_variables(base, use_dreq_version,
+                                           use_opps=use_opps, priority_cutoff=args.priority_cutoff,
+                                           verbose=False)
 
     # filter output by requested experiments
     if args.experiments:
@@ -280,6 +318,8 @@ def main():
 
        #print(json.dumps(expt_vars['experiment'],sort_keys=True, indent=4))
 
+        duplicate_messages = []   # A list collecting the duplicate messages in order to print them afterwards for pretty printing
+
         for experiment, priority_groups in expt_vars['experiment'].items():
          # Initialize an empty dictionary at the start of each experiment:
          flat_request = {}
@@ -291,7 +331,7 @@ def main():
           print('\nCMIP7 experiment: {}; CMIP7 priority group: {}\n'.format(experiment, priority_group))
          #print('{} {}'.format(priority_group, variable_list))
           for compound_var in variable_list:
-           var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=compound_var)
+           var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=compound_var, verbose=False)
           #print('{}'.format(compound_var))
           #print('{}\n'.format(var_metadata))
           #print('{}\n'.format(var_metadata[compound_var]))
@@ -300,13 +340,13 @@ def main():
          ##print('')
            cmip6_table    = var_metadata[compound_var]['cmip6_table']
            cmip6_variable = var_metadata[compound_var]['physical_parameter_name']
-           print('{:30} {:40} {:10} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], cmip6_table, cmip6_variable))
+           print('{:65} {:40} {:10} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], cmip6_table, cmip6_variable))
           #print('MIPS per var: {}'.format(dr.find_mips_per_variable(compound_var)))
            if cmip6_table in flat_request:
            #print('flat_request: {}'.format(flat_request))
            #print('flat_request[cmip6_table]: {}'.format(flat_request[cmip6_table]))
             if cmip6_variable in flat_request[cmip6_table]:
-             print(' Skip duplicate cmip6 table - variable combination: {:10} {:10} coming from the cmip7 request: {:18} {}'.format(cmip6_table, cmip6_variable, compound_var, experiment))
+             duplicate_messages.append(' Skip duplicate cmip6 table - variable combination: {:10} {:13} coming from the cmip7 request: {:18} {}'.format(cmip6_table, cmip6_variable, compound_var, experiment))
             else:
              # Add another variable to an already created table:
              flat_request[cmip6_table].append(cmip6_variable)
@@ -392,6 +432,11 @@ def main():
 
           os.chdir(previous_working_dir)
 
+        for message in duplicate_messages:
+         print(message)
+        print()
+
+
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
 
@@ -399,27 +444,27 @@ def main():
 
         # Get all variable names for all requested experiments
         all_var_names = set()
-        for expt_name, vars_by_priority in expt_vars['experiment'].items():
-            for priority_level, var_names in vars_by_priority.items():
+        for vars_by_priority in expt_vars['experiment'].values():
+            for var_names in vars_by_priority.values():
                 all_var_names.update(var_names)
 
         # Get metadata for variables
         all_var_info = dq.get_variables_metadata(
-            base, use_dreq_version,
+            base,
+            use_dreq_version,
             compound_names=all_var_names,
-            # use_dreq_version=use_dreq_version  # TO DEPRECATE
+            verbose=False,
         )
 
         # Write output file(s)
-        for filepath in args.variables_metadata:
-            dq.write_variables_metadata(
-                all_var_info,
-                use_dreq_version,
-                filepath,
-                api_version=data_request_api.version,
-                # use_dreq_version=use_dreq_version,
-                content_path=dc._dreq_content_loaded['json_path']
-            )
+        filepath = args.variables_metadata
+        dq.write_variables_metadata(
+            all_var_info,
+            use_dreq_version,
+            filepath,
+            api_version=data_request_api.version,
+            content_path=dc._dreq_content_loaded['json_path']
+        )
 
 
 if __name__ == '__main__':
