@@ -38,6 +38,11 @@ Create the TM% volume estimates:
 Create the CMIP6 metadata template files for all active component of the used EC-Earth3 configuration (which thereafter is tweaked for CMIP7):
  ../../../modify-metadata-template.sh CMIP historical EC-EARTH-ESM-1 ../../../../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json
 
+
+This script is partly based on the script: CMIP7_DReq_Software/data_request_api/data_request_api/command_line/export_dreq_lists_json.py
+with an intermediate step via the (local) script: cmip7-request.py
+And it is partly pased on the genecec.py & genecec-per-mip-experiment.sh scripts.
+
 """
 
 import sys
@@ -209,6 +214,7 @@ def main():
     # Render data request tables as dreq_table objects
     base = dq.create_dreq_tables_for_request(content, use_dreq_version)
 
+
     # Deal with opportunities
     if args.opportunities_file:
         # Select opportunities by their title, as given in a user-specified json file
@@ -282,6 +288,7 @@ def main():
         print("Please use one of the opportunities arguments")
         sys.exit(1)
 
+
     # Get the requested variables for each opportunity and aggregate them into variable lists by experiment
     # (i.e., for every experiment, a list of the variables that should be produced to support all of the specified opportunities)
     expt_vars = dq.get_requested_variables(base, use_dreq_version,
@@ -304,6 +311,7 @@ def main():
         for entry in experiments:
             if entry not in args.experiments:
                 del expt_vars['experiment'][entry]
+
 
     # Construct output
     if len(expt_vars['experiment']) > 0:
@@ -338,19 +346,22 @@ def main():
          ##for attribute, value in sorted(var_metadata[compound_var].items()):
          ## print('{:40} {}'.format(attribute, value))
          ##print('')
-           cmip6_table    = var_metadata[compound_var]['cmip6_table']
-           cmip6_variable = var_metadata[compound_var]['physical_parameter_name']
+           # Here the CMIP7 - CMIP6 mapping is achieved: The CMIP7 compound name is linked to the CMIP6 table - cmor variable name combination:
+           cmip6_table    = var_metadata[compound_var]['cmip6_table']               # CMIP6 cmor table    name
+           cmip6_variable = var_metadata[compound_var]['physical_parameter_name']   # CMIP6 cmor variable name
            print('{:65} {:40} {:10} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], cmip6_table, cmip6_variable))
           #print('MIPS per var: {}'.format(dr.find_mips_per_variable(compound_var)))
            if cmip6_table in flat_request:
+            # If the CMIP6 table is already present in the flat request json list then no action for the CMIP6 table part is needed.
            #print('flat_request: {}'.format(flat_request))
            #print('flat_request[cmip6_table]: {}'.format(flat_request[cmip6_table]))
             if cmip6_variable in flat_request[cmip6_table]:
              duplicate_messages.append(' Skip duplicate cmip6 table - variable combination: {:10} {:13} coming from the cmip7 request: {:18} {}'.format(cmip6_table, cmip6_variable, compound_var, experiment))
             else:
-             # Add another variable to an already created table:
+             # Add another variable to an already created CMIP6 table in the float request json list:
              flat_request[cmip6_table].append(cmip6_variable)
            else:
+            # If the CMIP6 table is not yet present in the flat request json list then the CMIP6 table has to be added to the flat request json list:
            #print('{}'.format(cmip6_table))
            #print('flat_request: {}'.format(flat_request))
             # Add a first variable as the first element of a list for a new encounterd table:
@@ -439,6 +450,7 @@ def main():
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
+
 
     if args.variables_metadata:
 
