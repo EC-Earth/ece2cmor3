@@ -21,19 +21,18 @@ This script includes the consecutive genecec steps for creating the output-contr
 configurations based on the CMIP7 experiment requests. These steps include:
 
 Create the component request file (varlist) from the flat request file (based on the cmip7 request) by using drq2varlist:
- drq2varlist --drq flat-request-cmip7-historical-high.json --ececonf EC-EARTH-ESM-1 --varlist component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
- drq2varlist --drq flat-request-cmip7-historical-high.json --ececonf EC-EARTH-ESM-1 --varlist component-request-cmip7-historical-high.json
+ drq2varlist --drq flat-full-cmip7-request-historical-high.json --ececonf EC-EARTH-ESM-1 --varlist component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
 
 Create the request-overview file for the requested experiment for the selected EC-Earth3 configuration(s):
- checkvars -v --asciionly --drq flat-request-cmip7-historical-high.json --output request-overview-cmip7-historical-high-including-EC-EARTH-ESM-1-preferences.txt
+ checkvars -v --asciionly --drq flat-full-cmip7-request-historical-high.json --output request-overview-cmip7-historical-high-including-EC-EARTH-ESM-1-preferences.txt
 
 Create the NEMO, IFS & LPJG configuration files:
- drq2file_def --basic_file_def_file ../../../../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml --vars component-request-cmip7-historical-high.json
- drq2ppt --vars component-request-cmip7-historical-high.json
- drq2ins --vars component-request-cmip7-historical-high.json
+ drq2file_def --basic_file_def_file ../../../../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml --vars component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
+ drq2ppt --vars component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
+ drq2ins --vars component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
 
 Create the TM% volume estimates:
- estimate_tm5_volume --vars component-request-cmip7-historical-high.json
+ estimate_tm5_volume --vars component-request-cmip7-historical-high-EC-EARTH-ESM-1.json
 
 Create the CMIP6 metadata template files for all active component of the used EC-Earth3 configuration (which thereafter is tweaked for CMIP7):
  ../../../modify-metadata-template.sh CMIP historical EC-EARTH-ESM-1 ../../../../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json
@@ -381,15 +380,16 @@ def main():
              valid_ececonfs   = [entry for entry in ececonfs if entry     in valid_ece_configurations]
              invalid_ececonfs = [entry for entry in ececonfs if entry not in valid_ece_configurations]
              if invalid_ececonfs:
-                 raise ValueError('\n Invalid EC-Earth3 configuration names: ' + ', '.join(sorted(invalid_ececonfs, key=str.lower)) +
-                                  '\n Valid   EC-Earth3 configuration names: ' + ', '.join(sorted(valid_ececonfs  , key=str.lower)))
+                 raise ValueError('\n Invalid user specified EC-Earth3 configuration names: ' + ', '.join(sorted(invalid_ececonfs, key=str.lower)) +
+                                  '\n Valid   user specified EC-Earth3 configuration names: ' + ', '.join(sorted(valid_ececonfs  , key=str.lower)) +
+                                  '\n \n Valid EC-Earth3 configuration names are: ' + ', '.join(valid_ece_configurations.keys()))
 
          # Selected the EC-Earth3 configuration:
          for ececonf in ececonfs:
           ececonf_in_ece2cmor = valid_ece_configurations[ececonf]
           print('\n Creating the output-control-files for EC-Earth configuration: {}'.format(ececonf))
 
-          flat_request_file_name = 'flat-request-cmip7-' + experiment + '-' + args.priority_cutoff + '-' + ececonf + '.json'
+          flat_request_file_name = 'flat-full-cmip7-request-for-' + experiment + '-' + args.priority_cutoff + '.json'
           dir_name = 'cmip7/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
           previous_working_dir = os.getcwd()
           subprocess.run(["mkdir", "-p", dir_name])
@@ -398,7 +398,7 @@ def main():
               json.dump(flat_request, outfile, sort_keys=True, indent=4)
           outfile.close()
 
-          component_request_file_name = flat_request_file_name.replace("flat-request-cmip7","component-request-cmip7")
+          component_request_file_name = 'component-request-cmip7-' + experiment + '-' + args.priority_cutoff + '-' + ececonf + '.json'
           subprocess.run(["drq2varlist", "--drq", flat_request_file_name, "--ececonf", ececonf_in_ece2cmor, "--varlist", component_request_file_name])
           request_overview_filename = 'request-overview-cmip7-' + experiment + '-' + args.priority_cutoff + '-including-' + ececonf + '-preferences.txt'
           subprocess.run(["checkvars", "-v", "--asciionly", "--drq", flat_request_file_name, "--output", request_overview_filename])
