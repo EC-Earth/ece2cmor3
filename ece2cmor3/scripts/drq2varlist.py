@@ -8,8 +8,8 @@
 #  drq2varlist --allvars --ececonf EC-EARTH-AOGCM --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-AOGCM.json
 #  drq2varlist --allvars --ececonf EC-EARTH-CC    --varlist ece-cmip6-data-request-varlist-all-EC-EARTH-CC.json
 #
-# This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In 
-# the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are 
+# This script converts the drq produced xlsx cmip6 data request file to an ec-earth json cmip6 data request file. In
+# the created ec-earth cmip6 data request json file the ec-earth ignored fields are omitted and the preferences are
 # applied based on the EC-Earth3 model configuration which is taken into consideration.
 #
 # This script is part of the subpackage genecec (GENerate EC-Eearth Control output files)
