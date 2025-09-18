@@ -117,70 +117,50 @@ if len(sys.argv) == 2:
    ################################################################################
    print_next_step_message(1, 'READING THE PING FILES')
 
-   # Checking whether the ping files exist:
-   if os.path.isfile(ping_file_name_ocean    ) == False: print(' The file ', ping_file_name_ocean    , '  does not exist.'); sys.exit(' stop')
-   if os.path.isfile(ping_file_name_seaIce   ) == False: print(' The file ', ping_file_name_seaIce   , '  does not exist.'); sys.exit(' stop')
-   if os.path.isfile(ping_file_name_ocnBgchem) == False: print(' The file ', ping_file_name_ocnBgchem, '  does not exist.'); sys.exit(' stop')
+   ping_file_collection = [ping_file_name_ocean    , \
+                           ping_file_name_seaIce   , \
+                           ping_file_name_ocnBgchem  \
+                          ]
 
-   treeOcean     = xmltree.parse(ping_file_name_ocean    )
-   treeSeaIce    = xmltree.parse(ping_file_name_seaIce   )
-   treeOcnBgchem = xmltree.parse(ping_file_name_ocnBgchem)
+   total_pinglist_id        = []
+   total_pinglist_field_ref = []
+   total_pinglist_text      = []
+   total_pinglist_expr      = []
 
-   rootOcean     = treeOcean.getroot()            # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   rootSeaIce    = treeSeaIce.getroot()           # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
-   rootOcnBgchem = treeOcnBgchem.getroot()        # This root has two indices: the 1st index refers to field_definition-element, the 2nd index refers to the field-elements
+   # Loop over the various ping files:
+   for ping_file in ping_file_collection:
+    if os.path.isfile(ping_file) == False: print(' The ping file {} does not exist.'.format(ping_file)); sys.exit(' stop')
 
-   field_elements_Ocean     = rootOcean    [0][:]
-   field_elements_SeaIce    = rootSeaIce   [0][:]
-   field_elements_OcnBgchem = rootOcnBgchem[0][:]
+    # Split in path pf[0] & file pf[1]:
+    pf = os.path.split(ping_file)
+    print('\n\n {}\n'.format(pf[1]))
 
-   # Optional exclude the dummy_ variables from the ping list and remove the CMIP6_ prefix from the id attribute:
-   pinglistOcean_id        = []
-   pinglistOcean_field_ref = []
-   pinglistOcean_text      = []
-   pinglistOcean_expr      = []
-   for child in field_elements_Ocean:
-    if exclude_dummy_fields and child.attrib["field_ref"].startswith('dummy_'):
-     continue
-    else:
-     pinglistOcean_id.append(child.attrib["id"][6:])
-     pinglistOcean_field_ref.append(child.attrib["field_ref"])
-     pinglistOcean_text.append(child.text)
-     if "expr" in child.attrib: pinglistOcean_expr.append(child.attrib["expr"])
-     else:                      pinglistOcean_expr.append("None")
+    # Load the xml file:
+    tree_ping = xmltree.parse(ping_file)
+    root_ping = tree_ping.getroot()
 
-   pinglistSeaIce_id        = []
-   pinglistSeaIce_field_ref = []
-   pinglistSeaIce_text      = []
-   pinglistSeaIce_expr      = []
-   for child in field_elements_SeaIce:
-    if exclude_dummy_fields and child.attrib["field_ref"].startswith('dummy_'):
-     continue
-    else:
-     pinglistSeaIce_id.append(child.attrib["id"][6:])
-     pinglistSeaIce_field_ref.append(child.attrib["field_ref"])
-     pinglistSeaIce_text.append(child.text)
-     if "expr" in child.attrib: pinglistSeaIce_expr.append(child.attrib["expr"])
-     else:                      pinglistSeaIce_expr.append("None")
+    field_elements_ping = root_ping[0][:]
 
-   pinglistOcnBgchem_id        = []
-   pinglistOcnBgchem_field_ref = []
-   pinglistOcnBgchem_text      = []
-   pinglistOcnBgchem_expr      = []
-   for child in field_elements_OcnBgchem:
-    if exclude_dummy_fields and child.attrib["field_ref"].startswith('dummy_'):
-     continue
-    else:
-     pinglistOcnBgchem_id.append(child.attrib["id"][6:])
-     pinglistOcnBgchem_field_ref.append(child.attrib["field_ref"])
-     pinglistOcnBgchem_text.append(child.text)
-     if "expr" in child.attrib: pinglistOcnBgchem_expr.append(child.attrib["expr"])
-     else:                      pinglistOcnBgchem_expr.append("None")
+    ping_id        = []
+    ping_field_ref = []
+    ping_text      = []
+    ping_expr      = []
+    for child in field_elements_ping:
+     # Optional exclude the dummy_ variables from the ping list:
+     if exclude_dummy_fields and child.attrib["field_ref"].startswith('dummy_'):
+      continue
+     else:
+      # Remove the CMIP6_ prefix from the id attribute
+      ping_id.append(child.attrib["id"][6:])
+      ping_field_ref.append(child.attrib["field_ref"])
+      ping_text.append(child.text)
+      if "expr" in child.attrib: ping_expr.append(child.attrib["expr"])
+      else:                      ping_expr.append("None")
 
-   total_pinglist_id        = pinglistOcean_id        + pinglistSeaIce_id        + pinglistOcnBgchem_id
-   total_pinglist_field_ref = pinglistOcean_field_ref + pinglistSeaIce_field_ref + pinglistOcnBgchem_field_ref
-   total_pinglist_text      = pinglistOcean_text      + pinglistSeaIce_text      + pinglistOcnBgchem_text
-   total_pinglist_expr      = pinglistOcean_expr      + pinglistSeaIce_expr      + pinglistOcnBgchem_expr
+    total_pinglist_id        = total_pinglist_id        + ping_id
+    total_pinglist_field_ref = total_pinglist_field_ref + ping_field_ref
+    total_pinglist_text      = total_pinglist_text      + ping_text
+    total_pinglist_expr      = total_pinglist_expr      + ping_expr
 
    # Check whether all list  have the same lenth:
    print( '\n Consistency check whether all total ping lists are equal long: {} {} {} {}.'.format(len(total_pinglist_id), len(total_pinglist_field_ref), len(total_pinglist_text), len(total_pinglist_expr)))
