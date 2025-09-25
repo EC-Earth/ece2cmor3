@@ -186,9 +186,9 @@ if len(sys.argv) == 2:
     print(' Reading the file: {}'.format(pf[1]))
 
 
-    # Create new ping files (and cnonical variants) in which the XML comment is transformed to a comment attribute and the unit specified
+    # Create new ping files (and canonical variants) in which the XML comment is transformed to a comment attribute and the unit specified
     # in the comment is given in a ping_unit attribute:
-    new_ping_filename = 'new-' + pf[1]
+    new_ping_filename = pf[1].replace('.xml', '_comment_in_attribute.xml')
     with open(new_ping_filename, 'w') as new_ping_file:
      with open(ping_filename) as ping_file:
          for line in ping_file:
@@ -210,10 +210,11 @@ if len(sys.argv) == 2:
              else:
               new_ping_file.write(line)
 
-    # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-    new_canonic_ping_filename = 'new-canonic-' + pf[1]
-    with open(new_canonic_ping_filename, mode='w', encoding='utf-8') as out_file:
-     ET.canonicalize(from_file=new_ping_filename, with_comments=True, out=out_file)
+    if False:
+     # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+     new_canonic_ping_filename = new_ping_filename.replace('.xml', '_canonic.xml')
+     with open(new_canonic_ping_filename, mode='w', encoding='utf-8') as out_file:
+      ET.canonicalize(from_file=new_ping_filename, with_comments=True, out=out_file)
 
 
     # Load the xml file:
