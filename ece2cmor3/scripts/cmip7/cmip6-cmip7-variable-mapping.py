@@ -108,5 +108,33 @@ def main():
          json.dump(all_var_info, outfile, sort_keys=True, indent=2)
      outfile.close()
 
+
+    with open('cmip7-variables-and-metadata.xml', 'w') as varxmlfile:
+     varxmlfile.write('<cmip7_variables>\n')
+
+     for k, v in all_var_info.items():
+      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:124} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:15} out_name={:28} type={:10} </variable>\n' \
+                         .format('"'+k                            + '"', \
+                                 '"'+v['branded_variable_name'  ] + '"', \
+                                 '"'+v['branding_label'         ] + '"', \
+                                 '"'+v['cmip6_table'            ] + '"', \
+                                 '"'+v['physical_parameter_name'] + '"', \
+                                 '"'+v['cmip6_compound_name'    ] + '"', \
+                                 '"'+v['long_name'              ] + '"', \
+                                 '"'+v['standard_name'          ] + '"', \
+                                 '"'+v['units'                  ] + '"', \
+                                 '"'+v['dimensions'             ] + '"', \
+                                 '"'+v['frequency'              ] + '"', \
+                                 '"'+v['temporal_shape'         ] + '"', \
+                                 '"'+v['spatial_shape'          ] + '"', \
+                                 '"'+v['region'                 ] + '"', \
+                                 '"'+v['cell_measures'          ] + '"', \
+                                 '"'+v['cell_methods'           ] + '"', \
+                                 '"'+v['modeling_realm'         ] + '"', \
+                                 '"'+v['out_name'               ] + '"', \
+                                 '"'+v['type'                   ] + '"'))
+
+     varxmlfile.write('</cmip7_variables>\n')
+
 if __name__ == '__main__':
     main()
