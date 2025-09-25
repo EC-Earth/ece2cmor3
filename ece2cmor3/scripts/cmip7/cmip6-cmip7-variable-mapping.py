@@ -14,6 +14,8 @@ Mapping of two CMIP7 compound names:
 Mapping of all variables:
  ./cmip6-cmip7-variable-mapping.py v1.2.2 -r
 
+
+This script produces a neat formatted XML file with the metadata in attrbutes. All CMIP7 variables can be inlcuded or a selection based on argument options.
 '''
 
 import argparse
@@ -21,6 +23,7 @@ import argparse
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
 import json
+import xml.etree.ElementTree as ET
 
 
 def parse_args():
@@ -79,7 +82,7 @@ def main():
 
     # Write an ascii file with all content in attributes for each variable:
     cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
-    with open( cmip7_variables_ascii_filename, 'w') as varasciifile:
+    with open(cmip7_variables_ascii_filename, 'w') as varasciifile:
      if args.omitheader == False:
       if args.showextracolumns == False:
        varasciifile.write(' {:14} {:25}     {:65}   {}\n'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
@@ -101,11 +104,11 @@ def main():
 
     # Write an XML file with all content in attributes for each variable:
     cmip7_variables_xml_filename = 'cmip7-variables-and-metadata' + label + '.xml'
-    with open( cmip7_variables_xml_filename, 'w') as varxmlfile:
+    with open(cmip7_variables_xml_filename, 'w') as varxmlfile:
      varxmlfile.write('<cmip7_variables>\n')
 
      for k, v in all_var_info.items():
-      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:124} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:15} out_name={:28} type={:10} </variable>\n' \
+      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:124} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:15} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"'+k                            + '"', \
                                  '"'+v['branded_variable_name'  ] + '"', \
                                  '"'+v['branding_label'         ] + '"', \
@@ -127,6 +130,15 @@ def main():
                                  '"'+v['type'                   ] + '"'))
 
      varxmlfile.write('</cmip7_variables>\n')
+
+
+    # Test: Load the xml file:
+    tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
+    root_cmip7_variables = tree_cmip7_variables.getroot()
+
+    if False:
+     for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.GLB"]'):
+      print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
 
 if __name__ == '__main__':
     main()
