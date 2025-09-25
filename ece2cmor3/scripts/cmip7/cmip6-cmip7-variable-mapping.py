@@ -136,6 +136,11 @@ def main():
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
+    number_of_variables = 0
+    for element in root_cmip7_variables.findall('.//variable'):
+     number_of_variables += 1
+    print('\n The CMIP7 data request contains {} different variables for the selection: {}.\n'.format(number_of_variables, label[1:]))
+
     if False:
      for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.GLB"]'):
       print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
