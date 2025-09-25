@@ -12,7 +12,7 @@ Mapping of two CMIP7 compound names:
  ./cmip6-cmip7-variable-mapping.py v1.2.2 -c atmos.areacell.ti-u-hxy-u.fx.GLB,ocean.areacell.ti-u-hxy-u.fx.GLB
 
 Mapping of all variables:
- ./cmip6-cmip7-variable-mapping.py v1.2.2 -r > cmip6-cmip7-mapping-v1.2.2.txt
+ ./cmip6-cmip7-variable-mapping.py v1.2.2 -r
 
 '''
 
@@ -70,46 +70,38 @@ def main():
                     verbose=False
                    )
 
-    if args.omitheader == False:
-     print()
-     if args.showextracolumns == False:
-      print(' {:14} {:25}     {:65}   {}'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
-     else:
-      print(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
-     print()
+    label = ''
+    delim = "-"
+    if args.cmor_tables    is not None: label = label + '-' + delim.join(map(str, args.cmor_tables   ))
+    if args.cmor_variables is not None: label = label + '-' + delim.join(map(str, args.cmor_variables))
+    if args.compound_names is not None: label = label + '-' + delim.join(map(str, args.compound_names))
+    if label               == ''      : label = '-all'
 
-    for k, v in all_var_info.items():
-     if args.showextracolumns == False:
-      print(' {:14} {:25} ==> {:65} | {}'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
-     else:
-      print(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
+    # Write an ascii file with all content in attributes for each variable:
+    cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
+    with open( cmip7_variables_ascii_filename, 'w') as varasciifile:
+     if args.omitheader == False:
+      if args.showextracolumns == False:
+       varasciifile.write(' {:14} {:25}     {:65}   {}\n'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
+      else:
+       varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
+      varasciifile.write('\n')
 
-     if args.showmetadata:
-      for attname, attvalue in sorted(v.items()):
-       print('  {:35} {}'.format(attname, attvalue))
+     for k, v in all_var_info.items():
+      if args.showextracolumns == False:
+       varasciifile.write(' {:14} {:25} ==> {:65} | {}\n'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
+      else:
+       varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
 
     if args.showmetadata:
      # Write the metadata of the selected list of variables to a json file:
-     label = ''
-     if args.cmor_tables is not None:
-      delim = "-"
-      label = label + '-' + delim.join(map(str, args.cmor_tables))
-     if args.cmor_variables is not None:
-      delim = "-"
-      label = label + '-' + delim.join(map(str, args.cmor_variables))
-     if args.compound_names is not None:
-      delim = "-"
-      label = label + '-' + delim.join(map(str, args.compound_names))
-     if label == '':
-      label = '-all'
      var_json_file = 'cmip6-cmip7-variable-mapping-for' + label + '.json'
-
      with open(var_json_file, 'w') as outfile:
-         json.dump(all_var_info, outfile, sort_keys=True, indent=2)
-     outfile.close()
+      json.dump(all_var_info, outfile, sort_keys=True, indent=2)
 
-
-    with open('cmip7-variables-and-metadata.xml', 'w') as varxmlfile:
+    # Write an XML file with all content in attributes for each variable:
+    cmip7_variables_xml_filename = 'cmip7-variables-and-metadata' + label + '.xml'
+    with open( cmip7_variables_xml_filename, 'w') as varxmlfile:
      varxmlfile.write('<cmip7_variables>\n')
 
      for k, v in all_var_info.items():
