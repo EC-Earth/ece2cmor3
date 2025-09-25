@@ -9,13 +9,23 @@
 # 'dummy_' have not been identified by the Shaconemo and EC-Earth comunity and therefore can be
 # deselected. The prefix 'CMIP6_' (and 'NEMO_') are omitted. If available and if not identical,
 # preference can be given to the content of the expression attribute over the content of the text.
+# The NEMO ping files conrain XML comment for each field variable, here in a preprocess step these
+# XML comments are moved into a ping_comment attribute for each field and also the units in the
+# comment are in addition seperated placed into an ping_unit attribute.
 #
 # 2. This script reads the four NEMO xml field_def files (the files which contain the basic info
 # about the fields required by XIOS. These field_def files can either be taken from the EC-Earth4
 # repository or from the Shaconemo repository. The four field_def files for ECE4 contain nearly
 # 1369 variables with an id (9 id's occur twice) and 319 variables without an id but with a field_ref
 # (Most variables with a field_ref have a name attribute, but 53 variables with a field_ref have no
-# name attribute).
+# name attribute). The scan-xios-xml-elementtree-structure.py script also reads these files and
+# performs some checks on them, this script creates the ec-earth-field_def xml file which cab be read
+# directly.
+
+# The file with the full CMIP7 variables inclusive their mapping to the CMIP6 names can be read. It can be
+# mapped against the ECE3 - CMIP6 identified variables but besides that ECE4 has new or changed output
+# and the same applies for the CMIP7 request, resulting in an added bunch of variables which need
+# (re-) identification.
 
       # 3. The NEMO only excel xlsx CMIP6 data request file:
       #  create-nemo-only-list/nemo-only-list-cmip6-requested-variables.xlsx
@@ -56,6 +66,7 @@ import sys                                                      # for aborting: 
 import numpy as np                                              # for the use of e.g. np.multiply
 from os.path import expanduser
 import logging
+import re
 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
@@ -74,6 +85,17 @@ def print_next_step_message(step, comment):
     print(' ##############################################################################################')
     print(' ###  Part {:<2}:  {:73}   ###'.format(step, comment))
     print(' ##############################################################################################\n')
+
+##  class _CommentedTreeBuilder(ET.TreeBuilder):
+##      def comment(self, data):
+##          self.start('!comment', {})
+##          self.data(data)
+##          self.end('!comment')
+
+##  def parse(filepath):
+##      ctb = _CommentedTreeBuilder()
+##      xp = ET.XMLParser(target=ctb)
+##      tree_ping = ET.parse(filepath, parser=xp)
 
 if len(sys.argv) == 2:
 
@@ -156,16 +178,72 @@ if len(sys.argv) == 2:
    total_pinglist_expr      = []
 
    # Loop over the various ping files:
-   for ping_file in ping_file_collection:
-    if os.path.isfile(ping_file) == False: print(' The ping file {} does not exist.'.format(ping_file)); sys.exit(' stop')
+   for ping_filename in ping_file_collection:
+    if os.path.isfile(ping_filename) == False: print(' The ping file {} does not exist.'.format(ping_filename)); sys.exit(' stop')
 
     # Split in path pf[0] & file pf[1]:
-    pf = os.path.split(ping_file)
+    pf = os.path.split(ping_filename)
     print(' Reading the file: {}'.format(pf[1]))
 
+
+    # Create new ping files (and cnonical variants) in which the XML comment is transformed to a comment attribute and the unit specified
+    # in the comment is given in a ping_unit attribute:
+    new_ping_filename = 'new-' + pf[1]
+    with open(new_ping_filename, 'w') as new_ping_file:
+     with open(ping_filename) as ping_file:
+         for line in ping_file:
+             if line.startswith("   <field id=") or line.startswith("  <field id="):
+              comment = re.sub(r'.*<!--', '', line).replace('-->', '').strip().replace('"', '\'')  # Select the comment and replace double quotes by single quotes
+              comment = comment.replace('if < surface', 'if below surface')                        # Replace the "below surface" cases  - overcoming trouble with canonical
+              comment = comment.replace('< ', 'less than ')                                        # Replace the "less than" cases      - overcoming trouble with canonical
+              comment = comment.replace('<', 'less than ')                                         # Replace the "less than" cases      - overcoming trouble with canonical
+              unit = re.sub(r'\).*', '', comment)
+              unit = re.sub(r'P. \(', '', unit)
+              unit = 'ping_unit="' + unit + '"'                                                    # Add the ping_unit attribute name and the quotes
+              comment = 'ping_comment="' + comment + '"'                                           # Add the ping_comment attribute name and the quotes
+              line = re.sub(r'<!--.*','', line)                                                    # Removal from the XML comment
+              line = re.sub(r' $','', line)                                                        # Removal trailing spaces
+              line = re.sub(r' $','', line)                                                        # Removal trailing spaces
+              line = re.sub(r' $','', line)                                                        # Removal trailing spaces
+              line = line.replace('field_ref=', unit + ' ' + comment + ' field_ref=')              # Insert the ping_unit & ping_comment attributes in the XML field
+              new_ping_file.write(line)
+             else:
+              new_ping_file.write(line)
+
+    # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+    new_canonic_ping_filename = 'new-canonic-' + pf[1]
+    with open(new_canonic_ping_filename, mode='w', encoding='utf-8') as out_file:
+     ET.canonicalize(from_file=new_ping_filename, with_comments=True, out=out_file)
+
+
     # Load the xml file:
-    tree_ping = ET.parse(ping_file)
+   #parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True)) # Customized parser for reading XML comments
+   #tree_ping = ET.parse(ping_filename, parser)                        # Add the parser argument
+   #tree_ping = ET.parse(ping_filename)
+   #tree_ping = ET.parse(new_canonic_ping_filename)
+    tree_ping = ET.parse(new_ping_filename)
     root_ping = tree_ping.getroot()
+
+    if False:
+     # Get the comment nodes
+     for node in tree_ping.iter():
+         if "function Comment" in str(node.tag):
+            #print(node.tag, node.text)
+            pass
+
+    if False:
+     for element in root_ping.iter():
+         if isinstance(element.tag, str) and element.tag.startswith('{'):
+             continue
+         if element.tag == ET.Comment:
+             text = element.text.strip()
+            #print(text)
+             if "COMMENTED CODE SUBSTRING" in text:
+                new_element = ET.fromstring(f"<{text}>")
+                # Insert the uncommented text as a new XML element
+                root_ping.insert(list(root_ping).index(element), new_element)
+                # Remove the element that was commented out originally
+                root_ping.remove(element)
 
     # Add a new attribute original_file to each field_definition tag of the ping file:
     for element in root_ping.findall(".//field_definition"):
@@ -219,6 +297,13 @@ if len(sys.argv) == 2:
    # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
    with open(ecearth_ping_file_canonic, mode='w', encoding='utf-8') as out_file:
     ET.canonicalize(from_file=ecearth_ping_file, with_comments=True, out=out_file)
+
+
+
+   ################################################################################
+   ###                                    2                                     ###
+   ################################################################################
+   print_next_step_message(2, 'READING THE FIELD_DEF FILES')
 
 else:
    print()
