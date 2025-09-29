@@ -14,11 +14,11 @@
 # comment are in addition seperated placed into an ping_unit attribute.
 #
 # 2. This script reads the four NEMO xml field_def files (the files which contain the basic info
-# about the fields required by XIOS. These field_def files can either be taken from the EC-Earth4
-# repository or from the Shaconemo repository. The four field_def files for ECE4 contain nearly
-# 1369 variables with an id (9 id's occur twice) and 319 variables without an id but with a field_ref
-# (Most variables with a field_ref have a name attribute, but 53 variables with a field_ref have no
-# name attribute). The scan-xios-xml-elementtree-structure.py script also reads these files and
+# about the fields required by XIOS). These field_def files can either be taken from the EC-Earth4
+# repository or from the Shaconemo repository. The four field_def files for ECE4 contain 1369
+# variables with an id (9 id's occur twice) and 319 variables without an id but with a field_ref
+# Most variables with a field_ref have a name attribute, but 53 variables with a field_ref have no
+# name attribute. The scan-xios-xml-elementtree-structure.py script also reads these files and
 # performs some checks on them, this script creates the ec-earth-field_def xml file which cab be read
 # directly.
 
