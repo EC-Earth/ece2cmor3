@@ -57,13 +57,13 @@ def main():
    # Echo the exact call of the script in the log messages:
    logging.info('Running:\n\n {:} {:} {:}\n'.format(sys.argv[0], sys.argv[1], sys.argv[2]))
 
-  #request_overview_file_name = os.path.expanduser('~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt')
-  #xml_file_name              = os.path.expanduser('request-overview-ec-earth3-cc-pextra-test-all.xml')
-   request_overview_file_name = args.request_file
-   xml_file_name              = args.xml_file
+  #request_overview_filename = os.path.expanduser('~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt')
+  #xml_filename              = os.path.expanduser('request-overview-ec-earth3-cc-pextra-test-all.xml')
+   request_overview_filename = args.request_file
+   xml_filename              = args.xml_file
 
    # Split in path pf[0] & file pf[1]:
-   pf = os.path.split(request_overview_file_name)
+   pf = os.path.split(request_overview_filename)
    print('\n Reading the file: {}\n'.format(pf[1]))
 
    # Create the basic main structure which will be populated with the elements of the various ping files later on:
@@ -91,25 +91,18 @@ def main():
    # One issue with the length of the long_name of fLitterFire: Carbon Mass Flux from Litter, CWD or any non-Living Pool into Atmosphere
    #  Therefore shortend the word Atmosphere to Atmos
 
-   with open(request_overview_file_name) as request_overview_file:
-    header_line = next(request_overview_file)
+   with open(request_overview_filename) as request_overview_file:
+   #header_line = next(request_overview_file)
     for line in request_overview_file:
      # Reading the request-overview file data line by line (i.e. variable by variable):
-     if line.strip():                       # skip empty lines
+     if True:
+    #if line.strip():                       # skip empty lines
       cmip6_table    = line[i0:i1].strip()
       cmip6_variable = line[i1:i2].strip()
       dimensions     = line[i2:i3].strip()
       long_name      = line[i3:i4].strip()
       unit           = line[i4:i5].strip()
       comment        = line[i5:  ].strip()
-
-      el_var = ET.Element('variable')
-
-      # Add the metadata variable by variable to the XML data tree
-      el_var.set('cmip6_table'   , cmip6_table   )
-      el_var.set('cmip6_variable', cmip6_variable)
-      el_var.set('dimensions'    , dimensions    )
-      el_var.set('unit'          , unit          )
 
       if 'ifs  code name' in comment:
        model_component = 'ifs'
@@ -129,9 +122,7 @@ def main():
       varname_code = comment.split("code name = ", 1)[1].strip()
       varname_code = varname_code.split(" | ", 1)[0]
       varname_code = varname_code.split(", expression", 1)[0]
-      el_var.set('varname_code', varname_code)
 
-      el_var.set('model_component', model_component)
       if ' | ' in comment:
        if False: print('{:12} {:21} {:45} {:115} {:20} {}'.format(cmip6_table, cmip6_variable, dimensions, long_name, unit, comment))
        match = re.search(' \| (.+?) ', comment)
@@ -139,24 +130,31 @@ def main():
         other_component = match.group(1).strip()
       else:
        other_component = 'None'
-      el_var.set('other_component', other_component)
 
-
-      el_var.set('long_name'      , long_name      )
       if 'expression' in comment:
        # Obtain the bare expression part:
        if ' | ' in comment:
         match = re.search('expression = (.+?) \| ', comment)
         if match:
          expression = match.group(1).strip()
-         if False: print('Case 1: expression = {}'.format(expression))
        else:
         expression = comment.split("expression = ", 1)[1].strip()
-        if False: print('Case 2: expression = {}'.format(expression))
-       el_var.set('expression', expression)
       else:
-       el_var.set('expression', 'None')
-      el_var.set('comment'       , comment       )
+       expression = 'None'
+
+      el_var = ET.Element('variable')
+
+      # Add the metadata to the XML data tree:
+      el_var.set('cmip6_table'    , cmip6_table    )
+      el_var.set('cmip6_variable' , cmip6_variable )
+      el_var.set('dimensions'     , dimensions     )
+      el_var.set('unit'           , unit           )
+      el_var.set('varname_code'   , varname_code   )
+      el_var.set('model_component', model_component)
+      el_var.set('other_component', other_component)
+      el_var.set('long_name'      , long_name      )
+      el_var.set('expression'     , expression     )
+      el_var.set('comment'        , comment        )
 
       ET.indent(root_main, space='  ')
       root_main.append(el_var)
@@ -168,24 +166,115 @@ def main():
    tree_main = ET.ElementTree(root_main)
 
    # Writing the combined result to a new xml file:
-   tree_main.write(xml_file_name)
-
+   tree_main.write(xml_filename)
 
    if False:
     # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-    xml_canonic_file_name = xml_file_name.replace('.xml', '-canonic.xml')
+    xml_canonic_file_name = xml_filename.replace('.xml', '-canonic.xml')
     with open(xml_canonic_file_name, mode='w', encoding='utf-8') as out_file:
-     ET.canonicalize(from_file=xml_file_name, with_comments=True, out=out_file)
+     ET.canonicalize(from_file=xml_filename, with_comments=True, out=out_file)
 
 
    # Load the xml file:
-   tree_main = ET.parse(xml_file_name)
+   tree_main = ET.parse(xml_filename)
    root_main = tree_main.getroot()
 
    if False:
     for element in root_main.findall('.//variable[@model_component="ifs"]'):
      if '129' not in element.get('varname_code'):
       print(' Test XML file: {} {}'.format(element.tag, element.get('varname_code')))
+
+
+
+   # Alternative direct XML writting in neat column format:
+   # Write an XML file with all content in attributes for each variable:
+   xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
+   with open(xml_filename, 'w') as xml_file:
+    xml_file.write('<cmip6_variables>\n')
+
+
+    with open(request_overview_filename) as request_overview_file:
+    #header_line = next(request_overview_file)
+     for line in request_overview_file:
+      # Reading the request-overview file data line by line (i.e. variable by variable):
+      if True:
+     #if line.strip():                       # skip empty lines
+       cmip6_table    = line[i0:i1].strip()
+       cmip6_variable = line[i1:i2].strip()
+       dimensions     = line[i2:i3].strip()
+       long_name      = line[i3:i4].strip()
+       unit           = line[i4:i5].strip()
+       comment        = line[i5:  ].strip()
+
+       if 'ifs  code name' in comment:
+        model_component = 'ifs'
+       elif 'tm5  code name' in comment:
+        model_component = 'tm5'
+       elif 'nemo code name' in comment:
+        model_component = 'nemo'
+       elif 'lpjg code name' in comment:
+        model_component = 'lpjg'
+       elif 'co2box code name' in comment:
+        model_component = 'co2box'
+       else:
+        model_component = 'unknown'
+        print('WARNING: Unknown model component.')
+
+       # Abstract the grib code or the var name:
+       varname_code = comment.split("code name = ", 1)[1].strip()
+       varname_code = varname_code.split(" | ", 1)[0]
+       varname_code = varname_code.split(", expression", 1)[0]
+
+       if ' | ' in comment:
+        if False: print('{:12} {:21} {:45} {:115} {:20} {}'.format(cmip6_table, cmip6_variable, dimensions, long_name, unit, comment))
+        match = re.search(' \| (.+?) ', comment)
+        if match:
+         other_component = match.group(1).strip()
+       else:
+        other_component = 'None'
+
+       if 'expression' in comment:
+        # Obtain the bare expression part:
+        if ' | ' in comment:
+         match = re.search('expression = (.+?) \| ', comment)
+         if match:
+          expression = match.group(1).strip()
+        else:
+         expression = comment.split("expression = ", 1)[1].strip()
+       else:
+        expression = 'None'
+       # Handle the issue with the less than (<) & greater than (>) symbols in th expressions in order to avoid invalid xml code:
+       expression = expression.replace('&','&amp;') # First 
+       expression = expression.replace('<','&lt;')
+       expression = expression.replace('<','&gt;')
+       comment = comment.replace('&','&amp;')
+       comment = comment.replace('<','&lt;')
+       comment = comment.replace('<','&gt;')
+
+
+      xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:14} varname_code={:23} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
+                     .format('"' +cmip6_table     + '"', \
+                             '"' +cmip6_variable  + '"', \
+                             '"' +dimensions      + '"', \
+                             '"' +unit            + '"', \
+                             '"' +varname_code    + '"', \
+                             '"' +model_component + '"', \
+                             '"' +other_component + '"', \
+                             '"' +long_name       + '"', \
+                             '"' +expression      + '"', \
+                             '"' +comment         + '"'))
+
+     xml_file.write('</cmip6_variables>\n')
+
+
+   # Test: Load the xml file:
+   tree_main = ET.parse(xml_filename)
+   root_main = tree_main.getroot()
+
+   number_of_variables = 0
+   for element in root_main.findall('.//variable'):
+    number_of_variables += 1
+   print('\n The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
 
 
 if __name__ == '__main__':
