@@ -249,18 +249,17 @@ def main():
        comment = comment.replace('<','&lt;')
        comment = comment.replace('<','&gt;')
 
-
-      xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:14} varname_code={:23} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
-                     .format('"' +cmip6_table     + '"', \
-                             '"' +cmip6_variable  + '"', \
-                             '"' +dimensions      + '"', \
-                             '"' +unit            + '"', \
-                             '"' +varname_code    + '"', \
-                             '"' +model_component + '"', \
-                             '"' +other_component + '"', \
-                             '"' +long_name       + '"', \
-                             '"' +expression      + '"', \
-                             '"' +comment         + '"'))
+       xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:14} varname_code={:23} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
+                      .format('"' +cmip6_table     + '"', \
+                              '"' +cmip6_variable  + '"', \
+                              '"' +dimensions      + '"', \
+                              '"' +unit            + '"', \
+                              '"' +varname_code    + '"', \
+                              '"' +model_component + '"', \
+                              '"' +other_component + '"', \
+                              '"' +long_name       + '"', \
+                              '"' +expression      + '"', \
+                              '"' +comment         + '"'))
 
      xml_file.write('</cmip6_variables>\n')
 
