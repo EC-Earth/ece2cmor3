@@ -160,7 +160,7 @@ def main():
 
       name[i] = name[i].replace('&','&amp;')
       name[i] = name[i].replace('<','&lt;')
-      name[i] = name[i].replace('<','&gt;')
+      name[i] = name[i].replace('>','&gt;')
 
       xml_file.write('  <variable  ifs_code_name={:20} grib_table={:6} grib_code={:6} paramID={:8} units={:24} description={:100} >   </variable>\n' \
                      .format('"' +short_name[i] + '"', \
