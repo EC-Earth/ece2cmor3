@@ -92,11 +92,10 @@ def main():
    #  Therefore shortend the word Atmosphere to Atmos
 
    with open(request_overview_filename) as request_overview_file:
-   #header_line = next(request_overview_file)
+    next(request_overview_file)                                # Skip the first header line
     for line in request_overview_file:
-     # Reading the request-overview file data line by line (i.e. variable by variable):
-     if True:
-    #if line.strip():                       # skip empty lines
+     if line.strip() != '':
+      # Reading the request-overview file data line by line (i.e. variable by variable):
       cmip6_table    = line[i0:i1].strip()
       cmip6_variable = line[i1:i2].strip()
       dimensions     = line[i2:i3].strip()
@@ -194,11 +193,10 @@ def main():
 
 
     with open(request_overview_filename) as request_overview_file:
-    #header_line = next(request_overview_file)
+     next(request_overview_file)                                # Skip the first header line
      for line in request_overview_file:
-      # Reading the request-overview file data line by line (i.e. variable by variable):
-      if True:
-     #if line.strip():                       # skip empty lines
+      if line.strip() != '':
+       # Reading the request-overview file data line by line (i.e. variable by variable):
        cmip6_table    = line[i0:i1].strip()
        cmip6_variable = line[i1:i2].strip()
        dimensions     = line[i2:i3].strip()
