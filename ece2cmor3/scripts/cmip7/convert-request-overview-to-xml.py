@@ -52,44 +52,6 @@ def parse_args():
     return parser.parse_args()
 
 
-# Function to tweak the sorted order for the attribute list:
-def tweakedorder_attributes(iterable_object):
-    if   iterable_object == 'target'           : return  1
-    elif iterable_object == 'source'           : return  2
-    elif iterable_object == 'convert'          : return  3
-    elif iterable_object == 'masked'           : return  4
-    elif iterable_object == 'interpolate'      : return  5
-    elif iterable_object == 'missval'          : return  6
-    elif iterable_object == 'fillval'          : return  7
-    elif iterable_object == 'expr'             : return  8
-    elif iterable_object == 'table_override'   : return  9
-    else                                       : return 30
-
-
-# Out of use:
-def gather_ifspar_info(var):
-    for x, y in var.items():
-      ifspar_info = ''
-      for x in sorted(var, key=tweakedorder_attributes):
-       if x in ifspar_attributes:
-        string = x + '="' + var[x] + '" '
-        string = string.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
-        ifspar_info = ifspar_info + '{:31}'.format(string.replace('target', 'cmip6_variable').replace('source', 'grib_code'))
-    return ifspar_info.strip()
-
-
-def replace_special_xml_characters(string):
-    '''
-     There are 5 pre-defined entity references in XML (https://www.w3schools.com/xml/xml_syntax.asp):
-     &lt;     <   less than
-     &gt;     >   greater than
-     &amp;    &   ampersand
-     &apos;   '   apostrophe
-     &quot;   "   quotation mark
-    '''
-    string = string.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
-
-
 def write_ifspar_xml_content(output_file, var):
     output_file.write('  <variable  cmip6_variable={:16} grib_code={:10} convert={:16} masked={:10} interpolate={:10} missval={:9} fillval={:9} expr={:500} >   </variable>\n' \
                    .format('"' + var['target'     ]                                             + '"', \
