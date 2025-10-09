@@ -31,6 +31,9 @@ logging.basicConfig(level=logging.DEBUG, format=logformat, datefmt=logdateformat
 # Logger construction
 log = logging.getLogger(__name__)
 
+ifspar_attributes = ['target', 'source', 'convert', 'masked', 'interpolate', 'missval', 'fillval', 'expr']  # 'table_override'
+
+
 def print_next_step_message(step, comment):
     print('\n')
     print(' ##############################################################################################')
@@ -42,34 +45,61 @@ def parse_args():
     '''
     Parse command-line arguments
     '''
-
     # Positional (mandatory) input arguments
     parser = argparse.ArgumentParser(description=' Reading an ECE3 request-overview file and convert its content to an xml file.')
     parser.add_argument('request_file', help='input ascii request-overview file')
     parser.add_argument('xml_file'    , help='output xml file')
-
     return parser.parse_args()
+
 
 # Function to tweak the sorted order for the attribute list:
 def tweakedorder_attributes(iterable_object):
     if   iterable_object == 'target'           : return  1
     elif iterable_object == 'source'           : return  2
     elif iterable_object == 'convert'          : return  3
-    elif iterable_object == 'expr'             : return  4
+    elif iterable_object == 'masked'           : return  4
     elif iterable_object == 'interpolate'      : return  5
-    elif iterable_object == 'fillval'          : return  6
-    elif iterable_object == 'missval'          : return  7
-    elif iterable_object == 'table_override'   : return  8
+    elif iterable_object == 'missval'          : return  6
+    elif iterable_object == 'fillval'          : return  7
+    elif iterable_object == 'expr'             : return  8
+    elif iterable_object == 'table_override'   : return  9
     else                                       : return 30
 
+
+# Out of use:
 def gather_ifspar_info(var):
     for x, y in var.items():
       ifspar_info = ''
       for x in sorted(var, key=tweakedorder_attributes):
-       if x in ['convert', 'expr', 'masked', 'interpolate', ' fillval', 'missval', 'table_override', 'target', 'source']:
+       if x in ifspar_attributes:
         string = x + '="' + var[x] + '" '
+        string = string.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
         ifspar_info = ifspar_info + '{:31}'.format(string.replace('target', 'cmip6_variable').replace('source', 'grib_code'))
     return ifspar_info.strip()
+
+
+def replace_special_xml_characters(string):
+    '''
+     There are 5 pre-defined entity references in XML (https://www.w3schools.com/xml/xml_syntax.asp):
+     &lt;     <   less than
+     &gt;     >   greater than
+     &amp;    &   ampersand
+     &apos;   '   apostrophe
+     &quot;   "   quotation mark
+    '''
+    string = string.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
+
+
+def write_ifspar_xml_content(output_file, var):
+    output_file.write('  <variable  cmip6_variable={:16} grib_code={:10} convert={:16} masked={:10} interpolate={:10} missval={:9} fillval={:9} expr={:500} >   </variable>\n' \
+                   .format('"' + var['target'     ]                                             + '"', \
+                           '"' + var['source'     ]                                             + '"', \
+                           '"' + var['convert'    ]                                             + '"', \
+                           '"' + var['masked'     ]                                             + '"', \
+                           '"' + var['interpolate']                                             + '"', \
+                           '"' + var['missval'    ]                                             + '"', \
+                           '"' + var['fillval'    ]                                             + '"', \
+                           '"' + var['expr'       ].replace('&','&amp;').replace('<','&lt;')    + '"'))
 
 
 def main():
@@ -90,7 +120,7 @@ def main():
    root_grib_table = tree_grib_table.getroot()
 
    # Test with surface / skin temp:
-   if True:
+   if False:
     grib_code  = "235"
     grib_table = "128"
     xpath = './/variable[@grib_code="' + grib_code + '"]'
@@ -102,7 +132,6 @@ def main():
 
 
    # Load the ece2cmor ifspar.json file:
-  #ifspar_json_filename = os.path.expanduser('~/cmorize/ece2cmor3/ece2cmor3/resources/ifspar.json')  # Reading the ifspar.json file
    ifspar_json_filename = os.path.expanduser('../../resources/ifspar.json')                          # Reading the ifspar.json file
    if os.path.isfile(ifspar_json_filename) == False:                                                 # Checking if the ifspar.json file exists
     print(error_message, ' The', ifspar_json_filename, ' does not exist.\n')
@@ -112,28 +141,23 @@ def main():
     ifspar = json.load(ifspar_json_file)
    ifspar_json_file.close()
 
-   # Test:
-   print()
-   with open('ifspar_info.xml', mode='w', encoding='utf-8') as output_file:
+   # Write the ifspar-info.xml file:
+   with open('ifspar-info.xml', mode='w', encoding='utf-8') as output_file:
     output_file.write('<ifspar_cmip6_ifs_instructions>\n')
     for var in ifspar:
-        try:
-         # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
-         if isinstance(var['target'], list):
-          target_list = var['target']
-         #print(target_list)
-          for target in target_list:
-           var['target'] = target
-           ifspar_info = gather_ifspar_info(var)
-           output_file.write('  <variable  {:606} >   </variable>\n'.format(ifspar_info))
-         else:
-          # The case with single targets (a string not plcaed in a list):
-          ifspar_info = gather_ifspar_info(var)
-          output_file.write('  <variable  {:606} >   </variable>\n'.format(ifspar_info))
-        except:
-         # This catches the mask definitions at the bottom of the ifspar.json file
-         # Note tsl with the list in the table_override item requires a dedicated treatment not implemented yet, and this situation is catched here as well
-         print(' ifspar item without target: {}'.format(var))
+      for ifs_attribute in ifspar_attributes:
+       if var.get(ifs_attribute) == None: var[ifs_attribute] = ''
+      #if var.get(ifs_attribute) == None: var[ifs_attribute] = 'None'
+      if var.get('target') != None:
+       # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
+       if isinstance(var['target'], list):
+        target_list = var['target']
+        for target in target_list:
+         var['target'] = target
+         write_ifspar_xml_content(output_file, var)
+       else:
+        # The case with single targets (a string not placed in a list):
+        write_ifspar_xml_content(output_file, var)
     output_file.write('</ifspar_cmip6_ifs_instructions>\n')
 
 
