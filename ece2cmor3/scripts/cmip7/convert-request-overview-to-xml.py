@@ -52,8 +52,8 @@ def parse_args():
 
 # Function to tweak the sorted order for the attribute list:
 def tweakedorder_attributes(iterable_object):
-    if   iterable_object == 'source'           : return  1
-    elif iterable_object == 'target'           : return  2
+    if   iterable_object == 'target'           : return  1
+    elif iterable_object == 'source'           : return  2
     elif iterable_object == 'convert'          : return  3
     elif iterable_object == 'expr'             : return  4
     elif iterable_object == 'interpolate'      : return  5
@@ -62,16 +62,14 @@ def tweakedorder_attributes(iterable_object):
     elif iterable_object == 'table_override'   : return  8
     else                                       : return 30
 
-
 def gather_ifspar_info(var):
     for x, y in var.items():
       ifspar_info = ''
       for x in sorted(var, key=tweakedorder_attributes):
-       if x in ['convert', 'expr', 'masked', 'interpolate', ' fillval', 'missval', 'table_override', 'target']:
+       if x in ['convert', 'expr', 'masked', 'interpolate', ' fillval', 'missval', 'table_override', 'target', 'source']:
         string = x + '="' + var[x] + '" '
-        ifspar_info = ifspar_info + '{:30}'.format(string)
-    ifspar_info = ifspar_info.strip()
-    print(ifspar_info)
+        ifspar_info = ifspar_info + '{:31}'.format(string.replace('target', 'cmip6_variable').replace('source', 'grib_code'))
+    return ifspar_info.strip()
 
 
 def main():
@@ -116,23 +114,27 @@ def main():
 
    # Test:
    print()
-   for var in ifspar:
-       try:
-        # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
-        if isinstance(var['target'], list):
-         target_list = var['target']
-        #print(target_list)
-         for target in target_list:
-          var['target'] = target
-          gather_ifspar_info(var)
-        else:
-         # The case with single targets (a string not plcaed in a list):
-         gather_ifspar_info(var)
-       except:
-        # This catches the mask definitions at the bottom of the ifspar.json file
-        # Note tsl with the list in the table_override item requires a dedicated treatment not implemented yet, and this situation is catched here as well
-        print(' Item without target')
-
+   with open('ifspar_info.xml', mode='w', encoding='utf-8') as output_file:
+    output_file.write('<ifspar_cmip6_ifs_instructions>\n')
+    for var in ifspar:
+        try:
+         # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
+         if isinstance(var['target'], list):
+          target_list = var['target']
+         #print(target_list)
+          for target in target_list:
+           var['target'] = target
+           ifspar_info = gather_ifspar_info(var)
+           output_file.write('  <variable  {:606} >   </variable>\n'.format(ifspar_info))
+         else:
+          # The case with single targets (a string not plcaed in a list):
+          ifspar_info = gather_ifspar_info(var)
+          output_file.write('  <variable  {:606} >   </variable>\n'.format(ifspar_info))
+        except:
+         # This catches the mask definitions at the bottom of the ifspar.json file
+         # Note tsl with the list in the table_override item requires a dedicated treatment not implemented yet, and this situation is catched here as well
+         print(' ifspar item without target: {}'.format(var))
+    output_file.write('</ifspar_cmip6_ifs_instructions>\n')
 
 
    # Split in path pf[0] & file pf[1]:
@@ -336,7 +338,7 @@ def main():
        else:
         ifs_shortname = 'NotAnIFSvar'
        #expression    = 'NotAnIFSvar'
-       print(' ifs_code_name: {:>3} {:3} {:15} {}'.format(grib_code, grib_table, ifs_shortname, expression))
+      #print(' ifs_code_name: {:>3} {:3} {:15} {}'.format(grib_code, grib_table, ifs_shortname, expression))
 
 
        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
