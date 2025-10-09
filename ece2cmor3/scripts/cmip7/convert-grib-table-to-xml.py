@@ -89,7 +89,7 @@ def main():
 
     # Split in path pf[0] & file pf[1]:
     pf = os.path.split(grib_table_filename)
-    print('\n\n {}\n'.format(pf[1]))
+    print(' Read and convert the grib table file: {}\n'.format(pf[1]))
 
     count = 0
     with open(grib_table_filename, 'r') as infile:
@@ -138,15 +138,7 @@ def main():
 
 
    # Check on sizes:
-   print('\n Size of lists: {} {} {} {} {} {} {}\n'.format(len(description), len(short_name), len(grib_table), len(grib_param), len(name), len(units), len(paramId)))
-   #description
-   #short_name
-   #grib_table
-   #grib_param
-   #name
-   #units
-   #paramId
-
+  #print('\n Size of lists: {} {} {} {} {} {} {}\n'.format(len(description), len(short_name), len(grib_table), len(grib_param), len(name), len(units), len(paramId)))
 
    # Direct XML writing in neat column format:
    # Write an XML file with all content in attributes for each variable:
@@ -162,7 +154,7 @@ def main():
       name[i] = name[i].replace('<','&lt;')
       name[i] = name[i].replace('>','&gt;')
 
-      xml_file.write('  <variable  ifs_code_name={:20} grib_table={:6} grib_code={:6} paramID={:8} units={:24} description={:100} >   </variable>\n' \
+      xml_file.write('  <variable  ifs_code_name={:20} grib_table={:6} grib_code={:6} paramID={:8} units={:29} description={:100} >   </variable>\n' \
                      .format('"' +short_name[i] + '"', \
                              '"' +grib_table[i] + '"', \
                              '"' +grib_param[i] + '"', \
