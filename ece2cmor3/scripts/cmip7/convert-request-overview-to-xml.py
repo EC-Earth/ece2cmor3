@@ -17,6 +17,7 @@ import sys                                                      # for aborting: 
 import numpy as np                                              # for the use of e.g. np.multiply
 import logging
 import re
+import json
 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
@@ -49,6 +50,29 @@ def parse_args():
 
     return parser.parse_args()
 
+# Function to tweak the sorted order for the attribute list:
+def tweakedorder_attributes(iterable_object):
+    if   iterable_object == 'source'           : return  1
+    elif iterable_object == 'target'           : return  2
+    elif iterable_object == 'convert'          : return  3
+    elif iterable_object == 'expr'             : return  4
+    elif iterable_object == 'interpolate'      : return  5
+    elif iterable_object == 'fillval'          : return  6
+    elif iterable_object == 'missval'          : return  7
+    elif iterable_object == 'table_override'   : return  8
+    else                                       : return 30
+
+
+def gather_ifspar_info(var):
+    for x, y in var.items():
+      ifspar_info = ''
+      for x in sorted(var, key=tweakedorder_attributes):
+       if x in ['convert', 'expr', 'masked', 'interpolate', ' fillval', 'missval', 'table_override', 'target']:
+        string = x + '="' + var[x] + '" '
+        ifspar_info = ifspar_info + '{:30}'.format(string)
+    ifspar_info = ifspar_info.strip()
+    print(ifspar_info)
+
 
 def main():
 
@@ -61,6 +85,55 @@ def main():
   #xml_filename              = os.path.expanduser('request-overview-ec-earth3-cc-pextra-test-all.xml')
    request_overview_filename = args.request_file
    xml_filename              = args.xml_file
+
+
+   # Load the XML file with the ece2cmor grib table content:
+   tree_grib_table = ET.parse('./grib-table.xml')
+   root_grib_table = tree_grib_table.getroot()
+
+   # Test with surface / skin temp:
+   if True:
+    grib_code  = "235"
+    grib_table = "128"
+    xpath = './/variable[@grib_code="' + grib_code + '"]'
+    for element in root_grib_table.findall(xpath):
+     if element.get('grib_table') == grib_table:
+      print(' ifs_code_name: {} {}'.format(element.get('ifs_code_name'), element.get('grib_table')))
+   #for element in root_grib_table.findall('.//variable[@grib_code="235" and @grib_table="128"]'):   # Unfortunately this  and  does not work with elementree, though it is valid xpath
+   # print(' ifs_code_name: {} {}'.format(element.get('ifs_code_name'), element.get('grib_table')))
+
+
+   # Load the ece2cmor ifspar.json file:
+  #ifspar_json_filename = os.path.expanduser('~/cmorize/ece2cmor3/ece2cmor3/resources/ifspar.json')  # Reading the ifspar.json file
+   ifspar_json_filename = os.path.expanduser('../../resources/ifspar.json')                          # Reading the ifspar.json file
+   if os.path.isfile(ifspar_json_filename) == False:                                                 # Checking if the ifspar.json file exists
+    print(error_message, ' The', ifspar_json_filename, ' does not exist.\n')
+    sys.exit()
+
+   with open(ifspar_json_filename) as ifspar_json_file:
+    ifspar = json.load(ifspar_json_file)
+   ifspar_json_file.close()
+
+   # Test:
+   print()
+   for var in ifspar:
+       try:
+        # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
+        if isinstance(var['target'], list):
+         target_list = var['target']
+        #print(target_list)
+         for target in target_list:
+          var['target'] = target
+          gather_ifspar_info(var)
+        else:
+         # The case with single targets (a string not plcaed in a list):
+         gather_ifspar_info(var)
+       except:
+        # This catches the mask definitions at the bottom of the ifspar.json file
+        # Note tsl with the list in the table_override item requires a dedicated treatment not implemented yet, and this situation is catched here as well
+        print(' Item without target')
+
+
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(request_overview_filename)
@@ -249,12 +322,30 @@ def main():
        comment = comment.replace('<','&lt;')
        comment = comment.replace('>','&gt;')
 
-       xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:14} varname_code={:23} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
+       # With help of the grib_table.xml file find via the grib code the IFS shortnama:
+       if model_component == "ifs":
+        grib_code  = varname_code[:-4]
+        grib_table = varname_code[-3:]
+        xpath = './/variable[@grib_code="' + grib_code + '"]'
+        for element in root_grib_table.findall(xpath):
+         if element.get('grib_table') == grib_table:
+          ifs_shortname = element.get('ifs_code_name')
+          if ifs_shortname == '~': ifs_shortname = 'None'
+         #expression    = element.get('')
+         #print(' ifs_code_name: {:>3} {:3} {}'.format(grib_code, grib_table, ifs_shortname))
+       else:
+        ifs_shortname = 'NotAnIFSvar'
+       #expression    = 'NotAnIFSvar'
+       print(' ifs_code_name: {:>3} {:3} {:15} {}'.format(grib_code, grib_table, ifs_shortname, expression))
+
+
+       xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
                       .format('"' +cmip6_table     + '"', \
                               '"' +cmip6_variable  + '"', \
                               '"' +dimensions      + '"', \
                               '"' +unit            + '"', \
                               '"' +varname_code    + '"', \
+                              '"' +ifs_shortname   + '"', \
                               '"' +model_component + '"', \
                               '"' +other_component + '"', \
                               '"' +long_name       + '"', \
