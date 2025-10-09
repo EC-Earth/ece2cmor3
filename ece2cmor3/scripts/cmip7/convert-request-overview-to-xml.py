@@ -54,7 +54,7 @@ def parse_args():
 
 def write_ifspar_xml_content(output_file, var):
     if var.get('table_override'):
-     print(' The table_override attribute has not been added to the xml file: cmip6_variable="{}" table_override="{}"'.format(var.get('target'), var.get('table_override')))
+     print(' The table_override attribute has not been added to the xml file for: cmip6_variable="{}" table_override="{}"'.format(var.get('target'), var.get('table_override')))
     output_file.write('  <variable  cmip6_variable={:16} grib_code={:10} convert={:16} masked={:10} interpolate={:10} missval={:9} fillval={:9} expr={:500} >   </variable>\n' \
                    .format('"' + var['target'     ]                                             + '"', \
                            '"' + var['source'     ]                                             + '"', \
@@ -110,8 +110,7 @@ def main():
     output_file.write('<ifspar_cmip6_ifs_instructions>\n')
     for var in ifspar:
       for ifs_attribute in ifspar_attributes:
-       if var.get(ifs_attribute) == None: var[ifs_attribute] = ''
-      #if var.get(ifs_attribute) == None: var[ifs_attribute] = 'None'
+       if var.get(ifs_attribute) == None: var[ifs_attribute] = 'None'
       if var.get('target') != None:
        # Catching the regular relations between the cmor target variables and their ifs grib codes or their intermediate code (ece2cmor3 table 129) & expression
        if isinstance(var['target'], list):
@@ -123,6 +122,10 @@ def main():
         # The case with single targets (a string not placed in a list):
         write_ifspar_xml_content(output_file, var)
     output_file.write('</ifspar_cmip6_ifs_instructions>\n')
+
+   # Test: Load the xml file:
+   tree_ifspar = ET.parse(xml_filename)
+   root_ifspar = tree_ifspar.getroot()
 
 
    # Split in path pf[0] & file pf[1]:
@@ -352,7 +355,7 @@ def main():
    number_of_variables = 0
    for element in root_main.findall('.//variable'):
     number_of_variables += 1
-   print('\n The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
+   print(' The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
 
 
 if __name__ == '__main__':
