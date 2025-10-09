@@ -155,12 +155,12 @@ def main():
       name[i] = name[i].replace('>','&gt;')
 
       xml_file.write('  <variable  ifs_code_name={:20} grib_table={:6} grib_code={:6} paramID={:8} units={:29} description={:100} >   </variable>\n' \
-                     .format('"' +short_name[i] + '"', \
-                             '"' +grib_table[i] + '"', \
-                             '"' +grib_param[i] + '"', \
-                             '"' +paramId   [i] + '"', \
-                             '"' +units     [i] + '"', \
-                             '"' +name      [i] + '"'))
+                     .format('"' +short_name[i]                   + '"', \
+                             '"' +grib_table[i]                   + '"', \
+                             '"' +grib_param[i]                   + '"', \
+                             '"' +paramId   [i]                   + '"', \
+                             '"' +units     [i].replace('**', '') + '"', \
+                             '"' +name      [i]                   + '"'))
 
     xml_file.write('</grib_table_ifs_ece2cmor3>\n')
 
