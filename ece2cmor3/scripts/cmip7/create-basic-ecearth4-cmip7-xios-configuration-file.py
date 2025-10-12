@@ -183,7 +183,7 @@ if len(sys.argv) == 2:
 
     # Split in path pf[0] & file pf[1]:
     pf = os.path.split(ping_filename)
-    print(' Reading the file: {}'.format(pf[1]))
+    print(' Reading the ping file: {}'.format(pf[1]))
 
 
     # Create new ping files (and canonical variants) in which the XML comment is transformed to a comment attribute and the unit specified
@@ -299,7 +299,40 @@ if len(sys.argv) == 2:
    with open(ecearth_ping_file_canonic, mode='w', encoding='utf-8') as out_file:
     ET.canonicalize(from_file=ecearth_ping_file, with_comments=True, out=out_file)
 
+   # Test: Load the xml file:
+   tree_main_ping = ET.parse(ecearth_ping_file)
+   root_main = tree_main_ping.getroot()
 
+   xml_filename = 'ec-earth-ping-neat-formatted.xml'
+   with open(xml_filename, 'w') as xml_file:
+    xml_file.write('<ecearth_ping>\n')
+    xml_file.write('  <ecearth_nemo_ping>\n')
+    xml_file.write('    <field_definition id="ocean" original_file="ping_ocean_DR1.00.27.xml">\n')
+
+    # After reading the ping file tree write it with need formatting:
+    for element in root_main_ping.findall('.//field'):
+     if element.text == None:
+      element_text = 'None'
+     else:
+      element_text = element.text
+     xml_file.write('     <field  id={:20} field_ref={:35} ping_unit={:18} ping_comment={:1262}>  {:65}  </field>\n' \
+                    .format('"' +element.get('id')                 + '"', \
+                            '"' +element.get('field_ref')          + '"', \
+                            '"' +element.get('ping_unit')          + '"', \
+                            '"' +element.get('ping_comment')       + '"', \
+                            '"' +element_text                      + '"'))
+
+# For thesting the diff:
+#    xml_file.write('     <field  id={:20} ping_unit={:18} ping_comment={:1262} field_ref={:35}>  {:65}  </field>\n' \
+#                   .format('"' +element.get('id')                 + '"', \
+#                           '"' +element.get('ping_unit')          + '"', \
+#                           '"' +element.get('ping_comment')       + '"', \
+#                           '"' +element.get('field_ref')          + '"', \
+#                           '"' +element_text                      + '"'))
+
+    xml_file.write('    </field_definition>\n')
+    xml_file.write('  </ecearth_nemo_ping>\n')
+    xml_file.write('</ecearth_ping>\n')
 
    ################################################################################
    ###                                    2                                     ###
