@@ -79,6 +79,12 @@ def main():
    xml_filename              = args.xml_file
 
 
+   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2 -r )
+   cmip6_cmip7_mapping_filename = 'cmip7-variables-and-metadata-all.xml'
+   tree_cmip6_cmip7_mapping = ET.parse(cmip6_cmip7_mapping_filename)
+   root_cmip6_cmip7_mapping = tree_cmip6_cmip7_mapping.getroot()
+
+
    # Load the XML file with the ece2cmor grib table content:
    tree_grib_table = ET.parse('./grib-table.xml')
    root_grib_table = tree_grib_table.getroot()
@@ -250,6 +256,8 @@ def main():
       print(' Test XML file: {} {}'.format(element.tag, element.get('varname_code')))
 
 
+   count_error               = 0
+   count_no_cmip7_equivalent = 0
 
    # Alternative direct XML writting in neat column format:
    # Write an XML file with all content in attributes for each variable:
@@ -332,18 +340,40 @@ def main():
       #print(' ifs_code_name: {:>3} {:3} {:15} {}'.format(grib_code, grib_table, ifs_shortname, expression))
 
 
-       xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} long_name={:120} expression={:500} comment={:540} >   </variable>\n' \
-                      .format('"' +cmip6_table     + '"', \
-                              '"' +cmip6_variable  + '"', \
-                              '"' +dimensions      + '"', \
-                              '"' +unit            + '"', \
-                              '"' +varname_code    + '"', \
-                              '"' +ifs_shortname   + '"', \
-                              '"' +model_component + '"', \
-                              '"' +other_component + '"', \
-                              '"' +long_name       + '"', \
-                              '"' +expression      + '"', \
-                              '"' +comment         + '"'))
+       map_xpath = './/variable[@physical_parameter_name="' + cmip6_variable + '"]'
+       count = 0
+       cmip7_compound_name = []
+       for map_el in root_cmip6_cmip7_mapping.findall(map_xpath):
+        if map_el.get('cmip6_table') == cmip6_table:
+         cmip7_compound_name.append(map_el.get('cmip7_compound_name'))
+         if count >= 1:
+          count_error += 1
+          print(' ERROR {:3}: More than one match ({} times) for CMIP6 - CMIP7 mapping for {:12} {:21} {}'.format(count_error, count, cmip6_table, cmip6_variable, cmip7_compound_name[:]))
+         count += 1
+       if count == 0:
+        count_no_cmip7_equivalent += 1
+        cmip7_compound_name.append('no-cmip7-equivalent-var-' + str(count_no_cmip7_equivalent))
+
+       for compound_name in cmip7_compound_name:
+        # Once aagin search through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
+        map_xpath_again = './/variable[@cmip7_compound_name="' + compound_name + '"]'
+        for map_el_again in root_cmip6_cmip7_mapping.findall(map_xpath_again):
+         cmip7_long_name = map_el_again.get('long_name')
+
+        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:122} long_name={:120} expression={:510} comment={:550} >   </variable>\n' \
+                       .format('"' +cmip6_table         + '"', \
+                               '"' +cmip6_variable      + '"', \
+                               '"' +compound_name       + '"', \
+                               '"' +dimensions          + '"', \
+                               '"' +unit                + '"', \
+                               '"' +varname_code        + '"', \
+                               '"' +ifs_shortname       + '"', \
+                               '"' +model_component     + '"', \
+                               '"' +other_component     + '"', \
+                               '"' +cmip7_long_name     + '"', \
+                               '"' +long_name           + '"', \
+                               '"' +expression          + '"', \
+                               '"' +comment             + '"'))
 
      xml_file.write('</cmip6_variables>\n')
 
