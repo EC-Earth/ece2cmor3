@@ -358,6 +358,7 @@ def main():
         # Once aagin search through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
         # Here easily more metadata attributes from the CMIP6 - CMIP7 mapped XML can be added into the request-overview file if necessary.
         map_xpath_again = './/variable[@cmip7_compound_name="' + compound_name + '"]'
+        cmip7_long_name = 'None'
         for map_el_again in root_cmip6_cmip7_mapping.findall(map_xpath_again):
          cmip7_long_name = map_el_again.get('long_name')
 
