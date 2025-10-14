@@ -80,7 +80,7 @@ if [ "$#" -eq 0 ]; then
             "frequency": "yr",                                                                         \
             "modeling_realm": "atmos",                                                                 \
             "standard_name": "carbon_flux_into_ccs_from_direct_air_capture",                           \
-            "units": "1e-06 Pg yr-1",                                                                  \
+            "units": "Pg yr-1",                                                                  \
             "cell_methods": "time: mean",                                                              \
             "cell_measures": "area: areacella",                                                        \
             "long_name": "Carbon flux into CCS from direct Air capture",                               \
