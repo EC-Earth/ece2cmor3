@@ -348,7 +348,7 @@ def main():
          cmip7_compound_name.append(map_el.get('cmip7_compound_name'))
          if count >= 1:
           count_error += 1
-          print(' ERROR {:3}: More than one match ({} times) for CMIP6 - CMIP7 mapping for {:12} {:21} {}'.format(count_error, count, cmip6_table, cmip6_variable, cmip7_compound_name[:]))
+         #print(' Warning {:3}: More than one match ({} times) for CMIP6 - CMIP7 mapping for {:12} {:21} {}'.format(count_error, count, cmip6_table, cmip6_variable, cmip7_compound_name[:]))
          count += 1
        if count == 0:
         count_no_cmip7_equivalent += 1
@@ -356,6 +356,7 @@ def main():
 
        for compound_name in cmip7_compound_name:
         # Once aagin search through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
+        # Here easily more metadata attributes from the CMIP6 - CMIP7 mapped XML can be added into the request-overview file if necessary.
         map_xpath_again = './/variable[@cmip7_compound_name="' + compound_name + '"]'
         for map_el_again in root_cmip6_cmip7_mapping.findall(map_xpath_again):
          cmip7_long_name = map_el_again.get('long_name')
