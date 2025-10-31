@@ -22,31 +22,6 @@ def print_next_step_message(step, comment):
     print(' ##############################################################################################\n')
 
 
-
-def iterwalk(root, events=None, tags=None):
-    """Recuirsive version - Incrementally walks XML structure (like iterparse but for an existing ElementTree structure)
-    From: https://stackoverflow.com/questions/21074361/how-to-recursively-iterate-over-xml-tags-in-python-using-elementtree
-    Returns an iterator providing (event, elem) pairs.
-    Events are start and end
-    events is a list of events to emit - defaults to ["start","end"]
-    tags is a single tag or a list of tags to emit events for - if None or empty list then events are generated for all tags
-    """
-    tags = [] if tags is None else tags if type(tags) == list else [tags]
-    events = events or ["start","end"]
-
-    def recursiveiterator(el,suppressyield=False):
-        if not suppressyield and ( not tags or el.tag in tags ) and "start" in events:
-            yield ("start",el)
-        for child in list(el):
-            yield from recursiveiterator(child)
-        if not suppressyield and  ( not tags or el.tag in tags ) and "end" in events:
-            yield ("end",el)
-
-    def iterator():
-        yield from recursiveiterator( root, suppressyield=True )
-    return iterator
-
-
 def main():
 
  field_def_file_inn = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-innerttrc.xml.j2'
@@ -491,47 +466,6 @@ def main():
 
 
    print(' {}'.format(element_structure))
-
-#for event, element in iterwalk(root_ecearth_field_def):
-#for event, element in tree_ecearth_field_def.iterwalk(store, events=('start', 'end')):
-    #print(event, element)
-    #if element.tag == 'field_definition':
-    #    print(event, element)
-
-#    # Direct XML writing in neat column format:
-#    # Write an XML file with all content in attributes for each variable:
-#    with open('ec-earth-definition-neat-formatted.xml', 'w') as xml_file:
-#     xml_file.write('<ecearth_field_definition>\n')
-#     for component in ['ecearth4_nemo_field_definition', 'ecearth4_oifs_field_definition', 'ecearth4_lpjg_field_definition']:
-#      xml_file.write('  <' + component + '>\n')
-#      xpath_for_neat_formatted = "./ecearth_field_definition/" + component + "/field_definition"
-#     #print(xpath_for_neat_formatted)
-#      # .//ecearth_field_definition/ecearth4_nemo_field_definition/field_definition
-#      # .//ecearth_field_definition/ecearth4_oifs_field_definition/field_definition
-#      # .//ecearth_field_definition/ecearth4_lpjg_field_definition/field_definition
-#     #for element_lev_1 in root_ecearth_field_def.findall(xpath_for_neat_formatted):
-#      for element_lev_1 in root_ecearth_field_def.findall("./ecearth_field_definition/ecearth4_nemo_field_definition/field_definition"):
-#       xml_file.write('    </' + element_lev_1.tag + '>\n')
-
-#      xml_file.write('  </' + component + '>\n')
-#     xml_file.write('</ecearth_field_definition>\n')
-
-# for i in range(len(short_name)):
-#  #print(' Var {:4}: {:100} {:20} {:6} {:6} {:8} {:24}'   .format(i, name[i], short_name[i], grib_table[i], grib_param[i], paramId[i], units[i]))
-#   if name[i] != description[i]:
-#    print(' Var {:4}: {:100} {:20} {:6} {:6} {:8} {:24} {}'.format(i, name[i], short_name[i], grib_table[i], grib_param[i], paramId[i], units[i], description[i]))
-
-#   name[i] = name[i].replace('&','&amp;')
-#   name[i] = name[i].replace('<','&lt;')
-#   name[i] = name[i].replace('>','&gt;')
-
-#   xml_file.write('  <variable  ifs_code_name={:20} grib_table={:6} grib_code={:6} paramID={:8} units={:29} description={:100} >   </variable>\n' \
-#                  .format('"' +short_name[i]                   + '"', \
-#                          '"' +grib_table[i]                   + '"', \
-#                          '"' +grib_param[i]                   + '"', \
-#                          '"' +paramId   [i]                   + '"', \
-#                          '"' +units     [i].replace('**', '') + '"', \
-#                          '"' +name      [i]                   + '"'))
 
 
 
