@@ -277,8 +277,8 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
-  ecearth_field_def_file         = 'ec-earth-definition.xml'           # The one which is not canonicalized
-  ecearth_field_def_file_canonic = 'ec-earth-definition-canonic.xml'   # The one which is     canonicalized
+  ecearth_field_def_filename         = 'ec-earth-definition.xml'           # The one which is not canonicalized
+  ecearth_field_def_filename_canonic = 'ec-earth-definition-canonic.xml'   # The one which is     canonicalized
 
 
   # Create the basic main structure which will be populated with the elements of the various field_def files later on:
@@ -294,22 +294,22 @@ def main():
 
   if False:
    # The xml file with the basic structure can be optionally written to a file now:
-   ecearth_field_def_file_tmp = 'ec-earth-main-structure-tmp.xml'  # The one which is not canonicalized
-   ecearth_field_def_file     = 'ec-earth-main-structure.xml'      # The one which is     canonicalized
+   ecearth_field_def_filename_tmp = 'ec-earth-main-structure-tmp.xml'  # The one which is not canonicalized
+   ecearth_field_def_filename     = 'ec-earth-main-structure.xml'      # The one which is     canonicalized
 
    # Write the basic xml structure to a file:
-   tree_main.write(ecearth_field_def_file_tmp)
+   tree_main.write(ecearth_field_def_filename_tmp)
    # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-   with open(ecearth_field_def_file, mode='w', encoding='utf-8') as out_file:
-    ET.canonicalize(from_file=ecearth_field_def_file_tmp, with_comments=True, out=out_file)
+   with open(ecearth_field_def_filename, mode='w', encoding='utf-8') as out_file:
+    ET.canonicalize(from_file=ecearth_field_def_filename_tmp, with_comments=True, out=out_file)
 
    if False:
     # And optionally read the basic main structure from this file:
-    pf = os.path.split(ecearth_field_def_file)
+    pf = os.path.split(ecearth_field_def_filename)
     print('\n\n {}\n'.format(pf[1]))
 
     # Load the xml file:
-    tree_main = ET.parse(ecearth_field_def_file)
+    tree_main = ET.parse(ecearth_field_def_filename)
     root_main = tree_main.getroot()
 
 
@@ -341,14 +341,14 @@ def main():
   ET.indent(tree_main, space='  ')
 
   # Writing the combined result to a new xml file:
-  tree_main.write(ecearth_field_def_file)
+  tree_main.write(ecearth_field_def_filename)
 
   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-  with open(ecearth_field_def_file_canonic, mode='w', encoding='utf-8') as out_file:
-   ET.canonicalize(from_file=ecearth_field_def_file, with_comments=True, out=out_file)
+  with open(ecearth_field_def_filename_canonic, mode='w', encoding='utf-8') as out_file:
+   ET.canonicalize(from_file=ecearth_field_def_filename, with_comments=True, out=out_file)
 
-  # Read the just created ecearth_field_def_file:
-  tree_ecearth_field_def = ET.parse(ecearth_field_def_file)
+  # Read the just created ecearth_field_def_filename:
+  tree_ecearth_field_def = ET.parse(ecearth_field_def_filename)
   root_ecearth_field_def = tree_ecearth_field_def.getroot()
 
   ecearth_field_def_nf_filename = 'ec-earth-definition-neat-formatted.xml'
@@ -356,7 +356,7 @@ def main():
   # One neat formatted field_def file including all compnent field_def files is created with a controlled order of the attributes:
   with open(ecearth_field_def_nf_filename, 'w') as ecearth_field_def_nf:
    tag_path = []
-   for event, elem_nf in ET.iterparse(ecearth_field_def_file, events=("start", "end")):
+   for event, elem_nf in ET.iterparse(ecearth_field_def_filename, events=("start", "end")):
 
        if event == 'start':
         tag_path.append(elem_nf.tag)
