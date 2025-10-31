@@ -355,7 +355,7 @@ def main():
         cmip7_compound_name.append('no-cmip7-equivalent-var-' + str(count_no_cmip7_equivalent))
 
        for compound_name in cmip7_compound_name:
-        # Once aagin search through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
+        # Search once again through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
         # Here easily more metadata attributes from the CMIP6 - CMIP7 mapped XML can be added into the request-overview file if necessary.
         map_xpath_again = './/variable[@cmip7_compound_name="' + compound_name + '"]'
         cmip7_long_name = 'None'
