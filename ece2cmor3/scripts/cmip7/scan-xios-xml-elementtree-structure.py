@@ -381,6 +381,23 @@ def main():
          attribute_long_name            = 'long_name="'            + str(elem_nf.get('long_name'))            + '"'
          attribute_comment              = 'comment="'              + str(elem_nf.get('comment'))              + '"'
 
+         if True:
+          # Omit all attributes with the value "None":
+          if attribute_id                  [-7:] == '="None"': attribute_field_id             = ''
+          if attribute_field_ref           [-7:] == '="None"': attribute_field_ref            = ''
+          if attribute_enabled             [-7:] == '="None"': attribute_enabled              = ''
+          if attribute_unit                [-7:] == '="None"': attribute_unit                 = ''
+          if attribute_grid_ref            [-7:] == '="None"': attribute_grid_ref             = ''
+          if attribute_name                [-7:] == '="None"': attribute_name                 = ''
+          if attribute_operation           [-7:] == '="None"': attribute_operation            = ''
+          if attribute_freq_op             [-7:] == '="None"': attribute_freq_op              = ''
+          if attribute_freq_offset         [-7:] == '="None"': attribute_freq_offset          = ''
+          if attribute_expr                [-7:] == '="None"': attribute_expr                 = ''
+          if attribute_detect_missing_value[-7:] == '="None"': attribute_detect_missing_value = ''
+          if attribute_standard_name       [-7:] == '="None"': attribute_standard_name        = ''
+          if attribute_long_name           [-7:] == '="None"': attribute_long_name            = ''
+          if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
+
          for attribute in elem_nf.attrib:
           if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
            print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
