@@ -366,24 +366,39 @@ def main():
         #ecearth_field_def_nf.write('{}<{}  '.format(indentation, elem_nf.tag))
          ecearth_field_def_nf.write('          <{}'.format(elem_nf.tag))
 
+         attribute_id                   = 'id="'                   + str(elem_nf.get('id'))                   + '"'
+         attribute_field_ref            = 'field_ref="'            + str(elem_nf.get('field_ref'))            + '"'
+         attribute_enabled              = 'enabled="'              + str(elem_nf.get('enabled'))              + '"'
+         attribute_unit                 = 'unit="'                 + str(elem_nf.get('unit'))                 + '"'
+         attribute_grid_ref             = 'grid_ref="'             + str(elem_nf.get('grid_ref'))             + '"'
+         attribute_name                 = 'name="'                 + str(elem_nf.get('name'))                 + '"'
+         attribute_operation            = 'operation="'            + str(elem_nf.get('operation'))            + '"'
+         attribute_freq_op              = 'freq_op="'              + str(elem_nf.get('freq_op'))              + '"'
+         attribute_freq_offset          = 'freq_offset="'          + str(elem_nf.get('freq_offset'))          + '"'
+         attribute_expr                 = 'expr="'                 + str(elem_nf.get('expr'))                 + '"'
+         attribute_detect_missing_value = 'detect_missing_value="' + str(elem_nf.get('detect_missing_value')) + '"'
+         attribute_standard_name        = 'standard_name="'        + str(elem_nf.get('standard_name'))        + '"'
+         attribute_long_name            = 'long_name="'            + str(elem_nf.get('long_name'))            + '"'
+         attribute_comment              = 'comment="'              + str(elem_nf.get('comment'))              + '"'
+
          for attribute in elem_nf.attrib:
           if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
-           print(' WARNING ATTRIBUTE MISSED: {} tag={}'.format(attribute, elem_nf.tag))
-         ecearth_field_def_nf.write(' id={:28} field_ref={:30} enabled={:9} unit={:20} grid_ref={:33} name={:35} operation={:10} freq_op={:10} freq_offset={:10} expr={:45} detect_missing_value={:10} standard_name={:85} long_name={:92} comment={:50}' \
-                                    .format('"' + str(elem_nf.get('id'))                   + '"', \
-                                            '"' + str(elem_nf.get('field_ref'))            + '"', \
-                                            '"' + str(elem_nf.get('enabled'))              + '"', \
-                                            '"' + str(elem_nf.get('unit'))                 + '"', \
-                                            '"' + str(elem_nf.get('grid_ref'))             + '"', \
-                                            '"' + str(elem_nf.get('name'))                 + '"', \
-                                            '"' + str(elem_nf.get('operation'))            + '"', \
-                                            '"' + str(elem_nf.get('freq_op'))              + '"', \
-                                            '"' + str(elem_nf.get('freq_offset'))          + '"', \
-                                            '"' + str(elem_nf.get('expr'))                 + '"', \
-                                            '"' + str(elem_nf.get('detect_missing_value')) + '"', \
-                                            '"' + str(elem_nf.get('standard_name'))        + '"', \
-                                            '"' + str(elem_nf.get('long_name'))            + '"', \
-                                            '"' + str(elem_nf.get('comment'))              + '"'))
+           print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
+         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:40} {:20} {:18} {:22} {:50} {:31} {:99} {:102} {:58}' \
+                                    .format(attribute_id                  , \
+                                            attribute_field_ref           , \
+                                            attribute_enabled             , \
+                                            attribute_unit                , \
+                                            attribute_grid_ref            , \
+                                            attribute_name                , \
+                                            attribute_operation           , \
+                                            attribute_freq_op             , \
+                                            attribute_freq_offset         , \
+                                            attribute_expr                , \
+                                            attribute_detect_missing_value, \
+                                            attribute_standard_name       , \
+                                            attribute_long_name           , \
+                                            attribute_comment             ))
         else:
          ecearth_field_def_nf.write('{}<{}'.format(indentation, elem_nf.tag))
          for attribute in elem_nf.attrib:
