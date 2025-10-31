@@ -378,6 +378,8 @@ def main():
          attribute_freq_offset          = 'freq_offset="'          + str(elem_nf.get('freq_offset'))          + '"'
          attribute_expr                 = 'expr="'                 + str(elem_nf.get('expr'))                 + '"'
          attribute_detect_missing_value = 'detect_missing_value="' + str(elem_nf.get('detect_missing_value')) + '"'
+         attribute_prec                 = 'prec="'                 + str(elem_nf.get('prec'))                 + '"'
+         attribute_read_access          = 'read_access="'          + str(elem_nf.get('read_access'))          + '"'
          attribute_standard_name        = 'standard_name="'        + str(elem_nf.get('standard_name'))        + '"'
          attribute_long_name            = 'long_name="'            + str(elem_nf.get('long_name'))            + '"'
          attribute_comment              = 'comment="'              + str(elem_nf.get('comment'))              + '"'
@@ -396,14 +398,16 @@ def main():
           if attribute_freq_offset         [-7:] == '="None"': attribute_freq_offset          = ''
           if attribute_expr                [-7:] == '="None"': attribute_expr                 = ''
           if attribute_detect_missing_value[-7:] == '="None"': attribute_detect_missing_value = ''
+          if attribute_prec                [-7:] == '="None"': attribute_prec                 = ''
+          if attribute_read_access         [-7:] == '="None"': attribute_read_access          = ''
           if attribute_standard_name       [-7:] == '="None"': attribute_standard_name        = ''
           if attribute_long_name           [-7:] == '="None"': attribute_long_name            = ''
           if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
 
          for attribute in elem_nf.attrib:
-          if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
+          if attribute not in ['id', 'field_ref', 'enabled', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'prec', 'read_access', 'standard_name', 'long_name', 'comment']:
            print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
-         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:17} {:40} {:20} {:18} {:22} {:50} {:31} {:99} {:102} {:58}' \
+         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
                                     .format(attribute_id                  , \
                                             attribute_field_ref           , \
                                             attribute_enabled             , \
@@ -416,6 +420,8 @@ def main():
                                             attribute_freq_offset         , \
                                             attribute_expr                , \
                                             attribute_detect_missing_value, \
+                                            attribute_prec                , \
+                                            attribute_read_access         , \
                                             attribute_standard_name       , \
                                             attribute_long_name           , \
                                             attribute_comment             ))
