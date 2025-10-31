@@ -400,6 +400,9 @@ def main():
          ecearth_field_def_nf.write('{}</{}>\n'.format(indentation, elem_nf.tag))
         tag_path.pop()
 
+  # Test the XML syntax by reading the just created ecearth_field_def_nf_file:
+  tree_ecearth_field_def_nf = ET.parse(ecearth_field_def_nf_filename)
+  root_ecearth_field_def_nf = tree_ecearth_field_def_nf.getroot()
 
 
  if True:
