@@ -361,7 +361,7 @@ def main():
        if event == 'start':
         tag_path.append(elem_nf.tag)
         indentation = ' ' * 2 * (len(tag_path) - 1)
-        print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
+       #print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
         if elem_nf.tag == 'field':
         #ecearth_field_def_nf.write('{}<{}  '.format(indentation, elem_nf.tag))
          ecearth_field_def_nf.write('          <{}'.format(elem_nf.tag))
@@ -393,7 +393,7 @@ def main():
        elif event == 'end':
         # Add the tag closings:
         indentation = ' ' * 2 * (len(tag_path) - 1)
-        print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
+       #print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
         if elem_nf.tag == 'field':
          ecearth_field_def_nf.write('> </{}>\n'.format(elem_nf.tag))
         else:
