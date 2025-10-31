@@ -353,119 +353,50 @@ def main():
 
  # One neat formatted field_def file including all compnent field_def files is created with a controlled order of the attributes:
  with open('ec-earth-definition-neat-formatted.xml', 'w') as xml_file:
+  tag_path = []
+  for event, elem_nf in ET.iterparse(ecearth_field_def_file, events=("start", "end")):
 
-  if True:
-   tag_path = []
-   for event, elem_nf in ET.iterparse(ecearth_field_def_file, events=("start", "end")):
+      if event == 'start':
+       tag_path.append(elem_nf.tag)
+       indentation = ' ' * 2 * (len(tag_path) - 1)
+       print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
+       if elem_nf.tag == 'field':
+       #xml_file.write('{}<{}  '.format(indentation, elem_nf.tag))
+        xml_file.write('          <{}'.format(elem_nf.tag))
 
-       if event == 'start':
-        tag_path.append(elem_nf.tag)
-        indentation = ' ' * 2 * (len(tag_path) - 1)
-        print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
-        if elem_nf.tag == 'field':
-        #xml_file.write('{}<{}  '.format(indentation, elem_nf.tag))
-         xml_file.write('          <{}'.format(elem_nf.tag))
+        for attribute in elem_nf.attrib:
+         if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
+          print(' WARNING ATTRIBUTE MISSED: {} tag={}'.format(attribute, elem_nf.tag))
+        xml_file.write(' id={:28} field_ref={:30} enabled={:9} unit={:20} grid_ref={:33} name={:35} operation={:10} freq_op={:10} freq_offset={:10} expr={:45} detect_missing_value={:10} standard_name={:85} long_name={:92} comment={:50}' \
+              .format('"' + str(elem_nf.get('id'))                   + '"', \
+                      '"' + str(elem_nf.get('field_ref'))            + '"', \
+                      '"' + str(elem_nf.get('enabled'))              + '"', \
+                      '"' + str(elem_nf.get('unit'))                 + '"', \
+                      '"' + str(elem_nf.get('grid_ref'))             + '"', \
+                      '"' + str(elem_nf.get('name'))                 + '"', \
+                      '"' + str(elem_nf.get('operation'))            + '"', \
+                      '"' + str(elem_nf.get('freq_op'))              + '"', \
+                      '"' + str(elem_nf.get('freq_offset'))          + '"', \
+                      '"' + str(elem_nf.get('expr'))                 + '"', \
+                      '"' + str(elem_nf.get('detect_missing_value')) + '"', \
+                      '"' + str(elem_nf.get('standard_name'))        + '"', \
+                      '"' + str(elem_nf.get('long_name'))            + '"', \
+                      '"' + str(elem_nf.get('comment'))              + '"'))
+       else:
+        xml_file.write('{}<{}'.format(indentation, elem_nf.tag))
+        for attribute in elem_nf.attrib:
+         xml_file.write(' {:}="{:}"'.format(attribute, elem_nf.get(attribute)))
+        xml_file.write('>\n')
 
-         for attribute in elem_nf.attrib:
-          if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
-           print(' WARNING ATTRIBUTE MISSED: {} tag={}'.format(attribute, elem_nf.tag))
-         xml_file.write(' id={:28} field_ref={:30} enabled={:9} unit={:20} grid_ref={:33} name={:35} operation={:10} freq_op={:10} freq_offset={:10} expr={:45} detect_missing_value={:10} standard_name={:85} long_name={:92} comment={:50}' \
-               .format('"' + str(elem_nf.get('id'))                   + '"', \
-                       '"' + str(elem_nf.get('field_ref'))            + '"', \
-                       '"' + str(elem_nf.get('enabled'))              + '"', \
-                       '"' + str(elem_nf.get('unit'))                 + '"', \
-                       '"' + str(elem_nf.get('grid_ref'))             + '"', \
-                       '"' + str(elem_nf.get('name'))                 + '"', \
-                       '"' + str(elem_nf.get('operation'))            + '"', \
-                       '"' + str(elem_nf.get('freq_op'))              + '"', \
-                       '"' + str(elem_nf.get('freq_offset'))          + '"', \
-                       '"' + str(elem_nf.get('expr'))                 + '"', \
-                       '"' + str(elem_nf.get('detect_missing_value')) + '"', \
-                       '"' + str(elem_nf.get('standard_name'))        + '"', \
-                       '"' + str(elem_nf.get('long_name'))            + '"', \
-                       '"' + str(elem_nf.get('comment'))              + '"'))
-        else:
-         xml_file.write('{}<{}'.format(indentation, elem_nf.tag))
-         for attribute in elem_nf.attrib:
-          xml_file.write(' {:}="{:}"'.format(attribute, elem_nf.get(attribute)))
-         xml_file.write('>\n')
-
-       elif event == 'end':
-        # Add the tag closings:
-        indentation = ' ' * 2 * (len(tag_path) - 1)
-        print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
-        if elem_nf.tag == 'field':
-         xml_file.write('> </{}>\n'.format(elem_nf.tag))
-        else:
-         xml_file.write('{}</{}>\n'.format(indentation, elem_nf.tag))
-        tag_path.pop()
-
-
-
-  else:
-   element_structure = []
-   el_nf_tag_previous = None
-   for el_nf in tree_ecearth_field_def.iter():
-   #print(el_nf.tail)
-    if el_nf.tag != el_nf_tag_previous:
-     element_structure.append(el_nf.tag)
-    #el_nf_tag_previous = el_nf.tag
-
-     if el_nf.tag == 'field':
-      for attribute in el_nf.attrib:
-       if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
-        print(' WARNING ATTRIBUTE MISSED: {} tag={}'.format(attribute, el_nf.tag))
-      xml_file.write('      <field id={:28} field_ref={:30} enabled={:9} unit={:20} grid_ref={:33} name={:35} operation={:10} freq_op={:10} freq_offset={:10} expr={:45} detect_missing_value={:10} standard_name={:85} long_name={:92} comment={:50}> </field>\n' \
-            .format('"' + str(el_nf.get('id'))                   + '"', \
-                    '"' + str(el_nf.get('field_ref'))            + '"', \
-                    '"' + str(el_nf.get('enabled'))              + '"', \
-                    '"' + str(el_nf.get('unit'))                 + '"', \
-                    '"' + str(el_nf.get('grid_ref'))             + '"', \
-                    '"' + str(el_nf.get('name'))                 + '"', \
-                    '"' + str(el_nf.get('operation'))            + '"', \
-                    '"' + str(el_nf.get('freq_op'))              + '"', \
-                    '"' + str(el_nf.get('freq_offset'))          + '"', \
-                    '"' + str(el_nf.get('expr'))                 + '"', \
-                    '"' + str(el_nf.get('detect_missing_value')) + '"', \
-                    '"' + str(el_nf.get('standard_name'))        + '"', \
-                    '"' + str(el_nf.get('long_name'))            + '"', \
-                    '"' + str(el_nf.get('comment'))              + '"'))
-     else:
-      if el_nf_tag_previous == 'field':
-       xml_file.write(' </field_group>\n')
-      xml_file.write(' <{}'.format(el_nf.tag))
-      for attribute in el_nf.attrib:
-       xml_file.write(' {:}="{:}"'.format(attribute, el_nf.get(attribute)))
-      xml_file.write('>\n')
-      print(' {}'.format(el_nf.tag))
-     el_nf_tag_previous = el_nf.tag
-    else:
-     if el_nf.tag == 'field':
-      for attribute in el_nf.attrib:
-       if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
-        print(' WARNING ATTRIBUTE MISSED: {} tag={}'.format(attribute, el_nf.tag))
-      xml_file.write('      <field id={:28} field_ref={:30} enabled={:9} unit={:20} grid_ref={:33} name={:35} operation={:10} freq_op={:10} freq_offset={:10} expr={:45} detect_missing_value={:10} standard_name={:85} long_name={:92} comment={:50}> </field>\n' \
-            .format('"' + str(el_nf.get('id'))                   + '"', \
-                    '"' + str(el_nf.get('field_ref'))            + '"', \
-                    '"' + str(el_nf.get('enabled'))              + '"', \
-                    '"' + str(el_nf.get('unit'))                 + '"', \
-                    '"' + str(el_nf.get('grid_ref'))             + '"', \
-                    '"' + str(el_nf.get('name'))                 + '"', \
-                    '"' + str(el_nf.get('operation'))            + '"', \
-                    '"' + str(el_nf.get('freq_op'))              + '"', \
-                    '"' + str(el_nf.get('freq_offset'))          + '"', \
-                    '"' + str(el_nf.get('expr'))                 + '"', \
-                    '"' + str(el_nf.get('detect_missing_value')) + '"', \
-                    '"' + str(el_nf.get('standard_name'))        + '"', \
-                    '"' + str(el_nf.get('long_name'))            + '"', \
-                    '"' + str(el_nf.get('comment'))              + '"'))
-     else:
-      if el_nf_tag_previous == 'field':
-       xml_file.write(' </field_group>\n')
-      print(' {}   SURPRISE'.format(el_nf.tag))
-
-
-   print(' {}'.format(element_structure))
+      elif event == 'end':
+       # Add the tag closings:
+       indentation = ' ' * 2 * (len(tag_path) - 1)
+       print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
+       if elem_nf.tag == 'field':
+        xml_file.write('> </{}>\n'.format(elem_nf.tag))
+       else:
+        xml_file.write('{}</{}>\n'.format(indentation, elem_nf.tag))
+       tag_path.pop()
 
 
 
