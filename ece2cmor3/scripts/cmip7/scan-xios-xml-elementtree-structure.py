@@ -371,6 +371,7 @@ def main():
          attribute_enabled              = 'enabled="'              + str(elem_nf.get('enabled'))              + '"'
          attribute_unit                 = 'unit="'                 + str(elem_nf.get('unit'))                 + '"'
          attribute_grid_ref             = 'grid_ref="'             + str(elem_nf.get('grid_ref'))             + '"'
+         attribute_axis_ref             = 'axis_ref="'             + str(elem_nf.get('axis_ref'))             + '"'
          attribute_name                 = 'name="'                 + str(elem_nf.get('name'))                 + '"'
          attribute_operation            = 'operation="'            + str(elem_nf.get('operation'))            + '"'
          attribute_freq_op              = 'freq_op="'              + str(elem_nf.get('freq_op'))              + '"'
@@ -388,6 +389,7 @@ def main():
           if attribute_enabled             [-7:] == '="None"': attribute_enabled              = ''
           if attribute_unit                [-7:] == '="None"': attribute_unit                 = ''
           if attribute_grid_ref            [-7:] == '="None"': attribute_grid_ref             = ''
+          if attribute_axis_ref            [-7:] == '="None"': attribute_axis_ref             = ''
           if attribute_name                [-7:] == '="None"': attribute_name                 = ''
           if attribute_operation           [-7:] == '="None"': attribute_operation            = ''
           if attribute_freq_op             [-7:] == '="None"': attribute_freq_op              = ''
@@ -399,14 +401,15 @@ def main():
           if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
 
          for attribute in elem_nf.attrib:
-          if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
+          if attribute not in ['id', 'field_ref', 'enabled', 'standard_name', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'long_name', 'comment']:
            print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
-         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:40} {:20} {:18} {:22} {:50} {:31} {:99} {:102} {:58}' \
+         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:17} {:40} {:20} {:18} {:22} {:50} {:31} {:99} {:102} {:58}' \
                                     .format(attribute_id                  , \
                                             attribute_field_ref           , \
                                             attribute_enabled             , \
                                             attribute_unit                , \
                                             attribute_grid_ref            , \
+                                            attribute_axis_ref            , \
                                             attribute_name                , \
                                             attribute_operation           , \
                                             attribute_freq_op             , \
