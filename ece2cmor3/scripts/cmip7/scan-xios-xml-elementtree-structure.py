@@ -261,7 +261,7 @@ def main():
 
 
 
-    print(' {:4} {:12} elements with a field_ref attribute and {:3} with a grid_def attribute as well in the field_def file {}'.format(i_fr, element.tag, i_fr_and_gr, pf[1]))
+    print(' {:4} {:12} elements with a field_ref attribute and {:3} with a grid_ref attribute as well in the field_def file {}'.format(i_fr, element.tag, i_fr_and_gr, pf[1]))
     i_total_fr           = i_total_fr           + i_fr
     i_total_no_fr        = i_total_no_fr        + i_no_fr
     i_total_fr_and_id    = i_total_fr_and_id    + i_fr_and_id
