@@ -461,7 +461,7 @@ def main():
   for tag in tags:
 
    recorded_ids            = []
-   recorded_field_refs     = []
+  #recorded_field_refs     = []
    recorded_names          = []
    duplicated_ids          = []
    duplicated_names        = []
@@ -487,10 +487,10 @@ def main():
 
     if element.get('field_ref'):
      # Select all field elements with a field_ref attribute
-     if element.get('field_ref') in recorded_field_refs:
-      pass
-     else:
-      recorded_field_refs.append(element.get('field_ref'))
+    #if element.get('field_ref') in recorded_field_refs:
+    # pass
+    #else:
+    # recorded_field_refs.append(element.get('field_ref'))
      if element.get('id'):
       field_refs_with_id[element.get('field_ref')] = element.get('id')
      if element.get('name'):
