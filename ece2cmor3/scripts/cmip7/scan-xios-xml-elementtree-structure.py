@@ -38,8 +38,8 @@ def main():
                              ]
 
  if True:
-  # Scan the field_def file stucture, how many layers (child, grandchild and so on). If field_group and field
-  # are defined at the same level. If within a field_group another field_group is defined. Check for other tags
+  # Scan the field_def file stucture, how many layers (child, grandchild and so on). Discover whether a field_group and field
+  # element are defined at the same level. Or whether within a field_group another field_group is defined. Check for other tags
   # than "field" and field_group (this is currently not the case).
   print_next_step_message(1, 'Scan the field_def file stucture')
 
@@ -122,11 +122,11 @@ def main():
   selected_attribute = 'field_ref'
   selected_attribute = 'id'
  #xpath_path         = "./field_group/field_group/"            # Looping over only the field_group elements in the field_group/field_group/       layer
- #xpath_path         = "./field_group/"                        # Looping over only the field_group elements in the field_group/                   layer
+  xpath_path         = "./field_group/"                        # Looping over only the field_group elements in the field_group/                   layer
  #xpath_path         = ".//field_group"                        # Looping over all      field_group elements in any                                layer
  #xpath_path         = "./field_group/field_group/field/"      # Looping over only the field       elements in the field_group/field_group/field/ layer
  #xpath_path         = "./field_group/field/"                  # Looping over only the field       elements in the field_group/                   layer
-  xpath_path         = "./field/"                              # Looping over only the field       elements in the field                          layer  id: agrif_spf, ahmf_2d, ahmf_3d
+ #xpath_path         = "./field/"                              # Looping over only the field       elements in the field                          layer  id: agrif_spf, ahmf_2d, ahmf_3d
  #xpath_path         = ".//field"                              # Looping over all      field       elements in any                                layer
   xpath_expression   = xpath_path + "[@" + selected_attribute + "]"
 
@@ -192,7 +192,8 @@ def main():
 
 
  if True:
-  # Loop over all field & field_group elements at all levels and check more about the explicit field_ref and grid_ref attribute iclusion for the elements (leaving out inheritage here)
+  # Loop over all field & field_group elements at all levels and check more about the explicit field_ref and grid_ref attribute
+  # inclusion for the elements (leaving out inheritage here)
   print_next_step_message(4, 'Loop over all tags with a field_ref attribute, check if id is present')
 
   verbose_level = 0
@@ -230,47 +231,50 @@ def main():
      if element.get('field_ref'):
       # The field elements with a field_ref attribute (some have an id attribute as well)
       i_fr += 1
+      field_ref_info = 'has a  field_ref {:27}'.format(element.get('field_ref'))
       if element.get('id'):
        i_fr_and_id += 1
-       if verbose_level >  0: print(' A {} element has a field_ref {:27} and an id {}'.format(element.tag, element.get('field_ref'), element.get('id')))
+       id_info = 'has    id {:27}'.format(element.get('id'))
       else:
-       if verbose_level >  0: print(' A {} element has a field_ref {:27}'             .format(element.tag, element.get('field_ref')))
-
+       id_info = 'has no id {:27}'.format('')
 
       # Check for grid_ref attribute in case a field_ref attribute is available:
       if element.get('grid_ref'):
        i_fr_and_gr += 1
-       if verbose_level >  0: print(' A {} element has a field_ref {:27} and a grid_ref {}'.format(element.tag, element.get('field_ref'), element.get('grid_ref')))
+       grid_ref_info = 'has    grid_ref {}'.format(element.get('grid_ref'))
       else:
-       if verbose_level >  0: print(' A {} element has a field_ref {:27} but no grid_ref'  .format(element.tag, element.get('field_ref')))
+       grid_ref_info = 'has no grid_ref {}'.format(element.get('grid_ref'))
 
      else:
       # The field elements without a field_ref attribute, they all have an id attribute:
       i_no_fr += 1
+      field_ref_info = 'has no field_ref {:27}'.format('')
       if element.get('id'):
-       if verbose_level >  1: print(' A {} element has an id {:27} but no field_ref attribute'.format(element.tag, element.get('id')))
+       id_info = 'has    id {:27}'.format(element.get('id'))
       else:
+       id_info = 'has no id {:27}'.format('')
        if verbose_level == 1: print(' ERROR: A {} element has no id attribute and no field_ref attribute. This should not occur!'.format(element.tag))
 
       # Check for grid_ref attribute in case no field_ref attribute is available:
       if element.get('grid_ref'):
        i_no_fr_and_gr += 1
-       if verbose_level >  0: print(' A {} element has no field_ref but an id {:27} and a  grid_ref {}'.format(element.tag, element.get('id'), element.get('grid_ref')))
+       grid_ref_info = 'has    grid_ref {}'.format(element.get('grid_ref'))
       else:
-       if verbose_level >  0: print(' A {} element has no field_ref but an id {:27} but no grid_ref'   .format(element.tag, element.get('id')))
+       grid_ref_info = 'has no grid_ref {}'.format(element.get('grid_ref'))
+
+     if verbose_level > 0: print(' A {} element {} and {} and {}'   .format(element.tag, field_ref_info, id_info, grid_ref_info))
 
 
-
-    print(' {:4} {:12} elements with a field_ref attribute and {:3} with a grid_ref attribute as well in the field_def file {}'.format(i_fr, element.tag, i_fr_and_gr, pf[1]))
+    print(' {:4} {:12} elements with a field_ref attribute, {:3} with field_ref & grid_ref attribute, {:3} without field_ref & with grid_ref attribute in the field_def file {}'.format(i_fr, element.tag, i_fr_and_gr, i_no_fr_and_gr, pf[1]))
     i_total_fr           = i_total_fr           + i_fr
     i_total_no_fr        = i_total_no_fr        + i_no_fr
     i_total_fr_and_id    = i_total_fr_and_id    + i_fr_and_id
     i_total_fr_and_gr    = i_total_fr_and_gr    + i_fr_and_gr
     i_total_no_fr_and_gr = i_total_no_fr_and_gr + i_no_fr_and_gr
 
-   print('\n {:4} {:12} elements with a  field_ref attribute in all the field_def files and {:3} of them have an id       attribute as well.'  .format(i_total_fr   , element.tag, i_total_fr_and_id))
-   print(  ' {:4} {:12} elements with a  field_ref attribute in all the field_def files and {:3} of them have a  grid_ref attribute as well.'  .format(i_total_fr   , element.tag, i_total_fr_and_gr))
-   print(  ' {:4} {:12} elements with no field_ref attribute in all the field_def files and {:3} of them have a  grid_ref attribute as well.\n'.format(i_total_no_fr, element.tag, i_total_no_fr_and_gr))
+   print('\n {:4} {:12} elements with a  field_ref attribute in all the field_def files and {:3} of them have an id       attribute.'  .format(i_total_fr   , element.tag, i_total_fr_and_id))
+   print(  ' {:4} {:12} elements with a  field_ref attribute in all the field_def files and {:3} of them have a  grid_ref attribute.'  .format(i_total_fr   , element.tag, i_total_fr_and_gr))
+   print(  ' {:4} {:12} elements with no field_ref attribute in all the field_def files and {:3} of them have a  grid_ref attribute.\n'.format(i_total_no_fr, element.tag, i_total_no_fr_and_gr))
 
 
 
