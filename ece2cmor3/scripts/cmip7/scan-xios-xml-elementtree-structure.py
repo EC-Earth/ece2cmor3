@@ -393,7 +393,7 @@ def main():
 
          if True:
           # Omit all attributes with the value "None":
-          if attribute_id                  [-7:] == '="None"': attribute_field_id             = ''
+          if attribute_id                  [-7:] == '="None"': attribute_id                   = ''
           if attribute_field_ref           [-7:] == '="None"': attribute_field_ref            = ''
           if attribute_enabled             [-7:] == '="None"': attribute_enabled              = ''
           if attribute_unit                [-7:] == '="None"': attribute_unit                 = ''
@@ -454,7 +454,7 @@ def main():
 
 
  if True:
-  print_next_step_message(6, 'Checking the field elements by using the combined field_def files')
+  print_next_step_message(6, 'Checking the field elements by using the combined field_def file')
 
   # Duplicate checking on field attributes:
   tags = ['field', 'field_group']
@@ -474,10 +474,11 @@ def main():
 
    # Check whether there are duplicate id's or duplicate field_ref cases:
    i = 0
+  #for element in root_ecearth_field_def_nf.findall(xpath_expression):
    for element in root_main.findall(xpath_expression):
     i += 1
 
-    if element.get('id'):
+    if element.get('id') and element.get('id') != 'None':
      # Select all field elements with an id attribute
      if element.get('id') in recorded_ids:
       duplicated_ids.append(element.get('id'))
