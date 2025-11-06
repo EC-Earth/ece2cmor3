@@ -464,7 +464,6 @@ def main():
    recorded_field_refs     = []
    recorded_names          = []
    duplicated_ids          = []
-   duplicated_field_refs   = []
    duplicated_names        = []
    field_refs_with_id      = {} # dictionary
    field_refs_with_name    = {} # dictionary
@@ -489,8 +488,7 @@ def main():
     if element.get('field_ref'):
      # Select all field elements with a field_ref attribute
      if element.get('field_ref') in recorded_field_refs:
-      duplicated_field_refs.append(element.get('field_ref'))
-     #print(' WARNING: Duplicate {:12} field_ref: {}'.format(tag, element.get('field_ref')))
+      pass
      else:
       recorded_field_refs.append(element.get('field_ref'))
      if element.get('id'):
@@ -510,7 +508,6 @@ def main():
 
    if True : print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
   #if True : print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
-   if False: print(  ' WARNING: Duplicate {:12} field_ref attributes: {}\n'.format(tag, sorted(set(duplicated_field_refs))))
    if True : print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
    if True : print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted(set(field_refs_without_name))), tag, sorted(set(field_refs_without_name))))
 
