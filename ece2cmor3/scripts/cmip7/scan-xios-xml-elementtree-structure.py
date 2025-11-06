@@ -29,11 +29,13 @@ def main():
  field_def_file_ice = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
  field_def_file_oce = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
  field_def_file_ifs = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
+ field_def_file_lpj = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_lpjg.xml.j2'               # Not existing yet
 
  field_def_file_collection = [field_def_file_inn, \
                               field_def_file_pis, \
                               field_def_file_ice, \
                               field_def_file_oce, \
+                             #field_def_file_lpj, \
                               field_def_file_ifs  \
                              ]
 
@@ -333,9 +335,11 @@ def main():
    # Add a new attribute original_file to each field_definition tag:
    root.set("original_file", pf[1])
 
-   # Append the root element of each field_def file to the level of ecearth4_nemo_field_definition in the new field_def file:
+   # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the new field_def file:
    if field_def_file == field_def_file_ifs:
     xpath_for_merge = ".//ecearth4_oifs_field_definition"
+   elif field_def_file == field_def_file_lpj:
+    xpath_for_merge = ".//ecearth4_lpjg_field_definition"
    else:
     xpath_for_merge = ".//ecearth4_nemo_field_definition"
    for element in root_main.findall(xpath_for_merge):
