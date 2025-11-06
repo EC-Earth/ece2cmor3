@@ -478,7 +478,7 @@ def main():
    for element in root_main.findall(xpath_expression):
     i += 1
 
-    if element.get('id') and element.get('id') != 'None':
+    if element.get('id'):
      # Select all field elements with an id attribute
      if element.get('id') in recorded_ids:
       duplicated_ids.append(element.get('id'))
