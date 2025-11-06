@@ -508,6 +508,7 @@ def main():
 
    if True : print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
   #if True : print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
+  #if True : print(  '          Recorded  {:12} field_ref attributes: {}\n'.format(tag, sorted(set(recorded_field_refs))))
    if True : print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
    if True : print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted(set(field_refs_without_name))), tag, sorted(set(field_refs_without_name))))
 
