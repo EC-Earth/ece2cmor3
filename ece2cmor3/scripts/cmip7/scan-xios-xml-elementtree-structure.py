@@ -527,7 +527,7 @@ def main():
       print('  {:37} {}'.format(key, value))
      print()
 
-   print(' In total we have {:3} {} elements\n'.format(i, tag))
+   print(' In total we have {:3} {} elements\n\n'.format(i, tag))
 
 
 
@@ -537,13 +537,11 @@ def main():
 
    list_of_attributes = []
    xpath_expression = tag
-   print(' At least one time encountered attributes within the xpath search: {}'.format(xpath_expression))
+   print(' Overview of attributes which occur at least one time within the xpath search: {}'.format(xpath_expression))
    for element in root_main.findall(xpath_expression):
     for attribute in element.attrib.keys():
      list_of_attributes.append(attribute)
    print(' {}\n'.format(sorted(list(set(list_of_attributes)))))
-
-
 
   # Check how many tags have a certain attribute:
   for att in ['axis_ref'             , \
@@ -564,13 +562,10 @@ def main():
               'standard_name'        , \
               'unit'                   \
              ]:
-
    i_1 = 0
    i_2 = 0
-
    tags = ['.//field']
    for tag in tags:
-
     list_of_attributes = []
     xpath_expression = tag
    #print(' No {} for:'.format(att))
@@ -583,20 +578,15 @@ def main():
     print(' The {:25} is available in {:4} {} elements and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
   print()
 
-
-
   # Check how many tags have a certain attribute:
   for att in ['chunking_blocksize_target', \
               'grid_ref'                 , \
               'id'                         \
              ]:
-
    i_1 = 0
    i_2 = 0
-
    tags = ['./ecearth4_nemo_field_definition/field_definition/field_group']
    for tag in tags:
-
     list_of_attributes = []
     xpath_expression = tag
    #print(' No {} for:'.format(att))
@@ -609,8 +599,6 @@ def main():
     print(' The {:25} is available in {:4} {} elements (level 1) and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
   print()
 
-
-
   # Check how many tags have a certain attribute:
   for att in ['domain_ref'               , \
               'enabled'                  , \
@@ -618,13 +606,10 @@ def main():
               'id'                       , \
               'operation'                  \
              ]:
-
    i_1 = 0
    i_2 = 0
-
    tags = ['./ecearth4_nemo_field_definition/field_definition/field_group/field_group']
    for tag in tags:
-
     list_of_attributes = []
     xpath_expression = tag
    #print(' No {} for:'.format(att))
@@ -638,9 +623,7 @@ def main():
   print('\n')
 
 
-
   # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
-
 
   def inherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
       print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
