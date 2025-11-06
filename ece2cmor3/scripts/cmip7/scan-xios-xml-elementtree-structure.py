@@ -283,8 +283,9 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
-  ecearth_field_def_filename         = 'ec-earth-definition.xml'           # The one which is not canonicalized
-  ecearth_field_def_filename_canonic = 'ec-earth-definition-canonic.xml'   # The one which is     canonicalized
+  ecearth_field_def_filename         = 'ec-earth-definition.xml'                # The one which is not canonicalized
+  ecearth_field_def_filename_canonic = 'ec-earth-definition-canonic.xml'        # The one which is     canonicalized
+  ecearth_field_def_nf_filename      = 'ec-earth-definition-neat-formatted.xml' # The one with the neat formatted (nf) format with a controlled order of the attributes
 
 
   # Create the basic main structure which will be populated with the elements of the various field_def files later on:
@@ -358,8 +359,6 @@ def main():
   # Read the just created ecearth_field_def_filename:
   tree_ecearth_field_def = ET.parse(ecearth_field_def_filename)
   root_ecearth_field_def = tree_ecearth_field_def.getroot()
-
-  ecearth_field_def_nf_filename = 'ec-earth-definition-neat-formatted.xml'
 
   # One neat formatted field_def file including all compnent field_def files is created with a controlled order of the attributes:
   with open(ecearth_field_def_nf_filename, 'w') as ecearth_field_def_nf:
