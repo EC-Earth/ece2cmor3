@@ -362,7 +362,7 @@ def main():
         for map_el_again in root_cmip6_cmip7_mapping.findall(map_xpath_again):
          cmip7_long_name = map_el_again.get('long_name')
 
-        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:122} long_name={:120} expression={:510} comment={:550} >   </variable>\n' \
+        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:131} long_name={:120} expression={:510} comment={:550} >   </variable>\n' \
                        .format('"' +cmip6_table         + '"', \
                                '"' +cmip6_variable      + '"', \
                                '"' +compound_name       + '"', \
