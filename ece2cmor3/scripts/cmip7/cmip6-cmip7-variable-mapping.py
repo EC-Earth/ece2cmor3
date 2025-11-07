@@ -87,14 +87,14 @@ def main():
       if args.showextracolumns == False:
        varasciifile.write(' {:14} {:25}     {:65}   {}\n'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
       else:
-       varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
+       varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:20} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
       varasciifile.write('\n')
 
      for k, v in all_var_info.items():
       if args.showextracolumns == False:
        varasciifile.write(' {:14} {:25} ==> {:65} | {}\n'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
       else:
-       varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:15} {:20} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
+       varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:120} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:20} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
 
     if args.showmetadata:
      # Write the metadata of the selected list of variables to a json file:
