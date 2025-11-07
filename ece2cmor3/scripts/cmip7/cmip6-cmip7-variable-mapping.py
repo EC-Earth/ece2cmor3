@@ -108,7 +108,7 @@ def main():
      varxmlfile.write('<cmip7_variables>\n')
 
      for k, v in all_var_info.items():
-      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:124} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:15} out_name={:28} type={:10} >   </variable>\n' \
+      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:124} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"'+k                            + '"', \
                                  '"'+v['branded_variable_name'  ] + '"', \
                                  '"'+v['branding_label'         ] + '"', \
