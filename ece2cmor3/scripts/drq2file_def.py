@@ -98,7 +98,7 @@ def main():
         sys.exit('ERROR: Exiting {:}'.format(parser.prog))
 
     for task in ece2cmorlib.tasks:
-         print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
+         print(' {:16} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
         #print(task.target.__dict__)
 
     print(' Number of activated data request tasks is', len(ece2cmorlib.tasks))

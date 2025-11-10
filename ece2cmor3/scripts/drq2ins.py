@@ -103,7 +103,7 @@ def main():
     count = 0
     for task in ece2cmorlib.tasks:
       count = count + 1
-      print(' {:15} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
+      print(' {:20} {:9} {:15} {}'.format(task.target.variable, task.target.table, task.target.units, task.target.frequency))
 
       if task.target.frequency == 'yr':
        instruction_file.write('file_{}_yearly "{}_yearly.out"{}'.format(task.target.variable, task.target.variable, '\n'))
