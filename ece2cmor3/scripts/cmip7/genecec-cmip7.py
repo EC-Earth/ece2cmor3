@@ -54,6 +54,10 @@ from collections import OrderedDict
 import data_request_api
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
+from importlib.metadata import version
+
+PACKAGE_NAME = "CMIP7_data_request_api"
+print('The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
 
 
 def parse_args():
@@ -337,6 +341,7 @@ def main():
          #print('\nCMIP7 priority group: {}\n'.format(priority_group))
           print('\nCMIP7 experiment: {}; CMIP7 priority group: {}\n'.format(experiment, priority_group))
          #print('{} {}'.format(priority_group, variable_list))
+          print('{:65} {:40} {:13} {}'.format('CMIP7 compound name', 'CMIP7 branded variable name', 'CMIP6 table', 'CMIP6 CMOR variable name'))
           for compound_var in variable_list:
            var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=compound_var, verbose=False)
           #print('{}'.format(compound_var))
@@ -348,7 +353,7 @@ def main():
            # Here the CMIP7 - CMIP6 mapping is achieved: The CMIP7 compound name is linked to the CMIP6 table - cmor variable name combination:
            cmip6_table    = var_metadata[compound_var]['cmip6_table']               # CMIP6 cmor table    name
            cmip6_variable = var_metadata[compound_var]['physical_parameter_name']   # CMIP6 cmor variable name
-           print('{:65} {:40} {:10} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], cmip6_table, cmip6_variable))
+           print('{:65} {:40} {:13} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], cmip6_table, cmip6_variable))
           #print('MIPS per var: {}'.format(dr.find_mips_per_variable(compound_var)))
            if cmip6_table in flat_request:
             # If the CMIP6 table is already present in the flat request json list then no action for the CMIP6 table part is needed.
