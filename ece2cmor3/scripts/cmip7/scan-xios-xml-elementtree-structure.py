@@ -546,6 +546,19 @@ def main():
    print(' {}\n'.format(sorted(list(set(list_of_attributes)))))
 
 
+  def check_attribute_occurence(attribute_list, xpath_expression, info):
+      # Check how many tags have a certain attribute:
+      for att in attribute_list:
+       i_1 = 0
+       i_2 = 0
+       for element in root_main.findall(xpath_expression):
+        if att in element.attrib.keys():
+         i_1 += 1
+        else:
+         i_2 += 1
+       print(' The {:25} is available in {:4} {} elements{} and {:4} times this is not the case.'.format(att, i_1, element.tag, info, i_2))
+      print()
+
   attribute_list_for_field_elements                 =  ['axis_ref'                 , \
                                                         'comment'                  , \
                                                         'detect_missing_value'     , \
@@ -577,29 +590,12 @@ def main():
                                                         'operation'                  \
                                                        ]
 
-  def check_attribute_occurence(attribute_list, xpath, info):
-      # Check how many tags have a certain attribute:
-      for att in attribute_list:
-       i_1 = 0
-       i_2 = 0
-       tags = [xpath]
-       for tag in tags:
-        list_of_attributes = []
-        xpath_expression = tag
-       #print(' No {} for:'.format(att))
-        for element in root_main.findall(xpath_expression):
-         if att in element.attrib.keys():
-          i_1 += 1
-         else:
-          i_2 += 1
-         #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
-        print(' The {:25} is available in {:4} {} elements{} and {:4} times this is not the case.'.format(att, i_1, element.tag, info, i_2))
-      print()
-
   check_attribute_occurence(attribute_list_for_field_elements                 , './/field'                                                                 , '')
   check_attribute_occurence(attribute_list_for_field_group_elements_of_level_1, './ecearth4_nemo_field_definition/field_definition/field_group'            , ' (level 1)')
   check_attribute_occurence(attribute_list_for_field_group_elements_of_level_2, './ecearth4_nemo_field_definition/field_definition/field_group/field_group', ' (level 2)')
   print()
+
+
 
   # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
 
