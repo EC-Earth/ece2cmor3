@@ -599,13 +599,6 @@ def main():
 
   # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
 
-  def inherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
-      print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
-
-  def id_inherit_message(attribute, ancestor_element, element, i, ancestor_label):
-      print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
-
-
   i    = 0
   i_fr = 0
 
@@ -634,10 +627,26 @@ def main():
      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
     else:
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
+     # The current catch here (spaces changed for the one with captitals) is:
+     #  <field id="ttrd_evd_li" long_name="layer integrated heat-trend: evd convection " unit="W/m^2">ttrd_evd_e3t * 1026.0 * 3991.86795711963  </field>
+     #  <field id="ttrd_evd_li" long_name="layer integrated heat-trend: EVD convection " unit="W/m^2">ttrd_evd_e3t * 1026.0 * 3991.86795711963  </field>
+     #  <field id="strd_evd_li" long_name="layer integrated salt-trend: evd convection " unit="kg/(m^2 s)"> strd_evd_e3t * 1026.0 * 0.001  </field>
+     #  <field id="strd_evd_li" long_name="layer integrated salt-trend: EVD convection " unit="kg/(m^2 s)"> strd_evd_e3t * 1026.0 * 0.001  </field>
   print('\n')
 
 
   # Inherit field element properties (i.e. attributes) via field_def references:
+
+  def inherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
+      print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+
+  def id_inherit_message(attribute, ancestor_element, element, i, ancestor_label):
+      print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+
+
+# def ninherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
+#     print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+#     print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
   xpath_path       = ".//field"                              # Looping over all field elements in any layer
   xpath_expression = xpath_path
@@ -660,10 +669,10 @@ def main():
 
     if True:
      # Check whether the field_ref field itself also points to a field_ref:
-     # So far this is only the check, no further change of inherit decission is made here yet when one or more references are detected.
+     # So far this is only the check, no further change due to any inherit decission is made here yet (when a references or even a chain of references are detected).
      for element_ref_level_1 in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
       if element_ref_level_1.get('field_ref'):
-         print(' WARNING 1: The detected 1st level field_ref is pointing itself to a           field_ref as well for: via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref')))
+         print(' WARNING 1: The detected 1st level field_ref is pointing itself to a 2nd level field_ref as well for: via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref')))
 
          # Check whether the second level field_ref field itself also points again to another field_ref:
          for element_ref_level_2 in root_main.findall('.//field[@id="'+element_ref_level_1.get('field_ref')+'"]'):
