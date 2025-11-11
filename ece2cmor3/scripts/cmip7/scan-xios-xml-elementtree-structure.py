@@ -499,36 +499,39 @@ def main():
       field_refs_without_name.append(element.get('field_ref'))
 
     if element.get('name'):
-     # Select all field elements with an name attribute
+     # Select all field elements with a name attribute
      if element.get('name') in recorded_names:
       duplicated_names.append(element.get('name'))
      #print(' WARNING: Duplicate {:12} name: {}'.format(tag, element.get('name')))
      else:
       recorded_names.append(element.get('name'))
 
-   if True : print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
-  #if True : print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
-  #if True : print(  '          Recorded  {:12} field_ref attributes: {}\n'.format(tag, sorted(set(recorded_field_refs))))
-   if True : print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
-   if True : print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted(set(field_refs_without_name))), tag, sorted(set(field_refs_without_name))))
+   print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
+  #print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
+  #print(  '          Recorded  {:12} field_ref attributes: {}\n'.format(tag, sorted(set(recorded_field_refs))))
+   print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
+   print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted(set(field_refs_without_name))), tag, sorted(set(field_refs_without_name))))
 
-   if True:
-    if len(field_refs_with_id) > 0:
-     print('\n The {} field_ref elements which also have an id:'.format(tag))
-     print('  {:37} {}'.format('field_ref', 'id'))
-     for key, value in field_refs_with_id.items():
-      print('  {:37} {}'.format(key, value))
-     print()
+   if len(field_refs_with_id) > 0:
+    print('\n The {} elements with a field_ref attribute which also have an id attribute:'.format(tag))
+    print('  {:37} {}'.format('field_ref', 'id'))
+    for key, value in field_refs_with_id.items():
+     print('  {:37} {}'.format(key, value))
+    print()
    if False:
     if len(field_refs_with_name) > 0:
-     print('\n The {} field_ref elements which also have a name:'.format(tag))
+     print('\n The {} elements with a field_ref attribute which also have a name attribute:'.format(tag))
      print('  {:37} {}'.format('field_ref', 'name'))
      for key, value in field_refs_with_name.items():
       print('  {:37} {}'.format(key, value))
      print()
 
-   print(' In total we have {:3} {} elements\n\n'.format(i, tag))
-
+   print(' In total we have {:3} {} elements'.format(i, tag))
+   print('  {:3} of them have both a field_ref and an id   attribute'.format(len(field_refs_with_id)))
+   print('  {:3} of them have both a field_ref and a  name attribute'.format(len(field_refs_with_name)))
+   print('  {:3} of them have      a field_ref but no name attribute ({} of them have a different field_ref value)'.format(len(field_refs_without_name), len(set(field_refs_without_name))))
+   print('  {:3} of them have a duplicate id   attribute'.format(len(duplicated_ids)))
+   print('  {:3} of them have a duplicate name attribute\n'.format(len(duplicated_names)))
 
 
   # Check which list of attributes are part of the field elements and of the two field_group elements levels:
