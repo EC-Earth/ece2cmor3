@@ -533,7 +533,6 @@ def main():
    print('  {:3} of them have a duplicate id   attribute'.format(len(duplicated_ids)))
    print('  {:3} of them have a duplicate name attribute\n'.format(len(duplicated_names)))
 
-
   # Check which list of attributes are part of the field elements and of the two field_group elements levels:
   tags = ['.//field', './ecearth4_nemo_field_definition/field_definition/field_group', './ecearth4_nemo_field_definition/field_definition/field_group/field_group']
   for tag in tags:
@@ -546,85 +545,61 @@ def main():
      list_of_attributes.append(attribute)
    print(' {}\n'.format(sorted(list(set(list_of_attributes)))))
 
-  # Check how many tags have a certain attribute:
-  for att in ['axis_ref'             , \
-              'comment'              , \
-              'detect_missing_value' , \
-              'enabled'              , \
-              'expr'                 , \
-              'field_ref'            , \
-              'freq_offset'          , \
-              'freq_op'              , \
-              'grid_ref'             , \
-              'id'                   , \
-              'long_name'            , \
-              'name'                 , \
-              'operation'            , \
-              'prec'                 , \
-              'read_access'          , \
-              'standard_name'        , \
-              'unit'                   \
-             ]:
-   i_1 = 0
-   i_2 = 0
-   tags = ['.//field']
-   for tag in tags:
-    list_of_attributes = []
-    xpath_expression = tag
-   #print(' No {} for:'.format(att))
-    for element in root_main.findall(xpath_expression):
-     if att in element.attrib.keys():
-      i_1 += 1
-     else:
-      i_2 += 1
-     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
-    print(' The {:25} is available in {:4} {} elements and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
+
+  attribute_list_for_field_elements                 =  ['axis_ref'                 , \
+                                                        'comment'                  , \
+                                                        'detect_missing_value'     , \
+                                                        'enabled'                  , \
+                                                        'expr'                     , \
+                                                        'field_ref'                , \
+                                                        'freq_offset'              , \
+                                                        'freq_op'                  , \
+                                                        'grid_ref'                 , \
+                                                        'id'                       , \
+                                                        'long_name'                , \
+                                                        'name'                     , \
+                                                        'operation'                , \
+                                                        'prec'                     , \
+                                                        'read_access'              , \
+                                                        'standard_name'            , \
+                                                        'unit'                       \
+                                                       ]
+
+  attribute_list_for_field_group_elements_of_level_1 = ['chunking_blocksize_target', \
+                                                        'grid_ref'                 , \
+                                                        'id'                         \
+                                                       ]
+
+  attribute_list_for_field_group_elements_of_level_2 = ['domain_ref'               , \
+                                                        'enabled'                  , \
+                                                        'grid_ref'                 , \
+                                                        'id'                       , \
+                                                        'operation'                  \
+                                                       ]
+
+  def check_attribute_occurence(attribute_list, xpath, info):
+      # Check how many tags have a certain attribute:
+      for att in attribute_list:
+       i_1 = 0
+       i_2 = 0
+       tags = [xpath]
+       for tag in tags:
+        list_of_attributes = []
+        xpath_expression = tag
+       #print(' No {} for:'.format(att))
+        for element in root_main.findall(xpath_expression):
+         if att in element.attrib.keys():
+          i_1 += 1
+         else:
+          i_2 += 1
+         #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
+        print(' The {:25} is available in {:4} {} elements{} and {:4} times this is not the case.'.format(att, i_1, element.tag, info, i_2))
+      print()
+
+  check_attribute_occurence(attribute_list_for_field_elements                 , './/field'                                                                 , '')
+  check_attribute_occurence(attribute_list_for_field_group_elements_of_level_1, './ecearth4_nemo_field_definition/field_definition/field_group'            , ' (level 1)')
+  check_attribute_occurence(attribute_list_for_field_group_elements_of_level_2, './ecearth4_nemo_field_definition/field_definition/field_group/field_group', ' (level 2)')
   print()
-
-  # Check how many tags have a certain attribute:
-  for att in ['chunking_blocksize_target', \
-              'grid_ref'                 , \
-              'id'                         \
-             ]:
-   i_1 = 0
-   i_2 = 0
-   tags = ['./ecearth4_nemo_field_definition/field_definition/field_group']
-   for tag in tags:
-    list_of_attributes = []
-    xpath_expression = tag
-   #print(' No {} for:'.format(att))
-    for element in root_main.findall(xpath_expression):
-     if att in element.attrib.keys():
-      i_1 += 1
-     else:
-      i_2 += 1
-     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
-    print(' The {:25} is available in {:4} {} elements (level 1) and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
-  print()
-
-  # Check how many tags have a certain attribute:
-  for att in ['domain_ref'               , \
-              'enabled'                  , \
-              'grid_ref'                 , \
-              'id'                       , \
-              'operation'                  \
-             ]:
-   i_1 = 0
-   i_2 = 0
-   tags = ['./ecearth4_nemo_field_definition/field_definition/field_group/field_group']
-   for tag in tags:
-    list_of_attributes = []
-    xpath_expression = tag
-   #print(' No {} for:'.format(att))
-    for element in root_main.findall(xpath_expression):
-     if att in element.attrib.keys():
-      i_1 += 1
-     else:
-      i_2 += 1
-     #print(' field_ref: {:27} id: {}'.format(str(element.get('field_ref')), str(element.get('id'))))
-    print(' The {:25} is available in {:4} {} elements (level 2) and {:4} times this is not the case.'.format(att, i_1, element.tag, i_2))
-  print('\n')
-
 
   # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
 
