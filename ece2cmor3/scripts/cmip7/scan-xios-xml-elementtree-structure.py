@@ -506,11 +506,14 @@ def main():
      else:
       recorded_names.append(element.get('name'))
 
-   print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted(set(duplicated_ids))))
-  #print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
-  #print(  '          Recorded  {:12} field_ref attributes: {}\n'.format(tag, sorted(set(recorded_field_refs))))
-   print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted(set(duplicated_names))))
-   print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted(set(field_refs_without_name))), tag, sorted(set(field_refs_without_name))))
+   sorted_set_duplicated_ids          = sorted(set(duplicated_ids         ))
+   sorted_set_duplicated_names        = sorted(set(duplicated_names       ))
+   sorted_set_field_refs_without_name = sorted(set(field_refs_without_name))
+   if len(sorted_set_duplicated_ids         ) != 0: print('\n WARNING: Duplicate {:12} id        attributes: {}\n'.format(tag, sorted_set_duplicated_ids))
+  #if len(sorted_set_recorded_ids           ) != 0: print('\n          Recorded  {:12} id        attributes: {}\n'.format(tag, sorted(set(recorded_ids))))
+  #if len(sorted_set_recorded_field_refs    ) != 0: print(  '          Recorded  {:12} field_ref attributes: {}\n'.format(tag, sorted(set(recorded_field_refs))))
+   if len(sorted_set_duplicated_names       ) != 0: print(  ' WARNING: Duplicate {:12} name      attributes: {}\n'.format(tag, sorted_set_duplicated_names))
+   if len(sorted_set_field_refs_without_name) != 0: print(  ' WARNING: {} {:12} elements with a field_ref but without a name {}\n'.format(len(sorted_set_field_refs_without_name), tag, sorted_set_field_refs_without_name))
 
    if len(field_refs_with_id) > 0:
     print('\n The {} elements with a field_ref attribute which also have an id attribute:'.format(tag))
