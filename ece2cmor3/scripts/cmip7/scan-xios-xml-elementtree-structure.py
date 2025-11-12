@@ -653,8 +653,11 @@ def main():
       # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a recursive check is carried out for this element.
       for referenced_element in root_main.findall('.//field[@id="'+starting_element.get('field_ref')+'"]'):
        if referenced_element.get('field_ref'):
+          if referenced_element.get('field_ref') in chain_of_reference:
+           print(' ERROR: A field_ref loop is detected: The field_ref {:20} is already present in the chain: {} \n Aborting'.format(referenced_element.get('field_ref'), print_reference_chain(chain_of_reference)))
+           sys.exit(' stop')
           chain_of_reference.append(referenced_element.get('field_ref'))
-          print(' WARNING: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_element.get('field_ref'), referenced_element.get('field_ref'), print_reference_chain(chain_of_reference)))
+          print(' Field_ref chain: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_element.get('field_ref'), referenced_element.get('field_ref'), print_reference_chain(chain_of_reference)))
           find_referenced_element(referenced_element, chain_of_reference)
 
 
