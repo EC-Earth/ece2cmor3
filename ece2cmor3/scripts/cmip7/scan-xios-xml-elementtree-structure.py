@@ -643,13 +643,18 @@ def main():
   def id_inherit_message(attribute, ancestor_element, element, i, ancestor_label):
       print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
+  def print_reference_chain(chain_of_reference):
+       chain = ' Id: {:20} '.format(chain_of_reference[0])
+       for string in chain_of_reference[1:]:
+        chain += ' => {:20}'.format(string)
+       return chain
 
   def find_referenced_element(starting_element, chain_of_reference):
       # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a recursive check is carried out for this element.
       for referenced_element in root_main.findall('.//field[@id="'+starting_element.get('field_ref')+'"]'):
        if referenced_element.get('field_ref'):
           chain_of_reference.append(referenced_element.get('field_ref'))
-          print(' WARNING: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_element.get('field_ref'), referenced_element.get('field_ref'),chain_of_reference))
+          print(' WARNING: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_element.get('field_ref'), referenced_element.get('field_ref'), print_reference_chain(chain_of_reference)))
           find_referenced_element(referenced_element, chain_of_reference)
 
 
@@ -673,7 +678,9 @@ def main():
 
 
     if True:
-     chain_of_reference = [element.get('field_ref')]
+     # The chain of references contains on the very first element the id of the starting element, thereafter in the recursive function the field_ref's
+     # are added one by one in case more references are detected.
+     chain_of_reference = [element.get('id'), element.get('field_ref')]
      find_referenced_element(element, chain_of_reference)
 
 
