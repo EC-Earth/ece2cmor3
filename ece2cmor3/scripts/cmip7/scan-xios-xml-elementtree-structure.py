@@ -681,17 +681,19 @@ def main():
     i_fr += 1
     print()
 
+    # The chain of references contains on the very first element the id of the starting element, thereafter in the recursive function the field_ref's
+    # are added one by one in case more references are detected.
+    chain_of_reference = [element.get('id'), element.get('field_ref')]
+    find_referenced_element(element, chain_of_reference)
 
-    if True:
-     # The chain of references contains on the very first element the id of the starting element, thereafter in the recursive function the field_ref's
-     # are added one by one in case more references are detected.
-     chain_of_reference = [element.get('id'), element.get('field_ref')]
-     find_referenced_element(element, chain_of_reference)
-
+    # Loop & check over those attributes which we wnat to set explicitly in the file_def files lateron. Apply the inheritance 
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
       # Inherit attribute if applicable:
       if element.get(attribute):
+                   if element.get(attribute) == 'None':
+                    print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
+                   # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
                    inherit_message(attribute,                 element, element, i, i_fr, 'has for                             ')
       else:
        for field_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
