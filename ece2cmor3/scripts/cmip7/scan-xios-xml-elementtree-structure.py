@@ -686,45 +686,6 @@ def main():
      chain_of_reference = [element.get('id'), element.get('field_ref')]
      find_referenced_element(element, chain_of_reference)
 
-
-    if False:
-     # Check whether the field_ref field itself also points to a field_ref:
-     # So far this is only the check, no further change due to any inherit decission is made here yet (when a references or even a chain of references are detected).
-     for element_ref_level_1 in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
-      if element_ref_level_1.get('field_ref'):
-         print(' WARNING 1: The detected 1st level field_ref is pointing itself to a 2nd level field_ref as well for: via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref')))
-
-         # Check whether the second level field_ref field itself also points again to another field_ref:
-         for element_ref_level_2 in root_main.findall('.//field[@id="'+element_ref_level_1.get('field_ref')+'"]'):
-          if element_ref_level_2.get('field_ref'):
-             print(' WARNING 2: The detected 2nd level field_ref is pointing itself to a 3rd level field_ref as well for: {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref')))
-
-             # Check whether the third level field_ref field itself also points again to another field_ref:
-             for element_ref_level_3 in root_main.findall('.//field[@id="'+element_ref_level_2.get('field_ref')+'"]'):
-              if element_ref_level_3.get('field_ref'):
-                 print(' WARNING 3: The detected 3rd level field_ref is pointing itself to a 4th level field_ref as well for: {} via {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref'), element_ref_level_3.get('field_ref')))
-
-                 # Check whether the third level field_ref field itself also points again to another field_ref:
-                 for element_ref_level_4 in root_main.findall('.//field[@id="'+element_ref_level_3.get('field_ref')+'"]'):
-                  if element_ref_level_4.get('field_ref'):
-                     print(' WARNING 4: The detected 4th level field_ref is pointing itself to a 5th level field_ref as well for: {} via {} via {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref'), element_ref_level_3.get('field_ref'), element_ref_level_4.get('field_ref')))
-
-                     # Check whether the third level field_ref field itself also points again to another field_ref:
-                     for element_ref_level_5 in root_main.findall('.//field[@id="'+element_ref_level_4.get('field_ref')+'"]'):
-                      if element_ref_level_5.get('field_ref'):
-                         print(' WARNING 5: The detected 5th level field_ref is pointing itself to a 6th level field_ref as well for: {} via {} via {} via {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref'), element_ref_level_3.get('field_ref'), element_ref_level_4.get('field_ref'), element_ref_level_5.get('field_ref')))
-
-                         # Check whether the third level field_ref field itself also points again to another field_ref:
-                         for element_ref_level_6 in root_main.findall('.//field[@id="'+element_ref_level_5.get('field_ref')+'"]'):
-                          if element_ref_level_6.get('field_ref'):
-                             print(' WARNING 6: The detected 6th level field_ref is pointing itself to a 7th level field_ref as well for: {} via {} via {} via {} via {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref'), element_ref_level_3.get('field_ref'), element_ref_level_4.get('field_ref'), element_ref_level_5.get('field_ref'), element_ref_level_6.get('field_ref')))
-
-                             # Check whether the third level field_ref field itself also points again to another field_ref:
-                             for element_ref_level_7 in root_main.findall('.//field[@id="'+element_ref_level_6.get('field_ref')+'"]'):
-                              if element_ref_level_7.get('field_ref'):
-                                 print(' WARNING 7: The detected 7th level field_ref is pointing itself to a 8th level field_ref as well for: {} via {} via {} via {} via {} via {} to  {}'.format(element.get('field_ref'), element_ref_level_1.get('field_ref'), element_ref_level_2.get('field_ref'), element_ref_level_3.get('field_ref'), element_ref_level_4.get('field_ref'), element_ref_level_5.get('field_ref'), element_ref_level_6.get('field_ref'), element_ref_level_7.get('field_ref')))
-
-
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
       # Inherit attribute if applicable:
