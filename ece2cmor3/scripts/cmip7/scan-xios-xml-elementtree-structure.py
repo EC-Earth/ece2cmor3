@@ -644,9 +644,13 @@ def main():
       print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
 
-# def ninherit_message(attribute, ancestor_element, element, i, i_fr, ancestor_label):
-#     print(' The {:11} element {:4} with field_ref attribute: {:27} (i_fr = {:3}) {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('field_ref'), i_fr, ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
-#     print(' The {:11} element {:4} with id        attribute: {:27}              {:25} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(element.tag, i, element.get('id')              , ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+  def find_referenced_element(starting_element):
+      # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a recursive check is carried out for this element.
+      for referenced_element in root_main.findall('.//field[@id="'+starting_element.get('field_ref')+'"]'):
+       if referenced_element.get('field_ref'):
+          print(' WARNING: The detected field_ref {:22} is pointing itself as well to another field_ref {}'.format(starting_element.get('field_ref'), referenced_element.get('field_ref')))
+          find_referenced_element(referenced_element)
+
 
   xpath_path       = ".//field"                              # Looping over all field elements in any layer
   xpath_expression = xpath_path
@@ -667,7 +671,10 @@ def main():
     print()
 
 
-    if True:
+    if True: find_referenced_element(element)
+
+
+    if False:
      # Check whether the field_ref field itself also points to a field_ref:
      # So far this is only the check, no further change due to any inherit decission is made here yet (when a references or even a chain of references are detected).
      for element_ref_level_1 in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
