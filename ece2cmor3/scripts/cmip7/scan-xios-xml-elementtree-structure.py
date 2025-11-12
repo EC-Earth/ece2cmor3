@@ -689,10 +689,9 @@ def main():
     chain_of_reference = [element.get('id'), element.get('field_ref')]
     find_referenced_element(element, chain_of_reference)
 
-    # Loop & check over those attributes which we wnat to set explicitly in the file_def files lateron. Apply the inheritance 
+    # Loop & check over those attributes which we want to set explicitly in the file_def files lateron. Apply the inheritance if applicable:
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
-      # Inherit attribute if applicable:
       if element.get(attribute):
                    if element.get(attribute) == 'None':
                     print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
@@ -748,6 +747,9 @@ def main():
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
      if element.get(attribute):
+                   if element.get(attribute) == 'None':
+                    print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
+                   # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
                    id_inherit_message(attribute,                 element, element, i, 'has for                             ')
      else:
          # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of their parent:
@@ -794,7 +796,7 @@ def main():
 # inherit before: unit, freq_offset, grid_ref;  add: id, text
 
 
-# From the basic flat ece4 file_def file, giving an idea which attributes were expkicitly taken to the file_def file
+# From the basic flat ece4 file_def file, giving an idea which attributes were explicitly taken to the file_def file
 #   <file id="file8" name_suffix="_opa_grid_T_2D" output_freq="3h">
 
 #    <field id="id_3h_tos"                                      # id_<cmip6 var name>_<cmip6 table name>
