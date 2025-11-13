@@ -667,14 +667,11 @@ def main():
           find_referenced_element(referenced_element, chain_of_reference)
 
   def inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade):
-      #print(' xpe: {}'.format(xpath_expression_in_chain))
        count = 0
        for field_element in root_main.findall(xpath_expression_in_chain):
         count += 1
         if count > 1: 
-         print(' ERROR: {} times a same field id is detected. Duplicates may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}'.format(count, attribute, starting_element.get('field_ref')))
-         # ERROR: For field element 1553 with field_ref ttrd_evd_li                 multiple field id ['ttrd_evd_li', 'ttrd_evd_li'] with grid_ref [None, None] are detected, which leads to an ambiguity
-         # ERROR: For field element 1554 with field_ref strd_evd_li                 multiple field id ['strd_evd_li', 'strd_evd_li'] with grid_ref [None, None] are detected, which leads to an ambiguity
+         print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
         if field_element.tag == 'ecearth_field_definition':
          inherit_message(attribute, field_element, starting_element, i, i_fr, 'no inheritance up to                ')
          return
@@ -696,7 +693,6 @@ def main():
                    else:
                     label = 'inherits from       Xggggrand parent'
                   #inherit_message(attribute, field_element, starting_element, i, i_fr, label + ' (AG=' + str(ancestor_grade) + ') ')
-                  #inherit_message(attribute, field_element, starting_element, i, i_fr, 'inherits from              field_ref')
                    inherit_message(attribute, field_element, starting_element, i, i_fr, label)
                    return
         else:
@@ -732,62 +728,14 @@ def main():
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
       if element.get(attribute):
-                   if element.get(attribute) == 'None':
-                    print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
-                   # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
-                   inherit_message(attribute,                 element, element, i, i_fr, 'has for                             ')
+       if element.get(attribute) == 'None':
+        print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
+       # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
+       inherit_message(attribute,                 element, element, i, i_fr, 'has for                             ')
       else:
-
-       xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
        ancestor_grade = 0
+       xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
        inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
-
-
-       if False:
-        xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
-        for field_element in root_main.findall(xpath_expression_in_chain):
-         if field_element.get(attribute):
-                    # Inherit the attribute from the field which matched with the field_ref field:
-                    element.set(attribute, field_element.get(attribute))
-                    inherit_message(attribute,           field_element, element, i, i_fr, 'inherits from              field_ref')
-         else:
-          # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of the parent of the field_ref field:
-          xpath_expression_in_chain += '/...'
-          for parent_element in root_main.findall(xpath_expression_in_chain):
-           if parent_element.get(attribute):
-                    # Inherit the attribute from the parent of the field which matched with the field_ref field:
-                    element.set(attribute, parent_element.get(attribute))
-                    inherit_message(attribute,          parent_element, element, i, i_fr, 'inherits from                 parent')
-           else:
-            # For those field elements which neither have the attribute in their direct attribute list or in the attribute list of their parent: Searchzs for the attribute within the attribute list of the grand parent of the field_ref field:
-            xpath_expression_in_chain += '/...'
-            for grand_parent_element in root_main.findall(xpath_expression_in_chain):
-             if grand_parent_element.get(attribute):
-                    # Inherit the attribute from the grand parent of the field which matched with the field_ref field:
-                    element.set(attribute, grand_parent_element.get(attribute))
-                    inherit_message(attribute,    grand_parent_element, element, i, i_fr, 'inherits from           grand parent')
-             else:
-              xpath_expression_in_chain += '/...'
-              for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../...'):
-               if ggrand_parent_element.get(attribute):
-                    # Inherit the attribute from the grand grand parent of the field which matched with the field_ref field:
-                    element.set(attribute, ggrand_parent_element.get(attribute))
-                    inherit_message(attribute,   ggrand_parent_element, element, i, i_fr, 'inherits from          ggrand parent')
-               else:
-                for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../...'):
-                 if gggrand_parent_element.get(attribute):
-                    # Inherit the attribute from the grand grand grand parent of the field which matched with the field_ref field:
-                    element.set(attribute, gggrand_parent_element.get(attribute))
-                    inherit_message(attribute,  gggrand_parent_element, element, i, i_fr, 'inherits from         gggrand parent')
-                 else:
-                  for ggggrand_parent_element in root_main.findall('.//field[@id="'+element.get('field_ref')+'"].../.../.../.../...'):
-                   if ggggrand_parent_element.get(attribute):
-                    # Inherit the attribute from the grand grand grand grand parent of the field which matched with the field_ref field:
-                    element.set(attribute, ggggrand_parent_element.get(attribute))
-                    inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'inherits from        ggggrand parent')
-                   else:
-                    inherit_message(attribute, ggggrand_parent_element, element, i, i_fr, 'no inheritance up to                ')
-
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
