@@ -701,16 +701,10 @@ def main():
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
 
-  xpath_path       = ".//field"                              # Looping over all field elements in any layer
-  xpath_expression = xpath_path
- #xpath_expression = xpath_path + "[@" + selected_attribute + "]"
-
- #for attribute in ['grid_ref', 'operation', 'domain_ref']:
- #for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
   i    = 0
   i_fr = 0
 
-  for element in root_main.findall(xpath_expression):
+  for element in root_main.findall('.//field'):
    i += 1
 
    if element.get('field_ref'):
@@ -725,7 +719,7 @@ def main():
     find_referenced_element(element, chain_of_reference)
 
     # Loop & check over those attributes which we want to set explicitly in the file_def files lateron. Apply the inheritance if applicable:
-    for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
+    for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:  # 'domain_ref'
 
       if element.get(attribute):
        if element.get(attribute) == 'None':
