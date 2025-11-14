@@ -768,59 +768,17 @@ def main():
     # Select all field elements without a field_ref (they should all have an id attribute):
     print()
 
+    # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
-
-      if True:
-       if element.get(attribute):
-        if element.get(attribute) == 'None':
-         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
-        # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
-        inherit_message('id', attribute, element, element, i, 'has for                             ')
-       else:
-        ancestor_grade = 0
-        xpath_expression_in_chain = './/field[@id="'+element.get('id')+'"]'
-        inherit_attribute_directly(attribute, element, xpath_expression_in_chain, ancestor_grade)
+      if element.get(attribute):
+       if element.get(attribute) == 'None':
+        print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
+       # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
+       inherit_message('id', attribute, element, element, i, 'has for                             ')
       else:
-       # The non-recursive previous method:
-       if element.get(attribute):
-                     if element.get(attribute) == 'None':
-                      print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
-                     # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
-                     inherit_message('id', attribute,                 element, element, i, 'has for                             ')
-       else:
-           # For those field elements which do not have the attribute in their direct attribute list: Search for the attribute within the attribute list of their parent:
-           for parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"]...'):
-            if parent_element.get(attribute):
-                     # Inherit the attribute from their parent:
-                     element.set(attribute, parent_element.get(attribute))
-                     inherit_message('id', attribute,          parent_element, element, i, 'inherits from                 parent')
-            else:
-             # For those field elements which neither have the attribute in their direct attribute list or in the attribute list of their parent: Search for the attribute within the attribute list of the grand parent:
-             for grand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../...'):
-              if grand_parent_element.get(attribute):
-                     # Inherit the attribute from the grand parent:
-                     element.set(attribute, grand_parent_element.get(attribute))
-                     inherit_message('id', attribute,    grand_parent_element, element, i, 'inherits from           grand parent')
-              else:
-               for ggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../...'):
-                if ggrand_parent_element.get(attribute):
-                     # Inherit the attribute from the grand grand parent:
-                     element.set(attribute, ggrand_parent_element.get(attribute))
-                     inherit_message('id', attribute,   ggrand_parent_element, element, i, 'inherits from          ggrand parent')
-                else:
-                 for gggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../.../...'):
-                  if gggrand_parent_element.get(attribute):
-                     # Inherit the attribute from the grand grand grand parent:
-                     element.set(attribute, gggrand_parent_element.get(attribute))
-                     inherit_message('id', attribute,  gggrand_parent_element, element, i, 'inherits from         gggrand parent')
-                  else:
-                   for ggggrand_parent_element in root_main.findall('.//field[@id="'+element.get('id')+'"].../.../.../.../...'):
-                    if ggggrand_parent_element.get(attribute):
-                     # Inherit the attribute from the grand grand grand grand parent:
-                     element.set(attribute, ggggrand_parent_element.get(attribute))
-                     inherit_message('id', attribute, ggggrand_parent_element, element, i, 'inherits from        ggggrand parent')
-                    else:
-                     inherit_message('id', attribute, ggggrand_parent_element, element, i, 'no inheritance up to                ')
+       ancestor_grade = 0
+       xpath_expression_in_chain = './/field[@id="'+element.get('id')+'"]'
+       inherit_attribute_directly(attribute, element, xpath_expression_in_chain, ancestor_grade)
 
    else:
     print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
