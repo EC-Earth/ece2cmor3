@@ -703,7 +703,7 @@ def main():
        count = 0
        for chain_element in root_main.findall(xpath_expression_in_chain):
         count += 1
-        if count > 2:
+        if count > 1:
          print(" ERROR: {} times a duplicate id {} is found during the inherit check for the {} attribute. Duplicate id's are not allowed.".format(count, starting_element.get('id'), attribute))
         if chain_element.tag == 'ecearth_field_definition':
          inherit_message('id', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
