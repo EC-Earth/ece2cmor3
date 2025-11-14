@@ -770,7 +770,7 @@ def main():
 
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
 
-      if False:
+      if True:
        if element.get(attribute):
         if element.get(attribute) == 'None':
          print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
