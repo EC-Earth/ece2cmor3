@@ -33,6 +33,18 @@
         "target": "cLeaf"
     },
     {
+        "source": "cBECCS",
+        "target": "cBECCS"
+    },
+    {
+        "source": "fBECCS",
+        "target": "fBECCS"
+    },
+    {
+        "source": "fBEatm",
+        "target": "fBEatm"
+    },
+    {
         "source": "cLitter",
         "target": "cLitter"
     },
@@ -128,10 +140,6 @@
         "target": "cVegLut"
     },
     {
-        "source": "cWood",
-        "target": "cWood"
-    },
-    {
         "source": "ec",
         "target": "ec"
     },
@@ -202,6 +210,10 @@
     {
         "source": "fHarvestToAtmos",
         "target": "fHarvestToAtmos"
+    },
+    {
+        "source": "fHarvestToProduct",
+        "target": "fHarvestToProduct"
     },
     {
         "source": "fLitterFire",
@@ -318,6 +330,10 @@
     {
         "source": "fVegLitter",
         "target": "fVegLitter"
+    },
+    {
+        "source": "fVegOther",
+        "target": "fVegOther"
     },
     {
         "source": "gpp",
