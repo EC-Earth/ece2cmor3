@@ -136,10 +136,6 @@
         "target": "cVegLut"
     },
     {
-        "source": "cWood",
-        "target": "cWood"
-    },
-    {
         "source": "ec",
         "target": "ec"
     },
