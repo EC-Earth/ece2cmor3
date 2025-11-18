@@ -52,7 +52,6 @@ declare -a arr=(
 "cTotFireLut"
 "cVeg"
 "cVegLut"
-"cWood"
 "ec"
 "evspsbl"
 "evspsblpot"
