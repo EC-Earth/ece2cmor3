@@ -28,7 +28,7 @@ declare -a arr=(
 "cLeaf"
 "cBECCS"
 "fBECCS"
-"fBECCSatm"
+"fBEatm"
 "cLitter"
 "cLitterAbove"
 "cLitterBelow"
