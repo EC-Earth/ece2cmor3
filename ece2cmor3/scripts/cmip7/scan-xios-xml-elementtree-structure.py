@@ -642,6 +642,9 @@ def main():
   # Inherit field element properties (i.e. attributes) via field_def references:
 
   def print_reference_chain(chain_of_reference):
+       if chain_of_reference[0] == None:
+        chain_of_reference[0] = 'None'
+       #print(' WARNING: No id for field_ref'.format(chain_of_reference[1]))
        chain = ' Id: {:20} '.format(chain_of_reference[0])
        for string in chain_of_reference[1:]:
         chain += ' => {:20}'.format(string)
@@ -657,7 +660,7 @@ def main():
            print(' ERROR: A field_ref loop is detected: The field_ref {:20} is already present in the chain: {} \n Aborting'.format(referenced_field_ref, print_reference_chain(chain_of_reference)))
            sys.exit(' stop')
           chain_of_reference.append(referenced_field_ref)
-          print(' Field_ref chain: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_field_ref, referenced_field_ref, print_reference_chain(chain_of_reference)))
+         #print(' Field_ref chain: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_field_ref, referenced_field_ref, print_reference_chain(chain_of_reference)))
           find_referenced_element(referenced_element, chain_of_reference)
 
   def inherit_message(case, attribute, ancestor_element, element, i, ancestor_label):
@@ -669,31 +672,32 @@ def main():
         count += 1
         if count > 1:
          print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
+        # The statement below can be made more general by figuring out the root element and then comparing with that (here we well know the name of the root tag: 'ecearth_field_definition'
         if chain_element.tag == 'ecearth_field_definition':
          inherit_message('field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
          return
         if chain_element.get(attribute):
-                   # Inherit the attribute from the field which matched with the field_ref field:
-                   starting_element.set(attribute, chain_element.get(attribute))
-                   if True:
-                    if   ancestor_grade == 0:
-                     label = 'inherits from              field_ref'
-                    elif ancestor_grade == 1:
-                     label = 'inherits from                 parent'
-                    elif ancestor_grade == 2:
-                     label = 'inherits from           grand parent'
-                    elif ancestor_grade == 3:
-                     label = 'inherits from          ggrand parent'
-                    elif ancestor_grade == 4:
-                     label = 'inherits from         gggrand parent'
-                    elif ancestor_grade == 5:
-                     label = 'inherits from        ggggrand parent'
-                    else:
-                     label = 'inherits from       Xggggrand parent'
-                   else:
-                    label = 'inherits from ancestor grade {}'.format(ancestor_grade)
-                   inherit_message('field_ref', attribute, chain_element, starting_element, i, label)
-                   return
+         # Inherit the attribute from the field which matched with the field_ref field:
+         starting_element.set(attribute, chain_element.get(attribute))
+         if True:
+          if   ancestor_grade == 0:
+           label = 'inherits from              field_ref'
+          elif ancestor_grade == 1:
+           label = 'inherits from                 parent'
+          elif ancestor_grade == 2:
+           label = 'inherits from           grand parent'
+          elif ancestor_grade == 3:
+           label = 'inherits from          ggrand parent'
+          elif ancestor_grade == 4:
+           label = 'inherits from         gggrand parent'
+          elif ancestor_grade == 5:
+           label = 'inherits from        ggggrand parent'
+          else:
+           label = 'inherits from       Xggggrand parent'
+         else:
+          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+         inherit_message('field_ref', attribute, chain_element, starting_element, i, label)
+         return
         else:
          xpath_expression_in_chain += '/...'
          ancestor_grade += 1
@@ -705,39 +709,40 @@ def main():
         count += 1
         if count > 1:
          print(" ERROR: {} times a duplicate id {} is found during the inherit check for the {} attribute. Duplicate id's are not allowed.".format(count, starting_element.get('id'), attribute))
+        # The statement below can be made more general by figuring out the root element and then comparing with that (here we well know the name of the root tag: 'ecearth_field_definition'
         if chain_element.tag == 'ecearth_field_definition':
          inherit_message('id', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
          return
         if chain_element.get(attribute):
-                   # Inherit the attribute from the field which matched with the field_ref field:
-                   starting_element.set(attribute, chain_element.get(attribute))
-                   if True:
-                    if   ancestor_grade == 0:
-                     label = 'inherits from                     id'
-                    elif ancestor_grade == 1:
-                     label = 'inherits from                 parent'
-                    elif ancestor_grade == 2:
-                     label = 'inherits from           grand parent'
-                    elif ancestor_grade == 3:
-                     label = 'inherits from          ggrand parent'
-                    elif ancestor_grade == 4:
-                     label = 'inherits from         gggrand parent'
-                    elif ancestor_grade == 5:
-                     label = 'inherits from        ggggrand parent'
-                    else:
-                     label = 'inherits from       Xggggrand parent'
-                   else:
-                    label = 'inherits from ancestor grade {}'.format(ancestor_grade)
-                   inherit_message('id', attribute, chain_element, starting_element, i, label)
-                   return
+         # Inherit the attribute from the field which matched with the field_ref field:
+         starting_element.set(attribute, chain_element.get(attribute))
+         if True:
+          if   ancestor_grade == 0:
+           label = 'inherits from                     id'
+          elif ancestor_grade == 1:
+           label = 'inherits from                 parent'
+          elif ancestor_grade == 2:
+           label = 'inherits from           grand parent'
+          elif ancestor_grade == 3:
+           label = 'inherits from          ggrand parent'
+          elif ancestor_grade == 4:
+           label = 'inherits from         gggrand parent'
+          elif ancestor_grade == 5:
+           label = 'inherits from        ggggrand parent'
+          else:
+           label = 'inherits from       Xggggrand parent'
+         else:
+          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+         inherit_message('id', attribute, chain_element, starting_element, i, label)
+         return
         else:
          xpath_expression_in_chain += '/...'
          ancestor_grade += 1
          inherit_attribute_directly(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
+
   i    = 0
   i_fr = 0
-
   for element in root_main.findall('.//field'):
    i += 1
 
@@ -751,10 +756,13 @@ def main():
     # are added one by one in case more references are detected.
     chain_of_reference = [element.get('id'), element.get('field_ref')]
     find_referenced_element(element, chain_of_reference)
+    if chain_of_reference[1] != None:
+     print(' A reference chain of {} levels: with the chain: {}'.format(len(chain_of_reference) - 1, print_reference_chain(chain_of_reference)))
 
     # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
-    for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:  # 'domain_ref'
+    for attribute in ['grid_ref', 'operation', 'unit', 'freq_op', 'freq_offset']:  # 'domain_ref'
       if element.get(attribute):
+       # Drop a warning when the attribute has an explicit string value: 'None':
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
        # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
@@ -763,13 +771,14 @@ def main():
        ancestor_grade = 0
        xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
        inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
+     ##inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade, chain_of_reference) # Add: loop in this function over chain_of_reference[1:]
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
     print()
 
     # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
-    for attribute in ['grid_ref', 'operation', 'unit', 'freq_offset']:
+    for attribute in ['grid_ref', 'operation', 'unit', 'freq_op', 'freq_offset']:
       if element.get(attribute):
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
