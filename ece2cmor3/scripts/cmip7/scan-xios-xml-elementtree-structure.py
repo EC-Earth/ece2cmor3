@@ -679,7 +679,7 @@ def main():
         if chain_element.get(attribute):
          # Inherit the attribute from the field which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
-         if True:
+         if False:
           if   ancestor_grade == 0:
            label = 'inherits from              field_ref'
           elif ancestor_grade == 1:
@@ -727,7 +727,7 @@ def main():
           # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
           # and which matched one of field_ref field in the chain:
           starting_element.set(attribute, attribute_from_chain_element)
-          if True:
+          if False:
            if   ancestor_grade == 0:
             label = 'inherits from              field_ref'
            elif ancestor_grade == 1:
@@ -770,7 +770,7 @@ def main():
         if chain_element.get(attribute):
          # Inherit the attribute from the field which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
-         if True:
+         if False:
           if   ancestor_grade == 0:
            label = 'inherits from                     id'
           elif ancestor_grade == 1:
