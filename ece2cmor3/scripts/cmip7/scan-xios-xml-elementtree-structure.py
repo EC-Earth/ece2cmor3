@@ -703,52 +703,6 @@ def main():
          ancestor_grade += 1
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
-  def inherit_attribute_2(attribute, starting_element, xpath_expression_in_chain, ancestor_grade, chain_of_reference):
-      #last_item_in_chain = len(chain_of_reference) - 1
-      #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
-
-       # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
-       # are already inheritted as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
-       # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
-       item_nr_in_chain = 1
-       for field_ref_in_chain in chain_of_reference[1:]:
-        xpath_expression_in_field_ref_chain = './/field[@id="'+field_ref_in_chain+'"]'
-       #print('TESTTPP {}'.format(xpath_expression_in_field_ref_chain))
-        for element_in_chain_of_references in root_main.findall(xpath_expression_in_field_ref_chain):
-         attribute_from_chain_element = element_in_chain_of_references.get(attribute)
-         if attribute_from_chain_element:
-         #print('TEST-1 chain level = {}, {:20} {:15} {}'              .format(item_nr_in_chain, field_ref_in_chain, attribute, attribute_from_chain_element))
-          # Inherit the attribute from the field which matched with the field_ref field:
-          starting_element.set(attribute, attribute_from_chain_element)
-          if True:
-           if   ancestor_grade == 0:
-            label = 'inherits from              field_ref'
-           elif ancestor_grade == 1:
-            label = 'inherits from                 parent'
-           elif ancestor_grade == 2:
-            label = 'inherits from           grand parent'
-           elif ancestor_grade == 3:
-            label = 'inherits from          ggrand parent'
-           elif ancestor_grade == 4:
-            label = 'inherits from         gggrand parent'
-           elif ancestor_grade == 5:
-            label = 'inherits from        ggggrand parent'
-           else:
-            label = 'inherits from       Xggggrand parent'
-          else:
-           label = 'inherits from ancestor grade {}'.format(ancestor_grade)
-          inherit_message('field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
-          return
-         else:
-          print('TEST-2 chain level = {}, {:20} {} attribute not found'.format(item_nr_in_chain, field_ref_in_chain, attribute))
-          ancestor_grade = 0
-          xpath_expression_in_chain = './/field[@id="field_ref_in_chain"]'
-          inherit_attribute_directly(attribute, element_in_chain_of_references, xpath_expression_in_chain, ancestor_grade)
-       #if item_nr_in_chain == last_item_in_chain:
-       # print('TEST-3 The last item in the chain has item nr: {}'.format(item_nr_in_chain))
-        item_nr_in_chain += 1
-
-
   def inherit_attribute_3(attribute, starting_element, ancestor_grade, chain_of_reference):
       #last_item_in_chain = len(chain_of_reference) - 1
       #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
@@ -873,7 +827,6 @@ def main():
         ancestor_grade = 0
         xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
         inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
-     ##inherit_attribute_2(attribute, element, xpath_expression_in_chain, ancestor_grade, chain_of_reference) # Add: loop in this function over chain_of_reference[1:]
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
