@@ -703,7 +703,7 @@ def main():
          ancestor_grade += 1
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
-  def inherit_attribute_3(attribute, starting_element, ancestor_grade, chain_of_reference):
+  def inherit_attribute_via_field_ref_chain(attribute, starting_element, ancestor_grade, chain_of_reference):
       #last_item_in_chain = len(chain_of_reference) - 1
       #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
 
@@ -822,7 +822,7 @@ def main():
        # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
        inherit_message('main 1 (field_ref)', 'field_ref', attribute, element, element, i, 'has for                             ')
       else:
-       attribute_inheritted = inherit_attribute_3(attribute, element, ancestor_grade, chain_of_reference)
+       attribute_inheritted = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
        if attribute_inheritted == False:
         ancestor_grade = 0
         xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
