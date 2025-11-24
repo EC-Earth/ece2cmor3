@@ -749,11 +749,11 @@ def main():
           return attribute_inheritted
          else:
           print('TEST-2 chain level = {}, {:20} {} attribute not found'.format(item_nr_in_chain, field_ref_in_chain, attribute))
-          attribute_inheritted = False
-          return attribute_inheritted
        #if item_nr_in_chain == last_item_in_chain:
        # print('TEST-3 The last item in the chain has item nr: {}'.format(item_nr_in_chain))
         item_nr_in_chain += 1
+       attribute_inheritted = False
+       return attribute_inheritted
 
 
 
