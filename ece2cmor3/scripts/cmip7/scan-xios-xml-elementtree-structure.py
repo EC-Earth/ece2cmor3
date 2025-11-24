@@ -703,6 +703,148 @@ def main():
          ancestor_grade += 1
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
+  def inherit_attribute_2(attribute, starting_element, xpath_expression_in_chain, ancestor_grade, chain_of_reference):
+      #last_item_in_chain = len(chain_of_reference) - 1
+      #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
+
+       # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
+       # are already inheritted as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
+       # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
+       item_nr_in_chain = 1
+       for field_ref_in_chain in chain_of_reference[1:]:
+        xpath_expression_in_field_ref_chain = './/field[@id="'+field_ref_in_chain+'"]'
+       #print('TESTTPP {}'.format(xpath_expression_in_field_ref_chain))
+        for element_in_chain_of_references in root_main.findall(xpath_expression_in_field_ref_chain):
+         attribute_from_chain_element = element_in_chain_of_references.get(attribute)
+         if attribute_from_chain_element:
+         #print('TEST-1 chain level = {}, {:20} {:15} {}'              .format(item_nr_in_chain, field_ref_in_chain, attribute, attribute_from_chain_element))
+
+
+
+          # Inherit the attribute from the field which matched with the field_ref field:
+          starting_element.set(attribute, attribute_from_chain_element)
+          if True:
+           if   ancestor_grade == 0:
+            label = 'inherits from              field_ref'
+           elif ancestor_grade == 1:
+            label = 'inherits from                 parent'
+           elif ancestor_grade == 2:
+            label = 'inherits from           grand parent'
+           elif ancestor_grade == 3:
+            label = 'inherits from          ggrand parent'
+           elif ancestor_grade == 4:
+            label = 'inherits from         gggrand parent'
+           elif ancestor_grade == 5:
+            label = 'inherits from        ggggrand parent'
+           else:
+            label = 'inherits from       Xggggrand parent'
+          else:
+           label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+          inherit_message('field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
+          return
+
+
+         else:
+          print('TEST-2 chain level = {}, {:20} {} attribute not found'.format(item_nr_in_chain, field_ref_in_chain, attribute))
+
+#         count = 0
+#         for chain_element in root_main.findall(xpath_expression_in_chain):
+#          count += 1
+#          if count > 1:
+#           print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
+#          # The statement below can be made more general by figuring out the root element and then comparing with that (here we well know the name of the root tag: 'ecearth_field_definition'
+#          if chain_element.tag == 'ecearth_field_definition':
+#           inherit_message('field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
+#           return
+#          if chain_element.get(attribute):
+#           # Inherit the attribute from the field which matched with the field_ref field:
+#           starting_element.set(attribute, chain_element.get(attribute))
+#           if True:
+#            if   ancestor_grade == 0:
+#             label = 'inherits from              field_ref'
+#            elif ancestor_grade == 1:
+#             label = 'inherits from                 parent'
+#            elif ancestor_grade == 2:
+#             label = 'inherits from           grand parent'
+#            elif ancestor_grade == 3:
+#             label = 'inherits from          ggrand parent'
+#            elif ancestor_grade == 4:
+#             label = 'inherits from         gggrand parent'
+#            elif ancestor_grade == 5:
+#             label = 'inherits from        ggggrand parent'
+#            else:
+#             label = 'inherits from       Xggggrand parent'
+#           else:
+#            label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+#           inherit_message('field_ref', attribute, chain_element, starting_element, i, label)
+#           return
+#          else:
+          ancestor_grade = 0
+          xpath_expression_in_chain = './/field[@id="field_ref_in_chain"]'
+         #xpath_expression_in_chain += '/...'
+         #ancestor_grade += 1
+          inherit_attribute_directly(attribute, element_in_chain_of_references, xpath_expression_in_chain, ancestor_grade)
+
+
+       #if item_nr_in_chain == last_item_in_chain:
+       # print('TEST-3 The last item in the chain has item nr: {}'.format(item_nr_in_chain))
+        item_nr_in_chain += 1
+
+
+  def inherit_attribute_3(attribute, starting_element, ancestor_grade, chain_of_reference):
+      #last_item_in_chain = len(chain_of_reference) - 1
+      #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
+
+       # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
+       # are already inheritted as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
+       # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
+       item_nr_in_chain = 1
+       for field_ref_in_chain in chain_of_reference[1:]:
+        xpath_expression_in_field_ref_chain = './/field[@id="'+field_ref_in_chain+'"]'
+       #print('TESTTPP {}'.format(xpath_expression_in_field_ref_chain))
+        count = 0
+        for element_in_chain_of_references in root_main.findall(xpath_expression_in_field_ref_chain):
+         # This for loop should actually just find one match (however if more matches are found than an ambiguity error mesaage is given.
+         count += 1
+         if count > 1:
+          print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
+         attribute_from_chain_element = element_in_chain_of_references.get(attribute)
+         if attribute_from_chain_element:
+         #print('TEST-1 chain level = {}, {:20} {:15} {}'              .format(item_nr_in_chain, field_ref_in_chain, attribute, attribute_from_chain_element))
+
+          # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
+          # and which matched one of field_ref field in the chain:
+          starting_element.set(attribute, attribute_from_chain_element)
+          if True:
+           if   ancestor_grade == 0:
+            label = 'inherits from              field_ref'
+           elif ancestor_grade == 1:
+            label = 'inherits from                 parent'
+           elif ancestor_grade == 2:
+            label = 'inherits from           grand parent'
+           elif ancestor_grade == 3:
+            label = 'inherits from          ggrand parent'
+           elif ancestor_grade == 4:
+            label = 'inherits from         gggrand parent'
+           elif ancestor_grade == 5:
+            label = 'inherits from        ggggrand parent'
+           else:
+            label = 'inherits from       Xggggrand parent'
+          else:
+           label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+          inherit_message('field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
+          attribute_inheritted = True
+          return attribute_inheritted
+         else:
+          print('TEST-2 chain level = {}, {:20} {} attribute not found'.format(item_nr_in_chain, field_ref_in_chain, attribute))
+          attribute_inheritted = False
+          return attribute_inheritted
+       #if item_nr_in_chain == last_item_in_chain:
+       # print('TEST-3 The last item in the chain has item nr: {}'.format(item_nr_in_chain))
+        item_nr_in_chain += 1
+
+
+
   def inherit_attribute_directly(attribute, starting_element, xpath_expression_in_chain, ancestor_grade):
        count = 0
        for chain_element in root_main.findall(xpath_expression_in_chain):
@@ -768,10 +910,12 @@ def main():
        # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
        inherit_message('field_ref', attribute, element, element, i, 'has for                             ')
       else:
-       ancestor_grade = 0
-       xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
-       inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
-     ##inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade, chain_of_reference) # Add: loop in this function over chain_of_reference[1:]
+       attribute_inheritted = inherit_attribute_3(attribute, element, ancestor_grade, chain_of_reference)
+       if attribute_inheritted == False:
+        ancestor_grade = 0
+        xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
+        inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
+     ##inherit_attribute_2(attribute, element, xpath_expression_in_chain, ancestor_grade, chain_of_reference) # Add: loop in this function over chain_of_reference[1:]
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
