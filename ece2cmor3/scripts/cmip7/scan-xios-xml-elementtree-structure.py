@@ -689,9 +689,6 @@ def main():
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
   def inherit_attribute_via_field_ref_chain(attribute, starting_element, ancestor_grade, chain_of_reference):
-      #last_item_in_chain = len(chain_of_reference) - 1
-      #print('TEST-0: last_item_in_chain = {} chain_of_reference = {}'.format(last_item_in_chain, chain_of_reference[last_item_in_chain]))
-
        # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
        # are already inheritted as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
        # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
@@ -719,8 +716,6 @@ def main():
          else:
          #pass
           print(' At chain level {}         field_ref: {:19} via field_ref {:20}                                  a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
-       #if item_nr_in_chain == last_item_in_chain:
-       # print('TEST-3 The last item in the chain has item nr: {}'.format(item_nr_in_chain))
         item_nr_in_chain += 1
        attribute_inheritted = False
        return attribute_inheritted
