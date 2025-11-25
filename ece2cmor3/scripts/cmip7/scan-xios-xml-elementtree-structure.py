@@ -680,23 +680,7 @@ def main():
         if chain_element.get(attribute):
          # Inherit the attribute from the field which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
-         if False:
-          if   ancestor_grade == 0:
-           label = 'inherits from              field_ref'
-          elif ancestor_grade == 1:
-           label = 'inherits from                 parent'
-          elif ancestor_grade == 2:
-           label = 'inherits from           grand parent'
-          elif ancestor_grade == 3:
-           label = 'inherits from          ggrand parent'
-          elif ancestor_grade == 4:
-           label = 'inherits from         gggrand parent'
-          elif ancestor_grade == 5:
-           label = 'inherits from        ggggrand parent'
-          else:
-           label = 'inherits from       Xggggrand parent'
-         else:
-          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+         label = 'inherits from ancestor grade {}'.format(ancestor_grade)
          inherit_message('IA 2', 'field_ref', attribute, chain_element, starting_element, i, label)
          return
         else:
@@ -756,23 +740,7 @@ def main():
         if chain_element.get(attribute):
          # Inherit the attribute from the field which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
-         if False:
-          if   ancestor_grade == 0:
-           label = 'inherits from                     id'
-          elif ancestor_grade == 1:
-           label = 'inherits from                 parent'
-          elif ancestor_grade == 2:
-           label = 'inherits from           grand parent'
-          elif ancestor_grade == 3:
-           label = 'inherits from          ggrand parent'
-          elif ancestor_grade == 4:
-           label = 'inherits from         gggrand parent'
-          elif ancestor_grade == 5:
-           label = 'inherits from        ggggrand parent'
-          else:
-           label = 'inherits from       Xggggrand parent'
-         else:
-          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+         label = 'inherits from ancestor grade {}'.format(ancestor_grade)
          inherit_message('IAD 2', 'id', attribute, chain_element, starting_element, i, label)
          return
         else:
