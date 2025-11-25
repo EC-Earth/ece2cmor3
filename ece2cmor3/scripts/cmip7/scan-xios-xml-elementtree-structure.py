@@ -695,7 +695,6 @@ def main():
        item_nr_in_chain = 1
        for field_ref_in_chain in chain_of_reference[1:]:
         xpath_expression_in_field_ref_chain = './/field[@id="'+field_ref_in_chain+'"]'
-       #print('TESTTPP {}'.format(xpath_expression_in_field_ref_chain))
         count = 0
         for element_in_chain_of_references in root_main.findall(xpath_expression_in_field_ref_chain):
          # This for loop should actually just find one match (however if more matches are found than an ambiguity error mesaage is given.
@@ -704,8 +703,6 @@ def main():
           print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
          attribute_from_chain_element = element_in_chain_of_references.get(attribute)
          if attribute_from_chain_element:
-         #print('TEST-1 chain level = {}, {:20} {:15} {}'              .format(item_nr_in_chain, field_ref_in_chain, attribute, attribute_from_chain_element))
-
           # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
           # and which matched one of field_ref field in the chain:
           starting_element.set(attribute, attribute_from_chain_element)
