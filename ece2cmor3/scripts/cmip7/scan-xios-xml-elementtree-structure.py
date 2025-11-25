@@ -690,7 +690,7 @@ def main():
 
   def inherit_attribute_via_field_ref_chain(attribute, starting_element, ancestor_grade, chain_of_reference):
        # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
-       # are already inheritted as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
+       # are already inherited as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
        # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
        item_nr_in_chain = 1
        for field_ref_in_chain in chain_of_reference[1:]:
@@ -711,14 +711,14 @@ def main():
           starting_element.set(attribute, attribute_from_chain_element)
           label = 'inherits from ancestor grade {}'.format(ancestor_grade)
           inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
-          attribute_inheritted = True
-          return attribute_inheritted
+          attribute_inherited = True
+          return attribute_inherited
          else:
          #pass
           print(' At chain level {}         field_ref: {:19} via field_ref {:20}                                  a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
-       attribute_inheritted = False
-       return attribute_inheritted
+       attribute_inherited = False
+       return attribute_inherited
 
 
 
@@ -768,11 +768,11 @@ def main():
        # Drop a warning when the attribute has an explicit string value: 'None':
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
-       # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
+       # The attribute and its value is provided at the direct field element level, so nothing to be inherited in this case.
        inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                             ')
       else:
-       attribute_inheritted = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
-       if attribute_inheritted == False:
+       attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
+       if attribute_inherited == False:
         ancestor_grade = 0
         xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
         inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
@@ -786,7 +786,7 @@ def main():
       if element.get(attribute):
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
-       # The attribute and its value is provided at the direct field element level, so nothing to be inheritted in this case.
+       # The attribute and its value is provided at the direct field element level, so nothing to be inherited in this case.
        inherit_message('main id', 'id', attribute, element, element, i, 'has for                             ')
       else:
        ancestor_grade = 0
