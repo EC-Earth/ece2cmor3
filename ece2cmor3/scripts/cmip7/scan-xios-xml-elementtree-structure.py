@@ -648,7 +648,7 @@ def main():
        chain = ' Id: {:20} '.format(chain_of_reference[0])
        for string in chain_of_reference[1:]:
         chain += ' => {:20}'.format(string)
-       return chain
+       return chain.strip()
 
   def find_referenced_element(starting_element, chain_of_reference):
       # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a recursive check is carried out for this element.
@@ -757,7 +757,7 @@ def main():
     chain_of_reference = [element.get('id'), element.get('field_ref')]
     find_referenced_element(element, chain_of_reference)
     if chain_of_reference[1] != None:
-     print(' A {} level reference chain: {}'.format(len(chain_of_reference) - 1, print_reference_chain(chain_of_reference).strip()))
+     print(' A {} level reference chain: {}'.format(len(chain_of_reference) - 1, print_reference_chain(chain_of_reference)))
 
     # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_op', 'freq_offset']:  # 'domain_ref'
