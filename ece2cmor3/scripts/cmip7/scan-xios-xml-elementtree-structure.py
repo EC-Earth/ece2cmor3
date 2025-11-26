@@ -708,14 +708,12 @@ def main():
           starting_element.set(attribute, attribute_from_chain_element)
           label = 'inherits from ancestor grade {}'.format(ancestor_grade)
           inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
-          attribute_inherited = True
-          return attribute_inherited
+          return True
          else:
          #pass
           print(' At chain level {}         field_ref: {:19} via field_ref {:20}                                  a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
-       attribute_inherited = False
-       return attribute_inherited
+       return False
 
   def inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade):
        # This function takes a specified element and checks if the element definition itself contains the definition of a specified attribute. If this attribute is
