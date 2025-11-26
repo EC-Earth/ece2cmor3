@@ -713,6 +713,8 @@ def main():
          #pass
           print(' At chain level {}         field_ref: {:19} via field_ref {:20}                                  a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
+       # No inheritance at direct element definition in the field_ref chain could be applied (the eventual inheriting from ancestors
+       # of the field_ref element at the end of the chain is not handeled in this function, but will be handled on the False return here:
        return False
 
   def inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade):
