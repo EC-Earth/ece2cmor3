@@ -669,6 +669,10 @@ def main():
       print(' {:15}: Element {:9}: {:19} {:36} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
   def inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade):
+       # This function takes a specified element and checks if the element definition itself contains the definition of a specified attribute. If this attribute is
+       # not present in the element definition itself, the definition of the parent element of the specified element will be checked. If the attribute definition is
+       # found at the parent, it will be explicitly inherited. If the attribute is also not found at the parent element definition, the function will recursively
+       # continue to find it in a ancestor element definition, until the root elemnt is reached.
        count = 0
        for chain_element in root_main.findall(xpath_expression_in_chain):
         count += 1
