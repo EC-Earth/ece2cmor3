@@ -780,9 +780,8 @@ def main():
        if attribute_inherited == False:
         # Inherit from ancestors of the element at the end of the field_ref chain:
         ancestor_grade = 0
-        xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
-        inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
-##      inherit_attribute(attribute, XXXXXXX, xpath_expression_in_chain, ancestor_grade)
+        xpath_expression_final_field_ref_in_chain = './/field[@id="'+chain_of_reference[-1]+'"]'
+        inherit_attribute(attribute, element, xpath_expression_final_field_ref_in_chain, ancestor_grade)
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
