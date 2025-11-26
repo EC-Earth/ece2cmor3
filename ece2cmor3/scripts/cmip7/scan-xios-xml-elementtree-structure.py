@@ -666,7 +666,7 @@ def main():
 
   def inherit_message(function_info, case, attribute, ancestor_element, element, i, ancestor_label):
      #print(' {:15}: The {:11} element {:4} with {:9} attribute: {:19} {:36} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, element.tag, i, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
-      print(' {:15}: Element {:9}: {:19} {:36} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
+      print(' {:15}: Element {:9}: {:19} {:31} {:25} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
   def inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade):
        count = 0
@@ -675,7 +675,7 @@ def main():
         if count > 1:
          print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
         if chain_element.tag == root_main.tag:
-         inherit_message('IA 1', 'field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
+         inherit_message('IA 1', 'field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to           ')
          return
         if chain_element.get(attribute):
          # Inherit the attribute from the field element which matched with the field_ref field:
@@ -711,7 +711,7 @@ def main():
           return True
          else:
          #pass
-          print(' At chain level {}         field_ref: {:19} via field_ref {:20}                                  a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
+          print(' At chain level {}         field_ref: {:19} via field_ref {:20}                        a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
        # No inheritance at direct element definition in the field_ref chain could be applied (the eventual inheriting from ancestors
        # of the field_ref element at the end of the chain is not handeled in this function, but will be handled on the False return here:
@@ -728,7 +728,7 @@ def main():
         if count > 1:
          print(" ERROR: {} times a duplicate id {} is found during the inherit check for the {} attribute. Duplicate id's are not allowed.".format(count, starting_element.get('id'), attribute))
         if ancestor_element.tag == root_main.tag:
-         inherit_message('IAD 1', 'id', attribute, ancestor_element, starting_element, i, 'no inheritance up to                ')
+         inherit_message('IAD 1', 'id', attribute, ancestor_element, starting_element, i, 'no inheritance up to           ')
          return
         ancestor_attribute = ancestor_element.get(attribute)
         if ancestor_attribute:
@@ -774,10 +774,11 @@ def main():
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
        # The attribute and its value are provided at the direct field element level, so nothing has to be inherited in this case.
-       inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                             ')
+       inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                        ')
       else:
        attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
        if attribute_inherited == False:
+       #print(' Try to inherit from any ancestors of the field_ref element ({}) at the end of the chain.'.format(chain_of_reference[-1]))
         # Inherit from ancestors of the element at the end of the field_ref chain:
         ancestor_grade = 0
         xpath_expression_final_field_ref_in_chain = './/field[@id="'+chain_of_reference[-1]+'"]'
@@ -793,7 +794,7 @@ def main():
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
        # The attribute and its value are provided at the direct field element level, so nothing to be inherited in this case.
-       inherit_message('main id', 'id', attribute, element, element, i, 'has for                             ')
+       inherit_message('main id', 'id', attribute, element, element, i, 'has for                        ')
       else:
        # Inherit from ancestors of the starting element directly:
        ancestor_grade = 0
