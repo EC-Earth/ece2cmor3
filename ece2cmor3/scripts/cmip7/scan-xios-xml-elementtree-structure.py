@@ -717,8 +717,6 @@ def main():
        attribute_inherited = False
        return attribute_inherited
 
-
-
   def inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade):
        # This function takes a specified element and checks if the element definition itself contains the definition of a specified attribute. If this attribute is
        # not present in the element definition itself, the definition of the parent element of the specified element will be checked. If the attribute definition is
@@ -752,14 +750,20 @@ def main():
 
    if element.get('field_ref'):
     # Select all field elements with a field_ref
-    # Inherit the attribute via the field_ref element (directly or from its parent, grand parent, etc) if applicable:
+    # Inherit the attribute via the chain of field_ref elements:
+    #  - Directly from an attribute definition within the element definition where the field_ref is used
+    #  - Note that the attribute definition of the element most far in the reference chain is taken (i.e. most close to the starting element)
+    #  - Or from the ancestors of the element at the end of the field_ref chain
+    #  - Note that the attribute definition with the lowest ancestor grade is taken
     i_fr += 1
     print()
 
     # The chain of references contains on the very first element the id of the starting element, thereafter in the recursive function the field_ref's
     # are added one by one in case more references are detected.
     chain_of_reference = [element.get('id'), element.get('field_ref')]
+    # The full chain of field_ref references is returned in the chain_of_reference for the given element:
     find_referenced_element(element, chain_of_reference)
+    # Provide a message in case the chain of references contains more than one field_ref references, i.e. a chain of multiple references exists:
     if chain_of_reference[1] != None:
      print(' A {} level reference chain: {}'.format(len(chain_of_reference) - 1, print_reference_chain(chain_of_reference)))
 
@@ -769,14 +773,16 @@ def main():
        # Drop a warning when the attribute has an explicit string value: 'None':
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
-       # The attribute and its value is provided at the direct field element level, so nothing to be inherited in this case.
+       # The attribute and its value are provided at the direct field element level, so nothing has to be inherited in this case.
        inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                             ')
       else:
        attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
        if attribute_inherited == False:
+        # Inherit from ancestors of the element at the end of the field_ref chain:
         ancestor_grade = 0
         xpath_expression_in_chain = './/field[@id="'+element.get('field_ref')+'"]'
         inherit_attribute(attribute, element, xpath_expression_in_chain, ancestor_grade)
+##      inherit_attribute(attribute, XXXXXXX, xpath_expression_in_chain, ancestor_grade)
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
@@ -787,9 +793,10 @@ def main():
       if element.get(attribute):
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
-       # The attribute and its value is provided at the direct field element level, so nothing to be inherited in this case.
+       # The attribute and its value are provided at the direct field element level, so nothing to be inherited in this case.
        inherit_message('main id', 'id', attribute, element, element, i, 'has for                             ')
       else:
+       # Inherit from ancestors of the starting element directly:
        ancestor_grade = 0
        xpath_expression_in_ancestor_chain = './/field[@id="'+element.get('id')+'"]'
        inherit_attribute_from_ancestors(attribute, element, xpath_expression_in_ancestor_chain, ancestor_grade)
