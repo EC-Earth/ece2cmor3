@@ -678,7 +678,7 @@ def main():
          inherit_message('IA 1', 'field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
          return
         if chain_element.get(attribute):
-         # Inherit the attribute from the field which matched with the field_ref field:
+         # Inherit the attribute from the field element which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
          inherit_message('IA 2', 'field_ref', attribute, chain_element, starting_element, i, label)
@@ -719,29 +719,30 @@ def main():
 
 
 
-  def inherit_attribute_directly(attribute, starting_element, xpath_expression_in_chain, ancestor_grade):
+  def inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade):
        # This function takes a specified element and checks if the element definition itself contains the definition of a specified attribute. If this attribute is
        # not present in the element definition itself, the definition of the parent element of the specified element will be checked. If the attribute definition is
        # found at the parent, it will be explicitly inherited. If the attribute is also not found at the parent element definition, the function will recursively
        # continue to find it in a ancestor element definition, until the root elemnt is reached.
        count = 0
-       for chain_element in root_main.findall(xpath_expression_in_chain):
+       for ancestor_element in root_main.findall(xpath_expression_in_ancestor_chain):
         count += 1
         if count > 1:
          print(" ERROR: {} times a duplicate id {} is found during the inherit check for the {} attribute. Duplicate id's are not allowed.".format(count, starting_element.get('id'), attribute))
-        if chain_element.tag == root_main.tag:
-         inherit_message('IAD 1', 'id', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
+        if ancestor_element.tag == root_main.tag:
+         inherit_message('IAD 1', 'id', attribute, ancestor_element, starting_element, i, 'no inheritance up to                ')
          return
-        if chain_element.get(attribute):
-         # Inherit the attribute from the field which matched with the field_ref field:
-         starting_element.set(attribute, chain_element.get(attribute))
+        ancestor_attribute = ancestor_element.get(attribute)
+        if ancestor_attribute:
+         # Inherit the attribute from an ancestor element of the starting element:
+         starting_element.set(attribute, ancestor_attribute)
          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
-         inherit_message('IAD 2', 'id', attribute, chain_element, starting_element, i, label)
+         inherit_message('IAD 2', 'id', attribute, ancestor_element, starting_element, i, label)
          return
         else:
-         xpath_expression_in_chain += '/...'
+         xpath_expression_in_ancestor_chain += '/...'
          ancestor_grade += 1
-         inherit_attribute_directly(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
+         inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade)
 
 
   i    = 0
@@ -790,8 +791,8 @@ def main():
        inherit_message('main id', 'id', attribute, element, element, i, 'has for                             ')
       else:
        ancestor_grade = 0
-       xpath_expression_in_chain = './/field[@id="'+element.get('id')+'"]'
-       inherit_attribute_directly(attribute, element, xpath_expression_in_chain, ancestor_grade)
+       xpath_expression_in_ancestor_chain = './/field[@id="'+element.get('id')+'"]'
+       inherit_attribute_from_ancestors(attribute, element, xpath_expression_in_ancestor_chain, ancestor_grade)
 
    else:
     print(' ERROR: The element {} {:3} has no id & no field_ref attribute. This should not occur. Detected attributes: {}'.format(element.tag, i, element.attrib))
