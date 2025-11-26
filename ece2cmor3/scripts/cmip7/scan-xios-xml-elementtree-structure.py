@@ -662,6 +662,7 @@ def main():
           chain_of_reference.append(referenced_field_ref)
          #print(' Field_ref chain: The detected field_ref {:20} is pointing itself as well to another field_ref {:20} {}'.format(starting_field_ref, referenced_field_ref, print_reference_chain(chain_of_reference)))
           find_referenced_element(referenced_element, chain_of_reference)
+       return
 
   def inherit_message(function_info, case, attribute, ancestor_element, element, i, ancestor_label):
      #print(' {:15}: The {:11} element {:4} with {:9} attribute: {:19} {:36} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, element.tag, i, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
