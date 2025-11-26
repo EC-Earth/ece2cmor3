@@ -678,8 +678,7 @@ def main():
         count += 1
         if count > 1:
          print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
-        # The statement below can be made more general by figuring out the root element and then comparing with that (here we well know the name of the root tag: 'ecearth_field_definition'
-        if chain_element.tag == 'ecearth_field_definition':
+        if chain_element.tag == root_main.tag:
          inherit_message('IA 1', 'field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
          return
         if chain_element.get(attribute):
@@ -730,8 +729,7 @@ def main():
         count += 1
         if count > 1:
          print(" ERROR: {} times a duplicate id {} is found during the inherit check for the {} attribute. Duplicate id's are not allowed.".format(count, starting_element.get('id'), attribute))
-        # The statement below can be made more general by figuring out the root element and then comparing with that (here we well know the name of the root tag: 'ecearth_field_definition'
-        if chain_element.tag == 'ecearth_field_definition':
+        if chain_element.tag == root_main.tag:
          inherit_message('IAD 1', 'id', attribute, chain_element, starting_element, i, 'no inheritance up to                ')
          return
         if chain_element.get(attribute):
