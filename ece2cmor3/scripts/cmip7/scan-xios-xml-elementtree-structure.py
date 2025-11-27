@@ -356,97 +356,101 @@ def main():
   with open(ecearth_field_def_filename_canonic, mode='w', encoding='utf-8') as out_file:
    ET.canonicalize(from_file=ecearth_field_def_filename, with_comments=True, out=out_file)
 
-  # Read the just created ecearth_field_def_filename:
-  tree_ecearth_field_def = ET.parse(ecearth_field_def_filename)
-  root_ecearth_field_def = tree_ecearth_field_def.getroot()
 
-  # One neat formatted field_def file including all compnent field_def files is created with a controlled order of the attributes:
-  with open(ecearth_field_def_nf_filename, 'w') as ecearth_field_def_nf:
-   tag_path = []
-   for event, elem_nf in ET.iterparse(ecearth_field_def_filename, events=("start", "end")):
+  def convert_to_neat_formatted_xml(ecearth_field_def_filename, ecearth_field_def_nf_filename):
+   # Read the just created ecearth_field_def_filename:
+   tree_ecearth_field_def = ET.parse(ecearth_field_def_filename)
+   root_ecearth_field_def = tree_ecearth_field_def.getroot()
 
-       if event == 'start':
-        tag_path.append(elem_nf.tag)
-        indentation = ' ' * 2 * (len(tag_path) - 1)
-       #print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
-        if elem_nf.tag == 'field':
-        #ecearth_field_def_nf.write('{}<{}  '.format(indentation, elem_nf.tag))
-         ecearth_field_def_nf.write('          <{}'.format(elem_nf.tag))
+   # One neat formatted field_def file including all component field_def files is created with a controlled order of the attributes:
+   with open(ecearth_field_def_nf_filename, 'w') as ecearth_field_def_nf:
+    tag_path = []
+    for event, elem_nf in ET.iterparse(ecearth_field_def_filename, events=("start", "end")):
 
-         attribute_id                   = 'id="'                   + str(elem_nf.get('id'))                   + '"'
-         attribute_field_ref            = 'field_ref="'            + str(elem_nf.get('field_ref'))            + '"'
-         attribute_enabled              = 'enabled="'              + str(elem_nf.get('enabled'))              + '"'
-         attribute_unit                 = 'unit="'                 + str(elem_nf.get('unit'))                 + '"'
-         attribute_grid_ref             = 'grid_ref="'             + str(elem_nf.get('grid_ref'))             + '"'
-         attribute_axis_ref             = 'axis_ref="'             + str(elem_nf.get('axis_ref'))             + '"'
-         attribute_name                 = 'name="'                 + str(elem_nf.get('name'))                 + '"'
-         attribute_operation            = 'operation="'            + str(elem_nf.get('operation'))            + '"'
-         attribute_freq_op              = 'freq_op="'              + str(elem_nf.get('freq_op'))              + '"'
-         attribute_freq_offset          = 'freq_offset="'          + str(elem_nf.get('freq_offset'))          + '"'
-         attribute_expr                 = 'expr="'                 + str(elem_nf.get('expr'))                 + '"'
-         attribute_detect_missing_value = 'detect_missing_value="' + str(elem_nf.get('detect_missing_value')) + '"'
-         attribute_prec                 = 'prec="'                 + str(elem_nf.get('prec'))                 + '"'
-         attribute_read_access          = 'read_access="'          + str(elem_nf.get('read_access'))          + '"'
-         attribute_standard_name        = 'standard_name="'        + str(elem_nf.get('standard_name'))        + '"'
-         attribute_long_name            = 'long_name="'            + str(elem_nf.get('long_name'))            + '"'
-         attribute_comment              = 'comment="'              + str(elem_nf.get('comment'))              + '"'
+        if event == 'start':
+         tag_path.append(elem_nf.tag)
+         indentation = ' ' * 2 * (len(tag_path) - 1)
+        #print(' start: event = {:7} element = {}'.format(event, elem_nf.tag))
+         if elem_nf.tag == 'field':
+         #ecearth_field_def_nf.write('{}<{}  '.format(indentation, elem_nf.tag))
+          ecearth_field_def_nf.write('          <{}'.format(elem_nf.tag))
 
-         if True:
-          # Omit all attributes with the value "None":
-          if attribute_id                  [-7:] == '="None"': attribute_id                   = ''
-          if attribute_field_ref           [-7:] == '="None"': attribute_field_ref            = ''
-          if attribute_enabled             [-7:] == '="None"': attribute_enabled              = ''
-          if attribute_unit                [-7:] == '="None"': attribute_unit                 = ''
-          if attribute_grid_ref            [-7:] == '="None"': attribute_grid_ref             = ''
-          if attribute_axis_ref            [-7:] == '="None"': attribute_axis_ref             = ''
-          if attribute_name                [-7:] == '="None"': attribute_name                 = ''
-          if attribute_operation           [-7:] == '="None"': attribute_operation            = ''
-          if attribute_freq_op             [-7:] == '="None"': attribute_freq_op              = ''
-          if attribute_freq_offset         [-7:] == '="None"': attribute_freq_offset          = ''
-          if attribute_expr                [-7:] == '="None"': attribute_expr                 = ''
-          if attribute_detect_missing_value[-7:] == '="None"': attribute_detect_missing_value = ''
-          if attribute_prec                [-7:] == '="None"': attribute_prec                 = ''
-          if attribute_read_access         [-7:] == '="None"': attribute_read_access          = ''
-          if attribute_standard_name       [-7:] == '="None"': attribute_standard_name        = ''
-          if attribute_long_name           [-7:] == '="None"': attribute_long_name            = ''
-          if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
+          attribute_id                   = 'id="'                   + str(elem_nf.get('id'))                   + '"'
+          attribute_field_ref            = 'field_ref="'            + str(elem_nf.get('field_ref'))            + '"'
+          attribute_enabled              = 'enabled="'              + str(elem_nf.get('enabled'))              + '"'
+          attribute_unit                 = 'unit="'                 + str(elem_nf.get('unit'))                 + '"'
+          attribute_grid_ref             = 'grid_ref="'             + str(elem_nf.get('grid_ref'))             + '"'
+          attribute_axis_ref             = 'axis_ref="'             + str(elem_nf.get('axis_ref'))             + '"'
+          attribute_name                 = 'name="'                 + str(elem_nf.get('name'))                 + '"'
+          attribute_operation            = 'operation="'            + str(elem_nf.get('operation'))            + '"'
+          attribute_freq_op              = 'freq_op="'              + str(elem_nf.get('freq_op'))              + '"'
+          attribute_freq_offset          = 'freq_offset="'          + str(elem_nf.get('freq_offset'))          + '"'
+          attribute_expr                 = 'expr="'                 + str(elem_nf.get('expr'))                 + '"'
+          attribute_detect_missing_value = 'detect_missing_value="' + str(elem_nf.get('detect_missing_value')) + '"'
+          attribute_prec                 = 'prec="'                 + str(elem_nf.get('prec'))                 + '"'
+          attribute_read_access          = 'read_access="'          + str(elem_nf.get('read_access'))          + '"'
+          attribute_standard_name        = 'standard_name="'        + str(elem_nf.get('standard_name'))        + '"'
+          attribute_long_name            = 'long_name="'            + str(elem_nf.get('long_name'))            + '"'
+          attribute_comment              = 'comment="'              + str(elem_nf.get('comment'))              + '"'
 
-         for attribute in elem_nf.attrib:
-          if attribute not in ['id', 'field_ref', 'enabled', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'prec', 'read_access', 'standard_name', 'long_name', 'comment']:
-           print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
-         ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
-                                    .format(attribute_id                  , \
-                                            attribute_field_ref           , \
-                                            attribute_enabled             , \
-                                            attribute_unit                , \
-                                            attribute_grid_ref            , \
-                                            attribute_axis_ref            , \
-                                            attribute_name                , \
-                                            attribute_operation           , \
-                                            attribute_freq_op             , \
-                                            attribute_freq_offset         , \
-                                            attribute_expr                , \
-                                            attribute_detect_missing_value, \
-                                            attribute_prec                , \
-                                            attribute_read_access         , \
-                                            attribute_standard_name       , \
-                                            attribute_long_name           , \
-                                            attribute_comment             ))
-        else:
-         ecearth_field_def_nf.write('{}<{}'.format(indentation, elem_nf.tag))
-         for attribute in elem_nf.attrib:
-          ecearth_field_def_nf.write(' {:}="{:}"'.format(attribute, elem_nf.get(attribute)))
-         ecearth_field_def_nf.write('>\n')
+          if True:
+           # Omit all attributes with the value "None":
+           if attribute_id                  [-7:] == '="None"': attribute_id                   = ''
+           if attribute_field_ref           [-7:] == '="None"': attribute_field_ref            = ''
+           if attribute_enabled             [-7:] == '="None"': attribute_enabled              = ''
+           if attribute_unit                [-7:] == '="None"': attribute_unit                 = ''
+           if attribute_grid_ref            [-7:] == '="None"': attribute_grid_ref             = ''
+           if attribute_axis_ref            [-7:] == '="None"': attribute_axis_ref             = ''
+           if attribute_name                [-7:] == '="None"': attribute_name                 = ''
+           if attribute_operation           [-7:] == '="None"': attribute_operation            = ''
+           if attribute_freq_op             [-7:] == '="None"': attribute_freq_op              = ''
+           if attribute_freq_offset         [-7:] == '="None"': attribute_freq_offset          = ''
+           if attribute_expr                [-7:] == '="None"': attribute_expr                 = ''
+           if attribute_detect_missing_value[-7:] == '="None"': attribute_detect_missing_value = ''
+           if attribute_prec                [-7:] == '="None"': attribute_prec                 = ''
+           if attribute_read_access         [-7:] == '="None"': attribute_read_access          = ''
+           if attribute_standard_name       [-7:] == '="None"': attribute_standard_name        = ''
+           if attribute_long_name           [-7:] == '="None"': attribute_long_name            = ''
+           if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
 
-       elif event == 'end':
-        # Add the tag closings:
-        indentation = ' ' * 2 * (len(tag_path) - 1)
-       #print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
-        if elem_nf.tag == 'field':
-         ecearth_field_def_nf.write('> </{}>\n'.format(elem_nf.tag))
-        else:
-         ecearth_field_def_nf.write('{}</{}>\n'.format(indentation, elem_nf.tag))
-        tag_path.pop()
+          for attribute in elem_nf.attrib:
+           if attribute not in ['id', 'field_ref', 'enabled', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'prec', 'read_access', 'standard_name', 'long_name', 'comment']:
+            print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
+          ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
+                                     .format(attribute_id                  , \
+                                             attribute_field_ref           , \
+                                             attribute_enabled             , \
+                                             attribute_unit                , \
+                                             attribute_grid_ref            , \
+                                             attribute_axis_ref            , \
+                                             attribute_name                , \
+                                             attribute_operation           , \
+                                             attribute_freq_op             , \
+                                             attribute_freq_offset         , \
+                                             attribute_expr                , \
+                                             attribute_detect_missing_value, \
+                                             attribute_prec                , \
+                                             attribute_read_access         , \
+                                             attribute_standard_name       , \
+                                             attribute_long_name           , \
+                                             attribute_comment             ))
+         else:
+          ecearth_field_def_nf.write('{}<{}'.format(indentation, elem_nf.tag))
+          for attribute in elem_nf.attrib:
+           ecearth_field_def_nf.write(' {:}="{:}"'.format(attribute, elem_nf.get(attribute)))
+          ecearth_field_def_nf.write('>\n')
+
+        elif event == 'end':
+         # Add the tag closings:
+         indentation = ' ' * 2 * (len(tag_path) - 1)
+        #print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
+         if elem_nf.tag == 'field':
+          ecearth_field_def_nf.write('> </{}>\n'.format(elem_nf.tag))
+         else:
+          ecearth_field_def_nf.write('{}</{}>\n'.format(indentation, elem_nf.tag))
+         tag_path.pop()
+
+  convert_to_neat_formatted_xml(ecearth_field_def_filename, ecearth_field_def_nf_filename)
 
   # Test the XML syntax by reading the just created ecearth_field_def_nf_file:
   tree_ecearth_field_def_nf = ET.parse(ecearth_field_def_nf_filename)
