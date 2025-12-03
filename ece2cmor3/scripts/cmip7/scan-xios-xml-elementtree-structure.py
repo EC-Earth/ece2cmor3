@@ -688,14 +688,14 @@ def main():
         if chain_element.tag == root_main.tag:
          inherit_message('IA 1', 'field_ref', attribute, chain_element, starting_element, i, 'no inheritance up to           ')
        ##inherit_message_2(attribute, ancestor_grade, chain_element, xpath_expression_in_chain, 'IA  no inheritance')
-         return
+         return False
         if chain_element.get(attribute):
          # Inherit the attribute from the field element which matched with the field_ref field:
          starting_element.set(attribute, chain_element.get(attribute))
          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
          inherit_message('IA 2', 'field_ref', attribute, chain_element, starting_element, i, label)
        ##inherit_message_2(attribute, ancestor_grade, chain_element, xpath_expression_in_chain, 'IA  inheriting')
-         return
+         return True
         else:
        ##inherit_message_2(attribute, ancestor_grade, chain_element, xpath_expression_in_chain, 'IA  check inheritance')
          xpath_expression_in_chain += '/...'
