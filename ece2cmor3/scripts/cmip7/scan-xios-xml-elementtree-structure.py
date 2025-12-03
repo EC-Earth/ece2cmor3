@@ -720,8 +720,7 @@ def main():
           # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
           # and which matched one of field_ref field in the chain:
           starting_element.set(attribute, attribute_from_chain_element)
-          label = 'inherits from ancestor grade 0'
-          inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
+          inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, 'inherits from ancestor grade 0')
         ##print(' {:11} {:20}: ancestor grade: 0 {:30} {:60} {}'.format(attribute, attribute_from_chain_element, element_in_chain_of_references.tag, xpath_expression_in_field_ref_chain, 'inheriting via chain L' + str(item_nr_in_chain) + ' (' + print_reference_chain(chain_of_reference[0:item_nr_in_chain+1]) + ')'))
           return True
          else:
