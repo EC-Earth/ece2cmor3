@@ -766,7 +766,7 @@ def main():
          inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade)
 
 
-  preference_to_ancestors_of_chain_element = False
+  preference_to_ancestors_of_chain_element = True
   if preference_to_ancestors_of_chain_element:
    print(' Preference is given to the option in which the ancestors of a field_ref element in the reference chain are checked concerning the inheritance of attributes.')
   else:
