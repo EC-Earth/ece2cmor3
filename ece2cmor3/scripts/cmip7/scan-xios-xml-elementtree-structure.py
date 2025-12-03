@@ -669,7 +669,6 @@ def main():
        return
 
   def inherit_message(function_info, case, attribute, ancestor_element, element, i, ancestor_label):
-     #print(' {:15}: The {:11} element {:4} with {:9} attribute: {:19} {:36} {:30} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, element.tag, i, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
       print(' {:15}: Element {:9}: {:19} {:31} {:25} a {:11} attribute: {:29} id: {:27} name: {:20} standard_name: {:15} long_name: {}'.format(function_info, case, str(element.get(case)), ancestor_label, ancestor_element.tag, attribute, str(element.get(attribute)), str(element.get('id')), str(element.get('name')), str(element.get('standard_name')), str(element.get('long_name'))))
 
   def inherit_message_2(attribute, ancestor_grade, chain_element, xpath_expression_in_chain, label):
