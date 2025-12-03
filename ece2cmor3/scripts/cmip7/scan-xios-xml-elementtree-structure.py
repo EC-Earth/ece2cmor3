@@ -768,6 +768,10 @@ def main():
 
 
   preference_to_ancestors_of_chain_element = False
+  if preference_to_ancestors_of_chain_element:
+   print(' Preference is given to the option in which the ancestors of a field_ref element in the reference chain are checked concerning the inheritance of attributes.')
+  else:
+   print(' Atribute inheritance is checked with the field_ref elements in the reference chain, only for the last element in the reference chain the ancestors are checked as well.')
 
   i    = 0
   i_fr = 0
