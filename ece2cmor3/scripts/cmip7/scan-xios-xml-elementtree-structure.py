@@ -702,7 +702,7 @@ def main():
          ancestor_grade += 1
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade)
 
-  def inherit_attribute_via_field_ref_chain(attribute, starting_element, ancestor_grade, chain_of_reference):
+  def inherit_attribute_via_field_ref_chain(attribute, starting_element, chain_of_reference):
        # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
        # are already inherited as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
        # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
@@ -720,7 +720,7 @@ def main():
           # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
           # and which matched one of field_ref field in the chain:
           starting_element.set(attribute, attribute_from_chain_element)
-          label = 'inherits from ancestor grade {}'.format(ancestor_grade)
+          label = 'inherits from ancestor grade 0'
           inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, label)
         ##print(' {:11} {:20}: ancestor grade: 0 {:30} {:60} {}'.format(attribute, attribute_from_chain_element, element_in_chain_of_references.tag, xpath_expression_in_field_ref_chain, 'inheriting via chain L' + str(item_nr_in_chain) + ' (' + print_reference_chain(chain_of_reference[0:item_nr_in_chain+1]) + ')'))
           return True
@@ -795,7 +795,7 @@ def main():
        inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                        ')
      ##inherit_message_2(attribute, 0, element, '   field_ref="' + element.get('field_ref') + '"', 'main   has')
       else:
-       attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, ancestor_grade, chain_of_reference)
+       attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, chain_of_reference)
        if attribute_inherited == False:
        #print(' Try to inherit from any ancestors of the field_ref element ({}) at the end of the chain.'.format(chain_of_reference[-1]))
         # Inherit from ancestors of the element at the end of the field_ref chain:
