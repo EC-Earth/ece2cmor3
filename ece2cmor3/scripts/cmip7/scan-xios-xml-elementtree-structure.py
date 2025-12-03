@@ -724,7 +724,14 @@ def main():
         ##print(' {:11} {:20}: ancestor grade: 0 {:30} {:60} {}'.format(attribute, attribute_from_chain_element, element_in_chain_of_references.tag, xpath_expression_in_field_ref_chain, 'inheriting via chain L' + str(item_nr_in_chain) + ' (' + print_reference_chain(chain_of_reference[0:item_nr_in_chain+1]) + ')'))
           return True
          else:
-         #pass
+
+          if preference_to_ancestors_of_chain_element:
+           # Inherit from ancestors of the element at the end of the field_ref chain:
+           ancestor_grade = 0
+           xpath_expression_final_field_ref_in_chain = './/field[@id="'+field_ref_in_chain+'"]'
+           inherit_successful = inherit_attribute(attribute, element, xpath_expression_final_field_ref_in_chain, ancestor_grade)
+           if inherit_successful: return True
+
           print(' At chain level {}         field_ref: {:19} via field_ref {:20}                        a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
        # No inheritance at direct element definition in the field_ref chain could be applied (the eventual inheriting from ancestors
@@ -759,6 +766,8 @@ def main():
          ancestor_grade += 1
          inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade)
 
+
+  preference_to_ancestors_of_chain_element = False
 
   i    = 0
   i_fr = 0
@@ -795,12 +804,14 @@ def main():
      ##inherit_message_2(attribute, 0, element, '   field_ref="' + element.get('field_ref') + '"', 'main   has')
       else:
        attribute_inherited = inherit_attribute_via_field_ref_chain(attribute, element, chain_of_reference)
-       if attribute_inherited == False:
-       #print(' Try to inherit from any ancestors of the field_ref element ({}) at the end of the chain.'.format(chain_of_reference[-1]))
-        # Inherit from ancestors of the element at the end of the field_ref chain:
-        ancestor_grade = 0
-        xpath_expression_final_field_ref_in_chain = './/field[@id="'+chain_of_reference[-1]+'"]'
-        inherit_attribute(attribute, element, xpath_expression_final_field_ref_in_chain, ancestor_grade)
+
+       if preference_to_ancestors_of_chain_element == False:
+        if attribute_inherited == False:
+        #print(' Try to inherit from any ancestors of the field_ref element ({}) at the end of the chain.'.format(chain_of_reference[-1]))
+         # Inherit from ancestors of the element at the end of the field_ref chain:
+         ancestor_grade = 0
+         xpath_expression_final_field_ref_in_chain = './/field[@id="'+chain_of_reference[-1]+'"]'
+         inherit_attribute(attribute, element, xpath_expression_final_field_ref_in_chain, ancestor_grade)
 
    elif element.get('id'):
     # Select all field elements without a field_ref (they should all have an id attribute):
