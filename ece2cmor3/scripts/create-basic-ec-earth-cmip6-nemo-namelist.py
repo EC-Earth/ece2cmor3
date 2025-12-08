@@ -27,7 +27,7 @@
 #
 # 5. The exentensive basic flat ec-earth cmip6 nemo XIOS input file template (the namelist or the
 # file_def file) is written by combining all the available data. In this file for each variable the
-# enable attribute is set to false, this allows another smaller program in ece2cmor3 to set those
+# enable attribute is set to false, this allows another smaller program in genecec to set those
 # variables on true which are asked for in the various data requests of each individual MIP
 # experiment.
 #
