@@ -197,6 +197,7 @@ if len(sys.argv) == 2:
               comment = comment.replace('if < surface', 'if below surface')                        # Replace the "below surface" cases  - overcoming trouble with canonical
               comment = comment.replace('< ', 'less than ')                                        # Replace the "less than" cases      - overcoming trouble with canonical
               comment = comment.replace('<', 'less than ')                                         # Replace the "less than" cases      - overcoming trouble with canonical
+              comment = comment.replace('°C', 'degC')                                             # Replace the non-ascii characters by degC (for variable tomint)
               unit = re.sub(r'\).*', '', comment)
               unit = re.sub(r'P. \(', '', unit)
               unit = 'ping_unit="' + unit + '"'                                                    # Add the ping_unit attribute name and the quotes
