@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # Thomas Reerink
 
-# This script takes a request-overview file, as genereted by ECE3 genecec and converts its content into a XML file where per variable all metadata
-# is stored in attributes. For the input request overview file, we take one which covers the most ECE3 variables: the test-all pextra CC one for instance.
+# This script takes a request-overview file, as genereted by ECE3 genecec and converts its content into a XML file in which for each variable all metadata
+# is stored in attributes. We take as input a request overview file which covers the most ECE3 variables: the test-all pextra CC file for instance.
 
-# Relevance: This lists all CMOR variables which have been identified for CMIP6 for EC-Earth3. It gives the grib codes for th eECE3 IFS variables. It shows
+# Relevance: This lists all CMOR variables which have been identified for CMIP6 for EC-Earth3. It gives the grib codes for the ECE3 IFS variables. It shows
 # when a variable can be obtained from more than one model component (which involves the preferences).
 
 # Run this script like:
@@ -79,7 +79,7 @@ def main():
    xml_filename              = args.xml_file
 
 
-   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2 -r )
+   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.2 -r )
    cmip6_cmip7_mapping_filename = 'cmip7-variables-and-metadata-all.xml'
    tree_cmip6_cmip7_mapping = ET.parse(cmip6_cmip7_mapping_filename)
    root_cmip6_cmip7_mapping = tree_cmip6_cmip7_mapping.getroot()
