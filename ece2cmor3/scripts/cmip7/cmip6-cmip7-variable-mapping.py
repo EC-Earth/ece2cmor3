@@ -83,6 +83,11 @@ def main():
     if args.compound_names is not None: label = label + '-' + delim.join(map(str, args.compound_names))
     if label               == ''      : label = '-all'
 
+    # Read & load the request-overview ECE3-CMIP6 identification:
+    request_overview_xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
+    tree_request_overview = ET.parse(request_overview_xml_filename)
+    root_request_overview = tree_request_overview.getroot()
+
     # Write an ascii file with all content in attributes for each variable:
     cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
     with open(cmip7_variables_ascii_filename, 'w') as varasciifile:
