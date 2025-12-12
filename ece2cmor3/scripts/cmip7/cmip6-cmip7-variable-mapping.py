@@ -115,13 +115,19 @@ def main():
     with open(cmip7_variables_xml_filename, 'w') as varxmlfile:
      varxmlfile.write('<cmip7_variables>\n')
 
+     count_dim_changed = 0
      for k, v in all_var_info.items():
       # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
       count = 0
       xpath_expression = './/variable[@cmip6_variable="' + v['physical_parameter_name'] + '"]'
       for ece3_element in root_request_overview.findall(xpath_expression):
-       if ece3_element.get('temporal_shape') == "climatology":
-        print(' Climatologies not included: Time shape info: {} for {}'.format(ece3_element.get('temporal_shape'), xpath_expression))
+       if False:
+        if ece3_element.get('dimensions') != v['dimensions']:
+         count_dim_changed += 1
+         print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, k, v['cmip6_compound_name'], ece3_element.get('dimensions'), v['dimensions']))
+      #if ece3_element.get('temporal_shape') == "climatology":
+       if v['temporal_shape'] == "climatology":
+        print(' Climatologies not included for: {:45} {}'.format(k, xpath_expression))
        else:
         if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
          count += 1
