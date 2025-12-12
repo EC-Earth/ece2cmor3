@@ -116,6 +116,22 @@ def main():
      varxmlfile.write('<cmip7_variables>\n')
 
      for k, v in all_var_info.items():
+      # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
+      count = 0
+      xpath_expression = './/variable[@cmip6_variable="' + v['physical_parameter_name'] + '"]'
+      for ece3_element in root_request_overview.findall(xpath_expression):
+       if ece3_element.get('temporal_shape') == "climatology":
+        print(' Climatologies not included: Time shape info: {} for {}'.format(ece3_element.get('temporal_shape'), xpath_expression))
+       else:
+        if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
+         count += 1
+         if count == 1:
+          pass
+         #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+         else:
+          print(' Match for: {} {} {} {} WARNING count == 2'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+
+
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"'+k                            + '"', \
                                  '"'+v['branded_variable_name'  ] + '"', \
