@@ -12,7 +12,7 @@ from . import cmor_target
 from . import cmor_task
 import cdo
 from ece2cmor3 import cdoapi
-import Ngl
+#import Ngl                        # This line is commented because of the deprecated pyngl package. See #862, #828 & #&31
 import warnings
 
 # Logger object
@@ -561,7 +561,7 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
     # Interpolate data from model levels to pressure levels
     # pressure_levels defines the pressure levels
     # Based on pyngl example: 
-    # https://www.pyngl.ucar.edu/Examples/Scripts/vinth2p.py 
+    # https://www.pyngl.ucar.edu/Examples/Scripts/vinth2p.py
     ####
 
     # Reference pressure 1e5 Pa in TM5, here in hPa 
@@ -582,7 +582,9 @@ def interpolate_plev(pressure_levels,dataset,psdata,varname):
 
     interpolation=1 #1 linear, 2 log, 3 loglog
     # divide pressure_levels by 100 to get in mb
-    interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,False)
+    # The line below is commented because of the deprication of the pyngl package. See #862, #828 & #&31
+    #interpolated_data = Ngl.vinth2p(data,hyam,hybm,pressure_levels/100,psdata[:,:,:],interpolation,p0mb,1,False)
+    print('ERROR form tm52cmor.py: In order to interpolate data from model levels to pressure levels the deprecated pyngl package was used but it has been removed while no alternative interpolation has been implemented.')
     return interpolated_data
 
 
