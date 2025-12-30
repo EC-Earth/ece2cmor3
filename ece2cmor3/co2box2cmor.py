@@ -7,7 +7,6 @@ import logging
 import netCDF4
 import cmor
 import cdo
-import Ngl
 import warnings
 from cdo import *
 from ece2cmor3 import cdoapi, cmor_source, cmor_target, cmor_task, cmor_utils, postproc
