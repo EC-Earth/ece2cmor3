@@ -79,7 +79,7 @@ def main():
    xml_filename              = args.xml_file
 
 
-   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.2 -r )
+   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
    cmip6_cmip7_mapping_filename = 'cmip7-variables-and-metadata-all.xml'
    tree_cmip6_cmip7_mapping = ET.parse(cmip6_cmip7_mapping_filename)
    root_cmip6_cmip7_mapping = tree_cmip6_cmip7_mapping.getroot()
@@ -130,9 +130,8 @@ def main():
     output_file.write('</ifspar_cmip6_ifs_instructions>\n')
 
    # Test: Load the xml file:
-   tree_ifspar = ET.parse(xml_filename)
+   tree_ifspar = ET.parse('ifspar-info.xml')
    root_ifspar = tree_ifspar.getroot()
-
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(request_overview_filename)
@@ -259,7 +258,7 @@ def main():
    count_error               = 0
    count_no_cmip7_equivalent = 0
 
-   # Alternative direct XML writting in neat column format:
+   # Alternative direct XML writing in neat column format:
    # Write an XML file with all content in attributes for each variable:
    xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
    with open(xml_filename, 'w') as xml_file:
@@ -358,7 +357,9 @@ def main():
         # Search once again through the CMIP6 - CMIP7 mapped XML now on the cmip7_compound_name in order to pick the desired attribute(s):
         # Here easily more metadata attributes from the CMIP6 - CMIP7 mapped XML can be added into the request-overview file if necessary.
         map_xpath_again = './/variable[@cmip7_compound_name="' + compound_name + '"]'
-        cmip7_long_name = 'None'
+        cmip7_long_name      = 'None'
+        cmip7_region         = 'None'
+        cmip7_temporal_shape = 'None'
         for map_el_again in root_cmip6_cmip7_mapping.findall(map_xpath_again):
          cmip7_long_name       = map_el_again.get('long_name')
          cmip7_region          = map_el_again.get('region')
