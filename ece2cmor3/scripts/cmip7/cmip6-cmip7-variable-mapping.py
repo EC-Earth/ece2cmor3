@@ -135,7 +135,7 @@ def main():
           pass
          #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
          else:
-          print(' Match for: {} {} {} {} WARNING count == 2'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+          print(' Match for: {} {} {} {} WARNING count == {}'.format(count, v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
 
 
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
