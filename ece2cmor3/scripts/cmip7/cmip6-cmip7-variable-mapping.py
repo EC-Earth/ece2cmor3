@@ -3,16 +3,16 @@
 Mapping of CMIP6 to CMIP7 CMOR variables and optionally provide metadata.
 
 Mapping of one CMIP6 table-variable combination:
- ./cmip6-cmip7-variable-mapping.py v1.2.2 -t Amon -v tas
+ ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -t Amon -v tas
 
 Multiple mapping of various variables from various tables:
- ./cmip6-cmip7-variable-mapping.py v1.2.2 -t Omon,Amon -v tas,tos
+ ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -t Omon,Amon -v tas,tos
 
 Mapping of two CMIP7 compound names:
- ./cmip6-cmip7-variable-mapping.py v1.2.2 -c atmos.areacell.ti-u-hxy-u.fx.GLB,ocean.areacell.ti-u-hxy-u.fx.GLB
+ ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -c atmos.areacell.ti-u-hxy-u.fx.glb,ocean.areacell.ti-u-hxy-u.fx.glb
 
 Mapping of all variables:
- ./cmip6-cmip7-variable-mapping.py v1.2.2 -r
+ ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r
 
 
 This script produces a neat formatted XML file with the metadata in attrbutes. All CMIP7 variables can be inlcuded or a selection based on argument options.
@@ -172,7 +172,7 @@ def main():
     print('\n The CMIP7 data request contains {} different variables for the selection: {}.\n'.format(number_of_variables, label[1:]))
 
     if False:
-     for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.GLB"]'):
+     for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.glb"]'):
       print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
 
 if __name__ == '__main__':
