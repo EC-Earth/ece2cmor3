@@ -15,6 +15,10 @@ from collections import OrderedDict
 import data_request_api
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
+from importlib.metadata import version
+
+PACKAGE_NAME = "CMIP7_data_request_api"
+print('The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
 
 
 def parse_args():
