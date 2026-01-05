@@ -196,7 +196,7 @@ def main():
 
       if ' | ' in comment:
        if False: print('{:12} {:21} {:45} {:115} {:20} {}'.format(cmip6_table, cmip6_variable, dimensions, long_name, unit, comment))
-       match = re.search(' \| (.+?) ', comment)
+       match = re.search(r' \| (.+?) ', comment)
        if match:
         other_component = match.group(1).strip()
       else:
@@ -205,7 +205,7 @@ def main():
       if 'expression' in comment:
        # Obtain the bare expression part:
        if ' | ' in comment:
-        match = re.search('expression = (.+?) \| ', comment)
+        match = re.search(r'expression = (.+?) \| ', comment)
         if match:
          expression = match.group(1).strip()
        else:
@@ -299,7 +299,7 @@ def main():
 
        if ' | ' in comment:
         if False: print('{:12} {:21} {:45} {:115} {:20} {}'.format(cmip6_table, cmip6_variable, dimensions, long_name, unit, comment))
-        match = re.search(' \| (.+?) ', comment)
+        match = re.search(r' \| (.+?) ', comment)
         if match:
          other_component = match.group(1).strip()
        else:
@@ -308,7 +308,7 @@ def main():
        if 'expression' in comment:
         # Obtain the bare expression part:
         if ' | ' in comment:
-         match = re.search('expression = (.+?) \| ', comment)
+         match = re.search(r'expression = (.+?) \| ', comment)
          if match:
           expression = match.group(1).strip()
         else:
