@@ -83,10 +83,12 @@ def main():
     if args.compound_names is not None: label = label + '-' + delim.join(map(str, args.compound_names))
     if label               == ''      : label = '-all'
 
-    # Read & load the request-overview ECE3-CMIP6 identification:
-    request_overview_xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
-    tree_request_overview = ET.parse(request_overview_xml_filename)
-    root_request_overview = tree_request_overview.getroot()
+    match_ece3_cmip6_identification = False
+    if match_ece3_cmip6_identification:
+     # Read & load the request-overview ECE3-CMIP6 identification:
+     request_overview_xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
+     tree_request_overview = ET.parse(request_overview_xml_filename)
+     root_request_overview = tree_request_overview.getroot()
 
     # Write an ascii file with all content in attributes for each variable:
     cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
@@ -117,25 +119,27 @@ def main():
 
      count_dim_changed = 0
      for k, v in all_var_info.items():
-      # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
-      count = 0
-      xpath_expression = './/variable[@cmip6_variable="' + v['physical_parameter_name'] + '"]'
-      for ece3_element in root_request_overview.findall(xpath_expression):
-       if False:
-        if ece3_element.get('dimensions') != v['dimensions']:
-         count_dim_changed += 1
-         print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, k, v['cmip6_compound_name'], ece3_element.get('dimensions'), v['dimensions']))
-      #if ece3_element.get('temporal_shape') == "climatology":
-       if v['temporal_shape'] == "climatology":
-        print(' Climatologies not included for: {:45} {}'.format(k, xpath_expression))
-       else:
-        if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
-         count += 1
-         if count == 1:
-          pass
-         #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
-         else:
-          print(' Match for: {} {} {} {} WARNING count == {}'.format(count, v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+
+      if match_ece3_cmip6_identification:
+       # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
+       count = 0
+       xpath_expression = './/variable[@cmip6_variable="' + v['physical_parameter_name'] + '"]'
+       for ece3_element in root_request_overview.findall(xpath_expression):
+        if False:
+         if ece3_element.get('dimensions') != v['dimensions']:
+          count_dim_changed += 1
+          print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, k, v['cmip6_compound_name'], ece3_element.get('dimensions'), v['dimensions']))
+       #if ece3_element.get('temporal_shape') == "climatology":
+        if v['temporal_shape'] == "climatology":
+         print(' Climatologies not included for: {:45} {}'.format(k, xpath_expression))
+        else:
+         if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
+          count += 1
+          if count == 1:
+           pass
+          #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+          else:
+           print(' Match for: {} {} {} {} WARNING count == {}'.format(count, v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
 
 
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
