@@ -54,6 +54,7 @@ def parse_args():
     parser.add_argument('-m', '--showmetadata'    , action='store_true'  , default=False, help='show in addition the metadata of each listed variable')
     parser.add_argument('-o', '--omitheader'      , action='store_true'  , default=False, help='omit the header')
     parser.add_argument('-r', '--showextracolumns', action='store_true'  , default=False, help='show extra metadata in extra columns')
+    parser.add_argument('-i', '--identification'  , action='store_true'  , default=False, help='match the ece3 cmip6 identification')
 
     return parser.parse_args()
 
@@ -83,7 +84,7 @@ def main():
     if args.compound_names is not None: label = label + '-' + delim.join(map(str, args.compound_names))
     if label               == ''      : label = '-all'
 
-    match_ece3_cmip6_identification = False
+    match_ece3_cmip6_identification = args.identification
     if match_ece3_cmip6_identification:
      # Read & load the request-overview ECE3-CMIP6 identification:
      request_overview_xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
