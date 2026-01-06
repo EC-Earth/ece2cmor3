@@ -130,17 +130,18 @@ def main():
          if ece3_element.get('dimensions') != v['dimensions']:
           count_dim_changed += 1
           print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, k, v['cmip6_compound_name'], ece3_element.get('dimensions'), v['dimensions']))
-       #if ece3_element.get('temporal_shape') == "climatology":
         if v['temporal_shape'] == "climatology":
          print(' Climatologies not included for: {:45} {}'.format(k, xpath_expression))
         else:
          if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
-          count += 1
-          if count == 1:
-           pass
-          #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
-          else:
-           print(' Match for: {} {} {} {} WARNING count == {}'.format(count, v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+          # Deselect the ch4 & co2 ECE3-CMIP6 climatology cases:
+          if ece3_element.get('temporal_shape') != "climatology":
+           count += 1
+           if count == 1:
+            pass
+           #print(' Match for: {} {} {} {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
+           else:
+            print(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
 
 
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
