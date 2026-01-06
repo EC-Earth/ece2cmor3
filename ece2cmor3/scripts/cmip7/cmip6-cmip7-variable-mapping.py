@@ -144,8 +144,9 @@ def main():
             #print(' For: {} {} {} {} ECE3-CMIP6 match found in the CMIP7 request {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count, v['cmip6_compound_name']))
             else:
              print(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
-             print('{} {} {}'.format(v['cmip6_compound_name'], v['cmip6_table'], v['physical_parameter_name']))
-
+            #print('{} {} {}'.format(v['cmip6_compound_name'], v['cmip6_table'], v['physical_parameter_name']))
+        else:
+         print(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(k, v['cmip6_compound_name']))
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"'+k                            + '"', \
                                  '"'+v['branded_variable_name'  ] + '"', \
