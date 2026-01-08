@@ -436,7 +436,7 @@ def main():
           subprocess.run(["../../../modify-metadata-template.sh", mip_name, experiment, ececonf_in_ece2cmor, "../../../../resources/metadata-templates/metadata-cmip6-CMIP-piControl-template.json"])
           # This could be considered to do right a way from here (at the python level).
           # For CMIP7 it would be nice to be able to request the parent_experiment for each experiment (same as for the MIP).
-          # It would be pretty to be able to drop the licence from the mtadata template - however to be able to adjust it at a certain level remains fafourable
+          # It would be pretty to be able to drop the licence from the metadata template - however to be able to adjust it at a certain level remains fafourable
 
           # Rename the metadata files such that the cmip6 label becomes cmip7:
           for filename in os.listdir("."):
