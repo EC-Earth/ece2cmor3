@@ -87,6 +87,8 @@ def main():
     multiple_match_messages    = []   # A list collecting the multiple match messages for pretty printing afterwards
     no_climatology_messages    = []   # A list collecting the messages which mention that climatology requests are not included for pretty printing afterwards
     no_identification_messages = []   # A list collecting the messages which mention when a vraible is not identified within the ECE3 - CMIP6 framework for pretty printing afterwards
+    not_identified_physical_parameter_list_messages = []
+    not_identified_physical_parameters = []
 
     match_ece3_cmip6_identification = args.identification
     if match_ece3_cmip6_identification:
@@ -152,6 +154,9 @@ def main():
             #multiple_match_messages.append('{} {} {}'.format(v['cmip6_compound_name'], v['cmip6_table'], v['physical_parameter_name']))
         else:
          no_identification_messages.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(k, v['cmip6_compound_name']))
+         if v['physical_parameter_name'] not in not_identified_physical_parameters:
+          not_identified_physical_parameters.append(v['physical_parameter_name'])
+          not_identified_physical_parameter_list_messages.append(' physical_parameter_name = "{:28}" long_name = "{}"'.format(v['physical_parameter_name'], v['long_name']))
       varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"'+k                            + '"', \
                                  '"'+v['branded_variable_name'  ] + '"', \
@@ -185,6 +190,11 @@ def main():
     for message in no_identification_messages:
      print(message)
     print()
+    for message in not_identified_physical_parameter_list_messages:
+     print(message)
+    print()
+
+    print('\n The CMIP7 data request contains {} variables for the selection: {} which are not identified in the ECE3 - CMIP6 framewordk.\n'.format(len(not_identified_physical_parameter_list_messages), label[1:]))
 
 
     # Test: Load the xml file:
