@@ -83,9 +83,6 @@ def main():
     if args.compound_names is not None: label = label + '-' + delim.join(map(str, args.compound_names))
     if label               == ''      : label = '-all'
 
-    multiple_match_messages = []   # A list collecting the multiple match messages for pretty printing afterwards
-    no_climatology_messages = []   # A list collecting the messages which mention that climatology requests are not included for pretty printing afterwards
-
     if args.writeascii == True:
      # Write an ascii file with all content in attributes for each variable:
      cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
@@ -137,14 +134,6 @@ def main():
                                  '"'+v['type'                   ] + '"'))
 
      varxmlfile.write('</cmip7_variables>\n')
-
-    print()
-    for message in no_climatology_messages:
-     print(message)
-    print()
-    for message in multiple_match_messages:
-     print(message)
-    print()
 
     # Test: Load the xml file:
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
