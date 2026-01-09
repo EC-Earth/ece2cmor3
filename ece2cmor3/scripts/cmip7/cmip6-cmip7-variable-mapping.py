@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument('-t', '--cmor_tables'     , type=parse_input_list               , help='include only the specified CMOR tables (aka MIP tables, examples: Amon Omon)')
     parser.add_argument('-v', '--cmor_variables'  , type=parse_input_list               , help='include only the specified CMOR variables (out_name, examples: tas siconc)')
     parser.add_argument('-m', '--showmetadata'    , action='store_true'  , default=False, help='show in addition the metadata of each listed variable')
-    parser.add_argument('-o', '--omitheader'      , action='store_true'  , default=False, help='omit the header')
+    parser.add_argument('-a', '--writeascii'      , action='store_true'  , default=False, help='write an ascii file as well')
     parser.add_argument('-r', '--showextracolumns', action='store_true'  , default=False, help='show extra metadata in extra columns')
 
     return parser.parse_args()
@@ -86,21 +86,21 @@ def main():
     multiple_match_messages = []   # A list collecting the multiple match messages for pretty printing afterwards
     no_climatology_messages = []   # A list collecting the messages which mention that climatology requests are not included for pretty printing afterwards
 
-    # Write an ascii file with all content in attributes for each variable:
-    cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
-    with open(cmip7_variables_ascii_filename, 'w') as varasciifile:
-     if args.omitheader == False:
+    if args.writeascii == True:
+     # Write an ascii file with all content in attributes for each variable:
+     cmip7_variables_ascii_filename = 'cmip7-variables-and-metadata' + label + '.txt'
+     with open(cmip7_variables_ascii_filename, 'w') as varasciifile:
       if args.showextracolumns == False:
        varasciifile.write(' {:14} {:25}     {:65}   {}\n'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
       else:
        varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
       varasciifile.write('\n')
 
-     for k, v in all_var_info.items():
-      if args.showextracolumns == False:
-       varasciifile.write(' {:14} {:25} ==> {:65} | {}\n'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
-      else:
-       varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
+      for k, v in all_var_info.items():
+       if args.showextracolumns == False:
+        varasciifile.write(' {:14} {:25} ==> {:65} | {}\n'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
+       else:
+        varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
 
     if args.showmetadata:
      # Write the metadata of the selected list of variables to a json file:
