@@ -94,7 +94,7 @@ def main():
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
     # Read & load the request-overview ECE3-CMIP6 identification:
-    request_overview_xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
+    request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
