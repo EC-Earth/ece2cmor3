@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # Thomas Reerink
 
-# This script takes a request-overview file, as genereted by ECE3 genecec and converts its content into a XML file in which for each variable all metadata
+# This script takes a request-overview file, as genereted by ECE3 genecec and converts its content into an XML file in which for each variable all metadata
 # is stored in attributes. We take as input a request overview file which covers the most ECE3 variables: the test-all pextra CC file for instance.
 
 # Relevance: This lists all CMOR variables which have been identified for CMIP6 for EC-Earth3. It gives the grib codes for the ECE3 IFS variables. It shows
 # when a variable can be obtained from more than one model component (which involves the preferences).
 
+# Generate the current standard input file for this script:
+# grep -v -e cWood ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt > request-overview-cmip6-pextra-all-ECE3-CC.txt
+
 # Run this script like:
-#  ./convert-request-overview-to-xml.py request-overview-all-including-EC-EARTH-CC-preferences.txt request-overview-all-including-EC-EARTH-CC-preferences.xml
+#  ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
+#  ./convert-request-overview-to-xml.py ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt
 
 import argparse
 import xml.etree.ElementTree as ET
@@ -48,7 +52,6 @@ def parse_args():
     # Positional (mandatory) input arguments
     parser = argparse.ArgumentParser(description=' Reading an ECE3 request-overview file and convert its content to an xml file.')
     parser.add_argument('request_file', help='input ascii request-overview file')
-    parser.add_argument('xml_file'    , help='output xml file')
     return parser.parse_args()
 
 
@@ -71,12 +74,10 @@ def main():
    args = parse_args()
 
    # Echo the exact call of the script in the log messages:
-   logging.info('Running:\n\n {:} {:} {:}\n'.format(sys.argv[0], sys.argv[1], sys.argv[2]))
+   logging.info('Running:\n\n {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
-  #request_overview_filename = os.path.expanduser('~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt')
-  #xml_filename              = os.path.expanduser('request-overview-ec-earth3-cc-pextra-test-all.xml')
    request_overview_filename = args.request_file
-   xml_filename              = args.xml_file
+   xml_filename              = request_overview_filename.replace('.txt', '.xml')
 
 
    # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
@@ -258,9 +259,9 @@ def main():
    count_error               = 0
    count_no_cmip7_equivalent = 0
 
-   # Alternative direct XML writing in neat column format:
-   # Write an XML file with all content in attributes for each variable:
-   xml_filename = 'request-overview-cmip6-pextra-test-all-ECE-CC.xml'
+   # Alternatively write directly a neat formatted XML file with all content in attributes for each variable:
+   xml_filename = 'request-overview-cmip6-pextra-test-all-ECE3-CC-neat-formatted.xml'
+   xml_filename = request_overview_filename.replace('.txt', '-neat-formatted.xml')
    with open(xml_filename, 'w') as xml_file:
     xml_file.write('<cmip6_variables>\n')
 

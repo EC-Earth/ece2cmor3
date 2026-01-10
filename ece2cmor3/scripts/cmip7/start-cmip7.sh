@@ -46,11 +46,14 @@
  echo "  cmip7-variables-and-metadata-all.xml "
 #echo "  cmip7-variables-and-metadata-all.txt "
 
- ./convert-request-overview-to-xml.py request-overview-all-including-EC-EARTH-CC-preferences.txt request-overview-all-including-EC-EARTH-CC-preferences.xml
+ # Generate (archived in repository) the possible input file for convert-request-overview-to-xml.py:
+ #  grep -v -e cWood ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt > request-overview-cmip6-pextra-all-ECE3-CC.txt
+
+ ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
  echo " Produces:"
  echo "  ifspar-info.xml "
- echo " request-overview-all-including-EC-EARTH-CC-preferences.xml "
- echo " request-overview-cmip6-pextra-test-all-ECE-CC.xml "
+ echo "  request-overview-cmip6-pextra-all-ECE3-CC.xml "
+ echo "  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml "
 
 # With that we can run:
 ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py -r v1.2.2.3 > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
@@ -76,6 +79,6 @@
           ping_ocean_DR1.00.27_comment_in_attribute.xml                  \
           ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml              \
           ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
-          request-overview-all-including-EC-EARTH-CC-preferences.xml     \
-          request-overview-cmip6-pextra-test-all-ECE-CC.xml              \
+          request-overview-cmip6-pextra-all-ECE3-CC.xml                  \
+          request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
           bup/cmip7-genecec-files/v02
