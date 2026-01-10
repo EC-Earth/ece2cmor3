@@ -3,16 +3,16 @@
 Mapping of CMIP6 to CMIP7 CMOR variables and optionally provide metadata.
 
 Mapping of one CMIP6 table-variable combination:
- ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -t Amon -v tas
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py v1.2.2.3 -t Amon -v tas
 
 Multiple mapping of various variables from various tables:
- ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -t Omon,Amon -v tas,tos
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py v1.2.2.3 -t Omon,Amon -v tas,tos
 
 Mapping of two CMIP7 compound names:
- ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -c atmos.areacell.ti-u-hxy-u.fx.glb,ocean.areacell.ti-u-hxy-u.fx.glb
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py v1.2.2.3 -c atmos.areacell.ti-u-hxy-u.fx.glb,ocean.areacell.ti-u-hxy-u.fx.glb
 
 Mapping of all variables:
- ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py v1.2.2.3 -r
 
 
 This script produces a neat formatted XML file with the metadata in attrbutes. All CMIP7 variables can be inlcuded or a selection based on argument options.
