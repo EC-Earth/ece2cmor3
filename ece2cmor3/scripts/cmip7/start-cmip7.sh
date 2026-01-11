@@ -62,8 +62,6 @@
  # Create a backup reference of all produced files:
  rsync -a cmip7-requested-varlist-per-experiment.json                    \
           cmip7-v1.2.2.3-request-piControl-historical.json               \
-          cmip7-v1.2.2.3-request.json                                    \
-          cmip7-variables-and-metadata-all.txt                           \
           cmip7-variables-and-metadata-all.xml                           \
           ec-earth-definition-canonic.xml                                \
           ec-earth-definition-inherited-neat-formatted.xml               \
@@ -81,4 +79,4 @@
           ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
           request-overview-cmip6-pextra-all-ECE3-CC.xml                  \
           request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
-          bup/cmip7-genecec-files/v02
+          bup/cmip7-genecec-files/v03
