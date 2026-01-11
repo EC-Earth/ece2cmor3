@@ -141,6 +141,7 @@ def main():
     for message in no_identification_messages:
      print(message)
     print()
+    print(' The list of CMIP7 physical parameters which are not in the ECE3 - CMIP6 identified list:')
     for message in not_identified_physical_parameter_list_messages:
      print(message)
     print()
