@@ -24,19 +24,23 @@ def print_next_step_message(step, comment):
 
 def main():
 
- field_def_file_inn = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-innerttrc.xml.j2'
- field_def_file_pis = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-pisces.xml.j2'
- field_def_file_ice = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
- field_def_file_oce = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
- field_def_file_ifs = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
- field_def_file_lpj = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_lpjg.xml.j2'               # Not existing yet
+ field_def_file_inn          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-innerttrc.xml.j2'
+ field_def_file_pis          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-pisces.xml.j2'
+ field_def_file_ice          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
+ field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
+ field_def_file_ifs_raw      = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
+ field_def_file_ifs_cmip6    = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_cmip6.xml.j2'
+ field_def_file_ifs_noncmip6 = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_noncmip6.xml.j2'
+ field_def_file_lpj          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_lpjg.xml.j2'               # Not existing yet
 
- field_def_file_collection = [field_def_file_inn, \
-                              field_def_file_pis, \
-                              field_def_file_ice, \
-                              field_def_file_oce, \
-                             #field_def_file_lpj, \
-                              field_def_file_ifs  \
+ field_def_file_collection = [field_def_file_inn         , \
+                              field_def_file_pis         , \
+                              field_def_file_ice         , \
+                              field_def_file_oce         , \
+                              field_def_file_ifs_raw     , \
+                              field_def_file_ifs_cmip6   , \
+                              field_def_file_ifs_noncmip6  \
+                             #field_def_file_lpj           \
                              ]
 
  if True:
@@ -337,7 +341,8 @@ def main():
    root.set("original_file", pf[1])
 
    # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the new field_def file:
-   if field_def_file == field_def_file_ifs:
+  #if field_def_file == field_def_file_ifs_raw:
+   if field_def_file in ['field_def_file_ifs_raw', 'field_def_file_ifs_cmip6', 'field_def_file_ifs_noncmip6']:
     xpath_for_merge = ".//ecearth4_oifs_field_definition"
    elif field_def_file == field_def_file_lpj:
     xpath_for_merge = ".//ecearth4_lpjg_field_definition"
@@ -416,7 +421,7 @@ def main():
           for attribute in elem_nf.attrib:
            if attribute not in ['id', 'field_ref', 'enabled', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'prec', 'read_access', 'standard_name', 'long_name', 'comment']:
             print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
-          ecearth_field_def_nf.write(' {:31} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
+          ecearth_field_def_nf.write(' {:55} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
                                      .format(attribute_id                  , \
                                              attribute_field_ref           , \
                                              attribute_enabled             , \
