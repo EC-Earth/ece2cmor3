@@ -56,7 +56,7 @@
  echo "  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml "
 
 # With that we can run:
-./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py -r v1.2.2.3 > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
 
  # Create a backup reference of all produced files:
