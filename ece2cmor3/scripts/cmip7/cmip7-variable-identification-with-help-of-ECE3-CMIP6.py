@@ -99,37 +99,38 @@ def main():
     root_request_overview = tree_request_overview.getroot()
 
     count_dim_changed = 0
-    for k, v in all_var_info.items():
+    xpath_expression_for_cmip7_request = './/variable'
+    for cmip7_element in root_cmip7_variables.findall(xpath_expression_for_cmip7_request):
 
      # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
      count = 0
-     xpath_expression = './/variable[@cmip6_variable="' + v['physical_parameter_name'] + '"]'
+     xpath_expression = './/variable[@cmip6_variable="' + str(cmip7_element.get('physical_parameter_name')) + '"]'
      for ece3_element in root_request_overview.findall(xpath_expression):
       if False:
-       if ece3_element.get('dimensions') != v['dimensions']:
+       if ece3_element.get('dimensions') != cmip7_element.get('dimensions'):
         count_dim_changed += 1
-        print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, k, v['cmip6_compound_name'], ece3_element.get('dimensions'), v['dimensions']))
-      if ece3_element.get('cmip6_table') == v['cmip6_table'] and ece3_element.get('region') == v['region']:
-       if v['temporal_shape'] == "climatology":
-        no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(k, xpath_expression))
+        print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name'), ece3_element.get('dimensions'), cmip7_element.get('dimensions')))
+      if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
+       if cmip7_element.get('temporal_shape') == "climatology":
+        no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(cmip7_element.get('cmip7_compound_name'), xpath_expression))
        else:
         # Deselect the ch4 & co2 ECE3-CMIP6 climatology cases:
         if ece3_element.get('temporal_shape') != "climatology":
          # Deselect Omon hfx & hfy vertically integrated fields:
-         if v['cmip6_compound_name'] == v['cmip6_table'] + '.' + v['physical_parameter_name']:
+         if cmip7_element.get('cmip6_compound_name') == cmip7_element.get('cmip6_table') + '.' + cmip7_element.get('physical_parameter_name'):
           count += 1
           if count == 1:
            pass
-          #print(' For: {} {} {} {} ECE3-CMIP6 match found in the CMIP7 request {}'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count, v['cmip6_compound_name']))
+          #print(' For: {} {} {} {} ECE3-CMIP6 match found in the CMIP7 request {}'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count, cmip7_element.get('cmip6_compound_name')))
           else:
 
-           multiple_match_messages.append(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(v['cmip6_table'], v['physical_parameter_name'], v['region'], count))
-          #multiple_match_messages.append('{} {} {}'.format(v['cmip6_compound_name'], v['cmip6_table'], v['physical_parameter_name']))
+           multiple_match_messages.append(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count))
+          #multiple_match_messages.append('{} {} {}'.format(cmip7_element.get('cmip6_compound_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name')))
       else:
-       no_identification_messages.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(k, v['cmip6_compound_name']))
-       if v['physical_parameter_name'] not in not_identified_physical_parameters:
-        not_identified_physical_parameters.append(v['physical_parameter_name'])
-        not_identified_physical_parameter_list_messages.append(' physical_parameter_name = "{:28}" long_name = "{}"'.format(v['physical_parameter_name'], v['long_name']))
+       no_identification_messages.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name')))
+       if cmip7_element.get('physical_parameter_name') not in not_identified_physical_parameters:
+        not_identified_physical_parameters.append(cmip7_element.get('physical_parameter_name'))
+        not_identified_physical_parameter_list_messages.append(' physical_parameter_name = "{:28}" long_name = "{}"'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('long_name')))
 
     print()
     for message in no_climatology_messages:
