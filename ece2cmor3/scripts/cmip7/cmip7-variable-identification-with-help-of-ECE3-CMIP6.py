@@ -49,15 +49,15 @@ def main():
 
      # Check whether a variable element with the same physical_parameter_name and cmip6_table is present in the ECE3 CMIP6 identified set:
      count = 0
-     xpath_expression = './/variable[@cmip6_variable="' + str(cmip7_element.get('physical_parameter_name')) + '"]'
-     for ece3_element in root_request_overview.findall(xpath_expression):
+     xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + str(cmip7_element.get('physical_parameter_name')) + '"]'
+     for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
       if False:
        if ece3_element.get('dimensions') != cmip7_element.get('dimensions'):
         count_dim_changed += 1
         print(' {:4} WARNING dimensions differ for {:46} {:20}: cmip6: {:40} cmip7: {}'.format(count_dim_changed, cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name'), ece3_element.get('dimensions'), cmip7_element.get('dimensions')))
       if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
        if cmip7_element.get('temporal_shape') == "climatology":
-        no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(cmip7_element.get('cmip7_compound_name'), xpath_expression))
+        no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(cmip7_element.get('cmip7_compound_name'), xpath_expression_cmip6_overview))
        else:
         # Deselect the ch4 & co2 ECE3-CMIP6 climatology cases:
         if ece3_element.get('temporal_shape') != "climatology":
