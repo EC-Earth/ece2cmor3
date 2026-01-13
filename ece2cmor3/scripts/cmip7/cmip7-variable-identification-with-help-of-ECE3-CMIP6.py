@@ -68,14 +68,23 @@ def main():
            pass
           #print(' For: {} {} {} {} ECE3-CMIP6 match found in the CMIP7 request {}'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count, cmip7_element.get('cmip6_compound_name')))
           else:
-
            multiple_match_messages.append(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count))
           #multiple_match_messages.append('{} {} {}'.format(cmip7_element.get('cmip6_compound_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name')))
       else:
        no_identification_messages.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name')))
        if cmip7_element.get('physical_parameter_name') not in not_identified_physical_parameters:
         not_identified_physical_parameters.append(cmip7_element.get('physical_parameter_name'))
-        not_identified_physical_parameter_list_messages.append(' physical_parameter_name = "{:28}" long_name = "{}"'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('long_name')))
+        not_identified_physical_parameter_list_messages.append( \
+        ' physical_parameter_name = {:28} long_name = {:132} cmip7_compound_name = {:55}'.format('"' + cmip7_element.get('physical_parameter_name') + '"', \
+                                                                                                 '"' + cmip7_element.get('long_name'              ) + '"', \
+                                                                                                 '"' + cmip7_element.get('cmip7_compound_name'    ) + '"'))
+       elif cmip7_element.get('physical_parameter_name') in not_identified_physical_parameters:
+        try:
+         index = not_identified_physical_parameters.index(cmip7_element.get('physical_parameter_name'))
+         not_identified_physical_parameter_list_messages[index] = '{} {:50}'.format(not_identified_physical_parameter_list_messages[index], cmip7_element.get('cmip7_compound_name'))
+        except ValueError:
+         print('Warning: item {} not found in the not_identified_physical_parameters list.'.format(cmip7_element.get('physical_parameter_name')))
+
 
     print()
     for message in no_climatology_messages:
