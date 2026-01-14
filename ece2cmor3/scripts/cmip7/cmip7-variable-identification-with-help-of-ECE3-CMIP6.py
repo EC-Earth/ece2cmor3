@@ -87,10 +87,9 @@ def main():
      elif cmip7_element.get('temporal_shape') == "climatology":
       list_of_other_climatology_variables.append(' Climatology variable: {}'.format(core_var_info))
      else:
-     #print(' {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+     #print(' {}'.format(core_var_info))
       count = 0
       xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + cmip7_element.get('physical_parameter_name') + '"]'
-     #print(xpath_expression_cmip6_overview)
       for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
        count += 1
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
@@ -98,7 +97,7 @@ def main():
          print(' {:2}    match for: {}'.format(count, core_var_info))
         else:
          pass
-        #print(' {} no match'.format(count))
+        #print(' {:2} no match for: {}'.format(count, core_var_info))
        else:
         print('ERROR 01')
       else:
