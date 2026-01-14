@@ -71,27 +71,32 @@ def main():
 
     args = parse_args()
 
+    # Lists with messages:
     multiple_match_messages                         = []   # A list collecting the multiple match messages for pretty printing afterwards
     no_climatology_messages                         = []   # A list collecting the messages which mention that climatology requests are not included for pretty printing afterwards
     no_identification_messages                      = []   # A list collecting the messages which mention when a vraible is not identified within the ECE3 - CMIP6 framework for pretty printing afterwards
     not_identified_physical_parameter_list_messages = []
     not_identified_physical_parameters              = []
 
-    list_of_identified_variables                    = []   # A list collecting the
-    list_of_1hr_variables                           = []   # A list collecting the
-    list_of_subhr_variables                         = []   # A list collecting the
-    list_of_antarctic_variables                     = []   # A list collecting the
-    list_of_greenland_variables                     = []   # A list collecting the
-    list_of_other_climatology_variables             = []   # A list collecting the
-    list_of_nh_variables                            = []   # A list collecting the
-    list_of_sh_variables                            = []   # A list collecting the
-    list_of_non_glb_variables                       = []   # A list collecting the
-    list_of_no_matched_identification               = []   # A list collecting the
+    list_of_identified_variables                                 = []
+    list_of_1hr_variables                                        = []
+    list_of_subhr_variables                                      = []
+    list_of_antarctic_variables                                  = []
+    list_of_greenland_variables                                  = []
+    list_of_other_climatology_variables                          = []
+    list_of_nh_variables                                         = []
+    list_of_sh_variables                                         = []
+    message_list_of_non_glb_variables                            = []
+    message_list_of_no_matched_identification                    = []
+    message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
-    list_of_identification_matches_in_reverse_check      = []   # A list collecting the
-    list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []   # A list collecting the
+    # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
+    list_of_identification_matches_in_reverse_check              = []
+    list_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
 
-    no_matched_identification = []
+    no_matched_identification                    = []
+    ece3_cmip6_identified_variables_not_in_cmip7 = []
+
 
     # Load the xml file:
     cmip7_variables_xml_filename = 'cmip7-variables-and-metadata-all.xml'
@@ -125,7 +130,7 @@ def main():
      elif cmip7_element.get('region') == 'sh':
       list_of_sh_variables.append(' SH           variable: {}'.format(core_var_info))
      elif cmip7_element.get('region') != 'glb':
-      list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
+      message_list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
      elif cmip7_element.get('temporal_shape') == "climatology":
       list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
      else:
@@ -149,7 +154,7 @@ def main():
        # The for-else:
        if count == 0:
         no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
-        list_of_no_matched_identification.append(' No identification for: {}'.format(core_var_info))
+        message_list_of_no_matched_identification.append(' No identification for: {}'.format(core_var_info))
 
     sorted_set_no_matched_identification = sorted(set(no_matched_identification))
     print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(no_matched_identification)))
@@ -176,11 +181,13 @@ def main():
       # The for-else:
       if count == 0:
        count_cmip6_identified_but_not_in_cmip7 += 1
-       list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(core_var_info))
+       list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(ece3_element.get('cmip6_variable'))
+       message_list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(core_var_info))
       else:
        if count_matches == 0:
         print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
     print('\n Number of matches is {}. Number of unmatched is {}'.format(count_matches, count_cmip6_identified_but_not_in_cmip7))
+    print('\n Number of matches is {}. Number of unmatched is {}'.format(len(set(list_of_identification_matches_in_reverse_check)), len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
 
     '''
      See also:
@@ -199,7 +206,7 @@ def main():
       sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
       sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
 
-     So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 110 CMIP6 variables are not at all in the CMIP7 request.
+     So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 101 CMIP6 variables are not at all in the CMIP7 request.
     '''
 
 
@@ -255,19 +262,21 @@ def main():
 
 
     print()
+   #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
+   #print_message_list(sorted(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
     print_message_list(list_of_identification_matches_in_reverse_check)
-    print_message_list(list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+    print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
 
-    print_message_list(list_of_identified_variables       )
-    print_message_list(list_of_1hr_variables              )
-    print_message_list(list_of_subhr_variables            )
-    print_message_list(list_of_antarctic_variables        )
-    print_message_list(list_of_greenland_variables        )
-    print_message_list(list_of_nh_variables               )
-    print_message_list(list_of_sh_variables               )
-    print_message_list(list_of_non_glb_variables          )
-    print_message_list(list_of_other_climatology_variables)
-    print_message_list(list_of_no_matched_identification  )
+    print_message_list(list_of_identified_variables             )
+    print_message_list(list_of_1hr_variables                    )
+    print_message_list(list_of_subhr_variables                  )
+    print_message_list(list_of_antarctic_variables              )
+    print_message_list(list_of_greenland_variables              )
+    print_message_list(list_of_nh_variables                     )
+    print_message_list(list_of_sh_variables                     )
+    print_message_list(message_list_of_non_glb_variables        )
+    print_message_list(list_of_other_climatology_variables      )
+    print_message_list(message_list_of_no_matched_identification)
 
     print_message_list(no_climatology_messages)
     print_message_list(multiple_match_messages)

@@ -67,6 +67,7 @@
  sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
  sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
  # Note that \s\{3,\} matches a pattern which will substitute every sequence of at least 3 whitespaces.
+ # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
 # With that we can run:
