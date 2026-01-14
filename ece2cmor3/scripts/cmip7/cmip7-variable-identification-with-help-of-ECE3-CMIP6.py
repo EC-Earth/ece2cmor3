@@ -83,9 +83,9 @@ def main():
     list_of_subhr_variables                                      = []
     list_of_antarctic_variables                                  = []
     list_of_greenland_variables                                  = []
-    list_of_other_climatology_variables                          = []
     list_of_nh_variables                                         = []
     list_of_sh_variables                                         = []
+    message_list_of_other_climatology_variables                  = []
     message_list_of_non_glb_variables                            = []
     message_list_of_no_matched_identification                    = []
     message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
@@ -118,14 +118,14 @@ def main():
      if 'Gre' in cmip7_element.get('cmip6_table') and 'grl' not in cmip7_element.get('region'):
       print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
 
-     if   '1hr'   in cmip7_element.get('cmip6_table'): list_of_1hr_variables      .append(' 1HR          variable: {}'.format(core_var_info))
-     elif 'subhr' in cmip7_element.get('cmip6_table'): list_of_subhr_variables    .append(' SUBHR        variable: {}'.format(core_var_info))
-     elif 'Ant'   in cmip7_element.get('cmip6_table'): list_of_antarctic_variables.append(' Antarctic    variable: {}'.format(core_var_info))
-     elif 'Gre'   in cmip7_element.get('cmip6_table'): list_of_greenland_variables.append(' Greenland    variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') == 'nh'        : list_of_nh_variables       .append(' NH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') == 'sh'        : list_of_sh_variables       .append(' SH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') != 'glb'       : message_list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
-     elif cmip7_element.get('temporal_shape') == "climatology": list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
+     if   '1hr'   in cmip7_element.get('cmip6_table')         : list_of_1hr_variables                      .append(' 1HR          variable: {}'.format(core_var_info))
+     elif 'subhr' in cmip7_element.get('cmip6_table')         : list_of_subhr_variables                    .append(' SUBHR        variable: {}'.format(core_var_info))
+     elif 'Ant'   in cmip7_element.get('cmip6_table')         : list_of_antarctic_variables                .append(' Antarctic    variable: {}'.format(core_var_info))
+     elif 'Gre'   in cmip7_element.get('cmip6_table')         : list_of_greenland_variables                .append(' Greenland    variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region'        ) == 'nh'         : list_of_nh_variables                       .append(' NH           variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region'        ) == 'sh'         : list_of_sh_variables                       .append(' SH           variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region'        ) != 'glb'        : message_list_of_non_glb_variables          .append(' Non glb      variable: {}'.format(core_var_info))
+     elif cmip7_element.get('temporal_shape') == "climatology": message_list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
      else:
      #print(' {}'.format(core_var_info))
       count = 0
@@ -250,16 +250,16 @@ def main():
     print_message_list(list_of_identification_matches_in_reverse_check)
     print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
 
-    print_message_list(list_of_identified_variables             )
-    print_message_list(list_of_1hr_variables                    )
-    print_message_list(list_of_subhr_variables                  )
-    print_message_list(list_of_antarctic_variables              )
-    print_message_list(list_of_greenland_variables              )
-    print_message_list(list_of_nh_variables                     )
-    print_message_list(list_of_sh_variables                     )
-    print_message_list(message_list_of_non_glb_variables        )
-    print_message_list(list_of_other_climatology_variables      )
-    print_message_list(message_list_of_no_matched_identification)
+    print_message_list(list_of_identified_variables               )
+    print_message_list(list_of_1hr_variables                      )
+    print_message_list(list_of_subhr_variables                    )
+    print_message_list(list_of_antarctic_variables                )
+    print_message_list(list_of_greenland_variables                )
+    print_message_list(list_of_nh_variables                       )
+    print_message_list(list_of_sh_variables                       )
+    print_message_list(message_list_of_non_glb_variables          )
+    print_message_list(message_list_of_other_climatology_variables)
+    print_message_list(message_list_of_no_matched_identification  )
 
     print_message_list(no_climatology_messages)
     print_message_list(multiple_match_messages)
