@@ -42,6 +42,11 @@ def print_core_var_plus_ece3_info(element, element_ece3):
                                                         element_ece3.get('model_component'   ), \
                                                         element_ece3.get('other_component'   ))
     info_string = info_string.replace('(None)', '')
+    # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
+   #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
+    info_string = info_string.replace('ifs(tm5)', 'ifs(m7)')
+    # Note for no3: tm5(tm5) which looks strange.
+    info_string = info_string.replace('tm5(tm5)', 'nemo(tm5)')  # Adhoc fix (ocnBgchem variable)
     return info_string
 
 
