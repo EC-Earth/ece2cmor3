@@ -27,7 +27,20 @@ def print_message_list(message_list):
 
 
 def print_core_var_info(element):
-    return '{:55} {:20} {:20} {}'.format(element.get('physical_parameter_name'), element.get('cmip6_table'), element.get('region'), element.get('cmip7_compound_name'))
+    return '{:28} {:20} {:20} {}'          .format(element.get('physical_parameter_name'), \
+                                                   element.get('cmip6_table'            ), \
+                                                   element.get('region'                 ), \
+                                                   element.get('cmip7_compound_name'    ))
+
+
+def print_core_var_plus_ece3_info(element, element_ece3):
+    return '{:28} {:20} {:20} {:55} {}({})'.format(element.get('physical_parameter_name'), \
+                                                   element.get('cmip6_table'            ), \
+                                                   element.get('region'                 ), \
+                                                   element.get('cmip7_compound_name'    ), \
+                                                   element_ece3.get('model_component'   ), \
+                                                   element_ece3.get('other_component'   )).replace('(None)', '')
+
 
 def main():
 
@@ -91,13 +104,16 @@ def main():
       count = 0
       xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + cmip7_element.get('physical_parameter_name') + '"]'
       for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+       core_var_plus_ece3_info = print_core_var_plus_ece3_info(cmip7_element, ece3_element)
+
+
        count += 1
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
         if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
-         print(' {:2}    match for: {}'.format(count, core_var_info))
+         print(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
         else:
          pass
-        #print(' {:2} no match for: {}'.format(count, core_var_info))
+        #print(' {:2} no match for: {}'.format(count, core_var_plus_ece3_info))
        else:
         print('ERROR 01')
       else:
