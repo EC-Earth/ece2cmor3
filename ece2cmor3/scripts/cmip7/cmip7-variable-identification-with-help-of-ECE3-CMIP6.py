@@ -88,25 +88,25 @@ def main():
      core_var_info = print_core_var_info(cmip7_element)
 
      if   '1hr'   in cmip7_element.get('cmip6_table'):
-      list_of_1hr_variables.append(' 1HR variable: {}'.format(core_var_info))
+      list_of_1hr_variables.append(' 1HR          variable: {}'.format(core_var_info))
      elif 'subhr' in cmip7_element.get('cmip6_table'):
-      list_of_subhr_variables.append(' SUBHR variable: {}'.format(core_var_info))
+      list_of_subhr_variables.append(' SUBHR        variable: {}'.format(core_var_info))
      elif 'Ant' in cmip7_element.get('cmip6_table'):
       if 'ata' not in cmip7_element.get('region'):
        print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_antarctic_variables.append(' Antarctic variable: {}'.format(core_var_info))
+      list_of_antarctic_variables.append(' Antarctic    variable: {}'.format(core_var_info))
      elif 'Gre' in cmip7_element.get('cmip6_table'):
       if 'grl' not in cmip7_element.get('region'):
        print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_greenland_variables.append(' Greenland variable: {}'.format(core_var_info))
+      list_of_greenland_variables.append(' Greenland    variable: {}'.format(core_var_info))
      elif cmip7_element.get('region') == 'nh':
-      list_of_nh_variables.append(' NH variable: {}'.format(core_var_info))
+      list_of_nh_variables.append(' NH           variable: {}'.format(core_var_info))
      elif cmip7_element.get('region') == 'sh':
-      list_of_sh_variables.append(' SH variable: {}'.format(core_var_info))
+      list_of_sh_variables.append(' SH           variable: {}'.format(core_var_info))
      elif cmip7_element.get('region') != 'glb':
-      list_of_non_glb_variables.append(' Non glb variable: {}'.format(core_var_info))
+      list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
      elif cmip7_element.get('temporal_shape') == "climatology":
-      list_of_other_climatology_variables.append(' Climatology variable: {}'.format(core_var_info))
+      list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
      else:
      #print(' {}'.format(core_var_info))
       count = 0
