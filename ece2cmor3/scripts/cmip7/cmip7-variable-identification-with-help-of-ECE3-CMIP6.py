@@ -88,6 +88,9 @@ def main():
     list_of_non_glb_variables                       = []   # A list collecting the
     list_of_no_matched_identification               = []   # A list collecting the
 
+    list_of_identification_matches_in_reverse_check      = []   # A list collecting the
+    list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []   # A list collecting the
+
     no_matched_identification = []
 
     # Load the xml file:
@@ -167,21 +170,38 @@ def main():
       if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
        count += 1
        if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
-        print(' count is {:2} for identification match: {}'.format(count, core_var_info))
+        list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(core_var_info))
         count_matches += 1
      else:
       # The for-else:
       if count == 0:
        count_cmip6_identified_but_not_in_cmip7 += 1
+       list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(core_var_info))
       else:
        if count_matches == 0:
-        print(' Weird')
+        print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
     print('\n Number of matches is {}. Number of unmatched is {}'.format(count_matches, count_cmip6_identified_but_not_in_cmip7))
 
+    '''
+     See also:
+      echo '<cmip6_variables>'                                                                         > list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      echo '</cmip6_variables>'                                                                       >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
 
+     Or the same but sorted per model component:
+      echo '<cmip6_variables>'                                                                                                               > list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="ifs"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="nemo"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="lpjg"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="tm5"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="co2box"'  >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      echo '</cmip6_variables>'                                                                                                             >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/         list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
 
+     So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 110 CMIP6 variables are not at all in the CMIP7 request.
+    '''
 
-    # Prevoius approach:
+    # Previous approach:
 
     count_dim_changed = 0
     xpath_expression_for_cmip7_request = './/variable'
@@ -233,6 +253,9 @@ def main():
 
 
     print()
+    print_message_list(list_of_identification_matches_in_reverse_check)
+    print_message_list(list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+
     print_message_list(list_of_identified_variables       )
     print_message_list(list_of_1hr_variables              )
     print_message_list(list_of_subhr_variables            )
