@@ -71,12 +71,12 @@ def main():
 
     args = parse_args()
 
-    # Lists with messages:
-    multiple_match_messages                         = []   # A list collecting the multiple match messages for pretty printing afterwards
-    no_climatology_messages                         = []   # A list collecting the messages which mention that climatology requests are not included for pretty printing afterwards
-    no_identification_messages                      = []   # A list collecting the messages which mention when a vraible is not identified within the ECE3 - CMIP6 framework for pretty printing afterwards
-    not_identified_physical_parameter_list_messages = []
-    not_identified_physical_parameters              = []
+    # Lists with messages for combined printing per message cathegory afterwards:
+    multiple_match_messages                                      = []
+    no_climatology_messages                                      = []
+    no_identification_messages                                   = []
+    not_identified_physical_parameter_list_messages              = []
+    not_identified_physical_parameters                           = []
 
     list_of_identified_variables                                 = []
     list_of_1hr_variables                                        = []
@@ -113,26 +113,19 @@ def main():
     for cmip7_element in root_cmip7_variables.findall(xpath_expression_for_cmip7_request):
      core_var_info = print_core_var_info(cmip7_element)
 
-     if   '1hr'   in cmip7_element.get('cmip6_table'):
-      list_of_1hr_variables.append(' 1HR          variable: {}'.format(core_var_info))
-     elif 'subhr' in cmip7_element.get('cmip6_table'):
-      list_of_subhr_variables.append(' SUBHR        variable: {}'.format(core_var_info))
-     elif 'Ant' in cmip7_element.get('cmip6_table'):
-      if 'ata' not in cmip7_element.get('region'):
-       print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_antarctic_variables.append(' Antarctic    variable: {}'.format(core_var_info))
-     elif 'Gre' in cmip7_element.get('cmip6_table'):
-      if 'grl' not in cmip7_element.get('region'):
-       print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_greenland_variables.append(' Greenland    variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') == 'nh':
-      list_of_nh_variables.append(' NH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') == 'sh':
-      list_of_sh_variables.append(' SH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region') != 'glb':
-      message_list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
-     elif cmip7_element.get('temporal_shape') == "climatology":
-      list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
+     if 'Ant'   in cmip7_element.get('cmip6_table') and 'ata' not in cmip7_element.get('region'):
+      print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
+     if 'Gre' in cmip7_element.get('cmip6_table') and 'grl' not in cmip7_element.get('region'):
+      print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
+
+     if   '1hr'   in cmip7_element.get('cmip6_table'): list_of_1hr_variables      .append(' 1HR          variable: {}'.format(core_var_info))
+     elif 'subhr' in cmip7_element.get('cmip6_table'): list_of_subhr_variables    .append(' SUBHR        variable: {}'.format(core_var_info))
+     elif 'Ant'   in cmip7_element.get('cmip6_table'): list_of_antarctic_variables.append(' Antarctic    variable: {}'.format(core_var_info))
+     elif 'Gre'   in cmip7_element.get('cmip6_table'): list_of_greenland_variables.append(' Greenland    variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region') == 'nh'        : list_of_nh_variables       .append(' NH           variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region') == 'sh'        : list_of_sh_variables       .append(' SH           variable: {}'.format(core_var_info))
+     elif cmip7_element.get('region') != 'glb'       : message_list_of_non_glb_variables.append(' Non glb      variable: {}'.format(core_var_info))
+     elif cmip7_element.get('temporal_shape') == "climatology": list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
      else:
      #print(' {}'.format(core_var_info))
       count = 0
@@ -194,17 +187,7 @@ def main():
       echo '<cmip6_variables>'                                                                         > list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
       grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
       echo '</cmip6_variables>'                                                                       >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-
-     Or the same but sorted per model component:
-      echo '<cmip6_variables>'                                                                                                               > list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="ifs"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="nemo"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="lpjg"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="tm5"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="co2box"'  >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      echo '</cmip6_variables>'                                                                                                             >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+     Or the same but sorted per model component as described in the bash accompanying script.
 
      So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 101 CMIP6 variables are not at all in the CMIP7 request.
     '''
