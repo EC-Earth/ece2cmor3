@@ -27,19 +27,22 @@ def print_message_list(message_list):
 
 
 def print_core_var_info(element):
-    return '{:28} {:20} {:20} {}'          .format(element.get('physical_parameter_name'), \
-                                                   element.get('cmip6_table'            ), \
-                                                   element.get('region'                 ), \
-                                                   element.get('cmip7_compound_name'    ))
+    info_string = '{:28} {:20} {:20} {}'          .format(element.get('physical_parameter_name'), \
+                                                        element.get('cmip6_table'            ), \
+                                                        element.get('region'                 ), \
+                                                        element.get('cmip7_compound_name'    ))
+    return info_string
 
 
 def print_core_var_plus_ece3_info(element, element_ece3):
-    return '{:28} {:20} {:20} {:55} {}({})'.format(element.get('physical_parameter_name'), \
-                                                   element.get('cmip6_table'            ), \
-                                                   element.get('region'                 ), \
-                                                   element.get('cmip7_compound_name'    ), \
-                                                   element_ece3.get('model_component'   ), \
-                                                   element_ece3.get('other_component'   )).replace('(None)', '')
+    info_string = '{:28} {:20} {:20} {:55} {}({})'.format(element.get('physical_parameter_name'), \
+                                                        element.get('cmip6_table'            ), \
+                                                        element.get('region'                 ), \
+                                                        element.get('cmip7_compound_name'    ), \
+                                                        element_ece3.get('model_component'   ), \
+                                                        element_ece3.get('other_component'   ))
+    info_string = info_string.replace('(None)', '')
+    return info_string
 
 
 def main():
