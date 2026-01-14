@@ -26,6 +26,9 @@ def print_message_list(message_list):
  print()
 
 
+def print_core_var_info(element):
+    return '{:55} {:20} {:20} {}'.format(element.get('physical_parameter_name'), element.get('cmip6_table'), element.get('region'), element.get('cmip7_compound_name'))
+
 def main():
 
     args = parse_args()
@@ -62,25 +65,25 @@ def main():
     xpath_expression_for_cmip7_request = './/variable'
     for cmip7_element in root_cmip7_variables.findall(xpath_expression_for_cmip7_request):
      if   '1hr'   in cmip7_element.get('cmip6_table'):
-      list_of_1hr_variables.append(' 1HR variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_1hr_variables.append(' 1HR variable: {}'.format(print_core_var_info(cmip7_element)))
      elif 'subhr' in cmip7_element.get('cmip6_table'):
-      list_of_subhr_variables.append(' SUBHR variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_subhr_variables.append(' SUBHR variable: {}'.format(print_core_var_info(cmip7_element)))
      elif 'Ant' in cmip7_element.get('cmip6_table'):
       if 'ata' not in cmip7_element.get('region'):
        print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_antarctic_variables.append(' Antarctic variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_antarctic_variables.append(' Antarctic variable: {}'.format(print_core_var_info(cmip7_element)))
      elif 'Gre' in cmip7_element.get('cmip6_table'):
       if 'grl' not in cmip7_element.get('region'):
        print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
-      list_of_greenland_variables.append(' Greenland variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_greenland_variables.append(' Greenland variable: {}'.format(print_core_var_info(cmip7_element)))
      elif cmip7_element.get('region') == 'nh':
-      list_of_nh_variables.append(' NH variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_nh_variables.append(' NH variable: {}'.format(print_core_var_info(cmip7_element)))
      elif cmip7_element.get('region') == 'sh':
-      list_of_sh_variables.append(' SH variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_sh_variables.append(' SH variable: {}'.format(print_core_var_info(cmip7_element)))
      elif cmip7_element.get('region') != 'glb':
-      list_of_non_glb_variables.append(' Non glb variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_non_glb_variables.append(' Non glb variable: {}'.format(print_core_var_info(cmip7_element)))
      elif cmip7_element.get('temporal_shape') == "climatology":
-      list_of_other_climatology_variables.append(' Climatology variable: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+      list_of_other_climatology_variables.append(' Climatology variable: {}'.format(print_core_var_info(cmip7_element)))
      else:
      #print(' {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
       count = 0
@@ -100,7 +103,7 @@ def main():
        # The for-else:
        if count == 0:
         no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
-        list_of_no_matched_identification.append(' No identification for: {:55} {:20} {:20} {}'.format(cmip7_element.get('physical_parameter_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('region'), cmip7_element.get('cmip7_compound_name')))
+        list_of_no_matched_identification.append(' No identification for: {}'.format(print_core_var_info(cmip7_element)))
 
     sorted_set_no_matched_identification = sorted(set(no_matched_identification))
     print('\n This CMIP7 data request contains {} variables which are not identified in the ECE3 - CMIP6 framewordk.\n'.format(len(no_matched_identification)))
