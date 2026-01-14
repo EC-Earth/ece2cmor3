@@ -50,6 +50,23 @@ def print_core_var_plus_ece3_info(element, element_ece3):
     return info_string
 
 
+# For the reverse check:
+def print_ece3_info(element):
+    info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('cmip6_variable'   ), \
+                                                        element.get('cmip6_table'        ), \
+                                                        element.get('region'             ), \
+                                                        element.get('cmip7_compound_name'), \
+                                                        element.get('model_component'    ), \
+                                                        element.get('other_component'    ))
+    info_string = info_string.replace('(None)', '')
+    # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
+   #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
+    info_string = info_string.replace('ifs(tm5)', 'ifs(m7)')
+    # Note for no3: tm5(tm5) which looks strange.
+    info_string = info_string.replace('tm5(tm5)', 'nemo(tm5)')  # Adhoc fix (ocnBgchem variable)
+    return info_string
+
+
 def main():
 
     args = parse_args()
@@ -134,8 +151,32 @@ def main():
     sorted_set_no_matched_identification = sorted(set(no_matched_identification))
     print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(no_matched_identification)))
     print('\n This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_no_matched_identification)))
+    print()
 
 
+    # The reverse case: investigate which ECE3-CMIP6 identified variables are not part of the CMIP7 request:
+    count_matches = 0
+    count_cmip6_identified_but_not_in_cmip7 = 0
+    xpath_expression_cmip6_overview = './/variable'
+    for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+     core_var_info = print_ece3_info(ece3_element)
+
+     count = 0
+     xpath_expression_cmip7_request = './/variable[@physical_parameter_name="' + ece3_element.get('cmip6_variable') + '"]'
+     for cmip7_element in root_cmip7_variables.findall(xpath_expression_cmip7_request):
+      if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
+       count += 1
+       if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
+        print(' count is {:2} for identification match: {}'.format(count, core_var_info))
+        count_matches += 1
+     else:
+      # The for-else:
+      if count == 0:
+       count_cmip6_identified_but_not_in_cmip7 += 1
+      else:
+       if count_matches == 0:
+        print(' Weird')
+    print('\n Number of matches is {}. Number of unmatched is {}'.format(count_matches, count_cmip6_identified_but_not_in_cmip7))
 
 
 
