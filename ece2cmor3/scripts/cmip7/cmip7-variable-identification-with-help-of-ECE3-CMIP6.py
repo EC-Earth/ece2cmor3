@@ -197,10 +197,11 @@ def main():
       grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="co2box"'  >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
       echo '</cmip6_variables>'                                                                                                             >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
       sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
-      sed -i -e 's/cmip7_long_name="None"                                                                                                                              //' list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+      sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
 
      So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 110 CMIP6 variables are not at all in the CMIP7 request.
     '''
+
 
     # Previous approach:
 
