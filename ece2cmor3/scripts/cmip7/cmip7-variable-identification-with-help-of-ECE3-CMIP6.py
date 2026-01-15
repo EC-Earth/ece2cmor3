@@ -180,11 +180,14 @@ def main():
       else:
        if count_matches == 0:
         print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
+
+    sorted_set_list_of_identification_matches_in_reverse_check      = sorted(set(list_of_identification_matches_in_reverse_check     ))
+    sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = sorted(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
     print('\n From the reverse check we have:')
-    print('  A number of {} total  variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                 ))
-    print('  A number of {} unique variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(set(list_of_identification_matches_in_reverse_check     ))))
-    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(count_cmip6_identified_but_not_in_cmip7                       ))
-    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
+    print('  A number of {} total  variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                       ))
+    print('  A number of {} unique variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(sorted_set_list_of_identification_matches_in_reverse_check     )))
+    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(count_cmip6_identified_but_not_in_cmip7                             ))
+    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
     print()
 
     '''
@@ -260,7 +263,7 @@ def main():
 
     print()
    #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
-   #print_message_list(sorted(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
+   #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
     print_message_list(message_list_of_identification_matches_in_reverse_check     )
     print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
 
