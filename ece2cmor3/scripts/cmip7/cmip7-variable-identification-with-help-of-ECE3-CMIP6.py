@@ -145,9 +145,9 @@ def main():
         message_list_of_no_matched_identification.append(' No identification for: {}'.format(var_info))
 
     sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
-    print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification)))
-    print('\n This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_list_of_no_matched_identification)))
-    print()
+    print('\n The basic check gives:')
+    print('  This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification)))
+    print('  This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_list_of_no_matched_identification)))
 
 
     # The reverse case: investigate which ECE3-CMIP6 identified variables are not part of the CMIP7 request:
@@ -175,11 +175,11 @@ def main():
       else:
        if count_matches == 0:
         print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
-    print('From the reverse check we have:')
-    print(' Number of total  variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework) is {}'.format(count_matches                                                 ))
-    print(' Number of unique variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework) is {}'.format(len(set(list_of_identification_matches_in_reverse_check     ))))
-    print(' Number of total  variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)           is {}'.format(count_cmip6_identified_but_not_in_cmip7                       ))
-    print(' Number of unique variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)           is {}'.format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
+    print('\n From the reverse check we have:')
+    print('  A number of {} total  variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                 ))
+    print('  A number of {} unique variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(set(list_of_identification_matches_in_reverse_check     ))))
+    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)          '.format(count_cmip6_identified_but_not_in_cmip7                       ))
+    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)          '.format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
     print()
 
     '''
