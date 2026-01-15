@@ -97,24 +97,26 @@ def main():
     args = parse_args()
 
     # Lists with messages for combined printing per message cathegory afterwards:
-    message_list_of_identified_variables                         = []
-    message_list_of_1hr_variables                                = []
-    message_list_of_subhr_variables                              = []
-    message_list_of_antarctic_variables                          = []
-    message_list_of_greenland_variables                          = []
-    message_list_of_nh_variables                                 = []
-    message_list_of_sh_variables                                 = []
-    message_list_of_other_climatology_variables                  = []
-    message_list_of_non_glb_variables                            = []
-    message_list_of_no_matched_identification                    = []
-    message_list_of_identification_matches_in_reverse_check      = []
-    message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
+    message_list_of_identified_variables                          = []
+    message_list_of_1hr_variables                                 = []
+    message_list_of_subhr_variables                               = []
+    message_list_of_antarctic_variables                           = []
+    message_list_of_greenland_variables                           = []
+    message_list_of_nh_variables                                  = []
+    message_list_of_sh_variables                                  = []
+    message_list_of_other_climatology_variables                   = []
+    message_list_of_non_glb_variables                             = []
+    message_list_of_no_matched_identification                     = []
+    message_list_of_identification_matches_in_reverse_check       = []
+    message_list_of_ece3_cmip6_identified_variables_not_in_cmip7  = []
+    message_list2_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
-    list_of_identified_variables                                 = []
-    list_of_identification_matches_in_reverse_check              = []
-    list_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
-    list_of_no_matched_identification                            = []
+    list_of_identified_variables                                  = []
+    list_of_identification_matches_in_reverse_check               = []
+    list_of_ece3_cmip6_identified_variables_not_in_cmip7          = []
+    list2_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
+    list_of_no_matched_identification                             = []
 
 
     # Load the xml file:
@@ -196,6 +198,8 @@ def main():
         list_of_identification_matches_in_reverse_check.append(cmip7_element.get('physical_parameter_name'))
         message_list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(var_info))
         count_matches += 1
+      else:
+       print('ERROR 02')
      else:
       # The for-else:
       if count == 0:
@@ -209,10 +213,10 @@ def main():
     sorted_set_list_of_identification_matches_in_reverse_check      = sorted(set(list_of_identification_matches_in_reverse_check     ))
     sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = sorted(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
     print('\n From the reverse check we have:')
-    print('  A number of {} total  variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                       ))
-    print('  A number of {} unique variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(sorted_set_list_of_identification_matches_in_reverse_check     )))
-    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(count_cmip6_identified_but_not_in_cmip7                             ))
-    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
+    print('  A number of {} total  variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                       ))
+    print('  A number of {} unique variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(sorted_set_list_of_identification_matches_in_reverse_check     )))
+    print('  A number of {} total  variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(count_cmip6_identified_but_not_in_cmip7                             ))
+    print('  A number of {} unique variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
     print()
 
     '''
@@ -225,6 +229,19 @@ def main():
      So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 101 CMIP6 variables are not at all in the CMIP7 request.
     '''
 
+    # The difference in the method below (list2) is that certain table - variable combinations, also for a variable which is used in another table combination
+    # which is requested by CMIP7, do pop up here. With that more variables pop up here, also in the unique list2.
+    # Only variables with the attribute cmip7_compound_name="no-cmip7-equivalent-var-*" have region="None", therefore:
+    xpath_expression_cmip6_overview = './/variable[@region="None"]'
+    for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+     var_info = print_ece3_info(ece3_element)
+     list2_of_ece3_cmip6_identified_variables_not_in_cmip7.append(ece3_element.get('cmip6_variable'))
+     message_list2_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7 request: {}'.format(var_info))
+    sorted_set_list2_of_ece3_cmip6_identified_variables_not_in_cmip7 = sorted(set(list2_of_ece3_cmip6_identified_variables_not_in_cmip7))
+    print(' The method by selecting in the XML the region="None", i.e. the "no-cmip7-equivalent-var-*" cases:')
+    print('  A number of {} unique variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(sorted_set_list2_of_ece3_cmip6_identified_variables_not_in_cmip7)))
+
+
     print()
    #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
    #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
@@ -233,6 +250,9 @@ def main():
    #print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
     print_message_list_reorder(message_list_of_identification_matches_in_reverse_check     )
     print_message_list_reorder(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+   #print_message_list_reorder(message_list2_of_ece3_cmip6_identified_variables_not_in_cmip7)        # With this one instead of the one at line above, the differences can be spotted with a meld
+   #print_message_list_reorder(sorted(message_list_of_identification_matches_in_reverse_check     )) # in order to see which variables in this list occur in more than one table
+   #print_message_list_reorder(sorted(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)) # in order to see which variables in this list occur in more than one table
 
     print_message_list(message_list_of_identified_variables       )
     print_message_list(message_list_of_1hr_variables              )
@@ -247,7 +267,7 @@ def main():
 
 
 
-    # Previous approach:
+    print('\n Previous approach:\n')
 
     # Lists with messages for combined printing per message cathegory afterwards:
     message_list_of_multiple_match_messages                      = []
