@@ -26,7 +26,7 @@ def print_message_list(message_list):
  print()
 
 
-def print_core_var_info(element):
+def print_var_info(element):
     info_string = '{:26} {:12} {:10} {}'          .format(element.get('physical_parameter_name'), \
                                                         element.get('cmip6_table'            ), \
                                                         element.get('region'                 ), \
@@ -34,7 +34,7 @@ def print_core_var_info(element):
     return info_string
 
 
-def print_core_var_plus_ece3_info(element, element_ece3):
+def print_var_info_plus_ece3_info(element, element_ece3):
     info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('physical_parameter_name'), \
                                                         element.get('cmip6_table'            ), \
                                                         element.get('region'                 ), \
@@ -103,43 +103,45 @@ def main():
 
     xpath_expression_for_cmip7_request = './/variable'
     for cmip7_element in root_cmip7_variables.findall(xpath_expression_for_cmip7_request):
-     core_var_info = print_core_var_info(cmip7_element)
+     var_info = print_var_info(cmip7_element)
 
-     if 'Ant'   in cmip7_element.get('cmip6_table') and 'ata' not in cmip7_element.get('region'):
+     if 'Ant' in cmip7_element.get('cmip6_table') and 'ata' not in cmip7_element.get('region'):
       print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
      if 'Gre' in cmip7_element.get('cmip6_table') and 'grl' not in cmip7_element.get('region'):
       print(' WARNING: Greenland table determined but region not grl for: {}'.format(cmip7_element.get('cmip7_compound_name')))
 
-     if   '1hr'   in cmip7_element.get('cmip6_table')         : message_list_of_1hr_variables              .append(' 1HR          variable: {}'.format(core_var_info))
-     elif 'subhr' in cmip7_element.get('cmip6_table')         : message_list_of_subhr_variables            .append(' SUBHR        variable: {}'.format(core_var_info))
-     elif 'Ant'   in cmip7_element.get('cmip6_table')         : message_list_of_antarctic_variables        .append(' Antarctic    variable: {}'.format(core_var_info))
-     elif 'Gre'   in cmip7_element.get('cmip6_table')         : message_list_of_greenland_variables        .append(' Greenland    variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region'        ) == 'nh'         : message_list_of_nh_variables               .append(' NH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region'        ) == 'sh'         : message_list_of_sh_variables               .append(' SH           variable: {}'.format(core_var_info))
-     elif cmip7_element.get('region'        ) != 'glb'        : message_list_of_non_glb_variables          .append(' Non glb      variable: {}'.format(core_var_info))
-     elif cmip7_element.get('temporal_shape') == "climatology": message_list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(core_var_info))
+     # The if & elif statements deselect cathegories of variables from the CMIP7 request (which are ignored for now) and creates for each cathegory a message list.
+     # For the remaining variables in the else statement the CMIP7 requested variables are checked for a match with the ECE3-CMIP6 identified variables.
+     if   '1hr'   in cmip7_element.get('cmip6_table')         : message_list_of_1hr_variables              .append(' 1HR          variable: {}'.format(var_info))
+     elif 'subhr' in cmip7_element.get('cmip6_table')         : message_list_of_subhr_variables            .append(' SUBHR        variable: {}'.format(var_info))
+     elif 'Ant'   in cmip7_element.get('cmip6_table')         : message_list_of_antarctic_variables        .append(' Antarctic    variable: {}'.format(var_info))
+     elif 'Gre'   in cmip7_element.get('cmip6_table')         : message_list_of_greenland_variables        .append(' Greenland    variable: {}'.format(var_info))
+     elif cmip7_element.get('region'        ) == 'nh'         : message_list_of_nh_variables               .append(' NH           variable: {}'.format(var_info))
+     elif cmip7_element.get('region'        ) == 'sh'         : message_list_of_sh_variables               .append(' SH           variable: {}'.format(var_info))
+     elif cmip7_element.get('region'        ) != 'glb'        : message_list_of_non_glb_variables          .append(' Non glb      variable: {}'.format(var_info))
+     elif cmip7_element.get('temporal_shape') == "climatology": message_list_of_other_climatology_variables.append(' Climatology  variable: {}'.format(var_info))
      else:
-     #print(' {}'.format(core_var_info))
+     #print(' {}'.format(var_info))
       count = 0
       xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + cmip7_element.get('physical_parameter_name') + '"]'
       for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
-       core_var_plus_ece3_info = print_core_var_plus_ece3_info(cmip7_element, ece3_element)
+       var_info_plus_ece3_info = print_var_info_plus_ece3_info(cmip7_element, ece3_element)
 
        count += 1
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
         if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
-        #print(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
-         message_list_of_identified_variables.append(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
+        #print(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
+         message_list_of_identified_variables.append(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
         else:
          pass
-        #print(' {:2} no match for: {}'.format(count, core_var_plus_ece3_info))
+        #print(' {:2} no match for: {}'.format(count, var_info_plus_ece3_info))
        else:
         print('ERROR 01')
       else:
        # The for-else:
        if count == 0:
         list_of_no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
-        message_list_of_no_matched_identification.append(' No identification for: {}'.format(core_var_info))
+        message_list_of_no_matched_identification.append(' No identification for: {}'.format(var_info))
 
     sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
     print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification)))
@@ -152,7 +154,7 @@ def main():
     count_cmip6_identified_but_not_in_cmip7 = 0
     xpath_expression_cmip6_overview = './/variable'
     for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
-     core_var_info = print_ece3_info(ece3_element)
+     var_info = print_ece3_info(ece3_element)
 
      count = 0
      xpath_expression_cmip7_request = './/variable[@physical_parameter_name="' + ece3_element.get('cmip6_variable') + '"]'
@@ -160,14 +162,14 @@ def main():
       if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
        count += 1
        if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
-        list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(core_var_info))
+        list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(var_info))
         count_matches += 1
      else:
       # The for-else:
       if count == 0:
        count_cmip6_identified_but_not_in_cmip7 += 1
        list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(ece3_element.get('cmip6_variable'))
-       message_list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(core_var_info))
+       message_list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(var_info))
       else:
        if count_matches == 0:
         print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
