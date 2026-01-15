@@ -171,7 +171,7 @@ def main():
        # The for-else:
        if count == 0:
         list_of_no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
-        message_list_of_no_matched_identification.append(' No identification for: {}'.format(var_info))
+        message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + cmip7_element.get('long_name') + '"'))
 
     sorted_set_list_of_identified_variables      = sorted(set(list_of_identified_variables     ))
     sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
@@ -244,16 +244,16 @@ def main():
 
     print()
 
-    print_message_list(message_list_of_identified_variables       )
-    print_message_list(message_list_of_1hr_variables              )
-    print_message_list(message_list_of_subhr_variables            )
-    print_message_list(message_list_of_antarctic_variables        )
-    print_message_list(message_list_of_greenland_variables        )
-    print_message_list(message_list_of_nh_variables               )
-    print_message_list(message_list_of_sh_variables               )
-    print_message_list(message_list_of_non_glb_variables          )
-    print_message_list(message_list_of_other_climatology_variables)
-    print_message_list(message_list_of_no_matched_identification  )
+    print_message_list_reorder(message_list_of_identified_variables)
+    print_message_list(message_list_of_1hr_variables               )
+    print_message_list(message_list_of_subhr_variables             )
+    print_message_list(message_list_of_antarctic_variables         )
+    print_message_list(message_list_of_greenland_variables         )
+    print_message_list(message_list_of_nh_variables                )
+    print_message_list(message_list_of_sh_variables                )
+    print_message_list(message_list_of_non_glb_variables           )
+    print_message_list(message_list_of_other_climatology_variables )
+    print_message_list(message_list_of_no_matched_identification   )
 
    #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
    #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
