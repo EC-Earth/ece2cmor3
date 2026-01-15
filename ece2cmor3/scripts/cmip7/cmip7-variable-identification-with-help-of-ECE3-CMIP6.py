@@ -26,21 +26,46 @@ def print_message_list(message_list):
  print()
 
 
+def print_message_list_reorder(message_list):
+ # Order the message list on model_component (and preference info).
+ # Note another approach could be to write the XML attribute info per variable (each variable one line), so based on that one can select in a more standard way.
+ message_list_ifs_m7   = []
+ message_list_ifs_lpjg = []
+ message_list_ifs      = []
+ message_list_nemo     = []
+ message_list_lpjg     = []
+ message_list_other    = []
+ for message in message_list:
+  if   'ifs(m7)'   in message[145:]: message_list_ifs_m7  .append(message)
+  elif 'ifs(lpjg)' in message[145:]: message_list_ifs_lpjg.append(message)
+  elif 'ifs'       in message[145:]: message_list_ifs     .append(message)
+  elif 'nemo'      in message[145:]: message_list_nemo    .append(message)
+  elif 'lpjg'      in message[145:]: message_list_lpjg    .append(message)
+  else                             : message_list_other   .append(message)
+ print_message_list(message_list_ifs_m7  )
+ print_message_list(message_list_ifs_lpjg)
+ print_message_list(message_list_ifs     )
+ print_message_list(message_list_nemo    )
+ print_message_list(message_list_lpjg    )
+ print_message_list(message_list_other   )
+ print()
+
+
 def print_var_info(element):
     info_string = '{:26} {:12} {:10} {}'          .format(element.get('physical_parameter_name'), \
-                                                        element.get('cmip6_table'            ), \
-                                                        element.get('region'                 ), \
-                                                        element.get('cmip7_compound_name'    ))
+                                                        element.get('cmip6_table'              ), \
+                                                        element.get('region'                   ), \
+                                                        element.get('cmip7_compound_name'      ))
     return info_string
 
 
 def print_var_info_plus_ece3_info(element, element_ece3):
     info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('physical_parameter_name'), \
-                                                        element.get('cmip6_table'            ), \
-                                                        element.get('region'                 ), \
-                                                        element.get('cmip7_compound_name'    ), \
-                                                        element_ece3.get('model_component'   ), \
-                                                        element_ece3.get('other_component'   ))
+                                                          element.get('cmip6_table'            ), \
+                                                          element.get('region'                 ), \
+                                                          element.get('cmip7_compound_name'    ), \
+                                                          element_ece3.get('model_component'   ), \
+                                                          element_ece3.get('other_component'   ))
     info_string = info_string.replace('(None)', '')
     # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
    #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
@@ -52,12 +77,12 @@ def print_var_info_plus_ece3_info(element, element_ece3):
 
 # For the reverse check:
 def print_ece3_info(element):
-    info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('cmip6_variable'   ), \
-                                                        element.get('cmip6_table'        ), \
-                                                        element.get('region'             ), \
-                                                        element.get('cmip7_compound_name'), \
-                                                        element.get('model_component'    ), \
-                                                        element.get('other_component'    ))
+    info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('cmip6_variable'     ), \
+                                                          element.get('cmip6_table'        ), \
+                                                          element.get('region'             ), \
+                                                          element.get('cmip7_compound_name'), \
+                                                          element.get('model_component'    ), \
+                                                          element.get('other_component'    ))
     info_string = info_string.replace('(None)', '')
     # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
    #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
@@ -200,6 +225,27 @@ def main():
      So there are 238 CMIP6 table - variable combinations which are not in the CMIP7 request, from which 101 CMIP6 variables are not at all in the CMIP7 request.
     '''
 
+    print()
+   #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
+   #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+
+   #print_message_list(message_list_of_identification_matches_in_reverse_check     )
+   #print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+    print_message_list_reorder(message_list_of_identification_matches_in_reverse_check     )
+    print_message_list_reorder(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+
+    print_message_list(message_list_of_identified_variables       )
+    print_message_list(message_list_of_1hr_variables              )
+    print_message_list(message_list_of_subhr_variables            )
+    print_message_list(message_list_of_antarctic_variables        )
+    print_message_list(message_list_of_greenland_variables        )
+    print_message_list(message_list_of_nh_variables               )
+    print_message_list(message_list_of_sh_variables               )
+    print_message_list(message_list_of_non_glb_variables          )
+    print_message_list(message_list_of_other_climatology_variables)
+    print_message_list(message_list_of_no_matched_identification  )
+
+
 
     # Previous approach:
 
@@ -259,24 +305,6 @@ def main():
          )
         except ValueError:
          print('Warning: item {} not found in the list_of_not_identified_physical_parameters list.'.format(cmip7_element.get('physical_parameter_name')))
-
-
-    print()
-   #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
-   #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
-    print_message_list(message_list_of_identification_matches_in_reverse_check     )
-    print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
-
-    print_message_list(message_list_of_identified_variables       )
-    print_message_list(message_list_of_1hr_variables              )
-    print_message_list(message_list_of_subhr_variables            )
-    print_message_list(message_list_of_antarctic_variables        )
-    print_message_list(message_list_of_greenland_variables        )
-    print_message_list(message_list_of_nh_variables               )
-    print_message_list(message_list_of_sh_variables               )
-    print_message_list(message_list_of_non_glb_variables          )
-    print_message_list(message_list_of_other_climatology_variables)
-    print_message_list(message_list_of_no_matched_identification  )
 
     print_message_list(message_list_of_no_climatology_messages    )
     print_message_list(message_list_of_multiple_match_messages    )
