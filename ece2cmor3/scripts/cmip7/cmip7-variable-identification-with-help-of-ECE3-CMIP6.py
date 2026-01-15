@@ -82,6 +82,7 @@ def main():
     message_list_of_other_climatology_variables                  = []
     message_list_of_non_glb_variables                            = []
     message_list_of_no_matched_identification                    = []
+    message_list_of_identification_matches_in_reverse_check      = []
     message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
@@ -131,7 +132,7 @@ def main():
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
         if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
         #print(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
-         message_list_of_identified_variables.append(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
+         message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
         else:
          pass
         #print(' {:2} no match for: {}'.format(count, var_info_plus_ece3_info))
@@ -162,19 +163,24 @@ def main():
       if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
        count += 1
        if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
-        list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(var_info))
+        list_of_identification_matches_in_reverse_check.append(cmip7_element.get('physical_parameter_name'))
+        message_list_of_identification_matches_in_reverse_check.append(' Reverse check, identification match: {}'.format(var_info))
         count_matches += 1
      else:
       # The for-else:
       if count == 0:
        count_cmip6_identified_but_not_in_cmip7 += 1
        list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(ece3_element.get('cmip6_variable'))
-       message_list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7: {}'.format(var_info))
+       message_list_of_ece3_cmip6_identified_variables_not_in_cmip7.append(' Reverse check, not in CMIP7 request: {}'.format(var_info))
       else:
        if count_matches == 0:
         print(' Weird (not impossible but not expected (hopefully not the case).')  # Indeed, so far this is never the case.
-    print('\n Number of matches is {}. Number of unmatched is {}'.format(count_matches, count_cmip6_identified_but_not_in_cmip7))
-    print('\n Number of matches is {}. Number of unmatched is {}'.format(len(set(list_of_identification_matches_in_reverse_check)), len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
+    print('From the reverse check we have:')
+    print(' Number of total  variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework) is {}'.format(count_matches                                                 ))
+    print(' Number of unique variables which do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework) is {}'.format(len(set(list_of_identification_matches_in_reverse_check     ))))
+    print(' Number of total  variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)           is {}'.format(count_cmip6_identified_but_not_in_cmip7                       ))
+    print(' Number of unique variables which do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)           is {}'.format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
+    print()
 
     '''
      See also:
@@ -250,7 +256,7 @@ def main():
     print()
    #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
    #print_message_list(sorted(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7)))
-    print_message_list(list_of_identification_matches_in_reverse_check)
+    print_message_list(message_list_of_identification_matches_in_reverse_check     )
     print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
 
     print_message_list(message_list_of_identified_variables       )
