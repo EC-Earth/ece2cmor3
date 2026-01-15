@@ -36,12 +36,13 @@ def print_message_list_reorder(message_list):
  message_list_lpjg     = []
  message_list_other    = []
  for message in message_list:
-  if   'ifs(m7)'   in message[145:]: message_list_ifs_m7  .append(message)
-  elif 'ifs(lpjg)' in message[145:]: message_list_ifs_lpjg.append(message)
-  elif 'ifs'       in message[145:]: message_list_ifs     .append(message)
-  elif 'nemo'      in message[145:]: message_list_nemo    .append(message)
-  elif 'lpjg'      in message[145:]: message_list_lpjg    .append(message)
-  else                             : message_list_other   .append(message)
+ #if   'ifs(m7)'   in message[145:]: message_list_ifs_m7  .append(message)
+  if   'ifs(m7)'   in message.split()[-1]: message_list_ifs_m7  .append(message)
+  elif 'ifs(lpjg)' in message.split()[-1]: message_list_ifs_lpjg.append(message)
+  elif 'ifs'       in message.split()[-1]: message_list_ifs     .append(message)
+  elif 'nemo'      in message.split()[-1]: message_list_nemo    .append(message)
+  elif 'lpjg'      in message.split()[-1]: message_list_lpjg    .append(message)
+  else                                   : message_list_other   .append(message)
  print_message_list(message_list_ifs_m7  )
  print_message_list(message_list_ifs_lpjg)
  print_message_list(message_list_ifs     )
@@ -243,16 +244,6 @@ def main():
 
 
     print()
-   #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
-   #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
-
-   #print_message_list(message_list_of_identification_matches_in_reverse_check     )
-   #print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
-    print_message_list_reorder(message_list_of_identification_matches_in_reverse_check     )
-    print_message_list_reorder(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
-   #print_message_list_reorder(message_list2_of_ece3_cmip6_identified_variables_not_in_cmip7)        # With this one instead of the one at line above, the differences can be spotted with a meld
-   #print_message_list_reorder(sorted(message_list_of_identification_matches_in_reverse_check     )) # in order to see which variables in this list occur in more than one table
-   #print_message_list_reorder(sorted(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)) # in order to see which variables in this list occur in more than one table
 
     print_message_list(message_list_of_identified_variables       )
     print_message_list(message_list_of_1hr_variables              )
@@ -264,6 +255,17 @@ def main():
     print_message_list(message_list_of_non_glb_variables          )
     print_message_list(message_list_of_other_climatology_variables)
     print_message_list(message_list_of_no_matched_identification  )
+
+   #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
+   #print_message_list(sorted_set_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+
+   #print_message_list(message_list_of_identification_matches_in_reverse_check     )
+   #print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+    print_message_list_reorder(message_list_of_identification_matches_in_reverse_check     )
+    print_message_list_reorder(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
+   #print_message_list_reorder(message_list2_of_ece3_cmip6_identified_variables_not_in_cmip7)        # With this one instead of the one at line above, the differences can be spotted with a meld
+   #print_message_list_reorder(sorted(message_list_of_identification_matches_in_reverse_check     )) # in order to see which variables in this list occur in more than one table
+   #print_message_list_reorder(sorted(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)) # in order to see which variables in this list occur in more than one table
 
 
 
