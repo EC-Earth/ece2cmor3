@@ -59,6 +59,16 @@ def print_var_info(element):
     return info_string
 
 
+def print_var_info_xml(element):
+    info_string = '<variable  physical_parameter_name={:28} cmip6_table={:14} region={:12} cmip7_compound_name={:55} long_name={:122}>   </variable>'.format( \
+     '"' + element.get('physical_parameter_name') + '"', \
+     '"' + element.get('cmip6_table'            ) + '"', \
+     '"' + element.get('region'                 ) + '"', \
+     '"' + element.get('cmip7_compound_name'    ) + '"', \
+     '"' + element.get('long_name'              ) + '"')
+    return info_string
+
+
 def print_var_info_plus_ece3_info(element, element_ece3):
     info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('physical_parameter_name'), \
                                                           element.get('cmip6_table'            ), \
@@ -132,7 +142,8 @@ def main():
 
     xpath_expression_for_cmip7_request = './/variable'
     for cmip7_element in root_cmip7_variables.findall(xpath_expression_for_cmip7_request):
-     var_info = print_var_info(cmip7_element)
+     var_info     = print_var_info    (cmip7_element)
+     var_info_xml = print_var_info_xml(cmip7_element)
 
      if 'Ant' in cmip7_element.get('cmip6_table') and 'ata' not in cmip7_element.get('region'):
       print(' WARNING: Antarctic table determined but region not ata for: {}'.format(cmip7_element.get('cmip7_compound_name')))
@@ -171,7 +182,8 @@ def main():
        # The for-else:
        if count == 0:
         list_of_no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
-        message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + cmip7_element.get('long_name') + '"'))
+       #message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + cmip7_element.get('long_name') + '"'))
+        message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
 
     sorted_set_list_of_identified_variables      = sorted(set(list_of_identified_variables     ))
     sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
@@ -253,6 +265,7 @@ def main():
     print_message_list(message_list_of_sh_variables                )
     print_message_list(message_list_of_non_glb_variables           )
     print_message_list(message_list_of_other_climatology_variables )
+    print(' No identification for:')
     print_message_list(message_list_of_no_matched_identification   )
 
    #print_message_list(sorted(list_of_ece3_cmip6_identified_variables_not_in_cmip7))
