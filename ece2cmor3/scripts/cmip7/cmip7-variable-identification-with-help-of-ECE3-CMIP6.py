@@ -36,7 +36,6 @@ def print_message_list_reorder(message_list):
  message_list_lpjg     = []
  message_list_other    = []
  for message in message_list:
- #if   'ifs(m7)'   in message[145:]: message_list_ifs_m7  .append(message)
   if   'ifs(m7)'   in message.split()[-1]: message_list_ifs_m7  .append(message)
   elif 'ifs(lpjg)' in message.split()[-1]: message_list_ifs_lpjg.append(message)
   elif 'ifs'       in message.split()[-1]: message_list_ifs     .append(message)
