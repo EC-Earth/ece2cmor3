@@ -84,19 +84,10 @@ def main():
     message_list_of_no_matched_identification                    = []
     message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
-    message_list_of_multiple_match_messages                      = []
-    message_list_of_no_climatology_messages                      = []
-    message_list_of_no_identification                            = []
-    message_list_of_not_identified_physical_parameters           = []
-
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
     list_of_identification_matches_in_reverse_check              = []
     list_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
-
-    no_matched_identification                                    = []
-    ece3_cmip6_identified_variables_not_in_cmip7                 = []
-
-    list_of_not_identified_physical_parameters                   = []
+    list_of_no_matched_identification                            = []
 
 
     # Load the xml file:
@@ -147,12 +138,12 @@ def main():
       else:
        # The for-else:
        if count == 0:
-        no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
+        list_of_no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
         message_list_of_no_matched_identification.append(' No identification for: {}'.format(core_var_info))
 
-    sorted_set_no_matched_identification = sorted(set(no_matched_identification))
-    print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(no_matched_identification)))
-    print('\n This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_no_matched_identification)))
+    sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
+    print('\n This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification)))
+    print('\n This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_list_of_no_matched_identification)))
     print()
 
 
@@ -195,6 +186,15 @@ def main():
 
 
     # Previous approach:
+
+    # Lists with messages for combined printing per message cathegory afterwards:
+    message_list_of_multiple_match_messages                      = []
+    message_list_of_no_climatology_messages                      = []
+    message_list_of_no_identification                            = []
+    message_list_of_not_identified_physical_parameters           = []
+
+    # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
+    list_of_not_identified_physical_parameters                   = []
 
     count_dim_changed = 0
     xpath_expression_for_cmip7_request = './/variable'
