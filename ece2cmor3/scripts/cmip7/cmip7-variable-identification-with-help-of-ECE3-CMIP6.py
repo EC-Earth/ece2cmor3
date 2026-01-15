@@ -72,13 +72,7 @@ def main():
     args = parse_args()
 
     # Lists with messages for combined printing per message cathegory afterwards:
-    multiple_match_messages                                      = []
-    no_climatology_messages                                      = []
-    no_identification_messages                                   = []
-    not_identified_physical_parameter_list_messages              = []
-    not_identified_physical_parameters                           = []
-
-    list_of_identified_variables                                 = []
+    message_list_of_identified_variables                         = []
     message_list_of_1hr_variables                                = []
     message_list_of_subhr_variables                              = []
     message_list_of_antarctic_variables                          = []
@@ -90,12 +84,19 @@ def main():
     message_list_of_no_matched_identification                    = []
     message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
+    message_list_of_multiple_match_messages                      = []
+    message_list_of_no_climatology_messages                      = []
+    message_list_of_no_identification                            = []
+    message_list_of_not_identified_physical_parameters           = []
+
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
     list_of_identification_matches_in_reverse_check              = []
     list_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
 
-    no_matched_identification                    = []
-    ece3_cmip6_identified_variables_not_in_cmip7 = []
+    no_matched_identification                                    = []
+    ece3_cmip6_identified_variables_not_in_cmip7                 = []
+
+    list_of_not_identified_physical_parameters                   = []
 
 
     # Load the xml file:
@@ -137,7 +138,7 @@ def main():
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
         if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
         #print(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
-         list_of_identified_variables.append(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
+         message_list_of_identified_variables.append(' {:2}    match for: {}'.format(count, core_var_plus_ece3_info))
         else:
          pass
         #print(' {:2} no match for: {}'.format(count, core_var_plus_ece3_info))
@@ -211,7 +212,7 @@ def main():
 
       if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
        if cmip7_element.get('temporal_shape') == "climatology":
-        no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(cmip7_element.get('cmip7_compound_name'), xpath_expression_cmip6_overview))
+        message_list_of_no_climatology_messages.append(' Climatologies not included for: {:45} {}'.format(cmip7_element.get('cmip7_compound_name'), xpath_expression_cmip6_overview))
        else:
         # Deselect the ch4 & co2 ECE3-CMIP6 climatology cases:
         if ece3_element.get('temporal_shape') != "climatology":
@@ -222,26 +223,26 @@ def main():
            pass
           #print(' For: {} {} {} {} ECE3-CMIP6 match found in the CMIP7 request {}'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count, cmip7_element.get('cmip6_compound_name')))
           else:
-           multiple_match_messages.append(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count))
-          #multiple_match_messages.append('{} {} {}'.format(cmip7_element.get('cmip6_compound_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name')))
+           message_list_of_multiple_match_messages.append(' WARNING: for: {} {} {} {} ECE3-CMIP6 matches found in the CMIP7 request'.format(cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name'), cmip7_element.get('region'), count))
+          #message_list_of_multiple_match_messages.append('{} {} {}'.format(cmip7_element.get('cmip6_compound_name'), cmip7_element.get('cmip6_table'), cmip7_element.get('physical_parameter_name')))
       else:
-       no_identification_messages.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name')))
-       if cmip7_element.get('physical_parameter_name') not in not_identified_physical_parameters:
-        not_identified_physical_parameters.append(cmip7_element.get('physical_parameter_name'))
-        not_identified_physical_parameter_list_messages.append( \
+       message_list_of_no_identification.append(' No ECE3-CMIP6 identified equivalent for: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('cmip6_compound_name')))
+       if cmip7_element.get('physical_parameter_name') not in list_of_not_identified_physical_parameters:
+        list_of_not_identified_physical_parameters.append(cmip7_element.get('physical_parameter_name'))
+        message_list_of_not_identified_physical_parameters.append( \
         ' physical_parameter_name = {:28} long_name = {:132} cmip7_compound_name = {:55}'.format('"' + cmip7_element.get('physical_parameter_name') + '"', \
                                                                                                  '"' + cmip7_element.get('long_name'              ) + '"', \
                                                                                                  '"' + cmip7_element.get('cmip7_compound_name'    ) + '"'))
-       elif cmip7_element.get('physical_parameter_name') in not_identified_physical_parameters:
+       elif cmip7_element.get('physical_parameter_name') in list_of_not_identified_physical_parameters:
         try:
-         index = not_identified_physical_parameters.index(cmip7_element.get('physical_parameter_name'))
-         not_identified_physical_parameter_list_messages[index] = '{} {:50}'.format( \
-          not_identified_physical_parameter_list_messages[index], \
+         index = list_of_not_identified_physical_parameters.index(cmip7_element.get('physical_parameter_name'))
+         message_list_of_not_identified_physical_parameters[index] = '{} {:50}'.format( \
+          message_list_of_not_identified_physical_parameters[index], \
          #cmip7_element.get('cmip7_compound_name') \
           cmip7_element.get('cmip6_compound_name')+'-'+cmip7_element.get('region')  \
          )
         except ValueError:
-         print('Warning: item {} not found in the not_identified_physical_parameters list.'.format(cmip7_element.get('physical_parameter_name')))
+         print('Warning: item {} not found in the list_of_not_identified_physical_parameters list.'.format(cmip7_element.get('physical_parameter_name')))
 
 
     print()
@@ -250,7 +251,7 @@ def main():
     print_message_list(list_of_identification_matches_in_reverse_check)
     print_message_list(message_list_of_ece3_cmip6_identified_variables_not_in_cmip7)
 
-    print_message_list(list_of_identified_variables       )
+    print_message_list(message_list_of_identified_variables       )
     print_message_list(message_list_of_1hr_variables              )
     print_message_list(message_list_of_subhr_variables            )
     print_message_list(message_list_of_antarctic_variables        )
@@ -261,13 +262,13 @@ def main():
     print_message_list(message_list_of_other_climatology_variables)
     print_message_list(message_list_of_no_matched_identification  )
 
-    print_message_list(no_climatology_messages)
-    print_message_list(multiple_match_messages)
-    print_message_list(no_identification_messages)
+    print_message_list(message_list_of_no_climatology_messages    )
+    print_message_list(message_list_of_multiple_match_messages    )
+    print_message_list(message_list_of_no_identification          )
     print(' The list of CMIP7 physical parameters which are not in the ECE3 - CMIP6 identified list:')
-    print_message_list(not_identified_physical_parameter_list_messages)
+    print_message_list(message_list_of_not_identified_physical_parameters)
 
-    print('\n This CMIP7 data request contains {} variables which are not identified in the ECE3 - CMIP6 framewordk.\n'.format(len(not_identified_physical_parameter_list_messages)))
+    print('\n This CMIP7 data request contains {} variables which are not identified in the ECE3 - CMIP6 framewordk.\n'.format(len(message_list_of_not_identified_physical_parameters)))
 
     number_of_variables = 0
     for element in root_cmip7_variables.findall('.//variable'):
