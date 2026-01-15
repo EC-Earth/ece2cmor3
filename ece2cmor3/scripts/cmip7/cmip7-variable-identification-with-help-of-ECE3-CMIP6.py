@@ -86,6 +86,7 @@ def main():
     message_list_of_ece3_cmip6_identified_variables_not_in_cmip7 = []
 
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
+    list_of_identified_variables                                 = []
     list_of_identification_matches_in_reverse_check              = []
     list_of_ece3_cmip6_identified_variables_not_in_cmip7         = []
     list_of_no_matched_identification                            = []
@@ -132,6 +133,7 @@ def main():
        if cmip7_element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
         if ece3_element.get('cmip6_table') == cmip7_element.get('cmip6_table') and ece3_element.get('region') == cmip7_element.get('region'):
         #print(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
+         list_of_identified_variables.append(cmip7_element.get('physical_parameter_name'))
          message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
         else:
          pass
@@ -144,9 +146,12 @@ def main():
         list_of_no_matched_identification.append(cmip7_element.get('physical_parameter_name'))
         message_list_of_no_matched_identification.append(' No identification for: {}'.format(var_info))
 
+    sorted_set_list_of_identified_variables      = sorted(set(list_of_identified_variables     ))
     sorted_set_list_of_no_matched_identification = sorted(set(list_of_no_matched_identification))
     print('\n The basic check gives:')
-    print('  This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification)))
+    print('  This CMIP7 data request contains {}        variables which are     identified in the ECE3 - CMIP6 framewordk (in this case pre-deselection of cathogories: 1hr, subhr, Ant, Gre, non-glb & climatology).'.format(len(list_of_identified_variables                )))
+    print('  This CMIP7 data request contains {} unique variables which are     identified in the ECE3 - CMIP6 framewordk (in this case pre-deselection of cathogories: 1hr, subhr, Ant, Gre, non-glb & climatology).'.format(len(sorted_set_list_of_identified_variables     )))
+    print('  This CMIP7 data request contains {}        variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(list_of_no_matched_identification           )))
     print('  This CMIP7 data request contains {} unique variables which are not identified in the ECE3 - CMIP6 framewordk.'.format(len(sorted_set_list_of_no_matched_identification)))
 
 
@@ -178,8 +183,8 @@ def main():
     print('\n From the reverse check we have:')
     print('  A number of {} total  variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(count_matches                                                 ))
     print('  A number of {} unique variables do     match (i.e. they are both in the CMIP7 request and identified within the ECE3-CMIP6 framework)'.format(len(set(list_of_identification_matches_in_reverse_check     ))))
-    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)          '.format(count_cmip6_identified_but_not_in_cmip7                       ))
-    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)          '.format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
+    print('  A number of {} total  variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(count_cmip6_identified_but_not_in_cmip7                       ))
+    print('  A number of {} unique variables do not match (these are ECE3-CMIP6 identified variables which are not in the CMIP7 request)'          .format(len(set(list_of_ece3_cmip6_identified_variables_not_in_cmip7))))
     print()
 
     '''
