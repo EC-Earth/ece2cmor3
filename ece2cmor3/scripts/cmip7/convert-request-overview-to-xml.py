@@ -260,7 +260,6 @@ def main():
    count_no_cmip7_equivalent = 0
 
    # Alternatively write directly a neat formatted XML file with all content in attributes for each variable:
-   xml_filename = 'request-overview-cmip6-pextra-test-all-ECE3-CC-neat-formatted.xml'
    xml_filename = request_overview_filename.replace('.txt', '-neat-formatted.xml')
    with open(xml_filename, 'w') as xml_file:
     xml_file.write('<cmip6_variables>\n')
