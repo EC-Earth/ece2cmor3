@@ -21,6 +21,22 @@ PACKAGE_NAME = "CMIP7_data_request_api"
 print(' The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
 
 
+# A dictionary which relates the variable priorities to a numerical value:
+priority_dict = {
+  "Core"  : 4,
+  "High"  : 3,
+  "Medium": 2,
+  "Low"   : 1
+}
+# The inverse dictionary:
+priority_dict_inverse = {
+  4 : "Core"  ,
+  3 : "High"  ,
+  2 : "Medium",
+  1 : "Low"
+}
+
+
 def parse_args():
     """
     Parse command-line arguments
@@ -175,9 +191,10 @@ def main():
                 del expt_vars['experiment'][entry]
 
 
-    var_list         = []
-    prio_list        = []
-    var_list_for_xml = []
+    var_list                        = []
+    prio_list                       = []
+    var_list_for_xml                = []
+    message_list_changed_priorities = []
 
     # Construct output
     if len(expt_vars['experiment']) > 0:
@@ -213,7 +230,7 @@ def main():
            # Write one XML line per variable into a list (this list will be used to write the XML file lateron):
            if compound_var not in var_list:
             var_list.append(compound_var)
-            prio_list.append(priority_group)  # same sequence as for var_list
+            prio_list.append(priority_dict[priority_group])  # same sequence as for var_list
             var_list_for_xml.append('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
                                     '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
                                     '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
@@ -224,9 +241,16 @@ def main():
                                    )
            else:
             index = var_list.index(compound_var)
-            previous_prio = prio_list[index]
-            if previous_prio != priority_group:
-             print(' Warning: Different priorities detected for: {:55} {:10} & {}'.format(compound_var, previous_prio, priority_group))
+            previous_prio_numeric = prio_list[index]
+            previous_prio         = priority_dict_inverse[previous_prio_numeric]
+            current_prio_numeric  = priority_dict[priority_group]
+            current_prio          = priority_group
+            if previous_prio != current_prio:
+             print(' Warning: Different priorities detected for: {:55} {:10}={} & {}={}'.format(compound_var, previous_prio, previous_prio_numeric, current_prio, current_prio_numeric))
+             # Keep the highest encountered prio (e.g. --experiments dcppB-forecast-cmip6,esm-scen7-m):
+             if current_prio_numeric > previous_prio_numeric:
+              var_list_for_xml[index] = var_list_for_xml[index].replace('priority="' + previous_prio, 'priority="' + current_prio)
+              message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {:55} resulting in: {}'.format(previous_prio, current_prio, compound_var, var_list_for_xml[index]))
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
@@ -238,6 +262,11 @@ def main():
      for var in var_list_for_xml:
       xml_file.write(var)
      xml_file.write('</cmip7_variables>\n')
+
+
+    for message in message_list_changed_priorities:
+     print(message)
+    print()
 
 
     if args.variables_metadata:
