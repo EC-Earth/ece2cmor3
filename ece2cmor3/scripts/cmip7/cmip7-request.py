@@ -18,7 +18,7 @@ import data_request_api.query.dreq_query as dq
 from importlib.metadata import version
 
 PACKAGE_NAME = "CMIP7_data_request_api"
-print('The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
+print(' The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
 
 
 def parse_args():
@@ -32,7 +32,7 @@ def parse_args():
 
     # Positional (mandatory) input arguments
     parser.add_argument('dreq_version', choices=dc.get_versions()                              , help="data request version")
-    parser.add_argument('output_file'                                                          , help='file to write JSON output to')
+   #parser.add_argument('output_file'                                                          , help='file to write JSON output to')
 
     sep = ','
 
@@ -61,6 +61,15 @@ def main():
     args = parse_args()
 
     use_dreq_version = args.dreq_version
+
+    if args.experiments:
+     experiment_label = ''
+     for exp in args.experiments:
+      experiment_label = experiment_label + '-' + exp
+    else:
+     experiment_label = '-all'
+    outfile = 'cmip7-request-{}{}.json'.format(use_dreq_version, experiment_label)
+
 
     # Download specified version of data request content (if not locally cached)
     dc.retrieve(use_dreq_version)
@@ -165,6 +174,11 @@ def main():
             if entry not in args.experiments:
                 del expt_vars['experiment'][entry]
 
+
+    var_list         = []
+    prio_list        = []
+    var_list_for_xml = []
+
     # Construct output
     if len(expt_vars['experiment']) > 0:
 
@@ -173,7 +187,6 @@ def main():
 
         # Write json file with the variable lists
         content_path = dc._dreq_content_loaded['json_path']
-        outfile = args.output_file
         dq.write_requested_vars_json(outfile, expt_vars, use_dreq_version, args.priority_cutoff, content_path)
 
        #print(json.dumps(expt_vars['experiment'],sort_keys=True, indent=4))
@@ -184,7 +197,7 @@ def main():
          print('')
          for priority_group, variable_list in priority_groups.items():
          #print('\nCMIP7 priority group: {}\n'.format(priority_group))
-          print('\nCMIP7 experiment: {}; CMIP7 priority group: {}\n'.format(experiment, priority_group))
+          print('\nCMIP7 experiment: {}; CMIP7 priority group: {}'.format(experiment, priority_group))
          #print('{} {}'.format(priority_group, variable_list))
           for compound_var in variable_list:
            var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=compound_var, verbose=False)
@@ -194,11 +207,38 @@ def main():
          ##for attribute, value in sorted(var_metadata[compound_var].items()):
          ## print('{:40} {}'.format(attribute, value))
          ##print('')
-           print('{:65} {:40} {:15} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], var_metadata[compound_var]['cmip6_table'], var_metadata[compound_var]['physical_parameter_name']))
+#          print('{:65} {:40} {:15} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], var_metadata[compound_var]['cmip6_table'], var_metadata[compound_var]['physical_parameter_name']))
         ###print('MIPS per var: {}'.format(DataRequest.find_mips_per_variable(self=self, variable=compound_var)))
+
+           # Write one XML line per variable into a list (this list will be used to write the XML file lateron):
+           if compound_var not in var_list:
+            var_list.append(compound_var)
+            prio_list.append(priority_group)  # same sequence as for var_list
+            var_list_for_xml.append('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
+                                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
+                                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
+                                    '"' + priority_group                                        + '"', \
+                                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
+                                   )
+           else:
+            index = var_list.index(compound_var)
+            previous_prio = prio_list[index]
+            if previous_prio != priority_group:
+             print(' Warning: Different priorities detected for: {:55} {:10} & {}'.format(compound_var, previous_prio, priority_group))
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
+
+    # Write directly a neat formatted XML file with all content in attributes for each variable:
+    xml_filename = 'cmip7-request-{}{}.xml'.format(use_dreq_version, experiment_label)
+    with open(xml_filename, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, version(PACKAGE_NAME)))
+     for var in var_list_for_xml:
+      xml_file.write(var)
+     xml_file.write('</cmip7_variables>\n')
+
 
     if args.variables_metadata:
 
