@@ -10,6 +10,7 @@ import sys
 import json
 import os
 import argparse
+import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
 import data_request_api
@@ -18,7 +19,8 @@ import data_request_api.query.dreq_query as dq
 from importlib.metadata import version
 
 PACKAGE_NAME = "CMIP7_data_request_api"
-print(' The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
+api_version  = version(PACKAGE_NAME)
+print(' The CMIP7 dreq python api version is: v{}'.format(api_version))
 
 
 # A dictionary which relates the variable priorities to a numerical value:
@@ -206,25 +208,31 @@ def main():
         content_path = dc._dreq_content_loaded['json_path']
         dq.write_requested_vars_json(outfile, expt_vars, use_dreq_version, args.priority_cutoff, content_path)
 
+        # Get all variable names for all requested experiments
+        all_var_names = set()
+        for vars_by_priority in expt_vars['experiment'].values():
+            for var_names in vars_by_priority.values():
+                all_var_names.update(var_names)
+        print('\nTotal number of different variables: {}\n'.format(len(all_var_names)))
+        var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=all_var_names, verbose=False)
+
        #print(json.dumps(expt_vars['experiment'],sort_keys=True, indent=4))
 
-        for experiment, priority_groups in OrderedDict(expt_vars['experiment']).items():
+        input_dictionary  = expt_vars['experiment']
+        sorted_dictionary = dict(sorted(input_dictionary.items()))
+        for experiment, priority_groups in OrderedDict(sorted_dictionary).items():
         #print('{} {}'.format(experiment, priority_groups))
-        #print('\n\nCMIP7 experiment: {}\n'.format(experiment))
-         print('')
          for priority_group, variable_list in priority_groups.items():
          #print('\nCMIP7 priority group: {}\n'.format(priority_group))
           print('\nCMIP7 experiment: {}; CMIP7 priority group: {}'.format(experiment, priority_group))
          #print('{} {}'.format(priority_group, variable_list))
           for compound_var in variable_list:
-           var_metadata = dq.get_variables_metadata(base, use_dreq_version, compound_names=compound_var, verbose=False)
           #print('{}'.format(compound_var))
           #print('{}\n'.format(var_metadata))
           #print('{}\n'.format(var_metadata[compound_var]))
          ##for attribute, value in sorted(var_metadata[compound_var].items()):
          ## print('{:40} {}'.format(attribute, value))
          ##print('')
-#          print('{:65} {:40} {:15} {}'.format(compound_var, var_metadata[compound_var]['branded_variable_name'], var_metadata[compound_var]['cmip6_table'], var_metadata[compound_var]['physical_parameter_name']))
         ###print('MIPS per var: {}'.format(DataRequest.find_mips_per_variable(self=self, variable=compound_var)))
 
            # Write one XML line per variable into a list (this list will be used to write the XML file lateron):
@@ -246,11 +254,17 @@ def main():
             current_prio_numeric  = priority_dict[priority_group]
             current_prio          = priority_group
             if previous_prio != current_prio:
-             print(' Warning: Different priorities detected for: {:55} {:10}={} & {}={}'.format(compound_var, previous_prio, previous_prio_numeric, current_prio, current_prio_numeric))
              # Keep the highest encountered prio (e.g. --experiments dcppB-forecast-cmip6,esm-scen7-m):
              if current_prio_numeric > previous_prio_numeric:
-              var_list_for_xml[index] = var_list_for_xml[index].replace('priority="' + previous_prio, 'priority="' + current_prio)
-              message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {:55} resulting in: {}'.format(previous_prio, current_prio, compound_var, var_list_for_xml[index]))
+              previous_prio_formatted = '{:10}'.format('"' + previous_prio + '"')
+              current_prio_formatted  = '{:10}'.format('"' + current_prio  + '"')
+              var_list_for_xml[index] = var_list_for_xml[index].replace('priority=' + previous_prio_formatted, 'priority=' + current_prio_formatted)
+              message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {}'.format(previous_prio, current_prio, compound_var))
+             #message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {:55} resulting in: {}'.format(previous_prio, current_prio, compound_var, var_list_for_xml[index]))
+              print(' Warning: Different priorities detected for: {:55} {:10} {:10} adjusted'.format(compound_var, previous_prio,                        current_prio                      ))
+             else:
+              print(' Warning: Different priorities detected for: {:55} {:10} {}'            .format(compound_var, previous_prio,                        current_prio                      ))
+             #print(' Warning: Different priorities detected for: {:55} {:10}={} & {}={}'    .format(compound_var, previous_prio, previous_prio_numeric, current_prio, current_prio_numeric))
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
@@ -258,19 +272,42 @@ def main():
     # Write directly a neat formatted XML file with all content in attributes for each variable:
     xml_filename = 'cmip7-request-{}{}.xml'.format(use_dreq_version, experiment_label)
     with open(xml_filename, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, version(PACKAGE_NAME)))
-     for var in var_list_for_xml:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
+     for var in sorted(var_list_for_xml):
       xml_file.write(var)
      xml_file.write('</cmip7_variables>\n')
 
+    if len(message_list_changed_priorities) > 0:
+     print('\n\nOverview of adjusted priorities:')
+     for message in message_list_changed_priorities:
+      print(message)
 
-    for message in message_list_changed_priorities:
-     print(message)
+    # Load the xml file:
+    tree_main = ET.parse(xml_filename)
+    root_main = tree_main.getroot()
+
     print()
+    xml_prio_ordered_filename = xml_filename.replace('.xml', '-priority-ordered.xml')
+    with open(xml_prio_ordered_filename, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
+     for prio in ["Core", "High", "Medium", "Low"]:
+      count = 0
+      xpath_expression = './/variable[@priority="' + prio + '"]'
+      for element in root_main.findall(xpath_expression):
+       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                      '"' + element.get('cmip7_compound_name'    ) + '"', \
+                      '"' + element.get('physical_parameter_name') + '"', \
+                      '"' + element.get('cmip6_table'            ) + '"', \
+                      '"' + element.get('region'                 ) + '"', \
+                      '"' + element.get('priority'               ) + '"', \
+                      '"' + element.get('long_name'              ) + '"') \
+                     )
+       count += 1
+      print(' {:4} variables with priority {}'.format(count, prio))
+     xml_file.write('</cmip7_variables>\n')
 
 
     if args.variables_metadata:
-
         # Get all variable names for all requested experiments
         all_var_names = set()
         for vars_by_priority in expt_vars['experiment'].values():
