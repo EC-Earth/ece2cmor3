@@ -14,10 +14,23 @@
  # Just a script to play around with the CMIP7 DR, based on one of the basic examples provided by the 
   ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3 cmip7-v1.2.2.3-request-piControl-historical.json > cmip7-v1.2.2.3-request-piControl-historical.log
 
+ # Producing the core variable set:
+ ./cmip7-request.py --all_opportunities --experiments historical --priority_cutoff core v1.2.2.3
+
+
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
  ./genecec-cmip7-wrapper.sh high piControl,historical EC-Earth3-ESM-1
  echo " Produces the directory:"
  echo "  cmip7"
+
+
+ # Include all experiments with all priority variables (creating the XML file with CMIP7 variables including their priority as attribute:
+ ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all.log
+
+ grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                | wc # = 1816 times for this sorted experiment list
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                | wc # = 3517 times for this sorted experiment list
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                | wc # = 3517 times for this sorted experiment list
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log | cut -d ' ' -f 7| sort | uniq | wc # =  224 times
 
  ./convert-grib-table-to-xml.py grib-table.xml
  echo " Produces:"
@@ -96,24 +109,6 @@
           request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
           bup/cmip7-genecec-files/v03
 
-
-
-# Not longer necessary:
-#  # The command below takes rather long to created the log file:
-#  ./cmip7-request.py --all_opportunities --priority_cutoff high v1.2.2.3 cmip7-v1.2.2.3-request-all-experiments.json > cmip7-v1.2.2.3-request-all-experiments.log
-#  # Create a list of all Core & High prio variables for all experiments:
-#  grep -v -e TOTAL -e 'CMIP7' -e 'For data request' -e 'Wrote requested' cmip7-v1.2.2.3-request-all-experiments.log | sort | uniq | sed '1d' > cmip7-v1.2.2.3-request-all-experiments-uniq-varlist.txt
-
- # Producing the core variable set
- ./cmip7-request.py --all_opportunities --experiments historical                                                                               --priority_cutoff core v1.2.2.3
-
- # A quick test example:
- ./cmip7-request.py --all_opportunities --experiments tipmip-provisional-esm-up2p0-gwl4p0-50y-dn2p0-gwl2p0,tipmip-provisional-esm-up2p0-gwl5p0 --priority_cutoff low v1.2.2.3
- ./cmip7-request.py --all_opportunities --experiments piControl                                                                                --priority_cutoff low v1.2.2.3
- ./cmip7-request.py --all_opportunities --experiments piControl,historical                                                                     --priority_cutoff low v1.2.2.3
-
- # Include all experiments with all priority variables (creating the XML file with CMIP7 variables including their priority as attribute:
- ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all-low.log
 
 # To do:
 #
