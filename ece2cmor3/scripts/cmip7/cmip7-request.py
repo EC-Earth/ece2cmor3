@@ -282,6 +282,7 @@ def main():
      for message in message_list_changed_priorities:
       print(message)
 
+
     # Load the xml file:
     tree_main = ET.parse(xml_filename_alphabetic_ordered)
     root_main = tree_main.getroot()
@@ -304,6 +305,32 @@ def main():
                      )
        count += 1
       print(' {:4} variables with priority {}'.format(count, prio))
+     xml_file.write('</cmip7_variables>\n')
+
+
+    # Load the xml file:
+    tree_main = ET.parse(xml_filename_priority_ordered)
+    root_main = tree_main.getroot()
+
+    print()
+    xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
+    with open(xml_filename_frequency_ordered, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
+    #for table in ["E1hr", "E1hrClimMon", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "Amon", "Omon"]:
+     for table in ["fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", "Eyr", "IyrAnt", "IyrGre", "Odec"]:
+      count = 0
+      xpath_expression = './/variable[@cmip6_table="' + table + '"]'
+      for element in root_main.findall(xpath_expression):
+       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                      '"' + element.get('cmip7_compound_name'    ) + '"', \
+                      '"' + element.get('physical_parameter_name') + '"', \
+                      '"' + element.get('cmip6_table'            ) + '"', \
+                      '"' + element.get('region'                 ) + '"', \
+                      '"' + element.get('priority'               ) + '"', \
+                      '"' + element.get('long_name'              ) + '"') \
+                     )
+       count += 1
+      print(' {:4} variables with cmip6_table {}'.format(count, table))
      xml_file.write('</cmip7_variables>\n')
 
 
@@ -335,3 +362,133 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+'''
+grep -e cmip7_compound_name cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
+aerosol
+atmos
+atmosChem
+land
+landIce
+ocean
+ocnBgchem
+seaIce
+
+# Manual adjusted order:
+atmos
+atmosChem
+aerosol
+land
+landIce
+ocean
+ocnBgchem
+seaIce
+
+"atmos", "atmosChem", "aerosol", "land", "landIce", "ocean", "ocnBgchem", "seaIce"
+
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq
+"3hr"
+"3hrPt"
+"6hrLev"
+"6hrPlev"
+"6hrPlevPt"
+"AERday"
+"AERfx"
+"AERhr"
+"AERmon"
+"AERmonZ"
+"Amon"
+"CF3hr"
+"CFday"
+"CFmon"
+"CFsubhr"
+"day"
+"E1hr"
+"E1hrClimMon"
+"E3hr"
+"E3hrPt"
+"Eday"
+"EdayZ"
+"Efx"
+"Emon"
+"EmonZ"
+"Esubhr"
+"Eyr"
+"fx"
+"IfxAnt"
+"IfxGre"
+"ImonAnt"
+"ImonGre"
+"IyrAnt"
+"IyrGre"
+"LImon"
+"Lmon"
+"Oday"
+"Odec"
+"Ofx"
+"Omon"
+"Oyr"
+"SIday"
+"SImon"
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep hr
+"3hr"
+"3hrPt"
+"6hrLev"
+"6hrPlev"
+"6hrPlevPt"
+"AERhr"
+"CF3hr"
+"CFsubhr"
+"E1hr"
+"E1hrClimMon"
+"E3hr"
+"E3hrPt"
+"Esubhr"
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep day
+"AERday"
+"CFday"
+"day"
+"Eday"
+"EdayZ"
+"Oday"
+"SIday"
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep mon
+"AERmon"
+"AERmonZ"
+"Amon"
+"CFmon"
+"Emon"
+"EmonZ"
+"ImonAnt"
+"ImonGre"
+"LImon"
+"Lmon"
+"Omon"
+"SImon"
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e hr -e day -e mon
+"AERfx"
+"Efx"
+"Eyr"
+"fx"
+"IfxAnt"
+"IfxGre"
+"IyrAnt"
+"IyrGre"
+"Odec"
+"Ofx"
+"Oyr"
+
+
+"fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre"
+"Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt"
+"day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday"
+"Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre"
+"Eyr", "IyrAnt", "IyrGre", "Odec"
+
+"fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", "Eyr", "IyrAnt", "IyrGre", "Odec"
+'''
