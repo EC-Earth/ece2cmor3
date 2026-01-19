@@ -270,8 +270,8 @@ def main():
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
 
     # Write directly a neat formatted XML file with all content in attributes for each variable:
-    xml_filename = 'cmip7-request-{}{}-alphabetic-ordered.xml'.format(use_dreq_version, experiment_label)
-    with open(xml_filename, 'w') as xml_file:
+    xml_filename_alphabetic_ordered = 'cmip7-request-{}{}-alphabetic-ordered.xml'.format(use_dreq_version, experiment_label)
+    with open(xml_filename_alphabetic_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
      for var in sorted(var_list_for_xml):
       xml_file.write(var)
@@ -283,12 +283,12 @@ def main():
       print(message)
 
     # Load the xml file:
-    tree_main = ET.parse(xml_filename)
+    tree_main = ET.parse(xml_filename_alphabetic_ordered)
     root_main = tree_main.getroot()
 
     print()
-    xml_prio_ordered_filename = xml_filename.replace('alphabetic', 'priority')
-    with open(xml_prio_ordered_filename, 'w') as xml_file:
+    xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
+    with open(xml_filename_priority_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
      for prio in ["Core", "High", "Medium", "Low"]:
       count = 0
