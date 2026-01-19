@@ -291,9 +291,9 @@ def main():
     xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for prio in ["Core", "High", "Medium", "Low"]:
+     for priority in ["Core", "High", "Medium", "Low"]:
       count = 0
-      xpath_expression = './/variable[@priority="' + prio + '"]'
+      xpath_expression = './/variable[@priority="' + priority + '"]'
       for element in root_main.findall(xpath_expression):
        xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
                       '"' + element.get('cmip7_compound_name'    ) + '"', \
@@ -304,7 +304,7 @@ def main():
                       '"' + element.get('long_name'              ) + '"') \
                      )
        count += 1
-      print(' {:4} variables with priority {}'.format(count, prio))
+      print(' {:4} variables with priority {}'.format(count, priority))
      xml_file.write('</cmip7_variables>\n')
 
 
@@ -316,10 +316,14 @@ def main():
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-    #for table in ["E1hr", "E1hrClimMon", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "Amon", "Omon"]:
-     for table in ["fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", "Eyr", "IyrAnt", "IyrGre", "Odec"]:
+     for frequency in ["fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                       "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", \
+                       "6hrLev", "6hrPlev", "6hrPlevPt", \
+                       "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", \
+                       "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                       "Eyr", "IyrAnt", "IyrGre", "Odec"]:
       count = 0
-      xpath_expression = './/variable[@cmip6_table="' + table + '"]'
+      xpath_expression = './/variable[@cmip6_table="' + frequency + '"]'
       for element in root_main.findall(xpath_expression):
        xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
                       '"' + element.get('cmip7_compound_name'    ) + '"', \
@@ -330,7 +334,7 @@ def main():
                       '"' + element.get('long_name'              ) + '"') \
                      )
        count += 1
-      print(' {:4} variables with cmip6_table {}'.format(count, table))
+      print(' {:4} variables with cmip6_table {}'.format(count, frequency))
      xml_file.write('</cmip7_variables>\n')
 
 
