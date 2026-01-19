@@ -11,11 +11,10 @@
  # for the latest Content state, and therefore can be unexpectedly slow with a bad connection or lead to interruption on a platfrom without internet
  # access.
 
- # Just a script to play around with the CMIP7 DR, based on one of the basic examples provided by the 
-  ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3 cmip7-v1.2.2.3-request-piControl-historical.json > cmip7-v1.2.2.3-request-piControl-historical.log
-
+ # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
+ ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3
  # Producing the core variable set:
- ./cmip7-request.py --all_opportunities --experiments historical --priority_cutoff core v1.2.2.3
+ ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.3
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
@@ -24,7 +23,8 @@
  echo "  cmip7"
 
 
- # Include all experiments with all priority variables (creating the XML file with CMIP7 variables including their priority as attribute:
+ # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
+ # the highest encountered priority for each variable):
  ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all.log
 
  grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                | wc # = 1816 times for this sorted experiment list
