@@ -392,13 +392,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-'''
-grep -e cmip7_compound_name cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep fx
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep hr
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep day
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep mon
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep yr
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr
-'''

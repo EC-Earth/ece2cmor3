@@ -32,6 +32,18 @@
  grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                | wc # = 3517 times for this sorted experiment list
  grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log | cut -d ' ' -f 7| sort | uniq | wc # =  224 times
 
+
+ # The searches for establishing the iterate lists for the realm & cmip6_table ordering in the cmip7-request.py script code:
+ grep -e cmip7_compound_name cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep fx
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep hr
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep day
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep mon
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep yr
+ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr
+
+
+
  ./convert-grib-table-to-xml.py grib-table.xml
  echo " Produces:"
  echo "  grib-table.xml"
