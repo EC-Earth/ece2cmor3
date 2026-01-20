@@ -342,12 +342,6 @@ def main():
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-    #for frequency in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", \
-    #                  "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", \
-    #                  "6hrLev", "6hrPlev", "6hrPlevPt", \
-    #                  "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", \
-    #                  "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-    #                  ""Oyr", Eyr", "IyrAnt", "IyrGre", "Odec"]:
      for frequency in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
                        "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
