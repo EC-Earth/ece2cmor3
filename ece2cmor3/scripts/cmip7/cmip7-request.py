@@ -72,6 +72,17 @@ def parse_args():
     return parser.parse_args()
 
 
+def write_xml_file_line_for_variable(xml_file, element):
+    xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                   '"' + element.get('cmip7_compound_name'    ) + '"', \
+                   '"' + element.get('physical_parameter_name') + '"', \
+                   '"' + element.get('cmip6_table'            ) + '"', \
+                   '"' + element.get('region'                 ) + '"', \
+                   '"' + element.get('priority'               ) + '"', \
+                   '"' + element.get('long_name'              ) + '"') \
+                  )
+
+
 def main():
     """
     main routine
@@ -296,14 +307,7 @@ def main():
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_main.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
-        xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
-                       '"' + element.get('cmip7_compound_name'    ) + '"', \
-                       '"' + element.get('physical_parameter_name') + '"', \
-                       '"' + element.get('cmip6_table'            ) + '"', \
-                       '"' + element.get('region'                 ) + '"', \
-                       '"' + element.get('priority'               ) + '"', \
-                       '"' + element.get('long_name'              ) + '"') \
-                      )
+        write_xml_file_line_for_variable(xml_file, element)
         count += 1
       print(' {:4} variables with realm {}'.format(count, realm))
      xml_file.write('</cmip7_variables>\n')
@@ -321,14 +325,7 @@ def main():
       count = 0
       xpath_expression = './/variable[@priority="' + priority + '"]'
       for element in root_main.findall(xpath_expression):
-       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
-                      '"' + element.get('cmip7_compound_name'    ) + '"', \
-                      '"' + element.get('physical_parameter_name') + '"', \
-                      '"' + element.get('cmip6_table'            ) + '"', \
-                      '"' + element.get('region'                 ) + '"', \
-                      '"' + element.get('priority'               ) + '"', \
-                      '"' + element.get('long_name'              ) + '"') \
-                     )
+       write_xml_file_line_for_variable(xml_file, element)
        count += 1
       print(' {:4} variables with priority {}'.format(count, priority))
      xml_file.write('</cmip7_variables>\n')
@@ -351,14 +348,7 @@ def main():
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + frequency + '"]'
       for element in root_main.findall(xpath_expression):
-       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
-                      '"' + element.get('cmip7_compound_name'    ) + '"', \
-                      '"' + element.get('physical_parameter_name') + '"', \
-                      '"' + element.get('cmip6_table'            ) + '"', \
-                      '"' + element.get('region'                 ) + '"', \
-                      '"' + element.get('priority'               ) + '"', \
-                      '"' + element.get('long_name'              ) + '"') \
-                     )
+       write_xml_file_line_for_variable(xml_file, element)
        count += 1
       print(' {:4} variables with cmip6_table {}'.format(count, frequency))
      xml_file.write('</cmip7_variables>\n')
