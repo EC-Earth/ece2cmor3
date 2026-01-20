@@ -82,6 +82,16 @@ def write_xml_file_line_for_variable(xml_file, element):
                    '"' + element.get('long_name'              ) + '"') \
                   )
 
+def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group):
+    varlist.append('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                   '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
+                   '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                   '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
+                   '"' + var_metadata[compound_var]['region'                 ] + '"', \
+                   '"' + priority_group                                        + '"', \
+                   '"' + var_metadata[compound_var]['long_name'              ] + '"') \
+                  )
+
 
 def main():
     """
@@ -250,14 +260,7 @@ def main():
            if compound_var not in var_list:
             var_list.append(compound_var)
             prio_list.append(priority_dict[priority_group])  # same sequence as for var_list
-            var_list_for_xml.append('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
-                                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
-                                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
-                                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
-                                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
-                                    '"' + priority_group                                        + '"', \
-                                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
-                                   )
+            append_xml_file_line_for_variable(var_list_for_xml, var_metadata, compound_var, priority_group)
            else:
             index = var_list.index(compound_var)
             previous_prio_numeric = prio_list[index]
