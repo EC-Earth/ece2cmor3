@@ -297,12 +297,11 @@ def main():
     # Load the xml file:
     tree_main = ET.parse(xml_filename_alphabetic_ordered)
     root_main = tree_main.getroot()
-
     print()
     xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean", "ocnBgchem.", "seaIce."]:
+     for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_main.findall(xpath_expression):
@@ -316,7 +315,6 @@ def main():
     # Load the xml file:
     tree_main = ET.parse(xml_filename_realm_ordered)
     root_main = tree_main.getroot()
-
     print()
     xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
@@ -332,25 +330,42 @@ def main():
 
 
     # Load the xml file:
-    tree_main = ET.parse(xml_filename_realm_ordered)
+    tree_main = ET.parse(xml_filename_priority_ordered)
     root_main = tree_main.getroot()
-
     print()
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for frequency in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+     for frequency in [".fx.", ".subhr.", ".1hr.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".dec."]:
+      count = 0
+      xpath_expression = './/variable[@cmip7_compound_name]'
+      for element in root_main.findall(xpath_expression):
+       if frequency in element.get('cmip7_compound_name'):
+        write_xml_file_line_for_variable(xml_file, element)
+        count += 1
+      print(' {:4} variables with frequency {}'.format(count, frequency))
+     xml_file.write('</cmip7_variables>\n')
+
+
+    # Load the xml file:
+    tree_main = ET.parse(xml_filename_realm_ordered)
+    root_main = tree_main.getroot()
+    print()
+    xml_filename_cmip6_table_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'cmip6-table')
+    with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
+     for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
                        "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
                        "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
                        "Eyr", "Oyr", "IyrAnt", "IyrGre", \
                        "Odec"]:
       count = 0
-      xpath_expression = './/variable[@cmip6_table="' + frequency + '"]'
+      xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
       for element in root_main.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element)
        count += 1
-      print(' {:4} variables with cmip6_table {}'.format(count, frequency))
+      print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
      xml_file.write('</cmip7_variables>\n')
 
 
