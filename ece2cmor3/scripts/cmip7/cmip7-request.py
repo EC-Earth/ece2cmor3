@@ -342,12 +342,18 @@ def main():
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for frequency in ["fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", \
-                       "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", \
-                       "6hrLev", "6hrPlev", "6hrPlevPt", \
-                       "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", \
-                       "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-                       "Eyr", "IyrAnt", "IyrGre", "Odec"]:
+    #for frequency in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", \
+    #                  "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", \
+    #                  "6hrLev", "6hrPlev", "6hrPlevPt", \
+    #                  "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", \
+    #                  "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+    #                  ""Oyr", Eyr", "IyrAnt", "IyrGre", "Odec"]:
+     for frequency in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+                       "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                       "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                       "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                       "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                       "Odec"]:
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + frequency + '"]'
       for element in root_main.findall(xpath_expression):
@@ -417,50 +423,14 @@ seaIce
 "atmos", "atmosChem", "aerosol", "land", "landIce", "ocean", "ocnBgchem", "seaIce"
 
 
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq
-"3hr"
-"3hrPt"
-"6hrLev"
-"6hrPlev"
-"6hrPlevPt"
-"AERday"
+
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep fx
 "AERfx"
-"AERhr"
-"AERmon"
-"AERmonZ"
-"Amon"
-"CF3hr"
-"CFday"
-"CFmon"
-"CFsubhr"
-"day"
-"E1hr"
-"E1hrClimMon"
-"E3hr"
-"E3hrPt"
-"Eday"
-"EdayZ"
 "Efx"
-"Emon"
-"EmonZ"
-"Esubhr"
-"Eyr"
 "fx"
 "IfxAnt"
 "IfxGre"
-"ImonAnt"
-"ImonGre"
-"IyrAnt"
-"IyrGre"
-"LImon"
-"Lmon"
-"Oday"
-"Odec"
 "Ofx"
-"Omon"
-"Oyr"
-"SIday"
-"SImon"
 
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep hr
 "3hr"
@@ -500,25 +470,21 @@ grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e '
 "Omon"
 "SImon"
 
-grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e hr -e day -e mon
-"AERfx"
-"Efx"
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep yr
 "Eyr"
-"fx"
-"IfxAnt"
-"IfxGre"
 "IyrAnt"
 "IyrGre"
-"Odec"
-"Ofx"
 "Oyr"
 
+grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr
+"Odec"
 
-"fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre"
-"Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt"
-"day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday"
-"Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre"
-"Eyr", "IyrAnt", "IyrGre", "Odec"
 
-"fx", "Efx", "AERfx", "Ofx", "Oyr", "IfxAnt", "IfxGre", "Esubhr", "CFsubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "3hrPt", "CF3hr", "E3hr", "E3hrPt", "6hrLev", "6hrPlev", "6hrPlevPt", "day", "AERday", "CFday", "Eday", "EdayZ", "Oday", "SIday", "Amon", "AERmon", "AERmonZ", "CFmon", "Emon", "EmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", "Eyr", "IyrAnt", "IyrGre", "Odec"
+"fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre"
+"CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev"
+"day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday"
+"Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre"
+"Eyr", "Oyr", "IyrAnt", "IyrGre"
+"Odec"
+
 '''
