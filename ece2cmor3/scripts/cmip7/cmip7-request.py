@@ -395,90 +395,10 @@ if __name__ == '__main__':
 
 '''
 grep -e cmip7_compound_name cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
-aerosol
-atmos
-atmosChem
-land
-landIce
-ocean
-ocnBgchem
-seaIce
-
-# Manual adjusted order:
-atmos
-atmosChem
-aerosol
-land
-landIce
-ocean
-ocnBgchem
-seaIce
-
-"atmos", "atmosChem", "aerosol", "land", "landIce", "ocean", "ocnBgchem", "seaIce"
-
-
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep fx
-"AERfx"
-"Efx"
-"fx"
-"IfxAnt"
-"IfxGre"
-"Ofx"
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep hr
-"3hr"
-"3hrPt"
-"6hrLev"
-"6hrPlev"
-"6hrPlevPt"
-"AERhr"
-"CF3hr"
-"CFsubhr"
-"E1hr"
-"E1hrClimMon"
-"E3hr"
-"E3hrPt"
-"Esubhr"
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep day
-"AERday"
-"CFday"
-"day"
-"Eday"
-"EdayZ"
-"Oday"
-"SIday"
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep mon
-"AERmon"
-"AERmonZ"
-"Amon"
-"CFmon"
-"Emon"
-"EmonZ"
-"ImonAnt"
-"ImonGre"
-"LImon"
-"Lmon"
-"Omon"
-"SImon"
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep yr
-"Eyr"
-"IyrAnt"
-"IyrGre"
-"Oyr"
-
 grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*region.*//' | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr
-"Odec"
-
-
-"fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre"
-"CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev"
-"day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday"
-"Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre"
-"Eyr", "Oyr", "IyrAnt", "IyrGre"
-"Odec"
-
 '''
