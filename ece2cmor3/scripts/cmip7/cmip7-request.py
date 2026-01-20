@@ -68,69 +68,71 @@ def parse_args():
     parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}piControl')
     parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
     parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
-   #parser.add_argument('-r', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-r', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
 
     return parser.parse_args()
 
 
-def write_xml_file_line_for_variable(xml_file, element):
-    xml_file.write('  <variable  cmip7_compound_name={:55}' \
-                               ' priority={:10}' \
-                               ' region={:12}' \
-                               ' cmip6_table={:14}' \
-                               ' physical_parameter_name={:28}' \
-                               ' long_name={:132}>' \
-                   '  </variable>\n'.format( \
-                   '"' + element.get('cmip7_compound_name'    ) + '"', \
-                   '"' + element.get('priority'               ) + '"', \
-                   '"' + element.get('region'                 ) + '"', \
-                   '"' + element.get('cmip6_table'            ) + '"', \
-                   '"' + element.get('physical_parameter_name') + '"', \
-                   '"' + element.get('long_name'              ) + '"') \
-                  )
-
-def write_xml_file_line_for_variable_with_all_attributes(xml_file, element):
-    xml_file.write('  <variable  cmip7_compound_name={:55}' \
-                               ' branded_variable_name={:44}' \
-                               ' branding_label={:25}' \
-                               ' cmip6_table={:14}' \
-                               ' physical_parameter_name={:28}' \
-                               ' cmip6_compound_name={:40}' \
-                               ' long_name={:132}' \
-                               ' standard_name={:160}' \
-                               ' units={:20}' \
-                               ' dimensions={:45}' \
-                               ' frequency={:15}' \
-                               ' temporal_shape={:25}' \
-                               ' spatial_shape={:15}' \
-                               ' region={:15}' \
-                               ' cell_measures={:35}' \
-                               ' cell_methods={:140}' \
-                               ' modeling_realm={:33}' \
-                               ' out_name={:28}' \
-                               ' type={:10}' \
-                   ' >   </variable>\n'.format( \
-                   '"' + element.get('cmip7_compound_name'    ) + '"', \
-                   '"' + element.get('priority'               ) + '"', \
-                   '"' + element.get('frequency'              ) + '"', \
-                   '"' + element.get('region'                 ) + '"', \
-                   '"' + element.get('cmip6_table'            ) + '"', \
-                   '"' + element.get('physical_parameter_name') + '"', \
-                   '"' + element.get('units'                  ) + '"', \
-                   '"' + element.get('dimensions'             ) + '"', \
-                   '"' + element.get('long_name'              ) + '"', \
-                   '"' + element.get('standard_name'          ) + '"', \
-                   '"' + element.get('modeling_realm'         ) + '"', \
-                   '"' + element.get('branded_variable_name'  ) + '"', \
-                   '"' + element.get('branding_label'         ) + '"', \
-                   '"' + element.get('cmip6_compound_name'    ) + '"', \
-                   '"' + element.get('temporal_shape'         ) + '"', \
-                   '"' + element.get('spatial_shape'          ) + '"', \
-                   '"' + element.get('cell_measures'          ) + '"', \
-                   '"' + element.get('cell_methods'           ) + '"', \
-                   '"' + element.get('out_name'               ) + '"', \
-                   '"' + element.get('type'                   ) + '"') \
-                  )
+def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
+    if add_all_attributes:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' frequency={:15}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' units={:20}' \
+                                ' dimensions={:45}' \
+                                ' long_name={:132}' \
+                                ' standard_name={:160}' \
+                                ' modeling_realm={:33}' \
+                                ' branded_variable_name={:44}' \
+                                ' branding_label={:25}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' temporal_shape={:25}' \
+                                ' spatial_shape={:15}' \
+                                ' cell_measures={:35}' \
+                                ' cell_methods={:140}' \
+                                ' out_name={:28}' \
+                                ' type={:10}' \
+                    ' >   </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    ) + '"', \
+                    '"' + element.get('priority'               ) + '"', \
+                    '"' + element.get('frequency'              ) + '"', \
+                    '"' + element.get('region'                 ) + '"', \
+                    '"' + element.get('cmip6_table'            ) + '"', \
+                    '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('units'                  ) + '"', \
+                    '"' + element.get('dimensions'             ) + '"', \
+                    '"' + element.get('long_name'              ) + '"', \
+                    '"' + element.get('standard_name'          ) + '"', \
+                    '"' + element.get('modeling_realm'         ) + '"', \
+                    '"' + element.get('branded_variable_name'  ) + '"', \
+                    '"' + element.get('branding_label'         ) + '"', \
+                    '"' + element.get('cmip6_compound_name'    ) + '"', \
+                    '"' + element.get('temporal_shape'         ) + '"', \
+                    '"' + element.get('spatial_shape'          ) + '"', \
+                    '"' + element.get('cell_measures'          ) + '"', \
+                    '"' + element.get('cell_methods'           ) + '"', \
+                    '"' + element.get('out_name'               ) + '"', \
+                    '"' + element.get('type'                   ) + '"') \
+                   )
+    else:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' long_name={:132}>' \
+                    '  </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    ) + '"', \
+                    '"' + element.get('priority'               ) + '"', \
+                    '"' + element.get('region'                 ) + '"', \
+                    '"' + element.get('cmip6_table'            ) + '"', \
+                    '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('long_name'              ) + '"') \
+                   )
+    return
 
 def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group):
     varlist.append('  <variable  cmip7_compound_name={:55} priority={:10} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:132}>  </variable>\n'.format( \
@@ -141,6 +143,7 @@ def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, prior
                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
                   )
+    return
 
 
 def main():
@@ -159,6 +162,7 @@ def main():
      experiment_label = '-all'
     outfile = 'cmip7-request-{}{}.json'.format(use_dreq_version, experiment_label)
 
+    add_all_attributes = args.addallattributes
 
     # Download specified version of data request content (if not locally cached)
     dc.retrieve(use_dreq_version)
@@ -359,7 +363,7 @@ def main():
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_main.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
-        write_xml_file_line_for_variable(xml_file, element)
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
       print(' {:4} variables with realm {}'.format(count, realm))
      xml_file.write('</cmip7_variables>\n')
@@ -376,7 +380,7 @@ def main():
       count = 0
       xpath_expression = './/variable[@priority="' + priority + '"]'
       for element in root_main.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
+       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
       print(' {:4} variables with priority {}'.format(count, priority))
      xml_file.write('</cmip7_variables>\n')
@@ -394,7 +398,7 @@ def main():
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_main.findall(xpath_expression):
        if frequency in element.get('cmip7_compound_name'):
-        write_xml_file_line_for_variable(xml_file, element)
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
       print(' {:4} variables with frequency {}'.format(count, frequency))
      xml_file.write('</cmip7_variables>\n')
@@ -417,7 +421,7 @@ def main():
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
       for element in root_main.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
+       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
       print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
      xml_file.write('</cmip7_variables>\n')
