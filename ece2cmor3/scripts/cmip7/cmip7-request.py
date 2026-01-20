@@ -339,7 +339,7 @@ def main():
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for frequency in [".fx.", ".subhr.", ".1hr.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".dec."]:
+     for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_main.findall(xpath_expression):
@@ -358,10 +358,11 @@ def main():
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
-                       "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                       "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
                        "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
                        "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                       "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
                        "Odec"]:
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
