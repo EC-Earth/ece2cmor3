@@ -310,7 +310,7 @@ def main():
 
 
     # Load the xml file:
-    tree_main = ET.parse(xml_filename_alphabetic_ordered)
+    tree_main = ET.parse(xml_filename_realm_ordered)
     root_main = tree_main.getroot()
 
     print()
