@@ -288,31 +288,6 @@ def main():
     root_main = tree_main.getroot()
 
     print()
-    xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
-    with open(xml_filename_priority_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
-     for priority in ["Core", "High", "Medium", "Low"]:
-      count = 0
-      xpath_expression = './/variable[@priority="' + priority + '"]'
-      for element in root_main.findall(xpath_expression):
-       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
-                      '"' + element.get('cmip7_compound_name'    ) + '"', \
-                      '"' + element.get('physical_parameter_name') + '"', \
-                      '"' + element.get('cmip6_table'            ) + '"', \
-                      '"' + element.get('region'                 ) + '"', \
-                      '"' + element.get('priority'               ) + '"', \
-                      '"' + element.get('long_name'              ) + '"') \
-                     )
-       count += 1
-      print(' {:4} variables with priority {}'.format(count, priority))
-     xml_file.write('</cmip7_variables>\n')
-
-
-    # Load the xml file:
-    tree_main = ET.parse(xml_filename_alphabetic_ordered)
-    root_main = tree_main.getroot()
-
-    print()
     xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
@@ -335,7 +310,32 @@ def main():
 
 
     # Load the xml file:
-    tree_main = ET.parse(xml_filename_priority_ordered)
+    tree_main = ET.parse(xml_filename_alphabetic_ordered)
+    root_main = tree_main.getroot()
+
+    print()
+    xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
+    with open(xml_filename_priority_ordered, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}">\n'.format(use_dreq_version, api_version))
+     for priority in ["Core", "High", "Medium", "Low"]:
+      count = 0
+      xpath_expression = './/variable[@priority="' + priority + '"]'
+      for element in root_main.findall(xpath_expression):
+       xml_file.write('  <variable  cmip7_compound_name={:55} physical_parameter_name={:28} cmip6_table={:14} region={:12} priority={:10} long_name={:132}>  </variable>\n'.format( \
+                      '"' + element.get('cmip7_compound_name'    ) + '"', \
+                      '"' + element.get('physical_parameter_name') + '"', \
+                      '"' + element.get('cmip6_table'            ) + '"', \
+                      '"' + element.get('region'                 ) + '"', \
+                      '"' + element.get('priority'               ) + '"', \
+                      '"' + element.get('long_name'              ) + '"') \
+                     )
+       count += 1
+      print(' {:4} variables with priority {}'.format(count, priority))
+     xml_file.write('</cmip7_variables>\n')
+
+
+    # Load the xml file:
+    tree_main = ET.parse(xml_filename_realm_ordered)
     root_main = tree_main.getroot()
 
     print()
