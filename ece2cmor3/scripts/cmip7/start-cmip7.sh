@@ -25,7 +25,7 @@
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
- ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
+ ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
 
  grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                             | wc  # = 1816 occurences
  grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                             | wc  # = 3517 occurences
