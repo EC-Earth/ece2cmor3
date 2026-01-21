@@ -25,13 +25,12 @@
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
- ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all.log
+ ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
 
- grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                | wc # = 1816 times for this sorted experiment list
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                | wc # = 3517 times for this sorted experiment list
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                | wc # = 3517 times for this sorted experiment list
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log | cut -d ' ' -f 7| sort | uniq | wc # =  224 times
-
+ grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                             | wc  # = 1816 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                             | wc  # = 3517 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  224 occurences
+ grep 'Priority adjusted from'        cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   52 occurences
 
  # The searches for establishing the iterate lists for the realm & cmip6_table ordering in the cmip7-request.py script code:
  grep -e cmip7_compound_name cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
