@@ -43,24 +43,18 @@ def parse_args():
     """
     Parse command-line arguments
     """
-
     parser = argparse.ArgumentParser(
         description='Create a list with CMIP7 to CMIP6 mapped CMIP7 requested variables by specifying a list of experiments, and write them to a ascii file.'
     )
-
     # Positional (mandatory) input arguments
     parser.add_argument('dreq_version', choices=dc.get_versions()                              , help="data request version")
-   #parser.add_argument('output_file'                                                          , help='file to write JSON output to')
-
     sep = ','
-
     def parse_input_list(input_str: str, sep=sep) -> list:
         '''Create list of input args separated by separator "sep" (str)'''
         input_args = input_str.split(sep)
         # Guard against leading, trailing, or repeated instances of the separator
         input_args = [s for s in input_args if s not in ['']]
         return input_args
-
     # Optional input arguments
     parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help="respond to all opportunities")
     parser.add_argument('-f', '--opportunities_file', type=str                                 , help="path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
@@ -69,7 +63,6 @@ def parse_args():
     parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
     parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
     parser.add_argument('-r', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
-
     return parser.parse_args()
 
 
@@ -133,6 +126,7 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                     '"' + element.get('long_name'              ) + '"') \
                    )
     return
+
 
 def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group, add_all_attributes):
     if add_all_attributes:
@@ -340,19 +334,16 @@ def main():
         input_dictionary  = expt_vars['experiment']
         sorted_dictionary = dict(sorted(input_dictionary.items()))
         for experiment, priority_groups in OrderedDict(sorted_dictionary).items():
-        #print('{} {}'.format(experiment, priority_groups))
          for priority_group, variable_list in priority_groups.items():
-         #print('\nCMIP7 priority group: {}\n'.format(priority_group))
           print('\nCMIP7 experiment: {}; CMIP7 priority group: {}'.format(experiment, priority_group))
-         #print('{} {}'.format(priority_group, variable_list))
           for compound_var in variable_list:
           #print('{}'.format(compound_var))
           #print('{}\n'.format(var_metadata))
           #print('{}\n'.format(var_metadata[compound_var]))
-         ##for attribute, value in sorted(var_metadata[compound_var].items()):
-         ## print('{:40} {}'.format(attribute, value))
-         ##print('')
-        ###print('MIPS per var: {}'.format(DataRequest.find_mips_per_variable(self=self, variable=compound_var)))
+         # for attribute, value in sorted(var_metadata[compound_var].items()):
+         #  print('{:40} {}'.format(attribute, value))
+         # print('')
+         ##print('MIPS per var: {}'.format(DataRequest.find_mips_per_variable(self=self, variable=compound_var)))
 
            # Write one XML line per variable into a list (this list will be used to write the XML file lateron):
            if compound_var not in var_list:
@@ -372,11 +363,9 @@ def main():
               current_prio_formatted  = '{:10}'.format('"' + current_prio  + '"')
               var_list_for_xml[index] = var_list_for_xml[index].replace('priority=' + previous_prio_formatted, 'priority=' + current_prio_formatted)
               message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {}'.format(previous_prio, current_prio, compound_var))
-             #message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {:55} resulting in: {}'.format(previous_prio, current_prio, compound_var, var_list_for_xml[index]))
-              print(' Warning: Different priorities detected for: {:55} {:10} {:10} adjusted'.format(compound_var, previous_prio,                        current_prio                      ))
+              print(' Warning: Different priorities detected for: {:55} {:10} {:10} adjusted'.format(compound_var, previous_prio, current_prio))
              else:
-              print(' Warning: Different priorities detected for: {:55} {:10} {}'            .format(compound_var, previous_prio,                        current_prio                      ))
-             #print(' Warning: Different priorities detected for: {:55} {:10}={} & {}={}'    .format(compound_var, previous_prio, previous_prio_numeric, current_prio, current_prio_numeric))
+              print(' Warning: Different priorities detected for: {:55} {:10} {}'            .format(compound_var, previous_prio, current_prio))
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
