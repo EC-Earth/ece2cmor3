@@ -310,6 +310,7 @@ def main():
     prio_list                       = []
     var_list_for_xml                = []
     message_list_changed_priorities = []
+    message_list_prio_warnings      = []
 
     # Construct output
     if len(expt_vars['experiment']) > 0:
@@ -335,7 +336,7 @@ def main():
         sorted_dictionary = dict(sorted(input_dictionary.items()))
         for experiment, priority_groups in OrderedDict(sorted_dictionary).items():
          for priority_group, variable_list in priority_groups.items():
-          print('\nCMIP7 experiment: {}; CMIP7 priority group: {}'.format(experiment, priority_group))
+         #print('CMIP7 experiment: {:25}; CMIP7 priority group: {}'.format(experiment, priority_group))
           for compound_var in variable_list:
           #print('{}'.format(compound_var))
           #print('{}\n'.format(var_metadata))
@@ -361,11 +362,12 @@ def main():
              if current_prio_numeric > previous_prio_numeric:
               previous_prio_formatted = '{:10}'.format('"' + previous_prio + '"')
               current_prio_formatted  = '{:10}'.format('"' + current_prio  + '"')
+              # Note that the index update not immediately during the loop is 'see', though the priority update has taken place after the loop has ended:
               var_list_for_xml[index] = var_list_for_xml[index].replace('priority=' + previous_prio_formatted, 'priority=' + current_prio_formatted)
-              message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {}'.format(previous_prio, current_prio, compound_var))
-              print(' Warning: Different priorities detected for: {:55} {:10} {:10} adjusted'.format(compound_var, previous_prio, current_prio))
+              message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {}\n'.format(previous_prio, current_prio, compound_var))
+              message_list_prio_warnings.append(' Warning: Different priorities detected for {:25} {:8} {:55} request: {:10} {:10} adjusted\n'.format(experiment, priority_group, compound_var, previous_prio, current_prio))
              else:
-              print(' Warning: Different priorities detected for: {:55} {:10} {}'            .format(compound_var, previous_prio, current_prio))
+              message_list_prio_warnings.append(' Warning: Different priorities detected for {:25} {:8} {:55} request: {:10} {}\n'            .format(experiment, priority_group, compound_var, previous_prio, current_prio))
 
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
@@ -379,10 +381,20 @@ def main():
       xml_file.write(var)
      xml_file.write('</cmip7_variables>\n')
 
-    if len(message_list_changed_priorities) > 0:
-     print('\n\nOverview of adjusted priorities:')
-     for message in message_list_changed_priorities:
-      print(message)
+    log_filename = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.log')
+    with open(log_filename, 'w') as log_file:
+
+     len_message_list = len(message_list_prio_warnings)
+     if len_message_list > 0:
+      log_file.write('\nOverview of {} prioritiy warnings:\n'.format(len_message_list))
+      for message in message_list_prio_warnings:
+       log_file.write(message)
+
+     len_message_list = len(message_list_changed_priorities)
+     if len_message_list > 0:
+      log_file.write('\nOverview of {} adjusted priorities:\n'.format(len_message_list))
+      for message in message_list_changed_priorities:
+       log_file.write(message)
 
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
