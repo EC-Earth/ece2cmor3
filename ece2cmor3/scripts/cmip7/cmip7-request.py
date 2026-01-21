@@ -134,15 +134,59 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                    )
     return
 
-def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group):
-    varlist.append('  <variable  cmip7_compound_name={:55} priority={:10} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:132}>  </variable>\n'.format( \
-                   '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
-                   '"' + priority_group                                        + '"', \
-                   '"' + var_metadata[compound_var]['region'                 ] + '"', \
-                   '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
-                   '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
-                   '"' + var_metadata[compound_var]['long_name'              ] + '"') \
-                  )
+def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group, add_all_attributes):
+    if add_all_attributes:
+     varlist.append('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' frequency={:15}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' units={:20}' \
+                                ' dimensions={:45}' \
+                                ' long_name={:132}' \
+                                ' standard_name={:160}' \
+                                ' modeling_realm={:33}' \
+                                ' branded_variable_name={:44}' \
+                                ' branding_label={:25}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' temporal_shape={:25}' \
+                                ' spatial_shape={:15}' \
+                                ' cell_measures={:35}' \
+                                ' cell_methods={:140}' \
+                                ' out_name={:28}' \
+                                ' type={:10}' \
+                    ' >   </variable>\n'.format( \
+                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
+                    '"' + priority_group                                        + '"', \
+                    '"' + var_metadata[compound_var]['frequency'              ] + '"', \
+                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
+                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                    '"' + var_metadata[compound_var]['units'                  ] + '"', \
+                    '"' + var_metadata[compound_var]['dimensions'             ] + '"', \
+                    '"' + var_metadata[compound_var]['long_name'              ] + '"', \
+                    '"' + var_metadata[compound_var]['standard_name'          ] + '"', \
+                    '"' + var_metadata[compound_var]['modeling_realm'         ] + '"', \
+                    '"' + var_metadata[compound_var]['branded_variable_name'  ] + '"', \
+                    '"' + var_metadata[compound_var]['branding_label'         ] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_compound_name'    ] + '"', \
+                    '"' + var_metadata[compound_var]['temporal_shape'         ] + '"', \
+                    '"' + var_metadata[compound_var]['spatial_shape'          ] + '"', \
+                    '"' + var_metadata[compound_var]['cell_measures'          ] + '"', \
+                    '"' + var_metadata[compound_var]['cell_methods'           ] + '"', \
+                    '"' + var_metadata[compound_var]['out_name'               ] + '"', \
+                    '"' + var_metadata[compound_var]['type'                   ] + '"') \
+                   )
+    else:
+     varlist.append('  <variable  cmip7_compound_name={:55} priority={:10} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:132}>  </variable>\n'.format( \
+                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
+                    '"' + priority_group                                        + '"', \
+                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
+                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
+                   )
     return
 
 
@@ -314,7 +358,7 @@ def main():
            if compound_var not in var_list:
             var_list.append(compound_var)
             prio_list.append(priority_dict[priority_group])  # same sequence as for var_list
-            append_xml_file_line_for_variable(var_list_for_xml, var_metadata, compound_var, priority_group)
+            append_xml_file_line_for_variable(var_list_for_xml, var_metadata, compound_var, priority_group, add_all_attributes)
            else:
             index = var_list.index(compound_var)
             previous_prio_numeric = prio_list[index]
