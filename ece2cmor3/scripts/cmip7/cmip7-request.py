@@ -398,8 +398,8 @@ def main():
 
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
-    tree_main = ET.parse(xml_filename_alphabetic_ordered)
-    root_main = tree_main.getroot()
+    tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
+    root_alphabetic = tree_alphabetic.getroot()
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm'
     xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
@@ -408,7 +408,7 @@ def main():
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
-      for element in root_main.findall(xpath_expression):
+      for element in root_alphabetic.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
@@ -417,8 +417,8 @@ def main():
 
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    tree_main = ET.parse(xml_filename_realm_ordered)
-    root_main = tree_main.getroot()
+    tree_realm = ET.parse(xml_filename_realm_ordered)
+    root_realm = tree_realm.getroot()
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
     xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
@@ -427,7 +427,7 @@ def main():
      for priority in ["Core", "High", "Medium", "Low"]:
       count = 0
       xpath_expression = './/variable[@priority="' + priority + '"]'
-      for element in root_main.findall(xpath_expression):
+      for element in root_realm.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
       print(' {:4} variables with priority {}'.format(count, priority))
@@ -435,8 +435,8 @@ def main():
 
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
-    tree_main = ET.parse(xml_filename_priority_ordered)
-    root_main = tree_main.getroot()
+    tree_priority = ET.parse(xml_filename_priority_ordered)
+    root_priority = tree_priority.getroot()
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
@@ -445,7 +445,7 @@ def main():
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
-      for element in root_main.findall(xpath_expression):
+      for element in root_priority.findall(xpath_expression):
        if frequency in element.get('cmip7_compound_name'):
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
@@ -454,8 +454,8 @@ def main():
 
 
     # Load the realm ordered XML file and create the cmip6-table ordered XML file:
-    tree_main = ET.parse(xml_filename_realm_ordered)
-    root_main = tree_main.getroot()
+   #tree_realm = ET.parse(xml_filename_realm_ordered)  # loaded before
+   #root_realm = tree_realm.getroot()                  # loaded before
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
     xml_filename_cmip6_table_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'cmip6-table')
@@ -470,7 +470,7 @@ def main():
                        "Odec"]:
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
-      for element in root_main.findall(xpath_expression):
+      for element in root_realm.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
       print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
