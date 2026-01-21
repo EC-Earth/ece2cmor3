@@ -398,9 +398,9 @@ def main():
 
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
+    print()
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
-    print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm'
     xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
     with open(xml_filename_realm_ordered, 'w') as xml_file:
@@ -417,9 +417,9 @@ def main():
 
 
     # Load the realm ordered XML file and create the priority ordered XML file:
+    print()
     tree_realm = ET.parse(xml_filename_realm_ordered)
     root_realm = tree_realm.getroot()
-    print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
     xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
@@ -435,9 +435,9 @@ def main():
 
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
+    print()
     tree_priority = ET.parse(xml_filename_priority_ordered)
     root_priority = tree_priority.getroot()
-    print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
