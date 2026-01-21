@@ -52,30 +52,36 @@ def print_message_list_reorder(message_list):
 
 
 def print_var_info(element):
-    info_string = '{:26} {:12} {:10} {}'          .format(element.get('physical_parameter_name'), \
-                                                        element.get('cmip6_table'              ), \
-                                                        element.get('region'                   ), \
-                                                        element.get('cmip7_compound_name'      ))
+    info_string = '{:55} {:10} {:15} {:10} {:14} {}'.format(element.get('cmip7_compound_name'    ), \
+                                                            element.get('priority'               ), \
+                                                            element.get('frequency'              ), \
+                                                            element.get('region'                 ), \
+                                                            element.get('cmip6_table'            ), \
+                                                            element.get('physical_parameter_name'))
     return info_string
 
 
 def print_var_info_xml(element):
-    info_string = '<variable  physical_parameter_name={:28} cmip6_table={:14} region={:12} cmip7_compound_name={:55} long_name={:122}>   </variable>'.format( \
-     '"' + element.get('physical_parameter_name') + '"', \
-     '"' + element.get('cmip6_table'            ) + '"', \
-     '"' + element.get('region'                 ) + '"', \
+    info_string = '<variable  cmip7_compound_name={:55} priority={:10} frequency={:15} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:122}>   </variable>'.format( \
      '"' + element.get('cmip7_compound_name'    ) + '"', \
+     '"' + element.get('priority'               ) + '"', \
+     '"' + element.get('frequency'              ) + '"', \
+     '"' + element.get('region'                 ) + '"', \
+     '"' + element.get('cmip6_table'            ) + '"', \
+     '"' + element.get('physical_parameter_name') + '"', \
      '"' + element.get('long_name'              ) + '"')
     return info_string
 
 
 def print_var_info_plus_ece3_info(element, element_ece3):
-    info_string = '{:26} {:12} {:10} {:55} {}({})'.format(element.get('physical_parameter_name'), \
-                                                          element.get('cmip6_table'            ), \
-                                                          element.get('region'                 ), \
-                                                          element.get('cmip7_compound_name'    ), \
-                                                          element_ece3.get('model_component'   ), \
-                                                          element_ece3.get('other_component'   ))
+    info_string = '{:55} {:10} {:15} {:10} {:14} {:28} {}({})'.format(element.get('cmip7_compound_name'    ), \
+                                                                      element.get('priority'               ), \
+                                                                      element.get('frequency'              ), \
+                                                                      element.get('region'                 ), \
+                                                                      element.get('cmip6_table'            ), \
+                                                                      element.get('physical_parameter_name'), \
+                                                                      element_ece3.get('model_component'   ), \
+                                                                      element_ece3.get('other_component'   ))
     info_string = info_string.replace('(None)', '')
     # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
    #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
@@ -130,7 +136,7 @@ def main():
 
 
     # Load the xml file:
-    cmip7_variables_xml_filename = 'cmip7-variables-and-metadata-all.xml'
+    cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.3-all-frequency-ordered.xml'
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
