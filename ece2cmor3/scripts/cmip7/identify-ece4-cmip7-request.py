@@ -93,10 +93,17 @@ def main():
 
     add_all_attributes = args.addallattributes
 
-    use_dreq_version = 'v1.2.2.3' # Actually read from xml file attribute
-    api_version      = 'v1.4'     # Actually read from xml file attribute
-    xml_filename_alphabetic_ordered = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
 
+
+    # Read & load the request-overview ECE3-CMIP6 identification:
+    request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
+    tree_request_overview = ET.parse(request_overview_xml_filename)
+    root_request_overview = tree_request_overview.getroot()
+
+
+    use_dreq_version = 'v1.2.2.3' # Actually this should be read from the xml file attribute in the root element cmip7_variables
+    api_version      = 'v1.4'     # Actually this should be read from the xml file attribute in the root element cmip7_variables
+    xml_filename_alphabetic_ordered = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
     print()
@@ -131,7 +138,7 @@ def main():
       for element in root_realm.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
-      print(' {:4} variables with priority {}'.format(count, priority))
+     #print(' {:4} variables with priority {}'.format(count, priority))
      xml_file.write('</cmip7_variables>\n')
 
 
@@ -150,7 +157,7 @@ def main():
        if frequency in element.get('cmip7_compound_name'):
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
-      print(' {:4} variables with frequency {}'.format(count, frequency))
+     #print(' {:4} variables with frequency {}'.format(count, frequency))
      xml_file.write('</cmip7_variables>\n')
 
 
@@ -174,7 +181,7 @@ def main():
       for element in root_realm.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
-      print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
+     #print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
      xml_file.write('</cmip7_variables>\n')
 
 
