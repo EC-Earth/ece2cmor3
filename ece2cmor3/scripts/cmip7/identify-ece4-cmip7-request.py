@@ -87,12 +87,90 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
     return
 
 
+def print_var_info_plus_ece3_info(element, element_ece3):
+    info_string = '{:55} {:10} {:15} {:10} {:14} {:28} {}({})'.format(element.get('cmip7_compound_name'    ), \
+                                                                      element.get('priority'               ), \
+                                                                      element.get('frequency'              ), \
+                                                                      element.get('region'                 ), \
+                                                                      element.get('cmip6_table'            ), \
+                                                                      element.get('physical_parameter_name'), \
+                                                                      element_ece3.get('model_component'   ), \
+                                                                      element_ece3.get('other_component'   ))
+    info_string = info_string.replace('(None)', '')
+    # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
+   #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
+    info_string = info_string.replace('ifs(tm5)', 'ifs(m7)')
+    # Note for no3: tm5(tm5) which looks strange.
+    info_string = info_string.replace('tm5(tm5)', 'nemo(tm5)')  # Adhoc fix (ocnBgchem variable)
+    return info_string
+
+
+def print_message_list(message_list):
+ for message in message_list:
+  print(message)
+ print()
+
+
+def print_message_list_reorder(message_list):
+ # Order the message list on model_component (and preference info).
+ # Note another approach could be to write the XML attribute info per variable (each variable one line), so based on that one can select in a more standard way.
+ message_list_ifs_m7   = []
+ message_list_ifs_lpjg = []
+ message_list_ifs      = []
+ message_list_nemo     = []
+ message_list_lpjg     = []
+ message_list_other    = []
+ for message in message_list:
+  if   'ifs(m7)'   in message.split()[-1]: message_list_ifs_m7  .append(message)
+  elif 'ifs(lpjg)' in message.split()[-1]: message_list_ifs_lpjg.append(message)
+  elif 'ifs'       in message.split()[-1]: message_list_ifs     .append(message)
+  elif 'nemo'      in message.split()[-1]: message_list_nemo    .append(message)
+  elif 'lpjg'      in message.split()[-1]: message_list_lpjg    .append(message)
+  else                                   : message_list_other   .append(message)
+ print_message_list(message_list_ifs_m7  )
+ print_message_list(message_list_ifs_lpjg)
+ print_message_list(message_list_ifs     )
+ print_message_list(message_list_nemo    )
+ print_message_list(message_list_lpjg    )
+ print_message_list(message_list_other   )
+ print()
+
+
+def print_var_info(element):
+    info_string = '{:55} {:10} {:15} {:10} {:14} {}'.format(element.get('cmip7_compound_name'    ), \
+                                                            element.get('priority'               ), \
+                                                            element.get('frequency'              ), \
+                                                            element.get('region'                 ), \
+                                                            element.get('cmip6_table'            ), \
+                                                            element.get('physical_parameter_name'))
+    return info_string
+
+
+def print_var_info_xml(element):
+    info_string = '<variable  cmip7_compound_name={:55} priority={:10} frequency={:15} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:122}>   </variable>'.format( \
+     '"' + element.get('cmip7_compound_name'    ) + '"', \
+     '"' + element.get('priority'               ) + '"', \
+     '"' + element.get('frequency'              ) + '"', \
+     '"' + element.get('region'                 ) + '"', \
+     '"' + element.get('cmip6_table'            ) + '"', \
+     '"' + element.get('physical_parameter_name') + '"', \
+     '"' + element.get('long_name'              ) + '"')
+    return info_string
+
+
 def main():
 
     args = parse_args()
 
     add_all_attributes = args.addallattributes
 
+    # Lists with messages for combined printing per message cathegory afterwards:
+    message_list_of_identified_variables                          = []
+    message_list_of_no_matched_identification                     = []
+
+    # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
+    list_of_identified_variables                                  = []
+    list_of_no_matched_identification                             = []
 
 
     # Read & load the request-overview ECE3-CMIP6 identification:
@@ -118,6 +196,34 @@ def main():
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_alphabetic.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
+
+        var_info     = print_var_info    (element)
+        var_info_xml = print_var_info_xml(element)
+
+        count = 0
+        xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
+        for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+         var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
+
+         count += 1
+         if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
+          if ece3_element.get('cmip6_table') == element.get('cmip6_table') and ece3_element.get('region') == element.get('region'):
+          #print(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
+           list_of_identified_variables.append(element.get('physical_parameter_name'))
+           message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
+          else:
+           pass
+          #print(' {:2} no match for: {}'.format(count, var_info_plus_ece3_info))
+         else:
+          print('ERROR 01')
+        else:
+         # The for-else:
+         if count == 0:
+          list_of_no_matched_identification.append(element.get('physical_parameter_name'))
+         #message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + element.get('long_name') + '"'))
+          message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
+
+
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
       print(' {:4} variables with realm {}'.format(count, realm))
@@ -185,6 +291,7 @@ def main():
      xml_file.write('</cmip7_variables>\n')
 
 
+    print_message_list_reorder(message_list_of_identified_variables)
 
 
 if __name__ == '__main__':
