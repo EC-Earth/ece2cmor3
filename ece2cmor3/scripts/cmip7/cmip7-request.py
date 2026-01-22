@@ -376,7 +376,7 @@ def main():
     applied_order = 'alphabetic (on cmip7_compound_name)'
     xml_filename_alphabetic_ordered = 'cmip7-request-{}{}-alphabetic-ordered.xml'.format(use_dreq_version, experiment_label)
     with open(xml_filename_alphabetic_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for var in sorted(var_list_for_xml):
       xml_file.write(var)
      xml_file.write('</cmip7_variables>\n')
@@ -404,7 +404,7 @@ def main():
     applied_order = 'alphabetic (on cmip7_compound_name), realm'
     xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
     with open(xml_filename_realm_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
@@ -423,7 +423,7 @@ def main():
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
     xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for priority in ["Core", "High", "Medium", "Low"]:
       count = 0
       xpath_expression = './/variable[@priority="' + priority + '"]'
@@ -441,7 +441,7 @@ def main():
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
     xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
@@ -460,7 +460,7 @@ def main():
     applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
     xml_filename_cmip6_table_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'cmip6-table')
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
                        "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
