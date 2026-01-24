@@ -195,6 +195,11 @@ def main():
     api_version      = 'v1.4'     # Actually this should be read from the xml file attribute in the root element cmip7_variables
     xml_filename_alphabetic_ordered = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
 
+    # Predefine the three possible status values:
+    identified     = 'identified'
+    identified_var = 'var identified'
+    unidentified   = 'unidentified'
+
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
     print()
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
@@ -224,7 +229,7 @@ def main():
           #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
-           element.set('status', 'identified')
+           element.set('status', identified)
            element.set('model_component', ece3_element.get('model_component'))
            element.set('other_component', ece3_element.get('other_component'))
            element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
@@ -245,7 +250,7 @@ def main():
           list_of_no_matched_identification.append(element.get('physical_parameter_name'))
          #message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + element.get('long_name') + '"'))
           message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
-          element.set('status', 'unidentified')
+          element.set('status', unidentified)
           element.set('model_component', '??')
           element.set('other_component', '??')
           element.set('ifs_shortname'  , '??')
@@ -253,7 +258,7 @@ def main():
           element.set('expression'     , '??')
          if count_var_match_but_not_full_match != 0:
           if element.get('status') != 'identified':
-           element.set('status', 'var identified')
+           element.set('status', identified_var)
            element.set('model_component', ece3_element.get('model_component'))
            element.set('other_component', ece3_element.get('other_component'))
            element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
@@ -306,6 +311,26 @@ def main():
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
      #print(' {:4} variables with frequency {}'.format(count, frequency))
+     xml_file.write('</cmip7_variables>\n')
+
+
+    # Load the frequency ordered XML file and create the status ordered XML file:
+    print()
+    tree_frequency = ET.parse(xml_filename_frequency_ordered)
+    root_frequency = tree_frequency.getroot()
+    applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency, identification status'
+    xml_filename_status_ordered = xml_filename_realm_ordered.replace('realm', 'status')
+    with open(xml_filename_status_ordered, 'w') as xml_file:
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     for status in [identified, identified_var, unidentified]:
+      count = 0
+     #xpath_expression = './/variable[@status]'
+      xpath_expression = './/variable[@status="' + status + '"]'
+      for element in root_frequency.findall(xpath_expression):
+      #if status in element.get('status'):
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+        count += 1
+     #print(' {:4} variables with status {}'.format(count, status))
      xml_file.write('</cmip7_variables>\n')
 
 
