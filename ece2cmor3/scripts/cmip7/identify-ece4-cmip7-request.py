@@ -29,7 +29,13 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
     if add_all_attributes:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
                                 ' priority={:10}' \
-                                ' frequency={:15}' \
+                                ' status={:20}' \
+                                ' model_component={:10}' \
+                                ' other_component={:8}' \
+                                ' ifs_shortname={:13}' \
+                                ' varname_code={:20}' \
+                                ' expression={:83}' \
+                                ' frequency={:7}' \
                                 ' region={:12}' \
                                 ' cmip6_table={:14}' \
                                 ' physical_parameter_name={:28}' \
@@ -48,26 +54,32 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                                 ' out_name={:28}' \
                                 ' type={:10}' \
                     ' >   </variable>\n'.format( \
-                    '"' + element.get('cmip7_compound_name'    ) + '"', \
-                    '"' + element.get('priority'               ) + '"', \
-                    '"' + element.get('frequency'              ) + '"', \
-                    '"' + element.get('region'                 ) + '"', \
-                    '"' + element.get('cmip6_table'            ) + '"', \
-                    '"' + element.get('physical_parameter_name') + '"', \
-                    '"' + element.get('units'                  ) + '"', \
-                    '"' + element.get('dimensions'             ) + '"', \
-                    '"' + element.get('long_name'              ) + '"', \
-                    '"' + element.get('standard_name'          ) + '"', \
-                    '"' + element.get('modeling_realm'         ) + '"', \
-                    '"' + element.get('branded_variable_name'  ) + '"', \
-                    '"' + element.get('branding_label'         ) + '"', \
-                    '"' + element.get('cmip6_compound_name'    ) + '"', \
-                    '"' + element.get('temporal_shape'         ) + '"', \
-                    '"' + element.get('spatial_shape'          ) + '"', \
-                    '"' + element.get('cell_measures'          ) + '"', \
-                    '"' + element.get('cell_methods'           ) + '"', \
-                    '"' + element.get('out_name'               ) + '"', \
-                    '"' + element.get('type'                   ) + '"') \
+                    '"' + element.get('cmip7_compound_name'    )                                          + '"', \
+                    '"' + element.get('priority'               )                                          + '"', \
+                    '"' + element.get('status'                 )                                          + '"', \
+                    '"' + element.get('model_component'        )                                          + '"', \
+                    '"' + element.get('other_component'        )                                          + '"', \
+                    '"' + element.get('ifs_shortname'          )                                          + '"', \
+                    '"' + element.get('varname_code'           )                                          + '"', \
+                    '"' + element.get('expression'             ).replace('&','&amp;').replace('<','&lt;') + '"', \
+                    '"' + element.get('frequency'              )                                          + '"', \
+                    '"' + element.get('region'                 )                                          + '"', \
+                    '"' + element.get('cmip6_table'            )                                          + '"', \
+                    '"' + element.get('physical_parameter_name')                                          + '"', \
+                    '"' + element.get('units'                  )                                          + '"', \
+                    '"' + element.get('dimensions'             )                                          + '"', \
+                    '"' + element.get('long_name'              )                                          + '"', \
+                    '"' + element.get('standard_name'          )                                          + '"', \
+                    '"' + element.get('modeling_realm'         )                                          + '"', \
+                    '"' + element.get('branded_variable_name'  )                                          + '"', \
+                    '"' + element.get('branding_label'         )                                          + '"', \
+                    '"' + element.get('cmip6_compound_name'    )                                          + '"', \
+                    '"' + element.get('temporal_shape'         )                                          + '"', \
+                    '"' + element.get('spatial_shape'          )                                          + '"', \
+                    '"' + element.get('cell_measures'          )                                          + '"', \
+                    '"' + element.get('cell_methods'           )                                          + '"', \
+                    '"' + element.get('out_name'               )                                          + '"', \
+                    '"' + element.get('type'                   )                                          + '"') \
                    )
     else:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
@@ -200,28 +212,58 @@ def main():
         var_info     = print_var_info    (element)
         var_info_xml = print_var_info_xml(element)
 
-        count = 0
+        count_in_req_overview = 0
+        count_var_match_but_not_full_match = 0
         xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
          var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
 
-         count += 1
+         count_in_req_overview += 1
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table') and ece3_element.get('region') == element.get('region'):
-          #print(' {:2}    match for: {}'.format(count, var_info_plus_ece3_info))
+          #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
+           element.set('status', 'identified')
+           element.set('model_component', ece3_element.get('model_component'))
+           element.set('other_component', ece3_element.get('other_component'))
+           element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
+           element.set('varname_code'   , ece3_element.get('varname_code'   ))
+           if len(ece3_element.get('expression')) > 83:
+            element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
+           else:
+            element.set('expression'     , ece3_element.get('expression'))
           else:
            pass
-          #print(' {:2} no match for: {}'.format(count, var_info_plus_ece3_info))
+           count_var_match_but_not_full_match += 1
+          #print(' {:2} no match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
         else:
          # The for-else:
-         if count == 0:
+         if count_in_req_overview == 0:
           list_of_no_matched_identification.append(element.get('physical_parameter_name'))
          #message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + element.get('long_name') + '"'))
           message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
+          element.set('status', 'unidentified')
+          element.set('model_component', '??')
+          element.set('other_component', '??')
+          element.set('ifs_shortname'  , '??')
+          element.set('varname_code'   , '??')
+          element.set('expression'     , '??')
+         if count_var_match_but_not_full_match != 0:
+          if element.get('status') != 'identified':
+           element.set('status', 'var identified')
+           element.set('model_component', ece3_element.get('model_component'))
+           element.set('other_component', ece3_element.get('other_component'))
+           element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
+           element.set('varname_code'   , ece3_element.get('varname_code'   ))
+           if len(ece3_element.get('expression')) > 83:
+            element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
+           else:
+            element.set('expression'     , ece3_element.get('expression').replace('&','&amp;').replace('<','&lt;'))
+           print(' TEST: {}'.format(print_var_info(element)))
+         # Copying some of the ece3_element attributes:
 
 
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
