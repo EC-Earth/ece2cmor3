@@ -94,8 +94,10 @@
  # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
-# With that we can run:
-./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+ # With that we can run:
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+
+ ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
 
 
  # Create a backup reference of all produced files:
