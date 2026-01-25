@@ -324,19 +324,14 @@ def main():
      xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for status in [identified, identified_var, unidentified]:
       count = 0
-     #xpath_expression = './/variable[@status]'
       xpath_expression = './/variable[@status="' + status + '"]'
       for element in root_frequency.findall(xpath_expression):
-      #if status in element.get('status'):
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
-     #print(' {:4} variables with status {}'.format(count, status))
      xml_file.write('</cmip7_variables>\n')
 
 
-    # Load the realm ordered XML file and create the cmip6-table ordered XML file:
-   #tree_realm = ET.parse(xml_filename_realm_ordered)  # loaded before
-   #root_realm = tree_realm.getroot()                  # loaded before
+    # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
     xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table')
