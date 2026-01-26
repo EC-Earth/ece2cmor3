@@ -202,7 +202,12 @@ def main():
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
-    xml_filename_alphabetic_ordered = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
+    xml_filename_alphabetic_ordered  = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
+    xml_filename_realm_ordered       = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(use_dreq_version)
+    xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority')
+    xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency')
+    xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status')
+    xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table')
 
     # Predefine the three possible status values:
     identified     = 'identified'
@@ -214,7 +219,6 @@ def main():
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm'
-    xml_filename_realm_ordered = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(use_dreq_version)
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, applied_order)
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
@@ -290,7 +294,6 @@ def main():
     tree_realm = ET.parse(xml_filename_realm_ordered)
     root_realm = tree_realm.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
-    xml_filename_priority_ordered = xml_filename_realm_ordered.replace('realm', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, applied_order)
      for priority in ["Core", "High", "Medium", "Low"]:
@@ -308,7 +311,6 @@ def main():
     tree_priority = ET.parse(xml_filename_priority_ordered)
     root_priority = tree_priority.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
-    xml_filename_frequency_ordered = xml_filename_realm_ordered.replace('realm', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, applied_order)
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
@@ -327,7 +329,6 @@ def main():
     tree_frequency = ET.parse(xml_filename_frequency_ordered)
     root_frequency = tree_frequency.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency, identification status'
-    xml_filename_status_ordered = xml_filename_realm_ordered.replace('realm', 'status')
     with open(xml_filename_status_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, applied_order)
      for status in [identified, identified_var, unidentified]:
@@ -342,7 +343,6 @@ def main():
     # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
-    xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table')
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, applied_order)
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
