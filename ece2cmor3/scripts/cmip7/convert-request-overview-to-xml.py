@@ -315,7 +315,7 @@ def main():
        else:
         expression = 'None'
        # Handle the issue with the less than (<) & greater than (>) symbols in th expressions in order to avoid invalid xml code:
-       expression = expression.replace('&','&amp;') # First 
+       expression = expression.replace('&','&amp;')
        expression = expression.replace('<','&lt;')
        expression = expression.replace('>','&gt;')
        comment = comment.replace('&','&amp;')
