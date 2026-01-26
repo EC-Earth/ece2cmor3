@@ -257,7 +257,7 @@ def main():
           element.set('varname_code'   , '??')
           element.set('expression'     , '??')
          if count_var_match_but_not_full_match != 0:
-          if element.get('status') != 'identified':
+          if element.get('status') != identified:
            element.set('status', identified_var)
            element.set('model_component', ece3_element.get('model_component'))
            element.set('other_component', ece3_element.get('other_component'))
@@ -267,8 +267,7 @@ def main():
             element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
            else:
             element.set('expression'     , ece3_element.get('expression').replace('&','&amp;').replace('<','&lt;'))
-           print(' TEST: {}'.format(print_var_info(element)))
-         # Copying some of the ece3_element attributes:
+          #print(' Non full match: {}'.format(print_var_info(element)))
 
 
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
@@ -352,6 +351,19 @@ def main():
      #print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
      xml_file.write('</cmip7_variables>\n')
 
+     # Sepeate files for identifeid, var identified & unidentified. Ordered on model_coponent (or realm in unidentified case), prio, frequency
+
+
+     # Check the CMIP7 units (used here) with the CMIP6 units:
+     # To be implemented
+
+     #cmip7_compound_name="no-cmip7-equivalent-var-.*"
+     xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
+     for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+      if 'no-cmip7-equivalent-var-' in ece3_element.get('cmip7_compound_name'):
+       print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
+       # write XML file for this or compose it with a bash grep
+     print()
 
     print_message_list_reorder(message_list_of_identified_variables)
 
