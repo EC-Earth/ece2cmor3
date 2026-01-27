@@ -345,8 +345,12 @@ def main():
       write_xml_file_root_element_closing(xml_file)
 
 
-    # Load the realm ordered XML file and create the model_component ordered XML file:
+    # Load the identified realm ordered XML file and create the identified model_component ordered XML file:
     reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes)
+
+    # Load the identified model_component ordered XML file and create the identified priority ordered XML file:
+    loading_xml_file = 'cmip7-request-v1.2.2.3-all-identified-model_component-ordered.xml'
+    reorder_xml_file(loading_xml_file       , 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes)
 
     # Load the realm ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes)
