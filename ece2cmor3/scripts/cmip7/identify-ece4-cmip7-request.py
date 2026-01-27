@@ -33,8 +33,32 @@ def write_xml_file_root_element_opening(xml_file, applied_order):
     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
 
 
+def write_xml_file_root_element_opening_2(xml_file, dr_version, api_version, applied_order):
+    xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="alphabetic (on cmip7_compound_name), realm, {}">\n'.format(use_dreq_version, api_version, applied_order))
+
+
 def write_xml_file_root_element_closing(xml_file):
     xml_file.write('</cmip7_variables>\n')
+
+
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes):
+    extension                = '.xml'
+    replacing_extension      = '-' + selected_attribute + '-ordered' + extension
+    xml_created_filename     = xml_loading_filename.replace(extension, replacing_extension)
+    tree = ET.parse(xml_loading_filename)
+    root = tree.getroot()
+    print('\n For {}:'.format(xml_created_filename))
+    with open(xml_created_filename, 'w') as xml_file:
+     write_xml_file_root_element_opening_2(xml_file, use_dreq_version, api_version, selected_attribute)
+     for attribute_value in list_of_attribute_values:
+      count = 0
+      xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
+      for element in root.findall(xpath_expression):
+       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+       count += 1
+      print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
+     write_xml_file_root_element_closing(xml_file)
+
 
 
 def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
@@ -202,17 +226,21 @@ def main():
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
+    # Predefine the three possible status values:
+    identified     = 'identified'
+    identified_var = 'var_identified'
+    unidentified   = 'unidentified'
+
     xml_filename_alphabetic_ordered  = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
     xml_filename_realm_ordered       = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(use_dreq_version)
     xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority')
     xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency')
     xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status')
     xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table')
+    xml_filename_identified          = xml_filename_realm_ordered.replace("realm-ordered-identification", identified    )
+    xml_filename_identified_var      = xml_filename_realm_ordered.replace("realm-ordered-identification", identified_var)
+    xml_filename_unidentified        = xml_filename_realm_ordered.replace("realm-ordered-identification", unidentified  )
 
-    # Predefine the three possible status values:
-    identified     = 'identified'
-    identified_var = 'var_identified'
-    unidentified   = 'unidentified'
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
     print()
@@ -306,9 +334,6 @@ def main():
      write_xml_file_root_element_closing(xml_file)
 
 
-
-
-
     # The realm ordered XML file has been loaded before, write three different XML files per identification status:
     print()
     for status in [identified, identified_var, unidentified]:
@@ -322,6 +347,27 @@ def main():
        count += 1
       print(' The file for {:14} contains {:4} variables.'.format(status, count))
       write_xml_file_root_element_closing(xml_file)
+
+
+    # Load the realm ordered XML file and create the priority ordered XML file:
+    xml_loading_filename     = xml_filename_identified
+    selected_attribute       = 'priority'
+    list_of_attribute_values = ["Core", "High", "Medium", "Low"]
+    reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes)
+
+
+    # Thereafter order on:
+    #  model_coponent (or realm for the unidentified case)
+    #  priority
+    #  frequency
+
+    # print(xml_filename_identified)
+    # print(xml_filename_identified_var)
+    # print(xml_filename_unidentified)
+
+    # For the "identified" and the "var identified ones":
+    #  Check the CMIP7 units (used here) with the CMIP6 units: To be implemented
+
 
 
 
@@ -379,12 +425,6 @@ def main():
      #print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
      write_xml_file_root_element_closing(xml_file)
 
-     # Seperate files for identifeid, var identified & unidentified based on the cmip7-request-v1.2.2.3-all-realm-ordered-identification.xml file.
-     # Thereafter order on model_coponent (or realm for the unidentified case), then on priority, and then on frequency
-
-
-     # For the "identified" and the "var identified ones": Check the CMIP7 units (used here) with the CMIP6 units:
-     # To be implemented
 
      #cmip7_compound_name="no-cmip7-equivalent-var-.*"
      xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
