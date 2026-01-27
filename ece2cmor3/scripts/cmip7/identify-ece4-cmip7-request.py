@@ -388,10 +388,13 @@ def main():
 
      #cmip7_compound_name="no-cmip7-equivalent-var-.*"
      xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
+     count = 0
      for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
       if 'no-cmip7-equivalent-var-' in ece3_element.get('cmip7_compound_name'):
-       print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
-       # write XML file for this or compose it with a bash grep
+       count += 1
+       # An XML file for this has been easily compose with a grep, see: xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7*.xml
+      #print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
+     print(' There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
      print()
 
     print_message_list_reorder(message_list_of_identified_variables)
