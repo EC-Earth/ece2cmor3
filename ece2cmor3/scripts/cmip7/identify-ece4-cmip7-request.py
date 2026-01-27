@@ -47,14 +47,46 @@ def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute
     root = tree.getroot()
     print('\n For {}:'.format(xml_created_filename))
     with open(xml_created_filename, 'w') as xml_file:
-     sequence_label = root.attrib['applied_order_sequence'] + ', ' + selected_attribute
-     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], root.attrib['api_version'], sequence_label)
+     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], \
+                                                   root.attrib['api_version'], \
+                                                   root.attrib['applied_order_sequence'] + ', ' + selected_attribute)
      for attribute_value in list_of_attribute_values:
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
       for element in root.findall(xpath_expression):
        write_xml_file_line_for_variable(xml_file, element)
        count += 1
+      print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
+     write_xml_file_root_element_closing(xml_file)
+
+
+def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
+    extension                = '.xml'
+    replacing_extension      = '-' + selected_attribute + '-ordered' + extension
+    if xml_out == None:
+     xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
+    else:
+     xml_created_filename    = xml_out
+
+    if label == None:
+     order_label             = selected_attribute
+    else:
+     order_label             = label
+
+    tree = ET.parse(xml_loading_filename)
+    root = tree.getroot()
+    print('\n For {}:'.format(xml_created_filename))
+    with open(xml_created_filename, 'w') as xml_file:
+     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], \
+                                                   root.attrib['api_version'], \
+                                                   root.attrib['applied_order_sequence'] + ', ' + order_label)
+     for attribute_value in list_of_attribute_values:
+      count = 0
+      xpath_expression = './/variable[@' + selected_attribute + ']'
+      for element in root.findall(xpath_expression):
+       if attribute_value in element.get(selected_attribute):
+        write_xml_file_line_for_variable(xml_file, element)
+        count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
@@ -341,6 +373,9 @@ def main():
       print(' The file for {:14} contains {:4} variables.'.format(status, count))
       write_xml_file_root_element_closing(xml_file)
 
+#   for status in [identified, identified_var, unidentified]:
+#    reorder_xml_file(xml_filename_realm_ordered, 'status', status, add_all_attributes, xml_filename_realm_ordered.replace("realm-ordered-identification", status))
+
 
     # Load the identified realm ordered XML file and create the identified model_component ordered XML file:
     reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
@@ -367,23 +402,9 @@ def main():
 
 
 
+
     # Load the priority ordered XML file and create the frequency ordered XML file:
-    print()
-    tree_priority = ET.parse(xml_filename_priority_ordered)
-    root_priority = tree_priority.getroot()
-    with open(xml_filename_frequency_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, root_priority.attrib['dr_version'], \
-                                                   root_priority.attrib['api_version'], \
-                                                   root_priority.attrib['applied_order_sequence'] + ', frequency')
-     for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
-      count = 0
-      xpath_expression = './/variable[@cmip7_compound_name]'
-      for element in root_priority.findall(xpath_expression):
-       if frequency in element.get('cmip7_compound_name'):
-        write_xml_file_line_for_variable(xml_file, element)
-        count += 1
-     #print(' {:4} variables with frequency {}'.format(count, frequency))
-     write_xml_file_root_element_closing(xml_file)
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."], add_all_attributes, xml_filename_frequency_ordered, label='frequency')
 
 
     # Load the frequency ordered XML file and create the status ordered XML file:
