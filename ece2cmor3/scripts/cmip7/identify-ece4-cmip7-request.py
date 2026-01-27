@@ -245,7 +245,6 @@ def main():
     print()
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
-    applied_order = 'alphabetic (on cmip7_compound_name), realm'
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, '')
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
@@ -320,7 +319,6 @@ def main():
     print()
     tree_realm = ET.parse(xml_filename_realm_ordered)
     root_realm = tree_realm.getroot()
-    applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
     with open(xml_filename_priority_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority')
      for priority in ["Core", "High", "Medium", "Low"]:
@@ -336,7 +334,6 @@ def main():
     # The realm ordered XML file has been loaded before, write three different XML files per identification status:
     print()
     for status in [identified, identified_var, unidentified]:
-     applied_order = 'alphabetic (on cmip7_compound_name), realm, ' + status
      with open(xml_filename_realm_ordered.replace("realm-ordered-identification", status), 'w') as xml_file:
       write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, status)
       count = 0
@@ -374,7 +371,6 @@ def main():
     print()
     tree_priority = ET.parse(xml_filename_priority_ordered)
     root_priority = tree_priority.getroot()
-    applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority, CMIP7 frequency')
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
@@ -392,7 +388,6 @@ def main():
     print()
     tree_frequency = ET.parse(xml_filename_frequency_ordered)
     root_frequency = tree_frequency.getroot()
-    applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency, identification status'
     with open(xml_filename_status_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority, CMIP7 frequency, identification status')
      for status in [identified, identified_var, unidentified]:
@@ -406,7 +401,6 @@ def main():
 
     # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
     print()
-    applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'cmip6_table')
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
