@@ -211,7 +211,7 @@ def main():
 
     # Predefine the three possible status values:
     identified     = 'identified'
-    identified_var = 'var identified'
+    identified_var = 'var_identified'
     unidentified   = 'unidentified'
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
@@ -304,6 +304,25 @@ def main():
        count += 1
      #print(' {:4} variables with priority {}'.format(count, priority))
      write_xml_file_root_element_closing(xml_file)
+
+
+
+
+
+    # The realm ordered XML file has been loaded before, write three different XML files per identification status:
+    print()
+    for status in [identified, identified_var, unidentified]:
+     applied_order = 'alphabetic (on cmip7_compound_name), realm, ' + status
+     with open(xml_filename_realm_ordered.replace("realm-ordered-identification", status), 'w') as xml_file:
+      write_xml_file_root_element_opening(xml_file, applied_order)
+      count = 0
+      xpath_expression = './/variable[@status="' + status + '"]'
+      for element in root_realm.findall(xpath_expression):
+       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+       count += 1
+      print(' The file for {:14} contains {:4} variables.'.format(status, count))
+      write_xml_file_root_element_closing(xml_file)
+
 
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
