@@ -354,23 +354,36 @@ def main():
      write_xml_file_root_element_closing(xml_file)
 
 
+    # Load the realm ordered XML file and create the cmip6-table ordered XML file:
+    reorder_xml_file(xml_filename_realm_ordered, 'cmip6_table', ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+                                                                 "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                                                                 "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                                                                 "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                                                                 "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                                                                 "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                                                                 "Odec"], add_all_attributes, xml_filename_cmip6_table_ordered)
+
     # Load the realm ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_realm_ordered, 'priority', ["Core", "High", "Medium", "Low"], add_all_attributes, xml_filename_priority_ordered)
 
-
-    # The realm ordered XML file has been loaded before, write three different XML files per identification status:
+    # Load the realm ordered XML file and write three different XML files per identification status:
     for status in [identified, identified_var, unidentified]:
      reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm-ordered-identification", status), status)
 
-
-    # Load the identified realm ordered XML file and create the identified model_component ordered XML file:
+    # Load the identified ordered XML file and create the identified model_component ordered XML file:
     reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
 
     # Load the identified model_component ordered XML file and create the identified priority ordered XML file:
     reorder_xml_file(xml_filename_identified_mc, 'priority'    , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_mc_prio)
 
-    # Load the realm ordered XML file and create the priority ordered XML file:
+    # Load the identified ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_prio)
+
+    # Load the priority ordered XML file and create the frequency ordered XML file:
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."], add_all_attributes, xml_filename_frequency_ordered, label='frequency')
+
+    # Load the frequency ordered XML file and create the status ordered XML file:
+    reorder_xml_file(xml_filename_frequency_ordered, 'status' , [identified, identified_var, unidentified], add_all_attributes, xml_filename_status_ordered)
 
 
     # Thereafter order on:
@@ -386,28 +399,7 @@ def main():
     #  Check the CMIP7 units (used here) with the CMIP6 units: To be implemented
 
 
-
-
-
-    # Load the priority ordered XML file and create the frequency ordered XML file:
-    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."], add_all_attributes, xml_filename_frequency_ordered, label='frequency')
-
-
-    # Load the frequency ordered XML file and create the status ordered XML file:
-    reorder_xml_file(xml_filename_frequency_ordered, 'status' , [identified, identified_var, unidentified], add_all_attributes, xml_filename_status_ordered)
-
-
-    # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered, 'cmip6_table', ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
-                                                                 "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
-                                                                 "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
-                                                                 "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-                                                                 "Eyr", "Oyr", "IyrAnt", "IyrGre", \
-                                                                 "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
-                                                                 "Odec"], add_all_attributes, xml_filename_cmip6_table_ordered)
-
-
-    #cmip7_compound_name="no-cmip7-equivalent-var-.*"
+    # Loop over the ECE3 - CMIP6 identified variables which are not requested by CMIP7 (i.e. these variable - frequency combinations are not requested by CMIP7):
     xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
     count = 0
     for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
@@ -415,7 +407,7 @@ def main():
       count += 1
       # An XML file for this has been easily compose with a grep, see: xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7*.xml
      #print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
-    print(' There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
+    print('\n There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
     print()
 
     print_message_list_reorder(message_list_of_identified_variables)
