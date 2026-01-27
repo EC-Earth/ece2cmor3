@@ -36,20 +36,24 @@ def write_xml_file_root_element_closing(xml_file):
     xml_file.write('</cmip7_variables>\n')
 
 
-def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None):
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
     if xml_out == None:
      xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
     else:
      xml_created_filename    = xml_out
+    if label == None:
+     order_label             = selected_attribute
+    else:
+     order_label             = label
     tree = ET.parse(xml_loading_filename)
     root = tree.getroot()
     print('\n For {}:'.format(xml_created_filename))
     with open(xml_created_filename, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], \
                                                    root.attrib['api_version'], \
-                                                   root.attrib['applied_order_sequence'] + ', ' + selected_attribute)
+                                                   root.attrib['applied_order_sequence'] + ', ' + order_label)
      for attribute_value in list_of_attribute_values:
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
@@ -67,12 +71,10 @@ def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribu
      xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
     else:
      xml_created_filename    = xml_out
-
     if label == None:
      order_label             = selected_attribute
     else:
      order_label             = label
-
     tree = ET.parse(xml_loading_filename)
     root = tree.getroot()
     print('\n For {}:'.format(xml_created_filename))
