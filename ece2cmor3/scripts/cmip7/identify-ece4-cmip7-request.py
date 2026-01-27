@@ -240,6 +240,10 @@ def main():
     xml_filename_identified_var      = xml_filename_realm_ordered.replace("realm-ordered-identification", identified_var)
     xml_filename_unidentified        = xml_filename_realm_ordered.replace("realm-ordered-identification", unidentified  )
 
+    xml_filename_identified_mc       = xml_filename_identified.replace(identified, identified + "-mc"     )
+    xml_filename_identified_mc_prio  = xml_filename_identified.replace(identified, identified + "-mc-prio")
+    xml_filename_identified_prio     = xml_filename_identified.replace(identified, identified + "-prio"   )
+
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
     print()
@@ -289,7 +293,6 @@ def main():
          # The for-else:
          if count_in_req_overview == 0:
           list_of_no_matched_identification.append(element.get('physical_parameter_name'))
-         #message_list_of_no_matched_identification.append(' No identification for: {:105} long_name={}'.format(var_info, '"' + element.get('long_name') + '"'))
           message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
           element.set('status', unidentified)
           element.set('model_component', '??')
@@ -340,14 +343,13 @@ def main():
 
 
     # Load the identified realm ordered XML file and create the identified model_component ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes)
+    reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
 
     # Load the identified model_component ordered XML file and create the identified priority ordered XML file:
-    loading_xml_file = 'cmip7-request-v1.2.2.3-all-identified-model_component-ordered.xml'
-    reorder_xml_file(loading_xml_file       , 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes)
+    reorder_xml_file(xml_filename_identified_mc, 'priority'    , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_mc_prio)
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes)
+    reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_prio)
 
 
     # Thereafter order on:
