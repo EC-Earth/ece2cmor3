@@ -345,11 +345,11 @@ def main():
       write_xml_file_root_element_closing(xml_file)
 
 
+    # Load the realm ordered XML file and create the model_component ordered XML file:
+    reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes)
+
     # Load the realm ordered XML file and create the priority ordered XML file:
-    xml_loading_filename     = xml_filename_identified
-    selected_attribute       = 'priority'
-    list_of_attribute_values = ["Core", "High", "Medium", "Low"]
-    reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes)
+    reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes)
 
 
     # Thereafter order on:
