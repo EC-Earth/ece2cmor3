@@ -13,7 +13,6 @@ import xml.etree.ElementTree as ET
 
 
 use_dreq_version = 'v1.2.2.3' # Actually this should be read from the xml file attribute in the root element cmip7_variables
-api_version      = 'v1.4'     # Actually this should be read from the xml file attribute in the root element cmip7_variables
 
 
 def parse_args():
@@ -30,25 +29,26 @@ def parse_args():
 
 
 def write_xml_file_root_element_opening(xml_file, dr_version, api_version, applied_order):
-    if applied_order == '':
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="alphabetic (on cmip7_compound_name), realm">\n'    .format(use_dreq_version, api_version))
-    else:
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="alphabetic (on cmip7_compound_name), realm, {}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
 
 
 def write_xml_file_root_element_closing(xml_file):
     xml_file.write('</cmip7_variables>\n')
 
 
-def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes):
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
-    xml_created_filename     = xml_loading_filename.replace(extension, replacing_extension)
+    if xml_out == None:
+     xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
+    else:
+     xml_created_filename    = xml_out
     tree = ET.parse(xml_loading_filename)
     root = tree.getroot()
     print('\n For {}:'.format(xml_created_filename))
     with open(xml_created_filename, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, selected_attribute)
+     sequence_label = root.attrib['applied_order_sequence'] + ', ' + selected_attribute
+     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], root.attrib['api_version'], sequence_label)
      for attribute_value in list_of_attribute_values:
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
@@ -246,7 +246,9 @@ def main():
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
     with open(xml_filename_realm_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, '')
+     write_xml_file_root_element_opening(xml_file, root_alphabetic.attrib['dr_version'], \
+                                                   root_alphabetic.attrib['api_version'], \
+                                                   root_alphabetic.attrib['applied_order_sequence'] + ', realm')
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
@@ -316,26 +318,18 @@ def main():
 
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    print()
-    tree_realm = ET.parse(xml_filename_realm_ordered)
-    root_realm = tree_realm.getroot()
-    with open(xml_filename_priority_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority')
-     for priority in ["Core", "High", "Medium", "Low"]:
-      count = 0
-      xpath_expression = './/variable[@priority="' + priority + '"]'
-      for element in root_realm.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
-       count += 1
-     #print(' {:4} variables with priority {}'.format(count, priority))
-     write_xml_file_root_element_closing(xml_file)
+    reorder_xml_file(xml_filename_realm_ordered, 'priority', ["Core", "High", "Medium", "Low"], add_all_attributes, xml_filename_priority_ordered)
 
 
     # The realm ordered XML file has been loaded before, write three different XML files per identification status:
     print()
+    tree_realm = ET.parse(xml_filename_realm_ordered)
+    root_realm = tree_realm.getroot()
     for status in [identified, identified_var, unidentified]:
      with open(xml_filename_realm_ordered.replace("realm-ordered-identification", status), 'w') as xml_file:
-      write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, status)
+      write_xml_file_root_element_opening(xml_file, root_realm.attrib['dr_version'], \
+                                                    root_realm.attrib['api_version'], \
+                                                    root_realm.attrib['applied_order_sequence'] + ', ' + status)
       count = 0
       xpath_expression = './/variable[@status="' + status + '"]'
       for element in root_realm.findall(xpath_expression):
@@ -376,7 +370,9 @@ def main():
     tree_priority = ET.parse(xml_filename_priority_ordered)
     root_priority = tree_priority.getroot()
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority, CMIP7 frequency')
+     write_xml_file_root_element_opening(xml_file, root_priority.attrib['dr_version'], \
+                                                   root_priority.attrib['api_version'], \
+                                                   root_priority.attrib['applied_order_sequence'] + ', frequency')
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
       count = 0
       xpath_expression = './/variable[@cmip7_compound_name]'
@@ -389,24 +385,15 @@ def main():
 
 
     # Load the frequency ordered XML file and create the status ordered XML file:
-    print()
-    tree_frequency = ET.parse(xml_filename_frequency_ordered)
-    root_frequency = tree_frequency.getroot()
-    with open(xml_filename_status_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'priority, CMIP7 frequency, identification status')
-     for status in [identified, identified_var, unidentified]:
-      count = 0
-      xpath_expression = './/variable[@status="' + status + '"]'
-      for element in root_frequency.findall(xpath_expression):
-        write_xml_file_line_for_variable(xml_file, element)
-        count += 1
-     write_xml_file_root_element_closing(xml_file)
+    reorder_xml_file(xml_filename_frequency_ordered, 'status' , [identified, identified_var, unidentified], add_all_attributes, xml_filename_status_ordered)
 
 
     # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
     print()
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, use_dreq_version, api_version, 'cmip6_table')
+     write_xml_file_root_element_opening(xml_file, root_realm.attrib['dr_version'], \
+                                                   root_realm.attrib['api_version'], \
+                                                   root_realm.attrib['applied_order_sequence'] + ', cmip6_table')
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
                        "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
