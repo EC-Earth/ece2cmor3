@@ -391,37 +391,25 @@ def main():
 
 
     # The realm ordered XML file has been loaded before, create the cmip6-table ordered XML file:
+    reorder_xml_file(xml_filename_realm_ordered, 'cmip6_table', ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+                                                                 "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                                                                 "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                                                                 "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                                                                 "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                                                                 "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                                                                 "Odec"], add_all_attributes, xml_filename_cmip6_table_ordered)
+
+
+    #cmip7_compound_name="no-cmip7-equivalent-var-.*"
+    xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
+    count = 0
+    for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+     if 'no-cmip7-equivalent-var-' in ece3_element.get('cmip7_compound_name'):
+      count += 1
+      # An XML file for this has been easily compose with a grep, see: xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7*.xml
+     #print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
+    print(' There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
     print()
-    with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
-     write_xml_file_root_element_opening(xml_file, root_realm.attrib['dr_version'], \
-                                                   root_realm.attrib['api_version'], \
-                                                   root_realm.attrib['applied_order_sequence'] + ', cmip6_table')
-     for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
-                       "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
-                       "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
-                       "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-                       "Eyr", "Oyr", "IyrAnt", "IyrGre", \
-                       "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
-                       "Odec"]:
-      count = 0
-      xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
-      for element in root_realm.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
-       count += 1
-     #print(' {:4} variables with cmip6_table {}'.format(count, cmip6_table))
-     write_xml_file_root_element_closing(xml_file)
-
-
-     #cmip7_compound_name="no-cmip7-equivalent-var-.*"
-     xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
-     count = 0
-     for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
-      if 'no-cmip7-equivalent-var-' in ece3_element.get('cmip7_compound_name'):
-       count += 1
-       # An XML file for this has been easily compose with a grep, see: xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7*.xml
-      #print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
-     print(' There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
-     print()
 
     print_message_list_reorder(message_list_of_identified_variables)
 
