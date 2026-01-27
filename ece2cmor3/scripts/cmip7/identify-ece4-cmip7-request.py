@@ -359,24 +359,8 @@ def main():
 
 
     # The realm ordered XML file has been loaded before, write three different XML files per identification status:
-    print()
-    tree_realm = ET.parse(xml_filename_realm_ordered)
-    root_realm = tree_realm.getroot()
     for status in [identified, identified_var, unidentified]:
-     with open(xml_filename_realm_ordered.replace("realm-ordered-identification", status), 'w') as xml_file:
-      write_xml_file_root_element_opening(xml_file, root_realm.attrib['dr_version'], \
-                                                    root_realm.attrib['api_version'], \
-                                                    root_realm.attrib['applied_order_sequence'] + ', ' + status)
-      count = 0
-      xpath_expression = './/variable[@status="' + status + '"]'
-      for element in root_realm.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
-       count += 1
-      print(' The file for {:14} contains {:4} variables.'.format(status, count))
-      write_xml_file_root_element_closing(xml_file)
-
-#   for status in [identified, identified_var, unidentified]:
-#    reorder_xml_file(xml_filename_realm_ordered, 'status', status, add_all_attributes, xml_filename_realm_ordered.replace("realm-ordered-identification", status))
+     reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm-ordered-identification", status), status)
 
 
     # Load the identified realm ordered XML file and create the identified model_component ordered XML file:
