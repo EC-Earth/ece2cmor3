@@ -80,16 +80,20 @@
  echo "  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml "
 
  # From the request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml easily the file with the 238 ECE3 CMIP6 table-variable combinations can be extracted which are
- # not requested by the CMIP7 (prio=high) request. The file is sorted on ECE3 model component:
- echo '<cmip6_variables>'                                                                                                               > list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="ifs"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="nemo"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="lpjg"'    >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="tm5"'     >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="co2box"'  >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- echo '</cmip6_variables>'                                                                                                             >> list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
- sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           list_of_ece3_cmip6_identified_variables_not_in_cmip7.xml
+ # not requested by the CMIP7 request:
+ grep -e cmip6_variables -e no-cmip7-equivalent-var- request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml                       > xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ # The same, but the file is sorted on ECE3 model component:
+ echo '<cmip6_variables>'                                                                                                               > xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="ifs"'     >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="nemo"'    >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="lpjg"'    >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="tm5"'     >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ grep -e 'no-cmip7-equivalent-var-' request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="co2box"'  >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ echo '</cmip6_variables>'                                                                                                             >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'        xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                           xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  # Note that \s\{3,\} matches a pattern which will substitute every sequence of at least 3 whitespaces.
  # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
@@ -98,6 +102,10 @@
  ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
+
+
+ # Create a backup reference of all identify-ece4-cmip7-request.py created files:
+ rsync -a cmip7-request-v1.2.2.3-all-*identifi*.xml identify-ece4-cmip7-request.log  bup/identification/v05/
 
 
  # Create a backup reference of all produced files:
