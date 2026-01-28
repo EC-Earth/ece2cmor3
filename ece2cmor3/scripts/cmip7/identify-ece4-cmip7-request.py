@@ -272,7 +272,7 @@ def main():
     root_alphabetic = tree_alphabetic.getroot()
     dr_version      = root_alphabetic.attrib['dr_version']
 
-    include_additional_xml_output = True
+    include_additional_xml_output = False
 
     xml_filename_realm_ordered                = 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
     xml_filename_priority_ordered             = xml_filename_realm_ordered.replace ('realm', 'priority'    )
@@ -463,10 +463,6 @@ def main():
      reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
 
 
-
-
-    # Thereafter order on:
-    #  frequency
 
     # For the "identified" and the "var identified ones":
     #  Check the CMIP7 units (used here) with the CMIP6 units: To be implemented
