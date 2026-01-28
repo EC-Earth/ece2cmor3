@@ -388,7 +388,7 @@ def main():
     reorder_xml_file_2(xml_filename_unidentified, 'cmip7_compound_name', ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."], add_all_attributes, xml_filename_unidentified_realm, label='realm')
 
     # Load the unidentified model_component ordered XML file and create the identified priority ordered XML file:
-    reorder_xml_file(xml_filename_unidentified_realm, 'priority'    , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_realm_prio)
+    reorder_xml_file(xml_filename_unidentified_realm, 'priority' , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_realm_prio)
 
     # Load the unidentified ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_unidentified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_prio)
@@ -405,10 +405,6 @@ def main():
     #  model_coponent (or realm for the unidentified case)
     #  priority
     #  frequency
-
-    # print(xml_filename_identified)
-    # print(xml_filename_identified_var)
-    # print(xml_filename_unidentified)
 
     # For the "identified" and the "var identified ones":
     #  Check the CMIP7 units (used here) with the CMIP6 units: To be implemented
