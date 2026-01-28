@@ -405,22 +405,32 @@ def main():
      reorder_xml_file(xml_filename_realm_ordered, 'status'                 , [status]                        , add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
 
 
-    # 1. Load the identified                 ordered XML file and create the identified model_component          ordered XML file.
-    # 2. Load the identified model_component ordered XML file and create the identified model_component priority ordered XML file.
-    reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_mc)
-    reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_mc_prio)
+    if True:
+     # 1. Load the identified                 ordered XML file and create the identified model_component          ordered XML file.
+     # 2. Load the identified model_component ordered XML file and create the identified model_component priority ordered XML file.
+     reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_mc)
+     reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_mc_prio)
 
-    # 1. Load the identified ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_prio)
+     # 1. Load the identified ordered XML file and create the priority ordered XML file:
+     reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_prio)
 
 
-    # 1. Load the identified_var                 ordered XML file and create the identified_var model_component          ordered XML file.
-    # 2. Load the identified_var model_component ordered XML file and create the identified_var model_component priority ordered XML file.
-    reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_var_mc)
-    reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_mc_prio)
+     # 1. Load the identified_var                 ordered XML file and create the identified_var model_component          ordered XML file.
+     # 2. Load the identified_var model_component ordered XML file and create the identified_var model_component priority ordered XML file.
+     reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_var_mc)
+     reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_mc_prio)
 
-    # 1. Load the identified_var ordered XML file and create the priority ordered XML file.
-    reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_prio)
+     # 1. Load the identified_var ordered XML file and create the priority ordered XML file.
+     reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_prio)
+
+
+     # 1. Load the unidentified       ordered XML file and create the unidentified realm          ordered XML file.
+     # 2. Load the unidentified realm ordered XML file and create the unidentified realm priority ordered XML file.
+     reorder_xml_file_2(xml_filename_unidentified      , 'cmip7_compound_name', value_list_with_realms        , add_all_attributes, xml_filename_unidentified_realm, label='realm')
+     reorder_xml_file  (xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities    , add_all_attributes, xml_filename_unidentified_realm_prio)
+
+     # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
+     reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
 
 
     # 1. Load the unidentified                 ordered XML file and create the unidentified frequency                ordered XML file.
@@ -431,14 +441,6 @@ def main():
     reorder_xml_file  (xml_filename_unidentified_freq_realm, 'priority'           , value_list_with_priorities , add_all_attributes, xml_filename_unidentified_freq_realm_prio)
 
 
-
-    # 1. Load the unidentified       ordered XML file and create the unidentified realm          ordered XML file.
-    # 2. Load the unidentified realm ordered XML file and create the unidentified realm priority ordered XML file.
-    reorder_xml_file_2(xml_filename_unidentified      , 'cmip7_compound_name', value_list_with_realms        , add_all_attributes, xml_filename_unidentified_realm, label='realm')
-    reorder_xml_file  (xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities    , add_all_attributes, xml_filename_unidentified_realm_prio)
-
-    # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
 
 
     # Thereafter order on:
