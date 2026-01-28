@@ -268,20 +268,21 @@ def main():
     root_alphabetic = tree_alphabetic.getroot()
     dr_version      = root_alphabetic.attrib['dr_version']
 
-    xml_filename_realm_ordered       = 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
-    xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority'    )
-    xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency'   )
-    xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status'      )
-    xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table' )
-    xml_filename_identified          = xml_filename_realm_ordered.replace("realm", identified    )
-    xml_filename_identified_var      = xml_filename_realm_ordered.replace("realm", identified_var)
-    xml_filename_unidentified        = xml_filename_realm_ordered.replace("realm", unidentified  )
+    xml_filename_realm_ordered           = 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
+    xml_filename_priority_ordered        = xml_filename_realm_ordered.replace('realm', 'priority'    )
+    xml_filename_frequency_ordered       = xml_filename_realm_ordered.replace('realm', 'frequency'   )
+    xml_filename_status_ordered          = xml_filename_realm_ordered.replace('realm', 'status'      )
+    xml_filename_cmip6_table_ordered     = xml_filename_realm_ordered.replace('realm', 'cmip6-table' )
+    xml_filename_identified              = xml_filename_realm_ordered.replace("realm", identified    )
+    xml_filename_identified_var          = xml_filename_realm_ordered.replace("realm", identified_var)
+    xml_filename_unidentified            = xml_filename_realm_ordered.replace("realm", unidentified  )
 
-    xml_filename_identified_mc       = xml_filename_identified.replace(identified, identified + "-mc"     )
-    xml_filename_identified_mc_prio  = xml_filename_identified.replace(identified, identified + "-mc-prio")
-    xml_filename_identified_prio     = xml_filename_identified.replace(identified, identified + "-prio"   )
-
-
+    xml_filename_identified_mc           = xml_filename_identified.replace  (identified  , identified   + "-mc"     )
+    xml_filename_identified_mc_prio      = xml_filename_identified.replace  (identified  , identified   + "-mc-prio")
+    xml_filename_identified_prio         = xml_filename_identified.replace  (identified  , identified   + "-prio"   )
+    xml_filename_unidentified_realm      = xml_filename_unidentified.replace(unidentified, unidentified + "-realm"     )
+    xml_filename_unidentified_realm_prio = xml_filename_unidentified.replace(unidentified, unidentified + "-realm-prio")
+    xml_filename_unidentified_prio       = xml_filename_unidentified.replace(unidentified, unidentified + "-prio"      )
 
 
     print()
@@ -372,14 +373,26 @@ def main():
     for status in [identified, identified_var, unidentified]:
      reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
 
+
     # Load the identified ordered XML file and create the identified model_component ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
+    reorder_xml_file(xml_filename_identified, 'model_component'  , ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
 
     # Load the identified model_component ordered XML file and create the identified priority ordered XML file:
-    reorder_xml_file(xml_filename_identified_mc, 'priority'    , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_mc_prio)
+    reorder_xml_file(xml_filename_identified_mc, 'priority'      , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_mc_prio)
 
     # Load the identified ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_prio)
+    reorder_xml_file(xml_filename_identified, 'priority'         , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_prio)
+
+
+    # Load the unidentified ordered XML file and create the identified model_component ordered XML file:
+    reorder_xml_file_2(xml_filename_unidentified, 'cmip7_compound_name', ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."], add_all_attributes, xml_filename_unidentified_realm, label='realm')
+
+    # Load the unidentified model_component ordered XML file and create the identified priority ordered XML file:
+    reorder_xml_file(xml_filename_unidentified_realm, 'priority'    , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_realm_prio)
+
+    # Load the unidentified ordered XML file and create the priority ordered XML file:
+    reorder_xml_file(xml_filename_unidentified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_prio)
+
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
     reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."], add_all_attributes, xml_filename_frequency_ordered, label='frequency')
