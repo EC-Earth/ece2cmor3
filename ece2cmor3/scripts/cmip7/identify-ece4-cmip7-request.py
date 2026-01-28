@@ -277,12 +277,15 @@ def main():
     xml_filename_identified_var          = xml_filename_realm_ordered.replace("realm", identified_var)
     xml_filename_unidentified            = xml_filename_realm_ordered.replace("realm", unidentified  )
 
-    xml_filename_identified_mc           = xml_filename_identified.replace  (identified  , identified   + "-mc"     )
-    xml_filename_identified_mc_prio      = xml_filename_identified.replace  (identified  , identified   + "-mc-prio")
-    xml_filename_identified_prio         = xml_filename_identified.replace  (identified  , identified   + "-prio"   )
-    xml_filename_unidentified_realm      = xml_filename_unidentified.replace(unidentified, unidentified + "-realm"     )
-    xml_filename_unidentified_realm_prio = xml_filename_unidentified.replace(unidentified, unidentified + "-realm-prio")
-    xml_filename_unidentified_prio       = xml_filename_unidentified.replace(unidentified, unidentified + "-prio"      )
+    xml_filename_identified_mc           = xml_filename_identified.replace    (identified  , identified   + "-mc"     )
+    xml_filename_identified_mc_prio      = xml_filename_identified.replace    (identified  , identified   + "-mc-prio")
+    xml_filename_identified_prio         = xml_filename_identified.replace    (identified  , identified   + "-prio"   )
+    xml_filename_identified_var_mc       = xml_filename_identified_var.replace(identified_var  , identified_var   + "-mc"     )
+    xml_filename_identified_var_mc_prio  = xml_filename_identified_var.replace(identified_var  , identified_var   + "-mc-prio")
+    xml_filename_identified_var_prio     = xml_filename_identified_var.replace(identified_var  , identified_var   + "-prio"   )
+    xml_filename_unidentified_realm      = xml_filename_unidentified.replace  (unidentified, unidentified + "-realm"     )
+    xml_filename_unidentified_realm_prio = xml_filename_unidentified.replace  (unidentified, unidentified + "-realm-prio")
+    xml_filename_unidentified_prio       = xml_filename_unidentified.replace  (unidentified, unidentified + "-prio"      )
 
 
     print()
@@ -390,6 +393,16 @@ def main():
 
     # Load the identified ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_prio)
+
+
+    # Load the identified_var ordered XML file and create the identified_var model_component ordered XML file:
+    reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_var_mc)
+
+    # Load the identified_var model_component ordered XML file and create the identified_var priority ordered XML file:
+    reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_mc_prio)
+
+    # Load the identified_var ordered XML file and create the priority ordered XML file:
+    reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_prio)
 
 
     # Load the unidentified ordered XML file and create the identified model_component ordered XML file:
