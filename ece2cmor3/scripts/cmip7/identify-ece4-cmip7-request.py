@@ -291,6 +291,10 @@ def main():
     xml_filename_unidentified_realm_prio = xml_filename_unidentified.replace  (unidentified, unidentified + "-realm-prio")
     xml_filename_unidentified_prio       = xml_filename_unidentified.replace  (unidentified, unidentified + "-prio"      )
 
+    xml_filename_identified_freq              = xml_filename_identified.replace    (identified    , identified     + "-freq"        )
+    xml_filename_identified_freq_mc           = xml_filename_identified.replace    (identified    , identified     + "-freq-mc"     )
+    xml_filename_identified_freq_mc_prio      = xml_filename_identified.replace    (identified    , identified     + "-freq-mc-prio")
+
     xml_filename_identified_var_freq          = xml_filename_identified_var.replace(identified_var, identified_var + "-freq"        )
     xml_filename_identified_var_freq_mc       = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc"     )
     xml_filename_identified_var_freq_mc_prio  = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc-prio")
@@ -435,6 +439,13 @@ def main():
      # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
      reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
 
+
+    # 1. Load the identified                           ordered XML file and create the identified frequency                          ordered XML file.
+    # 2. Load the identified frequency                 ordered XML file and create the identified frequency model_component          ordered XML file.
+    # 3. Load the identified frequency model_component ordered XML file and create the identified frequency model_component priority ordered XML file.
+    reorder_xml_file_2(xml_filename_identified        , 'cmip7_compound_name', value_list_with_frequencies     , add_all_attributes, xml_filename_identified_freq        , label='frequency')
+    reorder_xml_file  (xml_filename_identified_freq   , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_freq_mc     )
+    reorder_xml_file  (xml_filename_identified_freq_mc, 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_freq_mc_prio)
 
     # 1. Load the identified_var                           ordered XML file and create the identified_var frequency                          ordered XML file.
     # 2. Load the identified_var frequency                 ordered XML file and create the identified_var frequency model_component          ordered XML file.
