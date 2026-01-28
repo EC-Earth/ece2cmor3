@@ -12,9 +12,6 @@ import argparse
 import xml.etree.ElementTree as ET
 
 
-use_dreq_version = 'v1.2.2.3' # Actually this should be read from the xml file attribute in the root element cmip7_variables
-
-
 def parse_args():
     """
     Parse command-line arguments
@@ -29,7 +26,7 @@ def parse_args():
 
 
 def write_xml_file_root_element_opening(xml_file, dr_version, api_version, applied_order):
-     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(dr_version, api_version, applied_order))
 
 
 def write_xml_file_root_element_closing(xml_file):
@@ -264,8 +261,14 @@ def main():
     identified_var = 'var_identified'
     unidentified   = 'unidentified'
 
-    xml_filename_alphabetic_ordered  = 'cmip7-request-{}-all-alphabetic-ordered.xml'.format(use_dreq_version)
-    xml_filename_realm_ordered       = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(use_dreq_version)
+    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'
+
+    # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
+    tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
+    root_alphabetic = tree_alphabetic.getroot()
+    dr_version      = root_alphabetic.attrib['dr_version']
+
+    xml_filename_realm_ordered       = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(dr_version)
     xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority')
     xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency')
     xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status')
@@ -279,10 +282,9 @@ def main():
     xml_filename_identified_prio     = xml_filename_identified.replace(identified, identified + "-prio"   )
 
 
-    # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
+
+
     print()
-    tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
-    root_alphabetic = tree_alphabetic.getroot()
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      write_xml_file_root_element_opening(xml_file, root_alphabetic.attrib['dr_version'], \
                                                    root_alphabetic.attrib['api_version'], \
