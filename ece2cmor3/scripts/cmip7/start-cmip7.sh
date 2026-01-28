@@ -101,11 +101,18 @@
  # With that we can run:
  ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
+ # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
+ # ordered in a way to allow convenient working on these lists:
  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
+
+ # Archive the most important, best ordered XML files:
+ rsync -a cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml      xml-files/
+ rsync -a cmip7-request-v1.2.2.3-all-full-var_identified-freq-mc-prio.xml  xml-files/
+ rsync -a cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml xml-files/
 
 
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
- rsync -a cmip7-request-v1.2.2.3-all-*identifi*.xml identify-ece4-cmip7-request.log  bup/identification/v05/
+ rsync -a cmip7-request-v1.2.2.3-all-full*.xml identify-ece4-cmip7-request.log  bup/identification/v27
 
 
  # Create a backup reference of all produced files:
