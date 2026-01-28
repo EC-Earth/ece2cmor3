@@ -357,48 +357,56 @@ def main():
      write_xml_file_root_element_closing(xml_file)
 
 
+    value_list_with_priorities       = ["Core", "High", "Medium", "Low"]
+    value_list_with_cmip6_tables     = ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+                                        "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                                        "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                                        "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                                        "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                                        "Odec"]
+    value_list_with_realms           = ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]
+    value_list_with_model_components = ["ifs", "tm5", "nemo", "lpjg", "co2box"]
+    value_list_with_status           = [identified, identified_var, unidentified]
+    value_list_with_frequencies      = [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]
+
+
     # Load the realm ordered XML file and create the cmip6-table ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered, 'cmip6_table', ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
-                                                                 "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
-                                                                 "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
-                                                                 "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-                                                                 "Eyr", "Oyr", "IyrAnt", "IyrGre", \
-                                                                 "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
-                                                                 "Odec"], add_all_attributes, xml_filename_cmip6_table_ordered)
+    reorder_xml_file(xml_filename_realm_ordered , 'cmip6_table'            , value_list_with_cmip6_tables    , add_all_attributes, xml_filename_cmip6_table_ordered)
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered, 'priority', ["Core", "High", "Medium", "Low"], add_all_attributes, xml_filename_priority_ordered)
+    reorder_xml_file(xml_filename_realm_ordered , 'priority'               , value_list_with_priorities      , add_all_attributes, xml_filename_priority_ordered)
 
     # Load the realm ordered XML file and write three different XML files per identification status:
-    for status in [identified, identified_var, unidentified]:
-     reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
+    for status in value_list_with_status:
+     reorder_xml_file(xml_filename_realm_ordered    , 'status'             , [status]                        , add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
 
 
     # Load the identified ordered XML file and create the identified model_component ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'model_component'  , ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
+    reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_mc)
 
     # Load the identified model_component ordered XML file and create the identified priority ordered XML file:
-    reorder_xml_file(xml_filename_identified_mc, 'priority'      , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_mc_prio)
+    reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_mc_prio)
 
     # Load the identified ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_identified, 'priority'         , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_identified_prio)
+    reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_prio)
 
 
     # Load the unidentified ordered XML file and create the identified model_component ordered XML file:
-    reorder_xml_file_2(xml_filename_unidentified, 'cmip7_compound_name', ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."], add_all_attributes, xml_filename_unidentified_realm, label='realm')
+    reorder_xml_file_2(xml_filename_unidentified    , 'cmip7_compound_name', value_list_with_realms, add_all_attributes, xml_filename_unidentified_realm, label='realm')
 
     # Load the unidentified model_component ordered XML file and create the identified priority ordered XML file:
-    reorder_xml_file(xml_filename_unidentified_realm, 'priority' , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_realm_prio)
+    reorder_xml_file(xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_realm_prio)
 
     # Load the unidentified ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_unidentified, 'priority'       , ["Core", "High", "Medium", "Low"]       , add_all_attributes, xml_filename_unidentified_prio)
+    reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
 
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
-    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."], add_all_attributes, xml_filename_frequency_ordered, label='frequency')
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies    , add_all_attributes, xml_filename_frequency_ordered, label='frequency')
 
     # Load the frequency ordered XML file and create the status ordered XML file:
-    reorder_xml_file(xml_filename_frequency_ordered, 'status' , [identified, identified_var, unidentified], add_all_attributes, xml_filename_status_ordered)
+    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status         , add_all_attributes, xml_filename_status_ordered)
 
 
     # Thereafter order on:
