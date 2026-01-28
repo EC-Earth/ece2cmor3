@@ -394,6 +394,12 @@ def main():
     # Load the realm ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_realm_ordered , 'priority'               , value_list_with_priorities      , add_all_attributes, xml_filename_priority_ordered)
 
+    # Load the priority ordered XML file and create the frequency ordered XML file:
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies    , add_all_attributes, xml_filename_frequency_ordered, label='frequency')
+
+    # Load the frequency ordered XML file and create the status ordered XML file:
+    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status         , add_all_attributes, xml_filename_status_ordered)
+
     # Load the realm ordered XML file and write three different XML files per identification status:
     for status in value_list_with_status:
      reorder_xml_file(xml_filename_realm_ordered, 'status'                 , [status]                        , add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
@@ -433,13 +439,6 @@ def main():
 
     # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
     reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
-
-
-    # Load the priority ordered XML file and create the frequency ordered XML file:
-    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies    , add_all_attributes, xml_filename_frequency_ordered, label='frequency')
-
-    # Load the frequency ordered XML file and create the status ordered XML file:
-    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status         , add_all_attributes, xml_filename_status_ordered)
 
 
     # Thereafter order on:
