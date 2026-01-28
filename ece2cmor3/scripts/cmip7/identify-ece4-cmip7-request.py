@@ -268,14 +268,14 @@ def main():
     root_alphabetic = tree_alphabetic.getroot()
     dr_version      = root_alphabetic.attrib['dr_version']
 
-    xml_filename_realm_ordered       = 'cmip7-request-{}-all-realm-ordered-identification.xml'.format(dr_version)
-    xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority')
-    xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency')
-    xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status')
-    xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table')
-    xml_filename_identified          = xml_filename_realm_ordered.replace("realm-ordered-identification", identified    )
-    xml_filename_identified_var      = xml_filename_realm_ordered.replace("realm-ordered-identification", identified_var)
-    xml_filename_unidentified        = xml_filename_realm_ordered.replace("realm-ordered-identification", unidentified  )
+    xml_filename_realm_ordered       = 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
+    xml_filename_priority_ordered    = xml_filename_realm_ordered.replace('realm', 'priority'    )
+    xml_filename_frequency_ordered   = xml_filename_realm_ordered.replace('realm', 'frequency'   )
+    xml_filename_status_ordered      = xml_filename_realm_ordered.replace('realm', 'status'      )
+    xml_filename_cmip6_table_ordered = xml_filename_realm_ordered.replace('realm', 'cmip6-table' )
+    xml_filename_identified          = xml_filename_realm_ordered.replace("realm", identified    )
+    xml_filename_identified_var      = xml_filename_realm_ordered.replace("realm", identified_var)
+    xml_filename_unidentified        = xml_filename_realm_ordered.replace("realm", unidentified  )
 
     xml_filename_identified_mc       = xml_filename_identified.replace(identified, identified + "-mc"     )
     xml_filename_identified_mc_prio  = xml_filename_identified.replace(identified, identified + "-mc-prio")
@@ -370,7 +370,7 @@ def main():
 
     # Load the realm ordered XML file and write three different XML files per identification status:
     for status in [identified, identified_var, unidentified]:
-     reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm-ordered-identification", status), status)
+     reorder_xml_file(xml_filename_realm_ordered, 'status', [status], add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
 
     # Load the identified ordered XML file and create the identified model_component ordered XML file:
     reorder_xml_file(xml_filename_identified, 'model_component', ["ifs", "tm5", "nemo", "lpjg", "co2box"], add_all_attributes, xml_filename_identified_mc)
