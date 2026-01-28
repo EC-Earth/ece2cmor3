@@ -100,6 +100,8 @@ def write_xml_file_line_for_variable(xml_file, element):
                                 ' other_component={:8}' \
                                 ' ifs_shortname={:13}' \
                                 ' varname_code={:20}' \
+                                ' comment_author={:15}' \
+                                ' comment={:25}' \
                                 ' expression={:83}' \
                                 ' frequency={:7}' \
                                 ' region={:12}' \
@@ -127,6 +129,8 @@ def write_xml_file_line_for_variable(xml_file, element):
                     '"' + element.get('other_component'        )                                          + '"', \
                     '"' + element.get('ifs_shortname'          )                                          + '"', \
                     '"' + element.get('varname_code'           )                                          + '"', \
+                    '"' + element.get('comment_author'         )                                          + '"', \
+                    '"' + element.get('comment'                )                                          + '"', \
                     '"' + element.get('expression'             ).replace('&','&amp;').replace('<','&lt;') + '"', \
                     '"' + element.get('frequency'              )                                          + '"', \
                     '"' + element.get('region'                 )                                          + '"', \
@@ -319,6 +323,8 @@ def main():
            element.set('other_component', ece3_element.get('other_component'))
            element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
            element.set('varname_code'   , ece3_element.get('varname_code'   ))
+           element.set('comment_author' , '            ')
+           element.set('comment'        , '                      ')
            if len(ece3_element.get('expression')) > 83:
             element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
            else:
@@ -340,6 +346,8 @@ def main():
           element.set('ifs_shortname'  , '??')
           element.set('varname_code'   , '??')
           element.set('expression'     , '??')
+          element.set('comment_author' , '            ')
+          element.set('comment'        , '                      ')
          if count_var_match_but_not_full_match != 0:
           if element.get('status') != identified:
            element.set('status', identified_var)
@@ -347,6 +355,8 @@ def main():
            element.set('other_component', ece3_element.get('other_component'))
            element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
            element.set('varname_code'   , ece3_element.get('varname_code'   ))
+           element.set('comment_author' , '            ')
+           element.set('comment'        , '                      ')
            if len(ece3_element.get('expression')) > 83:
             element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
            else:
@@ -423,8 +433,6 @@ def main():
 
 
     # Thereafter order on:
-    #  model_coponent (or realm for the unidentified case)
-    #  priority
     #  frequency
 
     # For the "identified" and the "var identified ones":
