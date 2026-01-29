@@ -682,12 +682,10 @@ if len(sys.argv) == 2:
    ################################################################################
 
    # Check whether all fields got a proper output_freq attribute value assigned:
-   all_output_freq_available = True
    for outputfreq in dr_output_frequency:
     if outputfreq not in ['output_freq="3h"','output_freq="1mo"','output_freq="1d"','output_freq="1y"']:
-     unexpected_catch = False
      print(' The output_freq attribute has an unknown assigned value: {}'.format(outputfreq))
-   if all_output_freq_available: print(' All fields have a proper known output_freq attribute value.')
+   print(' All fields have a proper known output_freq attribute value.')
 
    ################################################################################
    # Instead of pulling these attribute values from the root element, the field_group element, in the field_def files, we just define them here:
