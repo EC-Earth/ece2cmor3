@@ -19,6 +19,7 @@
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
  ./genecec-cmip7-wrapper.sh high piControl,historical EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high esm-hist             EC-Earth3-ESM-1
  echo " Produces the directory:"
  echo "  cmip7"
 
