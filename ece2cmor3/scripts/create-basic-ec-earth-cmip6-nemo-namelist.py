@@ -746,14 +746,15 @@ if len(sys.argv) == 2:
        nr_of_available_fields_in_field_def = nr_of_available_fields_in_field_def + 1
       #print('available: ', nr_of_available_fields_in_field_def, total_pinglist_field_ref[index_in_ping_list])
        index_in_field_def_list = total_field_def_nemo_id.index(total_pinglist_field_ref[index_in_ping_list])
-       grid_ref = total_field_def_nemo_grid_ref[index_in_field_def_list]
+       grid_ref     = total_field_def_nemo_grid_ref[index_in_field_def_list]
+       texts        = 'fdf_expression="'+ total_texts       [index_in_field_def_list] + '"'  # fdf expression: field_def file expression
+       units        = 'unit="'          + total_units       [index_in_field_def_list] + '"'
+       freq_offsets = 'freq_offset="'   + total_freq_offsets[index_in_field_def_list] + '"'
       #print('{:5}  {}'.format(index_in_field_def_list, total_field_def_nemo_grid_ref[index_in_field_def_list]))
-       texts        = 'fdf_expression="'+total_texts       [index_in_field_def_list]+'"'  # fdf expression: field_def file expression
-       units        = 'unit="'          +total_units       [index_in_field_def_list]+'"'
-       freq_offsets = 'freq_offset="'   +total_freq_offsets[index_in_field_def_list]+'"'
      else:
      #grid_ref = 'grid_ref="??"'
       grid_ref = ''
+      # What about: texts, units & freq_offsets here?
 
      # Checking the cmor table attributes:
      for t in targets:
