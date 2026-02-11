@@ -82,8 +82,8 @@ def main():
        file_1      = 'bup/optimesm/optimesm-v03/optimesm-request-EC-EARTH-ESM-1-varlist.json'
        file_2_core = 'cmip7/bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-core-v03/cmip7/esm-hist-core-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-core-EC-Earth3-ESM-1.json'
        file_2_high = 'cmip7/bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-high-v03/cmip7/esm-hist-high-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-high-EC-Earth3-ESM-1.json'
-       file_3_core = 'combinded-optimesm-cmip7-core-request.json'
-       file_3_high = 'combinded-optimesm-cmip7-high-request.json'
+       file_3_core = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json'
+       file_3_high = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json'
        print()
        print('  This scripts requires two or three arguments, two json data request files, e.g.:')
        print('  ./{} {} {} {}'.format(os.path.basename(sys.argv[0]), file_1, file_2_core, file_3_core))
