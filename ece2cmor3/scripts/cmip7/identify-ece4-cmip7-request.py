@@ -315,32 +315,32 @@ def main():
       for element in root_alphabetic.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
 
-        var_info     = print_var_info    (element)
+       #var_info     = print_var_info    (element)
         var_info_xml = print_var_info_xml(element)
 
         count_in_req_overview = 0
         count_var_match_but_not_full_match = 0
         xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
-         var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
-
          count_in_req_overview += 1
+         var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
+         element.set('comment_author' , '            ')
+         element.set('comment'        , '                      ')
+         element.set('model_component', ece3_element.get('model_component'))
+         element.set('other_component', ece3_element.get('other_component'))
+         element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
+         element.set('varname_code'   , ece3_element.get('varname_code'   ))
+         if len(ece3_element.get('expression')) > 83:
+          element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
+         else:
+          element.set('expression'     , ece3_element.get('expression'))
+
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table') and ece3_element.get('region') == element.get('region'):
           #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            element.set('status', identified)
-           element.set('model_component', ece3_element.get('model_component'))
-           element.set('other_component', ece3_element.get('other_component'))
-           element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
-           element.set('varname_code'   , ece3_element.get('varname_code'   ))
-           element.set('comment_author' , '            ')
-           element.set('comment'        , '                      ')
-           if len(ece3_element.get('expression')) > 83:
-            element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
-           else:
-            element.set('expression'     , ece3_element.get('expression'))
           else:
            pass
            count_var_match_but_not_full_match += 1
@@ -363,18 +363,7 @@ def main():
          if count_var_match_but_not_full_match != 0:
           if element.get('status') != identified:
            element.set('status', identified_var)
-           element.set('model_component', ece3_element.get('model_component'))
-           element.set('other_component', ece3_element.get('other_component'))
-           element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
-           element.set('varname_code'   , ece3_element.get('varname_code'   ))
-           element.set('comment_author' , '            ')
-           element.set('comment'        , '                      ')
-           if len(ece3_element.get('expression')) > 83:
-            element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
-           else:
-            element.set('expression'     , ece3_element.get('expression').replace('&','&amp;').replace('<','&lt;'))
           #print(' Non full match: {}'.format(print_var_info(element)))
-
 
         write_xml_file_line_for_variable(xml_file, element)
         count += 1
