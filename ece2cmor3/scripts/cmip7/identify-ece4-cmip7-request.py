@@ -324,8 +324,6 @@ def main():
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
          count_in_req_overview += 1
          var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
-         element.set('comment_author' , '            ')
-         element.set('comment'        , '                      ')
          element.set('model_component', ece3_element.get('model_component'))
          element.set('other_component', ece3_element.get('other_component'))
          element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
@@ -358,12 +356,12 @@ def main():
           element.set('ifs_shortname'  , '??')
           element.set('varname_code'   , '??')
           element.set('expression'     , '??')
-          element.set('comment_author' , '            ')
-          element.set('comment'        , '                      ')
          if count_var_match_but_not_full_match != 0:
           if element.get('status') != identified:
            element.set('status', identified_var)
           #print(' Non full match: {}'.format(print_var_info(element)))
+        element.set('comment_author' , '            ')
+        element.set('comment'        , '                      ')
 
         write_xml_file_line_for_variable(xml_file, element)
         count += 1
