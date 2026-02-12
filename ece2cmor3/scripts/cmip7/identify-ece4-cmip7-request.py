@@ -100,8 +100,8 @@ def write_xml_file_line_for_variable(xml_file, element):
                                 ' other_component={:8}' \
                                 ' ifs_shortname={:13}' \
                                 ' varname_code={:20}' \
-                                ' comment_author={:15}' \
-                                ' comment={:25}' \
+                                ' comment_author={:20}' \
+                                ' comment={:75}' \
                                 ' expression={:83}' \
                                 ' frequency={:7}' \
                                 ' region={:12}' \
@@ -360,8 +360,8 @@ def main():
           if element.get('status') != identified:
            element.set('status', identified_var)
           #print(' Non full match: {}'.format(print_var_info(element)))
-        element.set('comment_author' , '            ')
-        element.set('comment'        , '                      ')
+        element.set('comment_author' , '                 ')
+        element.set('comment'        , '                                                                        ')
 
         write_xml_file_line_for_variable(xml_file, element)
         count += 1
