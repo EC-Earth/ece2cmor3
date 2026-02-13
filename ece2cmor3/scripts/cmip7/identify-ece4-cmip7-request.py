@@ -328,10 +328,10 @@ def main():
          element.set('other_component', ece3_element.get('other_component'))
          element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
          element.set('varname_code'   , ece3_element.get('varname_code'   ))
-         if len(ece3_element.get('expression')) > 83:
-          element.set('expression'     , 'See the ' + request_overview_xml_filename + ' file.')
+         if len(ece3_element.get('expression')) < 84:
+          element.set('expression'    , ece3_element.get('expression'     ))
          else:
-          element.set('expression'     , ece3_element.get('expression'))
+          element.set('expression'    , 'See the ' + request_overview_xml_filename + ' file.')
 
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table') and ece3_element.get('region') == element.get('region'):
@@ -340,7 +340,6 @@ def main():
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            element.set('status', identified)
           else:
-           pass
            count_var_match_but_not_full_match += 1
           #print(' {:2} no match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
          else:
