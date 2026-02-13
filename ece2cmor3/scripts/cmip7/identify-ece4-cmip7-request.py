@@ -318,10 +318,10 @@ def main():
        #var_info     = print_var_info    (element)
         var_info_xml = print_var_info_xml(element)
 
-        count_in_req_overview = 0
+        count_var_occurences_in_request_overview = 0
         xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
-         count_in_req_overview += 1
+         count_var_occurences_in_request_overview += 1
          var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
          element.set('model_component', ece3_element.get('model_component'))
          element.set('other_component', ece3_element.get('other_component'))
@@ -337,17 +337,17 @@ def main():
            element.set('status', identified)
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
-          #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
+          #print(' {:2}    match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
            # In case the full identification has been achieved break out the loop in order to prevent that afterwards the status will be overwritten by identified_var
            break
           else:
            element.set('status', identified_var)
-          #print(' {:2} no match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
+          #print(' {:2} no match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
         else:
          # The for-else:
-         if count_in_req_overview == 0:
+         if count_var_occurences_in_request_overview == 0:
           list_of_no_matched_identification.append(element.get('physical_parameter_name'))
           message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
           element.set('status', unidentified)
