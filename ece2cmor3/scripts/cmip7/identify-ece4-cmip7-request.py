@@ -218,16 +218,6 @@ def print_message_list_reorder(message_list):
     print()
 
 
-def print_var_info(element):
-    info_string = '{:55} {:10} {:15} {:10} {:14} {}'.format(element.get('cmip7_compound_name'    ), \
-                                                            element.get('priority'               ), \
-                                                            element.get('frequency'              ), \
-                                                            element.get('region'                 ), \
-                                                            element.get('cmip6_table'            ), \
-                                                            element.get('physical_parameter_name'))
-    return info_string
-
-
 def print_var_info_xml(element):
     info_string = '<variable  cmip7_compound_name={:55} priority={:10} frequency={:15} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:122}>   </variable>'.format( \
      '"' + element.get('cmip7_compound_name'    ) + '"', \
@@ -314,10 +304,7 @@ def main():
       xpath_expression = './/variable[@cmip7_compound_name]'
       for element in root_alphabetic.findall(xpath_expression):
        if realm in element.get('cmip7_compound_name'):
-
-       #var_info     = print_var_info    (element)
         var_info_xml = print_var_info_xml(element)
-
         count_var_occurences_in_request_overview = 0
         xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
@@ -331,7 +318,6 @@ def main():
           element.set('expression'    , ece3_element.get('expression'     ))
          else:
           element.set('expression'    , 'See the ' + request_overview_xml_filename + ' file.')
-
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('status', identified)
