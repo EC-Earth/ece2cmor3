@@ -319,7 +319,6 @@ def main():
         var_info_xml = print_var_info_xml(element)
 
         count_in_req_overview = 0
-        count_var_match_but_not_full_match = 0
         xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
         for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
          count_in_req_overview += 1
@@ -334,13 +333,15 @@ def main():
           element.set('expression'    , 'See the ' + request_overview_xml_filename + ' file.')
 
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
-          if ece3_element.get('cmip6_table') == element.get('cmip6_table') and ece3_element.get('region') == element.get('region'):
-          #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
-           list_of_identified_variables.append(element.get('physical_parameter_name'))
-           message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
+          if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('status', identified)
+           message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
+           list_of_identified_variables.append(element.get('physical_parameter_name'))
+          #print(' {:2}    match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
+           # In case the full identification has been achieved break out the loop in order to prevent that afterwards the status will be overwritten by identified_var
+           break
           else:
-           count_var_match_but_not_full_match += 1
+           element.set('status', identified_var)
           #print(' {:2} no match for: {}'.format(count_in_req_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
@@ -355,10 +356,6 @@ def main():
           element.set('ifs_shortname'  , '??')
           element.set('varname_code'   , '??')
           element.set('expression'     , '??')
-         if count_var_match_but_not_full_match != 0:
-          if element.get('status') != identified:
-           element.set('status', identified_var)
-          #print(' Non full match: {}'.format(print_var_info(element)))
         element.set('comment_author' , '                 ')
         element.set('comment'        , '                                                                        ')
 
