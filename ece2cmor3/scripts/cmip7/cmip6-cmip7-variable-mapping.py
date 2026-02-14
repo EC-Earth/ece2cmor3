@@ -145,6 +145,14 @@ def main():
     print('\n The CMIP7 data request contains {} different variables for the selection: {}.\n'.format(number_of_variables, label[1:]))
 
     if False:
+     count_phys_param_not_in_cmip7_compound_name = 0
+     for element in root_cmip7_variables.findall('.//variable'):
+      if element.get('physical_parameter_name') not in element.get('cmip7_compound_name'):
+       count_phys_param_not_in_cmip7_compound_name += 1
+       print(' {:28} {}'.format(element.get('physical_parameter_name'), element.get('cmip7_compound_name')))
+     print('\n For {} variables the physical_parameter_name is not used in the cmip7_compound_name, for the selection: {}.\n'.format(count_phys_param_not_in_cmip7_compound_name, label[1:]))
+
+    if False:
      for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.glb"]'):
       print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
 
