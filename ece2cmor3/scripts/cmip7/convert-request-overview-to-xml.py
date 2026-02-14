@@ -153,14 +153,12 @@ def main():
 
    # The column indices match those written in the taskloader:
    # # In case the input data request is a json file, a reduced number of columns is printed:
-  ## ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
    # ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
    i0 =        0
    i1 = i0 +  12
    i2 = i1 +  21
    i3 = i2 +  45
- ##i4 = i3 + 115
-   i4 = i3 + 121 # 6 additional space added
+   i4 = i3 + 121
    i5 = i4 +  20
    # One issue with the length of the long_name of fLitterFire: Carbon Mass Flux from Litter, CWD or any non-Living Pool into Atmosphere
    #  Therefore shortend the word Atmosphere to Atmos
