@@ -153,12 +153,14 @@ def main():
 
    # The column indices match those written in the taskloader:
    # # In case the input data request is a json file, a reduced number of columns is printed:
-   # ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+  ## ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+   # ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
    i0 =        0
    i1 = i0 +  12
    i2 = i1 +  21
    i3 = i2 +  45
-   i4 = i3 + 115
+ ##i4 = i3 + 115
+   i4 = i3 + 121 # 6 additional space added
    i5 = i4 +  20
    # One issue with the length of the long_name of fLitterFire: Carbon Mass Flux from Litter, CWD or any non-Living Pool into Atmosphere
    #  Therefore shortend the word Atmosphere to Atmos
@@ -365,7 +367,7 @@ def main():
          cmip7_region          = map_el_again.get('region')
          cmip7_temporal_shape  = map_el_again.get('temporal_shape')
 
-        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} region={:10} temporal_shape={:26} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:131} long_name={:120} expression={:510} comment={:550} >   </variable>\n' \
+        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} region={:10} temporal_shape={:26} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:131} long_name={:123} expression={:510} comment={:550} >   </variable>\n' \
                        .format('"' +cmip6_table          + '"', \
                                '"' +cmip6_variable       + '"', \
                                '"' +cmip7_region         + '"', \
