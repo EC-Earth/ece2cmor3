@@ -311,16 +311,17 @@ def main():
          count_var_occurences_in_request_overview += 1
          var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
 
-         # Checking the CMIP7 units with the CMIP6 ones:
-         cmip6_units = ece3_element.get('unit')
-         cmip7_units =      element.get('units')
-         if cmip7_units != cmip6_units:
-          if cmip7_units == '1E-03' and cmip6_units == '0.001' or \
-             cmip7_units == '1E-06' and cmip6_units == '1e-06' or \
-             cmip7_units == '1E-09' and cmip6_units == '1e-09' :
-           pass
-          else:
-           print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, cmip6_units, element.get('cmip7_compound_name')))
+         if False:
+          # Checking the CMIP7 units with the CMIP6 ones (currently only different units for aerosol.emilnox.tavg-u-hxy-u.mon.glb):
+          cmip6_units = ece3_element.get('unit')
+          cmip7_units =      element.get('units')
+          if cmip7_units != cmip6_units:
+           if cmip7_units == '1E-03' and cmip6_units == '0.001' or \
+              cmip7_units == '1E-06' and cmip6_units == '1e-06' or \
+              cmip7_units == '1E-09' and cmip6_units == '1e-09' :
+            pass
+           else:
+            print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, cmip6_units, element.get('cmip7_compound_name')))
 
          element.set('model_component', ece3_element.get('model_component'))
          element.set('other_component', ece3_element.get('other_component'))
