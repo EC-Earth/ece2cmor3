@@ -151,7 +151,7 @@ def main():
   #el_var_tm5    = ET.SubElement(el_tm5   , 'variable')
   #el_var_co2box = ET.SubElement(el_co2box, 'variable')
 
-   # The column indices match those written in the taskloader:
+   # The column indices match those written in the write_varlist_ascii in checkvars.py:
    # # In case the input data request is a json file, a reduced number of columns is printed:
    # ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
    i0 =        0

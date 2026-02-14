@@ -116,7 +116,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
                           getattr(tgtvar, "ecearth_comment", ""       ), '\n'))
     else:
      # In case the input data request is a json file, a reduced number of columns is printed:
-     ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+     ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
      for k  in sorted(tgtgroups.keys(), key=tweakedorder_table_realm):
          vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
