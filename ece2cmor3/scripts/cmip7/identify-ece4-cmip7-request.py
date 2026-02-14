@@ -433,6 +433,28 @@ def main():
 
 
 
+    # Load the status XML files and deselect until only unique variables are listed:
+    print()
+    for status in value_list_with_status:
+     xml_filename_status = xml_filename_realm_ordered.replace("realm", status)
+     tree_status = ET.parse(xml_filename_status)
+     root_status = tree_status.getroot()
+     with open(xml_filename_status.replace('.xml', '-unique.xml'), 'w') as xml_file:
+      write_xml_file_root_element_opening(xml_file, root_status.attrib['dr_version'], \
+                                                    root_status.attrib['api_version'], \
+                                                    root_status.attrib['applied_order_sequence'] + ', ' + 'unique variables only')
+      count = 0
+      list_of_unique_physical_parameters = []
+      xpath_expression = './/variable[@physical_parameter_name]'
+      for element in root_status.findall(xpath_expression):
+       count += 1
+       if element.get('physical_parameter_name') not in list_of_unique_physical_parameters:
+        list_of_unique_physical_parameters.append(element.get('physical_parameter_name'))
+        write_xml_file_line_for_variable(xml_file, element)
+      print(' From the {:4} {:15} variables there are {:4} unique variables'.format(count, status, len(list_of_unique_physical_parameters)))
+      write_xml_file_root_element_closing(xml_file)
+
+
     # For the "identified" and the "var identified ones":
     #  Check the CMIP7 units (used here) with the CMIP6 units: To be implemented
 
