@@ -123,7 +123,7 @@
  # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
- # With that we can run:
+ # With that we can run (actually this script is replaced by the identify-ece4-cmip7-request.py script):
  ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
  # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
@@ -164,22 +164,21 @@
 
 
 # To do:
-#
-# - use core prio only, see what is missing
-# - dir with xml files, archive under repository
-# - write XML files for identification selections
 # - Use request overview neat formatted file to loop over the identified variables and add / adjust / compare the ECE field_def file
-# - manage the 660 unidentified CMIP7 requested variables: ordened by realm and then alphabetical per variable name (variables on various tables are thus bundled)
 # - lpjg variables via .ins files
+# - The identified and var_identified variables need to be incorporated into the ECE4 field_def file.
 
 # - DRS format and with help of CMIP7 attributes a cmor-metadata-fixer for CMIP6 => CMIP7 possible?
+# The CMIP7 archive organizes files hierarchically using the following DRS pattern:
+#  <drs_specs>/<mip_era>/<activity_id>/<institution_id>/<source_id>/<experiment_id>/<variant_label>/<region>/<frequency>/variable_d>/<branding_suffix>/<grid_label>/<directoryDateDD>
+# Example: MIP-DRS7/CMIP7/CMIP/CCCma/CanESM6-MR/historical/r2i1p1f1/glb/mon/tas/tavg-h2m-hxy-u/g13s/v20250622
+# Source: https://wcrp-cmip.github.io/cmip7-guidance/CMIP7/global_attributes/
 
-# We have:
-#
-# - a list of 101 unique ECE3-CMIP6 variables which were identified for ECE3 but which are not requested by CMIP7, if all table - var combinations are taken into account this are 238 combinations
-# - a list of 660 (ECE4) CMIP7 unidentified variables, seperated in realm groups
-# - a list of 531 unique variables which are identified in the ECE3 - CMIP6 framework, which need to be incorporated into the ECE4 field_def file.
-#   these are grouped by model-component (and preferences) and thereby also by realm
+# From the  894 identified      variables there are  553 unique variables
+# From the  242 var_identified  variables there are  163 unique variables
+# From the  838 unidentified    variables there are  587 unique variables
+# From the  238 non-cmip7       variables there are  101 unique variables
+# The latter are variables which were identified within the ECE3-CMIP6 framework but which are not requested by CMIP7.
 
 
 
