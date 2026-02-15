@@ -84,7 +84,11 @@ def coords(df, root, meta):
         target_grid_ = "T159"
         deg = 80
         gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T159_unstructured.txt")
-    elif grid_size != 25799:
+    elif grid_size == 25799 or grid_size == 23102:
+        target_grid_ = "T255"
+        deg = 128
+        gridfile_ = os.path.join(os.path.dirname(__file__), "resources/lpjg-grid-content", "ingrid_T255_unstructured.txt")
+    else:
         log.error("Current grid with %i cells is not supported!", grid_size)
         exit(-1)
 
