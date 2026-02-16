@@ -78,7 +78,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm only:
  #if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./add-optimesm-variables.sh
   fi
 
@@ -89,7 +89,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm & rescue only:
  #if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ] ; then
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    basic_cmip6_file_def_nemo=../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml
    # The file_def content below can be obtained by the following grep (manual remove of last backslah at last line though):
    #  grep -e sishevel -e sidconcdyn -e sidconcth -e sidivvel -e sidmassdyn -e sidmassth  ../resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml | sed -e 's/"1mo"/"1d"/' -e 's/SImon/SIday/' -e 's/id_1m/id_1d/' -e 's/$/\\/'
@@ -378,7 +378,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm only:
  #if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
    sed -i -e 's/"comment":                      ""/"comment":                      "This experiment was done as part of OptimESM (https:\/\/optimesm-he.eu\/) by XXXX"/'                 ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
    sed -i -e 's/"source_type":                  "AOGCM BGC ISM"/"source_type":                  "AOGCM BGC"/'                                                                            ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-*-template.json
   fi
@@ -391,7 +391,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm & rescue only:
  #if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ] ; then
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'rescue-request-EC-EARTH-ESM-1-varlist.json' ]; then
    for i in {ifs,nemo,lpjg,co2box,pism}; do 
     ./convert_metadata_from_cmip6_to_cmip6Plus.sh ${output_dir}/metadata-cmip6-${mip_name}-${experiment}-${ece_configuration}-${i}-template.json
    done
@@ -409,7 +409,7 @@ if [ "$#" -eq 5 ]; then
 
   # optimesm only:
  #if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ]; then
-  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
+  if [ ${data_request_file##*/} = 'optimesm-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json' ] || [ ${data_request_file##*/} = 'combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json' ]; then
    ./revert-nested-cmor-table-branch.sh
    git checkout ${basic_cmip6_file_def_nemo}
   fi
@@ -455,8 +455,8 @@ else
   echo "  $0 ../resources/miscellaneous-data-requests/carcyclim/carcyclim-data-request-EC-EARTH-CC-varlist.json         CARCYCLIM   carcyclim-abrupt-4xCO2   EC-EARTH-CC      carcyclim/carcyclim-abrupt-4xCO2  "
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        esm-hist                 EC-EARTH-ESM-1   optimesm                                "
-  echo "  $0 combinded-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json                                          CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-core-v01 "
-  echo "  $0 combinded-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json                                          CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-high-v01 "
+  echo "  $0 combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json                                           CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-core-v01 "
+  echo "  $0 combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json                                           CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-high-v01 "
 
   echo
   echo "  $0 ../resources/miscellaneous-data-requests/rescue-request/rescue-request-EC-EARTH-ESM-1-varlist.json         CMIP        esm-hist                 EC-EARTH-ESM-1   rescue                                  "
