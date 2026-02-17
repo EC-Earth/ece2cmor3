@@ -58,7 +58,7 @@ if [ "$#" -eq 2 ]; then
 else
   echo
   echo " This scripts requires two arguments, e.g.:"
-  echo "  $0 default 450"
-  echo "  $0 pextra  450"
+  echo "  $0 default 462"
+  echo "  $0 pextra  462"
   echo
 fi
