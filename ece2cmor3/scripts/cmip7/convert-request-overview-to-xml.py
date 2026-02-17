@@ -152,8 +152,7 @@ def main():
   #el_var_co2box = ET.SubElement(el_co2box, 'variable')
 
    # The column indices match those written in the write_varlist_ascii in checkvars.py:
-   # # In case the input data request is a json file, a reduced number of columns is printed:
-   # ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format('table', 'variable', 'dimensions', 'long_name', 'unit', 'comment', '\n'))
+   #  ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'
    i0 =        0
    i1 = i0 +  12
    i2 = i1 +  21

@@ -121,7 +121,7 @@ def write_varlist_ascii(targets, opath, print_all_columns):
          vlist = tgtgroups[k]
          ofile.write('{}'.format('\n'))
          for tgtvar in vlist:
-             ofile.write('{:11} {:20} {:45} {:115} {:20} {}{}'.format(tgtvar.table,
+             ofile.write('{:11} {:20} {:45} {:121} {:20} {}{}'.format(tgtvar.table,
                           tgtvar.variable,
                           getattr(tgtvar, "dimensions"     , "unknown"),
                           getattr(tgtvar, "long_name"      , "unknown"),

@@ -167,7 +167,7 @@
 #  n *.py config-* *.sh
 #  n create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist create-basic-ec-earth-cmip6-nemo-namelist.log ../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-*
 #  n ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/*
-#  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+#  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml grib-table.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
 
 
 # To do:
