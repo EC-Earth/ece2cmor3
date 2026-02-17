@@ -175,11 +175,20 @@
 # - lpjg variables via .ins files
 # - The identified and var_identified variables need to be incorporated into the ECE4 field_def file.
 
-# - DRS format and with help of CMIP7 attributes a cmor-metadata-fixer for CMIP6 => CMIP7 possible?
-# The CMIP7 archive organizes files hierarchically using the following DRS pattern:
-#  <drs_specs>/<mip_era>/<activity_id>/<institution_id>/<source_id>/<experiment_id>/<variant_label>/<region>/<frequency>/variable_d>/<branding_suffix>/<grid_label>/<directoryDateDD>
-# Example: MIP-DRS7/CMIP7/CMIP/CCCma/CanESM6-MR/historical/r2i1p1f1/glb/mon/tas/tavg-h2m-hxy-u/g13s/v20250622
+
 # Source: https://wcrp-cmip.github.io/cmip7-guidance/CMIP7/global_attributes/
+
+# - DRS format and with help of CMIP7 attributes a cmor-metadata-fixer for CMIP6 => CMIP7 possible?
+#    The CMIP7 archive organizes files hierarchically using the following DRS pattern:
+#     <drs_specs>/<mip_era>/<activity_id>/<institution_id>/<source_id>/<experiment_id>/<variant_label>/<region>/<frequency>/variable_d>/<branding_suffix>/<grid_label>/<directoryDateDD>
+#    Example: MIP-DRS7/CMIP7/CMIP/CCCma/CanESM6-MR/historical/r2i1p1f1/glb/mon/tas/tavg-h2m-hxy-u/g13s/v20250622
+# - Each CMIP7 file follows a standardized pattern derived from global attributes:
+#    <variable_id>_<branding_suffix>_<frequency>_<region>_<grid_label>_<source_id>_<experiment_id>_<variant_label>[_<timeRangeDD>].nc
+#   Example: tas_tavg-h2m-hxy-u_mon_glb_g13s_CanESM6-MR_historical_r2i1p1f1_190001-190912.nc
+#   Notes:
+#    timeRangeDD is omitted for fixed (time-independent) variables.
+#    Filenames directly encode key experiment and model metadata.
+
 
 # From the  894 identified      variables there are  553 unique variables
 # From the  242 var_identified  variables there are  163 unique variables
