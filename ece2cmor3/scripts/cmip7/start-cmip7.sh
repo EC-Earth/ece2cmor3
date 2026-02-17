@@ -95,9 +95,8 @@
  echo "  cmip7-variables-and-metadata-all.xml "
 #echo "  cmip7-variables-and-metadata-all.txt "
 
- # Generate (archived in repository) the possible input file for convert-request-overview-to-xml.py:
- #  grep -v -e cWood ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt > request-overview-cmip6-pextra-all-ECE3-CC.txt
- # In the resulting file: request-overview-cmip6-pextra-all-ECE3-CC.txt additional spaces before the unit has been inserted for now, this has to be corrected in taskloader.
+ # As input file for convert-request-overview-to-xml.py currently the file request-overview-cmip6-pextra-all-ECE3-CC.txt is used and equals:
+ diff ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt request-overview-cmip6-pextra-all-ECE3-CC.txt
  ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
  echo " Produces:"
  echo "  ifspar-info.xml "
