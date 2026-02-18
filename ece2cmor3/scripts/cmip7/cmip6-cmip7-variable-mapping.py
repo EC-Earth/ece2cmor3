@@ -23,6 +23,7 @@ import argparse
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
 import json
+import re
 import xml.etree.ElementTree as ET
 from importlib.metadata import version
 
@@ -112,26 +113,28 @@ def main():
 
      count_dim_changed = 0
      for k, v in all_var_info.items():
-      varxmlfile.write('  <variable  cmip7_compound_name={:55} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
-                         .format('"'+k                            + '"', \
-                                 '"'+v['branded_variable_name'  ] + '"', \
-                                 '"'+v['branding_label'         ] + '"', \
-                                 '"'+v['cmip6_table'            ] + '"', \
-                                 '"'+v['physical_parameter_name'] + '"', \
-                                 '"'+v['cmip6_compound_name'    ] + '"', \
-                                 '"'+v['long_name'              ] + '"', \
-                                 '"'+v['standard_name'          ] + '"', \
-                                 '"'+v['units'                  ] + '"', \
-                                 '"'+v['dimensions'             ] + '"', \
-                                 '"'+v['frequency'              ] + '"', \
-                                 '"'+v['temporal_shape'         ] + '"', \
-                                 '"'+v['spatial_shape'          ] + '"', \
-                                 '"'+v['region'                 ] + '"', \
-                                 '"'+v['cell_measures'          ] + '"', \
-                                 '"'+v['cell_methods'           ] + '"', \
-                                 '"'+v['modeling_realm'         ] + '"', \
-                                 '"'+v['out_name'               ] + '"', \
-                                 '"'+v['type'                   ] + '"'))
+      variable_id = re.sub(r'_.*','', v['branded_variable_name'])
+      varxmlfile.write('  <variable  cmip7_compound_name={:55} variable_id={:28} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
+                         .format('"' + k                            + '"', \
+                                 '"' + variable_id                  + '"', \
+                                 '"' + v['branded_variable_name'  ] + '"', \
+                                 '"' + v['branding_label'         ] + '"', \
+                                 '"' + v['cmip6_table'            ] + '"', \
+                                 '"' + v['physical_parameter_name'] + '"', \
+                                 '"' + v['cmip6_compound_name'    ] + '"', \
+                                 '"' + v['long_name'              ] + '"', \
+                                 '"' + v['standard_name'          ] + '"', \
+                                 '"' + v['units'                  ] + '"', \
+                                 '"' + v['dimensions'             ] + '"', \
+                                 '"' + v['frequency'              ] + '"', \
+                                 '"' + v['temporal_shape'         ] + '"', \
+                                 '"' + v['spatial_shape'          ] + '"', \
+                                 '"' + v['region'                 ] + '"', \
+                                 '"' + v['cell_measures'          ] + '"', \
+                                 '"' + v['cell_methods'           ] + '"', \
+                                 '"' + v['modeling_realm'         ] + '"', \
+                                 '"' + v['out_name'               ] + '"', \
+                                 '"' + v['type'                   ] + '"'))
 
      varxmlfile.write('</cmip7_variables>\n')
 
