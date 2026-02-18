@@ -5,7 +5,8 @@
 
 # 1. This script reads the Shaconemo xml ping files (the files which relate the NEMO code variable
 # names with the CMOR names. Actually the current ping files are slightly modified by the EC-Earth
-# community: some bug fixes and some added identification. NEMO code names which are labeled by
+# community: some bug fixes and some added identification. The most accurate ping files are
+# therefore available within the ec-earth3 repository. NEMO code names which are labeled by
 # 'dummy_' have not been identified by the Shaconemo and EC-Earth comunity and therefore can be
 # deselected. The prefix 'CMIP6_' (and 'NEMO_') are omitted. If available and if not identical,
 # preference can be given to the content of the expression attribute over the content of the text.
