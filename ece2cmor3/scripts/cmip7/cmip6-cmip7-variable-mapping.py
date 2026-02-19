@@ -156,6 +156,16 @@ def main():
      print('\n For {} variables the physical_parameter_name is not used in the cmip7_compound_name, for the selection: {}.\n'.format(count_phys_param_not_in_cmip7_compound_name, label[1:]))
 
     if False:
+     unique_dimension_combinations = []
+     for element in root_cmip7_variables.findall('.//variable'):
+      dimensions_combination = element.get('dimensions')
+      if dimensions_combination not in unique_dimension_combinations:
+       unique_dimension_combinations.append(dimensions_combination)
+     for dim_combi in sorted(unique_dimension_combinations):
+      print(' {}'.format(dim_combi))
+     print('\n The number of unique combination of dimensions is: {}\n'.format(len(unique_dimension_combinations)))
+
+    if False:
      for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.glb"]'):
       print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
 
