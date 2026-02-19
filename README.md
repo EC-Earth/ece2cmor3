@@ -69,7 +69,7 @@ For those who want to commit contributions the `SSH` clone method is obligatory.
 ```shell
 activatemamba                             # The mamba-activate alias (as defined above)
 cd ${HOME}/cmorize/ece2cmor3              # Navigate to the ece2cmor3 root directory
-mamba env create -f environment.yml       # Create the python environment (for linux & mac os)
+mamba env create -y -f environment.yml    # Create the python environment (for linux & mac os)
 conda activate ece2cmor3                  # Here conda is still used instead of mamba
 pip install .                             # Install the ece2cmor3 package
 conda deactivate                          # Deactivating the active (here ece2cmor3) environment
