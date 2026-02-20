@@ -16,6 +16,7 @@ print(' The CMOR       python api version is: v{}\n'.format(version('cmor'      
 
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
+#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
 
 cmip6_variable               = 'tas'
 #cmip6_variable               = 'hus'
@@ -50,11 +51,11 @@ drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortiu
 
 
 
-def dimension_units(selected_dimension):
+def dimension_units(coordinates_file, selected_dimension):
     if selected_dimension == 'time':
      return time_units                      # Using the global defined one
     else:
-     for k, v in cmip7_coordinates.items():
+     for k, v in coordinates_file.items():
       for dim_name, dim_attribute_dict in v.items():
        if dim_name == selected_dimension:
         for dim_attribute_name, dim_attribute_value in dim_attribute_dict.items():
@@ -64,8 +65,8 @@ def dimension_units(selected_dimension):
 #           "formula": "p = ap + b*ps",
 #           "generic_level_name": "alevel",
 
-def print_dimension_units_with_values():
-    for k, v in cmip7_coordinates.items():
+def print_dimension_units_with_values(coordinates_file):
+    for k, v in coordinates_file.items():
      for dim_name, dim_attribute_dict in v.items():
       if dim_name == selected_dimension:
        print('\n {}:'.format(dim_name))
@@ -81,12 +82,12 @@ def tweakedorder_dimensions(list_of_dimensions):
  else:                                    return 10
 
 
-def add_dimension(dim):
+def add_dimension(coordinates_file, dim):
     # Construct time coordinate in a way that we can update with points and bounds later
     if dim == "time":
-     cmordim = cmor.axis(dim                                                                               , units=dimension_units(dim))
+     cmordim = cmor.axis(dim                                                                               , units=dimension_units(coordinates_file, dim))
     elif dim == "latitude" or dim == "longitude":
-     cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_units(dim))
+     cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_units(coordinates_file, dim))
    #elif vertical coordinates
     else:
      cmordim = None
@@ -170,8 +171,8 @@ if False:
  selected_dimensions = ['time', 'latitude', 'longitude', 'height2m', 'alevel']
 
  for selected_dimension in selected_dimensions:
-  print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_units(selected_dimension)))
-  print_dimension_units_with_values()
+  print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_units(cmip7_coordinates, selected_dimension)))
+  print_dimension_units_with_values(cmip7_coordinates)
  print()
 
 
@@ -203,7 +204,7 @@ var_cube = cubelist.concatenate_cube()
 cmoraxes = []
 for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
  print(' {}'.format(dimension))
- cmordim = add_dimension(dimension)
+ cmordim = add_dimension(cmip7_coordinates, dimension)
  if cmordim is not None:
   cmoraxes.append(cmordim)
 print()
