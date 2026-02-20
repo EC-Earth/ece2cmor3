@@ -4,6 +4,7 @@ import cmor      # used for writing files
 import iris      # used for reading files -- netCDF4 or xarray could be used here based on preference
 import json
 import os
+import sys
 import re
 import warnings
 import xml.etree.ElementTree as ET
@@ -91,6 +92,9 @@ def add_dimension(dim):
      cmordim = None
     return cmordim
 
+# Check if the file exists and is a file
+if not os.path.isfile(cmip7_cmip6_mapping_filename):
+ sys.exit(' ERROR: The file {:} does not exist, therefore first run:\n  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
 
 # Initiate CMOR:
 cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
