@@ -51,7 +51,7 @@ drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortiu
 
 
 
-def dimension_units(coordinates_file, selected_dimension):
+def dimension_attribute(coordinates_file, selected_dimension, specified_attribute):
     if selected_dimension == 'time':
      return time_units                      # Using the global defined one
     else:
@@ -59,13 +59,13 @@ def dimension_units(coordinates_file, selected_dimension):
       for dim_name, dim_attribute_dict in v.items():
        if dim_name == selected_dimension:
         for dim_attribute_name, dim_attribute_value in dim_attribute_dict.items():
-         if dim_attribute_name == 'units':
+         if dim_attribute_name == specified_attribute:
           return dim_attribute_value
 #       "alternate_hybrid_sigma": {
 #           "formula": "p = ap + b*ps",
 #           "generic_level_name": "alevel",
 
-def print_dimension_units_with_values(coordinates_file):
+def print_dimension_attributes_with_values(coordinates_file):
     for k, v in coordinates_file.items():
      for dim_name, dim_attribute_dict in v.items():
       if dim_name == selected_dimension:
@@ -85,9 +85,9 @@ def tweakedorder_dimensions(list_of_dimensions):
 def add_dimension(coordinates_file, dim):
     # Construct time coordinate in a way that we can update with points and bounds later
     if dim == "time":
-     cmordim = cmor.axis(dim                                                                               , units=dimension_units(coordinates_file, dim))
+     cmordim = cmor.axis(dim                                                                               , units=dimension_attribute(coordinates_file, dim, 'units'))
     elif dim == "latitude" or dim == "longitude":
-     cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_units(coordinates_file, dim))
+     cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_attribute(coordinates_file, dim, 'units'))
    #elif vertical coordinates
     else:
      cmordim = None
@@ -171,8 +171,8 @@ if False:
  selected_dimensions = ['time', 'latitude', 'longitude', 'height2m', 'alevel']
 
  for selected_dimension in selected_dimensions:
-  print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_units(cmip7_coordinates, selected_dimension)))
-  print_dimension_units_with_values(cmip7_coordinates)
+  print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_attribute(cmip7_coordinates, selected_dimension, 'units')))
+  print_dimension_attributes_with_values(cmip7_coordinates)
  print()
 
 
