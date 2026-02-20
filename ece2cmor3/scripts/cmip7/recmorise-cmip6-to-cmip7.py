@@ -19,10 +19,8 @@ print(' The CMOR       python api version is: v{}\n'.format(version('cmor'      
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
 
-#cmip6_variable               = 'tas'
-#cmip6_table                  = 'Amon'
 production_date_version      = 'v20260213'
-grid_label                   = 'gr'
+#grid_label                   = 'gr'
 experiment_id                = 'esm-hist'
 parent_experiment_id         = 'esm-piControl'
 branch_time_in_child         = 30.0
@@ -139,6 +137,13 @@ def main():
                                                                                                                                 cmip7_frequency      , \
                                                                                                                                 cmip7_region         , \
                                                                                                                                 cmip7_realm          ))
+
+    # Overwrite grid label when::
+    if cmip7_realm == 'ocean' or cmip7_realm == 'seaIce' or cmip7_realm == 'ocnBgchem':
+     grid_label = 'gn'
+    else:
+     grid_label = 'gr'
+
 
     DATASET_INFO = {
         "_AXIS_ENTRY_FILE"           : cmip7_cmor_tables_dir + 'CMIP7_coordinate.json',
