@@ -101,6 +101,7 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 
 def tweakedorder_dimensions(list_of_dimensions):
  if   list_of_dimensions == 'time'      : return  1
+ elif list_of_dimensions == 'time4'     : return  1  # Files are produced, but get: CDMS error: Error on character time conversion, string = ?
  elif list_of_dimensions == 'latitude'  : return  2
  elif list_of_dimensions == 'longitude' : return  3
  else:                                    return 10
@@ -108,7 +109,7 @@ def tweakedorder_dimensions(list_of_dimensions):
 
 def add_dimension(var_cube, coordinates_file, dim):
     # Construct time coordinate in a way that we can update with points and bounds later
-    if dim == "time":
+    if dim in ["time", "time4"]:
      cmordim = cmor.axis(dim                                                                               , units=dimension_attribute(coordinates_file, dim, 'units'))
     elif dim == "latitude" or dim == "longitude":
      cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_attribute(coordinates_file, dim, 'units'))
