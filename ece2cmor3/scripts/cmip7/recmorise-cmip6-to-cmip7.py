@@ -64,6 +64,7 @@ def parse_args():
     parser.add_argument('var'  , metavar='cmip6_variable', type=str, default='tas', help='The CMIP6 variable of the variable to convert, for instance: tas.')
     return parser.parse_args()
 
+
 def dimension_attribute(coordinates_file, selected_dimension, specified_attribute):
     if selected_dimension == 'time':
      return time_units                      # Using the global defined one
@@ -78,6 +79,7 @@ def dimension_attribute(coordinates_file, selected_dimension, specified_attribut
 #           "formula": "p = ap + b*ps",
 #           "generic_level_name": "alevel",
 
+
 def print_dimension_attributes_with_values(coordinates_file):
     for k, v in coordinates_file.items():
      for dim_name, dim_attribute_dict in v.items():
@@ -86,6 +88,15 @@ def print_dimension_attributes_with_values(coordinates_file):
        for dim_attribute_name, dim_attribute_value in dim_attribute_dict.items():
         print('  {:25}="{}"'.format(dim_attribute_name, dim_attribute_value))
        print()
+
+
+def variable_attribute(variable_file, selected_variable, specified_attribute):
+     for k, v in variable_file.items():
+      for var_name, var_attribute_dict in v.items():
+       if var_name == selected_variable:
+        for var_attribute_name, var_attribute_value in var_attribute_dict.items():
+         if var_attribute_name == specified_attribute:
+          return var_attribute_value
 
 
 def tweakedorder_dimensions(list_of_dimensions):
@@ -105,6 +116,7 @@ def add_dimension(var_cube, coordinates_file, dim):
     else:
      cmordim = None
     return cmordim
+
 
 
 def main():
@@ -195,7 +207,12 @@ def main():
         "mip_era"                    : "CMIP7",
     }
 
+    cmor_table_of_selected_realm = 'CMIP7_{}.json'.format(cmip7_realm)
 
+
+    # Load the file with the CMIP7 coordinates (with the coordinate units):
+    with open(cmip7_cmor_tables_dir + cmor_table_of_selected_realm, 'r') as file:
+        cmip7_cmor_table_with_var = json.load(file)
 
     # Load the file with the CMIP7 coordinates (with the coordinate units):
     with open(cmip7_cmor_tables_dir + 'CMIP7_coordinate.json', 'r') as file:
@@ -217,7 +234,7 @@ def main():
 
     cmor.dataset_json('input.json')
 
-    cmor.load_table('CMIP7_{}.json'.format(cmip7_realm))
+    cmor.load_table(cmor_table_of_selected_realm)
 
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
@@ -245,7 +262,9 @@ def main():
       cmoraxes.append(cmordim)
     print()
 
-    cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes)
+
+    variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
+    cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
 
     # Apply cell measures
     with open(cmip7_cmor_tables_dir + 'CMIP7_cell_measures.json') as fh:
