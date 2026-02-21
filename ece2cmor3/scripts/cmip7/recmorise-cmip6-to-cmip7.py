@@ -17,9 +17,6 @@ import xml.etree.ElementTree as ET
 from importlib.metadata import version
 from os.path import expanduser
 
-print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
-print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
-
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
@@ -63,6 +60,8 @@ def parse_args():
     # Posisional arguments
     parser.add_argument('table', metavar='cmip6_table'   , type=str, default='tas', help='The CMIP6 table    of the variable to convert, for instance: Amon')
     parser.add_argument('var'  , metavar='cmip6_variable', type=str, default='tas', help='The CMIP6 variable of the variable to convert, for instance: tas.')
+    # Optional input arguments
+    parser.add_argument('-v', '--verbose', action='store_true'                    , help="Verbose messaging")
     return parser.parse_args()
 
 
@@ -135,6 +134,11 @@ def main():
 
     cmip6_table    = args.table
     cmip6_variable = args.var
+    verbose        = args.verbose
+
+    if verbose:
+     print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
+     print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
 
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
@@ -159,12 +163,15 @@ def main():
      cmip7_realm           = re.sub(r'\..*','', element.get('cmip7_compound_name'))
      cmip7_out_name        = element.get('out_name')
      cmip7_dimensions      = element.get('dimensions').split()
-     print(' cmip7_compound_name="{}"  branded_variable_name="{}"  units="{}"  frequency="{}"  region="{}  realm="{}"\n'.format(cmip7_compound_name  , \
-                                                                                                                                branded_variable_name, \
-                                                                                                                                cmip7_units          , \
-                                                                                                                                cmip7_frequency      , \
-                                                                                                                                cmip7_region         , \
-                                                                                                                                cmip7_realm          ))
+     print(' {:10} {:20}  ==>  cmip7_compound_name="{}"  branded_variable_name="{}"  units="{}"  frequency="{}"  region="{}  realm="{}"'.format( \
+            cmip6_table          , \
+            cmip6_variable       , \
+            cmip7_compound_name  , \
+            branded_variable_name, \
+            cmip7_units          , \
+            cmip7_frequency      , \
+            cmip7_region         , \
+            cmip7_realm          ))
     else: # The for-else:
      if not match: sys.exit(' Sorry no CMIP7 equivalent:\n')
 
@@ -232,7 +239,6 @@ def main():
     # Looking around in the loaded CMIP7 coordinates:
     if False:
      selected_dimensions = ['time', 'latitude', 'longitude', 'height2m', 'alevel']
-
      for selected_dimension in selected_dimensions:
       print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_attribute(cmip7_coordinates, selected_dimension, 'units')))
       print_dimension_attributes_with_values(cmip7_coordinates)
@@ -264,11 +270,12 @@ def main():
          cubelist = iris.load(matched_cmip6_files[0])
         else:
          cubelist = iris.load(matched_cmip6_files[0])
-         print(' WARNING: {} matched CMIP6 files found, the first one has been taken'.format(number_of_matched_cmip6_files))
-         print('\n The different files detected are:')
-         for matched_cmip6_file in matched_cmip6_files:
-          print('  {}'.format(matched_cmip6_file))
-         print()
+         print(' WARNING: {} matched CMIP6 files found, the first one has been taken.\n'.format(number_of_matched_cmip6_files))
+         if verbose:
+          print(' The different files detected are:')
+          for matched_cmip6_file in matched_cmip6_files:
+           print('  {}'.format(matched_cmip6_file))
+          print()
 
     for i in cubelist:
         i.attributes = {}
@@ -281,11 +288,12 @@ def main():
     cmoraxes = []
     for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
      dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
-     print(' {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
+     if verbose:
+      print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
      cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
      if cmordim is not None:
       cmoraxes.append(cmordim)
-    print()
+    if verbose: print()
 
 
     variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
@@ -310,7 +318,8 @@ def main():
     N = 12
     for i in range(0, 12, N):
         s = slice(i, i+N)
-        print(s)
+        if verbose:
+         print(' {}'.format(s))
         cube_slice = var_cube[s]
         cmor.write(
             cmorvar,
