@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# Call example:
+#  for i in `/usr/bin/ls -1         /scratch/nktr/test-data/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo ./recmorise-cmip6-to-cmip7.py Amon ${i}; done
+#  for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo ./recmorise-cmip6-to-cmip7.py Amon ${i}; done
+
 import cmor      # used for writing files
 import iris      # used for reading files -- netCDF4 or xarray could be used here based on preference
 import json
@@ -19,7 +23,7 @@ print(' The CMOR       python api version is: v{}\n'.format(version('cmor'      
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
 
-production_date_version      = 'v20260213'
+production_date_version      = 'v*'
 #grid_label                   = 'gr'
 experiment_id                = 'esm-hist'
 parent_experiment_id         = 'esm-piControl'
@@ -121,8 +125,10 @@ def main():
     tree_cmip7_variables = ET.parse(cmip7_cmip6_mapping_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
+    match = False
     xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
     for element in root_cmip7_variables.findall(xpath_expression):
+     match = True
      cmip7_compound_name   = element.get('cmip7_compound_name')
      branded_variable_name = element.get('branded_variable_name')
      cmip7_units           = element.get('units')
@@ -137,9 +143,15 @@ def main():
                                                                                                                                 cmip7_frequency      , \
                                                                                                                                 cmip7_region         , \
                                                                                                                                 cmip7_realm          ))
+    else: # The for-else:
+     if not match: sys.exit(' Sorry no CMIP7 equivalent:\n')
+
 
     # Overwrite grid label when::
-    if cmip7_realm == 'ocean' or cmip7_realm == 'seaIce' or cmip7_realm == 'ocnBgchem':
+
+    if cmip6_variable in ['co2s', 'co2mass']:
+     grid_label = 'gm'
+    elif cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem']:
      grid_label = 'gn'
     else:
      grid_label = 'gr'
