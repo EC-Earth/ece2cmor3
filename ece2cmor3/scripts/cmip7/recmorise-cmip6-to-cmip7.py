@@ -9,6 +9,7 @@ import iris      # used for reading files -- netCDF4 or xarray could be used her
 import json
 import os
 import sys
+import glob
 import re
 import argparse
 import warnings
@@ -100,10 +101,10 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 
 
 def tweakedorder_dimensions(list_of_dimensions):
- if   list_of_dimensions in ["time", "time1", "time4"] : return  1
- elif list_of_dimensions == 'latitude'  : return  3
- elif list_of_dimensions == 'longitude' : return  4
- else:                                    return  2  # The vertical coordinate has to be before the latitude & longitude
+ if   list_of_dimensions in ["time", "time1", "time2", "time3", "time4"] : return  1  # Without time3 here it wordks as well for variables like Amon rsdt
+ elif list_of_dimensions == 'latitude'                                   : return  3
+ elif list_of_dimensions == 'longitude'                                  : return  4
+ else:                                                                     return  2  # The vertical coordinate has to be before the latitude & longitude
 
 
 def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
@@ -111,7 +112,7 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     if dim in ["time"]:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim, 'units'))
-    elif dim in ["time1", "time4"]:
+    elif dim in ["time1", "time2", "time3", "time4"]:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim_standard_name, 'units'))
     elif dim in ["latitude", "longitude", "plev19", "landuse"]:
@@ -248,12 +249,26 @@ def main():
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        cubelist = iris.load(LOCAL_CMIP6_ROOT + drs_expirement_member   + '/' \
-                                              + cmip6_table             + '/' \
-                                              + cmip6_variable          + '/' \
-                                              + grid_label              + '/' \
-                                              + production_date_version + '/' \
-                                              + cmip6_variable          + '*.nc')
+        cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_expirement_member   + '/' \
+                                                    + cmip6_table             + '/' \
+                                                    + cmip6_variable          + '/' \
+                                                    + grid_label              + '/' \
+                                                    + production_date_version + '/' \
+                                                    + cmip6_variable          + '*.nc'
+
+        matched_cmip6_files = glob.glob(cmip6_file_path_and_name)
+        number_of_matched_cmip6_files = len(matched_cmip6_files)
+        if number_of_matched_cmip6_files == 0:
+         sys.exit(' ERROR: No files found for {}\n'.format(cmip6_file_path_and_name))
+        elif number_of_matched_cmip6_files == 1:
+         cubelist = iris.load(matched_cmip6_files[0])
+        else:
+         cubelist = iris.load(matched_cmip6_files[0])
+         print(' WARNING: {} matched CMIP6 files found, the first one has been taken'.format(number_of_matched_cmip6_files))
+         print('\n The different files detected are:')
+         for matched_cmip6_file in matched_cmip6_files:
+          print('  {}'.format(matched_cmip6_file))
+         print()
 
     for i in cubelist:
         i.attributes = {}
