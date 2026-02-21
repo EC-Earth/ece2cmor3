@@ -102,18 +102,24 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 def tweakedorder_dimensions(list_of_dimensions):
  if   list_of_dimensions == 'time'      : return  1
  elif list_of_dimensions == 'time4'     : return  1  # Files are produced, but get: CDMS error: Error on character time conversion, string = ?
- elif list_of_dimensions == 'latitude'  : return  2
- elif list_of_dimensions == 'longitude' : return  3
- else:                                    return 10
+ elif list_of_dimensions == 'latitude'  : return  3
+ elif list_of_dimensions == 'longitude' : return  4
+ else:                                    return  2  # The vertical coordinate has to be before the latitude & longitude
 
 
-def add_dimension(var_cube, coordinates_file, dim):
+def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     # Construct time coordinate in a way that we can update with points and bounds later
     if dim in ["time", "time4"]:
-     cmordim = cmor.axis(dim                                                                               , units=dimension_attribute(coordinates_file, dim, 'units'))
-    elif dim == "latitude" or dim == "longitude":
-     cmordim = cmor.axis(dim, coord_vals=var_cube.coord(dim).points, cell_bounds=var_cube.coord(dim).bounds, units=dimension_attribute(coordinates_file, dim, 'units'))
-   #elif vertical coordinates
+     cmordim = cmor.axis(dim, \
+                         units=dimension_attribute(coordinates_file, dim, 'units'))
+    elif dim in ["latitude", "longitude", "plev19"]:
+     if False:
+      print('\nINFO 1 from add_dimension:\n{}'  .format(var_cube))
+      print('\nINFO 2 from add_dimension:\n{}\n'.format(var_cube.coord(dim_standard_name)))
+     cmordim = cmor.axis(dim,                                                           \
+                         coord_vals =var_cube.coord(dim_standard_name).points,          \
+                         cell_bounds=var_cube.coord(dim_standard_name).bounds,          \
+                         units      =dimension_attribute(coordinates_file, dim, 'units'))
     else:
      cmordim = None
     return cmordim
@@ -257,8 +263,9 @@ def main():
 
     cmoraxes = []
     for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
-     print(' {}'.format(dimension))
-     cmordim = add_dimension(var_cube, cmip7_coordinates, dimension)
+     dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
+     print(' {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
+     cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
      if cmordim is not None:
       cmoraxes.append(cmordim)
     print()
