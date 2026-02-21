@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Call example:
-#  for i in `/usr/bin/ls -1         /scratch/nktr/test-data/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo ./recmorise-cmip6-to-cmip7.py Amon ${i}; done
-#  for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo ./recmorise-cmip6-to-cmip7.py Amon ${i}; done
+#  for i in `/usr/bin/ls -1         /scratch/nktr/test-data/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
+#  for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
 
 import cmor      # used for writing files
 import iris      # used for reading files -- netCDF4 or xarray could be used here based on preference
