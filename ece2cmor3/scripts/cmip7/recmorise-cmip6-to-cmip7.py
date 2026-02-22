@@ -117,7 +117,7 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     elif dim in ['time1', 'time2', 'time3', 'time4']:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim_standard_name, 'units'))
-    elif dim in ['latitude', 'longitude', 'plev19', 'landuse', 'sdepth', 'depth_coord', 'gridlatitude', 'basin', 'osurf']:
+    elif dim in ['latitude', 'longitude', 'plev19', 'landuse', 'sdepth', 'depth_coord', 'gridlatitude', 'basin', 'osurf', 'iceband']:
      if debug:
       print('\nINFO 1 from add_dimension:\n{}'  .format(var_cube))
       print('\nINFO 2 from add_dimension:\n{}\n'.format(var_cube.coord(dim_standard_name)))
