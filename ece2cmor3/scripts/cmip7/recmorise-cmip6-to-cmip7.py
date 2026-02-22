@@ -163,15 +163,24 @@ def main():
      cmip7_realm           = re.sub(r'\..*','', element.get('cmip7_compound_name'))
      cmip7_out_name        = element.get('out_name')
      cmip7_dimensions      = element.get('dimensions').split()
-     print(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20} frequency={:10} region={:15} realm={}'.format( \
+     if verbose:
+      print(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20} frequency={:10} region={:15} realm={}'.format( \
+             cmip6_table                , \
+             cmip6_variable             , \
+             '"' + cmip7_compound_name   + '"', \
+             '"' + branded_variable_name + '"', \
+             '"' + cmip7_units           + '"', \
+             '"' + cmip7_frequency       + '"', \
+             '"' + cmip7_region          + '"', \
+             '"' + cmip7_realm           + '"'))
+     else:
+      print(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20}'.format( \
             cmip6_table                , \
             cmip6_variable             , \
             '"' + cmip7_compound_name   + '"', \
             '"' + branded_variable_name + '"', \
-            '"' + cmip7_units           + '"', \
-            '"' + cmip7_frequency       + '"', \
-            '"' + cmip7_region          + '"', \
-            '"' + cmip7_realm           + '"'))
+            '"' + cmip7_units           + '"'))
+
     else: # The for-else:
      if not match: sys.exit(' Sorry no CMIP7 equivalent:\n')
 
