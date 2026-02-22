@@ -291,7 +291,11 @@ def main():
 
     # Define the CMOR variable object
 
-    if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem']:
+   #if 'longitude' in sorted_cmip7_dimensions and 'latitude' in sorted_cmip7_dimensions:
+
+    if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem'] and \
+       'longitude' in sorted_cmip7_dimensions          and \
+       'latitude'  in sorted_cmip7_dimensions:
      orca_grid_case = True
     else:
      orca_grid_case = False
