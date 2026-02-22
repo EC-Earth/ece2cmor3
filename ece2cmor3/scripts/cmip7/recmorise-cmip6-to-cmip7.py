@@ -193,9 +193,11 @@ def main():
 
     # Overwrite grid label when::
 
-    if cmip6_variable in ['co2s', 'co2mass']:
+    if   cmip6_variable in ['co2s', 'co2mass']:
      grid_label = 'gm'
-    elif cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem']:
+    elif cmip6_variable in ['siconca']:
+      grid_label = 'gr'
+    elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
      grid_label = 'gn'
     else:
      grid_label = 'gr'
@@ -312,6 +314,8 @@ def main():
        'longitude' in sorted_cmip7_dimensions          and \
        'latitude'  in sorted_cmip7_dimensions:
      orca_grid_case = True
+     if cmip6_variable in ['siconca']:
+      orca_grid_case = False
     else:
      orca_grid_case = False
 
