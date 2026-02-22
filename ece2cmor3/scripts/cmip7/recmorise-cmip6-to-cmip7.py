@@ -285,19 +285,56 @@ def main():
 
     # Define the CMOR variable object
 
-    cmoraxes = []
-    for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
-     dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
-     if verbose:
-      print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
-     cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
-     if cmordim is not None:
-      cmoraxes.append(cmordim)
-    if verbose: print()
-
+    if cmip7_realm in ['ocean']:
+     orca_grid_case = True
+    else:
+     orca_grid_case = False
 
     variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
-    cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
+
+    if orca_grid_case:
+     dim_standard_name = dimension_attribute(cmip7_coordinates, 'time', 'standard_name')
+     time_axis_id = add_dimension(var_cube, cmip7_coordinates, 'time', dim_standard_name)
+
+     # Here load the grids table to set up x and y axes and the lat-long grid:
+     cmor.load_table('CMIP7_grids.json')
+
+     lon_std_name = 'first spatial index for variables stored on an unstructured grid'
+     lat_std_name = 'second spatial index for variables stored on an unstructured grid'
+
+     y_axis_id = cmor.axis(table_entry='grid_latitude',
+                           units='degrees',
+                           coord_vals=var_cube.coord(lat_std_name).points,
+                           cell_bounds=var_cube.coord(lat_std_name).bounds)
+     x_axis_id = cmor.axis(table_entry='grid_longitude',
+                           units='degrees',
+                           coord_vals=var_cube.coord(lon_std_name).points,
+                           cell_bounds=var_cube.coord(lon_std_name).bounds)
+     grid_id   = cmor.grid(axis_ids=[y_axis_id, x_axis_id],
+                           latitude=var_cube.coord('latitude').points,
+                           longitude=var_cube.coord('longitude').points,
+                           latitude_vertices=var_cube.coord('latitude').bounds,
+                           longitude_vertices=var_cube.coord('longitude').bounds)
+
+     # Load again the realm table of the variable:
+     cmor.load_table(cmor_table_of_selected_realm)
+     cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, grid_id], positive=variable_attrib)
+    else:
+
+     # Define the CMOR variable object
+
+     cmoraxes = []
+     for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
+      dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
+      if verbose:
+       print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
+      cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
+      if cmordim is not None:
+       cmoraxes.append(cmordim)
+     if verbose: print()
+
+     cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
+
 
     # Apply cell measures
     with open(cmip7_cmor_tables_dir + 'CMIP7_cell_measures.json') as fh:
@@ -321,11 +358,8 @@ def main():
         if verbose:
          print(' {}'.format(s))
         cube_slice = var_cube[s]
-        cmor.write(
-            cmorvar,
-            cube_slice.data,
-            time_vals=cube_slice.coord('time').points,
-            time_bnds=cube_slice.coord('time').bounds)
+        cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
+                                           , time_bnds=cube_slice.coord('time').bounds)
 
     # Close the file (sorts the full naming)
     cmor.close(cmorvar, file_name=True)
