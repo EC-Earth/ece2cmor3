@@ -318,14 +318,27 @@ def main():
     variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
 
     if orca_grid_case:
-     dim_standard_name = dimension_attribute(cmip7_coordinates, 'time', 'standard_name')
-     time_axis_id = add_dimension(var_cube, cmip7_coordinates, 'time', dim_standard_name)
+     if   'time'  in sorted_cmip7_dimensions:
+      name_time_dim = 'time'
+     elif 'time1' in sorted_cmip7_dimensions:
+      name_time_dim = 'time1'
+     elif 'time2' in sorted_cmip7_dimensions:
+      name_time_dim = 'time2'
+     elif 'time3' in sorted_cmip7_dimensions:
+      name_time_dim = 'time3'
+     elif 'time4' in sorted_cmip7_dimensions:
+      name_time_dim = 'time4'
+     else:
+      print(' ERROR 1')
+
+     dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
+     time_axis_id = add_dimension(var_cube, cmip7_coordinates, name_time_dim, dim_standard_name)
 
      vertical_ocean_coordinate = False
      # ORCA cases without a time dimension are not covered yet:
      if len(sorted_cmip7_dimensions) > 3:
       for dimension in sorted_cmip7_dimensions:
-       if dimension not in ['time', 'longitude', 'latitude']: # What about time1 etc.?
+       if dimension not in [name_time_dim, 'longitude', 'latitude']:
         vertical_ocean_coordinate = True
         if dimension in ['olevel']:
          vertical_dimension = 'depth_coord'                   # The Omon masscello olevel-case
