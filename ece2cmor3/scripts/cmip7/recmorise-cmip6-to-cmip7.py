@@ -80,7 +80,7 @@ def dimension_attribute(coordinates_file, selected_dimension, specified_attribut
 #           "generic_level_name": "alevel",
 
 
-def print_dimension_attributes_with_values(coordinates_file):
+def print_dimension_attributes_with_values(coordinates_file, selected_dimension):
     for k, v in coordinates_file.items():
      for dim_name, dim_attribute_dict in v.items():
       if dim_name == selected_dimension:
@@ -226,7 +226,6 @@ def main():
 
     cmor_table_of_selected_realm = 'CMIP7_{}.json'.format(cmip7_realm)
 
-
     # Load the file with the CMIP7 coordinates (with the coordinate units):
     with open(cmip7_cmor_tables_dir + cmor_table_of_selected_realm, 'r') as file:
         cmip7_cmor_table_with_var = json.load(file)
@@ -235,14 +234,12 @@ def main():
     with open(cmip7_cmor_tables_dir + 'CMIP7_coordinate.json', 'r') as file:
         cmip7_coordinates = json.load(file)
 
+    sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
 
-    # Looking around in the loaded CMIP7 coordinates:
+    # Looking around in the CMIP7 coordinates of the considered variable:
     if False:
-     selected_dimensions = ['time', 'latitude', 'longitude', 'height2m', 'alevel']
-     for selected_dimension in selected_dimensions:
-      print(' The selected dimension {:15} has units: {}'.format(selected_dimension, dimension_attribute(cmip7_coordinates, selected_dimension, 'units')))
-      print_dimension_attributes_with_values(cmip7_coordinates)
-     print()
+     for var_dimension in sorted_cmip7_dimensions:
+      print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
 
 
     with open('input.json', 'w') as fh:
@@ -324,7 +321,7 @@ def main():
      # Define the CMOR variable object
 
      cmoraxes = []
-     for dimension in sorted(cmip7_dimensions, key=tweakedorder_dimensions):
+     for dimension in sorted_cmip7_dimensions:
       dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
       if verbose:
        print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
