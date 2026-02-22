@@ -291,8 +291,6 @@ def main():
 
     # Define the CMOR variable object
 
-   #if 'longitude' in sorted_cmip7_dimensions and 'latitude' in sorted_cmip7_dimensions:
-
     if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem'] and \
        'longitude' in sorted_cmip7_dimensions          and \
        'latitude'  in sorted_cmip7_dimensions:
