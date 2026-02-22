@@ -101,7 +101,7 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 
 
 def tweakedorder_dimensions(list_of_dimensions):
- if   list_of_dimensions in ["time", "time1", "time2", "time3", "time4"] : return  1  # Without time3 here it wordks as well for variables like Amon rsdt
+ if   list_of_dimensions in ['time', 'time1', 'time2', 'time3', 'time4'] : return  1  # Without time3 here it wordks as well for variables like Amon rsdt
  elif list_of_dimensions == 'latitude'                                   : return  3
  elif list_of_dimensions == 'longitude'                                  : return  4
  else:                                                                     return  2  # The vertical coordinate has to be before the latitude & longitude
@@ -109,13 +109,13 @@ def tweakedorder_dimensions(list_of_dimensions):
 
 def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     # Construct time coordinate in a way that we can update with points and bounds later
-    if dim in ["time"]:
+    if dim in ['time']:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim, 'units'))
-    elif dim in ["time1", "time2", "time3", "time4"]:
+    elif dim in ['time1', 'time2', 'time3', 'time4']:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim_standard_name, 'units'))
-    elif dim in ["latitude", "longitude", "plev19", "landuse", "sdepth", 'depth_coord']:
+    elif dim in ['latitude', 'longitude', 'plev19', 'landuse', 'sdepth', 'depth_coord']:
      if debug:
       print('\nINFO 1 from add_dimension:\n{}'  .format(var_cube))
       print('\nINFO 2 from add_dimension:\n{}\n'.format(var_cube.coord(dim_standard_name)))
@@ -264,7 +264,7 @@ def main():
 
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+        warnings.simplefilter('ignore')
         cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_expirement_member   + '/' \
                                                     + cmip6_table             + '/' \
                                                     + cmip6_variable          + '/' \
@@ -366,14 +366,14 @@ def main():
     with open(cmip7_cmor_tables_dir + 'CMIP7_cell_measures.json') as fh:
         cell_measures = json.load(fh)
     value_cell_measures = cell_measures['cell_measures'][cmip7_compound_name]
-    cmor.set_variable_attribute(cmorvar, "cell_measures", "c", value_cell_measures)
+    cmor.set_variable_attribute(cmorvar, 'cell_measures', 'c', value_cell_measures)
 
     # Override long names if necessary
     with open(cmip7_cmor_tables_dir + 'CMIP7_long_name_overrides.json') as fh:
         long_name_overrides = json.load(fh)
     if cmip7_compound_name in long_name_overrides['long_name_overrides']:
         new_value_long_name = long_name_overrides['long_name_overrides'][cmip7_compound_name]
-        cmor.set_variable_attribute(cmorvar, "long_name", "c", new_value_long_name)
+        cmor.set_variable_attribute(cmorvar, 'long_name', 'c', new_value_long_name)
 
 
     # Slice up data into N time record chunks and push through CMOR.write
