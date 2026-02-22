@@ -282,7 +282,7 @@ def main():
 
     # Define the CMOR variable object
 
-    if cmip7_realm in ['ocean', 'seaIce']:
+    if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem']:
      orca_grid_case = True
     else:
      orca_grid_case = False
