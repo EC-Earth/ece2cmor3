@@ -62,6 +62,7 @@ def parse_args():
     parser.add_argument('var'  , metavar='cmip6_variable', type=str, default='tas', help='The CMIP6 variable of the variable to convert, for instance: tas.')
     # Optional input arguments
     parser.add_argument('-v', '--verbose', action='store_true'                    , help="Verbose messaging")
+    parser.add_argument('-d', '--debug'  , action='store_true'                    , help="Debug messaging")
     return parser.parse_args()
 
 
@@ -115,7 +116,7 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim_standard_name, 'units'))
     elif dim in ["latitude", "longitude", "plev19", "landuse", "sdepth", 'depth_coord']:
-     if False:
+     if debug:
       print('\nINFO 1 from add_dimension:\n{}'  .format(var_cube))
       print('\nINFO 2 from add_dimension:\n{}\n'.format(var_cube.coord(dim_standard_name)))
      cmordim = cmor.axis(dim,                                                           \
@@ -134,7 +135,10 @@ def main():
 
     cmip6_table    = args.table
     cmip6_variable = args.var
+    global verbose
+    global debug
     verbose        = args.verbose
+    debug          = args.debug
 
     if verbose:
      print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
@@ -246,7 +250,7 @@ def main():
     sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
 
     # Looking around in the CMIP7 coordinates of the considered variable:
-    if False:
+    if debug:
      for var_dimension in sorted_cmip7_dimensions:
       print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
 
