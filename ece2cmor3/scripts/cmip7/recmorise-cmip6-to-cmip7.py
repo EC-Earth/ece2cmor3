@@ -249,6 +249,9 @@ def main():
 
     sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
 
+    if 'deltasigt' in sorted_cmip7_dimensions:
+     sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
+
     # Looking around in the CMIP7 coordinates of the considered variable:
     if debug:
      for var_dimension in sorted_cmip7_dimensions:
@@ -308,16 +311,19 @@ def main():
      dim_standard_name = dimension_attribute(cmip7_coordinates, 'time', 'standard_name')
      time_axis_id = add_dimension(var_cube, cmip7_coordinates, 'time', dim_standard_name)
 
+     vertical_dimension = 'depth_coord'
      vertical_ocean_coordinate = False
      # ORCA cases without a time dimension are not covered yet:
      if len(sorted_cmip7_dimensions) > 3:
       for dimension in sorted_cmip7_dimensions:
        if dimension not in ['time', 'longitude', 'latitude']: # What about time1 etc.?
         vertical_ocean_coordinate = True
-        dim_standard_name = dimension_attribute(cmip7_coordinates, 'depth_coord', 'standard_name')
+        dim_standard_name = dimension_attribute(cmip7_coordinates, vertical_dimension, 'standard_name')
+      ##dim_standard_name = dimension_attribute(cmip7_coordinates, 'depth_coord'     , 'standard_name')        # The explicit Omon masscello case
+        vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, dim_standard_name)
+      ##vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, 'depth_coord'     , 'depth')              # The explicit Omon masscello case
         if verbose:
          print('\n The vertical ocean coordinate {} has a standard_name="{}".\n Note that currently depth_coord is used instead of the ocean coordinate name.\n'.format(dimension, dim_standard_name))
-        vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, 'depth_coord', dim_standard_name)
 
      # Here load the grids table to set up x and y axes and the lat-long grid:
      cmor.load_table('CMIP7_grids.json')
