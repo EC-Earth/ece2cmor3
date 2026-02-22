@@ -115,7 +115,7 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     elif dim in ['time1', 'time2', 'time3', 'time4']:
      cmordim = cmor.axis(dim, \
                          units=dimension_attribute(coordinates_file, dim_standard_name, 'units'))
-    elif dim in ['latitude', 'longitude', 'plev19', 'landuse', 'sdepth', 'depth_coord']:
+    elif dim in ['latitude', 'longitude', 'plev19', 'landuse', 'sdepth', 'depth_coord', 'gridlatitude', 'basin', 'osurf']:
      if debug:
       print('\nINFO 1 from add_dimension:\n{}'  .format(var_cube))
       print('\nINFO 2 from add_dimension:\n{}\n'.format(var_cube.coord(dim_standard_name)))
@@ -249,13 +249,21 @@ def main():
 
     sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
 
+    # Looking around in the CMIP7 coordinates of the considered variable:
+    if debug:
+     print('\n The dimensions: {}'.format(sorted_cmip7_dimensions))
+     for var_dimension in sorted_cmip7_dimensions:
+      if var_dimension not in ['time', 'longitude', 'latitude']:
+       print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
+
     if 'deltasigt' in sorted_cmip7_dimensions:
      sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
 
-    # Looking around in the CMIP7 coordinates of the considered variable:
-    if debug:
-     for var_dimension in sorted_cmip7_dimensions:
-      print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
+   #if 'osurf' in sorted_cmip7_dimensions:
+   # sorted_cmip7_dimensions.remove('osurf')     # Remove a vertical coorinate for si_tavg-ols-hxy-sea
+
+   #if 'olevel' in sorted_cmip7_dimensions:
+   # sorted_cmip7_dimensions.remove('olevel')    # Remove a vertical coorinate for msfty_tavg-ol-ht-sea
 
 
     with open('input.json', 'w') as fh:
@@ -311,17 +319,20 @@ def main():
      dim_standard_name = dimension_attribute(cmip7_coordinates, 'time', 'standard_name')
      time_axis_id = add_dimension(var_cube, cmip7_coordinates, 'time', dim_standard_name)
 
-     vertical_dimension = 'depth_coord'
      vertical_ocean_coordinate = False
      # ORCA cases without a time dimension are not covered yet:
      if len(sorted_cmip7_dimensions) > 3:
       for dimension in sorted_cmip7_dimensions:
        if dimension not in ['time', 'longitude', 'latitude']: # What about time1 etc.?
         vertical_ocean_coordinate = True
+        if dimension in ['olevel']:
+         vertical_dimension = 'depth_coord'                   # The Omon masscello olevel-case
+        else:
+         vertical_dimension = dimension
         dim_standard_name = dimension_attribute(cmip7_coordinates, vertical_dimension, 'standard_name')
-      ##dim_standard_name = dimension_attribute(cmip7_coordinates, 'depth_coord'     , 'standard_name')        # The explicit Omon masscello case
         vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, dim_standard_name)
-      ##vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, 'depth_coord'     , 'depth')              # The explicit Omon masscello case
+       #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'depth')              # The explicit Omon masscello case
+       #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'seasurface')         # The explicit Omon sios      case, standard_name empty in coord table
         if verbose:
          print('\n The vertical ocean coordinate {} has a standard_name="{}".\n Note that currently depth_coord is used instead of the ocean coordinate name.\n'.format(dimension, dim_standard_name))
 
