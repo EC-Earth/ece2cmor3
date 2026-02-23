@@ -190,7 +190,7 @@ def main():
             '"' + cmip7_units           + '"'))
 
     else: # The for-else:
-     if not match: sys.exit(' Sorry no CMIP7 equivalent:\n')
+     if not match: sys.exit(' Sorry no CMIP7 equivalent for: {:12} {}\n'.format(cmip6_table, cmip6_variable))
 
 
     # Overwrite grid label when::
