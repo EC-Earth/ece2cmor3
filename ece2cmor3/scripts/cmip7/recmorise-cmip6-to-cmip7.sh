@@ -4,6 +4,7 @@
 
 # Adjust this path also in LOCAL_CMIP6_ROOT in recmorise-cmip6-to-cmip7.py:
  ece3_cmip6_data_dri_root=~/cmorize/test-data-ece3-ESM-1/CE37-test/
+#ece3_cmip6_data_dri_root=/scratch/nktr/test-data/CE37-test/
 #ece3_cmip6_data_dri_root=/scratch/nktr/test-data/CE38-test/
 
 #for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
@@ -22,6 +23,11 @@
 
 #./run-recmorise-cmip6-to-cmip7.sh
 
+
+# Currently 268 variables produced at laptop test data set
+
+# The fx & Ofx variables suffer from a CMOR NaN error, where I can't find the NaN's in the data.
+# The Efx variable succesfully recmorises. So for all fx* cases the absence of the time dimension is implemented.
 
 # A log of the problematic encountered cases:
 

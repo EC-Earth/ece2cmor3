@@ -23,6 +23,7 @@ from os.path import expanduser
 
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
+#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')        # On hpc2020
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
 
 production_date_version      = 'v*'
