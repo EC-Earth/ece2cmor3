@@ -23,8 +23,12 @@ from os.path import expanduser
 
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
-#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')        # On hpc2020
-#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')        # On hpc2020
+#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')                             # On hpc2020
+#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')                             # On hpc2020
+
+OUTPUT_CMIP7_ROOT            = expanduser('~/cmip7-cmorised')
+#OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE37-test/')   # On hpc2020
+#OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE38-test/')   # On hpc2020
 
 production_date_version      = 'v*'
 #grid_label                   = 'gr'
@@ -226,7 +230,7 @@ def main():
         "institution_id"             : institution_id,
         "license_id"                 : "CC-BY-4-0",
         "nominal_resolution"         : "100 km",
-        "outpath"                    : ".",
+        "outpath"                    : OUTPUT_CMIP7_ROOT,
         "parent_mip_era"             : "CMIP7",
         "parent_time_units"          : "days since 1850-01-01",
         "parent_activity_id"         : "CMIP",
