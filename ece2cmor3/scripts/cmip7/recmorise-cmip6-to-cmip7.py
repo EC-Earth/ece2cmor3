@@ -343,10 +343,11 @@ def main():
      elif 'time4' in sorted_cmip7_dimensions:
       name_time_dim = 'time4'
      else:
-      print(' ERROR 1')
+      print('\n No time dimension for ORCA grid case.\n')
 
-     dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
-     time_axis_id = add_dimension(var_cube, cmip7_coordinates, name_time_dim, dim_standard_name)
+     if not no_time_dimension:
+      dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
+      time_axis_id = add_dimension(var_cube, cmip7_coordinates, name_time_dim, dim_standard_name)
 
      vertical_ocean_coordinate = False
      # ORCA cases without a time dimension are not covered yet:
@@ -387,10 +388,16 @@ def main():
 
      # Load again the realm table of the variable:
      cmor.load_table(cmor_table_of_selected_realm)
-     if vertical_ocean_coordinate:
-      cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
+     if no_time_dimension:
+      if vertical_ocean_coordinate:
+       cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[              vertical_dim_id, grid_id], positive=variable_attrib)
+      else:
+       cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[                               grid_id], positive=variable_attrib)
      else:
-      cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
+      if vertical_ocean_coordinate:
+       cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
+      else:
+       cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
     else:
 
      # Define the CMOR variable object
