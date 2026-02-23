@@ -430,8 +430,11 @@ def main():
         if verbose:
          print(' {}'.format(s))
         cube_slice = var_cube[s]
-        cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
-                                           , time_bnds=cube_slice.coord('time').bounds)
+        if no_time_dimension:
+         cmor.write(cmorvar, cube_slice.data)
+        else:
+         cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
+                                            , time_bnds=cube_slice.coord('time').bounds)
 
     # Close the file (sorts the full naming)
     cmor.close(cmorvar, file_name=True)
