@@ -255,6 +255,14 @@ def main():
 
     sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
 
+    no_time_dimension = True
+    for var_dimension in sorted_cmip7_dimensions:
+     if var_dimension in ['time', 'time1', 'time2', 'time3', 'time4']:
+      no_time_dimension = False
+    if verbose:
+     if no_time_dimension:
+      print('\n This variable has no time dimension.\n')
+
     # Looking around in the CMIP7 coordinates of the considered variable:
     if debug:
      print('\n The dimensions: {}'.format(sorted_cmip7_dimensions))
