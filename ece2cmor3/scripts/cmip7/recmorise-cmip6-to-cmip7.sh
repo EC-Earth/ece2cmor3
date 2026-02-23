@@ -2,21 +2,23 @@
 
 # Calling the recmorise-cmip6-to-cmip7.py script for (nearly) all CMIP6 variable combinations for a given CMIP6 top directory with CMIP6 cmorised data.
 
-ece3_cmip6_data_dri_root=~/cmorize/test-data-ece3-ESM-1/CE37-test/
+# Adjust this path also in LOCAL_CMIP6_ROOT in recmorise-cmip6-to-cmip7.py:
+ ece3_cmip6_data_dri_root=~/cmorize/test-data-ece3-ESM-1/CE37-test/
 #ece3_cmip6_data_dri_root=/scratch/nktr/test-data/CE38-test/
 
 #for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
-for j in {3hr,6hrPlev,Amon,day,Emon,Eyr,LImon,Lmon,Oday,Omon,SIday,SImon,}; do
-  for i in `/usr/bin/ls -1  ${ece3_cmip6_data_dri_root}/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do
-    echo "./recmorise-cmip6-to-cmip7.py $j ${i} &>> recmorise-cmip6-to-cmip7.log";
-  done
-  echo
-done | grep -v -e 'Omon msftyz' -e 'Omon sios' -e 'Omon soga' -e 'Omon thetaoga' -e 'Lmon landCoverFrac' -e '3hr pr' > run-recmorise-cmip6-to-cmip7.sh
+#for j in {fx,Ofx,}; do
+ for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,LImon,Lmon,Oday,Omon,SIday,SImon,}; do
+   for i in `/usr/bin/ls -1  ${ece3_cmip6_data_dri_root}/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do
+     echo "./recmorise-cmip6-to-cmip7.py $j ${i} &>> recmorise-cmip6-to-cmip7.log";
+   done
+   echo
+ done | grep -v -e 'Omon msftyz' -e 'Omon sios' -e 'Omon soga' -e 'Omon thetaoga' -e 'Lmon landCoverFrac' -e '3hr pr' > run-recmorise-cmip6-to-cmip7.sh
 
 # In th elatter pipe a few problematic cases are deselected from the list
 # The 3hr pr is omiitted because of a corrupt netcdf in my test data
 
-chmod uog+x run-recmorise-cmip6-to-cmip7.sh
+ chmod uog+x run-recmorise-cmip6-to-cmip7.sh
 
 #./run-recmorise-cmip6-to-cmip7.sh
 
