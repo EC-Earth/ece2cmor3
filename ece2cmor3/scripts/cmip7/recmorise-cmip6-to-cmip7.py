@@ -4,7 +4,9 @@
 #  for i in `/usr/bin/ls -1         /scratch/nktr/test-data/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
 #  for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
 
-#  for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do echo "./recmorise-cmip6-to-cmip7.py $j ${i} &>> recmorise-cmip6-to-cmip7.log"; done; echo; done > test.sh
+# Or use the bash script to loop over (nearly) all test files in the CMIP6 directory (note in this test data each subdir has contains one file):
+#  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
+#  ./run-recmorise-cmip6-to-cmip7.sh
 
 import cmor      # used for writing files
 import iris      # used for reading files -- netCDF4 or xarray could be used here based on preference
