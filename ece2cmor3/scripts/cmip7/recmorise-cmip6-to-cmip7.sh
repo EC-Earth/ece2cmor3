@@ -50,6 +50,13 @@
 #     Lmon         landCoverFrac               ==>  cmip7_compound_name="land.landCoverFrac.tavg-u-hxy-u.mon.glb"          branded_variable_name="landCoverFrac_tavg-u-hxy-u"             units="%"                 
 
 
+# ./recmorise-cmip6-to-cmip7.py Amon hurs  # ok
+# ./recmorise-cmip6-to-cmip7.py day  hurs  # ok
+# ./recmorise-cmip6-to-cmip7.py Amon hur   # ok
+# ./recmorise-cmip6-to-cmip7.py day  hur   # fails: Error: requested value * for axis plev19 (table: atmos) was not found
+
+
+
 # Data dir wrong in my tets data (not so relevant):
 #     day          tasmax                      ==>  cmip7_compound_name="atmos.tas.tmax-h2m-hxy-u.day.glb"                 branded_variable_name="tas_tmax-h2m-hxy-u"                     units="K"                 
 #     day          tasmin                      ==>  cmip7_compound_name="atmos.tas.tmin-h2m-hxy-u.day.glb"                 branded_variable_name="tas_tmin-h2m-hxy-u"                     units="K"                 
