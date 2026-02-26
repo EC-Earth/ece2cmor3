@@ -23,11 +23,15 @@
 
 #./run-recmorise-cmip6-to-cmip7.sh
 
-
-# Currently 268 variables produced at laptop test data set
+# The run scripts contain currently 408 CE37 and 421 CE38 variables respectively.
+# Currently 268 variables produced at laptop test data set.
+# Currently at hpc2020 334 CE37 and 347 CE38 variables have been successfully recmorised.
 
 # The fx & Ofx variables suffer from a CMOR NaN error, where I can't find the NaN's in the data.
-# The Efx variable succesfully recmorises. So for all fx* cases the absence of the time dimension is implemented.
+# The Efx variable successfully recmorises. So for all fx* cases the absence of the time dimension is implemented.
+#  -  CE37 and CE38 differ 13 variables
+#  - 74 variables less than in run script, but some are also non-cmip7 (34 variables) and fx & Ofx not working yet
+#  - Probably about 40 problematic variables currently.
 
 # A log of the problematic encountered cases:
 
