@@ -25,15 +25,17 @@ from os.path import expanduser
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')                             # On hpc2020
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')                             # On hpc2020
+#LOCAL_CMIP6_ROOT             = expanduser('~/optimesm/cmorized/CE42-test/')
 
 OUTPUT_CMIP7_ROOT            = expanduser('~/cmip7-cmorised')
 #OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE37-test/')   # On hpc2020
 #OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE38-test/')   # On hpc2020
+#OUTPUT_CMIP7_ROOT            = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
 
 production_date_version      = 'v*'
 #grid_label                   = 'gr'
-experiment_id                = 'esm-hist'
-parent_experiment_id         = 'esm-piControl'
+experiment_id                = 'esm-piControl'
+parent_experiment_id         = 'esm-piControl-spinup'
 branch_time_in_child         = 30.0
 branch_time_in_parent        = 10800.0
 institution_id               = 'EC-Earth-Consortium'                                   # Not registered yet
@@ -51,8 +53,8 @@ activity_id                  = 'CMIP'
 time_units                   = 'days since 1850-01-01'                                 # probably
 
 cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
-cmip7_cmor_tables_dir        = '../../../../../cmorize/cmip7-cmor-tables/tables/'      # The cmor API allows only relative paths
-cmip7_cmor_tables_cvs_dir    = '../../../../../cmorize/cmip7-cmor-tables/tables-cvs/'
+cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'      # The cmor API allows only relative paths
+cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 
 drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + 'esm-piControl' + '/' + ripf       # for now
 #drs_expirement_member = 'CMIP6' + '/' + activity_id + '/' + institution_id        + '/' + source_id         + '/' + experiment_id   + '/' + ripf
@@ -219,7 +221,7 @@ def main():
         "branch_method"              : "standard",
         "branch_time_in_child"       : branch_time_in_child,
         "branch_time_in_parent"      : branch_time_in_parent,
-        "calendar"                   : "360_day",                             # check
+        "calendar"                   : "proleptic_gregorian",                             # check
         "drs_specs"                  : "MIP-DRS7",
         "data_specs_version"         : "MIP-DS7.0.0.0",
         "experiment_id"              : experiment_id,
@@ -309,8 +311,7 @@ def main():
         elif number_of_matched_cmip6_files == 1:
          cubelist = iris.load(matched_cmip6_files[0])
         else:
-         cubelist = iris.load(matched_cmip6_files[0])
-         print(' WARNING: {} matched CMIP6 files found, the first one has been taken.\n'.format(number_of_matched_cmip6_files))
+         cubelist = iris.load(matched_cmip6_files)
          if verbose:
           print(' The different files detected are:')
           for matched_cmip6_file in matched_cmip6_files:
@@ -320,7 +321,15 @@ def main():
     for i in cubelist:
         i.attributes = {}
 
-    var_cube = cubelist.concatenate_cube()
+    try:
+        var_cube = cubelist.concatenate_cube()
+    except:
+        print('### Problem with lon/lat, use lon/lat from 1st file')
+        for i in cubelist[1:]:
+            for dim_ccord in ['longitude','latitude']:
+                i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
+                i.coord(dim_coord).bounds = cubelist[0].coord(dim_coord).bounds
+        var_cube = cubelist.concatenate_cube()
 
 
     # Define the CMOR variable object
@@ -435,9 +444,8 @@ def main():
 
 
     # Slice up data into N time record chunks and push through CMOR.write
-    N = 50
-    N = 12
-    for i in range(0, 12, N):
+    N = 24
+    for i in range(0, len(var_cube.coord('time').points), N):
         s = slice(i, i+N)
         if verbose:
          print(' {}'.format(s))
