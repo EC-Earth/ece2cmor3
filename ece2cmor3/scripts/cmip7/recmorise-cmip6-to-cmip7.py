@@ -443,8 +443,9 @@ def main():
 
 
     # Slice up data into N time record chunks and push through CMOR.write
-    N = 50
-    for i in range(0, len(var_cube.coord('time').points), N):
+    N = 16
+    ntimes = len(var_cube.coord('time').points)
+    for i in range(0, ntimes, N):
         s = slice(i, i+N)
         if verbose:
             print(' {}'.format(s))
@@ -457,7 +458,8 @@ def main():
 
     # Close the file (sorts the full naming)
     fname = cmor.close(cmorvar, file_name=True)
-    print(fname)
+    if verbose:
+        print(fname)
 
 if __name__ == '__main__':
     main()
