@@ -21,6 +21,7 @@ import xml.etree.ElementTree as ET
 from importlib.metadata import version
 from os.path import expanduser
 
+import cftime
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')                             # On hpc2020
@@ -208,91 +209,6 @@ def main():
     else:
         grid_label = 'gr'
 
-    # Initiate CMOR:
-    cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
-
-    DATASET_INFO = {
-        "_AXIS_ENTRY_FILE"           : cmip7_cmor_tables_dir + 'CMIP7_coordinate.json',
-        "_FORMULA_VAR_FILE"          : cmip7_cmor_tables_dir + 'CMIP7_formula_terms.json',
-        "_cmip7_option"              : 1,
-        "_controlled_vocabulary_file": cmip7_cmor_tables_cvs_dir + 'cmor-cvs.json',
-        "activity_id"                : activity_id,
-        "branch_method"              : "standard",
-        "branch_time_in_child"       : branch_time_in_child,
-        "branch_time_in_parent"      : branch_time_in_parent,
-        "calendar"                   : "proleptic_gregorian",                             # check
-        "drs_specs"                  : "MIP-DRS7",
-        "data_specs_version"         : "MIP-DS7.0.0.0",
-        "experiment_id"              : experiment_id,
-        "forcing_index"              : ripf_f,
-        "grid"                       : "N96",                                 # check
-        "grid_label"                 : "g99",                                 # check
-        "initialization_index"       : ripf_i,
-        "institution_id"             : institution_id,
-        "license_id"                 : "CC-BY-4-0",
-        "nominal_resolution"         : "100 km",
-        "outpath"                    : OUTPUT_CMIP7_ROOT,
-        "parent_mip_era"             : "CMIP7",
-        "parent_time_units"          : "days since 1850-01-01",
-        "parent_activity_id"         : "CMIP",
-        "parent_source_id"           : parent_source_id,
-        "parent_experiment_id"       : parent_experiment_id,
-        "parent_variant_label"       : ripf,
-        "physics_index"              : ripf_p,
-        "realization_index"          : ripf_r,
-        "source_id"                  : source_id,
-        "tracking_prefix"            : "hdl:21.14107",                        # check
-        "host_collection"            : "CMIP7",
-        "frequency"                  : cmip7_frequency,
-        "region"                     : cmip7_region,
-        "archive_id"                 : "WCRP",
-        "mip_era"                    : "CMIP7",
-    }
-
-    cmor_table_of_selected_realm = 'CMIP7_{}.json'.format(cmip7_realm)
-
-    # Load the file with the CMIP7 coordinates (with the coordinate units):
-    with open(cmip7_cmor_tables_dir + cmor_table_of_selected_realm, 'r') as file:
-        cmip7_cmor_table_with_var = json.load(file)
-
-    # Load the file with the CMIP7 coordinates (with the coordinate units):
-    with open(cmip7_cmor_tables_dir + 'CMIP7_coordinate.json', 'r') as file:
-        cmip7_coordinates = json.load(file)
-
-    sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
-
-    no_time_dimension = True
-    for var_dimension in sorted_cmip7_dimensions:
-        if var_dimension in ['time', 'time1', 'time2', 'time3', 'time4']:
-            no_time_dimension = False
-    if verbose:
-        if no_time_dimension:
-            print('\n This variable has no time dimension.\n')
-
-    # Looking around in the CMIP7 coordinates of the considered variable:
-    if debug:
-        print('\n The dimensions: {}'.format(sorted_cmip7_dimensions))
-        for var_dimension in sorted_cmip7_dimensions:
-            if var_dimension not in ['time', 'longitude', 'latitude']:
-                print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
-
-    if 'deltasigt' in sorted_cmip7_dimensions:
-        sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
-
-   #if 'osurf' in sorted_cmip7_dimensions:
-   # sorted_cmip7_dimensions.remove('osurf')     # Remove a vertical coorinate for si_tavg-ols-hxy-sea
-
-   #if 'olevel' in sorted_cmip7_dimensions:
-   # sorted_cmip7_dimensions.remove('olevel')    # Remove a vertical coorinate for msfty_tavg-ol-ht-sea
-
-
-    with open('input.json', 'w') as fh:
-        json.dump(DATASET_INFO, fh, indent=2)
-
-    cmor.dataset_json('input.json')
-
-    cmor.load_table(cmor_table_of_selected_realm)
-
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
@@ -320,146 +236,246 @@ def main():
             i.attributes = {}
 
         try:
-            var_cube = cubelist.concatenate_cube()
+            var_cube_all = cubelist.concatenate_cube()
         except:
             print('### Problem with lon/lat, use lon/lat from 1st file')
             for i in cubelist[1:]:
                 for dim_coord in ['longitude','latitude']:
                     i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
                     i.coord(dim_coord).bounds = cubelist[0].coord(dim_coord).bounds
-            var_cube = cubelist.concatenate_cube()
+            var_cube_all = cubelist.concatenate_cube()
 
-
-    # Define the CMOR variable object
-    variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
-
-    # ocean grid ?
-    if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem'] and \
-      'longitude' in sorted_cmip7_dimensions           and \
-      'latitude'  in sorted_cmip7_dimensions:
-        orca_grid_case = True
-        if cmip6_variable in ['siconca']:
-            orca_grid_case = False
+    # loop over chunks of given length
+    # to do: make nyears a function of levels and frequency
+    if 'mon' in cmip6_table:
+        nyears=50
+    elif 'day' in cmip6_table:
+        nyears=2
     else:
-        orca_grid_case = False
+        nyears=1 
 
-    if orca_grid_case:
-        if   'time'  in sorted_cmip7_dimensions:
-            name_time_dim = 'time'
-        elif 'time1' in sorted_cmip7_dimensions:
-            name_time_dim = 'time1'
-        elif 'time2' in sorted_cmip7_dimensions:
-            name_time_dim = 'time2'
-        elif 'time3' in sorted_cmip7_dimensions:
-            name_time_dim = 'time3'
-        elif 'time4' in sorted_cmip7_dimensions:
-            name_time_dim = 'time4'
-        else:
-            print('\n No time dimension for ORCA grid case.\n')
+    time_axis = var_cube_all.coord('time').units.num2date(var_cube_all.coord('time').points)
+    for y in range(int(time_axis[0].strftime("%Y")),int(time_axis[-1].strftime("%Y"))+1,nyears):
+        t1=cftime.datetime(y,1,1)
+        t2=cftime.datetime(y+nyears,1,1)
+        if verbose: print(f'process time chunk from {t1} to {t2}')
+        var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: t1<= cell.point <t2))
 
-        if not no_time_dimension:
-            dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
-            time_axis_id = add_dimension(var_cube, cmip7_coordinates, name_time_dim, dim_standard_name)
+        # Initiate CMOR:
+        cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
 
-        vertical_ocean_coordinate = False
-        # ORCA cases without a time dimension are not covered yet:
-        if len(sorted_cmip7_dimensions) >= 3:
-            for dimension in sorted_cmip7_dimensions:
-                if dimension not in [name_time_dim, 'longitude', 'latitude']:
-                    vertical_ocean_coordinate = True
-                    if dimension in ['olevel']:
-                        vertical_dimension = 'depth_coord'                   # The Omon masscello olevel-case
-                    else:
-                        vertical_dimension = dimension
-                    dim_standard_name = dimension_attribute(cmip7_coordinates, vertical_dimension, 'standard_name')
-                    vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, dim_standard_name)
-        #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'depth')              # The explicit Omon masscello case
-        #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'seasurface')         # The explicit Omon sios      case, standard_name empty in coord table
-                    if verbose:
-                        print('\n The vertical ocean coordinate {} has a standard_name="{}".\n Note that currently depth_coord is used instead of the ocean coordinate name.\n'.format(dimension, dim_standard_name))
+        DATASET_INFO = {
+            "_AXIS_ENTRY_FILE"           : cmip7_cmor_tables_dir + 'CMIP7_coordinate.json',
+            "_FORMULA_VAR_FILE"          : cmip7_cmor_tables_dir + 'CMIP7_formula_terms.json',
+            "_cmip7_option"              : 1,
+            "_controlled_vocabulary_file": cmip7_cmor_tables_cvs_dir + 'cmor-cvs.json',
+            "activity_id"                : activity_id,
+            "branch_method"              : "standard",
+            "branch_time_in_child"       : branch_time_in_child,
+            "branch_time_in_parent"      : branch_time_in_parent,
+            "calendar"                   : "proleptic_gregorian",                             # check
+            "drs_specs"                  : "MIP-DRS7",
+            "data_specs_version"         : "MIP-DS7.0.0.0",
+            "experiment_id"              : experiment_id,
+            "forcing_index"              : ripf_f,
+            "grid"                       : "N96",                                 # check
+            "grid_label"                 : "g99",                                 # check
+            "initialization_index"       : ripf_i,
+            "institution_id"             : institution_id,
+            "license_id"                 : "CC-BY-4-0",
+            "nominal_resolution"         : "100 km",
+            "outpath"                    : OUTPUT_CMIP7_ROOT,
+            "parent_mip_era"             : "CMIP7",
+            "parent_time_units"          : "days since 1850-01-01",
+            "parent_activity_id"         : "CMIP",
+            "parent_source_id"           : parent_source_id,
+            "parent_experiment_id"       : parent_experiment_id,
+            "parent_variant_label"       : ripf,
+            "physics_index"              : ripf_p,
+            "realization_index"          : ripf_r,
+            "source_id"                  : source_id,
+            "tracking_prefix"            : "hdl:21.14107",                        # check
+            "host_collection"            : "CMIP7",
+            "frequency"                  : cmip7_frequency,
+            "region"                     : cmip7_region,
+            "archive_id"                 : "WCRP",
+            "mip_era"                    : "CMIP7",
+        }
 
-            # Here load the grids table to set up x and y axes and the lat-long grid:
-            cmor.load_table('CMIP7_grids.json')
+        cmor_table_of_selected_realm = 'CMIP7_{}.json'.format(cmip7_realm)
 
-            lon_std_name = 'first spatial index for variables stored on an unstructured grid'
-            lat_std_name = 'second spatial index for variables stored on an unstructured grid'
+        # Load the file with the CMIP7 coordinates (with the coordinate units):
+        with open(cmip7_cmor_tables_dir + cmor_table_of_selected_realm, 'r') as file:
+            cmip7_cmor_table_with_var = json.load(file)
 
-            y_axis_id = cmor.axis(table_entry='grid_latitude',
-                                units='degrees',
-                                coord_vals=var_cube.coord(lat_std_name).points,
-                                cell_bounds=var_cube.coord(lat_std_name).bounds)
-            x_axis_id = cmor.axis(table_entry='grid_longitude',
-                                units='degrees',
-                                coord_vals=var_cube.coord(lon_std_name).points,
-                                cell_bounds=var_cube.coord(lon_std_name).bounds)
-            grid_id   = cmor.grid(axis_ids=[y_axis_id, x_axis_id],
-                                latitude=var_cube.coord('latitude').points,
-                                longitude=var_cube.coord('longitude').points,
-                                latitude_vertices=var_cube.coord('latitude').bounds,
-                                longitude_vertices=var_cube.coord('longitude').bounds)
+        # Load the file with the CMIP7 coordinates (with the coordinate units):
+        with open(cmip7_cmor_tables_dir + 'CMIP7_coordinate.json', 'r') as file:
+            cmip7_coordinates = json.load(file)
 
-            # Load again the realm table of the variable:
-            cmor.load_table(cmor_table_of_selected_realm)
+        sorted_cmip7_dimensions = sorted(cmip7_dimensions, key=tweakedorder_dimensions)
+
+        no_time_dimension = True
+        for var_dimension in sorted_cmip7_dimensions:
+            if var_dimension in ['time', 'time1', 'time2', 'time3', 'time4']:
+                no_time_dimension = False
+        if verbose:
             if no_time_dimension:
-                if vertical_ocean_coordinate:
-                    cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[              vertical_dim_id, grid_id], positive=variable_attrib)
-                else:
-                    cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[                               grid_id], positive=variable_attrib)
-            else:
-                if vertical_ocean_coordinate:
-                    cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
-                else:
-                    cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
-    
-    else:
+                print('\n This variable has no time dimension.\n')
+
+        # Looking around in the CMIP7 coordinates of the considered variable:
+        if debug:
+            print('\n The dimensions: {}'.format(sorted_cmip7_dimensions))
+            for var_dimension in sorted_cmip7_dimensions:
+                if var_dimension not in ['time', 'longitude', 'latitude']:
+                    print_dimension_attributes_with_values(cmip7_coordinates, var_dimension)
+
+        if 'deltasigt' in sorted_cmip7_dimensions:
+            sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
+
+    #if 'osurf' in sorted_cmip7_dimensions:
+    # sorted_cmip7_dimensions.remove('osurf')     # Remove a vertical coorinate for si_tavg-ols-hxy-sea
+
+    #if 'olevel' in sorted_cmip7_dimensions:
+    # sorted_cmip7_dimensions.remove('olevel')    # Remove a vertical coorinate for msfty_tavg-ol-ht-sea
+
+
+        with open('input.json', 'w') as fh:
+            json.dump(DATASET_INFO, fh, indent=2)
+
+        cmor.dataset_json('input.json')
+
+        cmor.load_table(cmor_table_of_selected_realm)
+
+
 
         # Define the CMOR variable object
+        variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
 
-        cmoraxes = []
-        for dimension in sorted_cmip7_dimensions:
-            dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
-            if verbose:
-                print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
-            cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
-            if cmordim is not None:
-                cmoraxes.append(cmordim)
-                if verbose: print()
-
-        cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
-
-
-    # Apply cell measures
-    with open(cmip7_cmor_tables_dir + 'CMIP7_cell_measures.json') as fh:
-        cell_measures = json.load(fh)
-    value_cell_measures = cell_measures['cell_measures'][cmip7_compound_name]
-    cmor.set_variable_attribute(cmorvar, 'cell_measures', 'c', value_cell_measures)
-
-    # Override long names if necessary
-    with open(cmip7_cmor_tables_dir + 'CMIP7_long_name_overrides.json') as fh:
-        long_name_overrides = json.load(fh)
-    if cmip7_compound_name in long_name_overrides['long_name_overrides']:
-        new_value_long_name = long_name_overrides['long_name_overrides'][cmip7_compound_name]
-        cmor.set_variable_attribute(cmorvar, 'long_name', 'c', new_value_long_name)
-
-
-    # Slice up data into N time record chunks and push through CMOR.write
-    N = 16
-    ntimes = len(var_cube.coord('time').points)
-    for i in range(0, ntimes, N):
-        s = slice(i, i+N)
-        if verbose:
-            print(' {}'.format(s))
-        cube_slice = var_cube[s]
-        if no_time_dimension:
-            cmor.write(cmorvar, cube_slice.data)
+        # ocean grid ?
+        if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem'] and \
+        'longitude' in sorted_cmip7_dimensions           and \
+        'latitude'  in sorted_cmip7_dimensions:
+            orca_grid_case = True
+            if cmip6_variable in ['siconca']:
+                orca_grid_case = False
         else:
-            cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
-                                            , time_bnds=cube_slice.coord('time').bounds)
+            orca_grid_case = False
 
-    # Close the file (sorts the full naming)
-    fname = cmor.close(cmorvar, file_name=True)
-    if verbose:
-        print(fname)
+        if orca_grid_case:
+            if   'time'  in sorted_cmip7_dimensions:
+                name_time_dim = 'time'
+            elif 'time1' in sorted_cmip7_dimensions:
+                name_time_dim = 'time1'
+            elif 'time2' in sorted_cmip7_dimensions:
+                name_time_dim = 'time2'
+            elif 'time3' in sorted_cmip7_dimensions:
+                name_time_dim = 'time3'
+            elif 'time4' in sorted_cmip7_dimensions:
+                name_time_dim = 'time4'
+            else:
+                print('\n No time dimension for ORCA grid case.\n')
+
+            if not no_time_dimension:
+                dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
+                time_axis_id = add_dimension(var_cube, cmip7_coordinates, name_time_dim, dim_standard_name)
+
+            vertical_ocean_coordinate = False
+            # ORCA cases without a time dimension are not covered yet:
+            if len(sorted_cmip7_dimensions) >= 3:
+                for dimension in sorted_cmip7_dimensions:
+                    if dimension not in [name_time_dim, 'longitude', 'latitude']:
+                        vertical_ocean_coordinate = True
+                        if dimension in ['olevel']:
+                            vertical_dimension = 'depth_coord'                   # The Omon masscello olevel-case
+                        else:
+                            vertical_dimension = dimension
+                        dim_standard_name = dimension_attribute(cmip7_coordinates, vertical_dimension, 'standard_name')
+                        vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, dim_standard_name)
+            #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'depth')              # The explicit Omon masscello case
+            #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'seasurface')         # The explicit Omon sios      case, standard_name empty in coord table
+                        if verbose:
+                            print('\n The vertical ocean coordinate {} has a standard_name="{}".\n Note that currently depth_coord is used instead of the ocean coordinate name.\n'.format(dimension, dim_standard_name))
+
+                # Here load the grids table to set up x and y axes and the lat-long grid:
+                cmor.load_table('CMIP7_grids.json')
+
+                lon_std_name = 'first spatial index for variables stored on an unstructured grid'
+                lat_std_name = 'second spatial index for variables stored on an unstructured grid'
+
+                y_axis_id = cmor.axis(table_entry='grid_latitude',
+                                    units='degrees',
+                                    coord_vals=var_cube.coord(lat_std_name).points,
+                                    cell_bounds=var_cube.coord(lat_std_name).bounds)
+                x_axis_id = cmor.axis(table_entry='grid_longitude',
+                                    units='degrees',
+                                    coord_vals=var_cube.coord(lon_std_name).points,
+                                    cell_bounds=var_cube.coord(lon_std_name).bounds)
+                grid_id   = cmor.grid(axis_ids=[y_axis_id, x_axis_id],
+                                    latitude=var_cube.coord('latitude').points,
+                                    longitude=var_cube.coord('longitude').points,
+                                    latitude_vertices=var_cube.coord('latitude').bounds,
+                                    longitude_vertices=var_cube.coord('longitude').bounds)
+
+                # Load again the realm table of the variable:
+                cmor.load_table(cmor_table_of_selected_realm)
+                if no_time_dimension:
+                    if vertical_ocean_coordinate:
+                        cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[              vertical_dim_id, grid_id], positive=variable_attrib)
+                    else:
+                        cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[                               grid_id], positive=variable_attrib)
+                else:
+                    if vertical_ocean_coordinate:
+                        cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
+                    else:
+                        cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
+        
+        else:
+
+            # Define the CMOR variable object
+
+            cmoraxes = []
+            for dimension in sorted_cmip7_dimensions:
+                dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
+                if verbose:
+                    print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
+                cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
+                if cmordim is not None:
+                    cmoraxes.append(cmordim)
+                    if verbose: print()
+
+            cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
+
+
+        # Apply cell measures
+        with open(cmip7_cmor_tables_dir + 'CMIP7_cell_measures.json') as fh:
+            cell_measures = json.load(fh)
+        value_cell_measures = cell_measures['cell_measures'][cmip7_compound_name]
+        cmor.set_variable_attribute(cmorvar, 'cell_measures', 'c', value_cell_measures)
+
+        # Override long names if necessary
+        with open(cmip7_cmor_tables_dir + 'CMIP7_long_name_overrides.json') as fh:
+            long_name_overrides = json.load(fh)
+        if cmip7_compound_name in long_name_overrides['long_name_overrides']:
+            new_value_long_name = long_name_overrides['long_name_overrides'][cmip7_compound_name]
+            cmor.set_variable_attribute(cmorvar, 'long_name', 'c', new_value_long_name)
+
+
+        # Slice up data into N time record chunks and push through CMOR.write
+        N = 16
+        ntimes = len(var_cube.coord('time').points)
+        for i in range(0, ntimes, N):
+            s = slice(i, i+N)
+            cube_slice = var_cube[s]
+            if no_time_dimension:
+                cmor.write(cmorvar, cube_slice.data)
+            else:
+                cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
+                                                , time_bnds=cube_slice.coord('time').bounds)
+
+        # Close the file (sorts the full naming)
+        fname = cmor.close(cmorvar, file_name=True)
+        if verbose:
+            print(f'saved {fname}')
 
 if __name__ == '__main__':
     main()
