@@ -61,7 +61,8 @@ cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + 'esm-piControl' + '/' + ripf       # for now
 #drs_expirement_member = 'CMIP6' + '/' + activity_id + '/' + institution_id        + '/' + source_id         + '/' + experiment_id   + '/' + ripf
 
-
+# suppress iris warning
+iris.FUTURE.date_microseconds = True
 
 def parse_args():
     """
@@ -76,6 +77,8 @@ def parse_args():
     # Optional input arguments
     parser.add_argument('-v', '--verbose', action='store_true'                    , help="Verbose messaging")
     parser.add_argument('-d', '--debug'  , action='store_true'                    , help="Debug messaging")
+    parser.add_argument('-i', '--year1', metavar='year1'   , type=int, default=None , help='The first year to process [default: None]')
+    parser.add_argument('-j', '--year2', metavar='year2'   , type=int, default=None , help='The last year to process [default: None]')
     return parser.parse_args()
 
 
@@ -152,6 +155,11 @@ def main():
     global debug
     verbose        = args.verbose
     debug          = args.debug
+
+    year1          = args.year1
+    year2          = args.year2
+    if year1 and not year2: year2=year1
+    if year2 and not year1: year1=year2
 
     if verbose:
         print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
@@ -283,8 +291,13 @@ def main():
     first_year = int(time_axis[0].strftime("%Y"))
     last_year  = int(time_axis[-1].strftime("%Y"))
     for y in range(int(first_year/nyears)*nyears,last_year+1,nyears):
-        time1=cftime.datetime(y,1,1)
-        time2=cftime.datetime(y+nyears,1,1)
+        if year1:
+            if max(y,year1)>min(y+nyears,year2): continue
+            time1=cftime.datetime(max(y,year1),1,1)
+            time2=cftime.datetime(min(y+nyears,year2+1),1,1)
+        else:
+            time1=cftime.datetime(y,1,1)
+            time2=cftime.datetime(y+nyears,1,1)
         if verbose: print(f'process time chunk from {time1} to {time2}')
         var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
 
