@@ -1,0 +1,157 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) hpc/.1.8.1
+***********************************
+You have loaded a Mambaforge module
+***********************************
+
+JUST LOADING THIS MODULE DOES *NOT* CHANGE THE PYTHON VERSION, NOR ENABLES ANY
+EXTRA PYTHON MODULES.
+
+This module makes available the 'mamba' and 'conda' commands from the miniforge
+Mambaforge distribution,
+with which users can create named anaconda-like environments and then activate
+them.
+
+To create and use a customized environment use 'mamba create ...' and
+then 'mamba activate ...' (see example below).
+
+---------------------------------------------------------------------------------------------------
+NOTE: NSC strongly advices against placing 'mamba activate' (or 'conda
+activate', with or without
+      arguments) in your shell initialization files, (e.g. '.bashrc' or
+'.bash_profile') since
+      this severly alters the environment for running software in ways that
+cause unpredictable
+      issues that can be difficult to diagnose.
+---------------------------------------------------------------------------------------------------
+
+Example usage:
+
+  * Setting up a customized environment and run a Python program in it:
+
+    mamba create -n myenv python=3.8 scipy=1.5.2
+    mamba activate myenv
+    python my_scipy_python_program.py
+
+  * To run the python program in the same environment when logging in the next
+time:
+
+    mabma activate myenv
+    python my_scipy_python_program.py
+
+The miniforge Mambaforge distribution aims to be command-line compatible with
+Anaconda.
+More details on Anaconda environment management are available here:
+
+
+https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+
+Start processing experiment CD31, component lpjg and 79
+INFO:ece2cmor3.ece2cmorlib: ece2cmor3 version v2.4.0 based on the HEAD branch
+INFO:ece2cmor3.ece2cmorlib: ece2cmor_git_revision d0b8a2b0 with the long hash: d0b8a2b0880ef2bbf5ee6280cbe8f70c1fac7ee0
+INFO:ece2cmor3.ece2cmorlib: Python 3.11.7 | packaged by conda-forge | (main, Dec 23 2023, 14:43:09) [GC  12.3.0]
+INFO:ece2cmor3.ece2cmorlib: cdo 2.3.0
+INFO:ece2cmor3.ece2cmorlib: CDO_PY_VERSION: 1.6.0
+INFO:ece2cmor3.ece2cmorlib: CMOR library: CMOR3.8.0
+INFO:ece2cmor3.ece2cmorlib: dreqPy 01.02.00 is loaded
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute experiment_id: esm-piControl
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source: EC-Earth3-ESM-1 (2024)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_type: AOGCM BGC
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid: T255L91
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid_label: gr
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute nominal_resolution: 100 km
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment_id: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute realization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute initialization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute physics_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute forcing_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute #variant_info: uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_experiment_id: esm-piControl-spinup
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_variant_label: r1i1p1f1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_time_units: days since 1850-01-01
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_method: standard
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_child: 0.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_parent: 182621.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute comment: This experiment was done as part of OptimESM (https://optimesm-he.eu/) by SMHI
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _control_vocabulary_file: CMIP6_CV.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _cmip6_option: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute license: CMIP6 model data produced by EC-Earth-Consortium is licensed under a Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file) and at http://www.ec-earth.org. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute tracking_prefix: hdl:21.14100
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute institution_id: EC-Earth-Consortium
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute contact: cmip6-data@ec-earth.org
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute outpath: /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute history: processed by ece2cmor v2.4.0, git rev. d0b8a2b0880ef2bbf5ee6280cbe8f70c1fac7ee0-changes
+
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_ece2cmor_version: v2.4.0
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute ece2cmor_git_revision: d0b8a2b0880ef2bbf5ee6280cbe8f70c1fac7ee0-changes
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_applied_cmor_fixer_version: None
+INFO:ece2cmor3.cmor_target: CMOR tables data_specs_version : 01.00.33
+INFO:ece2cmor3.cmor_target: CMOR tables cmor_version : 3.5
+INFO:ece2cmor3.cmor_target: CMOR tables Conventions : CF-1.7 CMIP-6.2
+INFO:ece2cmor3.cmor_target: CMOR tables table_date : 18 November 2020
+INFO:ece2cmor3.taskloader: Found 9 requested cmor target variables for lpjg.
+INFO:ece2cmor3.taskloader: Created 9 ece2cmor tasks from input variable list.
+INFO:ece2cmor3.ece2cmorlib: Selected 9 LPJG tasks from 9 input tasks
+INFO:ece2cmor3.lpjg2cmor: Executing 9 lpjg tasks...
+INFO:ece2cmor3.lpjg2cmor: Cmorizing lpjg tasks...
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/fracLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fracLut for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fracLut in table Eyr from fracLut in file fracLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/fracLut/gr/v20250124/fracLut_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cLitterLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitterLut for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitterLut in table Eyr from cLitterLut in file cLitterLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cLitterLut/gr/v20250124/cLitterLut_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cSoilLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoilLut for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoilLut in table Eyr from cSoilLut in file cSoilLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cSoilLut/gr/v20250124/cSoilLut_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cSoil_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoil for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoil in table Eyr from cSoil in file cSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cSoil/gr/v20250124/cSoil_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cVeg_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cVeg for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cVeg in table Eyr from cVeg in file cVeg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cVeg/gr/v20250124/cVeg_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cProduct_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cProduct for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cProduct in table Eyr from cProduct in file cProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cProduct/gr/v20250124/cProduct_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cProductLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cProductLut for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cProductLut in table Eyr from cProductLut in file cProductLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cProductLut/gr/v20250124/cProductLut_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cVegLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cVegLut for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cVegLut in table Eyr from cVegLut in file cVegLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cVegLut/gr/v20250124/cVegLut_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD31/output/lpjg/079/cLitter_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitter for year 1928
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitter in table Eyr from cLitter in file cLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD31_lpjgyr/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Eyr/cLitter/gr/v20250124/cLitter_Eyr_EC-Earth3-ESM-1_esm-piControl_r1i1p1f1_gr_1928-1928.nc
+
+! ------
+! All files were closed successfully. 
+! ------
+! 
+
+real	0m37.862s
+user	0m30.162s
+sys	0m4.648s

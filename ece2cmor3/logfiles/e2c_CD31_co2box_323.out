@@ -1,0 +1,120 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) hpc/.1.8.1
+***********************************
+You have loaded a Mambaforge module
+***********************************
+
+JUST LOADING THIS MODULE DOES *NOT* CHANGE THE PYTHON VERSION, NOR ENABLES ANY
+EXTRA PYTHON MODULES.
+
+This module makes available the 'mamba' and 'conda' commands from the miniforge
+Mambaforge distribution,
+with which users can create named anaconda-like environments and then activate
+them.
+
+To create and use a customized environment use 'mamba create ...' and
+then 'mamba activate ...' (see example below).
+
+---------------------------------------------------------------------------------------------------
+NOTE: NSC strongly advices against placing 'mamba activate' (or 'conda
+activate', with or without
+      arguments) in your shell initialization files, (e.g. '.bashrc' or
+'.bash_profile') since
+      this severly alters the environment for running software in ways that
+cause unpredictable
+      issues that can be difficult to diagnose.
+---------------------------------------------------------------------------------------------------
+
+Example usage:
+
+  * Setting up a customized environment and run a Python program in it:
+
+    mamba create -n myenv python=3.8 scipy=1.5.2
+    mamba activate myenv
+    python my_scipy_python_program.py
+
+  * To run the python program in the same environment when logging in the next
+time:
+
+    mabma activate myenv
+    python my_scipy_python_program.py
+
+The miniforge Mambaforge distribution aims to be command-line compatible with
+Anaconda.
+More details on Anaconda environment management are available here:
+
+
+https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+
+Start processing experiment CD31, component co2box and leg 324
+Start processing experiment CD31, component co2box and leg 324
+INFO:ece2cmor3.ece2cmorlib: ece2cmor3 version v2.4.0 based on the master branch
+INFO:ece2cmor3.ece2cmorlib: ece2cmor_git_revision 7ab0ff4e with the long hash: 7ab0ff4e7fa9c57bd168aa3112a7658ff19656f6
+INFO:ece2cmor3.ece2cmorlib: Python 3.11.7 | packaged by conda-forge | (main, Dec 23 2023, 14:43:09) [GC  12.3.0]
+INFO:ece2cmor3.ece2cmorlib: cdo 2.3.0
+INFO:ece2cmor3.ece2cmorlib: CDO_PY_VERSION: 1.6.0
+INFO:ece2cmor3.ece2cmorlib: CMOR library: CMOR3.8.0
+INFO:ece2cmor3.ece2cmorlib: dreqPy 01.02.00 is loaded
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute experiment_id: esm-piControl
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source: EC-Earth3-ESM-1 (2024)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_type: AOGCM BGC
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid: box model
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid_label: gm
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute nominal_resolution: 10000 km
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment_id: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute realization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute initialization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute physics_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute forcing_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute #variant_info: uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_experiment_id: esm-piControl-spinup
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_variant_label: r1i1p1f1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_time_units: days since 1850-01-01
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_method: standard
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_child: 0.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_parent: 182621.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute comment: This experiment was done as part of OptimESM (https://optimesm-he.eu/) by SMHI
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _AXIS_ENTRY_FILE: MIP_coordinate.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _FORMULA_VAR_FILE: MIP_formula_terms.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _controlled_vocabulary_file: CMIP6Plus_CV.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _cmip6_option: CMIP6Plus
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute mip_era: CMIP6Plus
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_mip_era: CMIP6Plus
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute license: CMIP6Plus model data produced by EC-Earth-Consortium is licensed under a Creative Commons 4.0 (CC BY 4.0) License (https://creativecommons.org/). Consult https://pcmdi.llnl.gov/CMIP6Plus/TermsOfUse for terms of use governing CMIP6Plus output, including citation requirements and proper acknowledgment. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute tracking_prefix: hdl:21.14100
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute institution_id: EC-Earth-Consortium
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute contact: cmip6-data@ec-earth.org
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute outpath: /nobackup/rossby27/proj/optimesm/cmorized/CD31-co2
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute history: processed by ece2cmor v2.4.0, git rev. 7ab0ff4e7fa9c57bd168aa3112a7658ff19656f6-changes
+
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_ece2cmor_version: v2.4.0
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute ece2cmor_git_revision: 7ab0ff4e7fa9c57bd168aa3112a7658ff19656f6-changes
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_applied_cmor_fixer_version: None
+INFO:ece2cmor3.cmor_target: CMOR tables data_specs_version : 6.5.0.0
+INFO:ece2cmor3.cmor_target: CMOR tables cmor_version : 3.8.0
+INFO:ece2cmor3.cmor_target: CMOR tables Conventions : CF-1.7 CMIP-6.5
+INFO:ece2cmor3.cmor_target: CMOR tables table_date : 2024-02-28
+INFO:ece2cmor3.taskloader: Found 2 requested cmor target variables for co2box.
+INFO:ece2cmor3.taskloader: Created 2 ece2cmor tasks from input variable list.
+INFO:ece2cmor3.ece2cmorlib: Selected 2 co2box tasks from 2 input tasks
+ERROR:ece2cmor3.co2box2cmor: no CO2BOX varibles found, exiting!
+
+real	0m1.254s
+user	0m0.508s
+sys	0m0.309s

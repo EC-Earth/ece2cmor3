@@ -1,0 +1,149 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) hpc/.1.8.1
+***********************************
+You have loaded a Mambaforge module
+***********************************
+
+JUST LOADING THIS MODULE DOES *NOT* CHANGE THE PYTHON VERSION, NOR ENABLES ANY
+EXTRA PYTHON MODULES.
+
+This module makes available the 'mamba' and 'conda' commands from the miniforge
+Mambaforge distribution,
+with which users can create named anaconda-like environments and then activate
+them.
+
+To create and use a customized environment use 'mamba create ...' and
+then 'mamba activate ...' (see example below).
+
+---------------------------------------------------------------------------------------------------
+NOTE: NSC strongly advices against placing 'mamba activate' (or 'conda
+activate', with or without
+      arguments) in your shell initialization files, (e.g. '.bashrc' or
+'.bash_profile') since
+      this severly alters the environment for running software in ways that
+cause unpredictable
+      issues that can be difficult to diagnose.
+---------------------------------------------------------------------------------------------------
+
+Example usage:
+
+  * Setting up a customized environment and run a Python program in it:
+
+    mamba create -n myenv python=3.8 scipy=1.5.2
+    mamba activate myenv
+    python my_scipy_python_program.py
+
+  * To run the python program in the same environment when logging in the next
+time:
+
+    mabma activate myenv
+    python my_scipy_python_program.py
+
+The miniforge Mambaforge distribution aims to be command-line compatible with
+Anaconda.
+More details on Anaconda environment management are available here:
+
+
+https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+
+Start processing experiment CD37, component nemo and 156
+INFO:ece2cmor3.ece2cmorlib: ece2cmor3 version v2.4.0 based on the master branch
+INFO:ece2cmor3.ece2cmorlib: ece2cmor_git_revision 9761b3be with the long hash: 9761b3bea9dd2059b145a7c93c3292b8d0b91f86
+INFO:ece2cmor3.ece2cmorlib: Python 3.11.8 | packaged by conda-forge | (main, Feb 16 2024, 20:53:32) [GC  12.3.0]
+INFO:ece2cmor3.ece2cmorlib: cdo 2.3.0
+INFO:ece2cmor3.ece2cmorlib: CDO_PY_VERSION: 1.6.0
+INFO:ece2cmor3.ece2cmorlib: CMOR library: CMOR3.8.0
+INFO:ece2cmor3.ece2cmorlib: dreqPy 01.02.00 is loaded
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute experiment_id: esm-hist
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source: EC-Earth3-ESM-1 (2024)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_type: AOGCM BGC
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid: ORCA1L75
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid_label: gn
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute nominal_resolution: 100 km
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment_id: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute realization_index: 5
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute initialization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute physics_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute forcing_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute #variant_info: uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_experiment_id: esm-piControl
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_variant_label: r1i1p1f1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_time_units: days since 1850-01-01
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_method: standard
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_child: 0.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_parent: 29219.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute comment: This experiment was done as part of OptimESM (https://optimesm-he.eu/) by SMHI
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _control_vocabulary_file: CMIP6_CV.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _cmip6_option: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute license: CMIP6 model data produced by EC-Earth-Consortium is licensed under a Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file) and at http://www.ec-earth.org. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute tracking_prefix: hdl:21.14100
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute institution_id: EC-Earth-Consortium
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute contact: cmip6-data@ec-earth.org
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute outpath: /nobackup/rossby27/proj/optimesm/cmorized/CD37_bad_pisces
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute history: processed by ece2cmor v2.4.0, git rev. 9761b3bea9dd2059b145a7c93c3292b8d0b91f86-changes
+
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_ece2cmor_version: v2.4.0
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute ece2cmor_git_revision: 9761b3bea9dd2059b145a7c93c3292b8d0b91f86-changes
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_applied_cmor_fixer_version: None
+INFO:ece2cmor3.cmor_target: CMOR tables data_specs_version : 01.00.33
+INFO:ece2cmor3.cmor_target: CMOR tables cmor_version : 3.5
+INFO:ece2cmor3.cmor_target: CMOR tables Conventions : CF-1.7 CMIP-6.2
+INFO:ece2cmor3.cmor_target: CMOR tables table_date : 18 November 2020
+INFO:ece2cmor3.taskloader: Found 14 requested cmor target variables for nemo.
+INFO:ece2cmor3.taskloader: Created 14 ece2cmor tasks from input variable list.
+INFO:ece2cmor3.ece2cmorlib: Selected 14 NEMO tasks from 14 input tasks
+WARNING:ece2cmor3.nemo2cmor: Nemo bathymetry file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/bathy_meter.nc does not exist...variable deptho in Ofx will be dismissed whenever encountered
+WARNING:ece2cmor3.nemo2cmor: Nemo subbasin file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/subbasins.nc does not exist...variable basin in Ofx will be dismissed whenever encountered
+INFO:ece2cmor3.nemo2cmor: Looking up variables in files...
+INFO:ece2cmor3.nemo2cmor: Creating NEMO grids in CMOR...
+INFO:ece2cmor3.nemo2cmor: Creating NEMO masks...
+INFO:ece2cmor3.nemo2cmor: Executing 14 NEMO tasks...
+INFO:ece2cmor3.nemo2cmor: Cmorizing NEMO tasks...
+INFO:ece2cmor3.nemo2cmor: Start cmorization of o2os,chldiatos,limfediat,sios,chlos,limirrdiat,limirrmisc,chlmiscos,limfemisc,po4os,no3os,dfeos,limnmisc,limndiat in table Omon
+INFO:ece2cmor3.nemo2cmor: Creating time axes for table Omon from data in /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc...
+INFO:ece2cmor3.nemo2cmor: Creating time axis for table Omon using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc...
+INFO:ece2cmor3.nemo2cmor: Creating depth axes for table Omon from data in /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc ...
+INFO:ece2cmor3.nemo2cmor: Creating depth axes for table Omon using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc...
+INFO:ece2cmor3.nemo2cmor: Creating extra axes for table Omon from data in /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc ...
+INFO:ece2cmor3.nemo2cmor: Creating extra axes for table Omon using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc...
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable o2os                 in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable chldiatos            in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limfediat            in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable sios                 in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable chlos                in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limirrdiat           in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limirrmisc           in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable chlmiscos            in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limfemisc            in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable po4os                in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable no3os                in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable dfeos                in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limnmisc             in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+INFO:ece2cmor3.nemo2cmor: Cmorizing variable limndiat             in table Omon    in file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD37/output/nemo/156/CD37_1m_20050101_20051231_pisces_grid_T_SFC.nc
+
+! ------
+! All files were closed successfully. 
+! ------
+! 
+
+real	0m10.293s
+user	0m3.475s
+sys	0m1.394s

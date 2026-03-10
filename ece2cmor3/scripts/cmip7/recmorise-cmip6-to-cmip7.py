@@ -22,6 +22,7 @@ from importlib.metadata import version
 from os.path import expanduser
 
 import cftime
+import math
 
 LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
 #LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')                             # On hpc2020
@@ -246,20 +247,46 @@ def main():
             var_cube_all = cubelist.concatenate_cube()
 
     # loop over chunks of given length
-    # to do: make nyears a function of levels and frequency
+    if 'year' in cmip6_table:
+        tsteps_per_year = 1       
     if 'mon' in cmip6_table:
-        nyears=50
+        tsteps_per_year = 12       
     elif 'day' in cmip6_table:
-        nyears=2
+        tsteps_per_year = 365.25
+    elif '6h' in cmip6_table:
+        tsteps_per_year = 365.25 * 4
+    elif '3h' in cmip6_table:
+        tsteps_per_year = 365.25 * 8
     else:
-        nyears=1 
+        print(f'Stop: unknown timestep of {cmip6_table}')
+        sys.exit()
+
+    # use NEMO 3-d grid to dimension the output
+    # 7 years with monthly means results in ~1 GB
+    grdpts = math.prod(var_cube_all.shape[-2:])
+    if var_cube_all.ndim <=3:
+        nlevs = 1
+    else:
+        nlevs = var_cube_all.shape[1]
+    nyears = int((12*75*362*262)/(nlevs*grdpts*tsteps_per_year) * 7)
+    # select 1, 5, or multiple of 10 yrs (up to 50 yrs)
+    if nyears<5:
+        nyears=1
+    elif nyears<10:
+        nyears=5
+    else:
+        nyears = min(50,int(nyears/10)*10)
+    if verbose:
+        print(f'Output will be saved in files with maximum {nyears} years in each')
 
     time_axis = var_cube_all.coord('time').units.num2date(var_cube_all.coord('time').points)
-    for y in range(int(time_axis[0].strftime("%Y")),int(time_axis[-1].strftime("%Y"))+1,nyears):
-        t1=cftime.datetime(y,1,1)
-        t2=cftime.datetime(y+nyears,1,1)
-        if verbose: print(f'process time chunk from {t1} to {t2}')
-        var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: t1<= cell.point <t2))
+    first_year = int(time_axis[0].strftime("%Y"))
+    last_year  = int(time_axis[-1].strftime("%Y"))
+    for y in range(int(first_year/nyears)*nyears,last_year+1,nyears):
+        time1=cftime.datetime(y,1,1)
+        time2=cftime.datetime(y+nyears,1,1)
+        if verbose: print(f'process time chunk from {time1} to {time2}')
+        var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
 
         # Initiate CMOR:
         cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
@@ -461,7 +488,9 @@ def main():
 
 
         # Slice up data into N time record chunks and push through CMOR.write
-        N = 16
+        N = max(1,min(64,int(75/nlevs*10/12)*12))
+        if verbose:
+            print(f'Chunksize for time record: {N}')
         ntimes = len(var_cube.coord('time').points)
         for i in range(0, ntimes, N):
             s = slice(i, i+N)
@@ -475,7 +504,7 @@ def main():
         # Close the file (sorts the full naming)
         fname = cmor.close(cmorvar, file_name=True)
         if verbose:
-            print(f'saved {fname}')
+            print(f'File saved: {fname}')
 
 if __name__ == '__main__':
     main()

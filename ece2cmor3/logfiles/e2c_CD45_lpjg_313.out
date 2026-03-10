@@ -1,0 +1,814 @@
+The following modules were not unloaded:
+  (Use "module --force purge" to unload all):
+
+  1) hpc/.1.8.1   2) fixmkl/.1.0
+***********************************
+You have loaded a Mambaforge module
+***********************************
+
+JUST LOADING THIS MODULE DOES *NOT* CHANGE THE PYTHON VERSION, NOR ENABLES ANY
+EXTRA PYTHON MODULES.
+
+This module makes available the 'mamba' and 'conda' commands from the miniforge
+Mambaforge distribution,
+with which users can create named anaconda-like environments and then activate
+them.
+
+To create and use a customized environment use 'mamba create ...' and
+then 'mamba activate ...' (see example below).
+
+---------------------------------------------------------------------------------------------------
+NOTE: NSC strongly advices against placing 'mamba activate' (or 'conda
+activate', with or without
+      arguments) in your shell initialization files, (e.g. '.bashrc' or
+'.bash_profile') since
+      this severly alters the environment for running software in ways that
+cause unpredictable
+      issues that can be difficult to diagnose.
+---------------------------------------------------------------------------------------------------
+
+Example usage:
+
+  * Setting up a customized environment and run a Python program in it:
+
+    mamba create -n myenv python=3.8 scipy=1.5.2
+    mamba activate myenv
+    python my_scipy_python_program.py
+
+  * To run the python program in the same environment when logging in the next
+time:
+
+    mabma activate myenv
+    python my_scipy_python_program.py
+
+The miniforge Mambaforge distribution aims to be command-line compatible with
+Anaconda.
+More details on Anaconda environment management are available here:
+
+
+https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+
+Start processing experiment CD45, component lpjg and 314
+INFO:ece2cmor3.ece2cmorlib: ece2cmor3 version v2.4.0 based on the master branch
+INFO:ece2cmor3.ece2cmorlib: ece2cmor_git_revision e5bc947f with the long hash: e5bc947f56caa67068e6f3202dbabe8efa600e21
+INFO:ece2cmor3.ece2cmorlib: Python 3.11.8 | packaged by conda-forge | (main, Feb 16 2024, 20:53:32) [GC  12.3.0]
+INFO:ece2cmor3.ece2cmorlib: cdo 2.3.0
+INFO:ece2cmor3.ece2cmorlib: CDO_PY_VERSION: 1.6.0
+INFO:ece2cmor3.ece2cmorlib: CMOR library: CMOR3.8.0
+INFO:ece2cmor3.ece2cmorlib: dreqPy 01.02.00 is loaded
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'version'], cwd=/home/sm_wyser/cmorize/ece2cmor3/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'cat-file', '--batch-check'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=<valid stream>, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--cached', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+DEBUG:git.cmd: Popen(['git', 'diff', '--abbrev=40', '--full-index', '--raw'], cwd=/home/sm_wyser/cmorize/ece2cmor3, stdin=None, shell=False, universal_newlines=False)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute experiment_id: piControl
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source: EC-Earth3-ESM-1 (2024)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute source_type: AOGCM BGC
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid: T255L91
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute grid_label: gr
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute nominal_resolution: 100 km
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute sub_experiment_id: none
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute realization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute initialization_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute physics_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute forcing_index: 1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute #variant_info: uncomment and describe briefly what makes your ripf identifier unique (only needed if i/=1, p/=1 or f/=1)
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_activity_id: CMIP
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_experiment_id: piControl-spinup
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_source_id: EC-Earth3-ESM-1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_variant_label: r1i1p1f1
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_time_units: days since 1850-01-01
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_method: standard
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_child: 0.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute branch_time_in_parent: 182621.0D
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute comment: This experiment was done as part of OptimESM (https://optimesm-he.eu/) by SMHI. Initial conditions are from the corresponding esm-piControl-spinup r1 simulation which is incompatible with current CV
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _control_vocabulary_file: CMIP6_CV.json
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute _cmip6_option: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute parent_mip_era: CMIP6
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute license: CMIP6 model data produced by EC-Earth-Consortium is licensed under a Creative Commons Attribution 4.0 International License (https://creativecommons.org/licenses). Consult https://pcmdi.llnl.gov/CMIP6/TermsOfUse for terms of use governing CMIP6 output, including citation requirements and proper acknowledgment. Further information about this data, including some limitations, can be found via the further_info_url (recorded as a global attribute in this file) and at http://www.ec-earth.org. The data producers and data providers make no warranty, either express or implied, including, but not limited to, warranties of merchantability and fitness for a particular purpose. All liabilities arising from the supply of the information (including any liability arising in negligence) are excluded to the fullest extent permitted by law.
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute tracking_prefix: hdl:21.14100
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute institution_id: EC-Earth-Consortium
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute contact: cmip6-data@ec-earth.org
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute outpath: /nobackup/rossby27/proj/optimesm/cmorized/CD45-3
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute history: processed by ece2cmor v2.4.0, git rev. e5bc947f56caa67068e6f3202dbabe8efa600e21-changes
+
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_ece2cmor_version: v2.4.0
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute ece2cmor_git_revision: e5bc947f56caa67068e6f3202dbabe8efa600e21-changes
+INFO:ece2cmor3.ece2cmorlib: Metadata attribute latest_applied_cmor_fixer_version: None
+INFO:ece2cmor3.cmor_target: CMOR tables data_specs_version : 01.00.33
+INFO:ece2cmor3.cmor_target: CMOR tables cmor_version : 3.5
+INFO:ece2cmor3.cmor_target: CMOR tables Conventions : CF-1.7 CMIP-6.2
+INFO:ece2cmor3.cmor_target: CMOR tables table_date : 18 November 2020
+INFO:ece2cmor3.taskloader: Dismissing model level target variable cli in table Amon for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable ua in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable wap in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable clw in table Amon for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable ta in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable cl in table Amon for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable hur in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable zg in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable va in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Dismissing model level target variable hus in table CFday for component ifs...
+INFO:ece2cmor3.taskloader: Found 103 requested cmor target variables for ifs.
+INFO:ece2cmor3.taskloader: Found 167 requested cmor target variables for lpjg.
+INFO:ece2cmor3.taskloader: Found 179 requested cmor target variables for nemo.
+INFO:ece2cmor3.taskloader: Found 0 requested cmor target variables for tm5.
+INFO:ece2cmor3.taskloader: Found 4 requested cmor target variables for co2box.
+INFO:ece2cmor3.taskloader: Created 167 ece2cmor tasks from input variable list.
+INFO:ece2cmor3.ece2cmorlib: Selected 167 LPJG tasks from 167 input tasks
+INFO:ece2cmor3.lpjg2cmor: Executing 167 lpjg tasks...
+INFO:ece2cmor3.lpjg2cmor: Cmorizing lpjg tasks...
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fco2antt_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fco2antt for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fco2antt in table Amon from fco2antt in file fco2antt.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Amon/fco2antt/gr/v20240922/fco2antt_Amon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fco2nat_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fco2nat for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fco2nat in table Amon from fco2nat in file fco2nat.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Amon/fco2nat/gr/v20240922/fco2nat_Amon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/lai_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable lai for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable lai in table Eday from lai in file lai.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eday/lai/gr/v20240922/lai_Eday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLand_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLand for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLand in table Emon from cLand in file cLand.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cLand/gr/v20240922/cLand_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLand1st_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLand1st for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLand1st in table Emon from cLand1st in file cLand1st.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cLand1st/gr/v20240922/cLand1st_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitterCwd_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitterCwd for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitterCwd in table Emon from cLitterCwd in file cLitterCwd.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cLitterCwd/gr/v20240922/cLitterCwd_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitterSubSurf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitterSubSurf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitterSubSurf in table Emon from cLitterSubSurf in file cLitterSubSurf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cLitterSubSurf/gr/v20240922/cLitterSubSurf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitterSurf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitterSurf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitterSurf in table Emon from cLitterSurf in file cLitterSurf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cLitterSurf/gr/v20240922/cLitterSurf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cOther_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cOther for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cOther in table Emon from cOther in file cOther.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cOther/gr/v20240922/cOther_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cropFracC3_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cropFracC3 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cropFracC3 in table Emon from cropFracC3 in file cropFracC3.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cropFracC3/gr/v20240922/cropFracC3_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cropFracC4_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cropFracC4 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cropFracC4 in table Emon from cropFracC4 in file cropFracC4.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cropFracC4/gr/v20240922/cropFracC4_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoil_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoil in table Emon from cSoil in file cSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cSoil/gr/v20240922/cSoil_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cStem_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cStem for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cStem in table Emon from cStem in file cStem.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cStem/gr/v20240922/cStem_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cTotFireLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cTotFireLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cTotFireLut in table Emon from cTotFireLut in file cTotFireLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/cTotFireLut/gr/v20240922/cTotFireLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fAnthDisturb_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fAnthDisturb for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fAnthDisturb in table Emon from fAnthDisturb in file fAnthDisturb.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fAnthDisturb/gr/v20240922/fAnthDisturb_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fBNF_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fBNF for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fBNF in table Emon from fBNF in file fBNF.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fBNF/gr/v20240922/fBNF_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fCLandToOcean_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fCLandToOcean for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fCLandToOcean in table Emon from fCLandToOcean in file fCLandToOcean.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fCLandToOcean/gr/v20240922/fCLandToOcean_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fDeforestToAtmos_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fDeforestToAtmos for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fDeforestToAtmos in table Emon from fDeforestToAtmos in file fDeforestToAtmos.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fDeforestToAtmos/gr/v20240922/fDeforestToAtmos_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fDeforestToProduct_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fDeforestToProduct for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fDeforestToProduct in table Emon from fDeforestToProduct in file fDeforestToProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fDeforestToProduct/gr/v20240922/fDeforestToProduct_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fFireAll_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fFireAll for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fFireAll in table Emon from fFireAll in file fFireAll.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fFireAll/gr/v20240922/fFireAll_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fFireNat_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fFireNat for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fFireNat in table Emon from fFireNat in file fFireNat.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fFireNat/gr/v20240922/fFireNat_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fHarvestToAtmos_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fHarvestToAtmos for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fHarvestToAtmos in table Emon from fHarvestToAtmos in file fHarvestToAtmos.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fHarvestToAtmos/gr/v20240922/fHarvestToAtmos_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fLitterFire_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fLitterFire for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fLitterFire in table Emon from fLitterFire in file fLitterFire.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fLitterFire/gr/v20240922/fLitterFire_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fLuc_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fLuc for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fLuc in table Emon from fLuc in file fLuc.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fLuc/gr/v20240922/fLuc_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fLulccAtmLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fLulccAtmLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fLulccAtmLut in table Emon from fLulccAtmLut in file fLulccAtmLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fLulccAtmLut/gr/v20240922/fLulccAtmLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fN2O_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fN2O for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fN2O in table Emon from fN2O in file fN2O.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fN2O/gr/v20240922/fN2O_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNOx_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNOx for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNOx in table Emon from fNOx in file fNOx.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNOx/gr/v20240922/fNOx_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNAnthDisturb_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNAnthDisturb for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNAnthDisturb in table Emon from fNAnthDisturb in file fNAnthDisturb.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNAnthDisturb/gr/v20240922/fNAnthDisturb_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNdep_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNdep for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNdep in table Emon from fNdep in file fNdep.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNdep/gr/v20240922/fNdep_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNfert_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNfert for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNfert in table Emon from fNfert in file fNfert.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNfert/gr/v20240922/fNfert_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNgas_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNgas for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNgas in table Emon from fNgas in file fNgas.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNgas/gr/v20240922/fNgas_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNgasFire_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNgasFire for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNgasFire in table Emon from fNgasFire in file fNgasFire.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNgasFire/gr/v20240922/fNgasFire_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNgasNonFire_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNgasNonFire for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNgasNonFire in table Emon from fNgasNonFire in file fNgasNonFire.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNgasNonFire/gr/v20240922/fNgasNonFire_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNLandToOcean_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNLandToOcean for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNLandToOcean in table Emon from fNLandToOcean in file fNLandToOcean.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNLandToOcean/gr/v20240922/fNLandToOcean_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNleach_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNleach for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNleach in table Emon from fNleach in file fNleach.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNleach/gr/v20240922/fNleach_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNLitterSoil_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNLitterSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNLitterSoil in table Emon from fNLitterSoil in file fNLitterSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNLitterSoil/gr/v20240922/fNLitterSoil_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNloss_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNloss for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNloss in table Emon from fNloss in file fNloss.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNloss/gr/v20240922/fNloss_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNnetmin_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNnetmin for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNnetmin in table Emon from fNnetmin in file fNnetmin.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNnetmin/gr/v20240922/fNnetmin_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNProduct_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNProduct for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNProduct in table Emon from fNProduct in file fNProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNProduct/gr/v20240922/fNProduct_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNup_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNup for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNup in table Emon from fNup in file fNup.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNup/gr/v20240922/fNup_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fNVegLitter_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fNVegLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fNVegLitter in table Emon from fNVegLitter in file fNVegLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fNVegLitter/gr/v20240922/fNVegLitter_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fProductDecomp_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fProductDecomp for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fProductDecomp in table Emon from fProductDecomp in file fProductDecomp.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fProductDecomp/gr/v20240922/fProductDecomp_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fProductDecompLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fProductDecompLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fProductDecompLut in table Emon from fProductDecompLut in file fProductDecompLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fProductDecompLut/gr/v20240922/fProductDecompLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fracLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fracLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fracLut in table Emon from fracLut in file fracLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fracLut/gr/v20240922/fracLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fVegFire_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fVegFire for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fVegFire in table Emon from fVegFire in file fVegFire.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/fVegFire/gr/v20240922/fVegFire_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/gppGrass_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable gppGrass for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable gppGrass in table Emon from gppGrass in file gppGrass.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/gppGrass/gr/v20240922/gppGrass_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/gppLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable gppLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable gppLut in table Emon from gppLut in file gppLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/gppLut/gr/v20240922/gppLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/gppTree_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable gppTree for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable gppTree in table Emon from gppTree in file gppTree.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/gppTree/gr/v20240922/gppTree_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/grassFracC3_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable grassFracC3 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable grassFracC3 in table Emon from grassFracC3 in file grassFracC3.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/grassFracC3/gr/v20240922/grassFracC3_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/grassFracC4_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable grassFracC4 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable grassFracC4 in table Emon from grassFracC4 in file grassFracC4.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/grassFracC4/gr/v20240922/grassFracC4_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/laiLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable laiLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable laiLut in table Emon from laiLut in file laiLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/laiLut/gr/v20240922/laiLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/necbLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable necbLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable necbLut in table Emon from necbLut in file necbLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/necbLut/gr/v20240922/necbLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nep_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nep for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nep in table Emon from nep in file nep.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nep/gr/v20240922/nep_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/netAtmosLandCO2Flux_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable netAtmosLandCO2Flux for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable netAtmosLandCO2Flux in table Emon from netAtmosLandCO2Flux in file netAtmosLandCO2Flux.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/netAtmosLandCO2Flux/gr/v20240922/netAtmosLandCO2Flux_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLand_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLand for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLand in table Emon from nLand in file nLand.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLand/gr/v20240922/nLand_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLeaf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLeaf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLeaf in table Emon from nLeaf in file nLeaf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLeaf/gr/v20240922/nLeaf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLitter_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLitter in table Emon from nLitter in file nLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLitter/gr/v20240922/nLitter_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLitterCwd_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLitterCwd for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLitterCwd in table Emon from nLitterCwd in file nLitterCwd.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLitterCwd/gr/v20240922/nLitterCwd_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLitterSubSurf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLitterSubSurf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLitterSubSurf in table Emon from nLitterSubSurf in file nLitterSubSurf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLitterSubSurf/gr/v20240922/nLitterSubSurf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nLitterSurf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nLitterSurf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nLitterSurf in table Emon from nLitterSurf in file nLitterSurf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nLitterSurf/gr/v20240922/nLitterSurf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nMineral_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nMineral for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nMineral in table Emon from nMineral in file nMineral.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nMineral/gr/v20240922/nMineral_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nMineralNH4_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nMineralNH4 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nMineralNH4 in table Emon from nMineralNH4 in file nMineralNH4.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nMineralNH4/gr/v20240922/nMineralNH4_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nMineralNO3_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nMineralNO3 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nMineralNO3 in table Emon from nMineralNO3 in file nMineralNO3.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nMineralNO3/gr/v20240922/nMineralNO3_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nOther_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nOther for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nOther in table Emon from nOther in file nOther.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nOther/gr/v20240922/nOther_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nppGrass_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nppGrass for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nppGrass in table Emon from nppGrass in file nppGrass.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nppGrass/gr/v20240922/nppGrass_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nppLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nppLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nppLut in table Emon from nppLut in file nppLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nppLut/gr/v20240922/nppLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nppTree_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nppTree for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nppTree in table Emon from nppTree in file nppTree.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nppTree/gr/v20240922/nppTree_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nProduct_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nProduct for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nProduct in table Emon from nProduct in file nProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nProduct/gr/v20240922/nProduct_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nRoot_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nRoot for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nRoot in table Emon from nRoot in file nRoot.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nRoot/gr/v20240922/nRoot_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nSoil_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nSoil in table Emon from nSoil in file nSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nSoil/gr/v20240922/nSoil_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nStem_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nStem for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nStem in table Emon from nStem in file nStem.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nStem/gr/v20240922/nStem_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nVeg_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nVeg for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nVeg in table Emon from nVeg in file nVeg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nVeg/gr/v20240922/nVeg_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nwdFracLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nwdFracLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating singleton axis for typenwd using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nwdFracLut_monthly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nwdFracLut in table Emon from nwdFracLut in file nwdFracLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/nwdFracLut/gr/v20240922/nwdFracLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFracC3_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable pastureFracC3 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable pastureFracC3 in table Emon from pastureFracC3 in file pastureFracC3.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/pastureFracC3/gr/v20240922/pastureFracC3_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFracC4_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable pastureFracC4 for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable pastureFracC4 in table Emon from pastureFracC4 in file pastureFracC4.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/pastureFracC4/gr/v20240922/pastureFracC4_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raGrass_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raGrass for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raGrass in table Emon from raGrass in file raGrass.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raGrass/gr/v20240922/raGrass_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raLeaf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raLeaf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raLeaf in table Emon from raLeaf in file raLeaf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raLeaf/gr/v20240922/raLeaf_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raLut in table Emon from raLut in file raLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raLut/gr/v20240922/raLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raOther_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raOther for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raOther in table Emon from raOther in file raOther.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raOther/gr/v20240922/raOther_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raRoot_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raRoot for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raRoot in table Emon from raRoot in file raRoot.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raRoot/gr/v20240922/raRoot_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raStem_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raStem for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raStem in table Emon from raStem in file raStem.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raStem/gr/v20240922/raStem_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/raTree_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable raTree for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable raTree in table Emon from raTree in file raTree.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/raTree/gr/v20240922/raTree_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rhLitter_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rhLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rhLitter in table Emon from rhLitter in file rhLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/rhLitter/gr/v20240922/rhLitter_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rhLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rhLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rhLut in table Emon from rhLut in file rhLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/rhLut/gr/v20240922/rhLut_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rhSoil_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rhSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rhSoil in table Emon from rhSoil in file rhSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/rhSoil/gr/v20240922/rhSoil_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFracBdlDcd_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFracBdlDcd for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFracBdlDcd in table Emon from treeFracBdlDcd in file treeFracBdlDcd.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/treeFracBdlDcd/gr/v20240922/treeFracBdlDcd_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFracBdlEvg_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFracBdlEvg for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFracBdlEvg in table Emon from treeFracBdlEvg in file treeFracBdlEvg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/treeFracBdlEvg/gr/v20240922/treeFracBdlEvg_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFracNdlDcd_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFracNdlDcd for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFracNdlDcd in table Emon from treeFracNdlDcd in file treeFracNdlDcd.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/treeFracNdlDcd/gr/v20240922/treeFracNdlDcd_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFracNdlEvg_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFracNdlEvg for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFracNdlEvg in table Emon from treeFracNdlEvg in file treeFracNdlEvg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/treeFracNdlEvg/gr/v20240922/treeFracNdlEvg_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/vegFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable vegFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable vegFrac in table Emon from vegFrac in file vegFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/vegFrac/gr/v20240922/vegFrac_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/vegHeightTree_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable vegHeightTree for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable vegHeightTree in table Emon from vegHeightTree in file vegHeightTree.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Emon/vegHeightTree/gr/v20240922/vegHeightTree_Emon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/baresoilFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable baresoilFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable baresoilFrac in table Eyr from baresoilFrac in file baresoilFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/baresoilFrac/gr/v20240922/baresoilFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cFluxYr_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cFluxYr for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cFluxYr in table Eyr from cFluxYr in file cFluxYr.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cFluxYr/gr/v20240922/cFluxYr_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLandYr_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLandYr for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLandYr in table Eyr from cLandYr in file cLandYr.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cLandYr/gr/v20240922/cLandYr_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitter_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitter in table Eyr from cLitter in file cLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cLitter/gr/v20240922/cLitter_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitterLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitterLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitterLut in table Eyr from cLitterLut in file cLitterLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cLitterLut/gr/v20240922/cLitterLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cProduct_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cProduct for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cProduct in table Eyr from cProduct in file cProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cProduct/gr/v20240922/cProduct_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cProductLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cProductLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cProductLut in table Eyr from cProductLut in file cProductLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cProductLut/gr/v20240922/cProductLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cropFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cropFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cropFrac in table Eyr from cropFrac in file cropFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cropFrac/gr/v20240922/cropFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoil_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoil in table Eyr from cSoil in file cSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cSoil/gr/v20240922/cSoil_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoilLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoilLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoilLut in table Eyr from cSoilLut in file cSoilLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cSoilLut/gr/v20240922/cSoilLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cVeg_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cVeg for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cVeg in table Eyr from cVeg in file cVeg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cVeg/gr/v20240922/cVeg_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cVegLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cVegLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cVegLut in table Eyr from cVegLut in file cVegLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/cVegLut/gr/v20240922/cVegLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fracInLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fracInLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fracInLut in table Eyr from fracInLut in file fracInLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/fracInLut/gr/v20240922/fracInLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fracLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fracLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fracLut in table Eyr from fracLut in file fracLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/fracLut/gr/v20240922/fracLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fracOutLut_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fracOutLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fracOutLut in table Eyr from fracOutLut in file fracOutLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/fracOutLut/gr/v20240922/fracOutLut_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/grassFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable grassFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable grassFrac in table Eyr from grassFrac in file grassFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/grassFrac/gr/v20240922/grassFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/residualFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable residualFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable residualFrac in table Eyr from residualFrac in file residualFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/residualFrac/gr/v20240922/residualFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/shrubFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable shrubFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable shrubFrac in table Eyr from shrubFrac in file shrubFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/shrubFrac/gr/v20240922/shrubFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFrac in table Eyr from treeFrac in file treeFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/treeFrac/gr/v20240922/treeFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/vegFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable vegFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable vegFrac in table Eyr from vegFrac in file vegFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Eyr/vegFrac/gr/v20240922/vegFrac_Eyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/baresoilFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable baresoilFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable baresoilFrac in table Lmon from baresoilFrac in file baresoilFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/baresoilFrac/gr/v20240922/baresoilFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/burntFractionAll_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable burntFractionAll for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable burntFractionAll in table Lmon from burntFractionAll in file burntFractionAll.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/burntFractionAll/gr/v20240922/burntFractionAll_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLeaf_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLeaf for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLeaf in table Lmon from cLeaf in file cLeaf.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cLeaf/gr/v20240922/cLeaf_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cLitter_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cLitter in table Lmon from cLitter in file cLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cLitter/gr/v20240922/cLitter_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cProduct_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cProduct for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cProduct in table Lmon from cProduct in file cProduct.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cProduct/gr/v20240922/cProduct_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cRoot_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cRoot for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cRoot in table Lmon from cRoot in file cRoot.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cRoot/gr/v20240922/cRoot_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cropFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cropFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cropFrac in table Lmon from cropFrac in file cropFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cropFrac/gr/v20240922/cropFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoilFast_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoilFast for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoilFast in table Lmon from cSoilFast in file cSoilFast.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cSoilFast/gr/v20240922/cSoilFast_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoilMedium_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoilMedium for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoilMedium in table Lmon from cSoilMedium in file cSoilMedium.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cSoilMedium/gr/v20240922/cSoilMedium_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cSoilSlow_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cSoilSlow for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cSoilSlow in table Lmon from cSoilSlow in file cSoilSlow.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cSoilSlow/gr/v20240922/cSoilSlow_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/cVeg_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable cVeg for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable cVeg in table Lmon from cVeg in file cVeg.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/cVeg/gr/v20240922/cVeg_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fFire_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fFire for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fFire in table Lmon from fFire in file fFire.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/fFire/gr/v20240922/fFire_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fLitterSoil_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fLitterSoil for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fLitterSoil in table Lmon from fLitterSoil in file fLitterSoil.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/fLitterSoil/gr/v20240922/fLitterSoil_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fVegLitter_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fVegLitter for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fVegLitter in table Lmon from fVegLitter in file fVegLitter.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/fVegLitter/gr/v20240922/fVegLitter_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/gpp_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable gpp for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable gpp in table Lmon from gpp in file gpp.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/gpp/gr/v20240922/gpp_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/grassFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable grassFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable grassFrac in table Lmon from grassFrac in file grassFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/grassFrac/gr/v20240922/grassFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/lai_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable lai for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable lai in table Lmon from lai in file lai.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/lai/gr/v20240922/lai_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/landCoverFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable landCoverFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable landCoverFrac in table Lmon from landCoverFrac in file landCoverFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/landCoverFrac/gr/v20240922/landCoverFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/nbp_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable nbp for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable nbp in table Lmon from nbp in file nbp.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/nbp/gr/v20240922/nbp_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/npp_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable npp for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable npp in table Lmon from npp in file npp.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/npp/gr/v20240922/npp_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable pastureFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating singleton axis for typepasture using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFrac_monthly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable pastureFrac in table Lmon from pastureFrac in file pastureFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/pastureFrac/gr/v20240922/pastureFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/ra_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable ra for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable ra in table Lmon from ra in file ra.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/ra/gr/v20240922/ra_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/residualFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable residualFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable residualFrac in table Lmon from residualFrac in file residualFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/residualFrac/gr/v20240922/residualFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rGrowth_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rGrowth for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rGrowth in table Lmon from rGrowth in file rGrowth.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/rGrowth/gr/v20240922/rGrowth_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rh_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rh for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rh in table Lmon from rh in file rh.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/rh/gr/v20240922/rh_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/rMaint_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable rMaint for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable rMaint in table Lmon from rMaint in file rMaint.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/rMaint/gr/v20240922/rMaint_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/shrubFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable shrubFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable shrubFrac in table Lmon from shrubFrac in file shrubFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/shrubFrac/gr/v20240922/shrubFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/treeFrac_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable treeFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable treeFrac in table Lmon from treeFrac in file treeFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/Lmon/treeFrac/gr/v20240922/treeFrac_Lmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/ec_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable ec for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable ec in table LPJGday from ec in file ec.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/ec/gr/v20240922/ec_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsll_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsll for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsll_daily.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsll in table LPJGday from mrsll in file mrsll.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/mrsll/gr/v20240922/mrsll_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrso_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrso for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrso in table LPJGday from mrso in file mrso.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/mrso/gr/v20240922/mrso_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsol_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsol for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsol_daily.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsol in table LPJGday from mrsol in file mrsol.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/mrsol/gr/v20240922/mrsol_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsos_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsos for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsos in table LPJGday from mrsos in file mrsos.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/mrsos/gr/v20240922/mrsos_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrro_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrro for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrro in table LPJGday from mrro in file mrro.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/mrro/gr/v20240922/mrro_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tran_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable tran for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable tran in table LPJGday from tran in file tran.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/tran/gr/v20240922/tran_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tsl_daily.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable tsl for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tsl_daily.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable tsl in table LPJGday from tsl in file tsl.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGday/tsl/gr/v20240922/tsl_LPJGday_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_21630101-21631231.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/evspsbl_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable evspsbl for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable evspsbl in table LPJGmon from evspsbl in file evspsbl.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/evspsbl/gr/v20240922/evspsbl_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/evspsblpot_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable evspsblpot for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable evspsblpot in table LPJGmon from evspsblpot in file evspsblpot.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/evspsblpot/gr/v20240922/evspsblpot_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/evspsblsoi_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable evspsblsoi for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable evspsblsoi in table LPJGmon from evspsblsoi in file evspsblsoi.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/evspsblsoi/gr/v20240922/evspsblsoi_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/fco2nat_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable fco2nat for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable fco2nat in table LPJGmon from fco2nat in file fco2nat.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/fco2nat/gr/v20240922/fco2nat_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrroLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrroLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrroLut in table LPJGmon from mrroLut in file mrroLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrroLut/gr/v20240922/mrroLut_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsll_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsll for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsll_monthly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsll in table LPJGmon from mrsll in file mrsll.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrsll/gr/v20240922/mrsll_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsol_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsol for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsol_monthly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsol in table LPJGmon from mrsol in file mrsol.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrsol/gr/v20240922/mrsol_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsoLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsoLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsoLut in table LPJGmon from mrsoLut in file mrsoLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrsoLut/gr/v20240922/mrsoLut_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsosLut_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsosLut for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsosLut in table LPJGmon from mrsosLut in file mrsosLut.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrsosLut/gr/v20240922/mrsosLut_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrro_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrro for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrro in table LPJGmon from mrro in file mrro.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrro/gr/v20240922/mrro_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrros_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrros for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrros in table LPJGmon from mrros in file mrros.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrros/gr/v20240922/mrros_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrso_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrso for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrso in table LPJGmon from mrso in file mrso.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrso/gr/v20240922/mrso_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrfso_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrfso for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrfso in table LPJGmon from mrfso in file mrfso.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrfso/gr/v20240922/mrfso_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/mrsos_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable mrsos for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable mrsos in table LPJGmon from mrsos in file mrsos.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/mrsos/gr/v20240922/mrsos_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/snc_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable snc for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable snc in table LPJGmon from snc in file snc.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/snc/gr/v20240922/snc_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/snd_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable snd for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable snd in table LPJGmon from snd in file snd.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/snd/gr/v20240922/snd_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/snw_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable snw for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable snw in table LPJGmon from snw in file snw.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/snw/gr/v20240922/snw_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tran_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable tran for year 2163
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable tran in table LPJGmon from tran in file tran.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/tran/gr/v20240922/tran_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tsl_monthly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable tsl for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating depth axis using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/tsl_monthly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable tsl in table LPJGmon from tsl in file tsl.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGmon/tsl/gr/v20240922/tsl_LPJGmon_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_216301-216312.nc
+INFO:ece2cmor3.lpjg2cmor: Processing file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFrac_yearly.out
+INFO:ece2cmor3.lpjg2cmor: Creating lpjg netcdf file for variable pastureFrac for year 2163
+INFO:ece2cmor3.lpjg2cmor: Creating singleton axis for typepasture using file /nobackup/rossby27/proj/optimesm/sm_wyser/ece-run/CD45/output/lpjg/314/pastureFrac_yearly.out...
+INFO:ece2cmor3.lpjg2cmor: CMORizing variable pastureFrac in table LPJGyr from pastureFrac in file pastureFrac.out...
+INFO:ece2cmor3.lpjg2cmor: CMOR closed file /nobackup/rossby27/proj/optimesm/cmorized/CD45-3/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/piControl/r1i1p1f1/LPJGyr/pastureFrac/gr/v20240922/pastureFrac_LPJGyr_EC-Earth3-ESM-1_piControl_r1i1p1f1_gr_2163-2163.nc
+
+! ------
+! All files were closed successfully. 
+! ------
+! 
+
+real	39m17.341s
+user	31m59.666s
+sys	5m3.486s
