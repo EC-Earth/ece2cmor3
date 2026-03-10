@@ -1,6 +1,0 @@
-odir=/nobackup/rossby27/proj/optimesm/cmorized/test-cmip6plus
-
-tabledir=/nobackup/rossby27/proj/optimesm/sm_wyser/ece2cmor3-testing/ece2cmor3/resources/CMIP6Plus-tables/combined
-
-ece2cmor --exp CD31 --meta metadata-nemo-cmip6plus.json --varlist varlist-test.json --nemo --odir $odir --tabledir $tabledir --tableprefix MIP ~/optimesm/sm_wyser/ece-run/CD31/output/nemo/601 2>&1 | tee logfile
-
