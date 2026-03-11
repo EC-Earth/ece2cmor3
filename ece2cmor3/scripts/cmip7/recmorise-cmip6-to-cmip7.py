@@ -160,6 +160,11 @@ def main():
     year2          = args.year2
     if year1 and not year2: year2=year1
     if year2 and not year1: year1=year2
+    
+    if year1:
+        if year1 > year2:
+            print(f'Stop: year1:{year1:4} > year2:{year2:4}')
+            sys.exit()
 
     if verbose:
         print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
@@ -282,8 +287,12 @@ def main():
         nyears=1
     elif nyears<10:
         nyears=5
+    elif nyears<20:
+        nyears=10
+    elif nyears<50:
+        nyears=20
     else:
-        nyears = min(50,int(nyears/10)*10)
+        nyears=50
     if verbose:
         print(f'Output will be saved in files with maximum {nyears} years in each')
 
