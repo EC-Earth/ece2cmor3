@@ -77,6 +77,7 @@ def parse_args():
     # Optional input arguments
     parser.add_argument('-v', '--verbose', action='store_true'                    , help="Verbose messaging")
     parser.add_argument('-d', '--debug'  , action='store_true'                    , help="Debug messaging")
+    parser.add_argument('-t', '--tmpdir', metavar='tmpdir' , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
     parser.add_argument('-i', '--year1', metavar='year1'   , type=int, default=None , help='The first year to process [default: None]')
     parser.add_argument('-j', '--year2', metavar='year2'   , type=int, default=None , help='The last year to process [default: None]')
     return parser.parse_args()
@@ -155,6 +156,9 @@ def main():
     global debug
     verbose        = args.verbose
     debug          = args.debug
+
+    tmpdir         = args.tmpdir
+    os.makedirs(tmpdir, exist_ok=True)
 
     year1          = args.year1
     year2          = args.year2
@@ -260,9 +264,9 @@ def main():
             var_cube_all = cubelist.concatenate_cube()
 
     # loop over chunks of given length
-    if 'year' in cmip6_table:
+    if 'yr' in cmip6_table:
         tsteps_per_year = 1       
-    if 'mon' in cmip6_table:
+    elif 'mon' in cmip6_table:
         tsteps_per_year = 12       
     elif 'day' in cmip6_table:
         tsteps_per_year = 365.25
@@ -387,11 +391,11 @@ def main():
     #if 'olevel' in sorted_cmip7_dimensions:
     # sorted_cmip7_dimensions.remove('olevel')    # Remove a vertical coorinate for msfty_tavg-ol-ht-sea
 
-
-        with open('input.json', 'w') as fh:
+        dataset_info_file = f'{tmpdir}/{cmip7_compound_name}_input.json'
+        with open(dataset_info_file, 'w') as fh:
             json.dump(DATASET_INFO, fh, indent=2)
 
-        cmor.dataset_json('input.json')
+        cmor.dataset_json(dataset_info_file)
 
         cmor.load_table(cmor_table_of_selected_realm)
 
