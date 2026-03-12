@@ -54,7 +54,7 @@ ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
 activity_id                  = 'CMIP'
 time_units                   = 'days since 1850-01-01'                                 # probably
 
-cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all-klaus.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
 cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'      # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 
