@@ -119,9 +119,10 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 
 def tweakedorder_dimensions(list_of_dimensions):
  if   list_of_dimensions in ['time', 'time1', 'time2', 'time3', 'time4'] : return  1  # Without time3 here it wordks as well for variables like Amon rsdt
- elif list_of_dimensions == 'latitude'                                   : return  3
- elif list_of_dimensions == 'longitude'                                  : return  4
- else:                                                                     return  2  # The vertical coordinate has to be before the latitude & longitude
+ elif list_of_dimensions == 'latitude' or list_of_dimensions == 'gridlatitude' : return  4
+ elif list_of_dimensions == 'longitude'                                  : return  5
+ elif list_of_dimensions == 'basin'                                      : return  2
+ else:                                                                     return  3  # The vertical coordinate has to be before the latitude & longitude
 
 
 def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
@@ -144,6 +145,11 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
      cmordim = cmor.axis(dim, \
                          coord_vals = var_cube.coord(dimensions=1).points, \
                          units      = dimension_attribute(coordinates_file, dim, 'units'))
+    elif dim in ['olevel']:
+     cmordim = cmor.axis('depth_coord', \
+                         coord_vals = var_cube.coord('depth').points, \
+                         cell_bounds= var_cube.coord('depth').bounds,          \
+                         units      = dimension_attribute(coordinates_file, 'depth_coord', 'units'))
     else:
      cmordim = None
     return cmordim
@@ -389,12 +395,6 @@ def main():
         if 'deltasigt' in sorted_cmip7_dimensions:
             sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
 
-    #if 'osurf' in sorted_cmip7_dimensions:
-    # sorted_cmip7_dimensions.remove('osurf')     # Remove a vertical coorinate for si_tavg-ols-hxy-sea
-
-    #if 'olevel' in sorted_cmip7_dimensions:
-    # sorted_cmip7_dimensions.remove('olevel')    # Remove a vertical coorinate for msfty_tavg-ol-ht-sea
-
         dataset_info_file = f'{tmpdir}/{cmip7_compound_name}_input.json'
         with open(dataset_info_file, 'w') as fh:
             json.dump(DATASET_INFO, fh, indent=2)
@@ -440,16 +440,10 @@ def main():
             # ORCA cases without a time dimension are not covered yet:
             if len(sorted_cmip7_dimensions) >= 3:
                 for dimension in sorted_cmip7_dimensions:
-                    if dimension not in [name_time_dim, 'longitude', 'latitude']:
+                    if dimension not in [name_time_dim, 'longitude', 'latitude', 'osurf', 'depth100m', 'gridlatitude', 'basin']:
                         vertical_ocean_coordinate = True
-                        if dimension in ['olevel']:
-                            vertical_dimension = 'depth_coord'                   # The Omon masscello olevel-case
-                        else:
-                            vertical_dimension = dimension
-                        dim_standard_name = dimension_attribute(cmip7_coordinates, vertical_dimension, 'standard_name')
-                        vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, dim_standard_name)
-            #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'depth')              # The explicit Omon masscello case
-            #vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, vertical_dimension, 'seasurface')         # The explicit Omon sios      case, standard_name empty in coord table
+                        dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
+                        vertical_dim_id = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
                         if verbose:
                             print('\n The vertical ocean coordinate {} has a standard_name="{}".\n Note that currently depth_coord is used instead of the ocean coordinate name.\n'.format(dimension, dim_standard_name))
 
