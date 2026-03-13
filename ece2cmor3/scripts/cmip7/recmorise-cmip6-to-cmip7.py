@@ -437,6 +437,7 @@ def main():
             elif 'time4' in sorted_cmip7_dimensions:
                 name_time_dim = 'time4'
             else:
+                name_time_dim = None
                 print('\n No time dimension for ORCA grid case.\n')
 
             if not no_time_dimension:
@@ -445,7 +446,7 @@ def main():
 
             vertical_ocean_coordinate = False
             # ORCA cases without a time dimension are not covered yet:
-            if len(sorted_cmip7_dimensions) >= 3:
+            if len(sorted_cmip7_dimensions) >= 2:
                 for dimension in sorted_cmip7_dimensions:
                     if dimension not in [name_time_dim, 'longitude', 'latitude', 'osurf', 'depth100m', 'gridlatitude', 'basin']:
                         vertical_ocean_coordinate = True
