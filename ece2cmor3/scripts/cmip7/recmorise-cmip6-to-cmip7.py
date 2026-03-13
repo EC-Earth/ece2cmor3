@@ -188,17 +188,31 @@ def main():
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
         sys.exit(' ERROR: The file {:} does not exist, therefore first run:\n  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
 
-    # Load the XML file with the CMIP7 - CMIP7 mapping and all CMIP7 attributes:
+    # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
     tree_cmip7_variables = ET.parse(cmip7_cmip6_mapping_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
     match = False
-    # handle exceptions in CMIP6 tables
-    if cmip6_table == 'day' and cmip6_variable in ['ta','ua','va','hur','hus','wap']:
+    # handle exceptions in CMIP7 - CMIP6 mapping tables
+    if cmip6_table == 'day' and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
         sys.exit(f'Sorry, day.{cmip6_variable} was saved on plev8 for CMIP6 but CMIP7 requests plev19')
         sys.exit(f'Sorry: day.hur cannot be handled, exiting')
-    elif cmip6_table == 'Eday' and cmip6_variable in ['ta','ua','va','hus','wap']:
+    elif cmip6_table == 'Eday' and cmip6_variable in ['ta','ua','va','hus','wap','zg']:
         xpath_expression = './/variable[@cmip6_compound_name="' + 'day' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrsll','tsl','mrsol']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Eday' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrro','mrsos','mrso']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'day' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsbl','fco2nat']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Amon' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsblsoi','mrfso','mrros','mrro','mrso','mrsos','tran','tsl']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Lmon' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsblpot','mrsll','mrsol','mrsosLut']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Emon' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'LPJGmon' and cmip6_variable in ['snc','snd','snw']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'LImon' + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'SImon' and cmip6_variable in ['sfdsi']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon' + '.' + cmip6_variable + '"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
     
