@@ -54,7 +54,7 @@ ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
 activity_id                  = 'CMIP'
 time_units                   = 'days since 1850-01-01'                                 # probably
 
-cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all-klaus.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
 cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'      # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 
@@ -193,7 +193,15 @@ def main():
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
     match = False
-    xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
+    # handle exceptions in CMIP6 tables
+    if cmip6_table == 'day' and cmip6_variable in ['ta','ua','va','hur','hus','wap']:
+        sys.exit(f'Sorry, day.{cmip6_variable} was saved on plev8 for CMIP6 but CMIP7 requests plev19')
+        sys.exit(f'Sorry: day.hur cannot be handled, exiting')
+    elif cmip6_table == 'Eday' and cmip6_variable in ['ta','ua','va','hus','wap']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'day' + '.' + cmip6_variable + '"]'
+    else:
+        xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
+    
     for element in root_cmip7_variables.findall(xpath_expression):
         match = True
         cmip7_compound_name   = element.get('cmip7_compound_name')
