@@ -274,7 +274,7 @@ def main():
             var_cube_all = cubelist.concatenate_cube()
 
     # loop over chunks of given length
-    if 'yr' in cmip6_table:
+    if 'yr' in cmip6_table or 'fx' in cmip6_table:
         tsteps_per_year = 1       
     elif 'mon' in cmip6_table:
         tsteps_per_year = 12       
@@ -310,19 +310,26 @@ def main():
     if verbose:
         print(f'Output will be saved in files with maximum {nyears} years in each')
 
-    time_axis = var_cube_all.coord('time').units.num2date(var_cube_all.coord('time').points)
-    first_year = int(time_axis[0].strftime("%Y"))
-    last_year  = int(time_axis[-1].strftime("%Y"))
+    if not 'fx' in cmip6_table:
+        time_axis = var_cube_all.coord('time').units.num2date(var_cube_all.coord('time').points)
+        first_year = int(time_axis[0].strftime("%Y"))
+        last_year  = int(time_axis[-1].strftime("%Y"))
+    else:
+        first_year = 1
+        last_year = 1
     for y in range(int(first_year/nyears)*nyears,last_year+1,nyears):
-        if year1:
-            if max(y,year1)>min(y+nyears,year2): continue
-            time1=cftime.datetime(max(y,year1),1,1)
-            time2=cftime.datetime(min(y+nyears,year2+1),1,1)
+        if not 'fx' in cmip6_table:
+            if year1:
+                if max(y,year1)>min(y+nyears,year2): continue
+                time1=cftime.datetime(max(y,year1),1,1)
+                time2=cftime.datetime(min(y+nyears,year2+1),1,1)
+            else:
+                time1=cftime.datetime(y,1,1)
+                time2=cftime.datetime(y+nyears,1,1)
+            if verbose: print(f'process time chunk from {time1} to {time2}')
+            var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
         else:
-            time1=cftime.datetime(y,1,1)
-            time2=cftime.datetime(y+nyears,1,1)
-        if verbose: print(f'process time chunk from {time1} to {time2}')
-        var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
+            var_cube = var_cube_all
 
         # Initiate CMOR:
         cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
@@ -479,7 +486,7 @@ def main():
                         cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
                     else:
                         cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
-        
+                
         else:
 
             # Define the CMOR variable object
@@ -512,19 +519,19 @@ def main():
 
 
         # Slice up data into N time record chunks and push through CMOR.write
-        N = max(1,min(64,int(75/nlevs*10/12)*12))
-        if verbose:
-            print(f'Chunksize for time record: {N}')
-        ntimes = len(var_cube.coord('time').points)
-        for i in range(0, ntimes, N):
-            s = slice(i, i+N)
-            cube_slice = var_cube[s]
-            if no_time_dimension:
-                cmor.write(cmorvar, cube_slice.data)
-            else:
+        if not no_time_dimension:
+            N = max(1,min(64,int(75/nlevs*10/12)*12))
+            if verbose:
+                print(f'Chunksize for time record: {N}')
+            ntimes = len(var_cube.coord('time').points)
+            for i in range(0, ntimes, N):
+                s = slice(i, i+N)
+                cube_slice = var_cube[s]
                 cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
                                                 , time_bnds=cube_slice.coord('time').bounds)
-
+        else:
+            cmor.write(cmorvar, var_cube.data)
+    
         # Close the file (sorts the full naming)
         fname = cmor.close(cmorvar, file_name=True)
         if verbose:
