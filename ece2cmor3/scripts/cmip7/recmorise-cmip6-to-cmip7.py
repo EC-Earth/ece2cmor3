@@ -8,6 +8,9 @@
 #  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
 #  ./run-recmorise-cmip6-to-cmip7.sh
 
+# For hpc2020 a submit script for parallel handling is available, for usage instructions run the script without arguments:
+#  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh
+
 import cmor      # used for writing files
 import iris      # used for reading files -- netCDF4 or xarray could be used here based on preference
 import json
@@ -24,15 +27,13 @@ from os.path import expanduser
 import cftime
 import math
 
-LOCAL_CMIP6_ROOT             = expanduser('~/cmorize/test-data-ece3-ESM-1/CE37-test/')
-#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE37-test/')                             # On hpc2020
-#LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE38-test/')                             # On hpc2020
-LOCAL_CMIP6_ROOT             = expanduser('~/optimesm/cmorized/CE42-test/')
+LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
+#LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
+#LOCAL_CMIP6_ROOT            = expanduser('~/optimesm/cmorized/CE42-test/')
 
-OUTPUT_CMIP7_ROOT            = expanduser('~/cmip7-cmorised')
-#OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE37-test/')   # On hpc2020
-#OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE38-test/')   # On hpc2020
-OUTPUT_CMIP7_ROOT            = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
+OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/')   # On hpc2020
+#OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
+#OUTPUT_CMIP7_ROOT           = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
 
 production_date_version      = 'v*'
 #grid_label                   = 'gr'
