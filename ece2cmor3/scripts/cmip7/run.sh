@@ -21,7 +21,7 @@ rm -f $varlist
 
 for t in $(ls $d); do
         for v in $(ls $d/$t); do
-                echo "$t-$v" >> $varlist
+                echo "$t $v" >> $varlist
         done
 done
 
