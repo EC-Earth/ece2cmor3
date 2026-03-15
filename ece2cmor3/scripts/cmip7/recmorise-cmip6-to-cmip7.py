@@ -36,7 +36,6 @@ OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/conver
 #OUTPUT_CMIP7_ROOT           = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
 
 production_date_version      = 'v*'
-#grid_label                   = 'gr'
 experiment_id                = 'esm-piControl'
 parent_experiment_id         = 'esm-piControl-spinup'
 branch_time_in_child         = 30.0
@@ -56,7 +55,7 @@ activity_id                  = 'CMIP'
 time_units                   = 'days since 1850-01-01'                                 # probably
 
 cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
-cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'      # The cmor API allows only relative paths
+cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'                 # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 
 drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + 'esm-piControl' + '/' + ripf       # for now
@@ -70,17 +69,17 @@ def parse_args():
     Parse command-line arguments
     """
     parser = argparse.ArgumentParser(
-        description='Recmorise ECE3 CMIP6 CMOR data towards ECE3 CMIP7 CMOR data.'
+        description='Recmorise ECE3 CMIP6 cmorised data towards ECE3 CMIP7 cmorised data.'
     )
     # Posisional arguments
-    parser.add_argument('table', metavar='cmip6_table'   , type=str, default='tas', help='The CMIP6 table    of the variable to convert, for instance: Amon')
-    parser.add_argument('var'  , metavar='cmip6_variable', type=str, default='tas', help='The CMIP6 variable of the variable to convert, for instance: tas.')
+    parser.add_argument('table'          , metavar='cmip6_table'    , type=str                     , help='The CMIP6 table    of the variable to convert, for instance: Amon')
+    parser.add_argument('var'            , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas.')
     # Optional input arguments
-    parser.add_argument('-v', '--verbose', action='store_true'                    , help="Verbose messaging")
-    parser.add_argument('-d', '--debug'  , action='store_true'                    , help="Debug messaging")
-    parser.add_argument('-t', '--tmpdir', metavar='tmpdir' , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
-    parser.add_argument('-i', '--year1', metavar='year1'   , type=int, default=None , help='The first year to process [default: None]')
-    parser.add_argument('-j', '--year2', metavar='year2'   , type=int, default=None , help='The last year to process [default: None]')
+    parser.add_argument('-v', '--verbose', action='store_true'                                     , help="Verbose messaging")
+    parser.add_argument('-d', '--debug'  , action='store_true'                                     , help="Debug   messaging")
+    parser.add_argument('-t', '--tmpdir' , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
+    parser.add_argument('-i', '--year1'  , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
+    parser.add_argument('-j', '--year2'  , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
     return parser.parse_args()
 
 
@@ -94,9 +93,6 @@ def dimension_attribute(coordinates_file, selected_dimension, specified_attribut
         for dim_attribute_name, dim_attribute_value in dim_attribute_dict.items():
          if dim_attribute_name == specified_attribute:
           return dim_attribute_value
-#       "alternate_hybrid_sigma": {
-#           "formula": "p = ap + b*ps",
-#           "generic_level_name": "alevel",
 
 
 def print_dimension_attributes_with_values(coordinates_file, selected_dimension):
@@ -120,7 +116,7 @@ def variable_attribute(variable_file, selected_variable, specified_attribute):
 
 def tweakedorder_dimensions(list_of_dimensions):
  if   list_of_dimensions in ['time', 'time1', 'time2', 'time3', 'time4'] : return  1  # Without time3 here it wordks as well for variables like Amon rsdt
- elif list_of_dimensions == 'latitude' or list_of_dimensions == 'gridlatitude' : return  4
+ elif list_of_dimensions in ['latitude', 'gridlatitude']                 : return  4
  elif list_of_dimensions == 'longitude'                                  : return  5
  elif list_of_dimensions == 'basin'                                      : return  2
  else:                                                                     return  3  # The vertical coordinate has to be before the latitude & longitude
@@ -159,18 +155,16 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
 
 def main():
 
+    global verbose
+    global debug
+
     args = parse_args()
 
     cmip6_table    = args.table
     cmip6_variable = args.var
-    global verbose
-    global debug
     verbose        = args.verbose
     debug          = args.debug
-
     tmpdir         = args.tmpdir
-    os.makedirs(tmpdir, exist_ok=True)
-
     year1          = args.year1
     year2          = args.year2
     if year1 and not year2: year2=year1
@@ -178,45 +172,52 @@ def main():
     
     if year1:
         if year1 > year2:
-            print(f'Stop: year1:{year1:4} > year2:{year2:4}')
+            print('\n Stop from {}: The starting year {} is later than the ending year {}\n'.format(sys.argv[0], year1, year2))
             sys.exit()
 
     if verbose:
         print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
         print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
 
+    # Create the directory which will contain the varlists and the CMOR metadata json input files:
+    os.makedirs(tmpdir, exist_ok=True)
+    # Prevent the CMOR Warning in case this directory is not existing yet:
+    os.makedirs(OUTPUT_CMIP7_ROOT, exist_ok=True)
+
+
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
-        sys.exit(' ERROR: The file {:} does not exist, therefore first run:\n  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
+        print('\n ERROR: The file {:} does not exist, therefore first run:\n  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
+        sys.exit()
 
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
     tree_cmip7_variables = ET.parse(cmip7_cmip6_mapping_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
-    match = False
     # handle exceptions in CMIP7 - CMIP6 mapping tables
-    if cmip6_table == 'day' and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
-        sys.exit(f'Sorry, day.{cmip6_variable} was saved on plev8 for CMIP6 but CMIP7 requests plev19')
-        sys.exit(f'Sorry: day.hur cannot be handled, exiting')
-    elif cmip6_table == 'Eday' and cmip6_variable in ['ta','ua','va','hus','wap','zg']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'day' + '.' + cmip6_variable + '"]'
+    if cmip6_table in ['day'] and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
+        print(' Sorry, {} {:3} was saved on plev8 for CMIP6 but for CMIP7 this is requested on plev19'.format(cmip6_table, cmip6_variable))
+        sys.exit()
+    elif cmip6_table == 'Eday'    and cmip6_variable in ['ta','ua','va','hus','wap','zg']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'day'       + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrsll','tsl','mrsol']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'Eday' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Eday'      + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrro','mrsos','mrso']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'day' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'day'       + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsbl','fco2nat']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'Amon' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Amon'      + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsblsoi','mrfso','mrros','mrro','mrso','mrsos','tran','tsl']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'Lmon' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Lmon'      + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGmon' and cmip6_variable in ['evspsblpot','mrsll','mrsol','mrsosLut']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'Emon' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Emon'      + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGmon' and cmip6_variable in ['snc','snd','snw']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'LImon' + '.' + cmip6_variable + '"]'
-    elif cmip6_table == 'SImon' and cmip6_variable in ['sfdsi']:
-        xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon' + '.' + cmip6_variable + '"]'
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'LImon'     + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'SImon'   and cmip6_variable in ['sfdsi']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + '"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
-    
+
+    match = False
     for element in root_cmip7_variables.findall(xpath_expression):
         match = True
         cmip7_compound_name   = element.get('cmip7_compound_name')
@@ -246,7 +247,7 @@ def main():
                     '"' + cmip7_units           + '"'))
 
     else: # The for-else:
-        if not match: sys.exit(' Sorry no CMIP7 equivalent for: {:12} {}\n'.format(cmip6_table, cmip6_variable))
+        if not match: sys.exit(' Sorry, no CMIP7 equivalent for: {:12} {}'.format(cmip6_table, cmip6_variable))
 
 
     # Overwrite grid label when::
@@ -277,10 +278,10 @@ def main():
         else:
             cubelist = iris.load(matched_cmip6_files)
             if verbose:
-                print(' The different files detected are:')
+                print('\n The files detected for this time interval are:')
                 for matched_cmip6_file in matched_cmip6_files:
                     print('  {}'.format(matched_cmip6_file))
-                    print()
+                print()
 
         # strip attributes, this is needed for concatenation
         for i in cubelist:
@@ -298,9 +299,9 @@ def main():
 
     # loop over chunks of given length
     if 'yr' in cmip6_table or 'fx' in cmip6_table:
-        tsteps_per_year = 1       
+        tsteps_per_year = 1
     elif 'mon' in cmip6_table:
-        tsteps_per_year = 12       
+        tsteps_per_year = 12
     elif 'day' in cmip6_table:
         tsteps_per_year = 365.25
     elif '6h' in cmip6_table:
@@ -308,7 +309,7 @@ def main():
     elif '3h' in cmip6_table:
         tsteps_per_year = 365.25 * 8
     else:
-        print(f'Stop: unknown timestep of {cmip6_table}')
+        print(' Stop: unknown timestep of {}'.format(cmip6_table))
         sys.exit()
 
     # use NEMO 3-d grid to dimension the output
@@ -320,18 +321,18 @@ def main():
         nlevs = var_cube_all.shape[1]
     nyears = int((12*75*362*262)/(nlevs*grdpts*tsteps_per_year) * 7)
     # select 1, 5, or multiple of 10 yrs (up to 50 yrs)
-    if nyears<5:
-        nyears=1
-    elif nyears<10:
-        nyears=5
-    elif nyears<20:
-        nyears=10
-    elif nyears<50:
-        nyears=20
+    if   nyears < 5:
+         nyears = 1
+    elif nyears < 10:
+         nyears = 5
+    elif nyears < 20:
+         nyears = 10
+    elif nyears < 50:
+         nyears = 20
     else:
-        nyears=50
+         nyears = 50
     if verbose:
-        print(f'Output will be saved in files with maximum {nyears} years in each')
+        print(' Output will be saved in files with maximum {} years in each'.format(nyears))
 
     if not 'fx' in cmip6_table:
         time_axis = var_cube_all.coord('time').units.num2date(var_cube_all.coord('time').points)
@@ -349,7 +350,7 @@ def main():
             else:
                 time1=cftime.datetime(y,1,1)
                 time2=cftime.datetime(y+nyears,1,1)
-            if verbose: print(f'process time chunk from {time1} to {time2}')
+            if verbose: print(' Process time chunk from {} to {}'.format(time1, time2))
             var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
         else:
             var_cube = var_cube_all
@@ -438,9 +439,9 @@ def main():
         # Define the CMOR variable object
         variable_attrib = variable_attribute(cmip7_cmor_table_with_var, branded_variable_name, 'positive')
 
-        # ocean grid ?
+        # In case of the ocean grid:
         if cmip7_realm in ['ocean', 'seaIce', 'ocnBgchem'] and \
-        'longitude' in sorted_cmip7_dimensions           and \
+        'longitude' in sorted_cmip7_dimensions             and \
         'latitude'  in sorted_cmip7_dimensions:
             orca_grid_case = True
             if cmip6_variable in ['siconca']:
@@ -510,12 +511,12 @@ def main():
                         cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id, vertical_dim_id, grid_id], positive=variable_attrib)
                     else:
                         cmorvar = cmor.variable(branded_variable_name, cmip7_units, axis_ids=[time_axis_id,                  grid_id], positive=variable_attrib)
-                
         else:
 
             # Define the CMOR variable object
 
             cmoraxes = []
+            if verbose: print('\n Dimensions:')
             for dimension in sorted_cmip7_dimensions:
                 dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
                 if verbose:
@@ -523,7 +524,7 @@ def main():
                 cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
                 if cmordim is not None:
                     cmoraxes.append(cmordim)
-                    if verbose: print()
+            if verbose: print()
 
             cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
 
@@ -546,20 +547,20 @@ def main():
         if not no_time_dimension:
             N = max(1,min(64,int(75/nlevs*10/12)*12))
             if verbose:
-                print(f'Chunksize for time record: {N}')
+                print(' Chunksize for time record: {}'.format(N))
             ntimes = len(var_cube.coord('time').points)
             for i in range(0, ntimes, N):
                 s = slice(i, i+N)
                 cube_slice = var_cube[s]
                 cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
-                                                , time_bnds=cube_slice.coord('time').bounds)
+                                                   , time_bnds=cube_slice.coord('time').bounds)
         else:
             cmor.write(cmorvar, var_cube.data)
-    
+
         # Close the file (sorts the full naming)
         fname = cmor.close(cmorvar, file_name=True)
         if verbose:
-            print(f'File saved: {fname}')
+            print('\n View result with:\n  ncview {}\n'.format(fname))
 
 if __name__ == '__main__':
     main()
