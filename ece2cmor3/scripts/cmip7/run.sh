@@ -20,12 +20,9 @@ varlist=$tmpdir/varlist
 rm -f $varlist
 
 for t in $(ls $d); do
-	for v in $(ls $d/$t); do
-		echo "$t-$v" >> $varlist
-	done
+        for v in $(ls $d/$t); do
+                echo "$t-$v" >> $varlist
+        done
 done
 
-# better way to pass 2 args?
-time parallel python recmorise-cmip6-to-cmip7.py -t $tmpdir -v $\(echo {} \| tr \'-\' \' \' \) ::: $(cat $varlist)
-
-#time parallel python recmorise-cmip6-to-cmip7.py -t $tmpdir -v {} ::: $(cat $varlist)
+time cat varlist | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -t $tmpdir -v {1} {2}
