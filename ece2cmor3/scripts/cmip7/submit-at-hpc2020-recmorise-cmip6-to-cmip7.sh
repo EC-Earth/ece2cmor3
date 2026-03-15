@@ -41,9 +41,13 @@
    wc_varlist_2=`wc -l varlist_sorted | sed 's/ .*//'`
 
    if [ "${wc_varlist_1}" = "${wc_varlist_2}" ]; then
+    echo
     echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2}"
+    echo
    else
+    echo
     echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2} but was reduced for duplicates from ${wc_varlist_1}"
+    echo
    fi
 
 
