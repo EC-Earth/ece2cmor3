@@ -52,7 +52,7 @@
 
 
    # Run the recmorise-cmip6-to-cmip7.py script via parallel calls on all variables in the CMIP6DIR:
-   time cat varlist_sorted | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py  -t ${tmpdir} {1} {2}
+   time cat varlist_sorted | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -e -t ${tmpdir} {1} {2}
 
    mv varlist varlist_sorted ${tmpdir}/
 
