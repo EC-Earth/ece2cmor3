@@ -28,9 +28,6 @@
    source ${PERM}/mamba/etc/profile.d/conda.sh
    conda activate ece2cmor3
 
-   export HDF5_USE_FILE_LOCKING=FALSE
-
-
    alias ls='/usr/bin/ls'
    tmpdir=.tmpdir-recmorise
    rm -f varlist

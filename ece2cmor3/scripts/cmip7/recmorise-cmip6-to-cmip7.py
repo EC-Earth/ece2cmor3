@@ -72,14 +72,15 @@ def parse_args():
         description='Recmorise ECE3 CMIP6 cmorised data towards ECE3 CMIP7 cmorised data.'
     )
     # Posisional arguments
-    parser.add_argument('table'          , metavar='cmip6_table'    , type=str                     , help='The CMIP6 table    of the variable to convert, for instance: Amon')
-    parser.add_argument('var'            , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas.')
+    parser.add_argument('table'               , metavar='cmip6_table'    , type=str                     , help='The CMIP6 table    of the variable to convert, for instance: Amon')
+    parser.add_argument('var'                 , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas.')
     # Optional input arguments
-    parser.add_argument('-v', '--verbose', action='store_true'                                     , help="Verbose messaging")
-    parser.add_argument('-d', '--debug'  , action='store_true'                                     , help="Debug   messaging")
-    parser.add_argument('-t', '--tmpdir' , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
-    parser.add_argument('-i', '--year1'  , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
-    parser.add_argument('-j', '--year2'  , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
+    parser.add_argument('-v', '--verbose'     , action='store_true'                                     , help="Verbose messaging (default off)")
+    parser.add_argument('-d', '--debug'       , action='store_true'                                     , help="Debug   messaging (default off)")
+    parser.add_argument('-l', '--filelocking' , action='store_true'                                     , help="HDF5 file locking (default False, which is often required on HPC platforms)")
+    parser.add_argument('-t', '--tmpdir'      , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
+    parser.add_argument('-i', '--year1'       , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
+    parser.add_argument('-j', '--year2'       , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
     return parser.parse_args()
 
 
@@ -162,6 +163,7 @@ def main():
 
     cmip6_table    = args.table
     cmip6_variable = args.var
+    file_locking   = args.filelocking
     verbose        = args.verbose
     debug          = args.debug
     tmpdir         = args.tmpdir
@@ -193,6 +195,13 @@ def main():
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
     tree_cmip7_variables = ET.parse(cmip7_cmip6_mapping_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
+
+    if file_locking:
+     os.environ["HDF5_USE_FILE_LOCKING"] = "TRUE"
+    else:
+     os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    if verbose:
+     print(' HDF5_USE_FILE_LOCKING = {}\n'.format(file_locking))
 
     # handle exceptions in CMIP7 - CMIP6 mapping tables
     if cmip6_table in ['day'] and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
