@@ -40,12 +40,9 @@ experiment_id                = 'esm-piControl'
 parent_experiment_id         = 'esm-piControl-spinup'
 branch_time_in_child         = 30.0
 branch_time_in_parent        = 10800.0
-institution_id               = 'EC-Earth-Consortium'                                   # Not registered yet
-source_id                    = 'EC-Earth3-ESM-1'                                       # Not registered yet
-parent_source_id             = 'EC-Earth3-ESM-1'                                       # Not registered yet
-institution_id               = 'MOHC'                                                  # for now
-source_id                    = 'UKESM1-0-LL'                                           # for now
-parent_source_id             = 'UKESM1-0-LL'                                           # for now
+institution_id               = 'EC-Earth Consortium'
+source_id                    = 'EC-Earth3-ESM-1'
+parent_source_id             = 'EC-Earth3-ESM-1'
 ripf_r                       = 'r1'
 ripf_i                       = 'i1'
 ripf_p                       = 'p1'
@@ -299,7 +296,7 @@ def main():
         try:
             var_cube_all = cubelist.concatenate_cube()
         except:
-            print('### Problem with lon/lat, use lon/lat from 1st file')
+            if verbose: print(' Problem with lon/lat, so use the lon/lat from the first file.')
             for i in cubelist[1:]:
                 for dim_coord in ['longitude','latitude']:
                     i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
@@ -471,7 +468,8 @@ def main():
                 name_time_dim = 'time4'
             else:
                 name_time_dim = None
-                print('\n No time dimension for ORCA grid case.\n')
+                if verbose:
+                 print('\n No time dimension for ORCA grid case.\n')
 
             if not no_time_dimension:
                 dim_standard_name = dimension_attribute(cmip7_coordinates, name_time_dim, 'standard_name')
