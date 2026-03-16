@@ -40,7 +40,7 @@ experiment_id                = 'esm-piControl'
 parent_experiment_id         = 'esm-piControl-spinup'
 branch_time_in_child         = 30.0
 branch_time_in_parent        = 10800.0
-institution_id               = 'EC-Earth Consortium'
+institution_id               = 'EC-Earth-Consortium'
 source_id                    = 'EC-Earth3-ESM-1'
 parent_source_id             = 'EC-Earth3-ESM-1'
 ripf_r                       = 'r1'
@@ -55,8 +55,7 @@ cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'         
 cmip7_cmor_tables_dir        = '../../../../cmip7-cmor-tables/tables/'                 # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../../../cmip7-cmor-tables/tables-cvs/'
 
-drs_expirement_member  = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + 'esm-piControl' + '/' + ripf       # for now
-#drs_expirement_member = 'CMIP6' + '/' + activity_id + '/' + institution_id        + '/' + source_id         + '/' + experiment_id   + '/' + ripf
+drs_expirement_member = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
 
 # suppress iris warning
 iris.FUTURE.date_microseconds = True
