@@ -28,6 +28,9 @@
    source ${PERM}/mamba/etc/profile.d/conda.sh
    conda activate ece2cmor3
 
+   # Add the vertical_label ols in the file: cmip7-cmor-tables/tables-cvs/cmor-cvs.json
+   ./add-ols-in-cmip7-cmor-table.sh
+
    alias ls='/usr/bin/ls'
    tmpdir=.tmpdir-recmorise
    rm -f varlist
