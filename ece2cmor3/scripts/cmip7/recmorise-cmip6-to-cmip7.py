@@ -73,6 +73,7 @@ def parse_args():
     # Optional input arguments
     parser.add_argument('-v', '--verbose'     , action='store_true'                                     , help="Verbose messaging (default off)")
     parser.add_argument('-d', '--debug'       , action='store_true'                                     , help="Debug   messaging (default off)")
+    parser.add_argument('-e', '--stderr'      , action='store_true'                                     , help="Duplicate the basic message to the stderr (default off)")
     parser.add_argument('-l', '--filelocking' , action='store_true'                                     , help="HDF5 file locking (default False, which is often required on HPC platforms)")
     parser.add_argument('-t', '--tmpdir'      , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
     parser.add_argument('-i', '--year1'       , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
@@ -157,14 +158,15 @@ def main():
 
     args = parse_args()
 
-    cmip6_table    = args.table
-    cmip6_variable = args.var
-    file_locking   = args.filelocking
-    verbose        = args.verbose
-    debug          = args.debug
-    tmpdir         = args.tmpdir
-    year1          = args.year1
-    year2          = args.year2
+    cmip6_table          = args.table
+    cmip6_variable       = args.var
+    file_locking         = args.filelocking
+    verbose              = args.verbose
+    debug                = args.debug
+    duplicate_for_stderr = args.stderr
+    tmpdir               = args.tmpdir
+    year1                = args.year1
+    year2                = args.year2
     if year1 and not year2: year2=year1
     if year2 and not year1: year1=year2
     
@@ -250,9 +252,19 @@ def main():
                     '"' + cmip7_compound_name   + '"', \
                     '"' + branded_variable_name + '"', \
                     '"' + cmip7_units           + '"'))
+        # Also write this to the stderr output:
+        if duplicate_for_stderr:
+         sys.stderr.write(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20}\n'.format( \
+                     cmip6_table                , \
+                     cmip6_variable             , \
+                     '"' + cmip7_compound_name   + '"', \
+                     '"' + branded_variable_name + '"', \
+                     '"' + cmip7_units           + '"'))
 
     else: # The for-else:
-        if not match: sys.exit(' Sorry, no CMIP7 equivalent for: {:12} {}'.format(cmip6_table, cmip6_variable))
+        if not match:
+         print(' Sorry, no CMIP7 equivalent for: {:12} {}'.format(cmip6_table, cmip6_variable))
+         sys.exit()
 
 
     # Overwrite grid label when::
