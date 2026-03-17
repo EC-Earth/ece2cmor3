@@ -26,6 +26,7 @@ from os.path import expanduser
 
 import cftime
 import math
+import numpy as np
 
 LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
 #LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
@@ -500,17 +501,8 @@ def main():
                 # Here load the grids table to set up x and y axes and the lat-long grid:
                 cmor.load_table('CMIP7_grids.json')
 
-                lon_std_name = 'first spatial index for variables stored on an unstructured grid'
-                lat_std_name = 'second spatial index for variables stored on an unstructured grid'
-
-                y_axis_id = cmor.axis(table_entry='grid_latitude',
-                                    units='degrees',
-                                    coord_vals=var_cube.coord(lat_std_name).points,
-                                    cell_bounds=var_cube.coord(lat_std_name).bounds)
-                x_axis_id = cmor.axis(table_entry='grid_longitude',
-                                    units='degrees',
-                                    coord_vals=var_cube.coord(lon_std_name).points,
-                                    cell_bounds=var_cube.coord(lon_std_name).bounds)
+                y_axis_id = cmor.axis(table_entry='j_index',coord_vals=np.arange(292),units="1")
+                x_axis_id = cmor.axis(table_entry='i_index',coord_vals=np.arange(362),units="1")
                 grid_id   = cmor.grid(axis_ids=[y_axis_id, x_axis_id],
                                     latitude=var_cube.coord('latitude').points,
                                     longitude=var_cube.coord('longitude').points,
