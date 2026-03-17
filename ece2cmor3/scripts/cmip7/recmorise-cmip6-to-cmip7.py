@@ -222,6 +222,8 @@ def main():
         xpath_expression = './/variable[@cmip6_compound_name="' + 'LImon'     + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'SImon'   and cmip6_variable in ['sfdsi']:
         xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + '"]'
+    elif cmip6_table == 'Omon'   and cmip6_variable in ['hfx','hfy']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + 'int"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
 
