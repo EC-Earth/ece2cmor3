@@ -206,6 +206,9 @@ def main():
     if cmip6_table in ['day'] and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
         print(' Sorry, {} {:3} was saved on plev8 for CMIP6 but for CMIP7 this is requested on plev19'.format(cmip6_table, cmip6_variable))
         sys.exit()
+    elif cmip6_table in ['Omon'] and cmip6_variable in ['soga','thetaoga']:
+        print(" Sorry, {} {:3} can't be recmorised because the 3D fied was not saved in the CMIP6 output.".format(cmip6_table, cmip6_variable))
+        sys.exit()
     elif cmip6_table == 'Eday'    and cmip6_variable in ['ta','ua','va','hus','wap','zg']:
         xpath_expression = './/variable[@cmip6_compound_name="' + 'day'       + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrsll','tsl','mrsol']:
