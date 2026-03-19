@@ -456,7 +456,7 @@ def main():
         if 'deltasigt' in sorted_cmip7_dimensions:
             sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
 
-        dataset_info_file = f'{tmpdir}/{cmip7_compound_name}_input.json'
+        dataset_info_file = '{}/{}-input.json'.format(tmpdir, cmip7_compound_name)
         with open(dataset_info_file, 'w') as fh:
             json.dump(DATASET_INFO, fh, indent=2)
 
