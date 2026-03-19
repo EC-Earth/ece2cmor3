@@ -182,7 +182,7 @@ def main():
 
     # Prevent the CMOR Warning in case this directory is not existing yet:
     root_of_output_path = Path(OUTPUT_CMIP7_ROOT).parts[0] + Path(OUTPUT_CMIP7_ROOT).parts[1]
-    if not os.path.isfile(root_of_output_path):
+    if not os.path.isdir(root_of_output_path):
         print("\n ERROR from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(sys.argv[0], OUTPUT_CMIP7_ROOT, root_of_output_path))
         sys.exit()
     os.makedirs(OUTPUT_CMIP7_ROOT, exist_ok=True)
