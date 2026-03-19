@@ -213,9 +213,6 @@ def main():
     elif cmip6_table in ['Omon'] and cmip6_variable in ['soga','thetaoga']:
         print(" Sorry, {} {:3} can't be recmorised because the 3D fied was not saved in the CMIP6 output.".format(cmip6_table, cmip6_variable))
         sys.exit()
-    elif  cmip6_table in ['6hrPlevPt'] and cmip6_variable in ['ta','ua', 'va']:
-     print(' WARNING: This should be plev3 data but currenlty all plev19 CMIP6 layers are written for {} {}'.format(cmip6_table, cmip6_variable))
-     # plev3 for cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
     elif cmip6_table == 'Eday'    and cmip6_variable in ['ta','ua','va','hus','wap','zg']:
         xpath_expression = './/variable[@cmip6_compound_name="' + 'day'       + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'LPJGday' and cmip6_variable in ['mrsll','tsl','mrsol']:
@@ -236,6 +233,9 @@ def main():
         xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + 'int"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
+        # For plev3 -plev19 cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
+        if cmip6_table in ['6hrPlevPt'] and cmip6_variable in ['ta','ua', 'va']:
+            print(' WARNING: This should be plev3 data but currenlty all plev19 CMIP6 layers are written for {} {}'.format(cmip6_table, cmip6_variable))
 
     match = False
     for element in root_cmip7_variables.findall(xpath_expression):
