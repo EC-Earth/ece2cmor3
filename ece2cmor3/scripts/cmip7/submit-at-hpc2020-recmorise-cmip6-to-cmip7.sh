@@ -33,6 +33,7 @@
 
    alias ls='/usr/bin/ls'
    tmpdir=.tmpdir-recmorise
+   rm -f ${tmpdir}
    rm -f varlist
    for t in $(ls ${CMIP6DIR}); do for v in $(ls ${CMIP6DIR}/$t); do echo $t $v >> varlist; done; done
    sort varlist | uniq > varlist_sorted
