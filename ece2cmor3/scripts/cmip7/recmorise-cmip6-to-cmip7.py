@@ -20,13 +20,13 @@ import glob
 import re
 import argparse
 import warnings
-import xml.etree.ElementTree as ET
-from importlib.metadata import version
-from os.path import expanduser
-
 import cftime
 import math
 import numpy as np
+import xml.etree.ElementTree as ET
+from importlib.metadata import version
+from os.path import expanduser
+from pathlib import Path
 
 LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
 #LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
@@ -180,11 +180,15 @@ def main():
         print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
         print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
 
-    # Create the directory which will contain the varlists and the CMOR metadata json input files:
-    os.makedirs(tmpdir, exist_ok=True)
     # Prevent the CMOR Warning in case this directory is not existing yet:
+    root_of_output_path = Path(OUTPUT_CMIP7_ROOT).parts[0] + Path(OUTPUT_CMIP7_ROOT).parts[1]
+    if not os.path.isfile(root_of_output_path):
+        print("\n ERROR from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(sys.argv[0], OUTPUT_CMIP7_ROOT, root_of_output_path))
+        sys.exit()
     os.makedirs(OUTPUT_CMIP7_ROOT, exist_ok=True)
 
+    # Create the directory which will contain the varlists and the CMOR metadata json input files:
+    os.makedirs(tmpdir, exist_ok=True)
 
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
