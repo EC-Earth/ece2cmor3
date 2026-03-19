@@ -248,8 +248,9 @@ def main():
         cmip7_realm           = re.sub(r'\..*','', element.get('cmip7_compound_name'))
         cmip7_out_name        = element.get('out_name')
         cmip7_dimensions      = element.get('dimensions').split()
+        cmip7_long_name       = element.get('long_name')
         if verbose:
-            print(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20} frequency={:10} region={:15} realm={}'.format( \
+            print(' {:12} {:18}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20} frequency={:10} region={:15} realm={:15} long_name={}'.format( \
                     cmip6_table                , \
                     cmip6_variable             , \
                     '"' + cmip7_compound_name   + '"', \
@@ -257,22 +258,25 @@ def main():
                     '"' + cmip7_units           + '"', \
                     '"' + cmip7_frequency       + '"', \
                     '"' + cmip7_region          + '"', \
-                    '"' + cmip7_realm           + '"'))
+                    '"' + cmip7_realm           + '"', \
+                    '"' + cmip7_long_name       + '"'))
         else:
-            print(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20}'.format( \
+            print(' {:12} {:18}  ==>  cmip7_compound_name={:50} branded_variable_name={:36} units={:15} long_name={}'.format( \
                     cmip6_table                , \
                     cmip6_variable             , \
                     '"' + cmip7_compound_name   + '"', \
                     '"' + branded_variable_name + '"', \
-                    '"' + cmip7_units           + '"'))
+                    '"' + cmip7_units           + '"', \
+                    '"' + cmip7_long_name       + '"'))
         # Also write this to the stderr output:
         if duplicate_for_stderr:
-         sys.stderr.write(' {:12} {:26}  ==>  cmip7_compound_name={:50} branded_variable_name={:40} units={:20}\n'.format( \
+         sys.stderr.write(' {:12} {:18}  ==>  cmip7_compound_name={:50} branded_variable_name={:36} units={:15} long_name={}\n'.format( \
                      cmip6_table                , \
                      cmip6_variable             , \
                      '"' + cmip7_compound_name   + '"', \
                      '"' + branded_variable_name + '"', \
-                     '"' + cmip7_units           + '"'))
+                     '"' + cmip7_units           + '"', \
+                     '"' + cmip7_long_name       + '"'))
 
     else: # The for-else:
         if not match:
