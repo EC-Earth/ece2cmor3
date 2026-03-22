@@ -3,14 +3,15 @@
 # Calling the recmorise-cmip6-to-cmip7.py script for (nearly) all CMIP6 variable combinations for a given CMIP6 top directory with CMIP6 cmorised data.
 
 # Adjust this path also in LOCAL_CMIP6_ROOT in recmorise-cmip6-to-cmip7.py:
- ece3_cmip6_data_dri_root=~/cmorize/test-data-ece3-ESM-1/CE37-test/
-#ece3_cmip6_data_dri_root=/scratch/nktr/test-data/CE37-test/
-#ece3_cmip6_data_dri_root=/scratch/nktr/test-data/CE38-test/
+ ece3_cmip6_data_dir_root=~/cmorize/test-data-ece3-ESM-1/CE37-test/
+#ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE37-test/
+#ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE38-test/
+#ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE42-test/
 
 #for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
 #for j in {fx,Ofx,}; do
  for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,LImon,Lmon,Oday,Omon,SIday,SImon,}; do
-   for i in `/usr/bin/ls -1  ${ece3_cmip6_data_dri_root}/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do
+   for i in `/usr/bin/ls -1  ${ece3_cmip6_data_dir_root}/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do
      echo "./recmorise-cmip6-to-cmip7.py $j ${i} &>> recmorise-cmip6-to-cmip7.log";
    done
    echo
@@ -66,3 +67,6 @@
 #     day          tasmin                      ==>  cmip7_compound_name="atmos.tas.tmin-h2m-hxy-u.day.glb"                 branded_variable_name="tas_tmin-h2m-hxy-u"                     units="K"                 
 #     ERROR: No files found for /home/reerink/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/day/tasmax/gr/v*/tasmax*.nc
 #     ERROR: No files found for /home/reerink/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/day/tasmin/gr/v*/tasmin*.nc
+
+
+# day hur => CFday hur
