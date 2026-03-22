@@ -76,7 +76,7 @@ def parse_args():
     parser.add_argument('-d', '--debug'       , action='store_true'                                     , help="Debug   messaging (default off)")
     parser.add_argument('-e', '--stderr'      , action='store_true'                                     , help="Duplicate the basic message to the stderr (default off)")
     parser.add_argument('-l', '--filelocking' , action='store_true'                                     , help="HDF5 file locking (default False, which is often required on HPC platforms)")
-    parser.add_argument('-o', '--omit'        , action='store_true'                                     , help="Omit the variables: 6hrPlevPt ta, ua & va (default True)")
+    parser.add_argument('-o', '--omit'        , action='store_true'                                     , help="Omit the variables: 6hrPlevPt ta, ua & va (default False)")
     parser.add_argument('-t', '--tmpdir'      , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
     parser.add_argument('-i', '--year1'       , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
     parser.add_argument('-j', '--year2'       , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
@@ -235,13 +235,11 @@ def main():
         xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + 'int"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
-        # For plev3 -plev19 cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
+        # For plev3 cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
         if cmip6_table in ['6hrPlevPt'] and cmip6_variable in ['ta','ua', 'va']:
             if omit_variables:
              print(' WARNING: The omit_variables option is active, therefore omitting {} {}'.format(cmip6_table, cmip6_variable))
              sys.exit()
-            else:
-             print(' WARNING: This should be plev3 data but currenlty all plev19 CMIP6 layers are written for {} {}'.format(cmip6_table, cmip6_variable))
 
     match = False
     for element in root_cmip7_variables.findall(xpath_expression):
