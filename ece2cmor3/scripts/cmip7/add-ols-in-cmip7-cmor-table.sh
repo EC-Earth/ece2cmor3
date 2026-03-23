@@ -14,8 +14,7 @@ if [ "$#" -eq 0 ]; then
  if [ add_ols_to_vertical_labels ]; then
   # See #866  https://github.com/EC-Earth/ece2cmor3/issues/866
 
-  table_path=~/cmorize/cmip7-cmor-tables/tables-cvs/
- #table_path=../../resources/cmip7-cmor-tables/tables-cvs/
+  table_path=../../resources/cmip7-cmor-tables/tables-cvs/
   table_file=cmor-cvs.json
   cd ${table_path}
   git checkout ${table_file}
