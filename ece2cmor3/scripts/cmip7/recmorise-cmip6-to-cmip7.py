@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 # Call example:
-#  for i in `/usr/bin/ls -1         /scratch/nktr/test-data/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
-#  for i in `/usr/bin/ls -1  ~/cmorize/test-data-ece3-ESM-1/CE37-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
+#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
 
 # Or use the bash script to loop over (nearly) all test files in the CMIP6 directory (note in this test data each subdir has contains one file):
 #  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
@@ -29,11 +28,11 @@ from os.path import expanduser
 from pathlib import Path
 
 LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
-#LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
+LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
 #LOCAL_CMIP6_ROOT            = expanduser('~/optimesm/cmorized/CE42-test/')
 
 OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/')   # On hpc2020
-#OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
+OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
 #OUTPUT_CMIP7_ROOT           = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
 
 production_date_version      = 'v*'
@@ -405,7 +404,7 @@ def main():
             "branch_method"              : "standard",
             "branch_time_in_child"       : branch_time_in_child,
             "branch_time_in_parent"      : branch_time_in_parent,
-            "calendar"                   : "proleptic_gregorian",                             # check
+            "calendar"                   : "proleptic_gregorian",
             "drs_specs"                  : "MIP-DRS7",
             "data_specs_version"         : "MIP-DS7.0.0.0",
             "experiment_id"              : experiment_id,
@@ -464,7 +463,7 @@ def main():
         if 'deltasigt' in sorted_cmip7_dimensions:
             sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
 
-        dataset_info_file = '{}/{}-input.json'.format(tmpdir, cmip7_compound_name)
+        dataset_info_file = '{}/{}-{}-input.json'.format(tmpdir, cmip7_compound_name, experiment_id)
         with open(dataset_info_file, 'w') as fh:
             json.dump(DATASET_INFO, fh, indent=2)
 
