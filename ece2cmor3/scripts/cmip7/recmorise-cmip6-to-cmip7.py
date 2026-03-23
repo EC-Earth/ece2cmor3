@@ -410,10 +410,10 @@ def main():
             "experiment_id"              : experiment_id,
             "forcing_index"              : ripf_f,
             "grid"                       : "N96",                                 # check
-            "grid_label"                 : "g99",                                 # check
+            "grid_label"                 : "g999",                                # check: currently using a DEMO number
             "initialization_index"       : ripf_i,
             "institution_id"             : institution_id,
-            "license_id"                 : "CC-BY-4-0",
+            "license_id"                 : "CC-BY-4.0",
             "nominal_resolution"         : "100 km",
             "outpath"                    : OUTPUT_CMIP7_ROOT,
             "parent_mip_era"             : "CMIP7",
