@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-
-# Calling the recmorise-cmip6-to-cmip7.py script for all CMIP6 variable combinations for a given CMIP6 top directory with CMIP6 cmorised data.
+#
+# This script creates the run-recmorise-cmip6-to-cmip7.sh script which calls the recmorise-cmip6-to-cmip7.py
+# script for all CMIP6 variable combinations for a given CMIP6 top directory with CMIP6 cmorised data.
+#
+# This script requires no arguments.
 
 # Adjust this path also in LOCAL_CMIP6_ROOT in recmorise-cmip6-to-cmip7.py:
  ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE42-test/
-#ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE37-test/
-#ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE38-test/
 #ece3_cmip6_data_dir_root=~/cmorize/test-data-ece/CE37-test/
 
  for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
