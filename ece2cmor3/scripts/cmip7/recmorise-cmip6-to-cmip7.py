@@ -28,11 +28,11 @@ from os.path import expanduser
 from pathlib import Path
 
 LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
-LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
+#LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
 #LOCAL_CMIP6_ROOT            = expanduser('~/optimesm/cmorized/CE42-test/')
 
 OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/')   # On hpc2020
-OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
+#OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
 #OUTPUT_CMIP7_ROOT           = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
 
 production_date_version      = 'v*'
