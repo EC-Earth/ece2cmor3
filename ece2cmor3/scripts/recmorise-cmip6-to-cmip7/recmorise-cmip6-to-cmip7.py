@@ -47,15 +47,15 @@ ripf_r                       = 'r1'
 ripf_i                       = 'i1'
 ripf_p                       = 'p1'
 ripf_f                       = 'f1'
-ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
 activity_id                  = 'CMIP'
-time_units                   = 'days since 1850-01-01'                                 # probably
+time_units                   = 'days since 1850-01-01'
 
-cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
 cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'
 
-drs_expirement_member = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
+ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
+drs_expirement_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
 
 # suppress iris warning
 iris.FUTURE.date_microseconds = True
@@ -193,7 +193,7 @@ def main():
 
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
-        print('\n ERROR: The file {:} does not exist, therefore first run:\n  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
+        print('\n ERROR: The file {:} does not exist, therefore first run:\n  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
         sys.exit()
 
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
