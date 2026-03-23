@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call example:
-#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/Amon`; do echo "./recmorise-cmip6-to-cmip7.py Amon ${i} &>> recmorise-cmip6-to-cmip7.log"; done
+#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/fx`; do echo "./recmorise-cmip6-to-cmip7.py fx ${i}"; done
 
 # Or use the bash script to loop over (nearly) all test files in the CMIP6 directory (note in this test data each subdir has contains one file):
 #  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
