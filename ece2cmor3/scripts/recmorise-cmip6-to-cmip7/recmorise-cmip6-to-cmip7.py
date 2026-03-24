@@ -297,16 +297,15 @@ def main():
          sys.exit()
 
 
-    # Overwrite grid label when::
-
+    # Set the CMIP6 grid label for the CMIP6 DRS:
     if   cmip6_variable in ['co2s', 'co2mass']:
-        grid_label = 'gm'
+        cmip6_grid_label = 'gm'
     elif cmip6_variable in ['siconca']:
-        grid_label = 'gr'
+        cmip6_grid_label = 'gr'
     elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
-        grid_label = 'gn'
+        cmip6_grid_label = 'gn'
     else:
-        grid_label = 'gr'
+        cmip6_grid_label = 'gr'
 
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
@@ -314,7 +313,7 @@ def main():
         cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_experiment_member   + '/' \
                                                     + cmip6_table             + '/' \
                                                     + cmip6_variable          + '/' \
-                                                    + grid_label              + '/' \
+                                                    + cmip6_grid_label        + '/' \
                                                     + production_date_version + '/' \
                                                     + cmip6_variable          + '*.nc'
 
