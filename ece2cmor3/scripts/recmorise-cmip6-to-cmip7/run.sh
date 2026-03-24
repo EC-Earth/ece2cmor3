@@ -25,4 +25,4 @@ for t in $(ls $d); do
         done
 done
 
-time cat varlist | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -t $tmpdir -v {1} {2}
+time cat varlist | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -t $tmpdir -v config-file-recmorisation {1} {2}

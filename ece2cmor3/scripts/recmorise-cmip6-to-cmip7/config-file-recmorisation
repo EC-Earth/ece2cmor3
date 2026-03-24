@@ -1,0 +1,12 @@
+# This recmorisation config file is the default one for the hpc2020 platform and can serve as a template for other cases.
+#
+# It can be used (as soon as the ece2cmor3 environment is active) like:
+#  ./recmorise-cmip6-to-cmip7.py config-file-recmorisation fx orog
+# Or for a parallel batch call on the entire CMIP6 cmorised data directory, run the script below without arguments for an call example:
+#  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh
+
+cmip6_input_dir_name         = '/scratch/nktr/test-data/CE42-test/'
+cmip7_output_dir_name        = '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'
+
+experiment_id                = 'esm-piControl'                                                 # CMOR global attribute value (part of DRS)
+

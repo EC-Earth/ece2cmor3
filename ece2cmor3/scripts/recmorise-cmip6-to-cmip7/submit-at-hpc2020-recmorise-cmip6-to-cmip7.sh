@@ -73,7 +73,7 @@
     tmpdir=.tmpdir-recmorise
 
     # Run the recmorise-cmip6-to-cmip7.py script via parallel calls on all variables in the CMIP6DIR:
-    time cat ${selected_varlist} | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -e -t ${tmpdir} {1} {2}
+    time cat ${selected_varlist} | parallel --colsep ' ' ./recmorise-cmip6-to-cmip7.py -e -t ${tmpdir} config-file-recmorisation {1} {2}
 
    #mv varlist varlist_sorted varlist_sorted_low_frequent varlist_sorted_high_frequent ${tmpdir}/
    else

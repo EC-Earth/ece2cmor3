@@ -27,13 +27,10 @@ from importlib.metadata import version
 from os.path import expanduser
 from pathlib import Path
 
-LOCAL_CMIP6_ROOT             = expanduser('/scratch/nktr/test-data/CE42-test/')                             # On hpc2020
-#LOCAL_CMIP6_ROOT            = expanduser('~/cmorize/test-data-ece/CE37-test/')
-#LOCAL_CMIP6_ROOT            = expanduser('~/optimesm/cmorized/CE42-test/')
-
-OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/')   # On hpc2020
-#OUTPUT_CMIP7_ROOT           = expanduser('~/cmip7-cmorised')
-#OUTPUT_CMIP7_ROOT           = expanduser('~/optimesm/cmorized/CE42-test-cmip7')
+error_message   = '\n Error:'                                  #        error   message
+warning_message = '\n Warning:'                                #        warning message
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'       # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'       # Yellow warning message
 
 production_date_version      = 'v*'
 
@@ -78,8 +75,9 @@ def parse_args():
         description='Recmorise ECE3 CMIP6 cmorised data towards ECE3 CMIP7 cmorised data.'
     )
     # Posisional arguments
+    parser.add_argument('configfile'          , metavar='config file'    , type=str                     , help='The recmorisation config file')
     parser.add_argument('table'               , metavar='cmip6_table'    , type=str                     , help='The CMIP6 table    of the variable to convert, for instance: Amon')
-    parser.add_argument('var'                 , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas.')
+    parser.add_argument('var'                 , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas')
     # Optional input arguments
     parser.add_argument('-v', '--verbose'     , action='store_true'                                     , help="Verbose messaging (default off)")
     parser.add_argument('-d', '--debug'       , action='store_true'                                     , help="Debug   messaging (default off)")
@@ -171,6 +169,18 @@ def main():
 
     cmip6_table          = args.table
     cmip6_variable       = args.var
+    config_filename      = args.configfile
+
+    if __name__ == "__main__": config = {}                       # python config syntax
+
+    if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
+     print(error_message, ' The config file {} does not exist.\n'.format(config_filename))
+     sys.exit()
+    exec(open(config_filename).read(), config)                   # Reading the config file
+
+    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name'         ])  # cmip6_input_dir_name                 = ''
+    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'        ])  # cmip7_output_dir_name                = ''
+
     file_locking         = args.filelocking
     verbose              = args.verbose
     debug                = args.debug
@@ -192,11 +202,11 @@ def main():
         print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
 
     # Prevent the CMOR Warning in case this directory is not existing yet:
-    root_of_output_path = Path(OUTPUT_CMIP7_ROOT).parts[0] + Path(OUTPUT_CMIP7_ROOT).parts[1]
+    root_of_output_path = Path(cmip7_output_dir_name).parts[0] + Path(cmip7_output_dir_name).parts[1]
     if not os.path.isdir(root_of_output_path):
-        print("\n ERROR from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(sys.argv[0], OUTPUT_CMIP7_ROOT, root_of_output_path))
+        print("\n ERROR from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(sys.argv[0], cmip7_output_dir_name, root_of_output_path))
         sys.exit()
-    os.makedirs(OUTPUT_CMIP7_ROOT, exist_ok=True)
+    os.makedirs(cmip7_output_dir_name, exist_ok=True)
 
     # Create the directory which will contain the varlists and the CMOR metadata json input files:
     os.makedirs(tmpdir, exist_ok=True)
@@ -310,12 +320,12 @@ def main():
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_experiment_member   + '/' \
-                                                    + cmip6_table             + '/' \
-                                                    + cmip6_variable          + '/' \
-                                                    + cmip6_grid_label        + '/' \
-                                                    + production_date_version + '/' \
-                                                    + cmip6_variable          + '*.nc'
+        cmip6_file_path_and_name = cmip6_input_dir_name + drs_experiment_member   + '/' \
+                                                        + cmip6_table             + '/' \
+                                                        + cmip6_variable          + '/' \
+                                                        + cmip6_grid_label        + '/' \
+                                                        + production_date_version + '/' \
+                                                        + cmip6_variable          + '*.nc'
 
         matched_cmip6_files = glob.glob(cmip6_file_path_and_name)
         number_of_matched_cmip6_files = len(matched_cmip6_files)
@@ -424,7 +434,7 @@ def main():
             "institution_id"             : institution_id,
             "license_id"                 : license_id,
             "nominal_resolution"         : nominal_resolution,
-            "outpath"                    : OUTPUT_CMIP7_ROOT,
+            "outpath"                    : cmip7_output_dir_name,
             "parent_mip_era"             : "CMIP7",
             "parent_time_units"          : parent_time_units,
             "parent_activity_id"         : parent_activity_id,
