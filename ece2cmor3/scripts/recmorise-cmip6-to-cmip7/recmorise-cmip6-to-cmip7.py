@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call example:
-#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/fx`; do echo "./recmorise-cmip6-to-cmip7.py fx ${i}"; done
+#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/fx`; do echo "./recmorise-cmip6-to-cmip7.py config-file-recmorisation fx ${i}"; done
 
 # Or use the bash script to loop over (nearly) all test files in the CMIP6 directory (note in this test data each subdir has contains one file):
 #  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
@@ -136,20 +136,6 @@ def main():
 
     args = parse_args()
 
-    cmip6_table          = args.table
-    cmip6_variable       = args.var
-    config_filename      = args.configfile
-
-    if __name__ == "__main__": config = {}                       # python config syntax
-
-    if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
-     print(error_message, ' The config file {} does not exist.\n'.format(config_filename))
-     sys.exit()
-    exec(open(config_filename).read(), config)                   # Reading the config file
-
-    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name'         ])  # cmip6_input_dir_name                 = ''
-    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'        ])  # cmip7_output_dir_name                = ''
-
     file_locking         = args.filelocking
     verbose              = args.verbose
     debug                = args.debug
@@ -158,6 +144,34 @@ def main():
     tmpdir               = args.tmpdir
     year1                = args.year1
     year2                = args.year2
+    config_filename      = args.configfile
+    cmip6_table          = args.table
+    cmip6_variable       = args.var
+
+    if __name__ == "__main__": config = {}                       # python config syntax
+
+    if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
+     print(error_message, ' The config file {} does not exist.\n'.format(config_filename))
+     sys.exit()
+    exec(open(config_filename).read(), config)                   # Reading the config file
+
+    # This function needs to be defined here after the name - main. Otherwise it will always take the default from the except case.
+    def initialize_config_variable(config_variable_name, default_value):
+        try:
+         config_variable = config[config_variable_name]
+         if verbose: print(' Taking for the config variable {} from config file: {}'.format(config_variable_name, config_variable))
+        except:
+         config_variable = default_value
+         if verbose: print(' Taking for the config variable {} the default: {}'.format(config_variable_name, config_variable))
+        return config_variable
+
+
+    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name'         ])  # cmip6_input_dir_name                 = ''
+    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'        ])  # cmip7_output_dir_name                = ''
+
+    experiment_id = initialize_config_variable('experiment_id', 'esm-piControl')               # In CMOR global attribute and in DRS
+    if verbose: print()
+
     if year1 and not year2: year2=year1
     if year2 and not year1: year1=year2
     
@@ -169,7 +183,7 @@ def main():
 
     production_date_version      = 'v*'
 
-    experiment_id                = 'esm-piControl'                                         # In CMOR global attribute and in DRS
+  ##experiment_id                = 'esm-piControl'                                         # In CMOR global attribute and in DRS
     parent_experiment_id         = 'esm-piControl-spinup'                                  # In CMOR global attribute
     branch_method                = 'standard'                                              # In CMOR global attribute
     branch_time_in_child         = 30.0                                                    # In CMOR global attribute
