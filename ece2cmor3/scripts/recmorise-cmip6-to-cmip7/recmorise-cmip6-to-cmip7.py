@@ -38,21 +38,27 @@ OUTPUT_CMIP7_ROOT            = expanduser('/scratch/nktr/cmorised-results/conver
 production_date_version      = 'v*'
 experiment_id                = 'esm-piControl'
 parent_experiment_id         = 'esm-piControl-spinup'
+branch_method                = 'standard'
 branch_time_in_child         = 30.0
 branch_time_in_parent        = 10800.0
-institution_id               = 'EC-Earth-Consortium'
-source_id                    = 'EC-Earth3-ESM-1'
-parent_source_id             = 'EC-Earth3-ESM-1'
+calendar                     = 'proleptic_gregorian'
+time_units                   = 'days since 1850-01-01'
+parent_time_units            = 'days since 1850-01-01'
 ripf_r                       = 'r1'
 ripf_i                       = 'i1'
 ripf_p                       = 'p1'
 ripf_f                       = 'f1'
+source_id                    = 'EC-Earth3-ESM-1'
+parent_source_id             = 'EC-Earth3-ESM-1'
+institution_id               = 'EC-Earth-Consortium'
+license_id                   = 'CC-BY-4.0'
+cmip7_grid_label             = 'g999'                                                  # check: currently using a DEMO number
+nominal_resolution           = '100 km'
 activity_id                  = 'CMIP'
-time_units                   = 'days since 1850-01-01'
-
-cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+parent_activity_id           = 'CMIP'
 cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
 cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'
+cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
 
 ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
 drs_expirement_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
@@ -401,24 +407,24 @@ def main():
             "_cmip7_option"              : 1,
             "_controlled_vocabulary_file": cmip7_cmor_tables_cvs_dir + 'cmor-cvs.json',
             "activity_id"                : activity_id,
-            "branch_method"              : "standard",
+            "branch_method"              : branch_method,
             "branch_time_in_child"       : branch_time_in_child,
             "branch_time_in_parent"      : branch_time_in_parent,
-            "calendar"                   : "proleptic_gregorian",
+            "calendar"                   : calendar,
             "drs_specs"                  : "MIP-DRS7",
-            "data_specs_version"         : "MIP-DS7.0.0.0",
+           #"data_specs_version"         : "MIP-DS7.0.0.0",                       # Seems not required from the CMOR side: because this is the default
             "experiment_id"              : experiment_id,
             "forcing_index"              : ripf_f,
-            "grid"                       : "N96",                                 # check
-            "grid_label"                 : "g999",                                # check: currently using a DEMO number
+           #"grid"                       : "N96",                                 # Seems not required from the CMOR side: attribute not written when left out here
+            "grid_label"                 : cmip7_grid_label,
             "initialization_index"       : ripf_i,
             "institution_id"             : institution_id,
-            "license_id"                 : "CC-BY-4.0",
-            "nominal_resolution"         : "100 km",
+            "license_id"                 : license_id,
+            "nominal_resolution"         : nominal_resolution,
             "outpath"                    : OUTPUT_CMIP7_ROOT,
             "parent_mip_era"             : "CMIP7",
-            "parent_time_units"          : "days since 1850-01-01",
-            "parent_activity_id"         : "CMIP",
+            "parent_time_units"          : parent_time_units,
+            "parent_activity_id"         : parent_activity_id,
             "parent_source_id"           : parent_source_id,
             "parent_experiment_id"       : parent_experiment_id,
             "parent_variant_label"       : ripf,
@@ -426,11 +432,11 @@ def main():
             "realization_index"          : ripf_r,
             "source_id"                  : source_id,
             "tracking_prefix"            : "hdl:21.14107",                        # check
-            "host_collection"            : "CMIP7",
+           #"host_collection"            : "CMIP7",                               # Seems not required from the CMOR side: attribute not written when left out here
+           #"archive_id"                 : "WCRP",                                # Seems not required from the CMOR side: attribute not written when left out here
+           #"mip_era"                    : "CMIP7",                               # Seems not required from the CMOR side: because this is the default
             "frequency"                  : cmip7_frequency,
-            "region"                     : cmip7_region,
-            "archive_id"                 : "WCRP",
-            "mip_era"                    : "CMIP7",
+            "region"                     : cmip7_region
         }
 
         cmor_table_of_selected_realm = 'CMIP7_{}.json'.format(cmip7_realm)
