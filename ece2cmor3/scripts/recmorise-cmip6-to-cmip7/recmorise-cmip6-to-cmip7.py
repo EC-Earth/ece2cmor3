@@ -61,7 +61,7 @@ cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'
 cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
 
 ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
-drs_expirement_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
+drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
 
 # suppress iris warning
 iris.FUTURE.date_microseconds = True
@@ -307,7 +307,7 @@ def main():
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_expirement_member   + '/' \
+        cmip6_file_path_and_name = LOCAL_CMIP6_ROOT + drs_experiment_member   + '/' \
                                                     + cmip6_table             + '/' \
                                                     + cmip6_variable          + '/' \
                                                     + grid_label              + '/' \
