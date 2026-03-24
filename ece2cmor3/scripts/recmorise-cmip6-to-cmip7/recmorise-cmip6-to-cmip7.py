@@ -32,38 +32,6 @@ warning_message = '\n Warning:'                                #        warning 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'       # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'       # Yellow warning message
 
-production_date_version      = 'v*'
-
-
-experiment_id                = 'esm-piControl'                                         # In CMOR global attribute and in DRS
-parent_experiment_id         = 'esm-piControl-spinup'                                  # In CMOR global attribute
-branch_method                = 'standard'                                              # In CMOR global attribute
-branch_time_in_child         = 30.0                                                    # In CMOR global attribute
-branch_time_in_parent        = 10800.0                                                 # In CMOR global attribute
-calendar                     = 'proleptic_gregorian'                                   # In CMOR global attribute
-time_units                   = 'days since 1850-01-01'                                 # In writing the time units
-parent_time_units            = 'days since 1850-01-01'                                 # In CMOR global attribute
-ripf_r                       = 'r1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-ripf_i                       = 'i1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-ripf_p                       = 'p1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-ripf_f                       = 'f1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-source_id                    = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute and in DRS
-parent_source_id             = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute
-institution_id               = 'EC-Earth-Consortium'                                   # In CMOR global attribute and in DRS
-license_id                   = 'CC-BY-4.0'                                             # In CMOR global attribute
-cmip7_grid_label             = 'g999'                # CECK: USING A DEMO NUMBER NOW   # In CMOR global attribute
-nominal_resolution           = '100 km'                                                # In CMOR global attribute
-activity_id                  = 'CMIP'                                                  # In CMOR global attribute and in DRS
-parent_activity_id           = 'CMIP'                                                  # In CMOR global attribute
-
-ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
-drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
-
-cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
-cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
-
-cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
-
 # suppress iris warning
 iris.FUTURE.date_microseconds = True
 
@@ -164,6 +132,7 @@ def main():
 
     global verbose
     global debug
+    global time_units
 
     args = parse_args()
 
@@ -196,6 +165,39 @@ def main():
         if year1 > year2:
             print('\n Stop from {}: The starting year {} is later than the ending year {}\n'.format(sys.argv[0], year1, year2))
             sys.exit()
+
+
+    production_date_version      = 'v*'
+
+    experiment_id                = 'esm-piControl'                                         # In CMOR global attribute and in DRS
+    parent_experiment_id         = 'esm-piControl-spinup'                                  # In CMOR global attribute
+    branch_method                = 'standard'                                              # In CMOR global attribute
+    branch_time_in_child         = 30.0                                                    # In CMOR global attribute
+    branch_time_in_parent        = 10800.0                                                 # In CMOR global attribute
+    calendar                     = 'proleptic_gregorian'                                   # In CMOR global attribute
+    time_units                   = 'days since 1850-01-01'                                 # In writing the time units
+    parent_time_units            = 'days since 1850-01-01'                                 # In CMOR global attribute
+    ripf_r                       = 'r1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_i                       = 'i1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_p                       = 'p1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_f                       = 'f1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
+    source_id                    = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute and in DRS
+    parent_source_id             = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute
+    institution_id               = 'EC-Earth-Consortium'                                   # In CMOR global attribute and in DRS
+    license_id                   = 'CC-BY-4.0'                                             # In CMOR global attribute
+    cmip7_grid_label             = 'g999'                # CECK: USING A DEMO NUMBER NOW   # In CMOR global attribute
+    nominal_resolution           = '100 km'                                                # In CMOR global attribute
+    activity_id                  = 'CMIP'                                                  # In CMOR global attribute and in DRS
+    parent_activity_id           = 'CMIP'                                                  # In CMOR global attribute
+
+    ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
+    drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
+
+    cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
+    cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
+
+    cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+
 
     if verbose:
         print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
