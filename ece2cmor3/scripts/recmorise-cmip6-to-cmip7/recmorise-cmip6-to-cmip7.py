@@ -182,9 +182,6 @@ def main():
          if verbose: print(' Taking for the config variable {:23} the predefined default: {}'.format(config_variable_name, config_variable))
         return config_variable
 
-
-   #cmip6_input_dir_name    = os.path.expanduser(config['cmip6_input_dir_name' ])                              # cmip6_input_dir_name                 = ''
-   #cmip7_output_dir_name   = os.path.expanduser(config['cmip7_output_dir_name'])                              # cmip7_output_dir_name                = ''
     cmip6_input_dir_name    = os.path.expanduser(initialize_config_variable('cmip6_input_dir_name' , '/scratch/nktr/test-data/CE42-test/'                          ))
     cmip7_output_dir_name   = os.path.expanduser(initialize_config_variable('cmip7_output_dir_name', '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'))
 
@@ -210,29 +207,6 @@ def main():
     activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # In CMOR global attribute and in DRS
     parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # In CMOR global attribute
     if verbose: print()
-
-
-  ##production_date_version      = 'v*'                                                       # In DRS
-  ##experiment_id                = 'esm-piControl'                                            # In CMOR global attribute and in DRS
-  ##parent_experiment_id         = 'esm-piControl-spinup'                                     # In CMOR global attribute
-  ##branch_method                = 'standard'                                                 # In CMOR global attribute
-  ##branch_time_in_child         = 30.0                                                       # In CMOR global attribute
-  ##branch_time_in_parent        = 10800.0                                                    # In CMOR global attribute
-  ##calendar                     = 'proleptic_gregorian'                                      # In CMOR global attribute
-  ##time_units                   = 'days since 1850-01-01'                                    # In writing the time units
-  ##parent_time_units            = 'days since 1850-01-01'                                    # In CMOR global attribute
-  ##ripf_r                       = 'r1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
-  ##ripf_i                       = 'i1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
-  ##ripf_p                       = 'p1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
-  ##ripf_f                       = 'f1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
-  ##source_id                    = 'EC-Earth3-ESM-1'                                          # In CMOR global attribute and in DRS
-  ##parent_source_id             = 'EC-Earth3-ESM-1'                                          # In CMOR global attribute
-  ##institution_id               = 'EC-Earth-Consortium'                                      # In CMOR global attribute and in DRS
-  ##license_id                   = 'CC-BY-4.0'                                                # In CMOR global attribute
-  ##cmip7_grid_label             = 'g999'                   # CECK: USING A DEMO NUMBER NOW   # In CMOR global attribute
-  ##nominal_resolution           = '100 km'                                                   # In CMOR global attribute
-  ##activity_id                  = 'CMIP'                                                     # In CMOR global attribute and in DRS
-  ##parent_activity_id           = 'CMIP'                                                     # In CMOR global attribute
 
     ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
     drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
