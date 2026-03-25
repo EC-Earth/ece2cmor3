@@ -8,5 +8,24 @@
 cmip6_input_dir_name         = '/scratch/nktr/test-data/CE42-test/'
 cmip7_output_dir_name        = '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'
 
+production_date_version      = 'v*'                                                            # In DRS
 experiment_id                = 'esm-piControl'                                                 # CMOR global attribute value (part of DRS)
-
+parent_experiment_id         = 'esm-piControl-spinup'                                          # CMOR global attribute value
+branch_method                = 'standard'                                                      # CMOR global attribute value
+branch_time_in_child         = 30.0                                                            # CMOR global attribute value
+branch_time_in_parent        = 10800.0                                                         # CMOR global attribute value
+calendar                     = 'proleptic_gregorian'                                           # CMOR global attribute value
+time_units                   = 'days since 1850-01-01'                                         # In writing the time units
+parent_time_units            = 'days since 1850-01-01'                                         # CMOR global attribute value
+ripf_r                       = 'r1'                                                            # CMOR global attribute value (part of DRS)
+ripf_i                       = 'i1'                                                            # CMOR global attribute value (part of DRS)
+ripf_p                       = 'p1'                                                            # CMOR global attribute value (part of DRS)
+ripf_f                       = 'f1'                                                            # CMOR global attribute value (part of DRS)
+source_id                    = 'EC-Earth3-ESM-1'                                               # CMOR global attribute value (part of DRS)
+parent_source_id             = 'EC-Earth3-ESM-1'                                               # CMOR global attribute value
+institution_id               = 'EC-Earth-Consortium'                                           # CMOR global attribute value (part of DRS)
+license_id                   = 'CC-BY-4.0'                                                     # CMOR global attribute value
+cmip7_grid_label             = 'g999'                     # CECK: USING A DEMO NUMBER NOW      # CMOR global attribute value
+nominal_resolution           = '100 km'                                                        # CMOR global attribute value
+activity_id                  = 'CMIP'                                                          # CMOR global attribute value (part of DRS)
+parent_activity_id           = 'CMIP'                                                          # CMOR global attribute value

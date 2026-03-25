@@ -186,26 +186,26 @@ def main():
     cmip7_output_dir_name   = os.path.expanduser(initialize_config_variable('cmip7_output_dir_name', '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'))
 
     production_date_version = initialize_config_variable('production_date_version', 'v*'                   )   # In DRS
-    experiment_id           = initialize_config_variable('experiment_id'          , 'esm-piControl'        )   # In CMOR global attribute and in DRS
-    parent_experiment_id    = initialize_config_variable('parent_experiment_id'   , 'esm-piControl-spinup' )   # In CMOR global attribute
-    branch_method           = initialize_config_variable('branch_method'          , 'standard'             )   # In CMOR global attribute
-    branch_time_in_child    = initialize_config_variable('branch_time_in_child'   , 30.0                   )   # In CMOR global attribute
-    branch_time_in_parent   = initialize_config_variable('branch_time_in_parent'  , 10800.0                )   # In CMOR global attribute
-    calendar                = initialize_config_variable('calendar'               , 'proleptic_gregorian'  )   # In CMOR global attribute
+    experiment_id           = initialize_config_variable('experiment_id'          , 'esm-piControl'        )   # CMOR global attribute value (part of DRS)
+    parent_experiment_id    = initialize_config_variable('parent_experiment_id'   , 'esm-piControl-spinup' )   # CMOR global attribute value
+    branch_method           = initialize_config_variable('branch_method'          , 'standard'             )   # CMOR global attribute value
+    branch_time_in_child    = initialize_config_variable('branch_time_in_child'   , 30.0                   )   # CMOR global attribute value
+    branch_time_in_parent   = initialize_config_variable('branch_time_in_parent'  , 10800.0                )   # CMOR global attribute value
+    calendar                = initialize_config_variable('calendar'               , 'proleptic_gregorian'  )   # CMOR global attribute value
     time_units              = initialize_config_variable('time_units'             , 'days since 1850-01-01')   # In writing the time units
-    parent_time_units       = initialize_config_variable('parent_time_units'      , 'days since 1850-01-01')   # In CMOR global attribute
-    ripf_r                  = initialize_config_variable('ripf_r'                 , 'r1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_i                  = initialize_config_variable('ripf_i'                 , 'i1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_p                  = initialize_config_variable('ripf_p'                 , 'p1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_f                  = initialize_config_variable('ripf_f'                 , 'f1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
-    source_id               = initialize_config_variable('source_id'              , 'EC-Earth3-ESM-1'      )   # In CMOR global attribute and in DRS
-    parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # In CMOR global attribute
-    institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # In CMOR global attribute and in DRS
-    license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # In CMOR global attribute
-    cmip7_grid_label        = initialize_config_variable('cmip7_grid_label'       , 'g999'                 )   # In CMOR global attribute
-    nominal_resolution      = initialize_config_variable('nominal_resolution'     , '100 km'               )   # In CMOR global attribute
-    activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # In CMOR global attribute and in DRS
-    parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # In CMOR global attribute
+    parent_time_units       = initialize_config_variable('parent_time_units'      , 'days since 1850-01-01')   # CMOR global attribute value
+    ripf_r                  = initialize_config_variable('ripf_r'                 , 'r1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
+    ripf_i                  = initialize_config_variable('ripf_i'                 , 'i1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
+    ripf_p                  = initialize_config_variable('ripf_p'                 , 'p1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
+    ripf_f                  = initialize_config_variable('ripf_f'                 , 'f1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
+    source_id               = initialize_config_variable('source_id'              , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value (part of DRS)
+    parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value
+    institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # CMOR global attribute value (part of DRS)
+    license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # CMOR global attribute value
+    cmip7_grid_label        = initialize_config_variable('cmip7_grid_label'       , 'g999'                 )   # CMOR global attribute value
+    nominal_resolution      = initialize_config_variable('nominal_resolution'     , '100 km'               )   # CMOR global attribute value
+    activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # CMOR global attribute value (part of DRS)
+    parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # CMOR global attribute value
     if verbose: print()
 
     ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
