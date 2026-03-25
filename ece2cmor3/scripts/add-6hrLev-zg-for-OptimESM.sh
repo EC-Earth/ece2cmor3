@@ -3,10 +3,14 @@
 #
 # This script adds 6hrLev zg for the OptimESM CMIP7-FT project.
 #
-# This scripts requires no arguments.
+# This script requires one argument.
+#
+# For examples how to call this script, run it without arguments.
 #
 
-if [ "$#" -eq 0 ]; then
+if [ "$#" -eq 1 ]; then
+
+ do_clean=$1
 
  add_6hrLev_zg_for_OptimESM=True
 
@@ -17,9 +21,10 @@ if [ "$#" -eq 0 ]; then
   table_file_6hrLev=CMIP6_6hrLev.json
 
   cd ${table_path}
-  rm -f ${table_file_AER6hrPt}
-  git checkout ${table_file_6hrLev}
-
+  if [ ${do_clean} == 'clean-before' ]; then
+   rm -f ${table_file_AER6hrPt}
+   git checkout ${table_file_6hrLev}
+  fi
 
   sed -i  '/"va": {/i \
         "zg": {                                                                                                                                                                                                                                                                                                                                                                                                         \
@@ -60,13 +65,16 @@ if [ "$#" -eq 0 ]; then
 
  else
   echo
-  echo " Nothing done, no set of variables and / or experiments has been selected to add to the tables."
+  echo " This scripts requires one argument: There are only two options:"
+  echo "  $0 clean-before"
+  echo "  $0 no-clean-before"
   echo
  fi
 
 else
  echo
- echo " This scripts requires no argument:"
- echo "  $0"
+ echo " This scripts requires one argument: There are only two options:"
+ echo "  $0 clean-before"
+ echo "  $0 no-clean-before"
  echo
 fi

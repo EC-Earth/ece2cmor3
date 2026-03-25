@@ -13,8 +13,9 @@ if [ "$#" -eq 0 ]; then
  ./revert-nested-cmor-table-branch.sh
  ./add-variables-for-co2box.sh
  ./add-lpjg-cc-diagnostics.sh
- ./add-nemo-variables.sh no-clean-before
+ ./add-nemo-variables.sh               no-clean-before
  ./add-htessel-vegetation-variables.sh no-clean-before
+ ./add-6hrLev-zg-for-OptimESM.sh       no-clean-before
 
 else
  echo
