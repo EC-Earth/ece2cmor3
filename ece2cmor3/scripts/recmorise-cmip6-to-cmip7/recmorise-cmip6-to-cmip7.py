@@ -148,61 +148,89 @@ def main():
     cmip6_table          = args.table
     cmip6_variable       = args.var
 
-    if __name__ == "__main__": config = {}                       # python config syntax
+    if year1 and not year2: year2=year1
+    if year2 and not year1: year1=year2
+    if year1:
+        if year1 > year2:
+            print(' {} from {}: The starting year {} is later than the ending year {}\n'.format(error_message, sys.argv[0], year1, year2))
+            sys.exit()
 
-    if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
-     print(error_message, ' The config file {} does not exist.\n'.format(config_filename))
+    if verbose:
+        print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
+        print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
+
+    if file_locking:
+     os.environ["HDF5_USE_FILE_LOCKING"] = "TRUE"
+    else:
+     os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+    if verbose:
+     print(' HDF5_USE_FILE_LOCKING = {}\n'.format(file_locking))
+
+    if __name__ == "__main__": config = {}                                                                     # python config syntax
+    if os.path.isfile(config_filename) == False:                                                               # Checking if the config file exists
+     print(' {} The config file {} does not exist.\n'.format(error_message, config_filename))
      sys.exit()
-    exec(open(config_filename).read(), config)                   # Reading the config file
+    exec(open(config_filename).read(), config)                                                                 # Reading the config file
 
     # This function needs to be defined here after the name - main. Otherwise it will always take the default from the except case.
     def initialize_config_variable(config_variable_name, default_value):
         try:
          config_variable = config[config_variable_name]
-         if verbose: print(' Taking for the config variable {} from config file: {}'.format(config_variable_name, config_variable))
+         if verbose: print(' Taking for the config variable {:23} from the config file:   {}'.format(config_variable_name, config_variable))
         except:
          config_variable = default_value
-         if verbose: print(' Taking for the config variable {} the default: {}'.format(config_variable_name, config_variable))
+         if verbose: print(' Taking for the config variable {:23} the predefined default: {}'.format(config_variable_name, config_variable))
         return config_variable
 
 
-    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name'         ])  # cmip6_input_dir_name                 = ''
-    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'        ])  # cmip7_output_dir_name                = ''
+    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name' ])                                # cmip6_input_dir_name                 = ''
+    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'])                                # cmip7_output_dir_name                = ''
 
-    experiment_id = initialize_config_variable('experiment_id', 'esm-piControl')               # In CMOR global attribute and in DRS
+    production_date_version = initialize_config_variable('production_date_version', 'v*'                   )   # In DRS
+    experiment_id           = initialize_config_variable('experiment_id'          , 'esm-piControl'        )   # In CMOR global attribute and in DRS
+    parent_experiment_id    = initialize_config_variable('parent_experiment_id'   , 'esm-piControl-spinup' )   # In CMOR global attribute
+    branch_method           = initialize_config_variable('branch_method'          , 'standard'             )   # In CMOR global attribute
+    branch_time_in_child    = initialize_config_variable('branch_time_in_child'   , 30.0                   )   # In CMOR global attribute
+    branch_time_in_parent   = initialize_config_variable('branch_time_in_parent'  , 10800.0                )   # In CMOR global attribute
+    calendar                = initialize_config_variable('calendar'               , 'proleptic_gregorian'  )   # In CMOR global attribute
+    time_units              = initialize_config_variable('time_units'             , 'days since 1850-01-01')   # In writing the time units
+    parent_time_units       = initialize_config_variable('parent_time_units'      , 'days since 1850-01-01')   # In CMOR global attribute
+    ripf_r                  = initialize_config_variable('ripf_r'                 , 'r1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_i                  = initialize_config_variable('ripf_i'                 , 'i1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_p                  = initialize_config_variable('ripf_p'                 , 'p1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
+    ripf_f                  = initialize_config_variable('ripf_f'                 , 'f1'                   )   # In CMOR global attribute and in DRS (via the ripf variable)
+    source_id               = initialize_config_variable('source_id'              , 'EC-Earth3-ESM-1'      )   # In CMOR global attribute and in DRS
+    parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # In CMOR global attribute
+    institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # In CMOR global attribute and in DRS
+    license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # In CMOR global attribute
+    cmip7_grid_label        = initialize_config_variable('cmip7_grid_label'       , 'g999'                 )   # In CMOR global attribute
+    nominal_resolution      = initialize_config_variable('nominal_resolution'     , '100 km'               )   # In CMOR global attribute
+    activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # In CMOR global attribute and in DRS
+    parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # In CMOR global attribute
     if verbose: print()
 
-    if year1 and not year2: year2=year1
-    if year2 and not year1: year1=year2
-    
-    if year1:
-        if year1 > year2:
-            print('\n Stop from {}: The starting year {} is later than the ending year {}\n'.format(sys.argv[0], year1, year2))
-            sys.exit()
 
-
-    production_date_version      = 'v*'
-
-  ##experiment_id                = 'esm-piControl'                                         # In CMOR global attribute and in DRS
-    parent_experiment_id         = 'esm-piControl-spinup'                                  # In CMOR global attribute
-    branch_method                = 'standard'                                              # In CMOR global attribute
-    branch_time_in_child         = 30.0                                                    # In CMOR global attribute
-    branch_time_in_parent        = 10800.0                                                 # In CMOR global attribute
-    calendar                     = 'proleptic_gregorian'                                   # In CMOR global attribute
-    time_units                   = 'days since 1850-01-01'                                 # In writing the time units
-    parent_time_units            = 'days since 1850-01-01'                                 # In CMOR global attribute
-    ripf_r                       = 'r1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_i                       = 'i1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_p                       = 'p1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-    ripf_f                       = 'f1'                                                    # In CMOR global attribute and in DRS (via the ripf variable)
-    source_id                    = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute and in DRS
-    parent_source_id             = 'EC-Earth3-ESM-1'                                       # In CMOR global attribute
-    institution_id               = 'EC-Earth-Consortium'                                   # In CMOR global attribute and in DRS
-    license_id                   = 'CC-BY-4.0'                                             # In CMOR global attribute
-    cmip7_grid_label             = 'g999'                # CECK: USING A DEMO NUMBER NOW   # In CMOR global attribute
-    nominal_resolution           = '100 km'                                                # In CMOR global attribute
-    activity_id                  = 'CMIP'                                                  # In CMOR global attribute and in DRS
-    parent_activity_id           = 'CMIP'                                                  # In CMOR global attribute
+  ##production_date_version      = 'v*'                                                       # In DRS
+  ##experiment_id                = 'esm-piControl'                                            # In CMOR global attribute and in DRS
+  ##parent_experiment_id         = 'esm-piControl-spinup'                                     # In CMOR global attribute
+  ##branch_method                = 'standard'                                                 # In CMOR global attribute
+  ##branch_time_in_child         = 30.0                                                       # In CMOR global attribute
+  ##branch_time_in_parent        = 10800.0                                                    # In CMOR global attribute
+  ##calendar                     = 'proleptic_gregorian'                                      # In CMOR global attribute
+  ##time_units                   = 'days since 1850-01-01'                                    # In writing the time units
+  ##parent_time_units            = 'days since 1850-01-01'                                    # In CMOR global attribute
+  ##ripf_r                       = 'r1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
+  ##ripf_i                       = 'i1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
+  ##ripf_p                       = 'p1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
+  ##ripf_f                       = 'f1'                                                       # In CMOR global attribute and in DRS (via the ripf variable)
+  ##source_id                    = 'EC-Earth3-ESM-1'                                          # In CMOR global attribute and in DRS
+  ##parent_source_id             = 'EC-Earth3-ESM-1'                                          # In CMOR global attribute
+  ##institution_id               = 'EC-Earth-Consortium'                                      # In CMOR global attribute and in DRS
+  ##license_id                   = 'CC-BY-4.0'                                                # In CMOR global attribute
+  ##cmip7_grid_label             = 'g999'                   # CECK: USING A DEMO NUMBER NOW   # In CMOR global attribute
+  ##nominal_resolution           = '100 km'                                                   # In CMOR global attribute
+  ##activity_id                  = 'CMIP'                                                     # In CMOR global attribute and in DRS
+  ##parent_activity_id           = 'CMIP'                                                     # In CMOR global attribute
 
     ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
     drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
@@ -211,11 +239,6 @@ def main():
     cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
 
     cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
-
-
-    if verbose:
-        print(' The CMIP7 dreq python api version is: v{}'  .format(version('CMIP7_data_request_api')))
-        print(' The CMOR       python api version is: v{}\n'.format(version('cmor'                  )))
 
     # Prevent the CMOR Warning in case this directory is not existing yet:
     root_of_output_path = Path(cmip7_output_dir_name).parts[0] + Path(cmip7_output_dir_name).parts[1]
@@ -235,13 +258,6 @@ def main():
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
     tree_cmip7_variables = ET.parse(cmip7_cmip6_mapping_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
-
-    if file_locking:
-     os.environ["HDF5_USE_FILE_LOCKING"] = "TRUE"
-    else:
-     os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-    if verbose:
-     print(' HDF5_USE_FILE_LOCKING = {}\n'.format(file_locking))
 
     # handle exceptions in CMIP7 - CMIP6 mapping tables
     if cmip6_table in ['day'] and cmip6_variable in ['ta','ua','va','hur','hus','wap','zg']:
