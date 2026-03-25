@@ -28,9 +28,9 @@ from os.path import expanduser
 from pathlib import Path
 
 error_message   = '\n Error:'                                  #        error   message
-warning_message = '\n Warning:'                                #        warning message
+warning_message =   ' Warning:'                                #        warning message
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'       # Red    error   message
-warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'       # Yellow warning message
+warning_message =   ' \033[93m' + 'Warning:' + '\033[0m'       # Yellow warning message
 
 # suppress iris warning
 iris.FUTURE.date_microseconds = True
@@ -183,8 +183,10 @@ def main():
         return config_variable
 
 
-    cmip6_input_dir_name  = os.path.expanduser(config['cmip6_input_dir_name' ])                                # cmip6_input_dir_name                 = ''
-    cmip7_output_dir_name = os.path.expanduser(config['cmip7_output_dir_name'])                                # cmip7_output_dir_name                = ''
+   #cmip6_input_dir_name    = os.path.expanduser(config['cmip6_input_dir_name' ])                              # cmip6_input_dir_name                 = ''
+   #cmip7_output_dir_name   = os.path.expanduser(config['cmip7_output_dir_name'])                              # cmip7_output_dir_name                = ''
+    cmip6_input_dir_name    = os.path.expanduser(initialize_config_variable('cmip6_input_dir_name' , '/scratch/nktr/test-data/CE42-test/'                          ))
+    cmip7_output_dir_name   = os.path.expanduser(initialize_config_variable('cmip7_output_dir_name', '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'))
 
     production_date_version = initialize_config_variable('production_date_version', 'v*'                   )   # In DRS
     experiment_id           = initialize_config_variable('experiment_id'          , 'esm-piControl'        )   # In CMOR global attribute and in DRS
@@ -243,7 +245,7 @@ def main():
     # Prevent the CMOR Warning in case this directory is not existing yet:
     root_of_output_path = Path(cmip7_output_dir_name).parts[0] + Path(cmip7_output_dir_name).parts[1]
     if not os.path.isdir(root_of_output_path):
-        print("\n ERROR from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(sys.argv[0], cmip7_output_dir_name, root_of_output_path))
+        print(" {} from {}: Can't create the ouput directory:\n  {}\n because the root directory  {}  does not exist.\n".format(error_message, sys.argv[0], cmip7_output_dir_name, root_of_output_path))
         sys.exit()
     os.makedirs(cmip7_output_dir_name, exist_ok=True)
 
@@ -252,7 +254,7 @@ def main():
 
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
-        print('\n ERROR: The file {:} does not exist, therefore first run:\n  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(cmip7_cmip6_mapping_filename))
+        print(' {} The file {:} does not exist, therefore first run:\n  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip7_cmip6_mapping_filename))
         sys.exit()
 
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
@@ -289,7 +291,7 @@ def main():
         # For plev3 cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
         if cmip6_table in ['6hrPlevPt'] and cmip6_variable in ['ta','ua', 'va']:
             if omit_variables:
-             print(' WARNING: The omit_variables option is active, therefore omitting {} {}'.format(cmip6_table, cmip6_variable))
+             print(' {} The omit_variables option is active, therefore omitting {} {}'.format(warning_message, cmip6_table, cmip6_variable))
              sys.exit()
 
     match = False
@@ -362,7 +364,7 @@ def main():
         matched_cmip6_files = glob.glob(cmip6_file_path_and_name)
         number_of_matched_cmip6_files = len(matched_cmip6_files)
         if number_of_matched_cmip6_files == 0:
-            sys.exit(' ERROR: No files found for {}\n'.format(cmip6_file_path_and_name))
+            sys.exit(' {} No files found for {}\n'.format(error_message, cmip6_file_path_and_name))
         else:
             cubelist = iris.load(matched_cmip6_files)
             if verbose:
