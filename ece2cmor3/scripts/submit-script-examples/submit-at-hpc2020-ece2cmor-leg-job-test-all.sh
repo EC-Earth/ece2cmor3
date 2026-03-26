@@ -43,7 +43,7 @@
 
    ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXPID/output/$COMPONENT/$LEG
    METADATA=${PERM}/${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/cmip6/$MIP/$ECEMODEL/cmip6-experiment-$MIP-${EXPERIMENT_NAME}/metadata-cmip6-$MIP-${EXPERIMENT_NAME}-$ECEMODEL-$COMPONENT-template.json
-   TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXPID/$COMPONENT/$LEG
+   TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXPID/$VERSION/$COMPONENT/$LEG
    VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-$ECEMODEL.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXPID/$VERSION
