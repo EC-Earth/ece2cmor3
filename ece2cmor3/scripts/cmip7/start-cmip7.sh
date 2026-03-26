@@ -5,7 +5,7 @@
  # The very compact guidelines in script / commandline form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily under development.
  # Based on the lessons learned from the ECE3 genecec CMIP6 approach and based on the possibilities for the CMIP7 DR framework: The genecec CMIP7
  # framework is fully based on XML data bases (following the XIOS approach) using XPATH. All scripts are in python and nearly everywhere (at least
- # everywhere were possible) the CMIP7 DR pythin API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository.
+ # everywhere were possible) the CMIP7 DR python API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository.
  
  # Currently the CMIP7 DR Software calls the actual CMIP7 DR Content (latest version), this will in its unchanged form try to connect to the internet
  # for the latest Content state, and therefore can be unexpectedly slow with a bad connection or lead to interruption on a platfrom without internet

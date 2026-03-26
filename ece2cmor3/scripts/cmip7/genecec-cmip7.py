@@ -83,13 +83,13 @@ def parse_args():
         return input_args
 
     # Optional input arguments
-    parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help="respond to all opportunities")
-    parser.add_argument('-f', '--opportunities_file', type=str                                 , help="path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
-    parser.add_argument('-i', '--opportunity_ids'   , type=parse_input_list                    , help=f'opportunity ids (integers) of opportunities to respond to, example: -i 69{sep}22{sep}37')
-    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}piControl')
-    parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
-    parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
-    parser.add_argument('-c', '--ececonfs'          , type=parse_input_list                    , help='limit output to the specified EC-Earth3 configurations (space-delimited list, case sensitive)')
+    parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help='Respond to all opportunities')
+    parser.add_argument('-f', '--opportunities_file', type=str                                 , help="Path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
+    parser.add_argument('-i', '--opportunity_ids'   , type=parse_input_list                    , help='Opportunity ids (integers) of opportunities to respond to, example: -i 69{}22{}37'.format(sep,sep))
+    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help='Limit output to the specified experiments (case sensitive), example: -e piControl{}esm-hist'.format(sep))
+    parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help='Discard variables that are requested at lower priority than this cutoff priority, example: -p high')
+    parser.add_argument('-m', '--variables_metadata', type=str                                 , help='The output file containing metadata of requested variables, can be ".json" or ".csv" file')
+    parser.add_argument('-c', '--ececonfs'          , type=parse_input_list                    , help='Limit output to the specified EC-Earth3 configurations, example: -c EC-Earth3{}EC-Earth3-ESM-1'.format(sep))
 
     return parser.parse_args()
 
