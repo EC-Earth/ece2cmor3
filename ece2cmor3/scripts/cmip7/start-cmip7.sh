@@ -19,17 +19,17 @@
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
  ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh core esm-hist           EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh high esm-hist           EC-Earth3-ESM-1
  echo " Produces the directory:"
- echo "  cmip7"
+ echo "  cmip7-output-control-files"
 
 
- # Produce component varlist request files (like above) and move them to a backup place:
- ./genecec-cmip7-wrapper.sh core esm-hist           EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh high esm-hist           EC-Earth3-ESM-1
- mv cmip7-requested-varlist-per-experiment.json genecec-cmip7.log summarize.log metadata-of-requested-cmip7-variables.json cmip7 bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-core-v03/
- mv cmip7-requested-varlist-per-experiment.json genecec-cmip7.log summarize.log metadata-of-requested-cmip7-variables.json cmip7 bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-high-v03/
+ # Produce component varlist request files and move them to an archive:
+ cd ../
+ ./add-optimesm-variables.sh     # This adds the 6hrLev zg for the high request below
+ cd -
+ mkdir -p archive
+ ./genecec-cmip7-wrapper.sh core esm-hist EC-Earth3-ESM-1; mv cmip7-output-control-files archive/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-esm-hist-core-v02/
+ ./genecec-cmip7-wrapper.sh high esm-hist EC-Earth3-ESM-1; mv cmip7-output-control-files archive/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-esm-hist-high-v02/
 
  # This also produces the cmip6Plus varlists:
  # Actually the optimesm varlist can also direclty taken from: ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json
