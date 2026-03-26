@@ -452,7 +452,7 @@ def apply_mask(array, factor, term, mask, missval_in, missval_out):
     if mask is not None:
         numpy.putmask(array, numpy.broadcast_to(numpy.logical_not(mask), array.shape), new_miss_val)
     if factor != 1.0 or term != 0.0:
-        numpy.putmask(array, array != new_miss_val, factor * array + term)
+        numpy.putmask(array, array != new_miss_val, numpy.float32(factor * array + term))
     return array
 
 

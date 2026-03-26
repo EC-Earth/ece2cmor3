@@ -3,4 +3,4 @@
 	url = https://github.com/PCMDI/cmip6-cmor-tables.git
 [submodule "ece2cmor3/resources/cmip7-cmor-tables"]
 	path = ece2cmor3/resources/cmip7-cmor-tables
-	url = git@github.com:WCRP-CMIP/cmip7-cmor-tables.git
+	url = https://github.com/WCRP-CMIP/cmip7-cmor-tables.git

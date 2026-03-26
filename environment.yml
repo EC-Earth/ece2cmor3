@@ -42,7 +42,7 @@ dependencies:
   - pip
 # - pyngl                      # See #862, #828 & #&31
   - pytest
-  - python
+  - python<3.14
   - python-cdo
   - python-eccodes
   - python-dateutil
