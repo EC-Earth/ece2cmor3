@@ -60,7 +60,7 @@ if [ "$#" -eq 3 ]; then
   drq_version=v1.2.2.3
   metadata_filename=metadata-of-requested-cmip7-variables.json
 
-  rm -rf cmip7
+  rm -rf cmip7-output-control-files
   ./genecec-cmip7.py --all_opportunities                          \
                      --variables_metadata ${metadata_filename}    \
                      --ececonfs           ${ececonf_list}         \
@@ -73,6 +73,9 @@ if [ "$#" -eq 3 ]; then
   grep -e 'Skip'    ${log_file}                   >  ${sum_file}; echo '' >> ${sum_file}
   grep -e 'Created' ${log_file}                   >> ${sum_file}; echo '' >> ${sum_file}
   grep -e 'json'    ${log_file} | grep -v -e INFO >> ${sum_file}
+
+  mkdir -p cmip7-output-control-files/log-files/
+  mv -f cmip7-requested-varlist-per-experiment.json ${metadata_filename} ${log_file} ${sum_file} cmip7-output-control-files/log-files/
 
 else
   echo

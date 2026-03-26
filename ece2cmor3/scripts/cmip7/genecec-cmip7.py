@@ -395,7 +395,7 @@ def main():
           print('\n Creating the output-control-files for EC-Earth configuration: {}'.format(ececonf))
 
           flat_request_file_name = 'flat-full-cmip7-request-for-' + experiment + '-' + args.priority_cutoff + '.json'
-          dir_name = 'cmip7/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
+          dir_name = 'cmip7-output-control-files/' + experiment + '-' + args.priority_cutoff  + '-' + ececonf
           previous_working_dir = os.getcwd()
           subprocess.run(["mkdir", "-p", dir_name])
           os.chdir(dir_name)
