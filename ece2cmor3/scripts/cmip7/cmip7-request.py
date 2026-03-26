@@ -116,6 +116,7 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                                 ' region={:12}' \
                                 ' cmip6_table={:14}' \
                                 ' physical_parameter_name={:28}' \
+                                ' cmip6_compound_name={:40}' \
                                 ' long_name={:132}>' \
                     '  </variable>\n'.format( \
                     '"' + element.get('cmip7_compound_name'    ) + '"', \
@@ -123,6 +124,7 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                     '"' + element.get('region'                 ) + '"', \
                     '"' + element.get('cmip6_table'            ) + '"', \
                     '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('cmip6_compound_name'    ) + '"', \
                     '"' + element.get('long_name'              ) + '"') \
                    )
     return
@@ -173,12 +175,19 @@ def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, prior
                     '"' + var_metadata[compound_var]['type'                   ] + '"') \
                    )
     else:
-     varlist.append('  <variable  cmip7_compound_name={:55} priority={:10} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:132}>  </variable>\n'.format( \
+     varlist.append('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10} region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' long_name={:132}' \
+                                '>  </variable>\n'.format( \
                     '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
                     '"' + priority_group                                        + '"', \
                     '"' + var_metadata[compound_var]['region'                 ] + '"', \
                     '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
                     '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_compound_name'    ] + '"', \
                     '"' + var_metadata[compound_var]['long_name'              ] + '"') \
                    )
     return
