@@ -18,16 +18,16 @@
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
- ./genecec-cmip7-wrapper.sh high piControl,historical EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh core esm-hist             EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh high esm-hist             EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh core esm-hist           EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high esm-hist           EC-Earth3-ESM-1
  echo " Produces the directory:"
  echo "  cmip7"
 
 
  # Produce component varlist request files (like above) and move them to a backup place:
- ./genecec-cmip7-wrapper.sh core esm-hist             EC-Earth3-ESM-1
- ./genecec-cmip7-wrapper.sh high esm-hist             EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh core esm-hist           EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high esm-hist           EC-Earth3-ESM-1
  mv cmip7-requested-varlist-per-experiment.json genecec-cmip7.log summarize.log metadata-of-requested-cmip7-variables.json cmip7 bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-core-v03/
  mv cmip7-requested-varlist-per-experiment.json genecec-cmip7.log summarize.log metadata-of-requested-cmip7-variables.json cmip7 bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-high-v03/
 
