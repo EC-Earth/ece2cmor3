@@ -67,7 +67,7 @@ def main():
            json.dump(data_request_merged, outfile, sort_keys=True, indent=4)
        outfile.close()
 
-       command = 'sed -i "s/\s*$//g"' + ' ' + output_flat_json_file
+       command = r'sed -i "s/\s*$//g"' + ' ' + output_flat_json_file
        os.system(command)
 
        print(' which produced the merged file:')
