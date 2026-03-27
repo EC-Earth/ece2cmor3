@@ -32,20 +32,21 @@
  ./genecec-cmip7-wrapper.sh high esm-hist EC-Earth3-ESM-1; mv cmip7-output-control-files archive/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-esm-hist-high-v02/
 
  # This also produces the cmip6Plus varlists:
- # Actually the optimesm varlist can also direclty taken from: ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json
- ./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json CMIP        esm-hist                 EC-EARTH-ESM-1   optimesm  &> genecec-for-individual-experiments.log
- mv genecec-for-individual-experiments.log optimesm/
- mv optimesm bup/optimesm/optimesm-v03
+ cd ../
+ ./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json     CMIP        esm-hist                 EC-EARTH-ESM-1   optimesm  &> genecec-for-individual-experiments.log
+ mv -f genecec-for-individual-experiments.log optimesm/
+ mv -f optimesm cmip7/archive/optimesm-v02
 
+ cd -
  # Combine and merge the OptimESM data request files and the CMIP7 request files:
- ./combine-and-merge-json-request-files.py bup/optimesm/optimesm-v03/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-core-v03/cmip7/esm-hist-core-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-core-EC-Earth3-ESM-1.json combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json
- ./combine-and-merge-json-request-files.py bup/optimesm/optimesm-v03/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/bup/output-control-files-ECE3-ESM-1-CMIP7-esm-hist-high-v03/cmip7/esm-hist-high-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-high-EC-Earth3-ESM-1.json combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json
+ ./combine-and-merge-json-request-files.py cmip7/archive/optimesm-v02/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/archive/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-esm-hist-core-v02/esm-hist-core-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-core-EC-Earth3-ESM-1.json combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json
+ ./combine-and-merge-json-request-files.py cmip7/archive/optimesm-v02/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/archive/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-esm-hist-high-v02/esm-hist-high-EC-Earth3-ESM-1/component-request-cmip7-esm-hist-high-EC-Earth3-ESM-1.json combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json
 
- # Create the output-control-files for the combined OptimESM - CMIP7-FT request:
- ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json                                       CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-core-v01  &> genecec-for-individual-experiments-optimesm-cmip7-ft-core.log
- ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json                                       CMIP        esm-hist                 EC-EARTH-ESM-1   bup/optimesm/optimesm-cmip7-ft-high-v01  &> genecec-for-individual-experiments-optimesm-cmip7-ft-high.log
- mv genecec-for-individual-experiments-optimesm-cmip7-ft-core.log bup/optimesm/optimesm-cmip7-ft-core-v01
- mv genecec-for-individual-experiments-optimesm-cmip7-ft-high.log bup/optimesm/optimesm-cmip7-ft-high-v01
+ # Use the combined optimesm and CMIP7 (core or high) request to generate the combined output-control-files:
+ ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-core-request-EC-EARTH-ESM-1-varlist.json                                           CMIP        esm-hist                 EC-EARTH-ESM-1   cmip7/archive/optimesm-core-combined-v02/ &> genecec-for-individual-experiments-combined-core.log
+ ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-high-request-EC-EARTH-ESM-1-varlist.json                                           CMIP        esm-hist                 EC-EARTH-ESM-1   cmip7/archive/optimesm-high-combined-v02/ &> genecec-for-individual-experiments-combined-high.log
+ mv -f genecec-for-individual-experiments-combined-core.log cmip7/archive/optimesm-core-combined-v02/
+ mv -f genecec-for-individual-experiments-combined-high.log cmip7/archive/optimesm-high-combined-v02/
 
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
