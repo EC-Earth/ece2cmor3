@@ -22,7 +22,6 @@ if [ "$#" -eq 1 ]; then
 
   cd ${table_path}
   if [ ${do_clean} == 'clean-before' ]; then
-   rm -f ${table_file_AER6hrPt}
    git checkout ${table_file_6hrLev}
   fi
 
@@ -54,7 +53,7 @@ if [ "$#" -eq 1 ]; then
 
   echo
   echo " Running:"
-  echo "  $0"
+  echo "  $0 $@"
   echo " has adjusted the files:"
   echo "  ${table_path}/${table_file_6hrLev}"
   echo " which is part of the nested CMOR Table repository. View the diff by running:"
