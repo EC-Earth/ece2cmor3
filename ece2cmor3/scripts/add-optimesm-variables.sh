@@ -16,6 +16,7 @@ if [ "$#" -eq 0 ]; then
  ./add-nemo-variables.sh               no-clean-before
  ./add-htessel-vegetation-variables.sh no-clean-before
  ./add-6hrLev-zg-for-OptimESM.sh       no-clean-before
+ ./add-Oday-zos-for-OptimESM.sh        no-clean-before
 
 else
  echo
