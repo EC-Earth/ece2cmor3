@@ -39,6 +39,9 @@ if [ "$#" -eq 1 ]; then
  mv -f genecec-for-individual-experiments-combined-core.log cmip7/${archive_dir}/optimesm-core-combined-${version}/
  mv -f genecec-for-individual-experiments-combined-high.log cmip7/${archive_dir}/optimesm-high-combined-${version}/
 
+ ./add-Oday-zos-for-OptimESM-to-xml.sh cmip7/${archive_dir}/optimesm-core-combined-${version}/file_def_nemo-opa.xml
+ ./add-Oday-zos-for-OptimESM-to-xml.sh cmip7/${archive_dir}/optimesm-high-combined-${version}/file_def_nemo-opa.xml
+
  ./revert-nested-cmor-table-branch.sh
 
  echo
