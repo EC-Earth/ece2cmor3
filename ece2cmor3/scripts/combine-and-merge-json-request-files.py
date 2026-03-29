@@ -28,6 +28,17 @@ def merge(source, destination, verbose=True):
             node = destination.setdefault(key, {})
             merge(value, node)
         else:
+            try:
+             if isinstance(value, list):
+                 for list_item in destination[key]:
+                     if list_item not in value:
+                         if verbose:
+                             print(' Adding variable: {}'.format(list_item))
+                         value.insert(0, list_item)  # Insert at the beginning of the list: for most clean comparison
+                        #value.append(list_item)
+                        #value.sort()                # For alphabetical insert (but the rare non alphabetic ordered items are also reordered in this case
+            except:
+             pass
             destination[key] = value
     return destination
 
