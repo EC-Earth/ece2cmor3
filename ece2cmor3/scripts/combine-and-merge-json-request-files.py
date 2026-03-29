@@ -2,7 +2,7 @@
 # Thomas Reerink
 #
 # This script combines and merges two json files which can have nested items. This script is aimed to combine
-# two data request varlist json files in order to create a joined request from two seperate requests.
+# two data request varlist json files in order to create a joined request from two separate requests.
 #
 # Run this script without arguments for examples how to call this script.
 #
@@ -37,9 +37,9 @@ def main():
        input_json_file_2 = sys.argv[2]                             # The name of the 2nd data request file read from the argument line
 
        if len(sys.argv) == 4:
-        output_flat_json_file = sys.argv[3]                        # The name of the combined-merged output file if specified
+        output_json_file = sys.argv[3]                             # The name of the combined-merged output file if specified
        else:
-        output_flat_json_file = os.path.basename(input_json_file_1).replace('.json','-merged-with-' + os.path.basename(input_json_file_2))
+        output_json_file = os.path.basename(input_json_file_1).replace('.json','-merged-with-' + os.path.basename(input_json_file_2))
 
        # Checking whether the data request files exists:
        if os.path.isfile(input_json_file_1) == False:
@@ -64,15 +64,16 @@ def main():
 
        data_request_merged = data_request_2
 
-       with open(output_flat_json_file, 'w') as outfile:
+       with open(output_json_file, 'w') as outfile:
            json.dump(data_request_merged, outfile, sort_keys=True, indent=4)
+           outfile.write('\n')
        outfile.close()
 
-       command = r'sed -i "s/\s*$//g"' + ' ' + output_flat_json_file
+       command = r'sed -i "s/\s*$//g"' + ' ' + output_json_file
        os.system(command)
 
-       print(' which produced the merged file:')
-       print('  ', output_flat_json_file)
+       print('\n which produced the merged file:')
+       print('  ', output_json_file)
        print()
 
     else:
