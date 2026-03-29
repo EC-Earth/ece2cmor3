@@ -19,6 +19,7 @@ if [ "$#" -eq 2 ]; then
   cmip7_dir=cmip7
   archive_dir=archive
   optimesm_dir=cmip7/${archive_dir}/optimesm-${version}
+  ece3_cmip7_dir=${archive_dir}/cmip7-${priority}-${experiment}-${ECE3}-${version}/
 
   optimesm_request=../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json
 
@@ -27,7 +28,8 @@ if [ "$#" -eq 2 ]; then
   cd ${cmip7_dir}
   mkdir -p ${archive_dir}
   ./genecec-cmip7-wrapper.sh ${priority} ${experiment} ${ECE3}
-  mv cmip7-output-control-files ${archive_dir}/cmip7-output-control-files-${ECE3}-CMIP7-${experiment}-${priority}-${version}/
+  mv -f cmip7-output-control-files/log-files cmip7-output-control-files/${experiment}-${priority}-${ECE3}/
+  mv -f cmip7-output-control-files/${experiment}-${priority}-${ECE3}/ ${ece3_cmip7_dir}/
 
   # This includes the production of the cmip6Plus varlists (which are not used for this case):
   cd ../
@@ -35,7 +37,7 @@ if [ "$#" -eq 2 ]; then
   mv -f genecec-for-individual-experiments.log ${optimesm_dir}/
 
   # Combine and merge the OptimESM data request files and the CMIP7 request files:
-  ./combine-and-merge-json-request-files.py ${optimesm_dir}/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/${archive_dir}/cmip7-output-control-files-${ECE3}-CMIP7-${experiment}-${priority}-${version}/${experiment}-${priority}-${ECE3}/component-request-cmip7-${experiment}-${priority}-${ECE3}.json combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json
+  ./combine-and-merge-json-request-files.py ${optimesm_dir}/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/${ece3_cmip7_dir}/component-request-cmip7-${experiment}-${priority}-${ECE3}.json combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json
 
   # Use the combined optimesm and CMIP7 request to generate the combined output-control-files:
   ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json ${mip} ${experiment} EC-EARTH-ESM-1 cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/ &> genecec-for-individual-experiments-combined-${priority}.log
@@ -44,6 +46,9 @@ if [ "$#" -eq 2 ]; then
   ./add-Oday-zos-for-OptimESM-to-xml.sh cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/file_def_nemo-opa.xml
 
   ./revert-nested-cmor-table-branch.sh
+
+  # Clean:
+  rm -f combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json add-optimesm-variables.log
 
   echo
   echo " Finished, the result can be found here:"
