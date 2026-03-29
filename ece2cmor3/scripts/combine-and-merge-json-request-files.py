@@ -17,9 +17,13 @@ error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error  
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 
-def merge(source, destination):
+def merge(source, destination, verbose=True):
     for key, value in source.items():
         if isinstance(value, dict):
+            if verbose:
+                for dict_item in destination[key]:
+                    if dict_item not in value:
+                        print(' Adding table   : {}'.format(dict_item))
             # get node or create one
             node = destination.setdefault(key, {})
             merge(value, node)
