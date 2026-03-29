@@ -33,19 +33,20 @@ def main():
 
     if len(sys.argv) == 3 or len(sys.argv) == 4:
 
-       input_json_file_1 = sys.argv[1]                                                           # The name of the 1st data request file name from the argument line
-       input_json_file_2 = sys.argv[2]                                                           # The name of the 2nd data request file name from the argument line
+       input_json_file_1 = sys.argv[1]                             # The name of the 1st data request file from read the argument line
+       input_json_file_2 = sys.argv[2]                             # The name of the 2nd data request file read from the argument line
 
        if len(sys.argv) == 4:
-        output_flat_json_file = sys.argv[3]                                                      # The name of the combined-merged output file if specified
+        output_flat_json_file = sys.argv[3]                        # The name of the combined-merged output file if specified
        else:
         output_flat_json_file = os.path.basename(input_json_file_1).replace('.json','-merged-with-' + os.path.basename(input_json_file_2))
 
-       if os.path.isfile(input_json_file_1) == False:                                            # Checking if the data request file exists
-        print(error_message, ' The data request file ', input_json_file_1, ' does not exist.\n')
+       # Checking whether the data request files exists:
+       if os.path.isfile(input_json_file_1) == False:
+        print('{} The data request file {} does not exist.\n'.format(error_message, input_json_file_1))
         sys.exit()
-       if os.path.isfile(input_json_file_2) == False:                                            # Checking if the data request file exists
-        print(error_message, ' The data request file ', input_json_file_2, ' does not exist.\n')
+       if os.path.isfile(input_json_file_2) == False:
+        print('{} The data request file {} does not exist.\n'.format(error_message, input_json_file_2))
         sys.exit()
 
        with open(input_json_file_1) as json_file:
