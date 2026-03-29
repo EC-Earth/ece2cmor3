@@ -1,4 +1,16 @@
 {
+    "co2box": {
+        "Amon": [
+            "co2mass"
+        ],
+        "Emon": [
+            "co2s"
+        ],
+        "day": [
+            "co2s",
+            "co2mass"
+        ]
+    },
     "ifs": {
         "Amon": [
             "cl",
@@ -258,36 +270,6 @@
             "treeFrac",
             "vegFrac"
         ],
-        "Lmon": [
-            "baresoilFrac",
-            "burntFractionAll",
-            "cLeaf",
-            "cLitter",
-            "cProduct",
-            "cRoot",
-            "cropFrac",
-            "cSoilFast",
-            "cSoilMedium",
-            "cSoilSlow",
-            "cVeg",
-            "fFire",
-            "fLitterSoil",
-            "fVegLitter",
-            "gpp",
-            "grassFrac",
-            "lai",
-            "landCoverFrac",
-            "nbp",
-            "npp",
-            "pastureFrac",
-            "ra",
-            "residualFrac",
-            "rGrowth",
-            "rh",
-            "rMaint",
-            "shrubFrac",
-            "treeFrac"
-        ],
         "LPJGday": [
             "ec",
             "mrsll",
@@ -321,6 +303,36 @@
         ],
         "LPJGyr": [
             "pastureFrac"
+        ],
+        "Lmon": [
+            "baresoilFrac",
+            "burntFractionAll",
+            "cLeaf",
+            "cLitter",
+            "cProduct",
+            "cRoot",
+            "cropFrac",
+            "cSoilFast",
+            "cSoilMedium",
+            "cSoilSlow",
+            "cVeg",
+            "fFire",
+            "fLitterSoil",
+            "fVegLitter",
+            "gpp",
+            "grassFrac",
+            "lai",
+            "landCoverFrac",
+            "nbp",
+            "npp",
+            "pastureFrac",
+            "ra",
+            "residualFrac",
+            "rGrowth",
+            "rh",
+            "rMaint",
+            "shrubFrac",
+            "treeFrac"
         ]
     },
     "nemo": {
@@ -516,17 +528,5 @@
             "sndmasssubl"
         ]
     },
-    "tm5": {},
-    "co2box": {
-        "Amon": [
-            "co2mass"
-        ],
-        "Emon": [
-            "co2s"
-        ],
-        "day": [
-            "co2s",
-            "co2mass"
-        ]
-    }
+    "tm5": {}
 }
