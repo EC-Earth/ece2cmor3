@@ -14,25 +14,28 @@ if [ "$#" -eq 2 ]; then
  if [ $1 == 'core' ] || [ $1 == 'high' ] || [ $1 == 'medium' ] || [ $1 == 'low' ]; then
   mip=CMIP
   experiment=esm-hist
+  ECE3=EC-Earth3-ESM-1
 
   cmip7_dir=cmip7
   archive_dir=archive
   optimesm_dir=cmip7/${archive_dir}/optimesm-${version}
 
+  optimesm_request=../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json
+
   # Produce component varlist request files and move them to an archive:
   ./add-optimesm-variables.sh >& add-optimesm-variables.log    # This adds the 6hrLev zg for the high request below
   cd ${cmip7_dir}
   mkdir -p ${archive_dir}
-  ./genecec-cmip7-wrapper.sh ${priority} ${experiment} EC-Earth3-ESM-1
-  mv cmip7-output-control-files ${archive_dir}/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-${experiment}-${priority}-${version}/
+  ./genecec-cmip7-wrapper.sh ${priority} ${experiment} ${ECE3}
+  mv cmip7-output-control-files ${archive_dir}/cmip7-output-control-files-${ECE3}-CMIP7-${experiment}-${priority}-${version}/
 
   # This includes the production of the cmip6Plus varlists (which are not used for this case):
   cd ../
-  ./genecec-for-individual-experiments.sh ../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-EC-EARTH-ESM-1-varlist.json ${mip} ${experiment} EC-EARTH-ESM-1 ${optimesm_dir}/  &> genecec-for-individual-experiments.log
+  ./genecec-for-individual-experiments.sh ${optimesm_request} ${mip} ${experiment} EC-EARTH-ESM-1 ${optimesm_dir}/  &> genecec-for-individual-experiments.log
   mv -f genecec-for-individual-experiments.log ${optimesm_dir}/
 
   # Combine and merge the OptimESM data request files and the CMIP7 request files:
-  ./combine-and-merge-json-request-files.py ${optimesm_dir}/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/${archive_dir}/cmip7-output-control-files-EC-Earth3-ESM-1-CMIP7-${experiment}-${priority}-${version}/${experiment}-${priority}-EC-Earth3-ESM-1/component-request-cmip7-${experiment}-${priority}-EC-Earth3-ESM-1.json combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json
+  ./combine-and-merge-json-request-files.py ${optimesm_dir}/optimesm-request-EC-EARTH-ESM-1-varlist.json cmip7/${archive_dir}/cmip7-output-control-files-${ECE3}-CMIP7-${experiment}-${priority}-${version}/${experiment}-${priority}-${ECE3}/component-request-cmip7-${experiment}-${priority}-${ECE3}.json combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json
 
   # Use the combined optimesm and CMIP7 request to generate the combined output-control-files:
   ./genecec-for-individual-experiments.sh combined-optimesm-cmip7-${priority}-request-EC-EARTH-ESM-1-varlist.json ${mip} ${experiment} EC-EARTH-ESM-1 cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/ &> genecec-for-individual-experiments-combined-${priority}.log
