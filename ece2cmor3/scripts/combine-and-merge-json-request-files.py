@@ -17,16 +17,16 @@ error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error  
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 
-def merge(source, destination, verbose=True):
+def merge(source, destination, alphabetic_merge=True, verbose=True):
     for key, value in source.items():
         if isinstance(value, dict):
             if verbose:
                 for dict_item in destination[key]:
                     if dict_item not in value:
                         print(' Adding table   : {}'.format(dict_item))
-            # get node or create one
+            # Get node or create one
             node = destination.setdefault(key, {})
-            merge(value, node)
+            merge(value, node, alphabetic_merge, verbose)
         else:
             try:
              if isinstance(value, list):
@@ -34,9 +34,13 @@ def merge(source, destination, verbose=True):
                      if list_item not in value:
                          if verbose:
                              print(' Adding variable: {}'.format(list_item))
-                         value.insert(0, list_item)  # Insert at the beginning of the list: for most clean comparison
-                        #value.append(list_item)
-                        #value.sort()                # For alphabetical insert (but the rare non alphabetic ordered items are also reordered in this case
+                         if alphabetic_merge:
+                             # Insert a list item from the second json file (which is not in the first json file) at its alphabetic order. Ohter accidentally not alphabetic ordered items are also affected by this ordering.
+                             value.append(list_item)
+                             value.sort()
+                         else:
+                             # Insert a list item from the second json file (which is not in the first json file) at the start of the list: This allows a most clean comparison
+                             value.insert(0, list_item)
             except:
              pass
             destination[key] = value
@@ -74,8 +78,8 @@ def main():
 
        print('\n Running {:} with:\n  {:} {:} {:}\n'.format(os.path.basename(sys.argv[0]), os.path.basename(sys.argv[0]), sys.argv[1], sys.argv[2]))
 
-       # Recursive merge of netsed dictionaries:
-       merge(data_request_1, data_request_2)
+       # Recursive merge of netsed dictionaries including the merge of the elements of lists which are part of any dictionary item:
+       merge(data_request_1, data_request_2, alphabetic_merge=False, verbose=True)
 
        data_request_merged = data_request_2
 
