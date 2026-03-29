@@ -17,8 +17,8 @@ if [ "$#" -eq 2 ]; then
   ECE3_name=EC-Earth3-ESM-1
   ECE_model=EC-EARTH-ESM-1
   cmip7_dir=cmip7
-  archive_dir=archive
-  optimesm_dir=cmip7/${archive_dir}/optimesm-${version}
+  archive_dir=${cmip7_dir}/archive
+  optimesm_dir=${archive_dir}/optimesm-${version}
   ece3_cmip7_dir=${archive_dir}/cmip7-${priority}-${experiment}-${ECE3_name}-${version}/
 
   optimesm_request=../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-${ECE_model}-varlist.json
@@ -26,11 +26,11 @@ if [ "$#" -eq 2 ]; then
 
   # Produce component varlist request files and move them to an archive:
   ./add-optimesm-variables.sh >& add-optimesm-variables.log    # This adds the 6hrLev zg for the high request below
-  cd ${cmip7_dir}
   mkdir -p ${archive_dir}
+  cd ${cmip7_dir}
   ./genecec-cmip7-wrapper.sh ${priority} ${experiment} ${ECE3_name}
   mv -f cmip7-output-control-files/log-files cmip7-output-control-files/${experiment}-${priority}-${ECE3_name}/
-  mv -f cmip7-output-control-files/${experiment}-${priority}-${ECE3_name}/ ${ece3_cmip7_dir}/
+  mv -f cmip7-output-control-files/${experiment}-${priority}-${ECE3_name}/ ../${ece3_cmip7_dir}/
 
   # This includes the production of the cmip6Plus varlists (which are not used for this case):
   cd ../
@@ -38,13 +38,13 @@ if [ "$#" -eq 2 ]; then
   mv -f genecec-for-individual-experiments.log ${optimesm_dir}/
 
   # Combine and merge the OptimESM data request files and the CMIP7 request files:
-  ./combine-and-merge-json-request-files.py ${optimesm_dir}/${optimesm_request##*/} cmip7/${ece3_cmip7_dir}/component-request-cmip7-${experiment}-${priority}-${ECE3_name}.json ${combined_request}
+  ./combine-and-merge-json-request-files.py ${optimesm_dir}/${optimesm_request##*/} ${ece3_cmip7_dir}/component-request-cmip7-${experiment}-${priority}-${ECE3_name}.json ${combined_request}
 
   # Use the combined optimesm and CMIP7 request to generate the combined output-control-files:
-  ./genecec-for-individual-experiments.sh ${combined_request} ${mip} ${experiment} ${ECE_model} cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/ &> genecec-for-individual-experiments-combined-${priority}.log
-  mv -f genecec-for-individual-experiments-combined-${priority}.log cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/
+  ./genecec-for-individual-experiments.sh ${combined_request} ${mip} ${experiment} ${ECE_model} ${archive_dir}/optimesm-${priority}-combined-${version}/ &> genecec-for-individual-experiments-combined-${priority}.log
+  mv -f genecec-for-individual-experiments-combined-${priority}.log ${archive_dir}/optimesm-${priority}-combined-${version}/
 
-  ./add-Oday-zos-for-OptimESM-to-xml.sh cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/file_def_nemo-opa.xml
+  ./add-Oday-zos-for-OptimESM-to-xml.sh ${archive_dir}/optimesm-${priority}-combined-${version}/file_def_nemo-opa.xml
 
   ./revert-nested-cmor-table-branch.sh
 
@@ -53,7 +53,7 @@ if [ "$#" -eq 2 ]; then
 
   echo
   echo " Finished, the result can be found here:"
-  echo "  cmip7/${archive_dir}/optimesm-${priority}-combined-${version}/"
+  echo "  ${archive_dir}/optimesm-${priority}-combined-${version}/"
   echo
 
  else
