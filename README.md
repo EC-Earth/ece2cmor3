@@ -127,13 +127,24 @@ cd ${HOME}/cmorize/ece2cmor3
 pip install -e .
 ```
 
-#### Updating the nested CMOR table repository by maintainers:
+#### Updating the nested CMIP6 CMOR table repository by maintainers:
 Navigate to your git checkout directory and execute
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/tables/
 git pull origin main
 cd ../; git add cmip6-cmor-tables
-git commit cmip6-cmor-tables -m 'Update the nested CMOR tables for their updates'
+git commit cmip6-cmor-tables -m 'Update the nested CMIP6 CMOR Tables for their updates'
+git push
+```
+
+#### Updating the nested CMIP7 CMOR table repository by maintainers:
+Navigate to your git checkout directory and execute
+```shell
+cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/cmip7-cmor-tables/
+cd .tables-cvs/; git checkout cmor-cvs.json; cd -
+git pull origin main
+cd ../; git add cmip7-cmor-tables
+git commit cmip7-cmor-tables -m 'Update the nested CMIP7 CMOR Tables for their updates'
 git push
 ```
 
