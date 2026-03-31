@@ -44,8 +44,8 @@
 
    # This option and thus the corresponding argument can be removed as soon as the tables don't need any adjustment anymore.
    if [ "${initiate}" = "yes" ]; then
-    # Add the vertical_label ols in the file: cmip7-cmor-tables/tables-cvs/cmor-cvs.json
-    ./add-ols-in-cmip7-cmor-table.sh
+    # As long as the EMD registration is not finished: dd EC-Earth3-ESM-1 & EC-Earth3-ESM-1-1 to the file: cmip7-cmor-tables/tables-cvs/cmor-cvs.json
+    ./add-ECE3-ESM-1-1-to-cmip7-cmor-table.sh
    fi
 
     alias ls='/usr/bin/ls'
