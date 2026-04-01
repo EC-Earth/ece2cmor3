@@ -25,7 +25,8 @@
 
  # Produce the output-control-files based on the combined rdata requests from OptimESM and CMIP7 (core & high) esm-hist:
  cd ../
- ./combine-optimesm-and-cmip7-requests.sh v01
+ ./combine-optimesm-and-cmip7-requests.sh core v01
+ ./combine-optimesm-and-cmip7-requests.sh high v01
  cd -
 
 
