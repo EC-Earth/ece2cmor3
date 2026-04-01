@@ -210,6 +210,8 @@ def main():
 
     ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
     drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
+    ### temporary fix until EC-Earth3-ESM-1-1 is registered
+    drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + experiment_id + '/' + ripf
 
     cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
     cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
@@ -260,6 +262,8 @@ def main():
         xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + '"]'
     elif cmip6_table == 'Omon'   and cmip6_variable in ['hfx','hfy']:
         xpath_expression = './/variable[@cmip6_compound_name="' + 'Omon'      + '.' + cmip6_variable + 'int"]'
+    elif cmip6_table == '3hr'    and cmip6_variable in ['uas','vas']:
+        xpath_expression = './/variable[@cmip6_compound_name="' + '3hrPt'     + '.' + cmip6_variable + '"]'
     else:
         xpath_expression = './/variable[@cmip6_compound_name="' + cmip6_table + '.' + cmip6_variable + '"]'
         # For plev3 cases like: ta_tpt-p3-hxy-air, ua_tpt-p3-hxy-air & va_tpt-p3-hxy-air
