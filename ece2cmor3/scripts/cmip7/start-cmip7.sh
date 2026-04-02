@@ -1,5 +1,5 @@
  # Name of this file needs to be changed. Though it is in bash form and possibly could be executed, it is for now more indtended to use
- # as an overview from which in th egiven sequence the scripts can be copied and run in the conmmandline manually.
+ # as an overview from which in the given sequence the scripts can be copied and run in the conmmandline manually.
 
 
  # The very compact guidelines in script / commandline form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily under development.
@@ -15,6 +15,9 @@
  ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3
  # Producing the core variable set:
  ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.3
+ echo " Produces the files:"
+  cmip7-request-v1.2.2.3-piControl-historical-*-ordered.xml
+  cmip7-request-v1.2.2.3-historical-*-ordered.xml
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
@@ -22,12 +25,13 @@
  echo " Produces the directory:"
  echo "  cmip7-output-control-files"
 
-
- # Produce the output-control-files based on the combined rdata requests from OptimESM and CMIP7 (core & high) esm-hist:
+ # Produce the output-control-files based on the combined data requests from OptimESM and CMIP7 (core & high) esm-hist:
  cd ../
  ./combine-optimesm-and-cmip7-requests.sh core v01
  ./combine-optimesm-and-cmip7-requests.sh high v01
  cd -
+ # After running EC-Earth3_ESM-1-1 with these configuration files, the results need to be cmorised with ece2cmor3 which results in CMIP6 cmorised data. This
+ # CMIP6 cmorised data has to be recmorised to CMIP7 cmorised data. For the latter see the directory: recmorise-cmip6-to-cmip7
 
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
