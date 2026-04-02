@@ -118,30 +118,32 @@
 
 
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
- rsync -a cmip7-request-v1.2.2.3-all-full*.xml identify-ece4-cmip7-request.log  bup/identification/v33
+ mkdir -p bup/identification/v35
+ mv -f cmip7-request-v1.2.2.3-all-full*.xml identify-ece4-cmip7-request.log  bup/identification/v35
 
 
  # Create a backup reference of all produced files:
- rsync -a cmip7-requested-varlist-per-experiment.json                    \
-          cmip7-v1.2.2.3-request-piControl-historical.json               \
-          cmip7-variables-and-metadata-all.xml                           \
-          ec-earth-definition-canonic.xml                                \
-          ec-earth-definition-inherited-neat-formatted.xml               \
-          ec-earth-definition-inherited.xml                              \
-          ec-earth-definition-neat-formatted.xml                         \
-          ec-earth-definition.xml                                        \
-          ec-earth-ping-canonic.xml                                      \
-          ec-earth-ping-neat-formatted.xml                               \
-          ec-earth-ping.xml                                              \
-          grib-table.xml                                                 \
-          ifspar-info.xml                                                \
-          metadata-of-requested-cmip7-variables.json                     \
-          ping_ocean_DR1.00.27_comment_in_attribute.xml                  \
-          ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml              \
-          ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
-          request-overview-cmip6-pextra-all-ECE3-CC.xml                  \
-          request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
-          bup/cmip7-genecec-files/v04
+ mkdir -p bup/cmip7-genecec-files/v05
+ mv -f cmip7-requested-varlist-per-experiment.json                    \
+       cmip7-v1.2.2.3-request-piControl-historical.json               \
+       cmip7-variables-and-metadata-all.xml                           \
+       ec-earth-definition-canonic.xml                                \
+       ec-earth-definition-inherited-neat-formatted.xml               \
+       ec-earth-definition-inherited.xml                              \
+       ec-earth-definition-neat-formatted.xml                         \
+       ec-earth-definition.xml                                        \
+       ec-earth-ping-canonic.xml                                      \
+       ec-earth-ping-neat-formatted.xml                               \
+       ec-earth-ping.xml                                              \
+       grib-table.xml                                                 \
+       ifspar-info.xml                                                \
+       metadata-of-requested-cmip7-variables.json                     \
+       ping_ocean_DR1.00.27_comment_in_attribute.xml                  \
+       ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml              \
+       ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
+       request-overview-cmip6-pextra-all-ECE3-CC.xml                  \
+       request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
+       bup/cmip7-genecec-files/v05
 
 
 # Opening freqeuntly used files:
