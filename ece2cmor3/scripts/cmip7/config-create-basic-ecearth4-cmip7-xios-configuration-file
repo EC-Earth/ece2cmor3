@@ -6,18 +6,18 @@ ece2cmor_root_directory                          = '~/cmorize/ece2cmor3/'
 # The most accurate ping files are available within ec-earth3, those include the latest updates from the EC-Earth community.
 # However, other versions can be taken from the Shaconemo repository in ~/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ or the
 # Shaconemo vendor branch of the ec-earth3 repository as well: ^/ecearth3/vendor/nemo/shaconemo/ORCA1_LIM3_PISCES/EXP00/
-ping_file_name_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
-ping_file_name_seaIce                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
-ping_file_name_ocnBgchem                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
+ping_file_name_ocean                             = '~/ec-earth/ecearth3/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
+ping_file_name_seaIce                            = '~/ec-earth/ecearth3/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
+ping_file_name_ocnBgchem                         = '~/ec-earth/ecearth3/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
 
 # Construct one EC-Earth ping file which contains all (non-dummy) ping file elements and the checked attribute values:
 ecearth_ping_file                                = 'ec-earth-ping.xml'            # The one which is not canonicalized
 ecearth_ping_file_canonic                        = 'ec-earth-ping-canonic.xml'    # The one which is     canonicalized
 
-field_def_file_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
-field_def_file_seaice                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
-field_def_file_ocnchem                           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-pisces.xml'
-field_def_file_innerttrc                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
+field_def_file_ocean                             = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-opa.xml'
+field_def_file_seaice                            = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-lim.xml'
+field_def_file_ocnchem                           = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-pisces.xml'
+field_def_file_innerttrc                         = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
 
 # These files are created by this script, but lateron also read by this script:
 basic_flat_file_def_file_name                    =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-ece4-cmip7-file_def.xml"
