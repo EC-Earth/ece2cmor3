@@ -471,12 +471,14 @@ def main():
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
-                       "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
-                       "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
-                       "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
-                       "Eyr", "Oyr", "IyrAnt", "IyrGre", \
-                       "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
-                       "Odec"]:
+                         "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                        #"3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", "AERhr", "E1hr", "E1hrClimMon", "CFsubhr", "Esubhr", \
+                         "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                         "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                         "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                         "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                         "Odec" \
+                        ]:
       count = 0
       xpath_expression = './/variable[@cmip6_table="' + cmip6_table + '"]'
       for element in root_realm.findall(xpath_expression):
