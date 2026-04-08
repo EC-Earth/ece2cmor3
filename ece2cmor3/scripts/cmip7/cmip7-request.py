@@ -9,6 +9,7 @@ This script is based on the script: CMIP7_DReq_Software/data_request_api/data_re
 import sys
 import json
 import os
+import subprocess
 import argparse
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
@@ -207,9 +208,23 @@ def main():
       experiment_label = experiment_label + '-' + exp
     else:
      experiment_label = '-all'
-    outfile = 'cmip7-request-{}{}.json'.format(use_dreq_version, experiment_label)
 
     add_all_attributes = args.addallattributes
+
+
+    output_label   = 'cmip7-request-{}{}'.format(use_dreq_version, experiment_label)
+    output_dirname = output_label
+    subprocess.run(["mkdir", "-p", output_dirname])
+
+    xml_filename_alphabetic_ordered  = output_dirname + '/' + output_label   + '-alphabetic-ordered.xml'
+    log_filename                     = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.log')
+    datarequest_filename             = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.json')
+    xml_filename_realm_ordered       = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
+    xml_filename_priority_ordered    = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
+    xml_filename_frequency_ordered   = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
+    xml_filename_cmip6_table_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'cmip6-table')
+
+
 
     # Download specified version of data request content (if not locally cached)
     dc.retrieve(use_dreq_version)
@@ -329,7 +344,7 @@ def main():
 
         # Write json file with the variable lists
         content_path = dc._dreq_content_loaded['json_path']
-        dq.write_requested_vars_json(outfile, expt_vars, use_dreq_version, args.priority_cutoff, content_path)
+        dq.write_requested_vars_json(datarequest_filename, expt_vars, use_dreq_version, args.priority_cutoff, content_path)
 
         # Get all variable names for all requested experiments
         all_var_names = set()
@@ -371,7 +386,7 @@ def main():
              if current_prio_numeric > previous_prio_numeric:
               previous_prio_formatted = '{:10}'.format('"' + previous_prio + '"')
               current_prio_formatted  = '{:10}'.format('"' + current_prio  + '"')
-              # Note that the index update not immediately during the loop is 'see', though the priority update has taken place after the loop has ended:
+              # Note that the index update not immediately during the loop is 'seen', though the priority update has taken place after the loop has ended:
               var_list_for_xml[index] = var_list_for_xml[index].replace('priority=' + previous_prio_formatted, 'priority=' + current_prio_formatted)
               message_list_changed_priorities.append(' Priority adjusted from {:10} to {:10} for {}\n'.format(previous_prio, current_prio, compound_var))
               message_list_prio_warnings.append(' Warning: Different priorities detected for {:25} {:8} {:55} request: {:10} {:10} adjusted\n'.format(experiment, priority_group, compound_var, previous_prio, current_prio))
@@ -383,22 +398,18 @@ def main():
 
     # Write a alphabetic (on cmip7_compound_name) ordered neat formatted XML file which contains the metadata in attributes for each variable:
     applied_order = 'alphabetic (on cmip7_compound_name)'
-    xml_filename_alphabetic_ordered = 'cmip7-request-{}{}-alphabetic-ordered.xml'.format(use_dreq_version, experiment_label)
     with open(xml_filename_alphabetic_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for var in sorted(var_list_for_xml):
       xml_file.write(var)
      xml_file.write('</cmip7_variables>\n')
 
-    log_filename = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.log')
     with open(log_filename, 'w') as log_file:
-
      len_message_list = len(message_list_prio_warnings)
      if len_message_list > 0:
       log_file.write('\nOverview of {} prioritiy warnings:\n'.format(len_message_list))
       for message in message_list_prio_warnings:
        log_file.write(message)
-
      len_message_list = len(message_list_changed_priorities)
      if len_message_list > 0:
       log_file.write('\nOverview of {} adjusted priorities:\n'.format(len_message_list))
@@ -411,7 +422,6 @@ def main():
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm'
-    xml_filename_realm_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
     with open(xml_filename_realm_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
@@ -430,7 +440,6 @@ def main():
     tree_realm = ET.parse(xml_filename_realm_ordered)
     root_realm = tree_realm.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority'
-    xml_filename_priority_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'priority')
     with open(xml_filename_priority_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for priority in ["Core", "High", "Medium", "Low"]:
@@ -448,7 +457,6 @@ def main():
     tree_priority = ET.parse(xml_filename_priority_ordered)
     root_priority = tree_priority.getroot()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, priority, CMIP7 frequency'
-    xml_filename_frequency_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'frequency')
     with open(xml_filename_frequency_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for frequency in [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]:
@@ -467,7 +475,6 @@ def main():
    #root_realm = tree_realm.getroot()                  # loaded before
     print()
     applied_order = 'alphabetic (on cmip7_compound_name), realm, cmip6_table'
-    xml_filename_cmip6_table_ordered = xml_filename_alphabetic_ordered.replace('alphabetic', 'cmip6-table')
     with open(xml_filename_cmip6_table_ordered, 'w') as xml_file:
      xml_file.write('<cmip7_variables dr_version="{}" api_version="v{}" applied_order_sequence="{}">\n'.format(use_dreq_version, api_version, applied_order))
      for cmip6_table in ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
