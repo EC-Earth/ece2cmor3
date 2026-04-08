@@ -136,7 +136,7 @@ def main():
 
 
     # Load the xml file:
-    cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.3-all-frequency-ordered.xml'
+    cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml'
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
