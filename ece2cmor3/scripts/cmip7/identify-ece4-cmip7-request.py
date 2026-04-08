@@ -250,7 +250,7 @@ def main():
     list_of_no_matched_identification                             = []
 
     # The CMIP7 request file:
-    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'
+    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'
 
     # Read & load the request-overview ECE3-CMIP6 identification:
     request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
