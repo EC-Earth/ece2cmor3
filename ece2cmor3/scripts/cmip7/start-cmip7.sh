@@ -22,7 +22,7 @@
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
  ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
- echo " Produces the directory and files:"
+ echo " Produces the directory:"
  echo "  cmip7-output-control-files"
 
  # Produce the output-control-files based on the combined data requests from OptimESM and CMIP7 (core & high) esm-hist:
@@ -37,21 +37,23 @@
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
  ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
+ mv -f cmip7-request-v1.2.2.3-all.log-more cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log-more
+ echo " Produces the directory:"
+ echo "  cmip7-request-v1.2.2.3-all/"
 
- grep '    adjusted'                  cmip7-request-v1.2.2.3-all.log                                             | wc  # = 1816 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log                                             | wc  # = 3517 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  224 occurences
- grep 'Priority adjusted from'        cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   52 occurences
+ grep '    adjusted'                  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log                                             | wc  # = 1816 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log                                             | wc  # = 3517 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  224 occurences
+ grep 'Priority adjusted from'        cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   52 occurences
 
  # The searches for establishing the iterate lists for the realm & cmip6_table ordering in the cmip7-request.py script code:
- grep -e 'cmip7_compound_name=' cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep fx                                 | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep hr                                 | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep day                                | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep mon                                | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep yr                                 | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
- grep -e 'cmip6_table=' cmip7-request-v1.2.2.3-all-priority-ordered.xml |sed -e 's/.*cmip6_table=//' -e 's/ .*physical_parameter_name.*//' | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr | tr '\n' ',' | sed -e 's/,/, /g' -e 's/$/ \\\n/'
-
+ grep -e 'cmip7_compound_name=' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq                                           | tr '\n' ',' | sed -e 's/,/", "/g' -e 's/, "$/\n/' -e 's/^/\n"/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep fx                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep hr                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep day                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep mon                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep yr                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
 
 
  ./convert-grib-table-to-xml.py grib-table.xml
