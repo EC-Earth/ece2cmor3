@@ -3,9 +3,9 @@
 Command line interface for retrieving EC-Earth3 configuration files based on the CMIP7 variable request per CMIP7 experiment.
 
 Call example:
- cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip7
- rm -f -r cmip7; ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --variables_metadata metadata-of-requested-cmip7-variables.json --priority_cutoff high v1.2.2.3 --ececonf EC-Earth3-ESM-1 cmip7-requested-varlist-per-experiment.json &> genecec-cmip7.log
- grep Skip genecec-cmip7.log > summarize.log; echo '' >> summarize.log; grep -e 'Created' genecec-cmip7.log >> summarize.log; echo '' >> summarize.log; grep -e 'json' genecec-cmip7.log | grep -v -e INFO >> summarize.log
+ ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
+or:
+ ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --priority_cutoff high v1.2.2.3 --ececonf EC-Earth3-ESM-1 cmip7-v1.2.2.3-requested-varlist-per-experiment.json
 
 This script generates:
  for each CMIP7 requested experiment (or a list of CMIP7 experiments)
