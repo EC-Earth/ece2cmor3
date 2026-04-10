@@ -38,6 +38,9 @@
    MIP=TIPMIP
    EXPERIMENT_NAME=esm-up2p0-gwl2p0
 
+   TABLEDIR=../../resources/cmip6plus-tables/
+   TABLEPREFIX=MIP
+
    ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXP/output/$COMPONENT/$LEG
    METADATA=${PWD}/../../resources/metadata-templates/cmip6Plus-${MIP}-metadata-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXP/$COMPONENT/$LEG
@@ -58,18 +61,18 @@
    export UVCDAT_ANONYMOUS_LOG=false
   #export ECE2CMOR3_IFS_CLEANUP=FALSE
 
-   ece2cmor $ECEDIR --exp               $EXP                                \
-                    --ececonf           $ECEMODEL                           \
-                    --$COMPONENT                                            \
-                    --meta              $METADATA                           \
-                    --varlist           $VARLIST                            \
-                    --tabledir          /home/nktr/cmorize/cmip6plus-tables \
-                    --tableprefix       MIP                                 \
-                    --tmpdir            $TEMPDIR                            \
-                    --odir              $ODIR                               \
-                    --npp               $NPP                                \
-                    --overwritemode     replace                             \
-                    --skip_alevel_vars                                      \
+   ece2cmor $ECEDIR --exp               $EXP         \
+                    --ececonf           $ECEMODEL    \
+                    --$COMPONENT                     \
+                    --meta              $METADATA    \
+                    --varlist           $VARLIST     \
+                    --tabledir          $TABLEDIR    \
+                    --tableprefix       $TABLEPREFIX \
+                    --tmpdir            $TEMPDIR     \
+                    --odir              $ODIR        \
+                    --npp               $NPP         \
+                    --overwritemode     replace      \
+                    --skip_alevel_vars               \
                     --log
 
    if [ "$COMPONENT" = "nemo" ]; then
