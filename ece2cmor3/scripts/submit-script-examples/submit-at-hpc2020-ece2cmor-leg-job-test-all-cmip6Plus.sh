@@ -38,7 +38,7 @@
    MIP=CMIP
    EXPERIMENT_NAME=esm-hist
 
-   TABLEDIR=/home/nktr/cmorize/cmip6plus-tables
+   TABLEDIR=../../resources/cmip6plus-tables/
    TABLEPREFIX=MIP
 
    ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXPID/output/$COMPONENT/$LEG

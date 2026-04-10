@@ -4,3 +4,9 @@
 [submodule "ece2cmor3/resources/cmip7-cmor-tables"]
 	path = ece2cmor3/resources/cmip7-cmor-tables
 	url = https://github.com/WCRP-CMIP/cmip7-cmor-tables.git
+[submodule "ece2cmor3/resources/cmip6plus-tables/CMIP6Plus_CVs"]
+	path = ece2cmor3/resources/cmip6plus-tables/CMIP6Plus_CVs
+	url = https://github.com/WCRP-CMIP/CMIP6Plus_CVs.git
+[submodule "ece2cmor3/resources/cmip6plus-tables/mip-cmor-tables"]
+	path = ece2cmor3/resources/cmip6plus-tables/mip-cmor-tables
+	url = https://github.com/PCMDI/mip-cmor-tables.git
