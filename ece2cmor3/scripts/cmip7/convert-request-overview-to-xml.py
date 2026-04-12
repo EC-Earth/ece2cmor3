@@ -51,7 +51,7 @@ def parse_args():
     '''
     # Positional (mandatory) input arguments
     parser = argparse.ArgumentParser(description=' Reading an ECE3 request-overview file and convert its content to an xml file.')
-    parser.add_argument('request_file', help='input ascii request-overview file')
+    parser.add_argument('request_file', help='The input ascii request-overview file')
     return parser.parse_args()
 
 
@@ -76,8 +76,8 @@ def main():
    # Echo the exact call of the script in the log messages:
    logging.info('Running:\n\n {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
-   request_overview_filename = args.request_file
-   xml_filename              = request_overview_filename.replace('.txt', '.xml')
+   request_overview_filename     = args.request_file
+   request_overview_xml_filename = request_overview_filename.replace('.txt', '.xml')
 
 
    # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
@@ -247,17 +247,17 @@ def main():
    tree_main = ET.ElementTree(root_main)
 
    # Writing the combined result to a new xml file:
-   tree_main.write(xml_filename)
+   tree_main.write(request_overview_xml_filename)
 
    if False:
     # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-    xml_canonic_file_name = xml_filename.replace('.xml', '-canonic.xml')
+    xml_canonic_file_name = request_overview_xml_filename.replace('.xml', '-canonic.xml')
     with open(xml_canonic_file_name, mode='w', encoding='utf-8') as out_file:
-     ET.canonicalize(from_file=xml_filename, with_comments=True, out=out_file)
+     ET.canonicalize(from_file=request_overview_xml_filename, with_comments=True, out=out_file)
 
 
    # Load the xml file:
-   tree_main = ET.parse(xml_filename)
+   tree_main = ET.parse(request_overview_xml_filename)
    root_main = tree_main.getroot()
 
    if False:
@@ -269,8 +269,8 @@ def main():
    count_no_cmip7_equivalent = 0
 
    # Alternatively write directly a neat formatted XML file with all content in attributes for each variable:
-   xml_filename = request_overview_filename.replace('.txt', '-neat-formatted.xml')
-   with open(xml_filename, 'w') as xml_file:
+   request_overview_xml_filename_nf = request_overview_filename.replace('.txt', '-neat-formatted.xml')
+   with open(request_overview_xml_filename_nf, 'w') as xml_file:
     xml_file.write('<cmip6_variables>\n')
 
 
@@ -395,7 +395,7 @@ def main():
 
 
    # Test: Load the xml file:
-   tree_main = ET.parse(xml_filename)
+   tree_main = ET.parse(request_overview_xml_filename_nf)
    root_main = tree_main.getroot()
 
    number_of_variables = 0
