@@ -127,6 +127,9 @@
 
 
  # With that we can run (actually this script is replaced by the identify-ece4-cmip7-request.py script):
+ # Depending on the genecec-cmip7 input files:
+ #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+ #  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
  # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
