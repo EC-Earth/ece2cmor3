@@ -13,13 +13,13 @@
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
  ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3
- echo " Produces the files:"
- echo "  cmip7-request-v1.2.2.3-piControl-historical*"
+ echo " Produces the directory:"
+ echo "  cmip7-request-v1.2.2.3-piControl-historical/"
 
  # Producing only the core variable set:
  ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.3
- echo " Produces the files:"
- echo "  cmip7-request-v1.2.2.3-historical*"
+ echo " Produces the directory:"
+ echo "  cmip7-request-v1.2.2.3-historical/"
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
@@ -131,6 +131,21 @@
  rsync -a cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml      xml-files/
  rsync -a cmip7-request-v1.2.2.3-all-full-var_identified-freq-mc-prio.xml  xml-files/
  rsync -a cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml xml-files/
+
+
+
+ # Archive the results from the cmip7-request.py example call:
+ rsync -a --mkpath cmip7-request-v1.2.2.3-piControl-historical archive/cmip7-request-examples/v01/
+ rsync -a --mkpath cmip7-request-v1.2.2.3-historical           archive/cmip7-request-examples/v01/
+
+ # Archive the results from the genecec-cmip7-wrapper.sh call:
+ rsync -a --mkpath cmip7-output-control-files archive/cmip7-output-control-files/v01/
+
+ # The results from the combine-optimesm-and-cmip7-requests.sh are inmediately archived in: archive/optimesm-ece3-cmip7/
+
+
+ # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.3-all:
+ rsync -a --mkpath cmip7-request-v1.2.2.3-all/ archive/cmip7-request-v1.2.2.3-all/v01
 
 
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
