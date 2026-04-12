@@ -17,9 +17,9 @@ if [ "$#" -eq 2 ]; then
   ECE3_name=EC-Earth3-ESM-1
   ECE_model=EC-EARTH-ESM-1
   cmip7_dir=cmip7
-  archive_dir=${cmip7_dir}/archive
-  optimesm_dir=${archive_dir}/optimesm-${version}
-  ece3_cmip7_dir=${archive_dir}/cmip7-${priority}-${experiment}-${ECE3_name}-${version}/
+  archive_dir=${cmip7_dir}/archive/optimesm-ece3-cmip7/${version}/${priority}
+  optimesm_dir=${archive_dir}/optimesm
+  ece3_cmip7_dir=${archive_dir}/cmip7-${priority}-${experiment}-${ECE3_name}
 
   optimesm_request=../resources/miscellaneous-data-requests/optimesm-request/optimesm-request-${ECE_model}-varlist.json
   combined_request=combined-optimesm-cmip7-${priority}-request-${ECE_model}-varlist.json
@@ -41,10 +41,10 @@ if [ "$#" -eq 2 ]; then
   ./combine-and-merge-json-request-files.py ${optimesm_dir}/${optimesm_request##*/} ${ece3_cmip7_dir}/component-request-cmip7-${experiment}-${priority}-${ECE3_name}.json ${combined_request}
 
   # Use the combined optimesm and CMIP7 request to generate the combined output-control-files:
-  ./genecec-for-individual-experiments.sh ${combined_request} ${mip} ${experiment} ${ECE_model} ${archive_dir}/optimesm-${priority}-combined-${version}/ &> genecec-for-individual-experiments-combined-${priority}.log
-  mv -f genecec-for-individual-experiments-combined-${priority}.log ${archive_dir}/optimesm-${priority}-combined-${version}/
+  ./genecec-for-individual-experiments.sh ${combined_request} ${mip} ${experiment} ${ECE_model} ${archive_dir}/optimesm-${priority}-combined/ &> genecec-for-individual-experiments-combined-${priority}.log
+  mv -f genecec-for-individual-experiments-combined-${priority}.log ${archive_dir}/optimesm-${priority}-combined/
 
-  ./add-Oday-zos-for-OptimESM-to-xml.sh ${archive_dir}/optimesm-${priority}-combined-${version}/file_def_nemo-opa.xml
+  ./add-Oday-zos-for-OptimESM-to-xml.sh ${archive_dir}/optimesm-${priority}-combined/file_def_nemo-opa.xml
 
   ./revert-nested-cmor-table-branch.sh
 
@@ -53,7 +53,7 @@ if [ "$#" -eq 2 ]; then
 
   echo
   echo " Finished, the result can be found here:"
-  echo "  ${archive_dir}/optimesm-${priority}-combined-${version}/"
+  echo "  ${archive_dir}/optimesm-${priority}-combined/"
   echo
 
  else
