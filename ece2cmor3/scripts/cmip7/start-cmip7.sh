@@ -2,10 +2,10 @@
  # as an overview from which in the given sequence the scripts can be copied and run in the conmmandline manually.
 
 
- # The very compact guidelines in script / commandline form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily under development.
+ # The very compact guidelines in script / command-line form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily under development.
  # Based on the lessons learned from the ECE3 genecec CMIP6 approach and based on the possibilities for the CMIP7 DR framework: The genecec CMIP7
  # framework is fully based on XML data bases (following the XIOS approach) using XPATH. All scripts are in python and nearly everywhere (at least
- # everywhere were possible) the CMIP7 DR python API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository.
+ # everywhere where possible) the CMIP7 DR python API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository).
  
  # Currently the CMIP7 DR Software calls the actual CMIP7 DR Content (latest version), this will in its unchanged form try to connect to the internet
  # for the latest Content state, and therefore can be unexpectedly slow with a bad connection or lead to interruption on a platfrom without internet
@@ -13,10 +13,12 @@
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
  ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.3
- # Producing the core variable set:
- ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.3
  echo " Produces the files:"
  echo "  cmip7-request-v1.2.2.3-piControl-historical*"
+
+ # Producing only the core variable set:
+ ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.3
+ echo " Produces the files:"
  echo "  cmip7-request-v1.2.2.3-historical*"
 
 
@@ -25,19 +27,25 @@
  echo " Produces the directory:"
  echo "  cmip7-output-control-files"
 
- # Produce the output-control-files based on the combined data requests from OptimESM and CMIP7 (core & high) esm-hist:
+
+ # Produce the output-control-files based on the combined data requests from OptimESM and CMIP7 (core & high) esm-hist (this script calls genecec-cmip7-wrapper.sh):
  cd ../
  ./combine-optimesm-and-cmip7-requests.sh core v01
+ echo " Produces the directory:"
+ echo " cmip7/archive/optimesm-ece3-cmip7/v01/core/optimesm-core-combined/"
  ./combine-optimesm-and-cmip7-requests.sh high v01
+ echo " Produces the directory:"
+ echo " cmip7/archive/optimesm-ece3-cmip7/v01/high/optimesm-high-combined/"
  cd -
  # After running EC-Earth3_ESM-1-1 with these configuration files, the results need to be cmorised with ece2cmor3 which results in CMIP6 cmorised data. This
  # CMIP6 cmorised data has to be recmorised to CMIP7 cmorised data. For the latter see the directory: recmorise-cmip6-to-cmip7
 
 
+
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
  ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
- mv -f cmip7-request-v1.2.2.3-all.log-more cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log-more
+ mv -f cmip7-request-v1.2.2.3-all.log-more cmip7-request-v1.2.2.3-all/
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.3-all/"
 
@@ -157,6 +165,9 @@
 #  n create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist create-basic-ec-earth-cmip6-nemo-namelist.log ../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-*
 #  n ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/*
 #  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml grib-table.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+
+# cd /home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios
+# n axis_def_oifs.xml.j2 domain_def_oifs.xml.j2 grid_def_oifs.xml.j2 context_oifs.xml.j2 field_def_oifs_*j2 file_def_oifs_*
 
 
 # To do:
