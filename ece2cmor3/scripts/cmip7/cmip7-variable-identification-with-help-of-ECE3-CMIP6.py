@@ -5,8 +5,13 @@ Matching of all CMIP7 requested variables with the ECE3-CMIP6 identified ones:
 '''
 
 import argparse
+import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
+import sys                                                      # for aborting: sys.exit
 import xml.etree.ElementTree as ET
 from importlib.metadata import version
+
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 PACKAGE_NAME = "CMIP7_data_request_api"
 print(' The CMIP7 dreq python api version is: v{}'.format(version(PACKAGE_NAME)))
@@ -137,11 +142,17 @@ def main():
 
     # Load the xml file:
     cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml'
+    if os.path.isfile(cmip7_variables_xml_filename) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3\n'.format(error_message, cmip7_variables_xml_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
     # Read & load the request-overview ECE3-CMIP6 identification:
     request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
+    if os.path.isfile(request_overview_xml_filename) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
