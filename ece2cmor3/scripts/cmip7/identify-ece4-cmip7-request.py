@@ -6,6 +6,7 @@ ordered in a way to allow convenient working on these lists:
 
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                      # for aborting: sys.exit
+import subprocess
 import argparse
 import xml.etree.ElementTree as ET
 
@@ -271,7 +272,10 @@ def main():
 
     include_additional_xml_output = False
 
-    xml_filename_realm_ordered                = 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
+    output_dir_name = 'archive/genecec-cmip7/identify-ece4-cmip7/'
+    subprocess.run(["mkdir", "-p", output_dir_name])
+
+    xml_filename_realm_ordered                = output_dir_name + 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
     xml_filename_priority_ordered             = xml_filename_realm_ordered.replace ('realm', 'priority'    )
     xml_filename_frequency_ordered            = xml_filename_realm_ordered.replace ('realm', 'frequency'   )
     xml_filename_status_ordered               = xml_filename_realm_ordered.replace ('realm', 'status'      )
@@ -488,6 +492,7 @@ def main():
 
     print_message_list_reorder(message_list_of_identified_variables)
 
+    print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
 if __name__ == '__main__':
     main()
