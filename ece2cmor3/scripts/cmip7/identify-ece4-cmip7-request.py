@@ -6,10 +6,13 @@ Return a list per specified experiment of CMIP7 compound variables including the
 This script is based on the script: CMIP7_DReq_Software/data_request_api/data_request_api/command_line/export_dreq_lists_json.py
 """
 
-import sys
-import os
+import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
+import sys                                                      # for aborting: sys.exit
 import argparse
 import xml.etree.ElementTree as ET
+
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 
 def parse_args():
@@ -254,10 +257,16 @@ def main():
 
     # Read & load the request-overview ECE3-CMIP6 identification:
     request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
+    if os.path.isfile(request_overview_xml_filename) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
     # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
+    if os.path.isfile(xml_filename_alphabetic_ordered) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3\n'.format(error_message, xml_filename_alphabetic_ordered))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
     dr_version      = root_alphabetic.attrib['dr_version']
