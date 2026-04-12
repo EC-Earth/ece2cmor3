@@ -64,40 +64,48 @@
  grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
 
 
+ # Independent of other genecec-cmip7 generated files:
  ./convert-grib-table-to-xml.py grib-table.xml
  echo " Produces:"
  echo "  grib-table.xml"
 
 
+ # Independent of other genecec-cmip7 generated files:
  ./create-basic-ecearth4-cmip7-xios-configuration-file.py config-create-basic-ecearth4-cmip7-xios-configuration-file
  echo " Produces:"
- echo "  ping_ocean_DR1.00.27_comment_in_attribute.xml     "
- echo "  ping_seaIce_DR1.00.27_comment_in_attribute.xml    "
- echo "  ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml "
- echo "  ec-earth-ping.xml                                 "
- echo "  ec-earth-ping-canonic.xml                         "
- echo "  ec-earth-ping-neat-formatted.xml                  "
+ echo "  ping_ocean_DR1.00.27_comment_in_attribute.xml    "
+ echo "  ping_seaIce_DR1.00.27_comment_in_attribute.xml   "
+ echo "  ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml"
+ echo "  ec-earth-ping.xml                                "
+ echo "  ec-earth-ping-canonic.xml                        "
+ echo "  ec-earth-ping-neat-formatted.xml                 "
 
+ # Independent of other genecec-cmip7 generated files:
  ./scan-xios-xml-elementtree-structure.py > scan.log
  echo " Produces:"
- echo "  ec-earth-definition.xml                          "
- echo "  ec-earth-definition-canonic.xml                  "
- echo "  ec-earth-definition-neat-formatted.xml           "
- echo "  ec-earth-definition-inherited.xml                "
- echo "  ec-earth-definition-inherited-neat-formatted.xml "
+ echo "  ec-earth-definition.xml                         "
+ echo "  ec-earth-definition-canonic.xml                 "
+ echo "  ec-earth-definition-neat-formatted.xml          "
+ echo "  ec-earth-definition-inherited.xml               "
+ echo "  ec-earth-definition-inherited-neat-formatted.xml"
 
+ # Independent of other genecec-cmip7 generated files:
  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
  echo " Produces:"
- echo "  cmip7-variables-and-metadata-all.xml "
-#echo "  cmip7-variables-and-metadata-all.txt "
+ echo "  cmip7-variables-and-metadata-all.xml"
+#echo "  cmip7-variables-and-metadata-all.txt"
 
- # As input file for convert-request-overview-to-xml.py currently the file request-overview-cmip6-pextra-all-ECE3-CC.txt is used and equals:
+ # Depending on the genecec-cmip7 input files:
+ #  grib-table.xml
+ #  cmip7-variables-and-metadata-all.xml
+ #  request-overview-cmip6-pextra-all-ECE3-CC.txt  (in repository, actually a genecec cmip6 file)
+ # The latter request-overview file equals:
  diff ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt request-overview-cmip6-pextra-all-ECE3-CC.txt
  ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
  echo " Produces:"
- echo "  ifspar-info.xml "
- echo "  request-overview-cmip6-pextra-all-ECE3-CC.xml "
- echo "  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml "
+ echo "  ifspar-info.xml                                             "
+ echo "  request-overview-cmip6-pextra-all-ECE3-CC.xml               "
+ echo "  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml"
 
  # From the request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml easily the file with the 238 ECE3 CMIP6 table-variable combinations can be extracted which are
  # not requested by the CMIP7 request:
