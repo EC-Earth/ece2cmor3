@@ -12,7 +12,7 @@
 
 # Run this script like:
 #  ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
-#  ./convert-request-overview-to-xml.py ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt
+#  ./convert-request-overview-to-xml.py ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt
 
 import argparse
 import xml.etree.ElementTree as ET
@@ -82,12 +82,19 @@ def main():
 
    # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
    cmip6_cmip7_mapping_filename = 'cmip7-variables-and-metadata-all.xml'
+   if os.path.isfile(cmip6_cmip7_mapping_filename) == False:
+    print('{} The file {} does not exist.\n        Try running first:\n         ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip6_cmip7_mapping_filename))
+    sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
    tree_cmip6_cmip7_mapping = ET.parse(cmip6_cmip7_mapping_filename)
    root_cmip6_cmip7_mapping = tree_cmip6_cmip7_mapping.getroot()
 
 
    # Load the XML file with the ece2cmor grib table content:
-   tree_grib_table = ET.parse('./grib-table.xml')
+   grib_table_xml_filename = './grib-table.xml'
+   if os.path.isfile(grib_table_xml_filename) == False:
+    print('{} The file {} does not exist.\n        Try running first:\n         ./convert-grib-table-to-xml.py grib-table.xml\n'.format(error_message, grib_table_xml_filename))
+    sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+   tree_grib_table = ET.parse(grib_table_xml_filename)
    root_grib_table = tree_grib_table.getroot()
 
    # Test with surface / skin temp:
@@ -133,6 +140,10 @@ def main():
    # Test: Load the xml file:
    tree_ifspar = ET.parse('ifspar-info.xml')
    root_ifspar = tree_ifspar.getroot()
+
+   if os.path.isfile(request_overview_filename) == False:
+    print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, request_overview_filename))
+    sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(request_overview_filename)
@@ -253,7 +264,6 @@ def main():
     for element in root_main.findall('.//variable[@model_component="ifs"]'):
      if '129' not in element.get('varname_code'):
       print(' Test XML file: {} {}'.format(element.tag, element.get('varname_code')))
-
 
    count_error               = 0
    count_no_cmip7_equivalent = 0
