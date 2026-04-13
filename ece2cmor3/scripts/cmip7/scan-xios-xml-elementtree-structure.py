@@ -287,9 +287,12 @@ def main():
  if True:
   print_next_step_message(5, 'Combine the field_def files')
 
-  ecearth_field_def_filename         = 'ec-earth-definition.xml'                # The one which is not canonicalized
-  ecearth_field_def_filename_canonic = 'ec-earth-definition-canonic.xml'        # The one which is     canonicalized
-  ecearth_field_def_nf_filename      = 'ec-earth-definition-neat-formatted.xml' # The one with the neat formatted (nf) format with a controlled order of the attributes
+  output_dir_name = 'xml-files/genecec-cmip7/ec-earth-definition/'
+  subprocess.run(["mkdir", "-p", output_dir_name])
+
+  ecearth_field_def_filename         = output_dir_name + 'ec-earth-definition.xml'                # The one which is not canonicalized
+  ecearth_field_def_filename_canonic = output_dir_name + 'ec-earth-definition-canonic.xml'        # The one which is     canonicalized
+  ecearth_field_def_nf_filename      = output_dir_name + 'ec-earth-definition-neat-formatted.xml' # The one with the neat formatted (nf) format with a controlled order of the attributes
 
 
   # Create the basic main structure which will be populated with the elements of the various field_def files later on:
@@ -846,8 +849,8 @@ def main():
 
 
   # Writing the combined result to a new xml file:
-  ecearth_field_def_inherited_filename    = 'ec-earth-definition-inherited.xml'
-  ecearth_field_def_inherited_nf_filename = 'ec-earth-definition-inherited-neat-formatted.xml'
+  ecearth_field_def_inherited_filename    = output_dir_name + 'ec-earth-definition-inherited.xml'
+  ecearth_field_def_inherited_nf_filename = output_dir_name + 'ec-earth-definition-inherited-neat-formatted.xml'
   tree_main.write( ecearth_field_def_inherited_filename)
   convert_to_neat_formatted_xml( ecearth_field_def_inherited_filename, ecearth_field_def_inherited_nf_filename)
 
@@ -870,6 +873,8 @@ def main():
 
 #   </file>
 
+  print_next_step_message(10, 'FINISHING')
+  print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
 if __name__ == '__main__':
     main()
