@@ -149,7 +149,7 @@ def main():
     root_cmip7_variables = tree_cmip7_variables.getroot()
 
     # Read & load the request-overview ECE3-CMIP6 identification:
-    request_overview_xml_filename = 'request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
+    request_overview_xml_filename = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
     if os.path.isfile(request_overview_xml_filename) == False:
      print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
