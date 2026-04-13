@@ -272,7 +272,7 @@ def main():
 
     include_additional_xml_output = False
 
-    output_dir_name = 'archive/genecec-cmip7/identify-ece4-cmip7/'
+    output_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
     subprocess.run(["mkdir", "-p", output_dir_name])
 
     xml_filename_realm_ordered                = output_dir_name + 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)

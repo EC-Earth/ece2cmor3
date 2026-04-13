@@ -162,11 +162,8 @@
  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.3-all:
  rsync -a --mkpath cmip7-request-v1.2.2.3-all/ archive/cmip7-request-v1.2.2.3-all/v01
 
-
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
- mkdir -p bup/identification/v36
- mv -f cmip7-request-v1.2.2.3-all-full*.xml identify-ece4-cmip7-request.log  bup/identification/v36
-
+ rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
  # Create a backup reference of all produced files:
  mkdir -p bup/cmip7-genecec-files/v06
