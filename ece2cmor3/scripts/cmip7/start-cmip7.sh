@@ -89,7 +89,7 @@
 
  # Depending on the genecec-cmip7 input files:
  #  xml-files/genecec-cmip7/grib-table.xml
- #  cmip7-variables-and-metadata-all.xml
+ #  xml-files/genecec-cmip7/cmip7-variables-and-metadata-all.xml
  #  request-overview-cmip6-pextra-all-ECE3-CC.txt  (in repository, actually a genecec cmip6 file)
  # The latter request-overview file equals:
  diff ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt request-overview-cmip6-pextra-all-ECE3-CC.txt
