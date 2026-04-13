@@ -23,7 +23,9 @@ import argparse
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
 import json
-import sys
+import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
+import sys                                                      # for aborting: sys.exit
+import subprocess
 import re
 import xml.etree.ElementTree as ET
 from importlib.metadata import version
@@ -109,6 +111,11 @@ def main():
 
     # Write an XML file with all content in attributes for each variable:
     cmip7_variables_xml_filename = 'xml-files/genecec-cmip7/cmip7-variables-and-metadata' + label + '.xml'
+    # If a directory in the path of the user specified output file does not exist: create that path:
+    pf = os.path.split(cmip7_variables_xml_filename)          # Split in path pf[0] & file pf[1]
+    if pf[0] != '':
+     subprocess.run(["mkdir", "-p", pf[0]])
+
     with open(cmip7_variables_xml_filename, 'w') as varxmlfile:
      varxmlfile.write('<cmip7_variables>\n')
 

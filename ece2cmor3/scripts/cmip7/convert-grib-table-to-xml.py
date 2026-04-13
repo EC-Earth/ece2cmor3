@@ -14,6 +14,7 @@ import argparse
 import xml.etree.ElementTree as ET
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                      # for aborting: sys.exit
+import subprocess
 import numpy as np                                              # for the use of e.g. np.multiply
 import logging
 import re
@@ -71,6 +72,10 @@ def main():
   #grib_table_file_collection  = [grib_table_file_shortname]
 
    xml_filename                = args.xml_file
+   # If a directory in the path of the user specified output file does not exist: create that path:
+   pf = os.path.split(xml_filename)          # Split in path pf[0] & file pf[1]
+   if pf[0] != '':
+    subprocess.run(["mkdir", "-p", pf[0]])
 
    # Take all info from the first file, for the following files check whether the same variable is in the same block and add
    # only the additional info from this file.
