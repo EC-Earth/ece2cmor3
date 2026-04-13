@@ -44,8 +44,8 @@
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
- ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request-v1.2.2.3-all.log-more
- mv -f cmip7-request-v1.2.2.3-all.log-more cmip7-request-v1.2.2.3-all/
+ ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request.log
+ mv -f cmip7-request.log cmip7-request-v1.2.2.3-all/
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.3-all/"
 
@@ -65,9 +65,9 @@
 
 
  # Independent of other genecec-cmip7 generated files:
- ./convert-grib-table-to-xml.py grib-table.xml
+ ./convert-grib-table-to-xml.py xml-files/genecec-cmip7/grib-table.xml
  echo " Produces:"
- echo "  grib-table.xml"
+ echo "  xml-files/genecec-cmip7/grib-table.xml"
 
 
  # Independent of other genecec-cmip7 generated files:
@@ -96,7 +96,7 @@
 #echo "  cmip7-variables-and-metadata-all.txt"
 
  # Depending on the genecec-cmip7 input files:
- #  grib-table.xml
+ #  xml-files/genecec-cmip7/grib-table.xml
  #  cmip7-variables-and-metadata-all.xml
  #  request-overview-cmip6-pextra-all-ECE3-CC.txt  (in repository, actually a genecec cmip6 file)
  # The latter request-overview file equals:
@@ -165,9 +165,14 @@
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
  rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
+ # Run & check:
+ rm -rf cmip7-request-v1.2.2.3-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3; diff -r cmip7-request-v1.2.2.3-all                   archive/cmip7-request-v1.2.2.3-all/v02
+ rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py -a                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
+
+
  # Create a backup reference of all produced files:
  mkdir -p bup/cmip7-genecec-files/v06
- mv -f grib-table.xml                                                 \
+ mv -f xml-files/genecec-cmip7/grib-table.xml                         \
        ping_ocean_DR1.00.27_comment_in_attribute.xml                  \
        ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
        ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml              \
@@ -191,7 +196,7 @@
 #  n *.py config-* *.sh
 #  n create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist create-basic-ec-earth-cmip6-nemo-namelist.log ../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-*
 #  n ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/*
-#  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml grib-table.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+#  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml xml-files/genecec-cmip7/grib-table.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
 
 # cd /home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios
 # n axis_def_oifs.xml.j2 domain_def_oifs.xml.j2 grid_def_oifs.xml.j2 context_oifs.xml.j2 field_def_oifs_*j2 file_def_oifs_*
