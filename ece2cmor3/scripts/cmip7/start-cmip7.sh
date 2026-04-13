@@ -125,7 +125,7 @@
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
  echo " Produces:"
- XXX echo "  cmip7-request-v1.2.2.3-all-full-*.xml"
+ echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
 
 
