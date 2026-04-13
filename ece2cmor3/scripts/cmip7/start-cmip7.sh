@@ -101,11 +101,11 @@
 
  # From the ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml easily the file with the 238 ECE3 CMIP6 table-variable combinations can be extracted which are
  # not requested by the CMIP7 request:
- grep -e cmip6_variables -e no-cmip7-equivalent-var- ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml                           > xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
- sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'                                      xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
- sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                                                         xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ grep -e cmip6_variables -e no-cmip7-equivalent-var- ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml                           >  xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'                                       xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
+ sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                                                          xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
  # The same, but the file is sorted on ECE3 model component:
- echo '<cmip6_variables>'                                                                                                                                             > xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
+ echo '<cmip6_variables>'                                                                                                                                             >  xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  grep -e 'no-cmip7-equivalent-var-' ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="ifs"'          >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  grep -e 'no-cmip7-equivalent-var-' ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="nemo"'         >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  grep -e 'no-cmip7-equivalent-var-' ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml | grep -e 'model_component="lpjg"'         >> xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
