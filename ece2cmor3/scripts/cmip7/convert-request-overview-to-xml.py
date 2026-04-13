@@ -76,12 +76,15 @@ def main():
    # Echo the exact call of the script in the log messages:
    logging.info('Running:\n\n {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
-   request_overview_filename     = args.request_file
-   request_overview_xml_filename = request_overview_filename.replace('.txt', '.xml')
+   output_dir_name                  = 'xml-files/genecec-cmip7/'
+   ifspar_xml_filename              = output_dir_name + 'ifspar-info.xml'
+   request_overview_filename        = args.request_file
+   request_overview_xml_filename    = output_dir_name + request_overview_filename.replace('.txt', '.xml')
+   request_overview_xml_filename_nf = output_dir_name + request_overview_filename.replace('.txt', '-neat-formatted.xml')
 
 
    # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
-   cmip6_cmip7_mapping_filename = 'cmip7-variables-and-metadata-all.xml'
+   cmip6_cmip7_mapping_filename = 'xml-files/genecec-cmip7/cmip7-variables-and-metadata-all.xml'
    if os.path.isfile(cmip6_cmip7_mapping_filename) == False:
     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip6_cmip7_mapping_filename))
     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
@@ -120,7 +123,7 @@ def main():
    ifspar_json_file.close()
 
    # Write the ifspar-info.xml file:
-   with open('ifspar-info.xml', mode='w', encoding='utf-8') as output_file:
+   with open(ifspar_xml_filename, mode='w', encoding='utf-8') as output_file:
     output_file.write('<ifspar_cmip6_ifs_instructions>\n')
     for var in ifspar:
       for ifs_attribute in ifspar_attributes:
@@ -138,7 +141,7 @@ def main():
     output_file.write('</ifspar_cmip6_ifs_instructions>\n')
 
    # Test: Load the xml file:
-   tree_ifspar = ET.parse('ifspar-info.xml')
+   tree_ifspar = ET.parse(ifspar_xml_filename)
    root_ifspar = tree_ifspar.getroot()
 
    if os.path.isfile(request_overview_filename) == False:
@@ -269,7 +272,6 @@ def main():
    count_no_cmip7_equivalent = 0
 
    # Alternatively write directly a neat formatted XML file with all content in attributes for each variable:
-   request_overview_xml_filename_nf = request_overview_filename.replace('.txt', '-neat-formatted.xml')
    with open(request_overview_xml_filename_nf, 'w') as xml_file:
     xml_file.write('<cmip6_variables>\n')
 
@@ -402,6 +404,10 @@ def main():
    for element in root_main.findall('.//variable'):
     number_of_variables += 1
    print(' The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
+
+   print(' The script {} has finished, the produced files:\n  {}\n  {}\n  {}\n'.format(sys.argv[0], ifspar_xml_filename              \
+                                                                                                    , request_overview_xml_filename    \
+                                                                                                    , request_overview_xml_filename_nf))
 
 
 if __name__ == '__main__':

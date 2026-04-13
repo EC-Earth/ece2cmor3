@@ -23,6 +23,7 @@ import argparse
 import data_request_api.content.dreq_content as dc
 import data_request_api.query.dreq_query as dq
 import json
+import sys
 import re
 import xml.etree.ElementTree as ET
 from importlib.metadata import version
@@ -107,7 +108,7 @@ def main():
       json.dump(all_var_info, outfile, sort_keys=True, indent=2)
 
     # Write an XML file with all content in attributes for each variable:
-    cmip7_variables_xml_filename = 'cmip7-variables-and-metadata' + label + '.xml'
+    cmip7_variables_xml_filename = 'xml-files/genecec-cmip7/cmip7-variables-and-metadata' + label + '.xml'
     with open(cmip7_variables_xml_filename, 'w') as varxmlfile:
      varxmlfile.write('<cmip7_variables>\n')
 
@@ -168,6 +169,8 @@ def main():
     if False:
      for element in root_cmip7_variables.findall('.//variable[@cmip7_compound_name="seaIce.sitempsnic.tavg-u-hxy-si.day.glb"]'):
       print(' test: For the element {} the CMIP7 compound name: {} corresponds with the CMIP6 table - cmor name combination: {} {}'.format(element.tag, element.get('cmip7_compound_name'), element.get('cmip6_table'), element.get('physical_parameter_name')))
+
+    print(' The script {} has finished, the produced file:\n  {}\n'.format(sys.argv[0], cmip7_variables_xml_filename))
 
 if __name__ == '__main__':
     main()
