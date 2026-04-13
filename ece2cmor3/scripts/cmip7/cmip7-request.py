@@ -67,6 +67,8 @@ def parse_args():
     return parser.parse_args()
 
 
+
+
 def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
     if add_all_attributes:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
@@ -212,11 +214,11 @@ def main():
     add_all_attributes = args.addallattributes
 
 
-    output_label   = 'cmip7-request-{}{}'.format(use_dreq_version, experiment_label)
-    output_dirname = output_label
-    subprocess.run(["mkdir", "-p", output_dirname])
+    output_label    = 'cmip7-request-{}{}'.format(use_dreq_version, experiment_label)
+    output_dir_name = output_label
+    subprocess.run(["mkdir", "-p", output_dir_name])
 
-    xml_filename_alphabetic_ordered  = output_dirname + '/' + output_label   + '-alphabetic-ordered.xml'
+    xml_filename_alphabetic_ordered  = output_dir_name + '/' + output_label   + '-alphabetic-ordered.xml'
     log_filename                     = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.log')
     datarequest_filename             = xml_filename_alphabetic_ordered.replace('-alphabetic-ordered.xml', '.json')
     xml_filename_realm_ordered       = xml_filename_alphabetic_ordered.replace('alphabetic', 'realm')
@@ -396,6 +398,7 @@ def main():
     else:
         print(f'\nFor data request version {use_dreq_version}, no requested variables were found')
 
+
     # Write a alphabetic (on cmip7_compound_name) ordered neat formatted XML file which contains the metadata in attributes for each variable:
     applied_order = 'alphabetic (on cmip7_compound_name)'
     with open(xml_filename_alphabetic_ordered, 'w') as xml_file:
@@ -519,6 +522,8 @@ def main():
             api_version=data_request_api.version,
             content_path=dc._dreq_content_loaded['json_path']
         )
+
+    print('\n The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
 
 if __name__ == '__main__':
