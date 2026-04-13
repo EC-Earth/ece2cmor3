@@ -378,6 +378,7 @@ def main():
     value_list_with_priorities       = ["Core", "High", "Medium", "Low"]
     value_list_with_cmip6_tables     = ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
                                         "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                                       #"3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", "AERhr", "E1hr", "E1hrClimMon", "CFsubhr", "Esubhr", \
                                         "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
                                         "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
                                         "Eyr", "Oyr", "IyrAnt", "IyrGre", \
