@@ -57,7 +57,7 @@ def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
       for element in root.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element)
+       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
        count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
@@ -86,14 +86,13 @@ def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribu
       xpath_expression = './/variable[@' + selected_attribute + ']'
       for element in root.findall(xpath_expression):
        if attribute_value in element.get(selected_attribute):
-        write_xml_file_line_for_variable(xml_file, element)
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
 
-def write_xml_file_line_for_variable(xml_file, element):
-    add_all_attributes = True
+def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
     if add_all_attributes:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
                                 ' priority={:10}' \
@@ -369,7 +368,7 @@ def main():
         element.set('comment_author' , '                 ')
         element.set('comment'        , '                                                                        ')
 
-        write_xml_file_line_for_variable(xml_file, element)
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
       print(' {:4} variables with realm {}'.format(count, realm))
      write_xml_file_root_element_closing(xml_file)
@@ -475,7 +474,7 @@ def main():
        count += 1
        if element.get('physical_parameter_name') not in list_of_unique_physical_parameters:
         list_of_unique_physical_parameters.append(element.get('physical_parameter_name'))
-        write_xml_file_line_for_variable(xml_file, element)
+        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
       print(' From the {:4} {:15} variables there are {:4} unique variables'.format(count, status, len(list_of_unique_physical_parameters)))
       write_xml_file_root_element_closing(xml_file)
 
