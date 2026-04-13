@@ -73,27 +73,17 @@
  # Independent of other genecec-cmip7 generated files:
  ./create-basic-ecearth4-cmip7-xios-configuration-file.py config-create-basic-ecearth4-cmip7-xios-configuration-file
  echo " Produces:"
- echo "  ping_ocean_DR1.00.27_comment_in_attribute.xml    "
- echo "  ping_seaIce_DR1.00.27_comment_in_attribute.xml   "
- echo "  ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml"
- echo "  ec-earth-ping.xml                                "
- echo "  ec-earth-ping-canonic.xml                        "
- echo "  ec-earth-ping-neat-formatted.xml                 "
+ echo "  xml-files/genecec-cmip7/ping-files/"
 
  # Independent of other genecec-cmip7 generated files:
  ./scan-xios-xml-elementtree-structure.py > scan.log
  echo " Produces:"
- echo "  ec-earth-definition.xml                         "
- echo "  ec-earth-definition-canonic.xml                 "
- echo "  ec-earth-definition-neat-formatted.xml          "
- echo "  ec-earth-definition-inherited.xml               "
- echo "  ec-earth-definition-inherited-neat-formatted.xml"
+ echo "  xml-files/genecec-cmip7/ec-earth-definition/"
 
  # Independent of other genecec-cmip7 generated files:
  ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
  echo " Produces:"
  echo "  cmip7-variables-and-metadata-all.xml"
-#echo "  cmip7-variables-and-metadata-all.txt"
 
  # Depending on the genecec-cmip7 input files:
  #  xml-files/genecec-cmip7/grib-table.xml
@@ -126,7 +116,7 @@
  # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
- # With that we can run (actually this script is replaced by the identify-ece4-cmip7-request.py script):
+ # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
  #  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
