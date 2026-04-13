@@ -42,6 +42,8 @@
 
 
 
+ # ECE4 genecec-cmip7:
+
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
  ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request.log
@@ -116,13 +118,6 @@
  # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
- # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
- # Depending on the genecec-cmip7 input files:
- #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
- #  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
- ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
-
-
  # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
  # ordered in a way to allow convenient working on these lists:
  # Depending on the genecec-cmip7 input files:
@@ -131,6 +126,16 @@
  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
  echo " Produces:"
  echo "  cmip7-request-v1.2.2.3-all-full-*.xml"
+
+
+
+ # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
+ # Depending on the genecec-cmip7 input files:
+ #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+ #  request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
+ ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+
+
 
  # Archive the most important, best ordered XML files:
  rsync -a cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml      xml-files/
@@ -155,31 +160,16 @@
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
  rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
+
+
+ # Check:
+ diff -r cmip7-request-v1.2.2.3-all/ archive/cmip7-request-v1.2.2.3-all/v01
+ diff -r xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
+
  # Run & check:
  rm -rf cmip7-request-v1.2.2.3-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3; diff -r cmip7-request-v1.2.2.3-all                   archive/cmip7-request-v1.2.2.3-all/v02
  rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py -a                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
 
-
- # Create a backup reference of all produced files:
- mkdir -p bup/cmip7-genecec-files/v06
- mv -f xml-files/genecec-cmip7/grib-table.xml                         \
-       ping_ocean_DR1.00.27_comment_in_attribute.xml                  \
-       ping_seaIce_DR1.00.27_comment_in_attribute.xml                 \
-       ping_ocnBgChem_DR1.00.27_comment_in_attribute.xml              \
-       ec-earth-ping.xml                                              \
-       ec-earth-ping-canonic.xml                                      \
-       ec-earth-ping-neat-formatted.xml                               \
-       ec-earth-definition.xml                                        \
-       ec-earth-definition-canonic.xml                                \
-       ec-earth-definition-neat-formatted.xml                         \
-       ec-earth-definition-inherited.xml                              \
-       ec-earth-definition-inherited-neat-formatted.xml               \
-       scan.log                                                       \
-       cmip7-variables-and-metadata-all.xml                           \
-       ifspar-info.xml                                                \
-       request-overview-cmip6-pextra-all-ECE3-CC.xml                  \
-       request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml   \
-       bup/cmip7-genecec-files/v06
 
 
 # Opening freqeuntly used files:
