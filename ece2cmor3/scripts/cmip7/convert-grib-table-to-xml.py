@@ -181,6 +181,8 @@ def main():
     number_of_variables += 1
    print('\n The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
 
+   print('\n The script {} has finished, the produced file:\n  {}\n'.format(sys.argv[0], xml_filename))
+
 
 if __name__ == '__main__':
     main()
