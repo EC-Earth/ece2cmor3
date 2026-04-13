@@ -11,8 +11,9 @@ ping_file_name_seaIce                            = '~/ec-earth/ecearth3/runtime/
 ping_file_name_ocnBgchem                         = '~/ec-earth/ecearth3/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
 
 # Construct one EC-Earth ping file which contains all (non-dummy) ping file elements and the checked attribute values:
-ecearth_ping_file                                = 'ec-earth-ping.xml'            # The one which is not canonicalized
-ecearth_ping_file_canonic                        = 'ec-earth-ping-canonic.xml'    # The one which is     canonicalized
+ecearth_ping_file                                = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping.xml'                       # The one which is not canonicalized
+ecearth_ping_file_canonic                        = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-canonic.xml'               # The one which is     canonicalized
+ecearth_ping_file_neat_formatted                 = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml'        # The one which is neat-formatted
 
 field_def_file_ocean                             = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-opa.xml'
 field_def_file_seaice                            = '~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-lim.xml'

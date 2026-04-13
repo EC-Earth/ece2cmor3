@@ -64,6 +64,7 @@ import xml.etree.ElementTree as ET
 #from ece2cmor3 import cmor_target
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
 import sys                                                      # for aborting: sys.exit
+import subprocess
 import numpy as np                                              # for the use of e.g. np.multiply
 from os.path import expanduser
 import logging
@@ -118,8 +119,9 @@ if len(sys.argv) == 2:
    ping_file_name_seaIce                            = os.path.expanduser(config['ping_file_name_seaIce'                           ]) # ping_file_name_seaIce                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
    ping_file_name_ocnBgchem                         = os.path.expanduser(config['ping_file_name_ocnBgchem'                        ]) # ping_file_name_ocnBgchem                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocnBgChem_DR1.00.27.xml'
 
-   ecearth_ping_file                                = os.path.expanduser(config['ecearth_ping_file'                               ]) # ecearth_ping_file                                = 'ec-earth-ping.xml'            # The one which is not canonicalized
-   ecearth_ping_file_canonic                        = os.path.expanduser(config['ecearth_ping_file_canonic'                       ]) # ecearth_ping_file_canonic                        = 'ec-earth-ping-canonic.xml'    # The one which is     canonicalized
+   ecearth_ping_file                                = os.path.expanduser(config['ecearth_ping_file'                               ]) # ecearth_ping_file                                = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping.xml'                       # The one which is not canonicalized
+   ecearth_ping_file_canonic                        = os.path.expanduser(config['ecearth_ping_file_canonic'                       ]) # ecearth_ping_file_canonic                        = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-canonic.xml'               # The one which is     canonicalized
+   ecearth_ping_file_neat_formatted                 = os.path.expanduser(config['ecearth_ping_file_neat_formatted'                ]) # ecearth_ping_file_neat_formatted                 = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml'        # The one which is neat-formatted
 
    field_def_file_ocean                             = os.path.expanduser(config['field_def_file_ocean'                            ]) # field_def_file_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
    field_def_file_seaice                            = os.path.expanduser(config['field_def_file_seaice'                           ]) # field_def_file_seaice                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
@@ -137,6 +139,9 @@ if len(sys.argv) == 2:
   #include_grid_ref_from_field_def_files            =                    config['include_grid_ref_from_field_def_files'           ]  # include_grid_ref_from_field_def_files            = True
    produce_varlistjson_file                         =                    config['produce_varlistjson_file'                        ]  # produce_varlistjson_file                         = True
 
+
+   output_dir_name = 'xml-files/genecec-cmip7/ping-files/'
+   subprocess.run(["mkdir", "-p", output_dir_name])
 
    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
    previous_working_dir = os.getcwd()
@@ -189,7 +194,7 @@ if len(sys.argv) == 2:
 
     # Create new ping files (and canonical variants) in which the XML comment is transformed to a comment attribute and the unit specified
     # in the comment is given in a ping_unit attribute:
-    new_ping_filename = pf[1].replace('.xml', '_comment_in_attribute.xml')
+    new_ping_filename = output_dir_name + pf[1].replace('.xml', '_comment_in_attribute.xml')
     with open(new_ping_filename, 'w') as new_ping_file:
      with open(ping_filename) as ping_file:
          for line in ping_file:
@@ -305,8 +310,7 @@ if len(sys.argv) == 2:
    tree_main_ping = ET.parse(ecearth_ping_file)
    root_main = tree_main_ping.getroot()
 
-   xml_filename = 'ec-earth-ping-neat-formatted.xml'
-   with open(xml_filename, 'w') as xml_file:
+   with open(ecearth_ping_file_neat_formatted, 'w') as xml_file:
     xml_file.write('<ecearth_ping>\n')
     xml_file.write('  <ecearth_nemo_ping>\n')
     xml_file.write('    <field_definition id="ocean" original_file="ping_ocean_DR1.00.27.xml">\n')
@@ -340,6 +344,11 @@ if len(sys.argv) == 2:
    ###                                    2                                     ###
    ################################################################################
    print_next_step_message(2, 'READING THE FIELD_DEF FILES')
+
+
+
+   print_next_step_message(10, 'FINISHING')
+   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
 else:
    print()
