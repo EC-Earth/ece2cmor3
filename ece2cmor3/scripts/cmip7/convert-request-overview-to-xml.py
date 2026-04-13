@@ -90,9 +90,9 @@ def main():
 
 
    # Load the XML file with the ece2cmor grib table content:
-   grib_table_xml_filename = './grib-table.xml'
+   grib_table_xml_filename = './xml-files/genecec-cmip7/grib-table.xml'
    if os.path.isfile(grib_table_xml_filename) == False:
-    print('{} The file {} does not exist.\n        Try running first:\n         ./convert-grib-table-to-xml.py grib-table.xml\n'.format(error_message, grib_table_xml_filename))
+    print('{} The file {} does not exist.\n        Try running first:\n         ./convert-grib-table-to-xml.py xml-files/genecec-cmip7/grib-table.xml\n'.format(error_message, grib_table_xml_filename))
     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
    tree_grib_table = ET.parse(grib_table_xml_filename)
    root_grib_table = tree_grib_table.getroot()
