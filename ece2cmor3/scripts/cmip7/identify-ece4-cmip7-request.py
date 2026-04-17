@@ -340,7 +340,7 @@ def main():
          if len(ece3_element.get('expression')) < 84:
           element.set('expression'    , ece3_element.get('expression'     ))
          else:
-          element.set('expression'    , 'See the ' + request_overview_xml_filename + ' file.')
+          element.set('expression'    , 'See the ' + os.path.split(request_overview_xml_filename)[1] + ' file.')
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('status', identified)
