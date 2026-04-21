@@ -344,8 +344,7 @@ def main():
    root.set("original_file", pf[1])
 
    # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the new field_def file:
-  #if field_def_file == field_def_file_ifs_raw:
-   if field_def_file in ['field_def_file_ifs_raw', 'field_def_file_ifs_cmip6', 'field_def_file_ifs_noncmip6']:
+   if field_def_file in [field_def_file_ifs_raw, field_def_file_ifs_cmip6, field_def_file_ifs_noncmip6]:
     xpath_for_merge = ".//ecearth4_oifs_field_definition"
    elif field_def_file == field_def_file_lpj:
     xpath_for_merge = ".//ecearth4_lpjg_field_definition"
