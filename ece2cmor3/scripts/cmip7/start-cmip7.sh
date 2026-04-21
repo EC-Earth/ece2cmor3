@@ -43,7 +43,8 @@
 
 
  # ECE4 genecec-cmip7:
-  ./create-ece4-genecec-cmip7-xml-files.sh v01 &> create-ece4-genecec-cmip7-xml-files.log-v01
+ ./create-ece4-genecec-cmip7-xml-files.sh v01 &> create-ece4-genecec-cmip7-xml-files.log-v01
+ mv -f create-ece4-genecec-cmip7-xml-files.log-v01 archive/log-files/v01
  # which covers the calls & description below.
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including

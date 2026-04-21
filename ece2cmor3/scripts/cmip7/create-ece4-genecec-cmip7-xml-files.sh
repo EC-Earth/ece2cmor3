@@ -38,6 +38,8 @@ if [ "$#" -eq 1 ]; then
 
   # Independent of other genecec-cmip7 generated files:
   ./scan-xios-xml-elementtree-structure.py > scan.log
+  mkdir -p archive/log-files/${version}/
+  mv -f scan.log archive/log-files/${version}/
 
   # Independent of other genecec-cmip7 generated files:
   ./cmip6-cmip7-variable-mapping.py -r ${data_request_version}
@@ -77,7 +79,7 @@ if [ "$#" -eq 1 ]; then
   #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
   ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
-
+  mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
 
   # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
