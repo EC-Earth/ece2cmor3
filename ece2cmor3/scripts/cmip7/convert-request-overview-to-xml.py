@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # Thomas Reerink
 
-# This script takes a request-overview file, as genereted by ECE3 genecec and converts its content into an XML file in which for each variable all metadata
-# is stored in attributes. We take as input a request overview file which covers the most ECE3 variables: the test-all pextra CC file for instance.
+# This script takes a request-overview file, as genereted by genecec for ECE3, and converts its content into an XML file in which for each variable all metadata
+# is stored in attributes. An input request overview file is taken which covers the most ECE3 variables: the test-all pextra CC file for instance. Some attribute
+# names are adiionally labeled in order to make clear whether the attribute content is based on the cmip6 or cmip7 data request.
 
-# Relevance: This lists all CMOR variables which have been identified for CMIP6 for EC-Earth3. It gives the grib codes for the ECE3 IFS variables. It shows
-# when a variable can be obtained from more than one model component (which involves the preferences).
+# Relevance: This lists all CMOR variables which have been identified during the CMIP6 - EC-Earth3 phase. It gives the grib codes for the ECE3 IFS variables. It
+# shows when a variable can be obtained from more than one model component (which involves the preferences).
 
-# Generate the current standard input file for this script:
-# grep -v -e cWood ~/cmorize/control-output-files/output-control-files-v460/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt > request-overview-cmip6-pextra-all-ECE3-CC.txt
+# The current standard input file for this script is:
+#  request-overview-cmip6-pextra-all-ECE3-CC.txt
+# which equals:
+# ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt
 
 # Run this script like:
 #  ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt
-#  ./convert-request-overview-to-xml.py ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/request-overview-all-including-EC-EARTH-CC-preferences.txt
 
 import argparse
 import xml.etree.ElementTree as ET
