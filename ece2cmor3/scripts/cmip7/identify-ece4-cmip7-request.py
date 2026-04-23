@@ -250,18 +250,18 @@ def main():
     list_of_identified_variables                                  = []
     list_of_no_matched_identification                             = []
 
-    # The CMIP7 request file:
-    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'
+    # Input files:
+    request_overview_xml_filename    = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
 
-    # Read & load the request-overview ECE3-CMIP6 identification:
-    request_overview_xml_filename = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'
+    # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
      print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
-    # Load the alphabetic ordered XML file and create a (primary) realm ordered (starting with atmos) XML file:
+    # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
     if os.path.isfile(xml_filename_alphabetic_ordered) == False:
      print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3\n'.format(error_message, xml_filename_alphabetic_ordered))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
@@ -373,6 +373,8 @@ def main():
       print(' {:4} variables with realm {}'.format(count, realm))
      write_xml_file_root_element_closing(xml_file)
 
+
+    # Writing various reordered variants of the identified XML files:
 
     value_list_with_priorities       = ["Core", "High", "Medium", "Low"]
     value_list_with_cmip6_tables     = ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
