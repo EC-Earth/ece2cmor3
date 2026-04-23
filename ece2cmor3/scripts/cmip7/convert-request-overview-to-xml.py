@@ -91,10 +91,11 @@ def main():
    request_overview_filename        = args.request_file
    request_overview_xml_filename    = output_dir_name + request_overview_filename.replace('.txt', '.xml')
    request_overview_xml_filename_nf = output_dir_name + request_overview_filename.replace('.txt', '-neat-formatted.xml')
+   cmip6_cmip7_mapping_filename     = output_dir_name + 'cmip7-variables-and-metadata-all.xml'
+   grib_table_xml_filename          = output_dir_name + 'grib-table.xml'
 
 
    # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
-   cmip6_cmip7_mapping_filename = 'xml-files/genecec-cmip7/cmip7-variables-and-metadata-all.xml'
    if os.path.isfile(cmip6_cmip7_mapping_filename) == False:
     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip6_cmip7_mapping_filename))
     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
@@ -103,9 +104,8 @@ def main():
 
 
    # Load the XML file with the ece2cmor grib table content:
-   grib_table_xml_filename = './xml-files/genecec-cmip7/grib-table.xml'
    if os.path.isfile(grib_table_xml_filename) == False:
-    print('{} The file {} does not exist.\n        Try running first:\n         ./convert-grib-table-to-xml.py xml-files/genecec-cmip7/grib-table.xml\n'.format(error_message, grib_table_xml_filename))
+    print('{} The file {} does not exist.\n        Try running first:\n         ./convert-grib-table-to-xml.py {}\n'.format(error_message, grib_table_xml_filename, grib_table_xml_filename))
     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
    tree_grib_table = ET.parse(grib_table_xml_filename)
    root_grib_table = tree_grib_table.getroot()
@@ -416,8 +416,8 @@ def main():
    print(' The number of identified CMIP6 variables for EC-Earth3 is: {}.\n'.format(number_of_variables))
 
    print(' The script {} has finished, the produced files:\n  {}\n  {}\n  {}\n'.format(sys.argv[0], ifspar_xml_filename              \
-                                                                                                    , request_overview_xml_filename    \
-                                                                                                    , request_overview_xml_filename_nf))
+                                                                                                  , request_overview_xml_filename    \
+                                                                                                  , request_overview_xml_filename_nf))
 
 
 if __name__ == '__main__':
