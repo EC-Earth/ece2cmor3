@@ -60,15 +60,23 @@ def parse_args():
 def write_ifspar_xml_content(output_file, var):
     if var.get('table_override'):
      print(' The table_override attribute has not been added to the xml file for: cmip6_variable="{}" table_override="{}"'.format(var.get('target'), var.get('table_override')))
-    output_file.write('  <variable  cmip6_variable={:16} grib_code={:10} convert={:16} masked={:10} interpolate={:10} missval={:9} fillval={:9} expr={:500} >   </variable>\n' \
-                   .format('"' + var['target'     ]                                             + '"', \
-                           '"' + var['source'     ]                                             + '"', \
-                           '"' + var['convert'    ]                                             + '"', \
-                           '"' + var['masked'     ]                                             + '"', \
-                           '"' + var['interpolate']                                             + '"', \
-                           '"' + var['missval'    ]                                             + '"', \
-                           '"' + var['fillval'    ]                                             + '"', \
-                           '"' + var['expr'       ].replace('&','&amp;').replace('<','&lt;')    + '"'))
+    output_file.write('  <variable  cmip6_variable={:16}' \
+                                  ' grib_code={:10}'      \
+                                  ' convert={:16}'        \
+                                  ' masked={:10}'         \
+                                  ' interpolate={:10}'    \
+                                  ' missval={:9}'         \
+                                  ' fillval={:9}'         \
+                                  ' expr={:500}'          \
+                      ' >   </variable>\n'.format(        \
+                      '"' + var['target'     ]                                          + '"', \
+                      '"' + var['source'     ]                                          + '"', \
+                      '"' + var['convert'    ]                                          + '"', \
+                      '"' + var['masked'     ]                                          + '"', \
+                      '"' + var['interpolate']                                          + '"', \
+                      '"' + var['missval'    ]                                          + '"', \
+                      '"' + var['fillval'    ]                                          + '"', \
+                      '"' + var['expr'       ].replace('&','&amp;').replace('<','&lt;') + '"'))
 
 
 def main():
