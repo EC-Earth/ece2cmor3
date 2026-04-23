@@ -251,8 +251,10 @@ def main():
     list_of_no_matched_identification                             = []
 
     # Input files:
-    request_overview_xml_filename    = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
-    xml_filename_alphabetic_ordered  = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
+    request_overview_xml_filename        = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered      = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename   = 'xml-files/cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml'                 # The   identified file with manual updated identifying comment
+    manual_updated_unidentified_filename = 'xml-files/cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml'            # The unidentified file with manual updated identifying comment
 
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
@@ -268,6 +270,20 @@ def main():
     tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic = tree_alphabetic.getroot()
     dr_version      = root_alphabetic.attrib['dr_version']
+
+    # Read & load the identified file with manual updated identifying comment:
+    if os.path.isfile(manual_updated_identified_filename) == False:
+     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_identified_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+    tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
+    root_manual_comment_identified = tree_manual_comment_identified.getroot()
+
+    # Read & load the unidentified file with manual updated identifying comment:
+    if os.path.isfile(manual_updated_unidentified_filename) == False:
+     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_unidentified_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+    tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
+    root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
 
     include_additional_xml_output = False
 
