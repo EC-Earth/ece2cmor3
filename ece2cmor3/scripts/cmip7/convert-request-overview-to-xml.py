@@ -386,7 +386,21 @@ def main():
          cmip7_region          = map_el_again.get('region')
          cmip7_temporal_shape  = map_el_again.get('temporal_shape')
 
-        xml_file.write('  <variable  cmip6_table={:12} cmip6_variable={:21} region={:10} temporal_shape={:26} cmip7_compound_name={:51} dimensions={:45} unit={:20} varname_code={:23} ifs_shortname={:16} model_component={:9} other_component={:9} cmip7_long_name={:131} long_name={:123} expression={:510} comment={:550} >   </variable>\n' \
+        xml_file.write('  <variable  cmip6_table={:12}' \
+                                   ' cmip6_variable={:21}' \
+                                   ' region={:10}' \
+                                   ' temporal_shape={:26}' \
+                                   ' cmip7_compound_name={:51}' \
+                                   ' dimensions={:45} unit={:20}' \
+                                   ' varname_code={:23}' \
+                                   ' ifs_shortname={:16}' \
+                                   ' model_component={:9}' \
+                                   ' other_component={:9}' \
+                                   ' cmip7_long_name={:131}' \
+                                   ' long_name={:123}' \
+                                   ' expression={:510}' \
+                                   ' comment={:550}' \
+                       ' >   </variable>\n' \
                        .format('"' +cmip6_table          + '"', \
                                '"' +cmip6_variable       + '"', \
                                '"' +cmip7_region         + '"', \
