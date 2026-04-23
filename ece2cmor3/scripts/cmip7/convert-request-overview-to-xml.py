@@ -355,7 +355,11 @@ def main():
          #expression    = element.get('')
          #print(' ifs_code_name: {:>3} {:3} {}'.format(grib_code, grib_table, ifs_shortname))
        else:
-        ifs_shortname = 'NotAnIFSvar'
+      ##if model_component == "tm5":
+      ## # For ECE4 this variable comes from the M7 module from OpenIFS:
+      ## ifs_shortname = 'ifsM7var'
+      ##else:
+         ifs_shortname = 'NotAnIFSvar'
        #expression    = 'NotAnIFSvar'
       #print(' ifs_code_name: {:>3} {:3} {:15} {}'.format(grib_code, grib_table, ifs_shortname, expression))
 
