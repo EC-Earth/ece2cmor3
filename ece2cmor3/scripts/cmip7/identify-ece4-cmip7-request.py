@@ -364,7 +364,6 @@ def main():
            xpath_expression_manual_comment_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
            for manual_comment_identified_element in root_manual_comment_identified.findall(xpath_expression_manual_comment_identified):
             if manual_comment_identified_element.get('comment').strip() != '':
-            #print('TEST: {} {}'.format(manual_comment_identified_element.get('comment'), manual_comment_identified_element.get('cmip7_compound_name')))
              element.set('comment_author' , manual_comment_identified_element.get('comment_author'))
              element.set('comment'        , manual_comment_identified_element.get('comment'))
            element.set('status', identified)
@@ -396,7 +395,6 @@ def main():
           xpath_expression_manual_comment_unidentified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
           for manual_comment_unidentified_element in root_manual_comment_unidentified.findall(xpath_expression_manual_comment_unidentified):
            if manual_comment_unidentified_element.get('comment').strip() != '':
-           #print('TEST: {} {}'.format(manual_comment_unidentified_element.get('comment'), manual_comment_unidentified_element.get('cmip7_compound_name')))
             element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
             element.set('comment'        , manual_comment_unidentified_element.get('comment'))
 
