@@ -251,10 +251,11 @@ def main():
     list_of_no_matched_identification                             = []
 
     # Input files:
-    request_overview_xml_filename        = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
-    xml_filename_alphabetic_ordered      = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
-    manual_updated_identified_filename   = 'xml-files/cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml'                 # The   identified file with manual updated identifying comment
-    manual_updated_unidentified_filename = 'xml-files/cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml'            # The unidentified file with manual updated identifying comment
+    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered        = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename     = 'xml-files/cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml'                 # The     identified file with manual updated identifying comment
+    manual_updated_var_identified_filename = 'xml-files/cmip7-request-v1.2.2.3-all-full-var_identified-freq-mc-prio.xml'             # The var_identified file with manual updated identifying comment
+    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml'            # The   unidentified file with manual updated identifying comment
 
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
@@ -277,6 +278,13 @@ def main():
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
     root_manual_comment_identified = tree_manual_comment_identified.getroot()
+
+    # Read & load the var_identified file with manual updated identifying comment:
+    if os.path.isfile(manual_updated_var_identified_filename) == False:
+     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_var_identified_filename))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+    tree_manual_comment_var_identified = ET.parse(manual_updated_var_identified_filename)
+    root_manual_comment_var_identified = tree_manual_comment_var_identified.getroot()
 
     # Read & load the unidentified file with manual updated identifying comment:
     if os.path.isfile(manual_updated_unidentified_filename) == False:
@@ -376,6 +384,11 @@ def main():
            element.set('status', identified_var)
            element.set('comment_author' , '                 ')
            element.set('comment'        , '                                                                        ')
+           xpath_expression_manual_comment_var_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+           for manual_comment_var_identified_element in root_manual_comment_var_identified.findall(xpath_expression_manual_comment_var_identified):
+            if manual_comment_var_identified_element.get('comment').strip() != '':
+             element.set('comment_author' , manual_comment_var_identified_element.get('comment_author'))
+             element.set('comment'        , manual_comment_var_identified_element.get('comment'))
           #print(' {:2} no match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
