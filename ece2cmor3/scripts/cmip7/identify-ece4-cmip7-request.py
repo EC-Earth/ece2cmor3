@@ -361,6 +361,12 @@ def main():
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('comment_author' , '                 ')
            element.set('comment'        , '                                                                        ')
+           xpath_expression_manual_comment_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+           for manual_comment_identified_element in root_manual_comment_identified.findall(xpath_expression_manual_comment_identified):
+            if manual_comment_identified_element.get('comment').strip() != '':
+            #print('TEST: {} {}'.format(manual_comment_identified_element.get('comment'), manual_comment_identified_element.get('cmip7_compound_name')))
+             element.set('comment_author' , manual_comment_identified_element.get('comment_author'))
+             element.set('comment'        , manual_comment_identified_element.get('comment'))
            element.set('status', identified)
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
