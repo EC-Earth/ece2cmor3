@@ -359,6 +359,8 @@ def main():
           element.set('expression'    , 'See the ' + os.path.split(request_overview_xml_filename)[1] + ' file.')
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
+           element.set('comment_author' , '                 ')
+           element.set('comment'        , '                                                                        ')
            element.set('status', identified)
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
@@ -367,6 +369,8 @@ def main():
            break
           else:
            element.set('status', identified_var)
+           element.set('comment_author' , '                 ')
+           element.set('comment'        , '                                                                        ')
           #print(' {:2} no match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
@@ -381,8 +385,14 @@ def main():
           element.set('ifs_shortname'  , '??')
           element.set('varname_code'   , '??')
           element.set('expression'     , '??')
-        element.set('comment_author' , '                 ')
-        element.set('comment'        , '                                                                        ')
+          element.set('comment_author' , '                 ')
+          element.set('comment'        , '                                                                        ')
+          xpath_expression_manual_comment_unidentified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+          for manual_comment_unidentified_element in root_manual_comment_unidentified.findall(xpath_expression_manual_comment_unidentified):
+           if manual_comment_unidentified_element.get('comment').strip() != '':
+           #print('TEST: {} {}'.format(manual_comment_unidentified_element.get('comment'), manual_comment_unidentified_element.get('cmip7_compound_name')))
+            element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
+            element.set('comment'        , manual_comment_unidentified_element.get('comment'))
 
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
