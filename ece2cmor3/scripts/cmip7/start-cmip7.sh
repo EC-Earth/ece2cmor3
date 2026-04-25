@@ -179,7 +179,8 @@
 #  n *.py config-* *.sh
 #  n create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist create-basic-ec-earth-cmip6-nemo-namelist.log ../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-*
 #  n ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/*
-#  n cmip7-variables-and-metadata-all.xml ec-earth-ping-neat-formatted.xml ec-earth-definition-inherited-neat-formatted.xml ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml ifspar-info.xml xml-files/genecec-cmip7/grib-table.xml cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+#  n xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+#  n ~/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_*
 
 # cd /home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios
 # n axis_def_oifs.xml.j2 domain_def_oifs.xml.j2 grid_def_oifs.xml.j2 context_oifs.xml.j2 field_def_oifs_*j2 file_def_oifs_*
