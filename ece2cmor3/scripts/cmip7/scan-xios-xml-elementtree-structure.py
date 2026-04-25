@@ -452,7 +452,11 @@ def main():
          indentation = ' ' * 2 * (len(tag_path) - 1)
         #print(' end:   event = {:7} element = {}'.format(event, elem_nf.tag))
          if elem_nf.tag == 'field':
-          ecearth_field_def_nf.write('> </{}>\n'.format(elem_nf.tag))
+          if elem_nf.text != None:
+           expression = elem_nf.text.replace("\n", "").strip()
+          else:
+           expression = '' # elem_nf.text
+          ecearth_field_def_nf.write('> {:72} </{}>\n'.format(expression, elem_nf.tag))
          else:
           ecearth_field_def_nf.write('{}</{}>\n'.format(indentation, elem_nf.tag))
          tag_path.pop()
