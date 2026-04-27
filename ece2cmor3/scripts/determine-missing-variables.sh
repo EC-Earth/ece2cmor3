@@ -3,7 +3,7 @@
 #
 # This scripts requires four arguments (a fifth argument is OPTIONAL):
 #
-# the first  argument is the MIP name. The first argument can represent a list of MIPs, seperated by commas.
+# the first  argument is the MIP name. The first argument can represent a list of MIPs, separated by commas.
 # the second argument is the experiment name or MIP name in the latter case all MIP experiments are taken.
 # the third  argument is the experiment tier (tier 1 is obligatory, higher tier is non-obligatory). In case tier 2 is specified, tier 1 and 2 experiments are considered.
 # the fourth argument is the maximum priority of the variables (1 is highest priority, 3 is lowest priority). In case priority 2 is specified, priority 1 and 2 variables are considered.
@@ -110,7 +110,7 @@ else
   echo
   echo " This scripts requires four arguments: MIP, MIP experiment, experiment tier, priority of variable, e.g.:"
   echo "  $0 CMIP CMIP 1 1"
-  echo " The first argument can represent a list of MIPs, seperated by commas, e.g.:"
+  echo " The first argument can represent a list of MIPs, separated by commas, e.g.:"
   echo "  $0 CMIP,AerChemMIP,CDRMIP,C4MIP,DCPP,HighResMIP,ISMIP6,LS3MIP,LUMIP,OMIP,PAMIP,PMIP,RFMIP,ScenarioMIP,VolMIP,CORDEX,DynVarMIP,SIMIP,VIACSAB CMIP 1 1"
   echo
 fi
