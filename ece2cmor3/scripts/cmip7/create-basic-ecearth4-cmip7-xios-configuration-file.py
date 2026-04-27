@@ -10,17 +10,20 @@
 # 'dummy_' have not been identified by the Shaconemo and EC-Earth comunity and therefore can be
 # deselected. The prefix 'CMIP6_' (and 'NEMO_') are omitted. If available and if not identical,
 # preference can be given to the content of the expression attribute over the content of the text.
-# The NEMO ping files conrain XML comment for each field variable, here in a preprocess step these
+# The NEMO ping files contain XML comment for each field variable, here in a preprocess step these
 # XML comments are moved into a ping_comment attribute for each field and also the units in the
-# comment are in addition seperated placed into an ping_unit attribute.
+# comment are in addition separately placed into a ping_unit attribute.
 #
+# This script only creates the combined ping file with the additional attributes as described above. All
+# below is not implemented in this script. Point 2 is covered by scan-xios-xml-elementtree-structure.py
+
 # 2. This script reads the four NEMO xml field_def files (the files which contain the basic info
 # about the fields required by XIOS). These field_def files can either be taken from the EC-Earth4
 # repository or from the Shaconemo repository. The four field_def files for ECE4 contain 1369
 # variables with an id (9 id's occur twice) and 319 variables without an id but with a field_ref
 # Most variables with a field_ref have a name attribute, but 53 variables with a field_ref have no
-# name attribute. The scan-xios-xml-elementtree-structure.py script also reads these files and
-# performs some checks on them, this script creates the ec-earth-field_def xml file which cab be read
+# name attribute. The scan-xios-xml-elementtree-structure.py script reads these files and
+# performs some checks on them, this script creates the ec-earth-field_def xml file which can be read
 # directly.
 
 # The file with the full CMIP7 variables inclusive their mapping to the CMIP6 names can be read. It can be
@@ -328,7 +331,7 @@ if len(sys.argv) == 2:
                             '"' +element.get('ping_comment')       + '"', \
                             '"' +element_text                      + '"'))
 
-# For thesting the diff:
+# For testing the diff:
 #    xml_file.write('     <field  id={:20} ping_unit={:18} ping_comment={:1262} field_ref={:35}>  {:65}  </field>\n' \
 #                   .format('"' +element.get('id')                 + '"', \
 #                           '"' +element.get('ping_unit')          + '"', \
