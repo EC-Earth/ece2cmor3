@@ -854,8 +854,8 @@ def main():
   # Writing the combined result to a new xml file:
   ecearth_field_def_inherited_filename    = output_dir_name + 'ec-earth-definition-inherited.xml'
   ecearth_field_def_inherited_nf_filename = output_dir_name + 'ec-earth-definition-inherited-neat-formatted.xml'
-  tree_main.write( ecearth_field_def_inherited_filename)
-  convert_to_neat_formatted_xml( ecearth_field_def_inherited_filename, ecearth_field_def_inherited_nf_filename)
+  tree_main.write(ecearth_field_def_inherited_filename)
+  convert_to_neat_formatted_xml(ecearth_field_def_inherited_filename, ecearth_field_def_inherited_nf_filename)
 
 
 # inherit before: unit, freq_offset, grid_ref;  add: id, text
