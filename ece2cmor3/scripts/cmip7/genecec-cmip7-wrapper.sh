@@ -81,8 +81,8 @@ else
   echo
   echo " This scripts requires three arguments:"
   echo "  - Argument 1: The cutoff priority [core, high, medium, low]"
-  echo "  - Argument 2: A comma seperated list of CMIP7 experiments [all, piControl,esm-hist]"
-  echo "  - Argument 3: A comma seperated list of EC-Earth3 configurations [all, EC-Earth3,EC-Earth3-ESM-1]"
+  echo "  - Argument 2: A comma separated list of CMIP7 experiments [all, piControl,esm-hist]"
+  echo "  - Argument 3: A comma separated list of EC-Earth3 configurations [all, EC-Earth3,EC-Earth3-ESM-1]"
   echo " For instance:"
   echo "  $0 high piControl,esm-hist EC-Earth3-ESM-1"
   echo "  $0 core all all"

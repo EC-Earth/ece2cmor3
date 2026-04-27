@@ -324,7 +324,7 @@ if len(sys.argv) == 2:
        roottree = tree.getroot()
        field_elements_attribute_1  = []   # The basic list in this routine containing the id attribute values
        field_elements_attribute_2  = []   # A list corresponding with the id list containing the grid_def attribute values
-       fields_without_id_name      = []   # This seperate list is created for fields which don't have an id (most of them have a name attribute, but some only have a field_ref attribute)
+       fields_without_id_name      = []   # This separate list is created for fields which don't have an id (most of them have a name attribute, but some only have a field_ref attribute)
        fields_without_id_field_ref = []   # A corresponding list with the field_ref attribute values is created. The other list contains the name attribute values if available, otherwise the name is assumed to be identical to the field_ref value.
        attribute_overview          = []
 
