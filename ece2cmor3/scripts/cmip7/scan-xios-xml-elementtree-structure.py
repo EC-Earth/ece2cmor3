@@ -857,6 +857,10 @@ def main():
   tree_main.write(ecearth_field_def_inherited_filename)
   convert_to_neat_formatted_xml(ecearth_field_def_inherited_filename, ecearth_field_def_inherited_nf_filename)
 
+  # Test the XML syntax by reading the just created ecearth_field_def_inherited_nf_file:
+  tree_ecearth_field_def_inherited_nf = ET.parse(ecearth_field_def_inherited_nf_filename)
+  root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
+
 
 # inherit before: unit, freq_offset, grid_ref;  add: id, text
 
