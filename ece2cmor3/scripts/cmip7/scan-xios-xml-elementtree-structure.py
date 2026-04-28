@@ -913,16 +913,19 @@ def main():
                                   element.get('comment'            )  \
                                  ))
 
-  def write_xml_file_root_element_opening(xml_file, group_grid_ref_value, group_operation_value):
+  def write_xml_file_root_element_opening(xml_file_filename, group_grid_ref_value, group_operation_value):
+      xml_file = open(xml_file_filename, 'w')
       xml_file.write('<?xml version="1.0"?>\n\n')
       xml_file.write('<field_definition>\n')
       xml_file.write('  <field_group id="all_atm_cmip7" default_value="1e20" chunking_blocksize_target="3.0">\n')
       xml_file.write('    <field_group id="2D_physical" grid_ref="{}" operation="{}">\n'.format(group_grid_ref_value.strip(), group_operation_value.strip()))
+      return xml_file
 
   def write_xml_file_root_element_closing(xml_file):
       xml_file.write('    </field_group>\n')
       xml_file.write('   </field_group>\n')
       xml_file.write('</field_definition>\n')
+      xml_file.close()
 
   def write_xml_file_line_for_variable(xml_file, cmip7_element, field_def_element, add_all_attributes):
       if add_all_attributes:
@@ -1027,9 +1030,7 @@ def main():
   message_list_of_no_match_else_aerosol   = []
   message_list_of_no_match_else           = []
 
-  oifs_cmip7_xml_file_filename = 'field_def_oifs_cmip7.xml.j2'
-  oifs_cmip7_xml_file = open(oifs_cmip7_xml_file_filename, 'w')
-  write_xml_file_root_element_opening(oifs_cmip7_xml_file, 'reduced_sfc', "average")
+  oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
 
   # Iterate over all the CMIP7 variables:
   xpath_expression_cmip7_request = './/variable'
@@ -1060,7 +1061,6 @@ def main():
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
   write_xml_file_root_element_closing(oifs_cmip7_xml_file)
-  oifs_cmip7_xml_file.close()
 
 
   print_message_list(message_list_of_ifs_shortname_matches  )
