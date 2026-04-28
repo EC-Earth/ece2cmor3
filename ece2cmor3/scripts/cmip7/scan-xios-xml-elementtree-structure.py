@@ -904,20 +904,20 @@ def main():
       print()
 
   def add_message(message_head, message_list, element):
-    message_list.append(' {} {:10} {:20} {:10} {:55} {}'
-                        .format(message_head                      , \
-                                element.get('priority'           ), \
-                                element.get('status'             ), \
-                                element.get('model_component'    ), \
-                                element.get('cmip7_compound_name'), \
-                                element.get('comment'            )  \
-                               ))
+      message_list.append(' {} {:10} {:20} {:10} {:55} {}'
+                          .format(message_head                      , \
+                                  element.get('priority'           ), \
+                                  element.get('status'             ), \
+                                  element.get('model_component'    ), \
+                                  element.get('cmip7_compound_name'), \
+                                  element.get('comment'            )  \
+                                 ))
 
   def write_xml_file_root_element_opening(xml_file, group_grid_ref_value, group_operation_value):
-       xml_file.write('<?xml version="1.0"?>\n\n')
-       xml_file.write('<field_definition>\n')
-       xml_file.write('  <field_group id="all_atm_cmip7" default_value="1e20" chunking_blocksize_target="3.0">\n')
-       xml_file.write('    <field_group id="2D_physical" grid_ref="{}" operation="{}">\n'.format(group_grid_ref_value.strip(), group_operation_value.strip()))
+      xml_file.write('<?xml version="1.0"?>\n\n')
+      xml_file.write('<field_definition>\n')
+      xml_file.write('  <field_group id="all_atm_cmip7" default_value="1e20" chunking_blocksize_target="3.0">\n')
+      xml_file.write('    <field_group id="2D_physical" grid_ref="{}" operation="{}">\n'.format(group_grid_ref_value.strip(), group_operation_value.strip()))
 
   def write_xml_file_root_element_closing(xml_file):
       xml_file.write('    </field_group>\n')
@@ -1027,39 +1027,40 @@ def main():
   message_list_of_no_match_else_aerosol   = []
   message_list_of_no_match_else           = []
 
-  oifs_cmip7_xml_filename = 'field_def_oifs_cmip7.xml.j2'
-  with open(oifs_cmip7_xml_filename, 'w') as oifs_cmip7_xml_file:
-   write_xml_file_root_element_opening(oifs_cmip7_xml_file, 'reduced_sfc', "average")
+  oifs_cmip7_xml_file_filename = 'field_def_oifs_cmip7.xml.j2'
+  oifs_cmip7_xml_file = open(oifs_cmip7_xml_file_filename, 'w')
+  write_xml_file_root_element_opening(oifs_cmip7_xml_file, 'reduced_sfc', "average")
 
-   # Iterate over all the CMIP7 variables:
-   xpath_expression_cmip7_request = './/variable'
-   for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
-    # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
-    # equals the ifs_shortname in the CMIP7 request file:
-    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
-    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-     write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
-     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
-    else: # for-else
-     if   cmip7_element.get('model_component') == 'ifs':
-      add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
-     elif cmip7_element.get('model_component') == 'tm5':
-      add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
-     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-      add_message('LPJG variable:', message_list_of_no_match_lpjg, cmip7_element)
-     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-      add_message('NEMO variable:', message_list_of_no_match_nemo, cmip7_element)
+  # Iterate over all the CMIP7 variables:
+  xpath_expression_cmip7_request = './/variable'
+  for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
+   # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
+   # equals the ifs_shortname in the CMIP7 request file:
+   xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
+   for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
+    write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
+    add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
+   else: # for-else
+    if   cmip7_element.get('model_component') == 'ifs':
+     add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
+    elif cmip7_element.get('model_component') == 'tm5':
+     add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
+    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+     add_message('LPJG variable:', message_list_of_no_match_lpjg, cmip7_element)
+    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+     add_message('NEMO variable:', message_list_of_no_match_nemo, cmip7_element)
+    else:
+     if cmip7_element.get('modeling_realm') == 'atmos':
+      add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'atmosChem':
+      add_message('No match for:',  message_list_of_no_match_else_atmosChem, cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'aerosol':
+      add_message('No match for:',  message_list_of_no_match_else_aerosol  , cmip7_element)
      else:
-      if cmip7_element.get('modeling_realm') == 'atmos':
-       add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
-      if cmip7_element.get('modeling_realm') == 'atmosChem':
-       add_message('No match for:',  message_list_of_no_match_else_atmosChem, cmip7_element)
-      if cmip7_element.get('modeling_realm') == 'aerosol':
-       add_message('No match for:',  message_list_of_no_match_else_aerosol  , cmip7_element)
-      else:
-       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
+      add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
-   write_xml_file_root_element_closing(oifs_cmip7_xml_file)
+  write_xml_file_root_element_closing(oifs_cmip7_xml_file)
+  oifs_cmip7_xml_file.close()
 
 
   print_message_list(message_list_of_ifs_shortname_matches  )
