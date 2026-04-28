@@ -926,7 +926,6 @@ def main():
   # Iterate over all the CMIP7 variables:
   xpath_expression_cmip7_request = './/variable'
   for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
-  #print(' {}'.format(cmip7_element.get('cmip7_compound_name')))
    # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
@@ -934,7 +933,6 @@ def main():
     message_list_of_ifs_shortname_matches.append(' Match for: {:13} {}'.format(cmip7_element.get('ifs_shortname'      ), \
                                                                                cmip7_element.get('cmip7_compound_name')  \
                                                                                ))
-   #print(' Match: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('ifs_shortname')))
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
      add_message(message_list_of_no_match_ifs , cmip7_element)
@@ -963,18 +961,10 @@ def main():
   print_message_list(message_list_of_no_match_else_atmosChem)
   print_message_list(message_list_of_no_match_else_aerosol  )
   print_message_list(message_list_of_no_match_else          )
-  print(' Number of matches: {}. But {} for ifs, {} for tm5, {} for LPJ, {} for NEMO, {} for else atmos, {} for else atmosChem {}, for else aerosol and {} others did not match.'
-         .format(len(message_list_of_ifs_shortname_matches  ), \
-                 len(message_list_of_no_match_ifs           ), \
-                 len(message_list_of_no_match_tm5           ), \
-                 len(message_list_of_no_match_lpjg          ), \
-                 len(message_list_of_no_match_nemo          ), \
-                 len(message_list_of_no_match_else_atmos    ), \
-                 len(message_list_of_no_match_else_atmosChem), \
-                 len(message_list_of_no_match_else_aerosol  ), \
-                 len(message_list_of_no_match_else)          ))
 
-  print(' No match for:\n  case       number\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}'
+  print(' Number of ifs_shortname matches in the ECE field_def file: {}\n'.format(len(message_list_of_ifs_shortname_matches)))
+
+  print(' No ifs_shortname match in the ECE field_def file for:\n  case       number\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}'
          .format('IFS'      , len(message_list_of_no_match_ifs           ), \
                  'TM5'      , len(message_list_of_no_match_tm5           ), \
                  'LPJG'     , len(message_list_of_no_match_lpjg          ), \
