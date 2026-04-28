@@ -862,6 +862,129 @@ def main():
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
 
+  # Load also the ECE3 - CMIP6 identified fields via one of the identified files:
+
+  input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
+
+  dr_version = 'v1.2.2.3'
+
+  # Predefine the three possible status values:
+  identified     = 'identified'
+  identified_var = 'var_identified'
+  unidentified   = 'unidentified'
+
+  xml_filename_realm_ordered                = input_dir_name + 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
+  xml_filename_priority_ordered             = xml_filename_realm_ordered.replace ('realm', 'priority'    )
+  xml_filename_frequency_ordered            = xml_filename_realm_ordered.replace ('realm', 'frequency'   )
+  xml_filename_status_ordered               = xml_filename_realm_ordered.replace ('realm', 'status'      )
+  xml_filename_cmip6_table_ordered          = xml_filename_realm_ordered.replace ('realm', 'cmip6-table' )
+  xml_filename_identified                   = xml_filename_realm_ordered.replace ("realm", identified    )
+  xml_filename_identified_var               = xml_filename_realm_ordered.replace ("realm", identified_var)
+  xml_filename_unidentified                 = xml_filename_realm_ordered.replace ("realm", unidentified  )
+
+  xml_filename_identified_freq              = xml_filename_identified.replace    (identified    , identified     + "-freq"        )
+  xml_filename_identified_freq_mc           = xml_filename_identified.replace    (identified    , identified     + "-freq-mc"     )
+  xml_filename_identified_freq_mc_prio      = xml_filename_identified.replace    (identified    , identified     + "-freq-mc-prio")
+  xml_filename_identified_var_freq          = xml_filename_identified_var.replace(identified_var, identified_var + "-freq"        )
+  xml_filename_identified_var_freq_mc       = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc"     )
+  xml_filename_identified_var_freq_mc_prio  = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc-prio")
+  xml_filename_unidentified_freq            = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq"           )
+  xml_filename_unidentified_freq_realm      = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm"     )
+  xml_filename_unidentified_freq_realm_prio = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm-prio")
+
+  # Load the CMIP7 request with the identified info from CMIP7 - ECE3:
+  tree_cmip7_request = ET.parse(xml_filename_priority_ordered)
+  root_cmip7_request = tree_cmip7_request.getroot()
+
+
+
+  def print_message_list(message_list):
+      for message in message_list:
+       print(message)
+      print()
+
+  def add_message(message_list, element):
+    message_list.append(' No match for: {:10} {:20} {:10} {:55} {}'
+                        .format(element.get('priority'           ), \
+                                element.get('status'             ), \
+                                element.get('model_component'    ), \
+                                element.get('cmip7_compound_name'), \
+                                element.get('comment'            )  \
+                               ))
+
+  # Lists with messages for combined printing per message cathegory afterwards:
+  message_list_of_ifs_shortname_matches   = []
+  message_list_of_no_match_ifs            = []
+  message_list_of_no_match_tm5            = []
+  message_list_of_no_match_lpjg           = []
+  message_list_of_no_match_nemo           = []
+  message_list_of_no_match_else_atmos     = []
+  message_list_of_no_match_else_atmosChem = []
+  message_list_of_no_match_else_aerosol   = []
+  message_list_of_no_match_else           = []
+
+  # Iterate over all the CMIP7 variables:
+  xpath_expression_cmip7_request = './/variable'
+  for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
+  #print(' {}'.format(cmip7_element.get('cmip7_compound_name')))
+   # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
+   # equals the ifs_shortname in the CMIP7 request file:
+   xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
+   for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
+    message_list_of_ifs_shortname_matches.append(' Match for: {:13} {}'.format(cmip7_element.get('ifs_shortname'      ), \
+                                                                               cmip7_element.get('cmip7_compound_name')  \
+                                                                               ))
+   #print(' Match: {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('ifs_shortname')))
+   else: # for-else
+    if   cmip7_element.get('model_component') == 'ifs':
+     add_message(message_list_of_no_match_ifs , cmip7_element)
+    elif cmip7_element.get('model_component') == 'tm5':
+     add_message(message_list_of_no_match_tm5 , cmip7_element)
+    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+     add_message(message_list_of_no_match_lpjg, cmip7_element)
+    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+     add_message(message_list_of_no_match_nemo, cmip7_element)
+    else:
+     if cmip7_element.get('modeling_realm') == 'atmos':
+      add_message( message_list_of_no_match_else_atmos    , cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'atmosChem':
+      add_message( message_list_of_no_match_else_atmosChem, cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'aerosol':
+      add_message( message_list_of_no_match_else_aerosol  , cmip7_element)
+     else:
+      add_message(message_list_of_no_match_else, cmip7_element)
+
+  print_message_list(message_list_of_ifs_shortname_matches  )
+  print_message_list(message_list_of_no_match_ifs           )
+  print_message_list(message_list_of_no_match_tm5           )
+  print_message_list(message_list_of_no_match_lpjg          )
+  print_message_list(message_list_of_no_match_nemo          )
+  print_message_list(message_list_of_no_match_else_atmos    )
+  print_message_list(message_list_of_no_match_else_atmosChem)
+  print_message_list(message_list_of_no_match_else_aerosol  )
+  print_message_list(message_list_of_no_match_else          )
+  print(' Number of matches: {}. But {} for ifs, {} for tm5, {} for LPJ, {} for NEMO, {} for else atmos, {} for else atmosChem {}, for else aerosol and {} others did not match.'
+         .format(len(message_list_of_ifs_shortname_matches  ), \
+                 len(message_list_of_no_match_ifs           ), \
+                 len(message_list_of_no_match_tm5           ), \
+                 len(message_list_of_no_match_lpjg          ), \
+                 len(message_list_of_no_match_nemo          ), \
+                 len(message_list_of_no_match_else_atmos    ), \
+                 len(message_list_of_no_match_else_atmosChem), \
+                 len(message_list_of_no_match_else_aerosol  ), \
+                 len(message_list_of_no_match_else)          ))
+
+  print(' No match for:\n  case       number\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}'
+         .format('IFS'      , len(message_list_of_no_match_ifs           ), \
+                 'TM5'      , len(message_list_of_no_match_tm5           ), \
+                 'LPJG'     , len(message_list_of_no_match_lpjg          ), \
+                 'NMEO'     , len(message_list_of_no_match_nemo          ), \
+                 'atmos'    , len(message_list_of_no_match_else_atmos    ), \
+                 'atmosChem', len(message_list_of_no_match_else_atmosChem), \
+                 'aerosol'  , len(message_list_of_no_match_else_aerosol  ), \
+                 'else'     , len(message_list_of_no_match_else)           ))
+
+
 # inherit before: unit, freq_offset, grid_ref;  add: id, text
 
 
