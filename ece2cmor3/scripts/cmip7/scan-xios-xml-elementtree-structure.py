@@ -938,9 +938,9 @@ def main():
     elif cmip7_element.get('model_component') == 'tm5':
      add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-     add_message('No match for:', message_list_of_no_match_lpjg, cmip7_element)
+     add_message('LPJG variable:', message_list_of_no_match_lpjg, cmip7_element)
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-     add_message('No match for:', message_list_of_no_match_nemo, cmip7_element)
+     add_message('NEMO variable:', message_list_of_no_match_nemo, cmip7_element)
     else:
      if cmip7_element.get('modeling_realm') == 'atmos':
       add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
@@ -954,11 +954,11 @@ def main():
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
   print_message_list(message_list_of_no_match_tm5           )
-  print_message_list(message_list_of_no_match_lpjg          )
-  print_message_list(message_list_of_no_match_nemo          )
   print_message_list(message_list_of_no_match_else_atmos    )
   print_message_list(message_list_of_no_match_else_atmosChem)
   print_message_list(message_list_of_no_match_else_aerosol  )
+  print_message_list(message_list_of_no_match_lpjg          )
+  print_message_list(message_list_of_no_match_nemo          )
   print_message_list(message_list_of_no_match_else          )
 
   print(' Number of ifs_shortname matches in the ECE field_def file: {}\n'.format(len(message_list_of_ifs_shortname_matches)))
@@ -966,11 +966,11 @@ def main():
   print(' No ifs_shortname match in the ECE field_def file for:\n  case       number\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}'
          .format('IFS'      , len(message_list_of_no_match_ifs           ), \
                  'TM5'      , len(message_list_of_no_match_tm5           ), \
-                 'LPJG'     , len(message_list_of_no_match_lpjg          ), \
-                 'NMEO'     , len(message_list_of_no_match_nemo          ), \
                  'atmos'    , len(message_list_of_no_match_else_atmos    ), \
                  'atmosChem', len(message_list_of_no_match_else_atmosChem), \
                  'aerosol'  , len(message_list_of_no_match_else_aerosol  ), \
+                 'LPJG'     , len(message_list_of_no_match_lpjg          ), \
+                 'NMEO'     , len(message_list_of_no_match_nemo          ), \
                  'else'     , len(message_list_of_no_match_else)           ))
 
 
