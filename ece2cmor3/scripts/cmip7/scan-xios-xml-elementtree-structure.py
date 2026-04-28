@@ -903,9 +903,10 @@ def main():
        print(message)
       print()
 
-  def add_message(message_list, element):
-    message_list.append(' No match for: {:10} {:20} {:10} {:55} {}'
-                        .format(element.get('priority'           ), \
+  def add_message(message_head, message_list, element):
+    message_list.append(' {} {:10} {:20} {:10} {:55} {}'
+                        .format(message_head                      , \
+                                element.get('priority'           ), \
                                 element.get('status'             ), \
                                 element.get('model_component'    ), \
                                 element.get('cmip7_compound_name'), \
@@ -930,27 +931,25 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-    message_list_of_ifs_shortname_matches.append(' Match for: {:13} {}'.format(cmip7_element.get('ifs_shortname'      ), \
-                                                                               cmip7_element.get('cmip7_compound_name')  \
-                                                                               ))
+    add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
-     add_message(message_list_of_no_match_ifs , cmip7_element)
+     add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
     elif cmip7_element.get('model_component') == 'tm5':
-     add_message(message_list_of_no_match_tm5 , cmip7_element)
+     add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-     add_message(message_list_of_no_match_lpjg, cmip7_element)
+     add_message('No match for:', message_list_of_no_match_lpjg, cmip7_element)
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-     add_message(message_list_of_no_match_nemo, cmip7_element)
+     add_message('No match for:', message_list_of_no_match_nemo, cmip7_element)
     else:
      if cmip7_element.get('modeling_realm') == 'atmos':
-      add_message( message_list_of_no_match_else_atmos    , cmip7_element)
+      add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
      if cmip7_element.get('modeling_realm') == 'atmosChem':
-      add_message( message_list_of_no_match_else_atmosChem, cmip7_element)
+      add_message('No match for:',  message_list_of_no_match_else_atmosChem, cmip7_element)
      if cmip7_element.get('modeling_realm') == 'aerosol':
-      add_message( message_list_of_no_match_else_aerosol  , cmip7_element)
+      add_message('No match for:',  message_list_of_no_match_else_aerosol  , cmip7_element)
      else:
-      add_message(message_list_of_no_match_else, cmip7_element)
+      add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
