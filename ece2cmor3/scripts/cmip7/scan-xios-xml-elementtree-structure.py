@@ -1079,9 +1079,9 @@ def main():
                                    group_other                   \
                                   )
    else: # for-else
-    message_head = 'No match for:'
     if   cmip7_element.get('model_component') == 'ifs':
      # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+
      pass
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
