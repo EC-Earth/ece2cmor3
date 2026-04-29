@@ -1026,21 +1026,21 @@ def main():
 
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
     if   cmip7_element.get('dimensions') == 'longitude latitude time':
-     list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_lon_lat_time_tavg     .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
-     list_with_xml_lines_for_lon_lat_plev19_time.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_lon_lat_plev19_time   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude alevel time':
-     list_with_xml_lines_for_lon_lat_alevel_time.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_lon_lat_alevel_time   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1':
-     list_with_xml_lines_for_lon_lat_plev3_time1.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_lon_lat_plev3_time1   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude time height2m':
-     list_with_xml_lines_for_lon_lat_time_height2m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_lon_lat_time_height2m .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude time height10m':
      list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude':
-     list_with_xml_lines_for_lon_lat.append(generate_xml_line_for_variable(cmip7_element, field_def_element, 'once'))
+     list_with_xml_lines_for_lon_lat               .append(generate_xml_line_for_variable(cmip7_element, field_def_element, 'once'   ))
     else:
-     list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+     list_with_xml_lines_for_other                 .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
 
     # Composing the message list just for the output messaging:
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
@@ -1076,11 +1076,12 @@ def main():
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_tavg     )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', "average", list_with_xml_lines_for_lon_lat_plev19_time   )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , "average", list_with_xml_lines_for_lon_lat_alevel_time   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , "instant", list_with_xml_lines_for_lon_lat_plev3_time1   ) # Check operation
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , "instant", list_with_xml_lines_for_lon_lat_plev3_time1   )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height2m )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height10m)
+  # grid_ref probably incorrect for several of this mixed group:
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , "average", list_with_xml_lines_for_other                 )
 
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , "average", list_with_xml_lines_for_other                 ) # grid_ref & operation not correct for this mixed group probably
   write_xml_file_closing(oifs_cmip7_xml_file)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
