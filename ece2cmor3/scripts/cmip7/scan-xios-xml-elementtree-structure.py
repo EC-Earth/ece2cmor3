@@ -1049,7 +1049,6 @@ def main():
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-
     xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, determine_operation_value(cmip7_element))
     if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
                                                                                  xml_lines_for_lon_lat_time_tavg     .append(xml_line)
@@ -1067,15 +1066,17 @@ def main():
                                                                                  xml_lines_for_lon_lat               .append(xml_line)
     else                                                                        :
                                                                                  xml_lines_for_other                 .append(xml_line)
-
     # Composing the message list just for the output messaging:
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
+     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
 
      # Composing the message list just for the output messaging:
      add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
     elif cmip7_element.get('model_component') == 'tm5':
+     # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+
      # Composing the message list just for the output messaging:
      add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
