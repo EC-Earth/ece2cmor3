@@ -1097,7 +1097,17 @@ def main():
                                    )
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     pass
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    field_def_element           , \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
      pass
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
