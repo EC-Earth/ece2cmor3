@@ -1062,11 +1062,12 @@ def main():
       xml_file.write('    </field_group>\n')
       return
 
-  def generate_xml_line_for_variable(cmip7_element, field_def_element):
+  def generate_xml_line_for_variable(cmip7_element, field_def_element, operation='average'):
       xml_line = ('      <field  id={:9}' \
                                ' priority={:10}' \
                                ' units={:20}' \
                                ' dimensions={:45}' \
+                               ' operation={:10}' \
                                ' branding_label={:25}' \
                                ' cmip7_compound_name={:55}' \
                                ' long_name={:132}' \
@@ -1080,6 +1081,7 @@ def main():
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + cmip7_element.get('dimensions'             ) + '"', \
+                  '"' +                    operation                 + '"', \
                   '"' + cmip7_element.get('branding_label'         ) + '"', \
                   '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
                   '"' + cmip7_element.get('long_name'              ) + '"', \
@@ -1120,23 +1122,34 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-    if   cmip7_element.get('dimensions') == 'longitude latitude time'           and cmip7_element.get('branding_label')[:5] == 'tavg-':
-     list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    and cmip7_element.get('branding_label')[:5] == 'tavg-':
-     list_with_xml_lines_for_lon_lat_plev19_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    and cmip7_element.get('branding_label')[:5] == 'tavg-':
-     list_with_xml_lines_for_lon_lat_alevel_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    and cmip7_element.get('branding_label')[:4] == 'tpt-':
-     list_with_xml_lines_for_lon_lat_plev3_time1.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  and cmip7_element.get('branding_label')[:5] == 'tavg-':
-     list_with_xml_lines_for_lon_lat_time_height2m.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' and cmip7_element.get('branding_label')[:5] == 'tavg-':
-     list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  and cmip7_element.get('branding_label')[:5] == 'tmax-':
-     list_with_xml_lines_for_lon_lat_time_height2m_tmax.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+    if   cmip7_element.get('branding_label')[:5] == 'tavg-':
+     operation = 'average'
+    elif cmip7_element.get('branding_label')[:4] == 'tpt-':
+     operation = 'instant'
+    elif cmip7_element.get('branding_label')[:5] == 'tmax-':
+     operation = 'maximum'
+    elif cmip7_element.get('branding_label')[:5] == 'tmin-':
+     operation = 'minimum'
     else:
-     list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+     operation = 'unknown'
+
+    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
+    if   cmip7_element.get('dimensions') == 'longitude latitude time':
+     list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
+     list_with_xml_lines_for_lon_lat_plev19_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time':
+     list_with_xml_lines_for_lon_lat_alevel_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1':
+     list_with_xml_lines_for_lon_lat_plev3_time1.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m':
+     list_with_xml_lines_for_lon_lat_time_height2m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude time height10m':
+     list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m':
+     list_with_xml_lines_for_lon_lat_time_height2m_tmax.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    else:
+     list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
 
     # Composing the message list just for the output messaging:
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
