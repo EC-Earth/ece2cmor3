@@ -1083,6 +1083,7 @@ def main():
   message_list_of_no_match_else           = []
 
   list_with_xml_lines_for_lon_lat_time_tavg = []
+  list_with_xml_lines_for_other             = []
 
  #oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
@@ -1097,6 +1098,8 @@ def main():
    #write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
     if cmip7_element.get('dimensions') == 'longitude latitude time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+    else:
+     list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
@@ -1118,8 +1121,9 @@ def main():
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_time_tavg)
- #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'            , 'reduced_sfc', "average", list_with_xml_lines_for_other            )
   write_xml_file_closing(oifs_cmip7_xml_file)
+ #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
