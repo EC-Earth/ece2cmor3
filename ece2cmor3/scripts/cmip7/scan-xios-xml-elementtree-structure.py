@@ -984,6 +984,31 @@ def main():
                  )
       return xml_line
 
+  def determine_operation_value(element):
+    if   element.get('branding_label')[:5] == 'tavg-':
+     operation = 'average'
+    elif element.get('branding_label')[:4] == 'tpt-':
+     operation = 'instant'
+    elif element.get('branding_label')[:5] == 'tmax-':
+     operation = 'maximum'
+    elif element.get('branding_label')[:5] == 'tmin-':
+     operation = 'minimum'
+    elif element.get('branding_label')[:3] == 'ti-':
+     operation = 'once'
+   #elif element.get('branding_label')[:3] == 'tmaxavg-':
+   # operation = ''
+   #elif element.get('branding_label')[:3] == 'tminavg-':
+   # operation = ''
+   #elif element.get('branding_label')[:3] == 'tclm-':
+   # operation = ''
+   #elif element.get('branding_label')[:3] == 'tclmdc-':
+   # operation = ''
+    else:
+     operation = 'unknown'
+    return operation
+
+
+
   # Not in use:
   cmip7_dimension_cases = [ 'longitude latitude time'           , \
                             'longitude latitude plev19 time'    , \
@@ -1025,28 +1050,7 @@ def main():
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
 
-    if   cmip7_element.get('branding_label')[:5] == 'tavg-':
-     operation = 'average'
-    elif cmip7_element.get('branding_label')[:4] == 'tpt-':
-     operation = 'instant'
-    elif cmip7_element.get('branding_label')[:5] == 'tmax-':
-     operation = 'maximum'
-    elif cmip7_element.get('branding_label')[:5] == 'tmin-':
-     operation = 'minimum'
-    elif cmip7_element.get('branding_label')[:3] == 'ti-':
-     operation = 'once'
-   #elif cmip7_element.get('branding_label')[:3] == 'tmaxavg-':
-   # operation = ''
-   #elif cmip7_element.get('branding_label')[:3] == 'tminavg-':
-   # operation = ''
-   #elif cmip7_element.get('branding_label')[:3] == 'tclm-':
-   # operation = ''
-   #elif cmip7_element.get('branding_label')[:3] == 'tclmdc-':
-   # operation = ''
-    else:
-     operation = 'unknown'
-
-    xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, operation)
+    xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, determine_operation_value(cmip7_element))
     if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
                                                                                  xml_lines_for_lon_lat_time_tavg     .append(xml_line)
     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
