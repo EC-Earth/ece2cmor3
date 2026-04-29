@@ -1100,41 +1100,53 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-    if   cmip7_element.get('dimensions') == 'longitude latitude time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
+    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
+    if   cmip7_element.get('dimensions') == 'longitude latitude time'          and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'   and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_plev19_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
+    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'   and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_alevel_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1' and cmip7_element.get('branding_label')[:4] == 'tpt-':
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'   and cmip7_element.get('branding_label')[:4] == 'tpt-':
      list_with_xml_lines_for_lon_lat_plev3_time1.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     elif cmip7_element.get('dimensions') == 'longitude latitude time height2m' and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_time_height2m.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     else:
      list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+
+    # Composing the message list just for the output messaging:
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
+
+     # Composing the message list just for the output messaging:
      add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
     elif cmip7_element.get('model_component') == 'tm5':
+     # Composing the message list just for the output messaging:
      add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+     # Composing the message list just for the output messaging:
      add_message('LPJG variable:', message_list_of_no_match_lpjg, cmip7_element)
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+     # Composing the message list just for the output messaging:
      add_message('NEMO variable:', message_list_of_no_match_nemo, cmip7_element)
     else:
      if cmip7_element.get('modeling_realm') == 'atmos':
+      # Composing the message list just for the output messaging:
       add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
      if cmip7_element.get('modeling_realm') == 'atmosChem':
+      # Composing the message list just for the output messaging:
       add_message('No match for:',  message_list_of_no_match_else_atmosChem, cmip7_element)
      if cmip7_element.get('modeling_realm') == 'aerosol':
+      # Composing the message list just for the output messaging:
       add_message('No match for:',  message_list_of_no_match_else_aerosol  , cmip7_element)
      else:
+      # Composing the message list just for the output messaging:
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'       , 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_time_tavg       )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_plev19_time_tavg)
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_alevel_time_tavg)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg', 'reduced_ml' , "average", list_with_xml_lines_for_lon_lat_alevel_time_tavg)
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'     , 'reduced_sfc', ""       , list_with_xml_lines_for_lon_lat_plev3_time1     ) # Check operation
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'   , 'reduced_sfc', ""       , list_with_xml_lines_for_lon_lat_time_height2m   )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                   , 'reduced_sfc', "average", list_with_xml_lines_for_other                   )
