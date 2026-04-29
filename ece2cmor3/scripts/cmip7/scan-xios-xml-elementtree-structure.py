@@ -1020,6 +1020,9 @@ def main():
                       '"' + cmip7_element.get('physical_parameter_name') + '"') \
                      )
       return
+  #oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
+  # write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
+  #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
 
   def write_xml_file_opening(xml_file_filename):
       xml_file = open(xml_file_filename, 'w')
@@ -1088,7 +1091,6 @@ def main():
   list_with_xml_lines_for_lon_lat_plev3_time1      = []
   list_with_xml_lines_for_other                    = []
 
- #oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
@@ -1098,7 +1100,6 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-   #write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
     if   cmip7_element.get('dimensions') == 'longitude latitude time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
@@ -1135,7 +1136,6 @@ def main():
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'     , 'reduced_sfc', ""       , list_with_xml_lines_for_lon_lat_plev3_time1     ) # Check operation
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                   , 'reduced_sfc', "average", list_with_xml_lines_for_other                   )
   write_xml_file_closing(oifs_cmip7_xml_file)
- #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
