@@ -946,8 +946,8 @@ def main():
       xml_file.close()
       return
 
-  def write_field_group_to_xml_file(xml_file, group_id, group_grid_ref_value, group_operation_value, list_with_xml_lines_of_group):
-      xml_file.write('    <field_group id="{}" grid_ref="{}" operation="{}">\n'.format(group_id.strip(), group_grid_ref_value.strip(), group_operation_value.strip()))
+  def write_field_group_to_xml_file(xml_file, group_id, group_grid_ref_value, list_with_xml_lines_of_group):
+      xml_file.write('    <field_group id="{}" grid_ref="{}">\n'.format(group_id.strip(), group_grid_ref_value.strip()))
       for xml_line in list_with_xml_lines_of_group:
        xml_file.write('{}\n'.format(xml_line))
       xml_file.write('    </field_group>\n')
@@ -1072,15 +1072,15 @@ def main():
       # Composing the message list just for the output messaging:
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat               )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_tavg     )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', "average", list_with_xml_lines_for_lon_lat_plev19_time   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , "average", list_with_xml_lines_for_lon_lat_alevel_time   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , "instant", list_with_xml_lines_for_lon_lat_plev3_time1   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height2m )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height10m)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat               )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_tavg     )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', list_with_xml_lines_for_lon_lat_plev19_time   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , list_with_xml_lines_for_lon_lat_alevel_time   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , list_with_xml_lines_for_lon_lat_plev3_time1   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_height2m )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_height10m)
   # grid_ref probably incorrect for several of this mixed group:
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , "average", list_with_xml_lines_for_other                 )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , list_with_xml_lines_for_other                 )
 
   write_xml_file_closing(oifs_cmip7_xml_file)
 
