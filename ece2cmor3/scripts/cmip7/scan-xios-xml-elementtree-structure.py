@@ -876,6 +876,10 @@ def main():
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
 
+
+ if True:
+  print_next_step_message(7, 'Generate an OIFS field_def file including CMIP7 variables')
+
   # Load also the ECE3 - CMIP6 identified fields via one of the identified files:
 
   input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
