@@ -1021,6 +1021,8 @@ def main():
      operation = 'maximum'
     elif cmip7_element.get('branding_label')[:5] == 'tmin-':
      operation = 'minimum'
+    elif cmip7_element.get('branding_label')[:3] == 'ti-':
+     operation = 'once'
     else:
      operation = 'unknown'
 
@@ -1038,7 +1040,7 @@ def main():
     elif cmip7_element.get('dimensions') == 'longitude latitude time height10m':
      list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude':
-     list_with_xml_lines_for_lon_lat               .append(generate_xml_line_for_variable(cmip7_element, field_def_element, 'once'   ))
+     list_with_xml_lines_for_lon_lat               .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     else:
      list_with_xml_lines_for_other                 .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
 
