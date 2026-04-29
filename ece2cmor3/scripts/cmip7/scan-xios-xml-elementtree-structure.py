@@ -984,6 +984,15 @@ def main():
                  )
       return xml_line
 
+  # Not in use:
+  cmip7_dimension_cases = [ 'longitude latitude time'           , \
+                            'longitude latitude plev19 time'    , \
+                            'longitude latitude alevel time'    , \
+                            'longitude latitude plev3 time1'    , \
+                            'longitude latitude time height2m'  , \
+                            'longitude latitude time height10m' , \
+                            'longitude latitude'                , \
+                          ]
 
   # Lists with messages for combined printing per message cathegory afterwards:
   message_list_of_ifs_shortname_matches   = []
@@ -1004,6 +1013,7 @@ def main():
   xml_lines_for_lon_lat_time_height10m = []
   xml_lines_for_lon_lat                = []
   xml_lines_for_other                  = []
+
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
