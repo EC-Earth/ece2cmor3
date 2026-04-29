@@ -953,7 +953,7 @@ def main():
       xml_file.write('    </field_group>\n')
       return
 
-  def generate_xml_line_for_variable(cmip7_element, field_def_element, operation='average'):
+  def generate_xml_line_for_variable(cmip7_element, field_id, operation='average'):
       xml_line = ('      <field  id={:9}' \
                                ' priority={:10}' \
                                ' units={:20}' \
@@ -968,7 +968,7 @@ def main():
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
                   ' >   </field>'.format( \
-                  '"' + field_def_element.get('id'                 ) + '"', \
+                  '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + cmip7_element.get('dimensions'             ) + '"', \
@@ -1008,7 +1008,7 @@ def main():
     return operation
 
   def add_xml_line_to_selected_group(cmip7_element               , \
-                                     field_def_element           , \
+                                     field_id                    , \
                                      group_lon_lat_time_tavg     , \
                                      group_lon_lat_plev19_time   , \
                                      group_lon_lat_alevel_time   , \
@@ -1018,7 +1018,7 @@ def main():
                                      group_lon_lat               , \
                                      group_other                   \
                                     ):
-      xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, determine_operation_value(cmip7_element))
+      xml_line = generate_xml_line_for_variable(cmip7_element, field_id, determine_operation_value(cmip7_element))
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
                                                                                    group_lon_lat_time_tavg     .append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
@@ -1071,7 +1071,7 @@ def main():
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
     if add_existing_oifs_field_def_variables:
      add_xml_line_to_selected_group(cmip7_element               , \
-                                    field_def_element           , \
+                                    field_def_element.get('id') , \
                                     group_lon_lat_time_tavg     , \
                                     group_lon_lat_plev19_time   , \
                                     group_lon_lat_alevel_time   , \
@@ -1084,30 +1084,36 @@ def main():
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
      # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     add_xml_line_to_selected_group(cmip7_element               , \
-                                    field_def_element           , \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
-                                   )
+     if True:
+      add_xml_line_to_selected_group(cmip7_element               , \
+                                     cmip7_element.get('ifs_shortname'), \
+                                     group_lon_lat_time_tavg     , \
+                                     group_lon_lat_plev19_time   , \
+                                     group_lon_lat_alevel_time   , \
+                                     group_lon_lat_plev3_time1   , \
+                                     group_lon_lat_time_height2m , \
+                                     group_lon_lat_time_height10m, \
+                                     group_lon_lat               , \
+                                     group_other                   \
+                                    )
+     else:
+      pass
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     add_xml_line_to_selected_group(cmip7_element               , \
-                                    field_def_element           , \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
-                                   )
+     if False:
+      add_xml_line_to_selected_group(cmip7_element               , \
+                                     cmip7_element.get('ifs_shortname')  , \
+                                     group_lon_lat_time_tavg     , \
+                                     group_lon_lat_plev19_time   , \
+                                     group_lon_lat_alevel_time   , \
+                                     group_lon_lat_plev3_time1   , \
+                                     group_lon_lat_time_height2m , \
+                                     group_lon_lat_time_height10m, \
+                                     group_lon_lat               , \
+                                     group_other                   \
+                                    )
+     else:
+      pass
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
      pass
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
