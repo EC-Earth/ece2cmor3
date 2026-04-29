@@ -902,6 +902,7 @@ def main():
       for message in message_list:
        print(message)
       print()
+      return
 
   def add_message(message_head, message_list, element):
       message_list.append(' {} {:10} {:20} {:10} {:55} {}'
@@ -912,6 +913,7 @@ def main():
                                   element.get('cmip7_compound_name'), \
                                   element.get('comment'            )  \
                                  ))
+      return
 
   def write_xml_file_root_element_opening(xml_file_filename, group_grid_ref_value, group_operation_value):
       xml_file = open(xml_file_filename, 'w')
@@ -926,6 +928,7 @@ def main():
       xml_file.write('   </field_group>\n')
       xml_file.write('</field_definition>\n')
       xml_file.close()
+      return
 
   def write_xml_file_line_for_variable(xml_file, cmip7_element, field_def_element, add_all_attributes):
       if add_all_attributes:
@@ -1018,6 +1021,55 @@ def main():
                      )
       return
 
+  def write_xml_file_opening(xml_file_filename):
+      xml_file = open(xml_file_filename, 'w')
+      xml_file.write('<?xml version="1.0"?>\n\n')
+      xml_file.write('<field_definition>\n')
+      xml_file.write('  <field_group id="all_atm_cmip7" default_value="1e20" chunking_blocksize_target="3.0">\n')
+      return xml_file
+
+  def write_xml_file_closing(xml_file):
+      xml_file.write('   </field_group>\n')
+      xml_file.write('</field_definition>\n')
+      xml_file.close()
+      return
+
+  def write_field_group_to_xml_file(xml_file, group_id, group_grid_ref_value, group_operation_value, list_with_xml_lines_of_group):
+      xml_file.write('    <field_group id="{}" grid_ref="{}" operation="{}">\n'.format(group_id.strip(), group_grid_ref_value.strip(), group_operation_value.strip()))
+      for xml_line in list_with_xml_lines_of_group:
+       xml_file.write('{}\n'.format(xml_line))
+      xml_file.write('    </field_group>\n')
+      return
+
+  def generate_xml_line_for_variable(cmip7_element, field_def_element):
+      xml_line = ('      <field  id={:9}' \
+                               ' priority={:10}' \
+                               ' units={:20}' \
+                               ' dimensions={:45}' \
+                               ' branding_label={:25}' \
+                               ' cmip7_compound_name={:55}' \
+                               ' long_name={:132}' \
+                               ' standard_name={:160}' \
+                               ' modeling_realm={:33}' \
+                               ' region={:12}' \
+                               ' cmip6_table={:14}' \
+                               ' physical_parameter_name={:28}' \
+                  ' >   </field>'.format( \
+                  '"' + field_def_element.get('id'                 ) + '"', \
+                  '"' + cmip7_element.get('priority'               ) + '"', \
+                  '"' + cmip7_element.get('units'                  ) + '"', \
+                  '"' + cmip7_element.get('dimensions'             ) + '"', \
+                  '"' + cmip7_element.get('branding_label'         ) + '"', \
+                  '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
+                  '"' + cmip7_element.get('long_name'              ) + '"', \
+                  '"' + cmip7_element.get('standard_name'          ) + '"', \
+                  '"' + cmip7_element.get('modeling_realm'         ) + '"', \
+                  '"' + cmip7_element.get('region'                 ) + '"', \
+                  '"' + cmip7_element.get('cmip6_table'            ) + '"', \
+                  '"' + cmip7_element.get('physical_parameter_name') + '"') \
+                 )
+      return xml_line
+
 
   # Lists with messages for combined printing per message cathegory afterwards:
   message_list_of_ifs_shortname_matches   = []
@@ -1030,7 +1082,10 @@ def main():
   message_list_of_no_match_else_aerosol   = []
   message_list_of_no_match_else           = []
 
-  oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
+  list_with_xml_lines_for_lon_lat_time_tavg = []
+
+ #oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
+  oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
   xpath_expression_cmip7_request = './/variable'
@@ -1039,7 +1094,9 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
-    write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
+   #write_xml_file_line_for_variable(oifs_cmip7_xml_file, cmip7_element, field_def_element, False)
+    if cmip7_element.get('dimensions') == 'longitude latitude time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
+     list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
@@ -1060,8 +1117,9 @@ def main():
      else:
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
-  write_xml_file_root_element_closing(oifs_cmip7_xml_file)
-
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_time_tavg)
+ #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
+  write_xml_file_closing(oifs_cmip7_xml_file)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
@@ -1072,6 +1130,8 @@ def main():
   print_message_list(message_list_of_no_match_lpjg          )
   print_message_list(message_list_of_no_match_nemo          )
   print_message_list(message_list_of_no_match_else          )
+
+  print_message_list(list_with_xml_lines_for_lon_lat_time_tavg)
 
   print(' Number of ifs_shortname matches in the ECE field_def file: {}\n'.format(len(message_list_of_ifs_shortname_matches)))
 
