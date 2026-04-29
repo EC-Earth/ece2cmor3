@@ -1131,8 +1131,6 @@ def main():
   print_message_list(message_list_of_no_match_nemo          )
   print_message_list(message_list_of_no_match_else          )
 
-  print_message_list(list_with_xml_lines_for_lon_lat_time_tavg)
-
   print(' Number of ifs_shortname matches in the ECE field_def file: {}\n'.format(len(message_list_of_ifs_shortname_matches)))
 
   print(' No ifs_shortname match in the ECE field_def file for:\n  case       number\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}\n   {:10} {}'
