@@ -1057,6 +1057,8 @@ def main():
   group_lon_lat                = []
   group_other                  = []
 
+  add_existing_oifs_field_def_variables = True
+
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
@@ -1067,22 +1069,32 @@ def main():
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-    add_xml_line_to_selected_group(cmip7_element               , \
-                                   field_def_element           , \
-                                   group_lon_lat_time_tavg     , \
-                                   group_lon_lat_plev19_time   , \
-                                   group_lon_lat_alevel_time   , \
-                                   group_lon_lat_plev3_time1   , \
-                                   group_lon_lat_time_height2m , \
-                                   group_lon_lat_time_height10m, \
-                                   group_lon_lat               , \
-                                   group_other                   \
-                                  )
+    if add_existing_oifs_field_def_variables:
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    field_def_element           , \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
    else: # for-else
     if   cmip7_element.get('model_component') == 'ifs':
      # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-
-     pass
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    field_def_element           , \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
      pass
