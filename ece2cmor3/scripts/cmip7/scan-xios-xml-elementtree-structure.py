@@ -954,7 +954,7 @@ def main():
       return
 
   def generate_xml_line_for_variable(cmip7_element, field_id, operation='average'):
-      xml_line = ('      <field  id={:9}' \
+      xml_line = ('      <field  id={:12}' \
                                ' priority={:10}' \
                                ' units={:20}' \
                                ' dimensions={:45}' \
@@ -1059,6 +1059,7 @@ def main():
 
   add_existing_oifs_field_def_variables = True
 
+  m7_nr = 0
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
@@ -1101,8 +1102,9 @@ def main():
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
      if False:
+      m7_nr += 1
       add_xml_line_to_selected_group(cmip7_element               , \
-                                     cmip7_element.get('ifs_shortname')  , \
+                                     'M7_no_{:03d}'.format(m7_nr), \
                                      group_lon_lat_time_tavg     , \
                                      group_lon_lat_plev19_time   , \
                                      group_lon_lat_alevel_time   , \
