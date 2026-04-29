@@ -1084,6 +1084,8 @@ def main():
 
   list_with_xml_lines_for_lon_lat_time_tavg        = []
   list_with_xml_lines_for_lon_lat_plev19_time_tavg = []
+  list_with_xml_lines_for_lon_lat_alevel_time_tavg = []
+  list_with_xml_lines_for_lon_lat_plev3_time1      = []
   list_with_xml_lines_for_other                    = []
 
  #oifs_cmip7_xml_file = write_xml_file_root_element_opening('field_def_oifs_cmip7.xml.j2', 'reduced_sfc', "average")
@@ -1101,6 +1103,10 @@ def main():
      list_with_xml_lines_for_lon_lat_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
      list_with_xml_lines_for_lon_lat_plev19_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time' and cmip7_element.get('branding_label')[:5] == 'tavg-':
+     list_with_xml_lines_for_lon_lat_alevel_time_tavg.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1' and cmip7_element.get('branding_label')[:4] == 'tpt-':
+     list_with_xml_lines_for_lon_lat_plev3_time1.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     else:
      list_with_xml_lines_for_other.append(generate_xml_line_for_variable(cmip7_element, field_def_element))
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
@@ -1125,6 +1131,8 @@ def main():
 
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'       , 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_time_tavg       )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_plev19_time_tavg)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg', 'reduced_sfc', "average", list_with_xml_lines_for_lon_lat_alevel_time_tavg)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'     , 'reduced_sfc', ""       , list_with_xml_lines_for_lon_lat_plev3_time1     ) # Check operation
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                   , 'reduced_sfc', "average", list_with_xml_lines_for_other                   )
   write_xml_file_closing(oifs_cmip7_xml_file)
  #write_xml_file_root_element_closing(oifs_cmip7_xml_file)
