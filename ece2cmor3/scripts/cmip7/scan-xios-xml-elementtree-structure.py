@@ -1111,7 +1111,6 @@ def main():
   list_with_xml_lines_for_lon_lat_plev3_time1        = []
   list_with_xml_lines_for_lon_lat_time_height2m      = []
   list_with_xml_lines_for_lon_lat_time_height10m     = []
-  list_with_xml_lines_for_lon_lat_time_height2m_tmax = []
   list_with_xml_lines_for_lon_lat                    = []
   list_with_xml_lines_for_other                      = []
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
@@ -1147,8 +1146,6 @@ def main():
      list_with_xml_lines_for_lon_lat_time_height2m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude time height10m':
      list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m':
-     list_with_xml_lines_for_lon_lat_time_height2m_tmax.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
     elif cmip7_element.get('dimensions') == 'longitude latitude':
      list_with_xml_lines_for_lon_lat.append(generate_xml_line_for_variable(cmip7_element, field_def_element, 'once'))
     else:
@@ -1191,7 +1188,6 @@ def main():
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , "instant", list_with_xml_lines_for_lon_lat_plev3_time1       ) # Check operation
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height2m     )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , "average", list_with_xml_lines_for_lon_lat_time_height10m    )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m_max', 'reduced_sfc'   , "maximum", list_with_xml_lines_for_lon_lat_time_height2m_tmax)
 
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , "average", list_with_xml_lines_for_other                     ) # grid_ref & operation not correct for this mixed group probably
   write_xml_file_closing(oifs_cmip7_xml_file)
