@@ -1019,17 +1019,6 @@ def main():
                             'longitude latitude'                , \
                           ]
 
-  # Lists with messages for combined printing per message cathegory afterwards:
-  message_list_of_ifs_shortname_matches   = []
-  message_list_of_no_match_ifs            = []
-  message_list_of_no_match_tm5            = []
-  message_list_of_no_match_lpjg           = []
-  message_list_of_no_match_nemo           = []
-  message_list_of_no_match_else_atmos     = []
-  message_list_of_no_match_else_atmosChem = []
-  message_list_of_no_match_else_aerosol   = []
-  message_list_of_no_match_else           = []
-
   xml_lines_for_lon_lat_time_tavg      = []
   xml_lines_for_lon_lat_plev19_time    = []
   xml_lines_for_lon_lat_alevel_time    = []
@@ -1066,38 +1055,27 @@ def main():
                                                                                  xml_lines_for_lon_lat               .append(xml_line)
     else                                                                        :
                                                                                  xml_lines_for_other                 .append(xml_line)
-    # Composing the message list just for the output messaging:
-    add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
    else: # for-else
+    message_head = 'No match for:'
     if   cmip7_element.get('model_component') == 'ifs':
      # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-
-     # Composing the message list just for the output messaging:
-     add_message('No match for:', message_list_of_no_match_ifs , cmip7_element)
+     pass
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-
-     # Composing the message list just for the output messaging:
-     add_message('No match for:', message_list_of_no_match_tm5 , cmip7_element)
+     pass
     elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-     # Composing the message list just for the output messaging:
-     add_message('LPJG variable:', message_list_of_no_match_lpjg, cmip7_element)
+     pass
     elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-     # Composing the message list just for the output messaging:
-     add_message('NEMO variable:', message_list_of_no_match_nemo, cmip7_element)
+     pass
     else:
      if cmip7_element.get('modeling_realm') == 'atmos':
-      # Composing the message list just for the output messaging:
-      add_message('No match for:',  message_list_of_no_match_else_atmos    , cmip7_element)
+      pass
      if cmip7_element.get('modeling_realm') == 'atmosChem':
-      # Composing the message list just for the output messaging:
-      add_message('No match for:',  message_list_of_no_match_else_atmosChem, cmip7_element)
+      pass
      if cmip7_element.get('modeling_realm') == 'aerosol':
-      # Composing the message list just for the output messaging:
-      add_message('No match for:',  message_list_of_no_match_else_aerosol  , cmip7_element)
+      pass
      else:
-      # Composing the message list just for the output messaging:
-      add_message('No match for:', message_list_of_no_match_else, cmip7_element)
+      pass
 
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , xml_lines_for_lon_lat               )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , xml_lines_for_lon_lat_time_tavg     )
@@ -1110,6 +1088,54 @@ def main():
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , xml_lines_for_other                 )
 
   write_xml_file_closing(oifs_cmip7_xml_file)
+
+
+
+  # Lists with messages for combined printing per message cathegory afterwards:
+  message_list_of_ifs_shortname_matches   = []
+  message_list_of_no_match_ifs            = []
+  message_list_of_no_match_tm5            = []
+  message_list_of_no_match_lpjg           = []
+  message_list_of_no_match_nemo           = []
+  message_list_of_no_match_else_atmos     = []
+  message_list_of_no_match_else_atmosChem = []
+  message_list_of_no_match_else_aerosol   = []
+  message_list_of_no_match_else           = []
+
+  # Iterate over all the CMIP7 variables:
+  xpath_expression_cmip7_request = './/variable'
+  for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
+   # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
+   # equals the ifs_shortname in the CMIP7 request file:
+   xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
+   for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
+    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
+    # Composing the message list just for the output messaging:
+    message_head = 'An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:'
+    add_message(message_head, message_list_of_ifs_shortname_matches, cmip7_element)
+   else: # for-else
+    message_head = 'No match for:'
+    if   cmip7_element.get('model_component') == 'ifs':
+     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+     add_message(message_head, message_list_of_no_match_ifs , cmip7_element)
+    elif cmip7_element.get('model_component') == 'tm5':
+     # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+     add_message(message_head, message_list_of_no_match_tm5 , cmip7_element)
+    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+     message_head = 'LPJG variable:'
+     add_message(message_head, message_list_of_no_match_lpjg, cmip7_element)
+    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+     message_head = 'NEMO variable:'
+     add_message(message_head, message_list_of_no_match_nemo, cmip7_element)
+    else:
+     if cmip7_element.get('modeling_realm') == 'atmos':
+       add_message(message_head,  message_list_of_no_match_else_atmos    , cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'atmosChem':
+       add_message(message_head,  message_list_of_no_match_else_atmosChem, cmip7_element)
+     if cmip7_element.get('modeling_realm') == 'aerosol':
+       add_message(message_head,  message_list_of_no_match_else_aerosol, cmip7_element)
+     else:
+       add_message(message_head, message_list_of_no_match_else, cmip7_element)
 
   print_message_list(message_list_of_ifs_shortname_matches  )
   print_message_list(message_list_of_no_match_ifs           )
