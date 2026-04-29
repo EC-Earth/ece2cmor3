@@ -1025,6 +1025,14 @@ def main():
      operation = 'minimum'
     elif cmip7_element.get('branding_label')[:3] == 'ti-':
      operation = 'once'
+   #elif cmip7_element.get('branding_label')[:3] == 'tmaxavg-':
+   # operation = ''
+   #elif cmip7_element.get('branding_label')[:3] == 'tminavg-':
+   # operation = ''
+   #elif cmip7_element.get('branding_label')[:3] == 'tclm-':
+   # operation = ''
+   #elif cmip7_element.get('branding_label')[:3] == 'tclmdc-':
+   # operation = ''
     else:
      operation = 'unknown'
 
