@@ -1007,6 +1007,35 @@ def main():
      operation = 'unknown'
     return operation
 
+  def add_xml_line_to_selected_group(cmip7_element               , \
+                                     field_def_element           , \
+                                     group_lon_lat_time_tavg     , \
+                                     group_lon_lat_plev19_time   , \
+                                     group_lon_lat_alevel_time   , \
+                                     group_lon_lat_plev3_time1   , \
+                                     group_lon_lat_time_height2m , \
+                                     group_lon_lat_time_height10m, \
+                                     group_lon_lat               , \
+                                     group_other                   \
+                                    ):
+      xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, determine_operation_value(cmip7_element))
+      if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
+                                                                                   group_lon_lat_time_tavg     .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
+                                                                                   group_lon_lat_plev19_time   .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
+                                                                                   group_lon_lat_alevel_time   .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
+                                                                                   group_lon_lat_plev3_time1   .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
+                                                                                   group_lon_lat_time_height2m .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
+                                                                                   group_lon_lat_time_height10m.append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude'                :
+                                                                                   group_lon_lat               .append(xml_line)
+      else                                                                        :
+                                                                                   group_other                 .append(xml_line)
+      return
 
 
   # Not in use:
@@ -1038,23 +1067,17 @@ def main():
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-    xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, determine_operation_value(cmip7_element))
-    if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-                                                                                 group_lon_lat_time_tavg     .append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
-                                                                                 group_lon_lat_plev19_time   .append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
-                                                                                 group_lon_lat_alevel_time   .append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
-                                                                                 group_lon_lat_plev3_time1   .append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
-                                                                                 group_lon_lat_time_height2m .append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
-                                                                                 group_lon_lat_time_height10m.append(xml_line)
-    elif cmip7_element.get('dimensions') == 'longitude latitude'                :
-                                                                                 group_lon_lat               .append(xml_line)
-    else                                                                        :
-                                                                                 group_other                 .append(xml_line)
+    add_xml_line_to_selected_group(cmip7_element               , \
+                                   field_def_element           , \
+                                   group_lon_lat_time_tavg     , \
+                                   group_lon_lat_plev19_time   , \
+                                   group_lon_lat_alevel_time   , \
+                                   group_lon_lat_plev3_time1   , \
+                                   group_lon_lat_time_height2m , \
+                                   group_lon_lat_time_height10m, \
+                                   group_lon_lat               , \
+                                   group_other                   \
+                                  )
    else: # for-else
     message_head = 'No match for:'
     if   cmip7_element.get('model_component') == 'ifs':
