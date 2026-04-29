@@ -996,14 +996,14 @@ def main():
   message_list_of_no_match_else_aerosol   = []
   message_list_of_no_match_else           = []
 
-  list_with_xml_lines_for_lon_lat_time_tavg      = []
-  list_with_xml_lines_for_lon_lat_plev19_time    = []
-  list_with_xml_lines_for_lon_lat_alevel_time    = []
-  list_with_xml_lines_for_lon_lat_plev3_time1    = []
-  list_with_xml_lines_for_lon_lat_time_height2m  = []
-  list_with_xml_lines_for_lon_lat_time_height10m = []
-  list_with_xml_lines_for_lon_lat                = []
-  list_with_xml_lines_for_other                  = []
+  xml_lines_for_lon_lat_time_tavg      = []
+  xml_lines_for_lon_lat_plev19_time    = []
+  xml_lines_for_lon_lat_alevel_time    = []
+  xml_lines_for_lon_lat_plev3_time1    = []
+  xml_lines_for_lon_lat_time_height2m  = []
+  xml_lines_for_lon_lat_time_height10m = []
+  xml_lines_for_lon_lat                = []
+  xml_lines_for_other                  = []
   oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
@@ -1013,6 +1013,8 @@ def main():
    # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
+    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
+
     if   cmip7_element.get('branding_label')[:5] == 'tavg-':
      operation = 'average'
     elif cmip7_element.get('branding_label')[:4] == 'tpt-':
@@ -1026,23 +1028,23 @@ def main():
     else:
      operation = 'unknown'
 
-    # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-    if   cmip7_element.get('dimensions') == 'longitude latitude time':
-     list_with_xml_lines_for_lon_lat_time_tavg     .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
-     list_with_xml_lines_for_lon_lat_plev19_time   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time':
-     list_with_xml_lines_for_lon_lat_alevel_time   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1':
-     list_with_xml_lines_for_lon_lat_plev3_time1   .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m':
-     list_with_xml_lines_for_lon_lat_time_height2m .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude time height10m':
-     list_with_xml_lines_for_lon_lat_time_height10m.append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    elif cmip7_element.get('dimensions') == 'longitude latitude':
-     list_with_xml_lines_for_lon_lat               .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
-    else:
-     list_with_xml_lines_for_other                 .append(generate_xml_line_for_variable(cmip7_element, field_def_element, operation))
+    xml_line = generate_xml_line_for_variable(cmip7_element, field_def_element, operation)
+    if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
+                                                                                 xml_lines_for_lon_lat_time_tavg     .append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
+                                                                                 xml_lines_for_lon_lat_plev19_time   .append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
+                                                                                 xml_lines_for_lon_lat_alevel_time   .append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
+                                                                                 xml_lines_for_lon_lat_plev3_time1   .append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
+                                                                                 xml_lines_for_lon_lat_time_height2m .append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
+                                                                                 xml_lines_for_lon_lat_time_height10m.append(xml_line)
+    elif cmip7_element.get('dimensions') == 'longitude latitude'                :
+                                                                                 xml_lines_for_lon_lat               .append(xml_line)
+    else                                                                        :
+                                                                                 xml_lines_for_other                 .append(xml_line)
 
     # Composing the message list just for the output messaging:
     add_message('An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:', message_list_of_ifs_shortname_matches, cmip7_element)
@@ -1074,15 +1076,15 @@ def main():
       # Composing the message list just for the output messaging:
       add_message('No match for:', message_list_of_no_match_else, cmip7_element)
 
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat               )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_tavg     )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', list_with_xml_lines_for_lon_lat_plev19_time   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , list_with_xml_lines_for_lon_lat_alevel_time   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , list_with_xml_lines_for_lon_lat_plev3_time1   )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_height2m )
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , list_with_xml_lines_for_lon_lat_time_height10m)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , xml_lines_for_lon_lat               )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , xml_lines_for_lon_lat_time_tavg     )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', xml_lines_for_lon_lat_plev19_time   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , xml_lines_for_lon_lat_alevel_time   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , xml_lines_for_lon_lat_plev3_time1   )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , xml_lines_for_lon_lat_time_height2m )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , xml_lines_for_lon_lat_time_height10m)
   # grid_ref probably incorrect for several of this mixed group:
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , list_with_xml_lines_for_other                 )
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , xml_lines_for_other                 )
 
   write_xml_file_closing(oifs_cmip7_xml_file)
 
