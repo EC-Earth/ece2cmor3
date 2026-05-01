@@ -1060,7 +1060,9 @@ def main():
   add_existing_oifs_field_def_variables = True
 
   m7_nr = 0
-  oifs_cmip7_xml_file = write_xml_file_opening('field_def_oifs_cmip7.xml.j2')
+  oifs_output_dir_name = output_dir_name + '../oifs-field_def/'
+  subprocess.run(["mkdir", "-p", oifs_output_dir_name])
+  oifs_cmip7_xml_file = write_xml_file_opening(oifs_output_dir_name + 'field_def_oifs_cmip7.xml.j2')
 
   # Iterate over all the CMIP7 variables:
   xpath_expression_cmip7_request = './/variable'
