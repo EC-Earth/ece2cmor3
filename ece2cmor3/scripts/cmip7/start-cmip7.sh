@@ -177,9 +177,9 @@
 
 # Opening freqeuntly used files:
    n *.py config-* *.sh
-   n xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml
+   n xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2
    n ~/ec-earth/ecearth4/scripts/runtime/templates/xios/*oifs*
-   n create-basic-ec-earth-cmip6-nemo-namelist.py config-create-basic-ec-earth-cmip6-nemo-namelist create-basic-ec-earth-cmip6-nemo-namelist.log ../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-*
+   n ../create-basic-ec-earth-cmip6-nemo-namelist.py ../config-create-basic-ec-earth-cmip6-nemo-namelist ../create-basic-ec-earth-cmip6-nemo-namelist.log ../../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-*
    n ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/*
 
 
