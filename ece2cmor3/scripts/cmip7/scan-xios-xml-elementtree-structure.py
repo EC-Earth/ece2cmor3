@@ -31,6 +31,7 @@ def main():
  field_def_file_ifs_raw      = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
  field_def_file_ifs_cmip6    = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_cmip6.xml.j2'
  field_def_file_ifs_noncmip6 = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_noncmip6.xml.j2'
+ field_def_file_ifs_cmip7    = './xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2'                               # Created at the end of this script
  field_def_file_lpj          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_lpjg.xml.j2'               # Not existing yet
 
  field_def_file_collection = [field_def_file_inn         , \
@@ -40,6 +41,7 @@ def main():
                               field_def_file_ifs_raw     , \
                               field_def_file_ifs_cmip6   , \
                               field_def_file_ifs_noncmip6  \
+                             #field_def_file_ifs_cmip7     \
                              #field_def_file_lpj           \
                              ]
 
@@ -344,7 +346,7 @@ def main():
    root.set("original_file", pf[1])
 
    # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the new field_def file:
-   if field_def_file in [field_def_file_ifs_raw, field_def_file_ifs_cmip6, field_def_file_ifs_noncmip6]:
+   if field_def_file in [field_def_file_ifs_raw, field_def_file_ifs_cmip6, field_def_file_ifs_noncmip6, field_def_file_ifs_cmip7]:
     xpath_for_merge = ".//ecearth4_oifs_field_definition"
    elif field_def_file == field_def_file_lpj:
     xpath_for_merge = ".//ecearth4_lpjg_field_definition"
