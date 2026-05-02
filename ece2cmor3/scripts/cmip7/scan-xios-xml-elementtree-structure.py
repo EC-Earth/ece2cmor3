@@ -1059,7 +1059,7 @@ def main():
   group_lon_lat                = []
   group_other                  = []
 
-  add_existing_oifs_field_def_variables = True
+  add_existing_oifs_field_def_variables = False
 
   m7_nr = 0
   oifs_output_dir_name = output_dir_name + '../oifs-field_def/'
