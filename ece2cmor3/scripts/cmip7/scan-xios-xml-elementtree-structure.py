@@ -1103,7 +1103,7 @@ def main():
       pass
     elif cmip7_element.get('model_component') == 'tm5':
      # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     if False:
+     if True:
       m7_nr += 1
       add_xml_line_to_selected_group(cmip7_element               , \
                                      'M7_no_{:03d}'.format(m7_nr), \
