@@ -32,7 +32,7 @@
    EXPID=$4
    VERSION=$5
 
-   ece_branch_root_dir=ecearth3/trunk
+   ece_branch_root_dir=${PERM}/ec-earth/ecearth3/
    ECEMODEL=EC-EARTH-AOGCM
    MIP_ERA=CMIP6
    MIP=CMIP
@@ -41,10 +41,10 @@
   #TABLEDIR=../../resources/cmip6-cmor-tables/Tables
   #TABLEPREFIX=CMIP6
 
-   ECEDIR=${SCRATCH}/${ece_branch_root_dir}/$EXPID/output/$COMPONENT/$LEG
-   METADATA=${PERM}/${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/cmip6/$MIP/$ECEMODEL/cmip6-experiment-$MIP-${EXPERIMENT_NAME}/metadata-cmip6-$MIP-${EXPERIMENT_NAME}-$ECEMODEL-$COMPONENT-template.json
+   ECEDIR=${SCRATCH}/ecearth3/trunk/$EXPID/output/$COMPONENT/$LEG
+   METADATA=${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/cmip6/$MIP/$ECEMODEL/cmip6-experiment-$MIP-${EXPERIMENT_NAME}/metadata-cmip6-$MIP-${EXPERIMENT_NAME}-$ECEMODEL-$COMPONENT-template.json
    TEMPDIR=${SCRATCH}/temp-cmor-dir/$EXPID/$VERSION/$COMPONENT/$LEG
-   VARLIST=${PERM}/ecearth3/trunk/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-$ECEMODEL.json
+   VARLIST=${ece_branch_root_dir}/runtime/classic/ctrl/output-control-files/cmip6/test-all-ece-mip-variables/cmip6-data-request-varlist-all-$ECEMODEL.json
   #VARLIST=${PWD}/../../resources/miscellaneous-data-requests/test-data-request/varlist-minimal-test.json
    ODIR=${SCRATCH}/cmorised-results/test-all-trunk/$EXPID/$VERSION
 
