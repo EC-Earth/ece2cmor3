@@ -10,11 +10,11 @@
 #    pip install -e .                            # Install ece2cmor3 in development mode
 #  Basic tests:
 #   which python                                 # ${mambapath}/envs/ece2cmor3/bin/python
-#   python --version                             # Python 3.14.2
-#   conda list cmor                              # cmor 3.14.0
-#   conda list iris                              # cmor 3.14.1
-#   conda list pip                               # cmor 26.0.1
-#   cdo -V                                       # version 2.5.0
+#   python --version                             # Python 3.13.13
+#   conda list cmor                              # cmor 3.15.1
+#   conda list iris                              # irir 3.15.0
+#   conda list pip                               # pip  26.1.2
+#   cdo -V                                       # version 2.6.1
 #   drq -v                                       # version 01.02.00
 #   drq -h
 #   ece2cmor -V                                  # ece2cmor v2.4.0
