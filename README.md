@@ -90,7 +90,7 @@ Some basic tests:
   conda list pip                           # pip  26.1.2
   cdo -V                                   # version 2.6.1
   drq -v                                   # version 01.02.00
-  mip7repack -V                            # cmip7repack: Version 1.1
+  cmip7repack -V                           # cmip7repack: Version 1.1
   cchecker.py --version                    # IOOS compliance checker version 6.1.0
   ece2cmor -V                              # ece2cmor v2.4.0
   ece2cmor -h
