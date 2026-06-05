@@ -83,13 +83,15 @@ Some basic tests:
   which mamba                              # ${mambapath}/condabin/mamba
   which conda                              # ${mambapath}/condabin/conda
   which python                             # ${mambapath}/envs/ece2cmor3/bin/python
-  mamba --version                          # mamba 2.4.0 & conda 25.11.0
-  python --version                         # Python 3.14.3
-  conda list cmor                          # cmor 3.14.0
-  conda list iris                          # cmor 3.14.1
-  conda list pip                           # cmor 26.0.1
-  cdo -V                                   # version 2.5.0
+  mamba --version                          # mamba 2.8.0 & conda 26.3.2
+  python --version                         # Python 3.13.13
+  conda list cmor                          # cmor 3.15.1
+  conda list iris                          # iris 3.15.0
+  conda list pip                           # pip  26.1.2
+  cdo -V                                   # version 2.6.1
   drq -v                                   # version 01.02.00
+  mip7repack -V                            # cmip7repack: Version 1.1
+  cchecker.py --version                    # IOOS compliance checker version 6.1.0
   ece2cmor -V                              # ece2cmor v2.4.0
   ece2cmor -h
   drq -h
