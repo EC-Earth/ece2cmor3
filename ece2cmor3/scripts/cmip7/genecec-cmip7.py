@@ -3,9 +3,9 @@
 Command line interface for retrieving EC-Earth3 configuration files based on the CMIP7 variable request per CMIP7 experiment.
 
 Call example:
- ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high picontrol,esm-hist EC-Earth3-ESM-1
 or:
- ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --priority_cutoff high v1.2.2.3 --ececonf EC-Earth3-ESM-1 cmip7-v1.2.2.3-requested-varlist-per-experiment.json
+ ./genecec-cmip7.py --all_opportunities --experiment picontrol,historical --priority_cutoff high v1.2.2.4 --ececonf EC-Earth3-ESM-1 cmip7-v1.2.2.4-requested-varlist-per-experiment.json
 
 This script generates:
  for each CMIP7 requested experiment (or a list of CMIP7 experiments)
@@ -86,7 +86,7 @@ def parse_args():
     parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help='Respond to all opportunities')
     parser.add_argument('-f', '--opportunities_file', type=str                                 , help="Path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
     parser.add_argument('-i', '--opportunity_ids'   , type=parse_input_list                    , help='Opportunity ids (integers) of opportunities to respond to, example: -i 69{}22{}37'.format(sep,sep))
-    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help='Limit output to the specified experiments (case sensitive), example: -e piControl{}esm-hist'.format(sep))
+    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help='Limit output to the specified experiments (case sensitive), example: -e picontrol{}esm-hist'.format(sep))
     parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help='Discard variables that are requested at lower priority than this cutoff priority, example: -p high')
     parser.add_argument('-m', '--variables_metadata', type=str                                 , help='The output file containing metadata of requested variables, can be ".json" or ".csv" file')
     parser.add_argument('-c', '--ececonfs'          , type=parse_input_list                    , help='Limit output to the specified EC-Earth3 configurations, example: -c EC-Earth3{}EC-Earth3-ESM-1'.format(sep))
@@ -193,7 +193,7 @@ def main():
        "piClim-NOX"                        :  "AerChemMIP2",
        "piClim-ODS"                        :  "AerChemMIP2",
        "piClim-SO2"                        :  "AerChemMIP2",
-       "piControl"                         :  "CMIP",
+       "picontrol"                         :  "CMIP",
        "scen7-hc"                          :  "ScenarioMIP",
        "scen7-hc-ext"                      :  "ScenarioMIP",
        "scen7-hc-ext-os"                   :  "ScenarioMIP",
@@ -592,7 +592,7 @@ if __name__ == '__main__':
 #  CDRMIP            "Carbon Dioxide Removal Model Intercomparison Project                                        "     [                                                                                                                                                                                                                                                                                                                                                                                                                ]      https://cdrmip.carbondioxide-removal.eu/
 #  CERESMIP          "CERES-era Model Intercomparison Project                                                     "     [                                                                                                                                                                                                                                                                                                                                                                                                                ]      https://data.giss.nasa.gov/CERESMIP    (not yet live)
 #  CFMIP             "CloudFeedback Model Intercomparison Project                                                 "     [abrupt-0p5CO2, abrupt-2xCO2, amip-m4K, amip-p4k, amip-p4K-SST-rad, amip-p4K-SST-turb, amip-piForcing                                                                                                                                                                                                                                                                                                            ]      www.cfmip.org
-#  CMIP              "Coupled Model Intercomparison Project                                                       "     [1pctCO2, abrupt-4xCO2, amip, esm-hist, esm-piControl, historical, piClim-4xCO2, piClim-anthro, piClim-control, piControl                                                                                                                                                                                                                                                                                        ]      https://www.wcrp-cmip.org/
+#  CMIP              "Coupled Model Intercomparison Project                                                       "     [1pctCO2, abrupt-4xCO2, amip, esm-hist, esm-piControl, historical, piClim-4xCO2, piClim-anthro, piClim-control, picontrol                                                                                                                                                                                                                                                                                        ]      https://www.wcrp-cmip.org/
 #  CORDEX            "Coordinated Regional Climate Downscaling Experiment                                         "     [                                                                                                                                                                                                                                                                                                                                                                                                                ]      https://cordex.org
 #  DAMIP             "Detection and Attribution Model Intercomparison Project                                     "     [hist-aer, hist-GHG, hist-nat                                                                                                                                                                                                                                                                                                                                                                                    ]      https://wcrp-cmip.org/damip/
 #  DCPP              "Decadal Climate Prediction Project                                                          "     [dcppA-assim, dcppA-hindcast, dcppB-forecast, dcppB-forecast-cmip6                                                                                                                                                                                                                                                                                                                                               ]      https://www.wcrp-climate.org/dcp-overview

@@ -23,7 +23,7 @@
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
- ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high picontrol,esm-hist EC-Earth3-ESM-1
  echo " Produces the directory:"
  echo "  cmip7-output-control-files"
 
@@ -283,7 +283,7 @@
 #   piClim-control                                          : Core=  131, High=  822, Medium=  117, Low=   90, TOTAL= 1160
 #   piClim-histaer                                          : Core=  131, High=  795, Medium=  173, Low=   70, TOTAL= 1169
 #   piClim-histall                                          : Core=  131, High=  795, Medium=  173, Low=   70, TOTAL= 1169
-#   piControl                                               : Core=  131, High= 1035, Medium=  351, Low=  101, TOTAL= 1618
+#   picontrol                                               : Core=  131, High= 1035, Medium=  351, Low=  101, TOTAL= 1618
 #   scen7-h                                                 : Core=  131, High= 1059, Medium=  460, Low=  102, TOTAL= 1752
 #   scen7-h-AQ                                              : Core=  131, High=  799, Medium=  177, Low=   73, TOTAL= 1180
 #   scen7-h-Aer                                             : Core=  131, High=  799, Medium=  177, Low=   73, TOTAL= 1180

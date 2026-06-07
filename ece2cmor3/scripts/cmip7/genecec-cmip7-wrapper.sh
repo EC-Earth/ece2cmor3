@@ -57,7 +57,7 @@ if [ "$#" -eq 3 ]; then
   log_file=${log_dir}/genecec-cmip7.log
   sum_file=${log_dir}/summarize.log
 
-  drq_version=v1.2.2.3
+  drq_version=v1.2.2.4
   metadata_filename=metadata-of-requested-cmip7-variables.json
 
   rm -rf cmip7-output-control-files
@@ -81,10 +81,10 @@ else
   echo
   echo " This scripts requires three arguments:"
   echo "  - Argument 1: The cutoff priority [core, high, medium, low]"
-  echo "  - Argument 2: A comma separated list of CMIP7 experiments [all, piControl,esm-hist]"
+  echo "  - Argument 2: A comma separated list of CMIP7 experiments [all, picontrol,esm-hist]"
   echo "  - Argument 3: A comma separated list of EC-Earth3 configurations [all, EC-Earth3,EC-Earth3-ESM-1]"
   echo " For instance:"
-  echo "  $0 high piControl,esm-hist EC-Earth3-ESM-1"
+  echo "  $0 high picontrol,esm-hist EC-Earth3-ESM-1"
   echo "  $0 core all all"
   echo
 fi
