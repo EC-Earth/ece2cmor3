@@ -6,7 +6,7 @@ if [ "$#" -eq 1 ]; then
 
   version=$1
 
-  data_request_version=v1.2.2.3
+  data_request_version=v1.2.2.4
 
   # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
   # the highest encountered priority for each variable):
@@ -76,19 +76,19 @@ if [ "$#" -eq 1 ]; then
   # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
   # ordered in a way to allow convenient working on these lists:
   # Depending on the genecec-cmip7 input files:
-  #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
   ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
   mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
 
   # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
-  #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  #./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
 
-  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.3-all:
+  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.4-all:
   rsync -a --mkpath cmip7-request-${data_request_version}-all/ archive/cmip7-request-${data_request_version}-all/${version}
 
   # Create a backup reference of all identify-ece4-cmip7-request.py created files:
