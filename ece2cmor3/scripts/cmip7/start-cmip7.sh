@@ -148,8 +148,8 @@
 
 
  # Archive the results from the cmip7-request.py example call:
- rsync -a --mkpath cmip7-request-v1.2.2.3-piControl-historical archive/cmip7-request-examples/v01/
- rsync -a --mkpath cmip7-request-v1.2.2.3-historical           archive/cmip7-request-examples/v01/
+ rsync -a --mkpath cmip7-request-v1.2.2.4-picontrol-historical archive/cmip7-request-examples/v02/
+ rsync -a --mkpath cmip7-request-v1.2.2.4-historical           archive/cmip7-request-examples/v02/
 
  # Archive the results from the genecec-cmip7-wrapper.sh call:
  rsync -a --mkpath cmip7-output-control-files archive/cmip7-output-control-files/v01/
