@@ -886,7 +886,7 @@ def main():
 
   input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
 
-  dr_version = 'v1.2.2.3'
+  dr_version = 'v1.2.2.4'
 
   # Predefine the three possible status values:
   identified     = 'identified'
