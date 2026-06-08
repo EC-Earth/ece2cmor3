@@ -60,7 +60,7 @@ def parse_args():
     parser.add_argument('-a', '--all_opportunities' , action='store_true'                      , help="respond to all opportunities")
     parser.add_argument('-f', '--opportunities_file', type=str                                 , help="path to JSON file listing opportunities to respond to. If it doesn't exist, a template will be created")
     parser.add_argument('-i', '--opportunity_ids'   , type=parse_input_list                    , help=f'opportunity ids (integers) of opportunities to respond to, example: -i 69{sep}22{sep}37')
-    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}piControl')
+    parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}picontrol')
     parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
     parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
     parser.add_argument('-r', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
