@@ -25,7 +25,8 @@ def parse_args():
     # Positional (mandatory) input arguments
     parser.add_argument('dreq_version', choices=dc.get_versions()           , help="data request version")
     # Optional input arguments
-    parser.add_argument('-a', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-a', '--addallattributes', action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-m', '--usemanualfiles'  , action='store_true' , default=False      , help='Use the files with the manual identification added comments')
     return parser.parse_args()
 
 
@@ -239,6 +240,7 @@ def main():
 
     dr_version         = args.dreq_version
     add_all_attributes = args.addallattributes
+    use_manual_files   = args.usemanualfiles
 
     # Predefine the three possible status values:
     identified     = 'identified'
@@ -278,28 +280,29 @@ def main():
      print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
 
-    # Read & load the identified file with manual updated identifying comment:
-    if os.path.isfile(manual_updated_identified_filename) == False:
-     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_identified_filename))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
-    tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
-    root_manual_comment_identified = tree_manual_comment_identified.getroot()
+    if use_manual_files:
+     # Read & load the identified file with manual updated identifying comment:
+     if os.path.isfile(manual_updated_identified_filename) == False:
+      print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_identified_filename))
+      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
+     root_manual_comment_identified = tree_manual_comment_identified.getroot()
 
-    # Read & load the var_identified file with manual updated identifying comment:
-    if os.path.isfile(manual_updated_var_identified_filename) == False:
-     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_var_identified_filename))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
-    tree_manual_comment_var_identified = ET.parse(manual_updated_var_identified_filename)
-    root_manual_comment_var_identified = tree_manual_comment_var_identified.getroot()
+     # Read & load the var_identified file with manual updated identifying comment:
+     if os.path.isfile(manual_updated_var_identified_filename) == False:
+      print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_var_identified_filename))
+      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     tree_manual_comment_var_identified = ET.parse(manual_updated_var_identified_filename)
+     root_manual_comment_var_identified = tree_manual_comment_var_identified.getroot()
 
-    # Read & load the unidentified file with manual updated identifying comment:
-    if os.path.isfile(manual_updated_unidentified_filename) == False:
-     print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_unidentified_filename))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
-    tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
-    root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
+     # Read & load the unidentified file with manual updated identifying comment:
+     if os.path.isfile(manual_updated_unidentified_filename) == False:
+      print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_unidentified_filename))
+      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
+     root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
 
-    include_additional_xml_output = False
+    include_additional_xml_output = False  # Add as argument option
 
     output_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
     subprocess.run(["mkdir", "-p", output_dir_name])
@@ -375,11 +378,12 @@ def main():
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('comment_author' , '                 ')
            element.set('comment'        , '                                                                        ')
-           xpath_expression_manual_comment_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
-           for manual_comment_identified_element in root_manual_comment_identified.findall(xpath_expression_manual_comment_identified):
-            if manual_comment_identified_element.get('comment').strip() != '':
-             element.set('comment_author' , manual_comment_identified_element.get('comment_author'))
-             element.set('comment'        , manual_comment_identified_element.get('comment'))
+           if use_manual_files:
+            xpath_expression_manual_comment_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+            for manual_comment_identified_element in root_manual_comment_identified.findall(xpath_expression_manual_comment_identified):
+             if manual_comment_identified_element.get('comment').strip() != '':
+              element.set('comment_author' , manual_comment_identified_element.get('comment_author'))
+              element.set('comment'        , manual_comment_identified_element.get('comment'))
            element.set('status', identified)
            message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
            list_of_identified_variables.append(element.get('physical_parameter_name'))
@@ -390,11 +394,12 @@ def main():
            element.set('status', identified_var)
            element.set('comment_author' , '                 ')
            element.set('comment'        , '                                                                        ')
-           xpath_expression_manual_comment_var_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
-           for manual_comment_var_identified_element in root_manual_comment_var_identified.findall(xpath_expression_manual_comment_var_identified):
-            if manual_comment_var_identified_element.get('comment').strip() != '':
-             element.set('comment_author' , manual_comment_var_identified_element.get('comment_author'))
-             element.set('comment'        , manual_comment_var_identified_element.get('comment'))
+           if use_manual_files:
+            xpath_expression_manual_comment_var_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+            for manual_comment_var_identified_element in root_manual_comment_var_identified.findall(xpath_expression_manual_comment_var_identified):
+             if manual_comment_var_identified_element.get('comment').strip() != '':
+              element.set('comment_author' , manual_comment_var_identified_element.get('comment_author'))
+              element.set('comment'        , manual_comment_var_identified_element.get('comment'))
           #print(' {:2} no match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
          else:
           print('ERROR 01')
@@ -411,11 +416,12 @@ def main():
           element.set('expression'     , '??')
           element.set('comment_author' , '                 ')
           element.set('comment'        , '                                                                        ')
-          xpath_expression_manual_comment_unidentified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
-          for manual_comment_unidentified_element in root_manual_comment_unidentified.findall(xpath_expression_manual_comment_unidentified):
-           if manual_comment_unidentified_element.get('comment').strip() != '':
-            element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
-            element.set('comment'        , manual_comment_unidentified_element.get('comment'))
+          if use_manual_files:
+           xpath_expression_manual_comment_unidentified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+           for manual_comment_unidentified_element in root_manual_comment_unidentified.findall(xpath_expression_manual_comment_unidentified):
+            if manual_comment_unidentified_element.get('comment').strip() != '':
+             element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
+             element.set('comment'        , manual_comment_unidentified_element.get('comment'))
 
         write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
         count += 1
