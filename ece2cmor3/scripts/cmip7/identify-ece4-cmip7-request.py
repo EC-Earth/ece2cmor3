@@ -26,6 +26,7 @@ def parse_args():
     parser.add_argument('dreq_version', choices=dc.get_versions()           , help="data request version")
     # Optional input arguments
     parser.add_argument('-a', '--addallattributes', action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-e', '--extraXMLoutput'  , action='store_true' , default=False      , help='Extra XML files (selections) will be generated')
     parser.add_argument('-m', '--usemanualfiles'  , action='store_true' , default=False      , help='Use the files with the manual identification added comments')
     return parser.parse_args()
 
@@ -240,6 +241,7 @@ def main():
 
     dr_version         = args.dreq_version
     add_all_attributes = args.addallattributes
+    extra_xml_output   = args.extraXMLoutput
     use_manual_files   = args.usemanualfiles
 
     # Predefine the three possible status values:
@@ -302,8 +304,6 @@ def main():
      tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
      root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
 
-    include_additional_xml_output = False  # Add as argument option
-
     output_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
     subprocess.run(["mkdir", "-p", output_dir_name])
 
@@ -326,7 +326,7 @@ def main():
     xml_filename_unidentified_freq_realm      = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm"     )
     xml_filename_unidentified_freq_realm_prio = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm-prio")
 
-    if include_additional_xml_output:
+    if extra_xml_output:
      xml_filename_identified_mc               = xml_filename_identified.replace    (identified    , identified     + "-mc"     )
      xml_filename_identified_mc_prio          = xml_filename_identified.replace    (identified    , identified     + "-mc-prio")
      xml_filename_identified_prio             = xml_filename_identified.replace    (identified    , identified     + "-prio"   )
@@ -485,7 +485,7 @@ def main():
     reorder_xml_file  (xml_filename_unidentified_freq_realm, 'priority'           , value_list_with_priorities , add_all_attributes, xml_filename_unidentified_freq_realm_prio)
 
 
-    if include_additional_xml_output:
+    if extra_xml_output:
      # 1. Load the identified                 ordered XML file and create the identified model_component          ordered XML file.
      # 2. Load the identified model_component ordered XML file and create the identified model_component priority ordered XML file.
      reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_mc)
