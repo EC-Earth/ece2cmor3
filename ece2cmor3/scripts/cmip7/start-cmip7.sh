@@ -82,7 +82,6 @@
  echo "  xml-files/genecec-cmip7/ping-files/"
 
  # Independent of other genecec-cmip7 generated files:
- ### seems to depent on: xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
  ./scan-xios-xml-elementtree-structure.py > scan.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/ec-earth-definition/"
@@ -104,7 +103,7 @@
  echo "  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC.xml               "
  echo "  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml"
 
- # From the ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml easily the file with the 238 ECE3 CMIP6 table-variable combinations can be extracted which are
+ # From the ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml easily the file with the 237 ECE3 CMIP6 table-variable combinations can be extracted which are
  # not requested by the CMIP7 request:
  grep -e cmip6_variables -e no-cmip7-equivalent-var- ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml                           >  xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
  sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'                                       xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7.xml
@@ -120,7 +119,7 @@
  sed -i -e 's/region="None"     temporal_shape="None"                     //' -e 's/                     dimensions=/dimensions=/'                                       xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  sed -i -e 's/cmip7_long_name="None"\s\{3,\}//'                                                                                                                          xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7-component-ordered.xml
  # Note that \s\{3,\} matches a pattern which will substitute every sequence of at least 3 whitespaces.
- # From the 238 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
+ # From the 237 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
  # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
@@ -128,7 +127,7 @@
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
- ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
+ ./identify-ece4-cmip7-request.py v1.2.2.4 -a > identify-ece4-cmip7-request.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
@@ -136,7 +135,7 @@
  # Depending on the genecec-cmip7 input files:
  #  ./xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
  #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
- ./generate_cmip7_oifs_field_def.py v1.2.2.3 -v > generate_cmip7_oifs_field_def.log
+ ./generate_cmip7_oifs_field_def.py v1.2.2.4 -v > generate_cmip7_oifs_field_def.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2"
 
