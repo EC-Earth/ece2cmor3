@@ -42,18 +42,13 @@ def main():
 
   print_next_step_message(1, 'Generate an OIFS field_def file including CMIP7 variables')
 
-  output_dir_name = 'xml-files/genecec-cmip7/ec-earth-definition/'
-  subprocess.run(["mkdir", "-p", output_dir_name])
-
-
   # Load the ecearth_field_def_inherited_nf_file:
-  ecearth_field_def_inherited_nf_filename = output_dir_name + 'ec-earth-definition-inherited-neat-formatted.xml'
+  ecearth_field_def_inherited_nf_filename = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
   tree_ecearth_field_def_inherited_nf = ET.parse(ecearth_field_def_inherited_nf_filename)
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
   # Load the CMIP7 request with the identified info from CMIP7 - ECE3:
-  input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
-  xml_filename_priority_ordered = input_dir_name + 'cmip7-request-{}-all-full-priority.xml'.format(dr_version)
+  xml_filename_priority_ordered = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml'.format(dr_version)
   tree_cmip7_request = ET.parse(xml_filename_priority_ordered)
   root_cmip7_request = tree_cmip7_request.getroot()
 
