@@ -8,13 +8,10 @@
 
 """
 import sys
-import os
 import subprocess
 import argparse
 import xml.etree.ElementTree as ET
-import json
 import data_request_api.content.dreq_content as dc
-from collections import OrderedDict
 
 def parse_args():
     """
@@ -54,39 +51,11 @@ def main():
   tree_ecearth_field_def_inherited_nf = ET.parse(ecearth_field_def_inherited_nf_filename)
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
-
-  # Load also the ECE3 - CMIP6 identified fields via one of the identified files:
-
-  input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
-
-  # Predefine the three possible status values:
-  identified     = 'identified'
-  identified_var = 'var_identified'
-  unidentified   = 'unidentified'
-
-  xml_filename_realm_ordered                = input_dir_name + 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
-  xml_filename_priority_ordered             = xml_filename_realm_ordered.replace ('realm', 'priority'    )
-  xml_filename_frequency_ordered            = xml_filename_realm_ordered.replace ('realm', 'frequency'   )
-  xml_filename_status_ordered               = xml_filename_realm_ordered.replace ('realm', 'status'      )
-  xml_filename_cmip6_table_ordered          = xml_filename_realm_ordered.replace ('realm', 'cmip6-table' )
-  xml_filename_identified                   = xml_filename_realm_ordered.replace ("realm", identified    )
-  xml_filename_identified_var               = xml_filename_realm_ordered.replace ("realm", identified_var)
-  xml_filename_unidentified                 = xml_filename_realm_ordered.replace ("realm", unidentified  )
-
-  xml_filename_identified_freq              = xml_filename_identified.replace    (identified    , identified     + "-freq"        )
-  xml_filename_identified_freq_mc           = xml_filename_identified.replace    (identified    , identified     + "-freq-mc"     )
-  xml_filename_identified_freq_mc_prio      = xml_filename_identified.replace    (identified    , identified     + "-freq-mc-prio")
-  xml_filename_identified_var_freq          = xml_filename_identified_var.replace(identified_var, identified_var + "-freq"        )
-  xml_filename_identified_var_freq_mc       = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc"     )
-  xml_filename_identified_var_freq_mc_prio  = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc-prio")
-  xml_filename_unidentified_freq            = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq"           )
-  xml_filename_unidentified_freq_realm      = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm"     )
-  xml_filename_unidentified_freq_realm_prio = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm-prio")
-
   # Load the CMIP7 request with the identified info from CMIP7 - ECE3:
+  input_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
+  xml_filename_priority_ordered = input_dir_name + 'cmip7-request-{}-all-full-priority.xml'.format(dr_version)
   tree_cmip7_request = ET.parse(xml_filename_priority_ordered)
   root_cmip7_request = tree_cmip7_request.getroot()
-
 
 
   def print_message_list(message_list):
