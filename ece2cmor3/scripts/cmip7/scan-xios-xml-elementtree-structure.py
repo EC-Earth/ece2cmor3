@@ -879,7 +879,7 @@ def main():
 
 
 
- if True:
+ if False:
   print_next_step_message(7, 'Generate an OIFS field_def file including CMIP7 variables')
 
   # Load also the ECE3 - CMIP6 identified fields via one of the identified files:
