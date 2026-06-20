@@ -132,7 +132,13 @@
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
-
+ # Create an OIFS field_def file.
+ # Depending on the genecec-cmip7 input files:
+ #  ./xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
+ #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
+ ./generate_cmip7_oifs_field_def.py v1.2.2.3 -v > generate_cmip7_oifs_field_def.log
+ echo " Produces:"
+ echo "  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2"
 
  # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:

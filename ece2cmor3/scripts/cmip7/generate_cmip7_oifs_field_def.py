@@ -4,7 +4,7 @@
  Scanning the XML structure of a set of XIOS field_def files:
 
  Call example:
-  ./scan-xios-xml-elementtree-structure.py > scan.log
+  ./generate_cmip7_oifs_field_def.py v1.2.2.4 -v > generate_cmip7_oifs_field_def.log
 
 """
 import sys
