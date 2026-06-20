@@ -9,6 +9,7 @@ import sys                                                      # for aborting: 
 import subprocess
 import argparse
 import xml.etree.ElementTree as ET
+import data_request_api.content.dreq_content as dc
 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
@@ -21,7 +22,8 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Identify the CMIP7 ECE4 requested variables with help of the ECE3 - CMIP6 identification.'
     )
-
+    # Positional (mandatory) input arguments
+    parser.add_argument('dreq_version', choices=dc.get_versions()           , help="data request version")
     # Optional input arguments
     parser.add_argument('-a', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
     return parser.parse_args()
@@ -235,6 +237,7 @@ def main():
 
     args = parse_args()
 
+    dr_version         = args.dreq_version
     add_all_attributes = args.addallattributes
 
     # Predefine the three possible status values:
@@ -252,10 +255,10 @@ def main():
 
     # Input files:
     request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
-    xml_filename_alphabetic_ordered        = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
-    manual_updated_identified_filename     = 'xml-files/cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml'                 # The     identified file with manual updated identifying comment
-    manual_updated_var_identified_filename = 'xml-files/cmip7-request-v1.2.2.3-all-full-var_identified-freq-mc-prio.xml'             # The var_identified file with manual updated identifying comment
-    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml'            # The   unidentified file with manual updated identifying comment
+    xml_filename_alphabetic_ordered        = 'cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename     = 'xml-files/cmip7-request-v1.2.2.4-all-full-identified-freq-mc-prio.xml'                 # The     identified file with manual updated identifying comment
+    manual_updated_var_identified_filename = 'xml-files/cmip7-request-v1.2.2.4-all-full-var_identified-freq-mc-prio.xml'             # The var_identified file with manual updated identifying comment
+    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-v1.2.2.4-all-full-unidentified-freq-realm-prio.xml'            # The   unidentified file with manual updated identifying comment
 
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
@@ -266,11 +269,14 @@ def main():
 
     # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
     if os.path.isfile(xml_filename_alphabetic_ordered) == False:
-     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3\n'.format(error_message, xml_filename_alphabetic_ordered))
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.4\n'.format(error_message, xml_filename_alphabetic_ordered))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
-    tree_alphabetic = ET.parse(xml_filename_alphabetic_ordered)
-    root_alphabetic = tree_alphabetic.getroot()
-    dr_version      = root_alphabetic.attrib['dr_version']
+    tree_alphabetic   = ET.parse(xml_filename_alphabetic_ordered)
+    root_alphabetic   = tree_alphabetic.getroot()
+    dr_version_header = root_alphabetic.attrib['dr_version']
+    if dr_version_header != dr_version:
+     print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
+     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
 
     # Read & load the identified file with manual updated identifying comment:
     if os.path.isfile(manual_updated_identified_filename) == False:
