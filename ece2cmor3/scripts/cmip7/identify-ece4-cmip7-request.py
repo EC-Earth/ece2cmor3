@@ -254,11 +254,11 @@ def main():
     list_of_no_matched_identification                             = []
 
     # Input files:
-    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'  # The request-overview ECE3-CMIP6 XML file with var_code info
-    xml_filename_alphabetic_ordered        = 'cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-alphabetic-ordered.xml'          # The alphabetic ordered XML CMIP7 request file
-    manual_updated_identified_filename     = 'xml-files/cmip7-request-v1.2.2.4-all-full-identified-freq-mc-prio.xml'                 # The     identified file with manual updated identifying comment
-    manual_updated_var_identified_filename = 'xml-files/cmip7-request-v1.2.2.4-all-full-var_identified-freq-mc-prio.xml'             # The var_identified file with manual updated identifying comment
-    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-v1.2.2.4-all-full-unidentified-freq-realm-prio.xml'            # The   unidentified file with manual updated identifying comment
+    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'             # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered        = 'cmip7-request-' + dr_version + '-all/cmip7-request-' + dr_version + '-all-alphabetic-ordered.xml' # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version + '-all-full-identified-freq-mc-prio.xml'                  # The     identified file with manual updated identifying comment
+    manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version + '-all-full-var_identified-freq-mc-prio.xml'              # The var_identified file with manual updated identifying comment
+    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version + '-all-full-unidentified-freq-realm-prio.xml'             # The   unidentified file with manual updated identifying comment
 
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
@@ -269,7 +269,7 @@ def main():
 
     # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
     if os.path.isfile(xml_filename_alphabetic_ordered) == False:
-     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.4\n'.format(error_message, xml_filename_alphabetic_ordered))
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r {}\n'.format(error_message, xml_filename_alphabetic_ordered, dr_version))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_alphabetic   = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic   = tree_alphabetic.getroot()
