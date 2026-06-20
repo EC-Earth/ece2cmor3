@@ -49,24 +49,25 @@
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
  # the highest encountered priority for each variable):
- ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3 > cmip7-request.log
- mv -f cmip7-request.log cmip7-request-v1.2.2.3-all/
+ ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.4 > cmip7-request.log
+ mv -f cmip7-request.log cmip7-request-v1.2.2.4-all/
  echo " Produces the directory:"
- echo "  cmip7-request-v1.2.2.3-all/"
+ echo "  cmip7-request-v1.2.2.4-all/"
 
- grep '    adjusted'                  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log                                             | wc  # = 1816 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log                                             | wc  # = 3517 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  224 occurences
- grep 'Priority adjusted from'        cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   52 occurences
+ grep '    adjusted'                  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all.log                                             | wc  # = 1960 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all.log                                             | wc  # = 3656 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  236 occurences
+ grep 'Priority adjusted from'        cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   65 occurences
 
  # The searches for establishing the iterate lists for the realm & cmip6_table ordering in the cmip7-request.py script code:
- grep -e 'cmip7_compound_name=' cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq                                           | tr '\n' ',' | sed -e 's/,/", "/g' -e 's/, "$/\n/' -e 's/^/\n"/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep fx                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep hr                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep day                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep mon                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep yr                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
- grep -e 'cmip6_table='         cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip7_compound_name=' cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq                                           | tr '\n' ',' | sed -e 's/,/", "/g' -e 's/, "$/\n/' -e 's/^/\n"/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep fx                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep -e 3hr -e 6hr                      | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep day                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep mon                                | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep yr                                 | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep hr |grep -v -e 3hr -e 6hr          | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
+ grep -e 'cmip6_table='         cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-priority-ordered.xml | sed -e 's/.*cmip6_table=//'          -e 's/ .*physical_parameter_name.*//'  | sort | uniq | grep -v -e fx -e hr -e day -e mon -e yr | tr '\n' ',' | sed -e 's/,/, /g'   -e 's/$/ \\\n/'
 
 
  # Independent of other genecec-cmip7 generated files:
@@ -81,12 +82,13 @@
  echo "  xml-files/genecec-cmip7/ping-files/"
 
  # Independent of other genecec-cmip7 generated files:
+ ### seems to depent on: xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
  ./scan-xios-xml-elementtree-structure.py > scan.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/ec-earth-definition/"
 
  # Independent of other genecec-cmip7 generated files:
- ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+ ./cmip6-cmip7-variable-mapping.py -r v1.2.2.4
  echo " Produces:"
  echo "  cmip7-variables-and-metadata-all.xml"
 
@@ -124,7 +126,7 @@
  # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
  # ordered in a way to allow convenient working on these lists:
  # Depending on the genecec-cmip7 input files:
- #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+ #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
  echo " Produces:"
@@ -134,16 +136,16 @@
 
  # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:
- #  cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml
+ #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
 
 
  # Archive the most important, best ordered XML files:
- rsync -a cmip7-request-v1.2.2.3-all-full-identified-freq-mc-prio.xml      xml-files/
- rsync -a cmip7-request-v1.2.2.3-all-full-var_identified-freq-mc-prio.xml  xml-files/
- rsync -a cmip7-request-v1.2.2.3-all-full-unidentified-freq-realm-prio.xml xml-files/
+ rsync -a cmip7-request-v1.2.2.4-all-full-identified-freq-mc-prio.xml      xml-files/
+ rsync -a cmip7-request-v1.2.2.4-all-full-var_identified-freq-mc-prio.xml  xml-files/
+ rsync -a cmip7-request-v1.2.2.4-all-full-unidentified-freq-realm-prio.xml xml-files/
 
 
 
@@ -157,8 +159,8 @@
  # The results from the combine-optimesm-and-cmip7-requests.sh are inmediately archived in: archive/optimesm-ece3-cmip7/
 
 
- # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.3-all:
- rsync -a --mkpath cmip7-request-v1.2.2.3-all/ archive/cmip7-request-v1.2.2.3-all/v01
+ # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.4-all:
+ rsync -a --mkpath cmip7-request-v1.2.2.4-all/ archive/cmip7-request-v1.2.2.4-all/v01
 
  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
  rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
@@ -166,18 +168,18 @@
 
 
  # Check:
- diff -r cmip7-request-v1.2.2.3-all/ archive/cmip7-request-v1.2.2.3-all/v01
+ diff -r cmip7-request-v1.2.2.4-all/ archive/cmip7-request-v1.2.2.4-all/v01
  diff -r xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
  # Run & check:
- rm -rf cmip7-request-v1.2.2.3-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3; diff -r cmip7-request-v1.2.2.3-all                   archive/cmip7-request-v1.2.2.3-all/v02
+ rm -rf cmip7-request-v1.2.2.4-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.4; diff -r cmip7-request-v1.2.2.4-all                   archive/cmip7-request-v1.2.2.4-all/v02
  rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py -a                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
 
 
 
 # Opening freqeuntly used files:
    n *.py config-* *.sh
-   n xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.3-all-full-*identified-freq*prio.xml xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2
+   n xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-*identified-freq*prio.xml xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2
    n ~/ec-earth/ecearth4/scripts/runtime/templates/xios/*oifs*
    n ../create-basic-ec-earth-cmip6-nemo-namelist.py ../config-create-basic-ec-earth-cmip6-nemo-namelist ../create-basic-ec-earth-cmip6-nemo-namelist.log ../../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-*
    n ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/*
@@ -213,7 +215,7 @@
 #  The CMIP7 - CMIP6 units check (CMIP7 units are used), one cases shows up:
 #   CMIP7 unit: kg m-2 s-1  not equal to CMIP6 unit: mol s-1  for aerosol.emilnox.tavg-u-hxy-u.mon.glb   https://clipc-services.ceda.ac.uk/dreq/u/534001c2fd879bfda1d9b66d0a61144c.html
 
-# For data request version v1.2.2.3, number of requested variables found by experiment:
+# For data request version v1.2.2.4, number of requested variables found by experiment:
 #   1pctCO2                                                 : Core=  131, High=  915, Medium=  135, Low=   95, TOTAL= 1276
 #   1pctCO2-bgc                                             : Core=  131, High=  809, Medium=  186, Low=   79, TOTAL= 1205
 #   1pctCO2-rad                                             : Core=  131, High=  809, Medium=  186, Low=   79, TOTAL= 1205
