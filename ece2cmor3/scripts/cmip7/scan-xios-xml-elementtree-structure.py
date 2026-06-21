@@ -1235,8 +1235,8 @@ def main():
 
 #   </file>
 
-  print_next_step_message(10, 'FINISHING')
-  print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
+ print_next_step_message(10, 'FINISHING')
+ print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
 if __name__ == '__main__':
     main()
