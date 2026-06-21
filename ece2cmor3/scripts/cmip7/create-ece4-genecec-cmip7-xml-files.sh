@@ -118,6 +118,8 @@ else
   echo " This scripts requires one argument:"
   echo "  - Argument 1: version of created directories"
   echo " For instance:"
-  echo "  $0 v01"
+  echo "  $0 v01 &> ${0/.sh/.log}-v01"
+  echo " When finished the log file can be moved like:"
+  echo "  mv -f ${0/.sh/.log}-v01 archive/log-files/v01/"
   echo
 fi
