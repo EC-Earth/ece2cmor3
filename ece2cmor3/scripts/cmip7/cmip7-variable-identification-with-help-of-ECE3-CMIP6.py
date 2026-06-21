@@ -141,9 +141,9 @@ def main():
 
 
     # Load the xml file:
-    cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.3-all/cmip7-request-v1.2.2.3-all-frequency-ordered.xml'
+    cmip7_variables_xml_filename = 'cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml'
     if os.path.isfile(cmip7_variables_xml_filename) == False:
-     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.3\n'.format(error_message, cmip7_variables_xml_filename))
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.4\n'.format(error_message, cmip7_variables_xml_filename))
      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
     tree_cmip7_variables = ET.parse(cmip7_variables_xml_filename)
     root_cmip7_variables = tree_cmip7_variables.getroot()
