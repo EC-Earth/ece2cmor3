@@ -78,8 +78,17 @@ if [ "$#" -eq 1 ]; then
   # Depending on the genecec-cmip7 input files:
   #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
-  ./identify-ece4-cmip7-request.py -a > identify-ece4-cmip7-request.log
+  ./identify-ece4-cmip7-request.py ${data_request_version} -a -m             > identify-ece4-cmip7-request.log
+  # In case of a data request update: Use the line below instead:
+ #./identify-ece4-cmip7-request.py ${data_request_version} -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
   mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
+
+  # Create an OIFS field_def file.
+  # Depending on the genecec-cmip7 input files:
+  #  ./xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
+  #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
+  ./generate_cmip7_oifs_field_def.py ${data_request_version} -v > generate_cmip7_oifs_field_def.log
+  mv -f generate_cmip7_oifs_field_def.log archive/log-files/${version}/
 
   # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
