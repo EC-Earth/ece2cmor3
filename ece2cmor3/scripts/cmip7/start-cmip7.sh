@@ -127,6 +127,7 @@
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
+ # Note that with the -m option there is an additional dependency on the manual edited XML files with the identification comment
  ./identify-ece4-cmip7-request.py v1.2.2.4 -a > identify-ece4-cmip7-request.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
