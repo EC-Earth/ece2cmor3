@@ -95,9 +95,9 @@ def main():
    grib_table_xml_filename          = output_dir_name + 'grib-table.xml'
 
 
-   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.3 -r )
+   # Read the CMIP6 - CMIP7 mapping XML file (which is produced by running: ./cmip6-cmip7-variable-mapping.py v1.2.2.4 -r )
    if os.path.isfile(cmip6_cmip7_mapping_filename) == False:
-    print('{} The file {} does not exist.\n        Try running first:\n         ./cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip6_cmip7_mapping_filename))
+    print('{} The file {} does not exist.\n        Try running first:\n         ./cmip6-cmip7-variable-mapping.py -r v1.2.2.4\n'.format(error_message, cmip6_cmip7_mapping_filename))
     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
    tree_cmip6_cmip7_mapping = ET.parse(cmip6_cmip7_mapping_filename)
    root_cmip6_cmip7_mapping = tree_cmip6_cmip7_mapping.getroot()
