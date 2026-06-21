@@ -23,11 +23,12 @@ def parse_args():
         description='Identify the CMIP7 ECE4 requested variables with help of the ECE3 - CMIP6 identification.'
     )
     # Positional (mandatory) input arguments
-    parser.add_argument('dreq_version', choices=dc.get_versions()           , help="data request version")
+    parser.add_argument('dreq_version', choices=dc.get_versions()                            , help="data request version")
     # Optional input arguments
     parser.add_argument('-a', '--addallattributes', action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
     parser.add_argument('-e', '--extraXMLoutput'  , action='store_true' , default=False      , help='Extra XML files (selections) will be generated')
     parser.add_argument('-m', '--usemanualfiles'  , action='store_true' , default=False      , help='Use the files with the manual identification added comments')
+    parser.add_argument('-o', '--otherDRformanual', choices=dc.get_versions()                , help='Use other (i.e. previous) data request version files which have been manually edited to add the identification comment')
     return parser.parse_args()
 
 
@@ -239,10 +240,22 @@ def main():
 
     args = parse_args()
 
-    dr_version         = args.dreq_version
-    add_all_attributes = args.addallattributes
-    extra_xml_output   = args.extraXMLoutput
-    use_manual_files   = args.usemanualfiles
+    dr_version          = args.dreq_version
+    add_all_attributes  = args.addallattributes
+    extra_xml_output    = args.extraXMLoutput
+    use_manual_files    = args.usemanualfiles
+    if args.otherDRformanual:
+     dr_version_manual_file = args.otherDRformanual
+    else:
+     dr_version_manual_file = dr_version
+
+
+    # Input files:
+    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'              # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered        = 'cmip7-request-' + dr_version + '-all/cmip7-request-' + dr_version + '-all-alphabetic-ordered.xml'  # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-identified-freq-mc-prio.xml'       # The     identified file with manual updated identifying comment
+    manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-var_identified-freq-mc-prio.xml'   # The var_identified file with manual updated identifying comment
+    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-unidentified-freq-realm-prio.xml'  # The   unidentified file with manual updated identifying comment
 
     # Predefine the three possible status values:
     identified     = 'identified'
@@ -256,13 +269,6 @@ def main():
     # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
     list_of_identified_variables                                  = []
     list_of_no_matched_identification                             = []
-
-    # Input files:
-    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'             # The request-overview ECE3-CMIP6 XML file with var_code info
-    xml_filename_alphabetic_ordered        = 'cmip7-request-' + dr_version + '-all/cmip7-request-' + dr_version + '-all-alphabetic-ordered.xml' # The alphabetic ordered XML CMIP7 request file
-    manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version + '-all-full-identified-freq-mc-prio.xml'                  # The     identified file with manual updated identifying comment
-    manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version + '-all-full-var_identified-freq-mc-prio.xml'              # The var_identified file with manual updated identifying comment
-    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version + '-all-full-unidentified-freq-realm-prio.xml'             # The   unidentified file with manual updated identifying comment
 
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
