@@ -127,8 +127,14 @@
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
- # Note that with the -m option there is an additional dependency on the manual edited XML files with the identification comment
+ #  Note that with the -m option there is an additional dependency on the manual edited XML files with the identification comment
+ # Due to the merging of identification comments in maual edited files, three options follow for the next step:
  ./identify-ece4-cmip7-request.py v1.2.2.4 -a > identify-ece4-cmip7-request.log
+ # Reading the identification comments from files which are labeled with the same data request: -m
+ ./identify-ece4-cmip7-request.py v1.2.2.4 -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
+ # Reading the identification comments from files which are labeled with a previous data request label with the options:  -m -o v1.2.2.3
+ ./identify-ece4-cmip7-request.py v1.2.2.4 -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
+ # The latter can be useful when a data request update has taken place.
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
