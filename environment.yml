@@ -21,6 +21,10 @@
 #   drq -h
 #   cmip7repack -h
 #   cchecker.py -h
+#   esgvoc use --help
+#   esgvoc use cmip7@latest universe@latest      # Download & activate the latest stable CMIP7 & universe vocabulary
+#   esgvoc status                                # Check the versions of the loaded ESVOG vocabularies
+#   esgvoc update --check                        # If newer then: esgvoc update
 #   ece2cmor -V                                  # ece2cmor v2.4.0
 #   python3 -c 'from compliance_checker.runner import ComplianceChecker'  # Installation correct, if this loads without error.
 #
@@ -64,3 +68,4 @@ dependencies:
 
   - pip:
      - cmip7-data-request-api
+     - esgvoc
