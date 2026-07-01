@@ -202,7 +202,6 @@ def main():
     parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value
     institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # CMOR global attribute value (part of DRS)
     license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # CMOR global attribute value
-    cmip7_grid_label        = initialize_config_variable('cmip7_grid_label'       , 'h112'                 )   # CMOR global attribute value
     nominal_resolution      = initialize_config_variable('nominal_resolution'     , '100 km'               )   # CMOR global attribute value
     activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # CMOR global attribute value (part of DRS)
     parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # CMOR global attribute value
@@ -326,6 +325,8 @@ def main():
         cmip6_grid_label = 'gr'
     elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
         cmip6_grid_label = 'gn'
+    elif cmip7_realm    in ['landIce']:
+        cmip6_grid_label = 'gn'
     else:
         cmip6_grid_label = 'gr'
 
@@ -364,6 +365,37 @@ def main():
                     i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
                     i.coord(dim_coord).bounds = cubelist[0].coord(dim_coord).bounds
             var_cube_all = cubelist.concatenate_cube()
+
+    # Set the CMIP7 grid label for the CMIP7 DRS:
+    if   cmip6_variable in ['co2s', 'co2mass']:
+        cmip7_grid_label = 'g190'
+    elif cmip6_variable in ['siconca']:
+        cmip7_grid_label = 'g114'
+    elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
+        first_lon_point = cubelist[0].coord('longitude').points[0][0]
+        first_lat_point = cubelist[0].coord('latitude') .points[0][0]
+        if verbose:
+         first_lon_bounds = cubelist[0].coord('longitude').bounds[0][0]
+         first_lat_bounds = cubelist[0].coord('latitude') .bounds[0][0]
+         print(' First lon, lat point:  {}, {}'  .format(first_lon_point , first_lat_point ))
+         print(' First lon, lat bounds: {}, {}\n'.format(first_lon_bounds, first_lat_bounds))
+        accepted_error = 1e-6
+        if   abs( 72.5              - first_lon_point) < accepted_error and \
+             abs(-78.39350128173828 - first_lat_point) < accepted_error:
+         cmip7_grid_label = 'g102'                                            # The mass or T grid
+        elif abs( 73.0              - first_lon_point) < accepted_error and \
+             abs(-78.39350128173828 - first_lat_point) < accepted_error:
+         cmip7_grid_label = 'g103'                                            # The staggered x-velocity grid
+        elif abs( 72.5              - first_lon_point) < accepted_error and \
+             abs(-78.29248046875    - first_lat_point) < accepted_error:
+         cmip7_grid_label = 'g104'                                            # The staggered y-velocity grid
+        else:
+         print('{} Problem in detecting the correct ORCA1 grid, a dummy g999 label is assigned.'.format(error_message))
+         cmip7_grid_label = 'g999'           # A dummy grid_label
+    elif cmip7_realm    in ['landIce']:
+        cmip7_grid_label = 'g185'
+    else:
+        cmip7_grid_label = 'g114'
 
     # loop over chunks of given length
     if 'yr' in cmip6_table or 'fx' in cmip6_table:

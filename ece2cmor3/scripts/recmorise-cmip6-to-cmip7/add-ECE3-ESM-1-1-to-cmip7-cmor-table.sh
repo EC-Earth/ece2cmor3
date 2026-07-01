@@ -39,6 +39,13 @@ if [ "$#" -eq 0 ]; then
             },'                                  \
   ${table_file}
 
+
+  sed -i  '/"g999": ""/i \
+            "g114": "",  \
+            "g185": "",  \
+            "g190": "",' \
+  ${table_file}
+
   # Remove the trailing spaces of the inserted block above:
   sed -i -e 's/\s*$//g' -e 's/,$/,/g' ${table_file}
 
