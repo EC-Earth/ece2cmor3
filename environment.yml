@@ -69,3 +69,4 @@ dependencies:
   - pip:
      - cmip7-data-request-api
      - esgvoc
+     - cc-plugin-wcrp
