@@ -202,7 +202,6 @@ def main():
     parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value
     institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # CMOR global attribute value (part of DRS)
     license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # CMOR global attribute value
-    nominal_resolution      = initialize_config_variable('nominal_resolution'     , '100 km'               )   # CMOR global attribute value
     activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # CMOR global attribute value (part of DRS)
     parent_activity_id      = initialize_config_variable('parent_activity_id'     , 'CMIP'                 )   # CMOR global attribute value
     if verbose: print()
@@ -329,6 +328,14 @@ def main():
         cmip6_grid_label = 'gn'
     else:
         cmip6_grid_label = 'gr'
+
+    # Set the nominal_resolution for CMIP7:
+    if   cmip6_variable in ['co2s', 'co2mass']:
+        nominal_resolution = '10000 km'
+    elif cmip7_realm    in ['landIce']:
+        nominal_resolution = '5 km'
+    else:
+        nominal_resolution = '100 km'
 
     # Load all existing data of the considered variable as a single iris cube:
     with warnings.catch_warnings():
