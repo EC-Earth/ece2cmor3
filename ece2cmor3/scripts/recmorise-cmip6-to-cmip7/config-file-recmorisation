@@ -25,6 +25,7 @@ ripf_r                       = 'r1'                                             
 ripf_i                       = 'i1'                                                            # CMOR global attribute value (part of DRS)
 ripf_p                       = 'p1'                                                            # CMOR global attribute value (part of DRS)
 ripf_f                       = 'f1'                                                            # CMOR global attribute value (part of DRS)
+cmip6_source_id              = 'EC-Earth3-ESM-1'                                               # The source_id used at CMIP6 cmorisation
 source_id                    = 'EC-Earth3-ESM-1-1'                                             # CMOR global attribute value (part of DRS)
 parent_source_id             = 'EC-Earth3-ESM-1-1'                                             # CMOR global attribute value
 institution_id               = 'EC-Earth-Consortium'                                           # CMOR global attribute value (part of DRS)

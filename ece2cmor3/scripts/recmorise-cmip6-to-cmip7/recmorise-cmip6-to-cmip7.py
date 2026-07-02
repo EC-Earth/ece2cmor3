@@ -198,8 +198,9 @@ def main():
     ripf_i                  = initialize_config_variable('ripf_i'                 , 'i1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
     ripf_p                  = initialize_config_variable('ripf_p'                 , 'p1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
     ripf_f                  = initialize_config_variable('ripf_f'                 , 'f1'                   )   # CMOR global attribute value (part of DRS, via the ripf variable)
-    source_id               = initialize_config_variable('source_id'              , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value (part of DRS)
-    parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1'      )   # CMOR global attribute value
+    cmip6_source_id         = initialize_config_variable('cmip6_source_id'        , 'EC-Earth3-ESM-1'      )   # The source_id used at CMIP6 cmorisation
+    source_id               = initialize_config_variable('source_id'              , 'EC-Earth3-ESM-1-1'    )   # CMOR global attribute value (part of DRS)
+    parent_source_id        = initialize_config_variable('parent_source_id'       , 'EC-Earth3-ESM-1-1'    )   # CMOR global attribute value
     institution_id          = initialize_config_variable('institution_id'         , 'EC-Earth-Consortium'  )   # CMOR global attribute value (part of DRS)
     license_id              = initialize_config_variable('license_id'             , 'CC-BY-4.0'            )   # CMOR global attribute value
     activity_id             = initialize_config_variable('activity_id'            , 'CMIP'                 )   # CMOR global attribute value (part of DRS)
@@ -207,9 +208,7 @@ def main():
     if verbose: print()
 
     ripf                         = ripf_r + ripf_i + ripf_p + ripf_f
-    drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + source_id + '/' + experiment_id + '/' + ripf
-    ### temporary fix until EC-Earth3-ESM-1-1 is registered
-    drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + 'EC-Earth-Consortium' + '/' + 'EC-Earth3-ESM-1' + '/' + experiment_id + '/' + ripf
+    drs_experiment_member        = 'CMIP6' + '/' + activity_id + '/' + institution_id + '/' + cmip6_source_id + '/' + experiment_id + '/' + ripf
 
     cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
     cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
