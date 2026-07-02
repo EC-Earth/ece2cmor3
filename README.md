@@ -143,7 +143,7 @@ git push
 Navigate to your git checkout directory and execute
 ```shell
 cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/resources/cmip7-cmor-tables/
-cd .tables-cvs/; git checkout cmor-cvs.json; cd -
+cd ./tables-cvs/; git checkout cmor-cvs.json; cd -               # Only necessary if it is modified by add-ECE3-ESM-1-1-to-cmip7-cmor-table.sh
 git pull origin main
 cd ../; git add cmip7-cmor-tables
 git commit cmip7-cmor-tables -m 'Update the nested CMIP7 CMOR Tables for their updates'
