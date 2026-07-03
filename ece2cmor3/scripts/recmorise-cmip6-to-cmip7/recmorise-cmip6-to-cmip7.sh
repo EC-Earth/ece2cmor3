@@ -50,6 +50,6 @@
   echo "  1. A config file"
   echo
   echo " For instance:"
-  echo "  $0 config-file-recmorisation"
+  echo "  $0 config-file-recmorisation-desktop"
   echo
  fi
