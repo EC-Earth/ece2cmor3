@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Call example:
-#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/fx`; do echo "./recmorise-cmip6-to-cmip7.py config-file-recmorisation fx ${i}"; done
+#  for i in `/usr/bin/ls -1 /scratch/nktr/test-data/CE42-test/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/fx`; do echo "./recmorise-cmip6-to-cmip7.py -r -c config-file-recmorisation fx ${i}"; done
 
 # Or use the bash script to loop over (nearly) all test files in the CMIP6 directory (note in this test data each subdir has contains one file):
 #  ./recmorise-cmip6-to-cmip7.sh       # Produces the script below
@@ -55,6 +55,9 @@ def parse_args():
     parser.add_argument('-t', '--tmpdir'      , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
     parser.add_argument('-i', '--year1'       , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
     parser.add_argument('-j', '--year2'       , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
+    # Optional input arguments for running additional tools:
+    parser.add_argument('-r', '--repack'      , action='store_true'                                     , help='Include the cmip7repacking (default off)')
+    parser.add_argument('-c', '--checks'      , action='store_true'                                     , help='Include various checks (check_cmip7_packing,compliance-checker,esvoc (default off)')
     return parser.parse_args()
 
 
@@ -147,6 +150,8 @@ def main():
     config_filename      = args.configfile
     cmip6_table          = args.table
     cmip6_variable       = args.var
+    repack               = args.repack
+    checks               = args.checks
 
     if year1 and not year2: year2=year1
     if year2 and not year1: year1=year2
@@ -659,6 +664,42 @@ def main():
         fname = cmor.close(cmorvar, file_name=True)
         if verbose:
             print('\n View result with:\n  ncview {}\n'.format(fname))
+
+        log_dir = tmpdir + '/log-files/'
+        if repack:
+         # Call the cmip7repack and create its log file:
+         logdir_repack  = log_dir + 'repack'
+         logfile_repack = '{}/{}-{}.log'.format(logdir_repack, cmip7_compound_name, experiment_id)
+         os.makedirs(logdir_repack, exist_ok=True)
+         command_repack = 'cmip7repack -o -z 4 ' + fname + ' > ' + logfile_repack
+         os.system(command_repack)
+
+        if checks:
+         # Call the check_cmip7_packing and create its log file:
+         logdir_repack_check  = log_dir + 'repack-check'
+         logfile_repack_check = '{}/{}-{}.log'.format(logdir_repack_check, cmip7_compound_name, experiment_id)
+         os.makedirs(logdir_repack_check, exist_ok=True)
+         command_repack_check = 'check_cmip7_packing ' + fname + ' > ' + logfile_repack_check
+         os.system(command_repack_check)
+
+        if checks:
+         # Call the compliance-checker and create its log file:
+         logdir_compliance_checker  = log_dir + 'compliance-checker'
+         logfile_compliance_checker = '{}/{}-{}.log'.format(logdir_compliance_checker, cmip7_compound_name, experiment_id)
+         os.makedirs(logdir_compliance_checker, exist_ok=True)
+         logdir_compliance_checker_run  = log_dir + 'compliance-checker-run'
+         logfile_compliance_checker_run = '{}/{}-{}.log'.format(logdir_compliance_checker_run, cmip7_compound_name, experiment_id)
+         os.makedirs(logdir_compliance_checker_run, exist_ok=True)
+         command_compliance_checker = 'compliance-checker -t wcrp_cmip7:1.0 -f text -v -o ' + logfile_compliance_checker + ' ' + fname + ' 2> ' + logfile_compliance_checker_run
+         os.system(command_compliance_checker)
+
+        if checks:
+         # Call the esgvoc ncattvalid and create its log file:
+         logdir_esgvoc_ncattvalid  = log_dir + 'esgvoc-ncattvalid'
+         logfile_esgvoc_ncattvalid = '{}/{}-{}.log'.format(logdir_esgvoc_ncattvalid, cmip7_compound_name, experiment_id)
+         os.makedirs(logdir_esgvoc_ncattvalid, exist_ok=True)
+         command_esgvoc_ncattvalid = ' ncdump -h ' + fname + ' | esgvoc ncattvalid cmip7 --verbose > ' + logfile_esgvoc_ncattvalid
+         os.system(command_esgvoc_ncattvalid)
 
 if __name__ == '__main__':
     main()
