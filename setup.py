@@ -69,6 +69,7 @@ setup(name=name,
           "convert_component_to_flat_json =  ece2cmor3.scripts.convert_component_to_flat_json:main",
           "convert_varlist_from_cmip6_to_cmip6Plus =  ece2cmor3.scripts.convert_varlist_from_cmip6_to_cmip6Plus:main",
           "fixmonths =  ece2cmor3.scripts.fixmonths:main",
+         #"recmorise_cmip6_to_cmip7 =  ece2cmor3.scripts.recmorise-cmip6-to-cmip7.recmorise_cmip6_to_cmip7:main",
           "splitbalance =  ece2cmor3.scripts.splitbalance:main"
       ]},
       scripts=["ece2cmor3/scripts/genecec-per-mip-experiment.sh"],
