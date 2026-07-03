@@ -23,7 +23,7 @@
 
  for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
    for i in `/usr/bin/ls -1 ${base_path}/$j`; do
-     printf " ./recmorise-cmip6-to-cmip7.py  ${config_file} %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
+     printf " ./recmorise-cmip6-to-cmip7.py  -r -c ${config_file} %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
    done
    echo
  done > run-recmorise-cmip6-to-cmip7.sh
