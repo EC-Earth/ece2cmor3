@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 #
-# This script creates the run-recmorise-cmip6-to-cmip7.sh script which calls the recmorise-cmip6-to-cmip7.py
+# This script creates a run script which calls the recmorise-cmip6-to-cmip7.py
 # script for all CMIP6 variable combinations for a given CMIP6 top directory with CMIP6 cmorised data.
 #
 # This script requires one argument.
 
  if [ "$#" = 1 ]; then
    config_file=$1
+
+   run_script=run-recmorise-cmip6-to-cmip7.sh
 
    if [ ! -e ${config_file} ]; then
     echo; echo " The file ${config_file} does not exist."; echo
@@ -32,11 +34,13 @@
        printf " ./recmorise-cmip6-to-cmip7.py  -r -c ${config_file} %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
      done
      echo
-   done > run-recmorise-cmip6-to-cmip7.sh
+   done > ${run_script}
 
-   chmod uog+x run-recmorise-cmip6-to-cmip7.sh
+   chmod uog+x ${run_script}
 
-  #./run-recmorise-cmip6-to-cmip7.sh
+   ./${run_script}
+
+   rm -f ${run_script}
 
  else
   echo
