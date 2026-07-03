@@ -46,17 +46,22 @@
    # Replace the tilde:
    ece3_cmip6_data_dir_root="${ece3_cmip6_data_dir_root/#\~/$HOME}"
 
-   CMIP6DIR=${ece3_cmip6_data_dir_root}CMIP6/CMIP/${institution_id}/${cmip6_source_id}/${experiment_id}/${ripf_r}${ripf_i}${ripf_p}${ripf_f}/
-
-   echo ${CMIP6DIR}
+   CMIP6DIR=${ece3_cmip6_data_dir_root}/CMIP6/CMIP/${institution_id}/${cmip6_source_id}/${experiment_id}/${ripf_r}${ripf_i}${ripf_p}${ripf_f}/
 
    if [ ! -d ${CMIP6DIR} ]; then echo -e "\e[1;31m Error:\e[0m"" Directory: ${CMIP6DIR}, does not exist. Abort $0"            >&2; exit 1; fi
    if [   -z ${CMIP6DIR} ]; then echo -e "\e[1;31m Error:\e[0m"" Empty directory, no cmorised data in: ${CMIP6DIR}. Abort $0" >&2; exit 1; fi
 
-   module load gnuparallel
+   if [ "$ECPLATFORM" = "hpc2020" ]; then
+    module load gnuparallel
 
-   source ${PERM}/mamba/etc/profile.d/conda.sh
+    source ${PERM}/mamba/etc/profile.d/conda.sh
+   else
+    source ${HOME}/mamba/etc/profile.d/conda.sh
+   fi
+
    conda activate ece2cmor3
+   esgvoc use cmip7@latest universe@latest
+   echo
 
    # This option and thus the corresponding argument can be removed as soon as the tables don't need any adjustment anymore.
    if [ "${initiate}" = "yes" ]; then
@@ -64,26 +69,26 @@
     ./add-ECE3-ESM-1-1-to-cmip7-cmor-table.sh
    fi
 
-    alias ls='/usr/bin/ls'
-    rm -f varlist
-    for t in $(ls ${CMIP6DIR}); do for v in $(ls ${CMIP6DIR}/$t); do echo $t $v >> varlist; done; done
-    sort varlist | uniq > varlist_sorted
+   alias ls='/usr/bin/ls'
+   rm -f varlist
+   for t in $(ls ${CMIP6DIR}); do for v in $(ls ${CMIP6DIR}/$t); do echo $t $v >> varlist; done; done
+   sort varlist | uniq > varlist_sorted
 
-    wc_varlist_1=`wc -l varlist        | sed 's/ .*//'`
-    wc_varlist_2=`wc -l varlist_sorted | sed 's/ .*//'`
+   wc_varlist_1=`wc -l varlist        | sed 's/ .*//'`
+   wc_varlist_2=`wc -l varlist_sorted | sed 's/ .*//'`
 
-    if [ "${wc_varlist_1}" = "${wc_varlist_2}" ]; then
-     echo
-     echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2}"
-     echo
-    else
-     echo
-     echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2} but was reduced for duplicates from ${wc_varlist_1}"
-     echo
-    fi
+   if [ "${wc_varlist_1}" = "${wc_varlist_2}" ]; then
+    echo
+    echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2}"
+    echo
+   else
+    echo
+    echo " The number of CMIP6 cmorised variables is: ${wc_varlist_2} but was reduced for duplicates from ${wc_varlist_1}"
+    echo
+   fi
 
-    grep -v -e 3hr -e 6hrPlev varlist_sorted > varlist_sorted_low_frequent
-    grep    -e 3hr -e 6hrPlev varlist_sorted > varlist_sorted_high_frequent
+   grep -v -e 3hr -e 6hrPlev varlist_sorted > varlist_sorted_low_frequent
+   grep    -e 3hr -e 6hrPlev varlist_sorted > varlist_sorted_high_frequent
 
    if [ -f ${selected_varlist} ]; then
     tmpdir=logs-recmorise
