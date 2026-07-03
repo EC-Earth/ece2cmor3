@@ -42,7 +42,7 @@
 
    ./${run_script}
 
-  #rm -f ${run_script}
+   rm -f ${run_script}
 
  else
   echo
