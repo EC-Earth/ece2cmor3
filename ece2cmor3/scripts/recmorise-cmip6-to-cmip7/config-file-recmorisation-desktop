@@ -1,0 +1,34 @@
+# This recmorisation config file is used at a local desktop.
+#
+# It can be used (as soon as the ece2cmor3 environment is active) like:
+#  ./recmorise-cmip6-to-cmip7.py -r -c config-file-recmorisation-desktop fx orog
+# Or for a parallel batch call on the entire CMIP6 cmorised data directory (run without arguments for an example):
+#  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh
+#
+# For computing the branch time (for instance a Jan 1st 2022) a following one-liner can be used:
+#  python3 -c 'import datetime; time=(datetime.date(2022,1,1)-datetime.date(1850,1,1)).days; print(time)'
+# Usually the branch_time_in_child is 0
+
+cmip6_input_dir_name         = '~/test-data-ece/CE42-test/'
+cmip7_output_dir_name        = '~/cmorised-results/converted-to-cmip7/CE42-test/'
+
+production_date_version      = 'v*'                                                            # In DRS
+experiment_id                = 'esm-piControl'                                                 # CMOR global attribute value (part of DRS)
+parent_experiment_id         = 'esm-piControl-spinup'                                          # CMOR global attribute value
+branch_method                = 'standard'                                                      # CMOR global attribute value
+branch_time_in_child         = 30.0                                                            # CMOR global attribute value
+branch_time_in_parent        = 10800.0                                                         # CMOR global attribute value
+calendar                     = 'proleptic_gregorian'                                           # CMOR global attribute value
+time_units                   = 'days since 1850-01-01'                                         # In writing the time units
+parent_time_units            = 'days since 1850-01-01'                                         # CMOR global attribute value
+ripf_r                       = 'r1'                                                            # CMOR global attribute value (part of DRS)
+ripf_i                       = 'i1'                                                            # CMOR global attribute value (part of DRS)
+ripf_p                       = 'p1'                                                            # CMOR global attribute value (part of DRS)
+ripf_f                       = 'f1'                                                            # CMOR global attribute value (part of DRS)
+cmip6_source_id              = 'EC-Earth3-ESM-1'                                               # The source_id used at CMIP6 cmorisation
+source_id                    = 'EC-Earth3-ESM-1-1'                                             # CMOR global attribute value (part of DRS)
+parent_source_id             = 'EC-Earth3-ESM-1-1'                                             # CMOR global attribute value
+institution_id               = 'EC-Earth-Consortium'                                           # CMOR global attribute value (part of DRS)
+license_id                   = 'CC-BY-4.0'                                                     # CMOR global attribute value
+activity_id                  = 'CMIP'                                                          # CMOR global attribute value (part of DRS)
+parent_activity_id           = 'CMIP'                                                          # CMOR global attribute value
