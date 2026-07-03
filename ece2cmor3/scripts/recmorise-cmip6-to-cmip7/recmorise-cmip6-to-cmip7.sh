@@ -9,6 +9,8 @@
    config_file=$1
 
    run_script=run-recmorise-cmip6-to-cmip7.sh
+   run_script_log=recmorise-cmip6-to-cmip7.log
+   rm -f ${run_script_log}
 
    if [ ! -e ${config_file} ]; then
     echo; echo " The file ${config_file} does not exist."; echo
@@ -31,7 +33,7 @@
 
    for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
      for i in `/usr/bin/ls -1 ${base_path}/$j`; do
-       printf " ./recmorise-cmip6-to-cmip7.py  -r -c ${config_file} %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
+       printf " ./recmorise-cmip6-to-cmip7.py  -r -c ${config_file} %-8s %-20s  &>> ${run_script_log}\n" $j ${i}
      done
      echo
    done > ${run_script}
@@ -40,7 +42,7 @@
 
    ./${run_script}
 
-   rm -f ${run_script}
+  #rm -f ${run_script}
 
  else
   echo
