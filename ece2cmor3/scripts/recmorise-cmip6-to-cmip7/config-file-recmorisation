@@ -9,7 +9,7 @@
 #  python3 -c 'import datetime; time=(datetime.date(2022,1,1)-datetime.date(1850,1,1)).days; print(time)'
 # Usually the branch_time_in_child is 0
 
-cmip6_input_dir_name         = '/scratch/nktr/test-data/CE42-test/'
+cmip6_input_dir_name         = '/scratch/nktr/test-data-ece/CE42-test/'
 cmip7_output_dir_name        = '/scratch/nktr/cmorised-results/converted-to-cmip7/CE42-test/'
 
 production_date_version      = 'v*'                                                            # In DRS
