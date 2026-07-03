@@ -5,13 +5,25 @@
 #
 # This script requires no arguments.
 
-# Adjust this path also in the config file config-file-recmorisation:
- ece3_cmip6_data_dir_root=/scratch/nktr/test-data/CE42-test/
-#ece3_cmip6_data_dir_root=~/test-data-ece/CE42-test/
+ config_file=config-file-recmorisation
+
+ # Catch all the path variables from the config file:
+ ece3_cmip6_data_dir_root=`grep -e cmip6_input_dir_name ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ cmip6_source_id=`         grep -e cmip6_source_id      ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ institution_id=`          grep -e institution_id       ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ experiment_id=`           grep -e '^experiment_id'     ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ ripf_r=`                  grep -e ripf_r               ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ ripf_i=`                  grep -e ripf_i               ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ ripf_p=`                  grep -e ripf_p               ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ ripf_f=`                  grep -e ripf_f               ${config_file} | sed -e "s/.*= //" -e "s/'//g" -e 's/ .*//'`
+ # Replace the tilde:
+ ece3_cmip6_data_dir_root="${ece3_cmip6_data_dir_root/#\~/$HOME}"
+
+ base_path=${ece3_cmip6_data_dir_root}CMIP6/CMIP/${institution_id}/${cmip6_source_id}/${experiment_id}/${ripf_r}${ripf_i}${ripf_p}${ripf_f}
 
  for j in {3hr,6hrPlev,Amon,day,Efx,Emon,Eyr,fx,LImon,Lmon,Oday,Ofx,Omon,SIday,SImon,}; do
-   for i in `/usr/bin/ls -1  ${ece3_cmip6_data_dir_root}/CMIP6/CMIP/EC-Earth-Consortium/EC-Earth3-ESM-1/esm-piControl/r1i1p1f1/$j`; do
-     printf " ./recmorise-cmip6-to-cmip7.py config-file-recmorisation %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
+   for i in `/usr/bin/ls -1 ${base_path}/$j`; do
+     printf " ./recmorise-cmip6-to-cmip7.py  ${config_file} %-8s %-20s  &>> recmorise-cmip6-to-cmip7.log\n" $j ${i}
    done
    echo
  done > run-recmorise-cmip6-to-cmip7.sh
@@ -19,6 +31,3 @@
  chmod uog+x run-recmorise-cmip6-to-cmip7.sh
 
 #./run-recmorise-cmip6-to-cmip7.sh
-
-
-# day hur => CFday hur
