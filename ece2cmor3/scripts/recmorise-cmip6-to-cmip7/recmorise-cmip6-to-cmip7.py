@@ -130,6 +130,40 @@ def add_dimension(var_cube, coordinates_file, dim, dim_standard_name):
     return cmordim
 
 
+def add_ml_dim(var_cube, coordinates_file, ap_factor, b_factor, ps_factor, newAxes):
+    cmip6_lev=var_cube.coord('atmosphere_hybrid_sigma_pressure_coordinate')
+
+    ilev = cmor.axis('alternate_hybrid_sigma',
+        length=len(cmip6_lev.points),
+        units='1',
+        coord_vals=cmip6_lev.points,
+        cell_bounds=cmip6_lev.bounds)
+
+    zfactor_id = cmor.zfactor(
+        zaxis_id=ilev,
+        axis_ids=[ilev, ],
+        zfactor_name='ap',
+        units='Pa',
+        zfactor_values = ap_factor.data.mean(1),
+        zfactor_bounds = ap_factor.data)
+
+    zfactor_id = cmor.zfactor(
+        zaxis_id=ilev,
+        axis_ids=[ilev, ],
+        zfactor_name='b',
+        units='',
+        zfactor_values = b_factor.data.mean(1),
+        zfactor_bounds = b_factor.data)
+
+    zfactor_id = cmor.zfactor(
+        zaxis_id=ilev,
+        axis_ids=newAxes,
+        zfactor_name='ps1',
+        units='Pa')
+        # values are saved with cmor.write()
+
+    return ilev,zfactor_id
+
 
 def main():
 
@@ -320,6 +354,16 @@ def main():
          print(' Sorry, no CMIP7 equivalent for: {:12} {}'.format(cmip6_table, cmip6_variable))
          sys.exit()
 
+    # processing model level output ?
+    if cmip6_table in ['6hrLev']:
+        ml = True
+        # !!! processing ML only works safely with single year !!!
+        if not year1 or year1!=year2:
+            sys.exit(' {} Model level output can only be processed 1 chunk at a time, add "--year1 YYYY" and relaunch\n'.format(error_message))
+        chunk_to_process = f'*_{year1}*'
+    else:
+        ml = False
+        chunk_to_process = '*'
 
     # Set the CMIP6 grid label for the CMIP6 DRS:
     if   cmip6_variable in ['co2s', 'co2mass']:
@@ -349,7 +393,7 @@ def main():
                                                         + cmip6_variable          + '/' \
                                                         + cmip6_grid_label        + '/' \
                                                         + production_date_version + '/' \
-                                                        + cmip6_variable          + '*.nc'
+                                                        + cmip6_variable + chunk_to_process + '.nc'
 
         matched_cmip6_files = glob.glob(cmip6_file_path_and_name)
         number_of_matched_cmip6_files = len(matched_cmip6_files)
@@ -366,16 +410,28 @@ def main():
         # strip attributes, this is needed for concatenation
         for i in cubelist:
             i.attributes = {}
+            if ml:
+                for j in i.coords(): j.attributes = {}
 
-        try:
-            var_cube_all = cubelist.concatenate_cube()
-        except:
-            if verbose: print(' Problem with lon/lat, so use the lon/lat from the first file.')
-            for i in cubelist[1:]:
-                for dim_coord in ['longitude','latitude']:
-                    i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
-                    i.coord(dim_coord).bounds = cubelist[0].coord(dim_coord).bounds
-            var_cube_all = cubelist.concatenate_cube()
+        if not ml:
+            try:
+                var_cube_all = cubelist.concatenate_cube()
+
+            except:
+                if verbose: print(' Problem with lon/lat, so use the lon/lat from the first file.')
+                for i in cubelist[1:]:
+                    for dim_coord in ['longitude','latitude']:
+                        i.coord(dim_coord).points = cubelist[0].coord(dim_coord).points
+                        i.coord(dim_coord).bounds = cubelist[0].coord(dim_coord).bounds
+                var_cube_all = cubelist.concatenate_cube()
+        else:
+            var_cube_all = cubelist.extract_cube(cmip6_variable)
+            try:
+                ap_factor    = cubelist.extract_cube('vertical coordinate formula term: ap(k+1/2)')
+                b_factor     = cubelist.extract_cube('vertical coordinate formula term: b(k+1/2)')
+                ps_factor    = cubelist.extract_cube('ps')
+            except:
+                ml = False
 
     # Set the CMIP7 grid label for the CMIP7 DRS:
     if   cmip6_variable in ['co2s', 'co2mass']:
@@ -620,14 +676,24 @@ def main():
 
             cmoraxes = []
             if verbose: print('\n Dimensions:')
-            for dimension in sorted_cmip7_dimensions:
+            for iax,dimension in enumerate(sorted_cmip7_dimensions):
                 dim_standard_name = dimension_attribute(cmip7_coordinates, dimension, 'standard_name')
                 if verbose:
                     print('  {:15} dimension with standard_name="{}"'.format(dimension, dim_standard_name))
-                cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
+                if dimension != 'alevel':
+                    cmordim = add_dimension(var_cube, cmip7_coordinates, dimension, dim_standard_name)
+                else:
+                    # lev will be added later
+                    cmordim=None
+                    iaxML = iax
                 if cmordim is not None:
                     cmoraxes.append(cmordim)
             if verbose: print()
+
+            # add ML axis after time,lat,lon axes have been defined
+            if ml:
+                cmordim,zfactor_id = add_ml_dim(var_cube, cmip7_coordinates, ap_factor, b_factor, ps_factor, cmoraxes)
+                cmoraxes.insert(iaxML,cmordim)
 
             cmorvar = cmor.variable(branded_variable_name, cmip7_units, cmoraxes, positive=variable_attrib)
 
@@ -657,6 +723,8 @@ def main():
                 cube_slice = var_cube[s]
                 cmor.write(cmorvar, cube_slice.data, time_vals=cube_slice.coord('time').points
                                                    , time_bnds=cube_slice.coord('time').bounds)
+                if ml:
+                    cmor.write(zfactor_id,ps_factor[s].data,time_vals=cube_slice.coord('time').points,store_with=cmorvar)
         else:
             cmor.write(cmorvar, var_cube.data)
 
