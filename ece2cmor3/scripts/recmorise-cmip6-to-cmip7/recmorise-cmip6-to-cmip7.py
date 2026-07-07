@@ -593,7 +593,8 @@ def main():
         if 'deltasigt' in sorted_cmip7_dimensions:
             sorted_cmip7_dimensions.remove('deltasigt') # Remove a vertical coorinate for mlotst_tavg-u-hxy-sea
 
-        dataset_info_file = '{}/{}-{}-input.json'.format(tmpdir, cmip7_compound_name, experiment_id)
+        variable_file_label = '{}-{}-{}'.format(cmip7_compound_name, experiment_id, ripf)
+        dataset_info_file = '{}/{}-input.json'.format(tmpdir, variable_file_label)
         with open(dataset_info_file, 'w') as fh:
             json.dump(DATASET_INFO, fh, indent=2)
 
@@ -737,7 +738,7 @@ def main():
         if repack:
          # Call the cmip7repack and create its log file:
          logdir_repack  = log_dir + 'repack'
-         logfile_repack = '{}/{}-{}.log'.format(logdir_repack, cmip7_compound_name, experiment_id)
+         logfile_repack = '{}/{}.log'.format(logdir_repack, variable_file_label)
          os.makedirs(logdir_repack, exist_ok=True)
          command_repack = 'cmip7repack -o -z 4 ' + fname + ' > ' + logfile_repack
          os.system(command_repack)
@@ -745,7 +746,7 @@ def main():
         if checks:
          # Call the check_cmip7_packing and create its log file:
          logdir_repack_check  = log_dir + 'repack-check'
-         logfile_repack_check = '{}/{}-{}.log'.format(logdir_repack_check, cmip7_compound_name, experiment_id)
+         logfile_repack_check = '{}/{}.log'.format(logdir_repack_check, variable_file_label)
          os.makedirs(logdir_repack_check, exist_ok=True)
          command_repack_check = 'check_cmip7_packing ' + fname + ' > ' + logfile_repack_check
          os.system(command_repack_check)
@@ -753,10 +754,10 @@ def main():
         if checks:
          # Call the compliance-checker and create its log file:
          logdir_compliance_checker  = log_dir + 'compliance-checker'
-         logfile_compliance_checker = '{}/{}-{}.log'.format(logdir_compliance_checker, cmip7_compound_name, experiment_id)
+         logfile_compliance_checker = '{}/{}.log'.format(logdir_compliance_checker, variable_file_label)
          os.makedirs(logdir_compliance_checker, exist_ok=True)
          logdir_compliance_checker_run  = log_dir + 'compliance-checker-run'
-         logfile_compliance_checker_run = '{}/{}-{}.log'.format(logdir_compliance_checker_run, cmip7_compound_name, experiment_id)
+         logfile_compliance_checker_run = '{}/{}.log'.format(logdir_compliance_checker_run, variable_file_label)
          os.makedirs(logdir_compliance_checker_run, exist_ok=True)
          command_compliance_checker = 'compliance-checker -t wcrp_cmip7:1.0 -f text -v -o ' + logfile_compliance_checker + ' ' + fname + ' 2> ' + logfile_compliance_checker_run
          os.system(command_compliance_checker)
@@ -764,7 +765,7 @@ def main():
         if checks:
          # Call the esgvoc ncattvalid and create its log file:
          logdir_esgvoc_ncattvalid  = log_dir + 'esgvoc-ncattvalid'
-         logfile_esgvoc_ncattvalid = '{}/{}-{}.log'.format(logdir_esgvoc_ncattvalid, cmip7_compound_name, experiment_id)
+         logfile_esgvoc_ncattvalid = '{}/{}.log'.format(logdir_esgvoc_ncattvalid, variable_file_label)
          os.makedirs(logdir_esgvoc_ncattvalid, exist_ok=True)
          command_esgvoc_ncattvalid = ' ncdump -h ' + fname + ' | esgvoc ncattvalid cmip7 --verbose > ' + logfile_esgvoc_ncattvalid
          os.system(command_esgvoc_ncattvalid)
