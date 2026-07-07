@@ -43,7 +43,7 @@ def parse_args():
         description='Recmorise ECE3 CMIP6 cmorised data towards ECE3 CMIP7 cmorised data.'
     )
     # Posisional arguments
-    parser.add_argument('configfile'          , metavar='config file'    , type=str                     , help='The recmorisation config file')
+    parser.add_argument('configfile'          , metavar='config file'    , type=str                     , help='The recmorisation config file, for instance: config-file-recmorisation')
     parser.add_argument('table'               , metavar='cmip6_table'    , type=str                     , help='The CMIP6 table    of the variable to convert, for instance: Amon')
     parser.add_argument('var'                 , metavar='cmip6_variable' , type=str                     , help='The CMIP6 variable of the variable to convert, for instance: tas')
     # Optional input arguments
