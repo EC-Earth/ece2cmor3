@@ -734,6 +734,9 @@ def main():
         if verbose:
             print('\n View result with:\n  ncview {}\n'.format(fname))
 
+        time_label = re.sub(r'.*_', '', fname).replace('.nc', '')
+        variable_file_label = variable_file_label + '-' + time_label
+
         log_dir = tmpdir + '/log-files/'
         if repack:
          # Call the cmip7repack and create its log file:
