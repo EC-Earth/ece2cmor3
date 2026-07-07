@@ -55,6 +55,7 @@ def parse_args():
     parser.add_argument('-t', '--tmpdir'      , metavar='tmpdir'         , type=str, default='./tmpdir' , help='Temporary directory [default: ./tmpdir]')
     parser.add_argument('-i', '--year1'       , metavar='year1'          , type=int, default=None       , help='The first year to process [default: None]')
     parser.add_argument('-j', '--year2'       , metavar='year2'          , type=int, default=None       , help='The last  year to process [default: None]')
+    parser.add_argument('-s', '--splitmonth'  , action='store_true'                                     , help='Split output in monthly chuncks (default off)')
     # Optional input arguments for running additional tools:
     parser.add_argument('-r', '--repack'      , action='store_true'                                     , help='Include the cmip7repacking (default off)')
     parser.add_argument('-c', '--checks'      , action='store_true'                                     , help='Include various checks (check_cmip7_packing,compliance-checker,esvoc (default off)')
@@ -181,6 +182,7 @@ def main():
     tmpdir               = args.tmpdir
     year1                = args.year1
     year2                = args.year2
+    splitmonth           = args.splitmonth
     config_filename      = args.configfile
     cmip6_table          = args.table
     cmip6_variable       = args.var
@@ -360,10 +362,10 @@ def main():
         # !!! processing ML only works safely with single year !!!
         if not year1 or year1!=year2:
             sys.exit(' {} Model level output can only be processed 1 chunk at a time, add "--year1 YYYY" and relaunch\n'.format(error_message))
-        chunk_to_process = f'*_{year1}*'
+        chunk_to_process = f'_*_{year1}*'
     else:
         ml = False
-        chunk_to_process = '*'
+        chunk_to_process = '_*'
 
     # Set the CMIP6 grid label for the CMIP6 DRS:
     if   cmip6_variable in ['co2s', 'co2mass']:
@@ -508,19 +510,38 @@ def main():
     else:
         first_year = 1
         last_year = 1
-    for y in range(int(first_year/nyears)*nyears,last_year+1,nyears):
-        if not 'fx' in cmip6_table:
-            if year1:
-                if max(y,year1)>min(y+nyears,year2): continue
-                time1=cftime.datetime(max(y,year1),1,1)
-                time2=cftime.datetime(min(y+nyears,year2+1),1,1)
+
+    if splitmonth:
+        if not year1 or year1!=year2:
+            sys.exit(' {} Splitmonth only works with a single year, add "--year1 YYYY" and relaunch\n'.format(error_message))
+        y = year1
+        time_range = range(1,13)
+    else:
+        time_range = range(int(first_year/nyears)*nyears,last_year+1,nyears)
+
+    for t_idx in time_range:
+        if 'fx' in cmip6_table:
+            var_cube = var_cube_all
+        else:
+            if splitmonth:
+                m=t_idx
+                time1=cftime.datetime(y,m,1)
+                if m<12:
+                    time2=cftime.datetime(y,m+1,1)
+                else:
+                    time2=cftime.datetime(y+1,1,1)
             else:
-                time1=cftime.datetime(y,1,1)
-                time2=cftime.datetime(y+nyears,1,1)
+                y=t_idx
+                if year1:
+                    if max(y,year1)>min(y+nyears,year2): continue
+                    time1=cftime.datetime(max(y,year1),1,1)
+                    time2=cftime.datetime(min(y+nyears,year2+1),1,1)
+                else:
+                    time1=cftime.datetime(y,1,1)
+                    time2=cftime.datetime(min(y+nyears,last_year+1),1,1)
+
             if verbose: print(' Process time chunk from {} to {}'.format(time1, time2))
             var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
-        else:
-            var_cube = var_cube_all
 
         # Initiate CMOR:
         cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
