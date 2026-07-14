@@ -5,7 +5,7 @@
 #
 # Or use one of these scripts:
 #  ./recmorise-cmip6-to-cmip7.sh config-file-recmorisation-desktop
-#  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh yes varlist_sorted config-file-recmorisation-desktop
+#  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh varlist_sorted config-file-recmorisation-desktop
 #
 # For usage instructions on hpc2020 for this submit script for parallel handling run the script without arguments:
 #  ./submit-at-hpc2020-recmorise-cmip6-to-cmip7.sh

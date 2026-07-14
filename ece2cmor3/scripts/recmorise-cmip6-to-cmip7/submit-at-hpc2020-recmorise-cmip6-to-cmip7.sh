@@ -2,7 +2,7 @@
 #
 # Recmorise CMIP6 cmorised data to CMIP7 cmorised data for ECE3-ESM-1-1.
 #
-# This scripts requires three arguments: 1. Initiate 2. A varlist 3. A config file.
+# This scripts requires two arguments: 1. A varlist 2. A config file.
 #
 
 #SBATCH --time=01:05:00
@@ -63,12 +63,6 @@
    esgvoc use cmip7@latest universe@latest
    echo
 
-   # This option and thus the corresponding argument can be removed as soon as the tables don't need any adjustment anymore.
-   if [ "${initiate}" = "yes" ]; then
-    # As long as the EMD registration is not finished: dd EC-Earth3-ESM-1 & EC-Earth3-ESM-1-1 to the file: cmip7-cmor-tables/tables-cvs/cmor-cvs.json
-    ./add-ECE3-ESM-1-1-to-cmip7-cmor-table.sh
-   fi
-
    alias ls='/usr/bin/ls'
    rm -f varlist
    for t in $(ls ${CMIP6DIR}); do for v in $(ls ${CMIP6DIR}/$t); do echo $t $v >> varlist; done; done
@@ -106,21 +100,20 @@
   account_info=`account -l $USER`
   echo
   echo " Illegal number of arguments: This submit script requires two arguments:"
-  echo "  1. Initiate: yes or no. If yes this applies the changes to the cmip7 tables."
-  echo "  2. A varlist: The varlist_sorted, varlist_sorted_low_frequent & varlist_sorted_high_frequent are generated on the flow based on the data path (second argument)."
-  echo "  3. The config file."
+  echo "  1. A varlist: The varlist_sorted, varlist_sorted_low_frequent & varlist_sorted_high_frequent are generated on the flow based on the data path (second argument)."
+  echo "  2. The config file."
   echo
   echo " For instance:"
   echo
   echo "  On a desktop without sbatch this can be run like:"
-  echo "   $0 yes varlist_sorted config-file-recmorisation-desktop"
+  echo "   $0 varlist_sorted config-file-recmorisation-desktop"
   echo
   echo "  On hpc-2020 with sbatch this can be run like:"
-  echo "   sbatch --qos=np --cpus-per-task=128 --account=nlchekli $0 yes varlist_sorted               config-file-recmorisation"
-  echo "   sbatch --qos=nf --cpus-per-task=64  --account=nlchekli $0 yes varlist_sorted_low_frequent  config-file-recmorisation"
-  echo "   sbatch --qos=nf --cpus-per-task=7   --account=nlchekli $0 no  varlist_sorted_high_frequent config-file-recmorisation"
+  echo "   sbatch --qos=np --cpus-per-task=128 --account=nlchekli $0 varlist_sorted               config-file-recmorisation"
+  echo "   sbatch --qos=nf --cpus-per-task=64  --account=nlchekli $0 varlist_sorted_low_frequent  config-file-recmorisation"
+  echo "   sbatch --qos=nf --cpus-per-task=7   --account=nlchekli $0 varlist_sorted_high_frequent config-file-recmorisation"
   echo "  The recommended recmorisation approach on hpc2020 is to use one full node (for memory reasons):"
-  echo "   sbatch --qos=np --cpus-per-task=128 --account=nlchekli $0 yes varlist_sorted  config-file-recmorisation"
+  echo "   sbatch --qos=np --cpus-per-task=128 --account=nlchekli $0 varlist_sorted  config-file-recmorisation"
   echo
   echo " Available accounts for ${USER} on hpc2020: ${account_info}"
   echo
