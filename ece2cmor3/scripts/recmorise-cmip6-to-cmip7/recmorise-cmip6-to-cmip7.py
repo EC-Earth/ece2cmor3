@@ -517,7 +517,12 @@ def main():
         y = year1
         time_range = range(1,13)
     else:
-        time_range = range(int(first_year/nyears)*nyears,last_year+1,nyears)
+        # avoid that the last year of scenarios becomes a single-year orphan when files are
+        # bundled to multi-year files (e.g. monthly means)
+        if 'scen7' in experiment_id:
+            time_range = range(int(first_year/nyears)*nyears+1,last_year+1,nyears)
+        else:
+            time_range = range(int(first_year/nyears)*nyears,last_year+1,nyears)
 
     for t_idx in time_range:
         if 'fx' in cmip6_table:
