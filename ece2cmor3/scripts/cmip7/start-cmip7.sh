@@ -12,9 +12,9 @@
  # access.
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
- ./cmip7-request.py --all_opportunities --experiments picontrol,historical --priority_cutoff high v1.2.2.4
+ ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.4
  echo " Produces the directory:"
- echo "  cmip7-request-v1.2.2.4-picontrol-historical/"
+ echo "  cmip7-request-v1.2.2.4-piControl-historical/"
 
  # Producing only the core variable set:
  ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.4
@@ -23,7 +23,7 @@
 
 
  # Create the output-control-files for ECE3 based on the CMIP7 data request:
- ./genecec-cmip7-wrapper.sh high picontrol,esm-hist EC-Earth3-ESM-1
+ ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
  echo " Produces the directory:"
  echo "  cmip7-output-control-files"
 
@@ -163,7 +163,7 @@
 
 
  # Archive the results from the cmip7-request.py example call:
- rsync -a --mkpath cmip7-request-v1.2.2.4-picontrol-historical archive/cmip7-request-examples/v02/
+ rsync -a --mkpath cmip7-request-v1.2.2.4-piControl-historical archive/cmip7-request-examples/v02/
  rsync -a --mkpath cmip7-request-v1.2.2.4-historical           archive/cmip7-request-examples/v02/
 
  # Archive the results from the genecec-cmip7-wrapper.sh call:
@@ -298,7 +298,7 @@
 #   piClim-control                                          : Core=  131, High=  822, Medium=  117, Low=   90, TOTAL= 1160
 #   piClim-histaer                                          : Core=  131, High=  795, Medium=  173, Low=   70, TOTAL= 1169
 #   piClim-histall                                          : Core=  131, High=  795, Medium=  173, Low=   70, TOTAL= 1169
-#   picontrol                                               : Core=  131, High= 1035, Medium=  351, Low=  101, TOTAL= 1618
+#   piControl                                               : Core=  131, High= 1035, Medium=  351, Low=  101, TOTAL= 1618
 #   scen7-h                                                 : Core=  131, High= 1059, Medium=  460, Low=  102, TOTAL= 1752
 #   scen7-h-AQ                                              : Core=  131, High=  799, Medium=  177, Low=   73, TOTAL= 1180
 #   scen7-h-Aer                                             : Core=  131, High=  799, Medium=  177, Low=   73, TOTAL= 1180
