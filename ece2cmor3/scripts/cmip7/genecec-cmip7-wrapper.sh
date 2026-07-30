@@ -57,7 +57,7 @@ if [ "$#" -eq 3 ]; then
   log_file=${log_dir}/genecec-cmip7.log
   sum_file=${log_dir}/summarize.log
 
-  drq_version=v1.2.2.4
+  drq_version=v1.2.2.5
   metadata_filename=metadata-of-requested-cmip7-variables.json
 
   rm -rf cmip7-output-control-files

@@ -6,7 +6,7 @@ if [ "$#" -eq 1 ]; then
 
   version=$1
 
-  data_request_version=v1.2.2.4
+  data_request_version=v1.2.2.5
 
   # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
   # the highest encountered priority for each variable):
@@ -76,7 +76,7 @@ if [ "$#" -eq 1 ]; then
   # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
   # ordered in a way to allow convenient working on these lists:
   # Depending on the genecec-cmip7 input files:
-  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
+  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
   ./identify-ece4-cmip7-request.py ${data_request_version} -a -m             > identify-ece4-cmip7-request.log
   # In case of a data request update: Use the line below instead:
@@ -86,18 +86,18 @@ if [ "$#" -eq 1 ]; then
   # Create an OIFS field_def file.
   # Depending on the genecec-cmip7 input files:
   #  ./xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
-  #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.4-all-full-priority.xml
+  #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-priority.xml
   ./generate_cmip7_oifs_field_def.py ${data_request_version} -v > generate_cmip7_oifs_field_def.log
   mv -f generate_cmip7_oifs_field_def.log archive/log-files/${version}/
 
   # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
-  #  cmip7-request-v1.2.2.4-all/cmip7-request-v1.2.2.4-all-frequency-ordered.xml
+  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  #./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
 
-  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.4-all:
+  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.5-all:
   rsync -a --mkpath cmip7-request-${data_request_version}-all/ archive/cmip7-request-${data_request_version}-all/${version}
 
   # Create a backup reference of all identify-ece4-cmip7-request.py created files:

@@ -5,7 +5,7 @@ Command line interface for retrieving EC-Earth3 configuration files based on the
 Call example:
  ./genecec-cmip7-wrapper.sh high piControl,esm-hist EC-Earth3-ESM-1
 or:
- ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --priority_cutoff high v1.2.2.4 --ececonf EC-Earth3-ESM-1 cmip7-v1.2.2.4-requested-varlist-per-experiment.json
+ ./genecec-cmip7.py --all_opportunities --experiment piControl,historical --priority_cutoff high v1.2.2.5 --ececonf EC-Earth3-ESM-1 cmip7-v1.2.2.5-requested-varlist-per-experiment.json
 
 This script generates:
  for each CMIP7 requested experiment (or a list of CMIP7 experiments)
