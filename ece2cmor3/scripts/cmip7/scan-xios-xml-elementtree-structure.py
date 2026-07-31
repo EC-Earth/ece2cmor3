@@ -27,7 +27,10 @@ def main():
  field_def_file_inn          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-innerttrc.xml.j2'
  field_def_file_pis          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-pisces.xml.j2'
  field_def_file_ice          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
- field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
+#field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
+ # For a number of variables duplicate id's exist, one of the pair has got an deviating id by the addition of a 2 in the id name.
+ # This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
+ field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2-unique-id'
  field_def_file_ifs_raw      = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
  field_def_file_ifs_cmip6    = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_cmip6.xml.j2'
  field_def_file_ifs_noncmip6 = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_noncmip6.xml.j2'
