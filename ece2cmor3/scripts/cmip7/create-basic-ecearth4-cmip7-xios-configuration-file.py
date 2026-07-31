@@ -155,7 +155,9 @@ if len(sys.argv) == 2:
     print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
     sys.exit()
    os.chdir(ece2cmor_root_directory)
-   os.system('pip install -e .')
+  #os.system('pip install    --no-deps .') # wheels missing
+  #os.system('pip install -e --no-deps .') # -e edditbale not matching with no-deps ??
+   os.system('pip install -e .')           # requires internet access
    os.chdir(previous_working_dir)
 
 
