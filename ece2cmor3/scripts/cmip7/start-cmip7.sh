@@ -43,6 +43,7 @@
 
 
  # ECE4 genecec-cmip7:
+ # Note that with a new data request one has to set: "request_update=true" at the top of this script.
  ./create-ece4-genecec-cmip7-xml-files.sh v01 &> create-ece4-genecec-cmip7-xml-files.log-v01
  mv -f create-ece4-genecec-cmip7-xml-files.log-v01 archive/log-files/v01
  # which covers the calls & description below.
@@ -135,7 +136,8 @@
  ./identify-ece4-cmip7-request.py v1.2.2.5 -a -m > identify-ece4-cmip7-request.log
  # Option 3: Reading the identification comments from files which are labeled with a previous data request label with the options:  -m -o v1.2.2.3
  ./identify-ece4-cmip7-request.py v1.2.2.5 -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
- # The latter can be useful when a data request update has taken place.
+ # The latter can be useful when a new data request update has taken place.
+
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
@@ -156,9 +158,9 @@
 
 
  # Archive the most important, best ordered XML files:
- rsync -a cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml      xml-files/
- rsync -a cmip7-request-v1.2.2.5-all-full-var_identified-freq-mc-prio.xml  xml-files/
- rsync -a cmip7-request-v1.2.2.5-all-full-unidentified-freq-realm-prio.xml xml-files/
+ rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml      xml-files/
+ rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-var_identified-freq-mc-prio.xml  xml-files/
+ rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-unidentified-freq-realm-prio.xml xml-files/
 
 
 
