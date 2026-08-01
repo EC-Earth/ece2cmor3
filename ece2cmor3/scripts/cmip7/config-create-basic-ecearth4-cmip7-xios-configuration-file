@@ -2,6 +2,7 @@
 #  ./create-basic-ecearth4-cmip7-xios-configuration-file.py config-create-basic-ecearth4-cmip7-xios-configuration-file
 
 ece2cmor_root_directory                          = '~/cmorize/ece2cmor3/'
+offline_mode                                     = True
 
 # The most accurate ping files are available within ec-earth3, those include the latest updates from the EC-Earth community.
 # However, other versions can be taken from the Shaconemo repository in ~/cmorize/shaconemo/ORCA1_LIM3_PISCES/EXP00/ or the

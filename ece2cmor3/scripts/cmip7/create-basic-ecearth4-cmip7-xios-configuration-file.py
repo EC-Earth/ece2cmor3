@@ -117,6 +117,7 @@ if len(sys.argv) == 2:
 
    # Take the config variables:
    ece2cmor_root_directory                          = os.path.expanduser(config['ece2cmor_root_directory'                         ]) # ece2cmor_root_directory                          = '~/cmorize/ece2cmor3/'
+   offline_mode                                     =                    config['offline_mode'                                    ]  # offline_mode                                     = True
 
    ping_file_name_ocean                             = os.path.expanduser(config['ping_file_name_ocean'                            ]) # ping_file_name_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_ocean_DR1.00.27.xml'
    ping_file_name_seaIce                            = os.path.expanduser(config['ping_file_name_seaIce'                           ]) # ping_file_name_seaIce                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/ping_seaIce_DR1.00.27.xml'
@@ -146,19 +147,21 @@ if len(sys.argv) == 2:
    output_dir_name = 'xml-files/genecec-cmip7/ping-files/'
    subprocess.run(["mkdir", "-p", output_dir_name])
 
-   # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
-   previous_working_dir = os.getcwd()
-   if os.path.isdir(ece2cmor_root_directory) == False:
-    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' does not exist.\n')
-    sys.exit()
-   if os.path.isfile(ece2cmor_root_directory + '/environment.yml') == False:
-    print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
-    sys.exit()
-   os.chdir(ece2cmor_root_directory)
-  #os.system('pip install    --no-deps .') # wheels missing
-  #os.system('pip install -e --no-deps .') # -e edditbale not matching with no-deps ??
-   os.system('pip install -e .')           # requires internet access
-   os.chdir(previous_working_dir)
+   offline_mode = True
+   if not offline_mode:
+    # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
+    previous_working_dir = os.getcwd()
+    if os.path.isdir(ece2cmor_root_directory) == False:
+     print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' does not exist.\n')
+     sys.exit()
+    if os.path.isfile(ece2cmor_root_directory + '/environment.yml') == False:
+     print(error_message, ' The ece2cmor root directory ', ece2cmor_root_directory, ' is not an ece2cmor root directory.\n')
+     sys.exit()
+    os.chdir(ece2cmor_root_directory)
+   #os.system('pip install    --no-deps .') # wheels missing
+   #os.system('pip install -e --no-deps .') # -e editbale not matching with no-deps ??
+    os.system('pip install -e .')           # requires internet access
+    os.chdir(previous_working_dir)
 
 
    ################################################################################
