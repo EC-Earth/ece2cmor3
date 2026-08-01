@@ -1,7 +1,7 @@
 # For developers only:
 #  Remove the ece2cmor environment:
 #   conda deactivate
-#   rm -rf ${mambapath}/envs/ece2cmor3
+#   mamba env remove -n ece2cmor3 -y
 #  Create the ece2cmor3 environment:
 #    activatemamba
 #    mamba update -y --name base mamba           # For updating mamba itself
@@ -45,6 +45,7 @@ dependencies:
   - f90nml
   - gitpython
   - jsonschema
+  - ncview
   - netcdf4
   - numpy
   - openpyxl
