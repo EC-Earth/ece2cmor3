@@ -8,6 +8,17 @@ if [ "$#" -eq 1 ]; then
 
   data_request_version=v1.2.2.5
 
+  data_request_version_manual_edit=v1.2.2.3
+  # This data_request_version_manual_edit refers to the (possibly fresh) manually edited files in the directory:
+  #  xml-files/cmip7-request-v1.2.*-all-full-*identified-freq-mc-prio.xml
+
+  # When setting request_update = True the manual edits from the data_request_version_manual_edit version
+  # will be read and loaded. The resulting data_request_version files will be synced into the xml-files/
+  # directory and will be git-added. These files are necessary for the case when request_update is False,
+  # but they will lack when a new CMIP7 data request is used. The request_update default value is False:
+  request_update=false   # Default
+ #request_update=true    # When a new CMIP7 data request is used for the first time
+
   # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
   # the highest encountered priority for each variable):
   ./cmip7-request.py --all_opportunities --priority_cutoff low -r ${data_request_version} > cmip7-request.log
@@ -78,9 +89,22 @@ if [ "$#" -eq 1 ]; then
   # Depending on the genecec-cmip7 input files:
   #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
-  ./identify-ece4-cmip7-request.py ${data_request_version} -a -m             > identify-ece4-cmip7-request.log
-  # In case of a data request update: Use the line below instead:
- #./identify-ece4-cmip7-request.py ${data_request_version} -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
+  if [ "${request_update}" = true ]; then
+   echo " The option request_update has the manual activated value ${request_update}."
+   # In case of a data request update: Use the line below instead:
+   ./identify-ece4-cmip7-request.py ${data_request_version} -a -m -o ${data_request_version_manual_edit} > identify-ece4-cmip7-request.log
+   # Archive the most important, best ordered XML files:
+   rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-identified-freq-mc-prio.xml      xml-files/
+   rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-var_identified-freq-mc-prio.xml  xml-files/
+   rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-unidentified-freq-realm-prio.xml xml-files/
+   # Add them under git:
+   git add xml-files/cmip7-request-${data_request_version}-all-full-identified-freq-mc-prio.xml
+   git add xml-files/cmip7-request-${data_request_version}-all-full-var_identified-freq-mc-prio.xml
+   git add xml-files/cmip7-request-${data_request_version}-all-full-unidentified-freq-realm-prio.xml
+  else
+   echo " The option request_update has the default value ${request_update}."
+   ./identify-ece4-cmip7-request.py ${data_request_version} -a -m > identify-ece4-cmip7-request.log
+  fi
   mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
 
   # Create an OIFS field_def file.
@@ -107,11 +131,6 @@ if [ "$#" -eq 1 ]; then
   # Check:
  #diff -r cmip7-request-${data_request_version}-all/ archive/cmip7-request-${data_request_version}-all/${version}
  #diff -r xml-files/genecec-cmip7/                   archive/genecec-cmip7/${version}
-
-  # Archive the most important, best ordered XML files:
- #rsync -a cmip7-request-${data_request_version}-all-full-identified-freq-mc-prio.xml      xml-files/
- #rsync -a cmip7-request-${data_request_version}-all-full-var_identified-freq-mc-prio.xml  xml-files/
- #rsync -a cmip7-request-${data_request_version}-all-full-unidentified-freq-realm-prio.xml xml-files/
 
 else
   echo
