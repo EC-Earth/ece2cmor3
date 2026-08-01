@@ -254,7 +254,7 @@ def main():
     cmip7_cmor_tables_dir        = '../../resources/cmip7-cmor-tables/tables/'             # The cmor API allows only relative paths
     cmip7_cmor_tables_cvs_dir    = '../../resources/cmip7-cmor-tables/tables-cvs/'         # The cmor API allows only relative paths
 
-    cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3
+    cmip7_cmip6_mapping_filename = './cmip7-variables-and-metadata-all.xml'                # Created by:  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.5
 
     # Prevent the CMOR Warning in case this directory is not existing yet:
     root_of_output_path = Path(cmip7_output_dir_name).parts[0] + Path(cmip7_output_dir_name).parts[1]
@@ -268,7 +268,7 @@ def main():
 
     # Check if the file exists and is a file
     if not os.path.isfile(cmip7_cmip6_mapping_filename):
-        print(' {} The file {:} does not exist, therefore first run:\n  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.3\n'.format(error_message, cmip7_cmip6_mapping_filename))
+        print(' {} The file {:} does not exist, therefore first run:\n  ../cmip7/cmip6-cmip7-variable-mapping.py -r v1.2.2.5\n'.format(error_message, cmip7_cmip6_mapping_filename))
         sys.exit()
 
     # Load the XML file with the CMIP7 - CMIP6 mapping and all CMIP7 attributes:
