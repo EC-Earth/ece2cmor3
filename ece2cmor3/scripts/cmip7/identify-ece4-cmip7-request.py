@@ -257,6 +257,10 @@ def main():
     manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-var_identified-freq-mc-prio.xml'   # The var_identified file with manual updated identifying comment
     manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-unidentified-freq-realm-prio.xml'  # The   unidentified file with manual updated identifying comment
 
+    suggested_path_logfile                 = sys.argv[0].replace(".py", ".log").replace("./", "./archive/log-files/v*/")
+
+    abort_message = ' Aborting the script [4]: {}\n If not here, the reason may be ended up in another log file, for instance in {}\n'.format(sys.argv[0], suggested_path_logfile)
+
     # Predefine the three possible status values:
     identified     = 'identified'
     identified_var = 'var_identified'
@@ -273,40 +277,40 @@ def main():
     # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
     if os.path.isfile(request_overview_xml_filename) == False:
      print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     sys.exit(abort_message)
     tree_request_overview = ET.parse(request_overview_xml_filename)
     root_request_overview = tree_request_overview.getroot()
 
     # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
     if os.path.isfile(xml_filename_alphabetic_ordered) == False:
      print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r {}\n'.format(error_message, xml_filename_alphabetic_ordered, dr_version))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     sys.exit(abort_message)
     tree_alphabetic   = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic   = tree_alphabetic.getroot()
     dr_version_header = root_alphabetic.attrib['dr_version']
     if dr_version_header != dr_version:
      print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
-     sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+     sys.exit(abort_message)
 
     if use_manual_files:
      # Read & load the identified file with manual updated identifying comment:
      if os.path.isfile(manual_updated_identified_filename) == False:
       print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_identified_filename))
-      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+      sys.exit(abort_message)
      tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
      root_manual_comment_identified = tree_manual_comment_identified.getroot()
 
      # Read & load the var_identified file with manual updated identifying comment:
      if os.path.isfile(manual_updated_var_identified_filename) == False:
       print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_var_identified_filename))
-      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+      sys.exit(abort_message)
      tree_manual_comment_var_identified = ET.parse(manual_updated_var_identified_filename)
      root_manual_comment_var_identified = tree_manual_comment_var_identified.getroot()
 
      # Read & load the unidentified file with manual updated identifying comment:
      if os.path.isfile(manual_updated_unidentified_filename) == False:
       print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_unidentified_filename))
-      sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
+      sys.exit(abort_message)
      tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
      root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
 
