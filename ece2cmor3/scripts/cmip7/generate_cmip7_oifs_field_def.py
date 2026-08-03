@@ -6,6 +6,9 @@
  Call example:
   ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
 
+ It creates the file:
+  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2
+
 """
 import sys
 import subprocess
@@ -228,6 +231,7 @@ def main():
      if True:
 #     if cmip7_element.get('ifs_shortname') == 'None':
 #      print(' {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('ifs_shortname')))
+#    # This concerns 85 table 129 and 33 table 126 ifs variables (see ece2cmor3 ifspar table admin
       add_xml_line_to_selected_group(cmip7_element               , \
                                      cmip7_element.get('ifs_shortname'), \
                                      group_lon_lat_time_tavg     , \
