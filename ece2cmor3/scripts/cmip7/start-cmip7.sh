@@ -135,13 +135,13 @@
  #  from which the identification comment and comment author are taken.
  # Due to the merging of identification comments in maual edited files, three options follow for the next step:
  # Option 1: Omit reading the identification comments
- ./identify-ece4-cmip7-request.py v1.2.2.5 -a > identify-ece4-cmip7-request.log
+ ./identify-ece4-cmip7-request.py v1.2.2.5 -a                > identify-ece4-cmip7-request.log
  # Option 2: Reading the identification comments from files which are labeled with the same data request: -m
- ./identify-ece4-cmip7-request.py v1.2.2.5 -a -m > identify-ece4-cmip7-request.log
- # Option 3: Reading the identification comments from files which are labeled with a previous data request label with the options:  -m -o v1.2.2.3
+ ./identify-ece4-cmip7-request.py v1.2.2.5 -a -m             > identify-ece4-cmip7-request.log
+ # Option 3: Reading the identification comments from files which are labeled with a previous data request
+ # label with the options: -m -o v1.2.2.3
  ./identify-ece4-cmip7-request.py v1.2.2.5 -a -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
  # The latter can be useful when a new data request update has taken place.
-
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
 
@@ -152,6 +152,9 @@
  ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2"
+
+ # Alternatively the OIFS field_def file from pycmor can be used, this one has been added here:
+ ls ../..//resources/pycmor-oifs-field_def/field_def_oifs_cmip7_pycmor.xml.j2
 
  # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:
