@@ -48,17 +48,17 @@
  mv -f create-ece4-genecec-cmip7-xml-files.log-v01 archive/log-files/v01
  # which covers the calls & description below.
 
- # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
- # the highest encountered priority for each variable):
+ # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains
+ # all CMIP7 variables including the highest encountered priority for each variable):
  ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.5 > cmip7-request.log
  mv -f cmip7-request.log cmip7-request-v1.2.2.5-all/
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-all/"
 
- grep '    adjusted'                  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log                                             | wc  # = 1960 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log                                             | wc  # = 3656 occurences
- grep 'Different priorities detected' cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =  236 occurences
- grep 'Priority adjusted from'        cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc  # =   65 occurences
+ grep '    adjusted'                  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log                                             | wc -l  # = 2019 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log                                             | wc -l  # = 3755 occurences
+ grep 'Different priorities detected' cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc -l  # =  264 occurences
+ grep 'Priority adjusted from'        cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all.log | tr -s ' ' | cut -d ' ' -f 9 | sort | uniq | wc -l  # =   66 occurences
 
  # The searches for establishing the iterate lists for the realm & cmip6_table ordering in the cmip7-request.py script code:
  grep -e 'cmip7_compound_name=' cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-priority-ordered.xml | sed -e 's/.*cmip7_compound_name="//' -e 's/\..*physical_parameter_name.*//' | sort | uniq                                           | tr '\n' ',' | sed -e 's/,/", "/g' -e 's/, "$/\n/' -e 's/^/\n"/'
