@@ -114,6 +114,10 @@ if [ "$#" -eq 1 ]; then
   ./generate_cmip7_oifs_field_def.py ${data_request_version} -v > generate_cmip7_oifs_field_def.log
   mv -f generate_cmip7_oifs_field_def.log archive/log-files/${version}/
 
+  # Removing from the latter priduced file all the variables with a not yet valid id:
+  grep -v -e 'id="None"' -e 'id="None"' xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2 > xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 
+  wc -l xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 # 563
+
   # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
   #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
