@@ -154,7 +154,10 @@
  echo "  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2"
 
  # Alternatively the OIFS field_def file from pycmor can be used, this one has been added here:
- ls ../..//resources/pycmor-oifs-field_def/field_def_oifs_cmip7_pycmor.xml.j2
+ ls ../../resources/pycmor-oifs-field_def/field_def_oifs_cmip7_pycmor.xml.j2
+ # The file:
+ ls ../../resources/pycmor-oifs-field_def/source-description.sh
+ # describes its origin.
 
  # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:
