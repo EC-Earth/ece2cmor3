@@ -87,7 +87,7 @@ if [ "$#" -eq 1 ]; then
   # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
   # ordered in a way to allow convenient working on these lists:
   # Depending on the genecec-cmip7 input files:
-  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
+  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-alphabetic-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
   if [ "${request_update}" = true ]; then
    echo " The option request_update has the manual activated value ${request_update}."

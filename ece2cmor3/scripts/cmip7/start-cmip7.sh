@@ -123,10 +123,10 @@
  # From the 237 CMIP6 table - variable combinations which are not in the CMIP7 request, 101 unique CMIP6 variables are requested in the CMIP7 request.
 
 
- # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
- # ordered in a way to allow convenient working on these lists:
+ # Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched
+ # identification info where possible, ordered in a way to allow convenient working on these lists:
  # Depending on the genecec-cmip7 input files:
- #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
+ #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-alphabetic-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
  #  Note that with the -m option there is an additional dependency on the manual edited XML files with the identification comment
  # Due to the merging of identification comments in maual edited files, three options follow for the next step:
