@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 """
-Create the combined files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6 matched identification info where possible,
-ordered in a way to allow convenient working on these lists:
+Create the combined XML files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6
+matched identification info where possible, ordered in a way to allow convenient working on these lists.
+In addition similar XML files are created for the unidentified variables and for the so called var_identified
+variables. The latter are variables which are actually identified in the ECE3 - CMIP6 framework but not for
+the same CMIP7 frequency.
 """
 
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
