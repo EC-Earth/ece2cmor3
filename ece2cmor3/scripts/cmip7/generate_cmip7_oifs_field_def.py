@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
 
- Scanning the XML structure of a set of XIOS field_def files:
+ Creating a new ECE4 - CMIP7 field_def file for OIFS (at least for not those ECE4 - CMIP7 identified
+ variables which are not yet part of the already known ECE4 OIFS variables in the various OIFS
+ field_def files. The latter are also already part of the ecearth_field_def_inherited_nf_file, the
+ ec-earth-definition-inherited-neat-formatted.xml, which is also loaded here. For the newly identified
+ variables the XML file:
+  xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml
+ is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
+ including its mapping to the CMIP7 request.
+
 
  Call example:
   ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
@@ -50,7 +58,7 @@ def main():
   tree_ecearth_field_def_inherited_nf = ET.parse(ecearth_field_def_inherited_nf_filename)
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
-  # Load the CMIP7 request with the identified info from CMIP7 - ECE3:
+  # Load the CMIP7 request with the identified info from CMIP6 - ECE3 mapped to the CMIP7 request:
   xml_filename_priority_ordered = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml'.format(dr_version)
   tree_cmip7_request = ET.parse(xml_filename_priority_ordered)
   root_cmip7_request = tree_cmip7_request.getroot()
