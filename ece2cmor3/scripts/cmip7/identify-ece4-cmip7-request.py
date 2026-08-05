@@ -8,6 +8,10 @@ the same CMIP7 frequency. Also a various reordered variants of these three files
 and subsequent selection criteria. The created XML files contain a large set of attributes, the CMIP7
 attributes, some additonal CMIP6 attributes and also ECE3 model component info, expression, identified status
 and identifying comment and comment author attributes.
+
+Note also the options "-m" and "-o <dr-version>". With those one can read the manual edited files which are
+archived in the repository. The purpose is to read in the manual provided identification info, i.e. the added
+info in the attributes: comment_author & comment.
 """
 
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
