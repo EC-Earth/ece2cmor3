@@ -297,6 +297,48 @@ def main():
   write_xml_file_closing(oifs_cmip7_xml_file)
 
 
+  def select_on_id_none_match(group):
+      selection = []
+      for message in group:
+       if 'id="None"' in message:
+        selection.append(message)
+       #group.pop # Doesn't work: I want to remove this matching message
+      return selection
+
+  def select_on_id_m7_match(group):
+      selection = []
+      for message in group:
+       if 'id="M7_no' in message:
+        selection.append(message)
+      return selection
+
+  # Write a similar XML file, but one which only contains the fields with; id="None"
+  oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
+  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_file_name)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_tavg     ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_none_match(group_lon_lat_plev19_time   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_none_match(group_lon_lat_alevel_time   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_none_match(group_lon_lat_plev3_time1   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height2m ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height10m))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_none_match(group_other                 ))
+  write_xml_file_closing(oifs_cmip7_xml_file)
+
+  # Write a similar XML file, but one which only contains the fields with; id="None"
+  oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
+  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_file_name)
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_tavg     ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_m7_match(group_lon_lat_plev19_time   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_m7_match(group_lon_lat_alevel_time   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_m7_match(group_lon_lat_plev3_time1   ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height2m ))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height10m))
+  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_m7_match(group_other                 ))
+  write_xml_file_closing(oifs_cmip7_xml_file)
+
+
 
   # Lists with messages for combined printing per message cathegory afterwards:
   message_list_of_ifs_shortname_matches   = []
