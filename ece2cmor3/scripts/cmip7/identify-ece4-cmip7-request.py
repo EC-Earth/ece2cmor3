@@ -4,7 +4,10 @@ Create the combined XML files with the CMIP7 requested variables for all priorit
 matched identification info where possible, ordered in a way to allow convenient working on these lists.
 In addition similar XML files are created for the unidentified variables and for the so called var_identified
 variables. The latter are variables which are actually identified in the ECE3 - CMIP6 framework but not for
-the same CMIP7 frequency.
+the same CMIP7 frequency. Also a various reordered variants of these three files are created, with different
+and subsequent selection criteria. The created XML files contain a large set of attributes, the CMIP7
+attributes, some additonal CMIP6 attributes and also ECE3 model component info, expression, identified status
+and identifying comment and comment author attributes.
 """
 
 import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
