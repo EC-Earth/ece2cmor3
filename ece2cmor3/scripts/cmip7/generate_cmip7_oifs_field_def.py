@@ -167,6 +167,8 @@ def main():
                                      group_other                   \
                                     ):
       xml_line = generate_xml_line_for_variable(cmip7_element, field_id, determine_operation_value(cmip7_element))
+      # Note that this method does not create a new XML tree, but with the group knowledge the
+      # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
                                                                                    group_lon_lat_time_tavg     .append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
