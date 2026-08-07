@@ -92,7 +92,7 @@ if [ "$#" -eq 1 ]; then
   if [ "${request_update}" = true ]; then
    echo " The option request_update has the manual activated value ${request_update}."
    # In case of a data request update: Use the line below instead:
-   ./identify-ece4-cmip7-request.py ${data_request_version} -a -m -o ${data_request_version_manual_edit} > identify-ece4-cmip7-request.log
+   ./identify-ece4-cmip7-request.py ${data_request_version} -m -o ${data_request_version_manual_edit} > identify-ece4-cmip7-request.log
    # Archive the most important, best ordered XML files:
    rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-identified-freq-mc-prio.xml      xml-files/
    rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-var_identified-freq-mc-prio.xml  xml-files/
@@ -103,7 +103,7 @@ if [ "$#" -eq 1 ]; then
    git add xml-files/cmip7-request-${data_request_version}-all-full-unidentified-freq-realm-prio.xml
   else
    echo " The option request_update has the default value ${request_update}."
-   ./identify-ece4-cmip7-request.py ${data_request_version} -a -m > identify-ece4-cmip7-request.log
+   ./identify-ece4-cmip7-request.py ${data_request_version} -m > identify-ece4-cmip7-request.log
   fi
   mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
 

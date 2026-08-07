@@ -35,7 +35,7 @@ def parse_args():
     # Positional (mandatory) input arguments
     parser.add_argument('dreq_version', choices=dc.get_versions()                            , help="data request version")
     # Optional input arguments
-    parser.add_argument('-a', '--addallattributes', action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-r', '--reduceattributes', action='store_true' , default=False      , help='Reduce number of included attributes (i.e. metadata)')
     parser.add_argument('-e', '--extraXMLoutput'  , action='store_true' , default=False      , help='Extra XML files (selections) will be generated')
     parser.add_argument('-m', '--usemanualfiles'  , action='store_true' , default=False      , help='Use the files with the manual identification added comments')
     parser.add_argument('-o', '--otherDRformanual', choices=dc.get_versions()                , help='Use other (i.e. previous) data request version files which have been manually edited to add the identification comment')
@@ -50,7 +50,7 @@ def write_xml_file_root_element_closing(xml_file):
     xml_file.write('</cmip7_variables>\n')
 
 
-def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
     if xml_out == None:
@@ -72,13 +72,13 @@ def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
       for element in root.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+       write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
        count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
 
-def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
+def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
     if xml_out == None:
@@ -101,14 +101,29 @@ def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribu
       xpath_expression = './/variable[@' + selected_attribute + ']'
       for element in root.findall(xpath_expression):
        if attribute_value in element.get(selected_attribute):
-        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
         count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
 
-def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
-    if add_all_attributes:
+def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
+    if reduce_attributes:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' long_name={:132}>' \
+                    '  </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    ) + '"', \
+                    '"' + element.get('priority'               ) + '"', \
+                    '"' + element.get('region'                 ) + '"', \
+                    '"' + element.get('cmip6_table'            ) + '"', \
+                    '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('long_name'              ) + '"') \
+                   )
+    else:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
                                 ' priority={:10}' \
                                 ' status={:20}' \
@@ -166,21 +181,6 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                     '"' + element.get('cell_methods'           )                                          + '"', \
                     '"' + element.get('out_name'               )                                          + '"', \
                     '"' + element.get('type'                   )                                          + '"') \
-                   )
-    else:
-     xml_file.write('  <variable  cmip7_compound_name={:55}' \
-                                ' priority={:10}' \
-                                ' region={:12}' \
-                                ' cmip6_table={:14}' \
-                                ' physical_parameter_name={:28}' \
-                                ' long_name={:132}>' \
-                    '  </variable>\n'.format( \
-                    '"' + element.get('cmip7_compound_name'    ) + '"', \
-                    '"' + element.get('priority'               ) + '"', \
-                    '"' + element.get('region'                 ) + '"', \
-                    '"' + element.get('cmip6_table'            ) + '"', \
-                    '"' + element.get('physical_parameter_name') + '"', \
-                    '"' + element.get('long_name'              ) + '"') \
                    )
     return
 
@@ -250,10 +250,10 @@ def main():
 
     args = parse_args()
 
-    dr_version          = args.dreq_version
-    add_all_attributes  = args.addallattributes
-    extra_xml_output    = args.extraXMLoutput
-    use_manual_files    = args.usemanualfiles
+    dr_version        = args.dreq_version
+    reduce_attributes = args.reduceattributes
+    extra_xml_output  = args.extraXMLoutput
+    use_manual_files  = args.usemanualfiles
     if args.otherDRformanual:
      dr_version_manual_file = args.otherDRformanual
     else:
@@ -443,7 +443,7 @@ def main():
              element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
              element.set('comment'        , manual_comment_unidentified_element.get('comment'))
 
-        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
         count += 1
       print(' {:4} variables with realm {}'.format(count, realm))
      write_xml_file_root_element_closing(xml_file)
@@ -467,70 +467,70 @@ def main():
 
 
     # Load the realm ordered XML file and create the cmip6-table ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered , 'cmip6_table'            , value_list_with_cmip6_tables    , add_all_attributes, xml_filename_cmip6_table_ordered)
+    reorder_xml_file(xml_filename_realm_ordered , 'cmip6_table'            , value_list_with_cmip6_tables, reduce_attributes, xml_filename_cmip6_table_ordered)
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered , 'priority'               , value_list_with_priorities      , add_all_attributes, xml_filename_priority_ordered)
+    reorder_xml_file(xml_filename_realm_ordered , 'priority'               , value_list_with_priorities  , reduce_attributes, xml_filename_priority_ordered)
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
-    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies    , add_all_attributes, xml_filename_frequency_ordered, label='frequency')
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies, reduce_attributes, xml_filename_frequency_ordered, label='frequency')
 
     # Load the frequency ordered XML file and create the status ordered XML file:
-    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status         , add_all_attributes, xml_filename_status_ordered)
+    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status     , reduce_attributes, xml_filename_status_ordered)
 
     # Load the realm ordered XML file and write three different XML files per identification status:
     for status in value_list_with_status:
-     reorder_xml_file(xml_filename_realm_ordered, 'status'                 , [status]                        , add_all_attributes, xml_filename_realm_ordered.replace("realm", status), status)
+     reorder_xml_file(xml_filename_realm_ordered, 'status'                 , [status]                    , reduce_attributes, xml_filename_realm_ordered.replace("realm", status), status)
 
 
     # 1. Load the identified                           ordered XML file and create the identified frequency                          ordered XML file.
     # 2. Load the identified frequency                 ordered XML file and create the identified frequency model_component          ordered XML file.
     # 3. Load the identified frequency model_component ordered XML file and create the identified frequency model_component priority ordered XML file.
-    reorder_xml_file_2(xml_filename_identified        , 'cmip7_compound_name', value_list_with_frequencies     , add_all_attributes, xml_filename_identified_freq        , label='frequency')
-    reorder_xml_file  (xml_filename_identified_freq   , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_freq_mc     )
-    reorder_xml_file  (xml_filename_identified_freq_mc, 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_freq_mc_prio)
+    reorder_xml_file_2(xml_filename_identified        , 'cmip7_compound_name', value_list_with_frequencies     , reduce_attributes, xml_filename_identified_freq        , label='frequency')
+    reorder_xml_file  (xml_filename_identified_freq   , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_freq_mc     )
+    reorder_xml_file  (xml_filename_identified_freq_mc, 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_freq_mc_prio)
 
     # 1. Load the identified_var                           ordered XML file and create the identified_var frequency                          ordered XML file.
     # 2. Load the identified_var frequency                 ordered XML file and create the identified_var frequency model_component          ordered XML file.
     # 3. Load the identified_var frequency model_component ordered XML file and create the identified_var frequency model_component priority ordered XML file.
-    reorder_xml_file_2(xml_filename_identified_var        , 'cmip7_compound_name', value_list_with_frequencies     , add_all_attributes, xml_filename_identified_var_freq        , label='frequency')
-    reorder_xml_file  (xml_filename_identified_var_freq   , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_var_freq_mc     )
-    reorder_xml_file  (xml_filename_identified_var_freq_mc, 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_freq_mc_prio)
+    reorder_xml_file_2(xml_filename_identified_var        , 'cmip7_compound_name', value_list_with_frequencies     , reduce_attributes, xml_filename_identified_var_freq        , label='frequency')
+    reorder_xml_file  (xml_filename_identified_var_freq   , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_var_freq_mc     )
+    reorder_xml_file  (xml_filename_identified_var_freq_mc, 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_freq_mc_prio)
 
     # 1. Load the unidentified                 ordered XML file and create the unidentified frequency                ordered XML file.
     # 2. Load the unidentified frequency       ordered XML file and create the unidentified frequency realm          ordered XML file.
     # 3. Load the unidentified frequency realm ordered XML file and create the unidentified frequency realm priority ordered XML file.
-    reorder_xml_file_2(xml_filename_unidentified           , 'cmip7_compound_name', value_list_with_frequencies, add_all_attributes, xml_filename_unidentified_freq           , label='frequency')
-    reorder_xml_file_2(xml_filename_unidentified_freq      , 'cmip7_compound_name', value_list_with_realms     , add_all_attributes, xml_filename_unidentified_freq_realm     , label='realm')
-    reorder_xml_file  (xml_filename_unidentified_freq_realm, 'priority'           , value_list_with_priorities , add_all_attributes, xml_filename_unidentified_freq_realm_prio)
+    reorder_xml_file_2(xml_filename_unidentified           , 'cmip7_compound_name', value_list_with_frequencies, reduce_attributes, xml_filename_unidentified_freq           , label='frequency')
+    reorder_xml_file_2(xml_filename_unidentified_freq      , 'cmip7_compound_name', value_list_with_realms     , reduce_attributes, xml_filename_unidentified_freq_realm     , label='realm')
+    reorder_xml_file  (xml_filename_unidentified_freq_realm, 'priority'           , value_list_with_priorities , reduce_attributes, xml_filename_unidentified_freq_realm_prio)
 
 
     if extra_xml_output:
      # 1. Load the identified                 ordered XML file and create the identified model_component          ordered XML file.
      # 2. Load the identified model_component ordered XML file and create the identified model_component priority ordered XML file.
-     reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_mc)
-     reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_mc_prio)
+     reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_mc)
+     reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_mc_prio)
 
      # 1. Load the identified ordered XML file and create the priority ordered XML file:
-     reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_prio)
+     reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_prio)
 
 
      # 1. Load the identified_var                 ordered XML file and create the identified_var model_component          ordered XML file.
      # 2. Load the identified_var model_component ordered XML file and create the identified_var model_component priority ordered XML file.
-     reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, add_all_attributes, xml_filename_identified_var_mc)
-     reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_mc_prio)
+     reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_var_mc)
+     reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_mc_prio)
 
      # 1. Load the identified_var ordered XML file and create the priority ordered XML file.
-     reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_identified_var_prio)
+     reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_prio)
 
 
      # 1. Load the unidentified       ordered XML file and create the unidentified realm          ordered XML file.
      # 2. Load the unidentified realm ordered XML file and create the unidentified realm priority ordered XML file.
-     reorder_xml_file_2(xml_filename_unidentified      , 'cmip7_compound_name', value_list_with_realms        , add_all_attributes, xml_filename_unidentified_realm, label='realm')
-     reorder_xml_file  (xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities    , add_all_attributes, xml_filename_unidentified_realm_prio)
+     reorder_xml_file_2(xml_filename_unidentified      , 'cmip7_compound_name', value_list_with_realms        , reduce_attributes, xml_filename_unidentified_realm, label='realm')
+     reorder_xml_file  (xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities    , reduce_attributes, xml_filename_unidentified_realm_prio)
 
      # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
-     reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , add_all_attributes, xml_filename_unidentified_prio)
+     reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_unidentified_prio)
 
 
 
@@ -551,7 +551,7 @@ def main():
        count += 1
        if element.get('physical_parameter_name') not in list_of_unique_physical_parameters:
         list_of_unique_physical_parameters.append(element.get('physical_parameter_name'))
-        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
       print(' From the {:4} {:15} variables there are {:4} unique variables'.format(count, status, len(list_of_unique_physical_parameters)))
       write_xml_file_root_element_closing(xml_file)
 
