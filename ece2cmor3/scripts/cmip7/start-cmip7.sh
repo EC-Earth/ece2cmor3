@@ -12,12 +12,12 @@
  # access.
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
- ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.5
+ ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high -r v1.2.2.5
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-piControl-historical/"
 
  # Producing only the core variable set:
- ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.5
+ ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core -r v1.2.2.5
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-historical/"
 
