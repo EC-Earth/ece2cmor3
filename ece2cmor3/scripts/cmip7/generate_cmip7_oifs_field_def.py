@@ -315,8 +315,8 @@ def main():
       return selection
 
   # Write a similar XML file, but one which only contains the fields with; id="None"
-  oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
-  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_file_name)
+  oifs_cmip7_field_def_id_none_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
+  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_none_file_name)
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_tavg     ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_none_match(group_lon_lat_plev19_time   ))
@@ -328,8 +328,8 @@ def main():
   write_xml_file_closing(oifs_cmip7_xml_file)
 
   # Write a similar XML file, but one which only contains the fields with; id="None"
-  oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
-  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_file_name)
+  oifs_cmip7_field_def_id_m7_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
+  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_m7_file_name)
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_tavg     ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_m7_match(group_lon_lat_plev19_time   ))
@@ -431,7 +431,11 @@ def main():
 #   </file>
 
   print_next_step_message(2, 'FINISHING')
-  print(' The script\n  {:}\n has finished, the generated file is:\n  {}\n'.format(' '.join(sys.argv), oifs_cmip7_field_def_file_name))
+  print(' The script\n  {:}\n has finished, the generated file are:\n  {}\n  {}\n  {}\n'.format(' '.join(sys.argv), \
+                                                                                                oifs_cmip7_field_def_file_name, \
+                                                                                                oifs_cmip7_field_def_id_none_file_name, \
+                                                                                                oifs_cmip7_field_def_id_m7_file_name, \
+                                                                                                ))
 
 if __name__ == '__main__':
     main()
