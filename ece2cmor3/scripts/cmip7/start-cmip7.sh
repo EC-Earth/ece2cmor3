@@ -1,15 +1,22 @@
- # Name of this file needs to be changed. Though it is in bash form and possibly could be executed, it is for now more indtended to use
- # as an overview from which in the given sequence the scripts can be copied and run in the conmmandline manually.
+ # Name of this file needs to be changed. Though it is in bash form and possibly could be executed, it is for now
+ # more indtended to use as an overview. In the given sequence, the scripts can be copied and run in the conmmandline
+ # manually. The script:
+ #  ./create-ece4-genecec-cmip7-xml-files.sh
+ # covers all these commands and some file management for the ECE4 related part.
 
-
- # The very compact guidelines in script / command-line form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily under development.
- # Based on the lessons learned from the ECE3 genecec CMIP6 approach and based on the possibilities for the CMIP7 DR framework: The genecec CMIP7
- # framework is fully based on XML data bases (following the XIOS approach) using XPATH. All scripts are in python and nearly everywhere (at least
- # everywhere where possible) the CMIP7 DR python API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository).
+ # Compact guidelines in script / command-line form for running the new genecec for CMIP7 ECE3 & ECE4, which is heavily
+ # under development.
+ # Based on the lessons learned from the ECE3 genecec CMIP6 approach and based on the possibilities for the
+ # CMIP7 DR framework: The genecec CMIP7 framework is fully based on XML data bases (following the XIOS approach)
+ # using XPATH. All scripts are in python and nearly everywhere (at least everywhere where possible) the CMIP7 DR python
+ # API is used as interface with the CMIP7 DR (using the CMIP7 data request Software repository).
  
- # Currently the CMIP7 DR Software calls the actual CMIP7 DR Content (latest version), this will in its unchanged form try to connect to the internet
- # for the latest Content state, and therefore can be unexpectedly slow with a bad connection or lead to interruption on a platfrom without internet
- # access.
+ # The CMIP7 DR Software calls the actual CMIP7 DR Content (latest version), this will try to connect for access
+ # to this database in order to find out whether there are updates for the latest Content state, and therefore
+ # it can be unexpectedly slow with a bad connection or lead to interruption on a platfrom without internet access.
+ # This can be avoided by using an offline mode, which can be switched on / off by:
+ ./switch-on-off-dr-offline-mode.sh activate-dr-offline-mode
+ ./switch-on-off-dr-offline-mode.sh deactivate-dr-offline-mode
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
  ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high -r v1.2.2.5
