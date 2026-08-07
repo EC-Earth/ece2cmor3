@@ -162,7 +162,9 @@
 
  # Removing from the latter produced file all the variables with a not yet valid id:
  grep -v -e 'id="None"' -e 'id="M7_no' xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2 > xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2
- grep -e '<field' xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 | wc # 382
+ number_of_variables=`grep -e '<field' xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 | wc -l # 382`
+ echo
+ echo " The xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 contains ${number_of_variables} well defined variables."
 
 
  # Alternatively the OIFS field_def file from pycmor can be used, this one has been added here:
