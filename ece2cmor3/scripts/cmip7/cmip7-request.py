@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 """
-Command line interface for retrieving simple variable lists from the data request.
-Return a list per specified experiment of CMIP7 compound variables including the mapping to the CMIP6 table - var combination
+Command line interface for retrieving simple variable lists from the CMIP7 data request.
 
-This script is based on the script: CMIP7_DReq_Software/data_request_api/data_request_api/command_line/export_dreq_lists_json.py
+Creates several XML files and a json file containing the CMIP7 compound variables including the mapping
+to the CMIP6 table - var combination for a specified experiment (or list of experiments) and a specified
+priority level. It is also possible to select on opportunities, often all oppertunities are
+included. All CMIP7 data request metadata fields are added as attributes for each CMIP7 compount variable
+for the XML files.
+
+
+This script is based on the script:
+ CMIP7_DReq_Software/data_request_api/data_request_api/command_line/export_dreq_lists_json.py
 """
 
 import sys
