@@ -177,7 +177,21 @@
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
- ./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+#./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
+
+
+ # Experiment requests are archived in the xml-files/experiment-requests/ directory. A kind
+ # of intermediate layer is created because also CMIP7 adjusted data requests could be made.
+ # For instance combined requests, or manual adjusted requests.
+ mkdir -p xml-files/experiment-requests/
+ ./cmip7-request.py -a -e historical -p core v1.2.2.5
+ mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml
+ ./cmip7-request.py -a -e historical -p high v1.2.2.5
+ mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/
+ ./cmip7-request.py -a -e esm-hist -p high v1.2.2.5
+ mv cmip7-request-v1.2.2.5-esm-hist/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml  xml-files/experiment-requests/
+
+
 
 
 
