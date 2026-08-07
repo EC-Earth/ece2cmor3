@@ -21,7 +21,7 @@ if [ "$#" -eq 1 ]; then
 
   # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains all CMIP7 variables including
   # the highest encountered priority for each variable):
-  ./cmip7-request.py --all_opportunities --priority_cutoff low -r ${data_request_version} > cmip7-request.log
+  ./cmip7-request.py --all_opportunities --priority_cutoff low ${data_request_version} > cmip7-request.log
   mv -f cmip7-request.log cmip7-request-${data_request_version}-all/
 
   log_file=cmip7-request-${data_request_version}-all/cmip7-request-${data_request_version}-all.log

@@ -293,7 +293,7 @@ def main():
 
     # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
     if os.path.isfile(xml_filename_alphabetic_ordered) == False:
-     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low -r {}\n'.format(error_message, xml_filename_alphabetic_ordered, dr_version))
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low {}\n'.format(error_message, xml_filename_alphabetic_ordered, dr_version))
      sys.exit(abort_message)
     tree_alphabetic   = ET.parse(xml_filename_alphabetic_ordered)
     root_alphabetic   = tree_alphabetic.getroot()

@@ -19,12 +19,12 @@
  ./switch-on-off-dr-offline-mode.sh deactivate-dr-offline-mode
 
  # With this script one can obtain the CMIP7 requested variables of a specified set of CMIIP7 experiments (it is based on one of the CMIP7 API examples):
- ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high -r v1.2.2.5
+ ./cmip7-request.py --all_opportunities --experiments piControl,historical --priority_cutoff high v1.2.2.5
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-piControl-historical/"
 
  # Producing only the core variable set:
- ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core -r v1.2.2.5
+ ./cmip7-request.py --all_opportunities --experiments           historical --priority_cutoff core v1.2.2.5
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-historical/"
 
@@ -57,7 +57,7 @@
 
  # Requesting the variables for all experiments and for all priority levels (which creates an XML file which contains
  # all CMIP7 variables including the highest encountered priority for each variable):
- ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.5 > cmip7-request.log
+ ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.5 > cmip7-request.log
  mv -f cmip7-request.log cmip7-request-v1.2.2.5-all/
  echo " Produces the directory:"
  echo "  cmip7-request-v1.2.2.5-all/"
@@ -209,8 +209,8 @@
  diff -r xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
  # Run & check:
- rm -rf cmip7-request-v1.2.2.5-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low -r v1.2.2.5; diff -r cmip7-request-v1.2.2.5-all                   archive/cmip7-request-v1.2.2.5-all/v02
- rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py -a                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
+ rm -rf cmip7-request-v1.2.2.5-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.5; diff -r cmip7-request-v1.2.2.5-all                   archive/cmip7-request-v1.2.2.5-all/v02
+ rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py -a                                  ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
 
 
 

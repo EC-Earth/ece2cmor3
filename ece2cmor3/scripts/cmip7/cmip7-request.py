@@ -70,7 +70,7 @@ def parse_args():
     parser.add_argument('-e', '--experiments'       , type=parse_input_list                    , help=f'limit output to the specified experiments (case sensitive), example: -e historical{sep}piControl')
     parser.add_argument('-p', '--priority_cutoff'   , default='low', choices=dq.PRIORITY_LEVELS, help="discard variables that are requested at lower priority than this cutoff priority")
     parser.add_argument('-m', '--variables_metadata', type=str                                 , help='output file containing metadata of requested variables, can be ".json" or ".csv" file')
-    parser.add_argument('-r', '--addallattributes'  , action='store_true' , default=False      , help='Add all the attributes with which all the metadata is included')
+    parser.add_argument('-r', '--reduceattributes'  , action='store_true' , default=False      , help='Reduce number of included attributes (i.e. metadata)')
     return parser.parse_args()
 
 
@@ -82,7 +82,7 @@ def write_xml_file_root_element_closing(xml_file):
     xml_file.write('</cmip7_variables>\n')
 
 
-def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
     if xml_out == None:
@@ -104,13 +104,13 @@ def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute
       count = 0
       xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
       for element in root.findall(xpath_expression):
-       write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+       write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
        count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
 
-def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, add_all_attributes, xml_out=None, label=None):
+def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
     extension                = '.xml'
     replacing_extension      = '-' + selected_attribute + '-ordered' + extension
     if xml_out == None:
@@ -133,14 +133,31 @@ def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribu
       xpath_expression = './/variable[@' + selected_attribute + ']'
       for element in root.findall(xpath_expression):
        if attribute_value in element.get(selected_attribute):
-        write_xml_file_line_for_variable(xml_file, element, add_all_attributes)
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
         count += 1
       print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
      write_xml_file_root_element_closing(xml_file)
 
 
-def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
-    if add_all_attributes:
+def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
+    if reduce_attributes:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' long_name={:132}>' \
+                    '  </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    ) + '"', \
+                    '"' + element.get('priority'               ) + '"', \
+                    '"' + element.get('region'                 ) + '"', \
+                    '"' + element.get('cmip6_table'            ) + '"', \
+                    '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('cmip6_compound_name'    ) + '"', \
+                    '"' + element.get('long_name'              ) + '"') \
+                   )
+    else:
      xml_file.write('  <variable  cmip7_compound_name={:55}' \
                                 ' priority={:10}' \
                                 ' frequency={:15}' \
@@ -183,28 +200,27 @@ def write_xml_file_line_for_variable(xml_file, element, add_all_attributes):
                     '"' + str(element.get('out_name'               )) + '"', \
                     '"' + str(element.get('type'                   )) + '"') \
                    )
-    else:
-     xml_file.write('  <variable  cmip7_compound_name={:55}' \
-                                ' priority={:10}' \
-                                ' region={:12}' \
-                                ' cmip6_table={:14}' \
-                                ' physical_parameter_name={:28}' \
-                                ' cmip6_compound_name={:40}' \
-                                ' long_name={:132}>' \
-                    '  </variable>\n'.format( \
-                    '"' + element.get('cmip7_compound_name'    ) + '"', \
-                    '"' + element.get('priority'               ) + '"', \
-                    '"' + element.get('region'                 ) + '"', \
-                    '"' + element.get('cmip6_table'            ) + '"', \
-                    '"' + element.get('physical_parameter_name') + '"', \
-                    '"' + element.get('cmip6_compound_name'    ) + '"', \
-                    '"' + element.get('long_name'              ) + '"') \
-                   )
     return
 
 
-def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group, add_all_attributes):
-    if add_all_attributes:
+def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, priority_group, reduce_attributes):
+    if reduce_attributes:
+     varlist.append('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10} region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' long_name={:132}' \
+                                '>  </variable>\n'.format( \
+                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
+                    '"' + priority_group                                        + '"', \
+                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
+                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
+                    '"' + var_metadata[compound_var]['cmip6_compound_name'    ] + '"', \
+                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
+                   )
+    else:
      varlist.append('  <variable  cmip7_compound_name={:55}' \
                                 ' priority={:10}' \
                                 ' frequency={:15}' \
@@ -247,22 +263,6 @@ def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, prior
                     '"' + var_metadata[compound_var]['out_name'               ] + '"', \
                     '"' + var_metadata[compound_var]['type'                   ] + '"') \
                    )
-    else:
-     varlist.append('  <variable  cmip7_compound_name={:55}' \
-                                ' priority={:10} region={:12}' \
-                                ' cmip6_table={:14}' \
-                                ' physical_parameter_name={:28}' \
-                                ' cmip6_compound_name={:40}' \
-                                ' long_name={:132}' \
-                                '>  </variable>\n'.format( \
-                    '"' + var_metadata[compound_var]['cmip7_compound_name'    ] + '"', \
-                    '"' + priority_group                                        + '"', \
-                    '"' + var_metadata[compound_var]['region'                 ] + '"', \
-                    '"' + var_metadata[compound_var]['cmip6_table'            ] + '"', \
-                    '"' + var_metadata[compound_var]['physical_parameter_name'] + '"', \
-                    '"' + var_metadata[compound_var]['cmip6_compound_name'    ] + '"', \
-                    '"' + var_metadata[compound_var]['long_name'              ] + '"') \
-                   )
     return
 
 
@@ -281,7 +281,7 @@ def main():
     else:
      experiment_label = '-all'
 
-    add_all_attributes = args.addallattributes
+    reduce_attributes = args.reduceattributes
 
 
     output_label    = 'cmip7-request-{}{}'.format(use_dreq_version, experiment_label)
@@ -446,7 +446,7 @@ def main():
            if compound_var not in var_list:
             var_list.append(compound_var)
             prio_list.append(priority_dict[priority_group])  # same sequence as for var_list
-            append_xml_file_line_for_variable(var_list_for_xml, var_metadata, compound_var, priority_group, add_all_attributes)
+            append_xml_file_line_for_variable(var_list_for_xml, var_metadata, compound_var, priority_group, reduce_attributes)
            else:
             index = var_list.index(compound_var)
             previous_prio_numeric = prio_list[index]
@@ -505,16 +505,16 @@ def main():
     value_list_with_frequencies      = [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]
 
     # Load the alphabetic ordered XML file and create the realm ordered XML file:
-    reorder_xml_file_2(xml_filename_alphabetic_ordered , 'cmip7_compound_name' , value_list_with_realms      , add_all_attributes, xml_filename_realm_ordered, label='realm')
+    reorder_xml_file_2(xml_filename_alphabetic_ordered , 'cmip7_compound_name' , value_list_with_realms      , reduce_attributes, xml_filename_realm_ordered, label='realm')
 
     # Load the realm ordered XML file and create the priority ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered        , 'priority'            , value_list_with_priorities  , add_all_attributes, xml_filename_priority_ordered)
+    reorder_xml_file(xml_filename_realm_ordered        , 'priority'            , value_list_with_priorities  , reduce_attributes, xml_filename_priority_ordered)
 
     # Load the priority ordered XML file and create the frequency ordered XML file:
-    reorder_xml_file_2(xml_filename_priority_ordered   , 'cmip7_compound_name' , value_list_with_frequencies , add_all_attributes, xml_filename_frequency_ordered, label='frequency')
+    reorder_xml_file_2(xml_filename_priority_ordered   , 'cmip7_compound_name' , value_list_with_frequencies , reduce_attributes, xml_filename_frequency_ordered, label='frequency')
 
     # Load the realm ordered XML file and create the cmip6-table ordered XML file:
-    reorder_xml_file(xml_filename_realm_ordered        , 'cmip6_table'         , value_list_with_cmip6_tables, add_all_attributes, xml_filename_cmip6_table_ordered)
+    reorder_xml_file(xml_filename_realm_ordered        , 'cmip6_table'         , value_list_with_cmip6_tables, reduce_attributes, xml_filename_cmip6_table_ordered)
 
 
     if args.variables_metadata:
