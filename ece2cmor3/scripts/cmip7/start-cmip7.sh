@@ -186,6 +186,8 @@
  mkdir -p xml-files/experiment-requests/
  ./cmip7-request.py -a -e historical -p core v1.2.2.5
  mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml
+ ./cmip7-request.py -a -e piControl -p high v1.2.2.5
+ mv cmip7-request-v1.2.2.5-piControl/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml    xml-files/experiment-requests/
  ./cmip7-request.py -a -e historical -p high v1.2.2.5
  mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/
  ./cmip7-request.py -a -e esm-hist -p high v1.2.2.5
