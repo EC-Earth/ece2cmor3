@@ -28,8 +28,8 @@ def main():
  field_def_file_pis          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-pisces.xml.j2'
  field_def_file_ice          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
 #field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
- # For a number of variables duplicate id's exist, one of the pair has got an deviating id by the addition of a 2 in the id name.
- # This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
+ # For a number of variables duplicate id's exist, one of the pair has got a deviating id by the addition of a 2 in the
+ # id name. This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
  field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2-unique-id'
  field_def_file_ifs_raw      = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
  field_def_file_ifs_cmip6    = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_cmip6.xml.j2'
@@ -49,9 +49,9 @@ def main():
                              ]
 
  if True:
-  # Scan the field_def file stucture, how many layers (child, grandchild and so on). Discover whether a field_group and field
-  # element are defined at the same level. Or whether within a field_group another field_group is defined. Check for other tags
-  # than "field" and field_group (this is currently not the case).
+  # Scan the field_def file stucture, how many layers (child, grandchild and so on). Discover whether a field_group
+  # and field element are defined at the same level. Or whether within a field_group another field_group is defined.
+  # Check for other tags than "field" and field_group (this is currently not the case).
   print_next_step_message(1, 'Scan the field_def file stucture')
 
   # Loop over the various field_def files:
@@ -127,7 +127,8 @@ def main():
 
 
  if True:
-  # Show for a certain xpath expression for a certain selected attribute for a certain xpath path which elements are selected:
+  # Show for a certain xpath expression for a certain selected attribute for a certain xpath path which elements
+  # are selected:
   print_next_step_message(2, 'Show the selected elements for a certain xpath expression')
 
   selected_attribute = 'field_ref'
@@ -146,7 +147,9 @@ def main():
 
   # Loop again over the various field_def files:
   for field_def_file in field_def_file_collection:
-   if os.path.isfile(field_def_file) == False: print(' The field_def file {} does not exist.'.format(field_def_file)); sys.exit(' stop')
+   if os.path.isfile(field_def_file) == False:
+    print(' The field_def file {} does not exist.'.format(field_def_file))
+    sys.exit(' stop')
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(field_def_file)
@@ -164,7 +167,8 @@ def main():
 
 
  if True:
-  # Loop over all field & field_group elements at all levels and check whether they have at least a field_ref or an id. And count the number of field elements.
+  # Loop over all field & field_group elements at all levels and check whether they have at least a field_ref
+  # or an id. And count the number of field elements.
   print_next_step_message(3, 'Check if at least a field_ref or an id attribute is present')
 
   tags = ['field', 'field_group']
@@ -174,7 +178,9 @@ def main():
 
    # Loop again over the various field_def files:
    for field_def_file in field_def_file_collection:
-    if os.path.isfile(field_def_file) == False: print(' The field_def file {} does not exist.'.format(field_def_file)); sys.exit(' stop')
+    if os.path.isfile(field_def_file) == False:
+     print(' The field_def file {} does not exist.'.format(field_def_file))
+     sys.exit(' stop')
 
     # Split in path pf[0] & file pf[1]:
     pf = os.path.split(field_def_file)
@@ -183,8 +189,9 @@ def main():
     tree = ET.parse(field_def_file)
     root = tree.getroot()
 
-    # Conclusion after running this: For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
-    # In a few cases when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
+    # Conclusion after running this: For every field element either an id or a field_ref attribute is present in all
+    # field elements in all field_def files. In a few cases when a field_ref attribute is present an id attribute is
+    # specified as well in the field_def files for a field element.
     i_f           = 0  # The number of field elements
     i_id_or_fr    = 0  # The number of field elements with    a field_ref attribute or an id attribute
     i_no_id_or_fr = 0  # The number of field elements without a field_ref attribute and without an id attribute. This should not occur and thus be zero
@@ -203,8 +210,8 @@ def main():
 
 
  if True:
-  # Loop over all field & field_group elements at all levels and check more about the explicit field_ref and grid_ref attribute
-  # inclusion for the elements (leaving out inheritage here)
+  # Loop over all field & field_group elements at all levels and check more about the explicit field_ref and grid_ref
+  # attribute inclusion for the elements (leaving out inheritage here)
   print_next_step_message(4, 'Loop over all tags with a field_ref attribute, check if id is present')
 
   verbose_level = 0
@@ -220,7 +227,9 @@ def main():
 
    # Loop again over the various field_def files:
    for field_def_file in field_def_file_collection:
-    if os.path.isfile(field_def_file) == False: print(' The field_def file {} does not exist.'.format(field_def_file)); sys.exit(' stop')
+    if os.path.isfile(field_def_file) == False:
+     print(' The field_def file {} does not exist.'.format(field_def_file))
+     sys.exit(' stop')
 
     # Split in path pf[0] & file pf[1]:
     pf = os.path.split(field_def_file)
@@ -229,8 +238,9 @@ def main():
     tree = ET.parse(field_def_file)
     root = tree.getroot()
 
-    # For every field element either an id or a field_ref attribute is present in all field elements in all field_def files.
-    # In a few caseses when a field_ref attribute is present an id attribute is specified as well in the field_def files for a field element.
+    # For every field element either an id or a field_ref attribute is present in all field elements in all
+    # field_def files. In a few caseses when a field_ref attribute is present an id attribute is specified
+    # as well in the field_def files for a field element.
     i_f            = 0  # The number of field elements
     i_fr           = 0  # The number of field elements with    a field_ref attribute
     i_no_fr        = 0  # The number of field elements without a field_ref attribute
@@ -273,7 +283,8 @@ def main():
       else:
        grid_ref_info = 'has no grid_ref {}'.format(element.get('grid_ref'))
 
-     if verbose_level > 0: print(' A {} element {} and {} and {}'   .format(element.tag, field_ref_info, id_info, grid_ref_info))
+     if verbose_level > 0:
+      print(' A {} element {} and {} and {}'   .format(element.tag, field_ref_info, id_info, grid_ref_info))
 
 
     print(' {:4} {:12} elements with a field_ref attribute, {:3} with field_ref & grid_ref attribute, {:3} without field_ref & with grid_ref attribute in the field_def file {}'.format(i_fr, element.tag, i_fr_and_gr, i_no_fr_and_gr, pf[1]))
@@ -296,8 +307,8 @@ def main():
   subprocess.run(["mkdir", "-p", output_dir_name])
 
   ecearth_field_def_filename         = output_dir_name + 'ec-earth-definition.xml'                # The one which is not canonicalized
-  ecearth_field_def_filename_canonic = output_dir_name + 'ec-earth-definition-canonic.xml'        # The one which is     canonicalized
   ecearth_field_def_nf_filename      = output_dir_name + 'ec-earth-definition-neat-formatted.xml' # The one with the neat formatted (nf) format with a controlled order of the attributes
+ #ecearth_field_def_filename_canonic = output_dir_name + 'ec-earth-definition-canonic.xml'        # The one which is     canonicalized
 
 
   # Create the basic main structure which will be populated with the elements of the various field_def files later on:
@@ -318,7 +329,8 @@ def main():
 
    # Write the basic xml structure to a file:
    tree_main.write(ecearth_field_def_filename_tmp)
-   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
+   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing
+   # non-functional spaces
    with open(ecearth_field_def_filename, mode='w', encoding='utf-8') as out_file:
     ET.canonicalize(from_file=ecearth_field_def_filename_tmp, with_comments=True, out=out_file)
 
@@ -334,7 +346,9 @@ def main():
 
   # Loop again over the various field_def files:
   for field_def_file in field_def_file_collection:
-   if os.path.isfile(field_def_file) == False: print(' The field_def file {} does not exist.'.format(field_def_file)); sys.exit(' stop')
+   if os.path.isfile(field_def_file) == False:
+    print(' The field_def file {} does not exist.'.format(field_def_file))
+    sys.exit(' stop')
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(field_def_file)
@@ -348,13 +362,17 @@ def main():
    # Add a new attribute original_file to each field_definition tag:
    root.set("original_file", pf[1])
 
-   # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the new field_def file:
+   # Append the root element of each field_def file to the level of the ecearth4_*_field_definition in the
+   # new field_def file:
    if field_def_file in [field_def_file_ifs_raw, field_def_file_ifs_cmip6, field_def_file_ifs_noncmip6, field_def_file_ifs_cmip7]:
     xpath_for_merge = ".//ecearth4_oifs_field_definition"
    elif field_def_file == field_def_file_lpj:
     xpath_for_merge = ".//ecearth4_lpjg_field_definition"
-   else:
+   elif field_def_file in [field_def_file_inn, field_def_file_pis, field_def_file_ice, field_def_file_oce]:
     xpath_for_merge = ".//ecearth4_nemo_field_definition"
+   else:
+    print(' Coding error: {} does not exist.'.format(field_def_file))
+    sys.exit(' Aborting the script: {}\n'.format(sys.argv[0]))
    for element in root_main.findall(xpath_for_merge):
     element.append(root)
 
@@ -365,8 +383,8 @@ def main():
   tree_main.write(ecearth_field_def_filename)
 
   # Alphabetically ordering of attributes and tags, explicit tag closing (i.e with tag name), removing non-functional spaces
-  with open(ecearth_field_def_filename_canonic, mode='w', encoding='utf-8') as out_file:
-   ET.canonicalize(from_file=ecearth_field_def_filename, with_comments=True, out=out_file)
+ #with open(ecearth_field_def_filename_canonic, mode='w', encoding='utf-8') as out_file:
+ # ET.canonicalize(from_file=ecearth_field_def_filename, with_comments=True, out=out_file)
 
 
   def convert_to_neat_formatted_xml(ecearth_field_def_filename, ecearth_field_def_nf_filename):
@@ -374,7 +392,8 @@ def main():
    tree_ecearth_field_def = ET.parse(ecearth_field_def_filename)
    root_ecearth_field_def = tree_ecearth_field_def.getroot()
 
-   # One neat formatted field_def file including all component field_def files is created with a controlled order of the attributes:
+   # One neat formatted field_def file including all component field_def files is created with a controlled
+   # order of the attributes:
    with open(ecearth_field_def_nf_filename, 'w') as ecearth_field_def_nf:
     tag_path = []
     for event, elem_nf in ET.iterparse(ecearth_field_def_filename, events=("start", "end")):
@@ -426,7 +445,24 @@ def main():
            if attribute_comment             [-7:] == '="None"': attribute_comment              = ''
 
           for attribute in elem_nf.attrib:
-           if attribute not in ['id', 'field_ref', 'enabled', 'unit', 'grid_ref', 'axis_ref', 'name', 'operation', 'freq_op', 'freq_offset', 'expr', 'detect_missing_value', 'prec', 'read_access', 'standard_name', 'long_name', 'comment']:
+           if attribute not in ['id'                  , \
+                                'field_ref'           , \
+                                'enabled'             , \
+                                'unit'                , \
+                                'grid_ref'            , \
+                                'axis_ref'            , \
+                                'name'                , \
+                                'operation'           , \
+                                'freq_op'             , \
+                                'freq_offset'         , \
+                                'expr'                , \
+                                'detect_missing_value', \
+                                'prec'                , \
+                                'read_access'         , \
+                                'standard_name'       , \
+                                'long_name'           , \
+                                'comment'               \
+                               ]:
             print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
           ecearth_field_def_nf.write(' {:55} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
                                      .format(attribute_id                  , \
@@ -557,7 +593,10 @@ def main():
    print('  {:3} of them have a duplicate name attribute\n'.format(len(duplicated_names)))
 
   # Check which list of attributes are part of the field elements and of the two field_group elements levels:
-  tags = ['.//field', './ecearth4_nemo_field_definition/field_definition/field_group', './ecearth4_nemo_field_definition/field_definition/field_group/field_group']
+  tags = ['.//field', \
+          './ecearth4_nemo_field_definition/field_definition/field_group', \
+          './ecearth4_nemo_field_definition/field_definition/field_group/field_group' \
+         ]
   for tag in tags:
 
    list_of_attributes = []
@@ -636,7 +675,8 @@ def main():
     # Select all field elements with a field_ref
     i_fr += 1
 
-    # Check whether the field_ref has a unique match with one field id (remember our check that any field has either a field_ref attribute or an id attribute, some have both):
+    # Check whether the field_ref has a unique match with one field id (remember our check that any field has
+    # either a field_ref attribute or an id attribute, some have both):
     list_of_matching_ids_with_field_ref = []
     for elem in root_main.findall('.//field[@id="'+element.get('field_ref')+'"]'):
      # Check whether there are multiple matching id's for a given field_ref, collect each match in the list below:
@@ -649,7 +689,8 @@ def main():
     elif len(list_of_matching_ids_with_field_ref) == 0:
      print(' ERROR: For {} element {:3} with field_ref {:27} no field id in any of the field_def files is found'.format(element.tag, i, element.get('field_ref')))
     else:
-     # Only the direct listed grid_ref attribute values are printed here, so if these are defined via inheriting then None is printed here.
+     # Only the direct listed grid_ref attribute values are printed here, so if these are defined via inheriting
+     # then None is printed here.
      print(' ERROR: For {} element {:3} with field_ref {:27} multiple field id {} with grid_ref {} are detected, which leads to an ambiguity'.format(element.tag, i, element.get('field_ref'), [x.get('id') for x in list_of_matching_ids_with_field_ref], [x.get('grid_ref') for x in list_of_matching_ids_with_field_ref]))
      # The current catch here (spaces changed for the one with captitals) is:
      #  <field id="ttrd_evd_li" long_name="layer integrated heat-trend: evd convection " unit="W/m^2">ttrd_evd_e3t * 1026.0 * 3991.86795711963  </field>
@@ -671,7 +712,8 @@ def main():
        return chain.strip()
 
   def find_referenced_element(starting_element, chain_of_reference):
-      # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a recursive check is carried out for this element.
+      # A starting_element is taken and it is checked whether this element has a field_ref attribute. If so a
+      # recursive check is carried out for this element.
       starting_field_ref = starting_element.get('field_ref')
       for referenced_element in root_main.findall('.//field[@id="'+starting_field_ref+'"]'):
        referenced_field_ref = referenced_element.get('field_ref')
@@ -721,22 +763,24 @@ def main():
          inherit_attribute(attribute, starting_element, xpath_expression_in_chain, ancestor_grade, verbose)
 
   def inherit_attribute_via_field_ref_chain(attribute, starting_element, chain_of_reference, verbose):
-       # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature. Therefore often the correct attributes
-       # are already inherited as soon the field_ref is correctly parsed. However, if in a mulptiple chain of field references a certain attribute is not set
-       # at element definition of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
+       # Note XML seems to inherit attributes from parent elements itself, this is not a XIOS specific feature.
+       # Therefore often the correct attributes are already inherited as soon the field_ref is correctly parsed.
+       # However, if in a multiple chain of field references a certain attribute is not set at element definition
+       # of this field, then it should be picked up in the chain (assuming this is how it works for XIOS as well).
        item_nr_in_chain = 1
        for field_ref_in_chain in chain_of_reference[1:]:
         xpath_expression_in_field_ref_chain = './/field[@id="'+field_ref_in_chain+'"]'
         count = 0
         for element_in_chain_of_references in root_main.findall(xpath_expression_in_field_ref_chain):
-         # This for loop should actually just find one match (however if more matches are found than an ambiguity error mesaage is given.
+         # This for loop should actually just find one match (however if more matches are found than an ambiguity
+         # error mesaage is given.
          count += 1
          if count > 1:
           print(" ERROR: {} times a same field id is detected for this field_ref. The detection of multiple field id's may lead to ambiguity for the inheritance of the attribute {} for the field_ref {}".format(count, attribute, starting_element.get('field_ref')))
          attribute_from_chain_element = element_in_chain_of_references.get(attribute)
          if attribute_from_chain_element:
-          # Inherit the attribute from the element for which this attribute was defined in its element attribute defenition
-          # and which matched one of field_ref field in the chain:
+          # Inherit the attribute from the element for which this attribute was defined in its element attribute
+          # defenition and which matched one of field_ref field in the chain:
           starting_element.set(attribute, attribute_from_chain_element)
           if verbose:
           #inherit_message('IA via chain L' + str(item_nr_in_chain), 'field_ref', attribute, element_in_chain_of_references, starting_element, i, 'inherits from ancestor grade 0')
@@ -754,15 +798,18 @@ def main():
           if verbose:
            print(' At chain level {}         field_ref: {:19} via field_ref {:20}                        a {:11} attribute  is not found'.format(item_nr_in_chain, starting_element.get('field_ref'), field_ref_in_chain, attribute))
         item_nr_in_chain += 1
-       # No inheritance at direct element definition in the field_ref chain could be applied (the eventual inheriting from ancestors
-       # of the field_ref element at the end of the chain is not handeled in this function, but will be handled on the False return here:
+       # No inheritance at direct element definition in the field_ref chain could be applied (the eventual
+       # inheriting from ancestors of the field_ref element at the end of the chain is not handeled in this
+       # function, but will be handled on the False return here:
        return False
 
   def inherit_attribute_from_ancestors(attribute, starting_element, xpath_expression_in_ancestor_chain, ancestor_grade, verbose):
-       # This function takes a specified element and checks if the element definition itself contains the definition of a specified attribute. If this attribute is
-       # not present in the element definition itself, the definition of the parent element of the specified element will be checked. If the attribute definition is
-       # found at the parent, it will be explicitly inherited. If the attribute is also not found at the parent element definition, the function will recursively
-       # continue to find it in a ancestor element definition, until the root elemnt is reached.
+       # This function takes a specified element and checks if the element definition itself contains the
+       # definition of a specified attribute. If this attribute is not present in the element definition
+       # itself, the definition of the parent element of the specified element will be checked. If the
+       # attribute definition is found at the parent, it will be explicitly inherited. If the attribute
+       # is also not found at the parent element definition, the function will recursively continue to
+       # find it in a ancestor element definition, until the root elemnt is reached.
        count = 0
        for ancestor_element in root_main.findall(xpath_expression_in_ancestor_chain):
         count += 1
@@ -806,30 +853,34 @@ def main():
     # Select all field elements with a field_ref
     # Inherit the attribute via the chain of field_ref elements:
     #  - Directly from an attribute definition within the element definition where the field_ref is used
-    #  - Note that the attribute definition of the element most far in the reference chain is taken (i.e. most close to the starting element)
+    #  - Note that the attribute definition of the element most far in the reference chain is taken (i.e. most
+    #    close to the starting element)
     #  - Or from the ancestors of the element at the end of the field_ref chain
     #  - Note that the attribute definition with the lowest ancestor grade is taken
     i_fr += 1
     if verbose_on_inheritance:
      print()
 
-    # The chain of references contains on the very first element the id of the starting element, thereafter in the recursive function the field_ref's
-    # are added one by one in case more references are detected.
+    # The chain of references contains on the very first element the id of the starting element, thereafter
+    # in the recursive function the field_ref's are added one by one in case more references are detected.
     chain_of_reference = [element.get('id'), element.get('field_ref')]
     # The full chain of field_ref references is returned in the chain_of_reference for the given element:
     find_referenced_element(element, chain_of_reference)
-    # Provide a message in case the chain of references contains more than one field_ref references, i.e. a chain of multiple references exists:
+    # Provide a message in case the chain of references contains more than one field_ref references, i.e. a
+    # chain of multiple references exists:
     if chain_of_reference[1] != None:
      if verbose_on_inheritance:
       print(' A {} level reference chain: {}'.format(len(chain_of_reference) - 1, print_reference_chain(chain_of_reference)))
 
-    # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
+    # Loop & check over those attributes which we want to set explicitly in the file_def files later on.
+    # Apply the inheritance if applicable:
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_op', 'freq_offset']:  # 'domain_ref'
       if element.get(attribute):
        # Drop a warning when the attribute has an explicit string value: 'None':
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the field_ref {} and therefore the inherit check stops here.'.format(attribute, element.get('field_ref')))
-       # The attribute and its value are provided at the direct field element level, so nothing has to be inherited in this case.
+       # The attribute and its value are provided at the direct field element level, so nothing has to be
+       # inherited in this case.
        if verbose_on_inheritance:
        #inherit_message('main fr', 'field_ref', attribute, element, element, i, 'has for                        ')
         inherit_message_2(attribute, 0, element, '   field_ref="' + element.get('field_ref') + '"', 'main   has')
@@ -849,12 +900,14 @@ def main():
     if verbose_on_inheritance:
      print()
 
-    # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply the inheritance if applicable:
+    # Loop & check over those attributes which we want to set explicitly in the file_def files later on. Apply
+    # the inheritance if applicable:
     for attribute in ['grid_ref', 'operation', 'unit', 'freq_op', 'freq_offset']:
       if element.get(attribute):
        if element.get(attribute) == 'None':
         print(' WARNING: The attribute {} has a None value for the element with the id {} and therefore the inherit check stops here.'.format(attribute, element.get('id')))
-       # The attribute and its value are provided at the direct field element level, so nothing to be inherited in this case.
+       # The attribute and its value are provided at the direct field element level, so nothing to be inherited
+       # in this case.
        if verbose_on_inheritance:
        #inherit_message('main id', 'id', attribute, element, element, i, 'has for                        ')
         inherit_message_2(attribute, 0, element, '          id="' + element.get('id') + '"', 'main   has')
