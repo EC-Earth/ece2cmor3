@@ -1,0 +1,157 @@
+   
+   source ${mambapath}/etc/profile.d/conda.sh
+   conda activate ece2cmor3
+   cd ${HOME}/cmorize/ece2cmor3/ece2cmor3/scripts/cmip7/
+  #activateece2cmor3
+  #cd ece2cmor3/scripts/cmip7/
+
+
+# Opening freqeuntly used files:
+   nedit *.py config-* *.sh ~/start.sh &
+   nedit xml-files/genecec-cmip7/*.xml xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-neat-formatted.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-priority.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-*identified-freq*prio.xml xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7*.xml.j2 &
+   nedit ../../resources/pycmor-oifs-field_def/field_def_oifs_cmip7_pycmor.xml.j2 &
+   nedit ~/ec-earth/ecearth4/scripts/runtime/templates/xios/*oifs* &
+   nedit ../create-basic-ec-earth-cmip6-nemo-namelist.py ../config-create-basic-ec-earth-cmip6-nemo-namelist ../create-basic-ec-earth-cmip6-nemo-namelist.log ../../resources/xios-nemo-file_def-files/basic-* ~/ec-earth/ecearth3/runtime/classic/ctrl/ping_* ~/ec-earth/ecearth3/runtime/classic/ctrl/field_def_nemo-* &
+  #nedit ~/cmorize/control-output-files/output-control-files-v462/cmip6-pextra/test-all-ece-mip-variables/* &
+   nedit /home/reerink/cmorize/control-output-files/output-control-files-v462/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/file_def_nemo-* &
+
+   echo "activateece2cmor3; cd ece2cmor3/scripts/cmip7/"
+
+# To do:
+# - Use request overview neat formatted file to loop over the identified variables and add / adjust / compare
+#   the ECE field_def file
+# - lpjg variables via .ins files
+# - The identified and var_identified variables need to be incorporated into the ECE4 field_def file.
+
+# In generate_cmip7_oifs_field_def.py: The last cases in "def determine_operation_value" need to be figured out
+#                                      Ask Klaus as well.
+
+# Notes:
+
+# In ../../resources/pycmor-oifs-field_def/field_def_oifs_cmip7_pycmor.xml.j2
+# how and how frequent is freq_op="{{ oifs.output_step_freq }}ts" changing?
+
+# From basic-cmip6-file_def_nemo:
+#    <file id="file2" name_suffix="_lim_grid_T_2D" output_freq="1d">
+#
+#    <field id="id_1d_siconc"
+#           name="siconc"
+#           table="SIday"
+#           field_ref="iceconc_pct"
+#           grid_ref="grid_T_2D"
+#           unit="%"
+#           enabled="False"
+#           operation="average"
+#           freq_op="1ts"
+#    >    </field>
+
+# From /home/reerink/cmorize/control-output-files/output-control-files-v462/cmip6/CMIP/EC-EARTH-AOGCM/cmip6-experiment-CMIP-historical/file_def_nemo-lim3.xml
+#    <file id="file2" name_suffix="_lim_grid_T_2D" output_freq="1d">
+#
+#    <field enabled="True" 
+#           field_ref="iceconc_pct" 
+#           freq_op="1ts" 
+#           grid_ref="grid_T_2D" 
+#           id="id_1d_siconc" 
+#           name="siconc" 
+#           operation="average" 
+#           unit="%"
+#    >    </field>
+
+# Indeed same info, only different attribute order.
+
+# files per grid & time resolution combination:
+# name_suffix="_lim_grid_T_2D" output_freq="1d">
+# name_suffix="_lim_grid_T_2D" output_freq="1mo">
+
+# 8. A basic file_def is created by selecting on model component, output frequency and grid. For
+# each sub selection a file element is defined.
+
+
+# Typical attributes and a expression in nemo field_def file for a variable:
+#   <field_definition level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20" detect_missing_value="true"> <!-- time step automaticaly defined -->
+#      <field_group id="grid_T" grid_ref="grid_T_2D" >
+#         <field id="soce2"                                # also often a field_ref is present beside the id (see example below)
+#                long_name="Squared salinity"              # not present for each variable, but often present
+#                standard_name="sea_water_salinity"        # not present for each variable
+#                unit="0.001**2"  
+#                grid_ref="grid_T_3D"                      # so overruling grid_ref with respect to the field_group
+#                > soce * soce </field>                    # expression
+
+#       <field id="toce_e3t_300" 
+#              field_ref="toce_e3t"  
+#              unit="degree_C"   
+#              grid_ref="zoom_300" 
+#              detect_missing_value="true" />
+
+# In generate_oifs the identified xml files are used, they have these attributes.
+# The dimension is used to group.
+# The frequency can be used also to group for file_def files
+# <variable
+#         N  cmip7_compound_name="atmos.tas.tavg-h2m-hxy-u.day.glb"                      
+#         +A priority="Core"     
+#            status="identified"         
+#         N  model_component="ifs"      
+#            other_component="None"   
+#            ifs_shortname="2t"          
+#            varname_code="167.128"            
+#            comment_author="                 "  
+#            comment="                                                                        "  
+#          A expression="None"                                                                              
+#         N  frequency="day"   
+#            region="glb"        
+#            cmip6_table="day"          
+#            physical_parameter_name="tas"                        
+#          A units="K"                  
+#         N  dimensions="longitude latitude time height2m"            
+#          A long_name="Near-Surface Air Temperature"                                                                                                       
+#            standard_name="air_temperature"                                                                                                                                                
+#            modeling_realm="atmos"                           
+#            branded_variable_name="tas_tavg-h2m-hxy-u"                         
+#            branding_label="tavg-h2m-hxy-u"          
+#            cmip6_compound_name="day.tas"                                
+#            temporal_shape="time-intv"               
+#            spatial_shape="XY-na"         
+#            cell_measures="area: areacella"                   
+#            cell_methods="area: time: mean"                                                                                                                           
+#            out_name="tas"                        
+#            type="real"     >   </variable>
+
+
+# For the genecec light weight tool, the data request can be obtained via:
+#  ./cmip7-request.py -a -e historical -p high -r v1.2.2.5
+# taking one of the following created XML files:
+#  archive/cmip7-request-examples/cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-alphabetic-ordered.xml
+#  archive/cmip7-request-examples/cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml
+# or taking the json file:
+#  archive/cmip7-request-examples/cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical.json
+# Alternatively one json file with all experiments (core & high) can be created. And then per requested experiment that
+# part (i.e. taht experiment) will be loaded. Eventualy an XML alternative for this long json file is possible as well.
+
+# freq_op etc miss still in oifs field_ref created file
+# those can be obtained from the ec-earth ,, inherited, but not for the non-known vars, where to get this info?
+
+
+# From ECE3 CMIP6 basic flat file:
+#      <field id="id_1m_msftbarot"          name="msftbarot"           field_ref="uoce_e3u_vsum_e2u_cumul"     grid_ref="grid_U_2D"             output_freq="1mo"     enabled="False"    unit="m3/s"                cmor_table_units="kg s-1"        cmor_unit="kg s-1"             ping_unit="kg s-1"            operation="average"  freq_op="1ts"   freq_offset="_reset_"           field_nr="117"    grid_shape="longitude latitude time"               table="Omon"    component="opa"        modeling_realm="ocean"          priority="1"   miplist="AerChemMIP,C4MIP,CMIP,DAMIP,GMMIP,GeoMIP,HighResMIP,LS3MIP,OMIP,VIACSAB,VolMIP"                                      longname="Ocean Barotropic Mass Streamfunction"                                                                                description="Streamfunction or its approximation for free surface models. See OMDP document for details."                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ping_comment=" P1 (kg s-1) ocean_barotropic_mass_streamfunction : Streamfunction or its approximation for free surface models. See OMDP document for details. "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 fdf_expression="None"                                                             ping_expr="None"                                                                 >    this * $rau0                                                      </field>
+
+# From xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml:
+#           <field id="uocetr_vsum_cumul"                                                                                             unit="m3/s"               grid_ref="grid_U_2D"                                                                                   operation="instant"  freq_op="1mo"      freq_offset="_reset_"                                                                                                                                                                                                                      long_name="ocean current along i-axis * e3u * e2u cumulated from southwest point"                                                                                >                                                                          </field>
+#           <field id="msftbarot"                                                                                                     unit="kg s-1"             grid_ref="grid_U_2D"                                                                                   operation="average"                                                                                                                                                                                                                                                                long_name="ocean_barotropic_mass_streamfunction"                                                                                                                 > uocetr_vsum_cumul * $rho0                                                </field>
+# This info comes from the ECE4 repo:
+#  /home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2-unique-id
+# read via the scan-xios-xml-elementtree-structure.py
+
+# freq_op in tasmin, tasmax & sfcWindmax in field_def_oifs_cmip6.xml.j2 in ECE4 repo
+# This is correct in the ec-earth-definition-inherited-neat-formatted.xml file
+
+# Loop over the experiment data request, find in the identified inherited files the field_ref (i.e. the 
+
+# The id in the ec-earth-field_def-inherited is the code_name and relates to the freq_op etc.
+# tos in field_def:
+#          <field id="sstk"                                                                                                          unit="K"                  grid_ref="reduced_sfc"                                                                                 operation="average"                                                                                                                                                            standard_name="sea_surface_temperature"                                                             long_name="sea surface temperature"                                                                                                                              >                                                                          </field>
+
+# Should we not have one file: identified + var_identfied?
+
+
+
