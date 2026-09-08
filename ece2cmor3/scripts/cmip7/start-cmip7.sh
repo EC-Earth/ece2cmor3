@@ -183,6 +183,9 @@
  # Experiment requests are archived in the xml-files/experiment-requests/ directory. A kind
  # of intermediate layer is created because also CMIP7 adjusted data requests could be made.
  # For instance combined requests, or manual adjusted requests.
+ # We choose the *-priority-ordered.xml because these files already include all the data request attributes
+ # (and thus the CMOr table attributes). This means an xml merge tool has to be added to combine two xml files.
+ # Another choice could have been to use the json file, with the advantage that we have a json file merge tool already.
  mkdir -p xml-files/experiment-requests/
  ./cmip7-request.py -a -e historical -p core v1.2.2.5
  mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml
