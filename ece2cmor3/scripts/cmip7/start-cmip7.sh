@@ -184,7 +184,7 @@
  # of intermediate layer is created because also CMIP7 adjusted data requests could be made.
  # For instance combined requests, or manual adjusted requests.
  # We choose the *-priority-ordered.xml because these files already include all the data request attributes
- # (and thus the CMOr table attributes). This means an xml merge tool has to be added to combine two xml files.
+ # (and thus the CMOR table attributes). This means an xml merge tool has to be added to combine two xml files.
  # Another choice could have been to use the json file, with the advantage that we have a json file merge tool already.
  mkdir -p xml-files/experiment-requests/
  ./cmip7-request.py -a -e historical -p core v1.2.2.5
@@ -195,6 +195,29 @@
  mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/
  ./cmip7-request.py -a -e esm-hist -p high v1.2.2.5
  mv cmip7-request-v1.2.2.5-esm-hist/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml      xml-files/experiment-requests/
+
+ # Add a script which reads such xml files (which usually contain the requested variables of one experiment) and then
+ # iteratates over each variable (i.e. each cmip7_compound_name) and search whether it exists in the identified file
+ # (identified & var_identified files) which contains all identified variables.
+ # Having these additional attributes:
+ #  <variable  status="identified"     model_component="ifs"  other_component="tm5" ifs_shortname="q"
+ #             varname_code="133.128"  "  expression="None"
+ # But it needs the additional match with grid_ref, operation, freq_op, while:
+ #  id        can be 'freely' created, like id_cmip7_compound_name
+ #  name      is the CMIP7 CMOR name (out_name? cmip7_compound_name?)
+ #  field_ref is the short code name
+ # which could be subtracted from the ec-field_def-inheritted-neat-formatted XML file, if this and the grid_ref
+ # attributes are available for a variable.
+
+ # In order to end up with a file_def file with fields with attributes:
+ #    <field enabled, field_ref, grid_ref, id, name, operation, freq_op, unit
+
+ # A way to create a json with the entire combined list:
+ ./export_dreq_lists_json.py --all_opportunities --priority_cutoff low --add_combined v1.2.2.5 cmip7-request-v1.2.2.5-low-all-combined.json
+# The --add_combined is not yet an option in cmip7-request.py and needs to be implemented similar to how this is done
+# for the export_dreq_lists_json.py script. This "all" list could be used to make one basic list with all collected info
+# like the previous basic flat file. This would be an alternative variant approch to the described plan above.
+
 
 
 
