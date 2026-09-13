@@ -144,13 +144,13 @@ def main():
     elif element.get('branding_label')[:3] == 'ti-':
      operation = 'once'
    #elif element.get('branding_label')[:3] == 'tmaxavg-':
-   # operation = ''
+   # operation = ''                                            # Achieve: Daily Maximum
    #elif element.get('branding_label')[:3] == 'tminavg-':
-   # operation = ''
+   # operation = ''                                            # Achieve: Daily Minimum
    #elif element.get('branding_label')[:3] == 'tclm-':
-   # operation = ''
+   # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
    #elif element.get('branding_label')[:3] == 'tclmdc-':
-   # operation = ''
+   # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
     else:
      operation = 'unknown'
     return operation
