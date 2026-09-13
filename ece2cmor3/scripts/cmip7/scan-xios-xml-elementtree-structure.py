@@ -10,10 +10,7 @@
 import sys
 import os
 import subprocess
-import argparse
 import xml.etree.ElementTree as ET
-import json
-from collections import OrderedDict
 
 def print_next_step_message(step, comment):
     print('\n')
