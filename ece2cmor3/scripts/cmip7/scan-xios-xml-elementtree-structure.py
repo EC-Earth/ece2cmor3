@@ -655,6 +655,8 @@ def main():
   print()
 
 
+ if True:
+  print_next_step_message(7, 'Create the field_def files with the explicit inheritted attributes')
 
   # Inherit field element properties (i.e. attributes) via field_def references (the ambiguity check):
 
