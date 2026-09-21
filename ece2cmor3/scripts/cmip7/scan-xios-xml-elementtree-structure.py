@@ -53,7 +53,9 @@ def main():
 
   # Loop over the various field_def files:
   for field_def_file in field_def_file_collection:
-   if os.path.isfile(field_def_file) == False: print(' The field_def file {} does not exist.'.format(field_def_file)); sys.exit(' stop')
+   if os.path.isfile(field_def_file) == False:
+    print(' The field_def file {} does not exist.'.format(field_def_file))
+    sys.exit(' stop')
 
    # Split in path pf[0] & file pf[1]:
    pf = os.path.split(field_def_file)
