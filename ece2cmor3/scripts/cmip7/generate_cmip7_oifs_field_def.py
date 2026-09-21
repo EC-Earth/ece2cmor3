@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
 
- Creating a new ECE4 - CMIP7 field_def file for OIFS (at least for not those ECE4 - CMIP7 identified
- variables which are not yet part of the already known ECE4 OIFS variables in the various OIFS
- field_def files. The latter are also already part of the ecearth_field_def_inherited_nf_file, the
- ec-earth-definition-inherited-neat-formatted.xml, which is also loaded here. For the newly identified
- variables the XML file:
+ Creating a new ECE4 - CMIP7 field_def file for OIFS (at least for those ECE4 - CMIP7 identified
+ variables which are not part of the already known ECE4 OIFS variables in the various OIFS
+ field_def files. The latter are already part of the ecearth_field_def_inherited_nf_file and thus the
+ ec-earth-definition-inherited-neat-formatted.xml as well, which is also loaded here. For the newly
+ identified variables the XML file:
   xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml
  is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
  including its mapping to the CMIP7 request.
