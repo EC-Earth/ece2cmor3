@@ -1,0 +1,576 @@
+#!/usr/bin/env python
+"""
+Create the combined XML files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6
+matched identification info where possible, ordered in a way to allow convenient working on these lists.
+In addition similar XML files are created for the unidentified variables and for the so called var_identified
+variables. The latter are variables which are actually identified in the ECE3 - CMIP6 framework but not for
+the same CMIP7 frequency. Also various reordered variants of these three files are created, with different
+and subsequent selection criteria. The created XML files contain a large set of attributes, the CMIP7
+attributes, some additonal CMIP6 attributes and also ECE3 model component info, expression, identified status
+and identifying comment and comment author attributes.
+
+Note also the options "-m" and "-o <dr-version>". With those one can read the manual edited files which are
+archived in the repository. The purpose is to read in the manual provided identification info, i.e. the added
+info in the attributes: comment_author & comment.
+"""
+
+import os                                                       # for checking file or directory existence with: os.path.isfile or os.path.isdir
+import sys                                                      # for aborting: sys.exit
+import subprocess
+import argparse
+import xml.etree.ElementTree as ET
+import data_request_api.content.dreq_content as dc
+
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
+
+
+def parse_args():
+    """
+    Parse command-line arguments
+    """
+    parser = argparse.ArgumentParser(
+        description='Identify the CMIP7 ECE4 requested variables with help of the ECE3 - CMIP6 identification.'
+    )
+    # Positional (mandatory) input arguments
+    parser.add_argument('dreq_version', choices=dc.get_versions()                            , help="data request version")
+    # Optional input arguments
+    parser.add_argument('-r', '--reduceattributes', action='store_true' , default=False      , help='Reduce number of included attributes (i.e. metadata)')
+    parser.add_argument('-e', '--extraXMLoutput'  , action='store_true' , default=False      , help='Extra XML files (selections) will be generated')
+    parser.add_argument('-m', '--usemanualfiles'  , action='store_true' , default=False      , help='Use the files with the manual identification added comments')
+    parser.add_argument('-o', '--otherDRformanual', choices=dc.get_versions()                , help='Use other (i.e. previous) data request version files which have been manually edited to add the identification comment')
+    return parser.parse_args()
+
+
+def write_xml_file_root_element_opening(xml_file, dr_version, api_version, applied_order):
+     xml_file.write('<cmip7_variables dr_version="{}" api_version="{}" applied_order_sequence="{}">\n'.format(dr_version, api_version, applied_order))
+
+
+def write_xml_file_root_element_closing(xml_file):
+    xml_file.write('</cmip7_variables>\n')
+
+
+def reorder_xml_file(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
+    extension                = '.xml'
+    replacing_extension      = '-' + selected_attribute + '-ordered' + extension
+    if xml_out == None:
+     xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
+    else:
+     xml_created_filename    = xml_out
+    if label == None:
+     order_label             = selected_attribute
+    else:
+     order_label             = label
+    tree = ET.parse(xml_loading_filename)
+    root = tree.getroot()
+    print('\n For {}:'.format(xml_created_filename))
+    with open(xml_created_filename, 'w') as xml_file:
+     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], \
+                                                   root.attrib['api_version'], \
+                                                   root.attrib['applied_order_sequence'] + ', ' + order_label)
+     for attribute_value in list_of_attribute_values:
+      count = 0
+      xpath_expression = './/variable[@' + selected_attribute + '="' + attribute_value + '"]'
+      for element in root.findall(xpath_expression):
+       write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
+       count += 1
+      print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
+     write_xml_file_root_element_closing(xml_file)
+
+
+def reorder_xml_file_2(xml_loading_filename, selected_attribute, list_of_attribute_values, reduce_attributes, xml_out=None, label=None):
+    extension                = '.xml'
+    replacing_extension      = '-' + selected_attribute + '-ordered' + extension
+    if xml_out == None:
+     xml_created_filename    = xml_loading_filename.replace(extension, replacing_extension)
+    else:
+     xml_created_filename    = xml_out
+    if label == None:
+     order_label             = selected_attribute
+    else:
+     order_label             = label
+    tree = ET.parse(xml_loading_filename)
+    root = tree.getroot()
+    print('\n For {}:'.format(xml_created_filename))
+    with open(xml_created_filename, 'w') as xml_file:
+     write_xml_file_root_element_opening(xml_file, root.attrib['dr_version'], \
+                                                   root.attrib['api_version'], \
+                                                   root.attrib['applied_order_sequence'] + ', ' + order_label)
+     for attribute_value in list_of_attribute_values:
+      count = 0
+      xpath_expression = './/variable[@' + selected_attribute + ']'
+      for element in root.findall(xpath_expression):
+       if attribute_value in element.get(selected_attribute):
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
+        count += 1
+      print(' {:4} variables with {:20} {}'.format(count, selected_attribute, attribute_value))
+     write_xml_file_root_element_closing(xml_file)
+
+
+def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
+    if reduce_attributes:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' long_name={:132}>' \
+                    '  </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    ) + '"', \
+                    '"' + element.get('priority'               ) + '"', \
+                    '"' + element.get('region'                 ) + '"', \
+                    '"' + element.get('cmip6_table'            ) + '"', \
+                    '"' + element.get('physical_parameter_name') + '"', \
+                    '"' + element.get('long_name'              ) + '"') \
+                   )
+    else:
+     xml_file.write('  <variable  cmip7_compound_name={:55}' \
+                                ' priority={:10}' \
+                                ' status={:20}' \
+                                ' model_component={:10}' \
+                                ' other_component={:8}' \
+                                ' ifs_shortname={:13}' \
+                                ' varname_code={:20}' \
+                                ' comment_author={:20}' \
+                                ' comment={:75}' \
+                                ' expression={:83}' \
+                                ' frequency={:7}' \
+                                ' region={:12}' \
+                                ' cmip6_table={:14}' \
+                                ' physical_parameter_name={:28}' \
+                                ' units={:20}' \
+                                ' dimensions={:45}' \
+                                ' long_name={:132}' \
+                                ' standard_name={:160}' \
+                                ' modeling_realm={:33}' \
+                                ' branded_variable_name={:44}' \
+                                ' branding_label={:25}' \
+                                ' cmip6_compound_name={:40}' \
+                                ' temporal_shape={:25}' \
+                                ' spatial_shape={:15}' \
+                                ' cell_measures={:35}' \
+                                ' cell_methods={:140}' \
+                                ' out_name={:28}' \
+                                ' type={:10}' \
+                    ' >   </variable>\n'.format( \
+                    '"' + element.get('cmip7_compound_name'    )                                          + '"', \
+                    '"' + element.get('priority'               )                                          + '"', \
+                    '"' + element.get('status'                 )                                          + '"', \
+                    '"' + element.get('model_component'        )                                          + '"', \
+                    '"' + element.get('other_component'        )                                          + '"', \
+                    '"' + element.get('ifs_shortname'          )                                          + '"', \
+                    '"' + element.get('varname_code'           )                                          + '"', \
+                    '"' + element.get('comment_author'         )                                          + '"', \
+                    '"' + element.get('comment'                )                                          + '"', \
+                    '"' + element.get('expression'             ).replace('&','&amp;').replace('<','&lt;') + '"', \
+                    '"' + element.get('frequency'              )                                          + '"', \
+                    '"' + element.get('region'                 )                                          + '"', \
+                    '"' + element.get('cmip6_table'            )                                          + '"', \
+                    '"' + element.get('physical_parameter_name')                                          + '"', \
+                    '"' + element.get('units'                  )                                          + '"', \
+                    '"' + element.get('dimensions'             )                                          + '"', \
+                    '"' + element.get('long_name'              )                                          + '"', \
+                    '"' + element.get('standard_name'          )                                          + '"', \
+                    '"' + element.get('modeling_realm'         )                                          + '"', \
+                    '"' + element.get('branded_variable_name'  )                                          + '"', \
+                    '"' + element.get('branding_label'         )                                          + '"', \
+                    '"' + element.get('cmip6_compound_name'    )                                          + '"', \
+                    '"' + element.get('temporal_shape'         )                                          + '"', \
+                    '"' + element.get('spatial_shape'          )                                          + '"', \
+                    '"' + element.get('cell_measures'          )                                          + '"', \
+                    '"' + element.get('cell_methods'           )                                          + '"', \
+                    '"' + element.get('out_name'               )                                          + '"', \
+                    '"' + element.get('type'                   )                                          + '"') \
+                   )
+    return
+
+
+def print_var_info_plus_ece3_info(element, element_ece3):
+    info_string = '{:55} {:10} {:15} {:10} {:14} {:28} {}({})'.format(element.get('cmip7_compound_name'    ), \
+                                                                      element.get('priority'               ), \
+                                                                      element.get('frequency'              ), \
+                                                                      element.get('region'                 ), \
+                                                                      element.get('cmip6_table'            ), \
+                                                                      element.get('physical_parameter_name'), \
+                                                                      element_ece3.get('model_component'   ), \
+                                                                      element_ece3.get('other_component'   ))
+    info_string = info_string.replace('(None)', '')
+    # Apply preferences: When lpjg output available use that one instead of the ifs output. Needs a decesion. Here concerning the variables: snw, snd, snc, mrfso, tsl, mrsol, mrso, mrros, mrro, evspsbl
+   #info_string = info_string.replace('ifs(lpjg)', 'lpjg')      # Needs a decesion, see comment above
+    info_string = info_string.replace('ifs(tm5)', 'ifs(m7)')
+    # Note for no3: tm5(tm5) which looks strange.
+    info_string = info_string.replace('tm5(tm5)', 'nemo(tm5)')  # Adhoc fix (ocnBgchem variable)
+    return info_string
+
+
+def print_message_list(message_list):
+    for message in message_list:
+     print(message)
+    print()
+
+
+def print_message_list_reorder(message_list):
+    # Order the message list on model_component (and preference info).
+    # Note another approach could be to write the XML attribute info per variable (each variable one line), so based on that one can select in a more standard way.
+    message_list_ifs_m7   = []
+    message_list_ifs_lpjg = []
+    message_list_ifs      = []
+    message_list_nemo     = []
+    message_list_lpjg     = []
+    message_list_other    = []
+    for message in message_list:
+     if   'ifs(m7)'   in message.split()[-1]: message_list_ifs_m7  .append(message)
+     elif 'ifs(lpjg)' in message.split()[-1]: message_list_ifs_lpjg.append(message)
+     elif 'ifs'       in message.split()[-1]: message_list_ifs     .append(message)
+     elif 'nemo'      in message.split()[-1]: message_list_nemo    .append(message)
+     elif 'lpjg'      in message.split()[-1]: message_list_lpjg    .append(message)
+     else                                   : message_list_other   .append(message)
+    print_message_list(message_list_ifs_m7  )
+    print_message_list(message_list_ifs_lpjg)
+    print_message_list(message_list_ifs     )
+    print_message_list(message_list_nemo    )
+    print_message_list(message_list_lpjg    )
+    print_message_list(message_list_other   )
+    print()
+
+
+def print_var_info_xml(element):
+    info_string = '<variable  cmip7_compound_name={:55} priority={:10} frequency={:15} region={:12} cmip6_table={:14} physical_parameter_name={:28} long_name={:122}>   </variable>'.format( \
+     '"' + element.get('cmip7_compound_name'    ) + '"', \
+     '"' + element.get('priority'               ) + '"', \
+     '"' + element.get('frequency'              ) + '"', \
+     '"' + element.get('region'                 ) + '"', \
+     '"' + element.get('cmip6_table'            ) + '"', \
+     '"' + element.get('physical_parameter_name') + '"', \
+     '"' + element.get('long_name'              ) + '"')
+    return info_string
+
+
+def main():
+
+    args = parse_args()
+
+    dr_version        = args.dreq_version
+    reduce_attributes = args.reduceattributes
+    extra_xml_output  = args.extraXMLoutput
+    use_manual_files  = args.usemanualfiles
+    if args.otherDRformanual:
+     dr_version_manual_file = args.otherDRformanual
+    else:
+     dr_version_manual_file = dr_version
+
+
+    # Input files:
+    request_overview_xml_filename          = 'xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml'              # The request-overview ECE3-CMIP6 XML file with var_code info
+    xml_filename_alphabetic_ordered        = 'cmip7-request-' + dr_version + '-all/cmip7-request-' + dr_version + '-all-alphabetic-ordered.xml'  # The alphabetic ordered XML CMIP7 request file
+    manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-identified-freq-mc-prio.xml'       # The     identified file with manual updated identifying comment
+ ###manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-var_identified-freq-mc-prio.xml'   # The var_identified file with manual updated identifying comment
+    manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-unidentified-freq-realm-prio.xml'  # The   unidentified file with manual updated identifying comment
+
+    suggested_path_logfile                 = sys.argv[0].replace(".py", ".log").replace("./", "./archive/log-files/v*/")
+
+    abort_message = ' Aborting the script [4]: {}\n If not here, the reason may be ended up in another log file, for instance in {}\n'.format(sys.argv[0], suggested_path_logfile)
+
+    # Predefine the three possible status values:
+    identified     = 'identified'
+ ###identified_var = 'var_identified'
+    unidentified   = 'unidentified'
+
+    # Lists with messages for combined printing per message cathegory afterwards:
+    message_list_of_identified_variables                          = []
+    message_list_of_no_matched_identification                     = []
+
+    # Lists which contains only variables (so with set & sorted unique ordered variable lists can be generated):
+    list_of_identified_variables                                  = []
+    list_of_no_matched_identification                             = []
+
+    # Read & load the request-overview ECE3-CMIP6 XML file which contains var code name identification info:
+    if os.path.isfile(request_overview_xml_filename) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./convert-request-overview-to-xml.py request-overview-cmip6-pextra-all-ECE3-CC.txt\n'.format(error_message, request_overview_xml_filename))
+     sys.exit(abort_message)
+    tree_request_overview = ET.parse(request_overview_xml_filename)
+    root_request_overview = tree_request_overview.getroot()
+
+    # Read & load the alphabetic ordered XML CMIP7 request file and create (primary) a realm ordered (starting with atmos) XML file:
+    if os.path.isfile(xml_filename_alphabetic_ordered) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./cmip7-request.py --all_opportunities --priority_cutoff low {}\n'.format(error_message, xml_filename_alphabetic_ordered, dr_version))
+     sys.exit(abort_message)
+    tree_alphabetic   = ET.parse(xml_filename_alphabetic_ordered)
+    root_alphabetic   = tree_alphabetic.getroot()
+    dr_version_header = root_alphabetic.attrib['dr_version']
+    if dr_version_header != dr_version:
+     print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
+     sys.exit(abort_message)
+
+    if use_manual_files:
+     # Read & load the identified file with manual updated identifying comment:
+     if os.path.isfile(manual_updated_identified_filename) == False:
+      print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_identified_filename))
+      sys.exit(abort_message)
+     tree_manual_comment_identified = ET.parse(manual_updated_identified_filename)
+     root_manual_comment_identified = tree_manual_comment_identified.getroot()
+
+  #### Read & load the var_identified file with manual updated identifying comment:
+  ###if os.path.isfile(manual_updated_var_identified_filename) == False:
+  ### print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_var_identified_filename))
+  ### sys.exit(abort_message)
+  ###tree_manual_comment_var_identified = ET.parse(manual_updated_var_identified_filename)
+  ###root_manual_comment_var_identified = tree_manual_comment_var_identified.getroot()
+
+     # Read & load the unidentified file with manual updated identifying comment:
+     if os.path.isfile(manual_updated_unidentified_filename) == False:
+      print('{} The file {} does not exist.\n        This file should be in the repository.\n'.format(error_message, manual_updated_unidentified_filename))
+      sys.exit(abort_message)
+     tree_manual_comment_unidentified = ET.parse(manual_updated_unidentified_filename)
+     root_manual_comment_unidentified = tree_manual_comment_unidentified.getroot()
+
+    output_dir_name = 'xml-files/genecec-cmip7/identify-ece4-cmip7/'
+    subprocess.run(["mkdir", "-p", output_dir_name])
+
+    xml_filename_realm_ordered                = output_dir_name + 'cmip7-request-{}-all-full-realm.xml'.format(dr_version)
+    xml_filename_priority_ordered             = xml_filename_realm_ordered.replace ('realm', 'priority'    )
+    xml_filename_frequency_ordered            = xml_filename_realm_ordered.replace ('realm', 'frequency'   )
+    xml_filename_status_ordered               = xml_filename_realm_ordered.replace ('realm', 'status'      )
+    xml_filename_cmip6_table_ordered          = xml_filename_realm_ordered.replace ('realm', 'cmip6-table' )
+    xml_filename_identified                   = xml_filename_realm_ordered.replace ("realm", identified    )
+ ###xml_filename_identified_var               = xml_filename_realm_ordered.replace ("realm", identified_var)
+    xml_filename_unidentified                 = xml_filename_realm_ordered.replace ("realm", unidentified  )
+
+    xml_filename_identified_freq              = xml_filename_identified.replace    (identified    , identified     + "-freq"        )
+    xml_filename_identified_freq_mc           = xml_filename_identified.replace    (identified    , identified     + "-freq-mc"     )
+    xml_filename_identified_freq_mc_prio      = xml_filename_identified.replace    (identified    , identified     + "-freq-mc-prio")
+ ###xml_filename_identified_var_freq          = xml_filename_identified_var.replace(identified_var, identified_var + "-freq"        )
+ ###xml_filename_identified_var_freq_mc       = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc"     )
+ ###xml_filename_identified_var_freq_mc_prio  = xml_filename_identified_var.replace(identified_var, identified_var + "-freq-mc-prio")
+    xml_filename_unidentified_freq            = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq"           )
+    xml_filename_unidentified_freq_realm      = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm"     )
+    xml_filename_unidentified_freq_realm_prio = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-freq-realm-prio")
+
+    if extra_xml_output:
+     xml_filename_identified_mc               = xml_filename_identified.replace    (identified    , identified     + "-mc"     )
+     xml_filename_identified_mc_prio          = xml_filename_identified.replace    (identified    , identified     + "-mc-prio")
+     xml_filename_identified_prio             = xml_filename_identified.replace    (identified    , identified     + "-prio"   )
+  ###xml_filename_identified_var_mc           = xml_filename_identified_var.replace(identified_var, identified_var + "-mc"     )
+  ###xml_filename_identified_var_mc_prio      = xml_filename_identified_var.replace(identified_var, identified_var + "-mc-prio")
+  ###xml_filename_identified_var_prio         = xml_filename_identified_var.replace(identified_var, identified_var + "-prio"   )
+     xml_filename_unidentified_realm          = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-realm"     )
+     xml_filename_unidentified_realm_prio     = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-realm-prio")
+     xml_filename_unidentified_prio           = xml_filename_unidentified.replace  (unidentified  , unidentified   + "-prio"      )
+
+    print()
+    with open(xml_filename_realm_ordered, 'w') as xml_file:
+     write_xml_file_root_element_opening(xml_file, root_alphabetic.attrib['dr_version'], \
+                                                   root_alphabetic.attrib['api_version'], \
+                                                   root_alphabetic.attrib['applied_order_sequence'] + ', realm')
+     for realm in ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]:
+      count = 0
+      xpath_expression = './/variable[@cmip7_compound_name]'
+      for element in root_alphabetic.findall(xpath_expression):
+       if realm in element.get('cmip7_compound_name'):
+        var_info_xml = print_var_info_xml(element)
+        count_var_occurences_in_request_overview = 0
+        xpath_expression_cmip6_overview = './/variable[@cmip6_variable="' + element.get('physical_parameter_name') + '"]'
+        for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+         count_var_occurences_in_request_overview += 1
+         var_info_plus_ece3_info = print_var_info_plus_ece3_info(element, ece3_element)
+
+         if False:
+          # Checking the CMIP7 units with the CMIP6 ones (currently only different units for aerosol.emilnox.tavg-u-hxy-u.mon.glb):
+          cmip6_units = ece3_element.get('unit')
+          cmip7_units =      element.get('units')
+          if cmip7_units != cmip6_units:
+           if cmip7_units == '1E-03' and cmip6_units == '0.001' or \
+              cmip7_units == '1E-06' and cmip6_units == '1e-06' or \
+              cmip7_units == '1E-09' and cmip6_units == '1e-09' :
+            pass
+           else:
+            print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, cmip6_units, element.get('cmip7_compound_name')))
+
+         element.set('model_component', ece3_element.get('model_component'))
+         element.set('other_component', ece3_element.get('other_component'))
+         element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
+         element.set('varname_code'   , ece3_element.get('varname_code'   ))
+         if len(ece3_element.get('expression')) < 84:
+          element.set('expression'    , ece3_element.get('expression'     ))
+         else:
+          element.set('expression'    , 'See the ' + os.path.split(request_overview_xml_filename)[1] + ' file.')
+         if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
+       ###if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
+           element.set('comment_author' , '                 ')
+           element.set('comment'        , '                                                                        ')
+           if use_manual_files:
+            xpath_expression_manual_comment_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+            for manual_comment_identified_element in root_manual_comment_identified.findall(xpath_expression_manual_comment_identified):
+             if manual_comment_identified_element.get('comment').strip() != '':
+              element.set('comment_author' , manual_comment_identified_element.get('comment_author'))
+              element.set('comment'        , manual_comment_identified_element.get('comment'))
+           element.set('status', identified)
+           message_list_of_identified_variables.append(' Match for: {}'.format(var_info_plus_ece3_info))
+           list_of_identified_variables.append(element.get('physical_parameter_name'))
+          #print(' {:2}    match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
+           # In case the full identification has been achieved break out the loop in order to prevent that afterwards the status will be overwritten by identified_var
+           break
+       ###else:
+       ### element.set('status', identified_var)
+       ### element.set('comment_author' , '                 ')
+       ### element.set('comment'        , '                                                                        ')
+       ### if use_manual_files:
+       ###  xpath_expression_manual_comment_var_identified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+       ###  for manual_comment_var_identified_element in root_manual_comment_var_identified.findall(xpath_expression_manual_comment_var_identified):
+       ###   if manual_comment_var_identified_element.get('comment').strip() != '':
+       ###    element.set('comment_author' , manual_comment_var_identified_element.get('comment_author'))
+       ###    element.set('comment'        , manual_comment_var_identified_element.get('comment'))
+       ####print(' {:2} no match for: {}'.format(count_var_occurences_in_request_overview, var_info_plus_ece3_info))
+         else:
+          print('ERROR 01')
+        else:
+         # The for-else:
+         if count_var_occurences_in_request_overview == 0:
+          list_of_no_matched_identification.append(element.get('physical_parameter_name'))
+          message_list_of_no_matched_identification.append(' {}'.format(var_info_xml))
+          element.set('status', unidentified)
+          element.set('model_component', '??')
+          element.set('other_component', '??')
+          element.set('ifs_shortname'  , '??')
+          element.set('varname_code'   , '??')
+          element.set('expression'     , '??')
+          element.set('comment_author' , '                 ')
+          element.set('comment'        , '                                                                        ')
+          if use_manual_files:
+           xpath_expression_manual_comment_unidentified = './/variable[@cmip7_compound_name="' + element.get('cmip7_compound_name') + '"]'
+           for manual_comment_unidentified_element in root_manual_comment_unidentified.findall(xpath_expression_manual_comment_unidentified):
+            if manual_comment_unidentified_element.get('comment').strip() != '':
+             element.set('comment_author' , manual_comment_unidentified_element.get('comment_author'))
+             element.set('comment'        , manual_comment_unidentified_element.get('comment'))
+
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
+        count += 1
+      print(' {:4} variables with realm {}'.format(count, realm))
+     write_xml_file_root_element_closing(xml_file)
+
+
+    # Writing various reordered variants of the identified XML files:
+
+    value_list_with_priorities       = ["Core", "High", "Medium", "Low"]
+    value_list_with_cmip6_tables     = ["fx", "Efx", "AERfx", "Ofx", "IfxAnt", "IfxGre", \
+                                        "3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", \
+                                       #"3hr", "E3hr", "CF3hr", "3hrPt", "E3hrPt", "6hrPlev", "6hrPlevPt", "6hrLev", "AERhr", "E1hr", "E1hrClimMon", "CFsubhr", "Esubhr", \
+                                        "day", "Eday", "EdayZ", "AERday", "CFday", "Oday", "SIday", \
+                                        "Amon", "Emon", "EmonZ", "CFmon", "AERmon", "AERmonZ", "Lmon", "LImon", "Omon", "SImon", "ImonAnt", "ImonGre", \
+                                        "Eyr", "Oyr", "IyrAnt", "IyrGre", \
+                                        "CFsubhr", "Esubhr", "E1hr", "E1hrClimMon", "AERhr", \
+                                        "Odec"]
+    value_list_with_realms           = ["atmos.", "atmosChem.", "aerosol.", "land.", "landIce.", "ocean.", "ocnBgchem.", "seaIce."]
+    value_list_with_model_components = ["ifs", "tm5", "nemo", "lpjg", "co2box"]
+ ###value_list_with_status           = [identified, identified_var, unidentified]
+    value_list_with_status           = [identified, unidentified]
+    value_list_with_frequencies      = [".fx.", ".3hr.", ".6hr.", ".day.", ".mon.", ".yr.", ".subhr.", ".1hr.", ".dec."]
+
+
+    # Load the realm ordered XML file and create the cmip6-table ordered XML file:
+    reorder_xml_file(xml_filename_realm_ordered , 'cmip6_table'            , value_list_with_cmip6_tables, reduce_attributes, xml_filename_cmip6_table_ordered)
+
+    # Load the realm ordered XML file and create the priority ordered XML file:
+    reorder_xml_file(xml_filename_realm_ordered , 'priority'               , value_list_with_priorities  , reduce_attributes, xml_filename_priority_ordered)
+
+    # Load the priority ordered XML file and create the frequency ordered XML file:
+    reorder_xml_file_2(xml_filename_priority_ordered, 'cmip7_compound_name' , value_list_with_frequencies, reduce_attributes, xml_filename_frequency_ordered, label='frequency')
+
+    # Load the frequency ordered XML file and create the status ordered XML file:
+    reorder_xml_file(xml_filename_frequency_ordered , 'status'              , value_list_with_status     , reduce_attributes, xml_filename_status_ordered)
+
+    # Load the realm ordered XML file and write three different XML files per identification status:
+    for status in value_list_with_status:
+     reorder_xml_file(xml_filename_realm_ordered, 'status'                 , [status]                    , reduce_attributes, xml_filename_realm_ordered.replace("realm", status), status)
+
+
+    # 1. Load the identified                           ordered XML file and create the identified frequency                          ordered XML file.
+    # 2. Load the identified frequency                 ordered XML file and create the identified frequency model_component          ordered XML file.
+    # 3. Load the identified frequency model_component ordered XML file and create the identified frequency model_component priority ordered XML file.
+    reorder_xml_file_2(xml_filename_identified        , 'cmip7_compound_name', value_list_with_frequencies     , reduce_attributes, xml_filename_identified_freq        , label='frequency')
+    reorder_xml_file  (xml_filename_identified_freq   , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_freq_mc     )
+    reorder_xml_file  (xml_filename_identified_freq_mc, 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_freq_mc_prio)
+
+    # 1. Load the identified_var                           ordered XML file and create the identified_var frequency                          ordered XML file.
+    # 2. Load the identified_var frequency                 ordered XML file and create the identified_var frequency model_component          ordered XML file.
+    # 3. Load the identified_var frequency model_component ordered XML file and create the identified_var frequency model_component priority ordered XML file.
+ ###reorder_xml_file_2(xml_filename_identified_var        , 'cmip7_compound_name', value_list_with_frequencies     , reduce_attributes, xml_filename_identified_var_freq        , label='frequency')
+ ###reorder_xml_file  (xml_filename_identified_var_freq   , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_var_freq_mc     )
+ ###reorder_xml_file  (xml_filename_identified_var_freq_mc, 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_freq_mc_prio)
+
+    # 1. Load the unidentified                 ordered XML file and create the unidentified frequency                ordered XML file.
+    # 2. Load the unidentified frequency       ordered XML file and create the unidentified frequency realm          ordered XML file.
+    # 3. Load the unidentified frequency realm ordered XML file and create the unidentified frequency realm priority ordered XML file.
+    reorder_xml_file_2(xml_filename_unidentified           , 'cmip7_compound_name', value_list_with_frequencies, reduce_attributes, xml_filename_unidentified_freq           , label='frequency')
+    reorder_xml_file_2(xml_filename_unidentified_freq      , 'cmip7_compound_name', value_list_with_realms     , reduce_attributes, xml_filename_unidentified_freq_realm     , label='realm')
+    reorder_xml_file  (xml_filename_unidentified_freq_realm, 'priority'           , value_list_with_priorities , reduce_attributes, xml_filename_unidentified_freq_realm_prio)
+
+
+    if extra_xml_output:
+     # 1. Load the identified                 ordered XML file and create the identified model_component          ordered XML file.
+     # 2. Load the identified model_component ordered XML file and create the identified model_component priority ordered XML file.
+     reorder_xml_file(xml_filename_identified        , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_mc)
+     reorder_xml_file(xml_filename_identified_mc     , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_mc_prio)
+
+     # 1. Load the identified ordered XML file and create the priority ordered XML file:
+     reorder_xml_file(xml_filename_identified        , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_prio)
+
+
+     # 1. Load the identified_var                 ordered XML file and create the identified_var model_component          ordered XML file.
+     # 2. Load the identified_var model_component ordered XML file and create the identified_var model_component priority ordered XML file.
+  ###reorder_xml_file(xml_filename_identified_var    , 'model_component'    , value_list_with_model_components, reduce_attributes, xml_filename_identified_var_mc)
+  ###reorder_xml_file(xml_filename_identified_var_mc , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_mc_prio)
+
+     # 1. Load the identified_var ordered XML file and create the priority ordered XML file.
+  ###reorder_xml_file(xml_filename_identified_var    , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_identified_var_prio)
+
+
+     # 1. Load the unidentified       ordered XML file and create the unidentified realm          ordered XML file.
+     # 2. Load the unidentified realm ordered XML file and create the unidentified realm priority ordered XML file.
+     reorder_xml_file_2(xml_filename_unidentified      , 'cmip7_compound_name', value_list_with_realms        , reduce_attributes, xml_filename_unidentified_realm, label='realm')
+     reorder_xml_file  (xml_filename_unidentified_realm, 'priority'           , value_list_with_priorities    , reduce_attributes, xml_filename_unidentified_realm_prio)
+
+     # 1. Load the unidentified ordered XML file and create the priority ordered XML file:
+     reorder_xml_file(xml_filename_unidentified      , 'priority'           , value_list_with_priorities      , reduce_attributes, xml_filename_unidentified_prio)
+
+
+
+    # Load the status XML files and deselect until only unique variables are listed:
+    print()
+    for status in value_list_with_status:
+     xml_filename_status = xml_filename_realm_ordered.replace("realm", status)
+     tree_status = ET.parse(xml_filename_status)
+     root_status = tree_status.getroot()
+     with open(xml_filename_status.replace('.xml', '-unique.xml'), 'w') as xml_file:
+      write_xml_file_root_element_opening(xml_file, root_status.attrib['dr_version'], \
+                                                    root_status.attrib['api_version'], \
+                                                    root_status.attrib['applied_order_sequence'] + ', ' + 'unique variables only')
+      count = 0
+      list_of_unique_physical_parameters = []
+      xpath_expression = './/variable[@physical_parameter_name]'
+      for element in root_status.findall(xpath_expression):
+       count += 1
+       if element.get('physical_parameter_name') not in list_of_unique_physical_parameters:
+        list_of_unique_physical_parameters.append(element.get('physical_parameter_name'))
+        write_xml_file_line_for_variable(xml_file, element, reduce_attributes)
+      print(' From the {:4} {:15} variables there are {:4} unique variables'.format(count, status, len(list_of_unique_physical_parameters)))
+      write_xml_file_root_element_closing(xml_file)
+
+
+    # Loop over the ECE3 - CMIP6 identified variables which are not requested by CMIP7 (i.e. these variable - frequency combinations are not requested by CMIP7):
+    xpath_expression_cmip6_overview = './/variable[@cmip7_compound_name]'
+    count = 0
+    for ece3_element in root_request_overview.findall(xpath_expression_cmip6_overview):
+     if 'no-cmip7-equivalent-var-' in ece3_element.get('cmip7_compound_name'):
+      count += 1
+      # An XML file for this has been easily compose with a grep, see: xml-files/ece3-cmip6-identified-variables-not-requested-by-cmip7*.xml
+     #print(' No CMIP7 match for: {}'.format(ece3_element.get('cmip7_compound_name')))
+    print('\n There are {:3} variables which are identified within the ECE3 - CMIP6 framework but which are not requested by CMIP7.'.format(count))
+    print()
+
+    print_message_list_reorder(message_list_of_identified_variables)
+
+    print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
+
+if __name__ == '__main__':
+    main()
