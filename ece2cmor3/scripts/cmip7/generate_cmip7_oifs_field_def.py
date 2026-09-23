@@ -101,7 +101,7 @@ def main():
       xml_file.write('    </field_group>\n')
       return
 
-  def generate_xml_line_for_variable(cmip7_element, field_id, operation='average'):
+  def generate_xml_line_for_variable(cmip7_element, field_id):
       xml_line = ('      <field  id={:12}' \
                                ' priority={:10}' \
                                ' units={:20}' \
@@ -120,7 +120,7 @@ def main():
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + cmip7_element.get('dimensions'             ) + '"', \
-                  '"' +                    operation                 + '"', \
+                  '"' + determine_operation_value(cmip7_element)     + '"', \
                   '"' + cmip7_element.get('branding_label'         ) + '"', \
                   '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
                   '"' + cmip7_element.get('long_name'              ) + '"', \
@@ -166,7 +166,7 @@ def main():
                                      group_lon_lat               , \
                                      group_other                   \
                                     ):
-      xml_line = generate_xml_line_for_variable(cmip7_element, field_id, determine_operation_value(cmip7_element))
+      xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
