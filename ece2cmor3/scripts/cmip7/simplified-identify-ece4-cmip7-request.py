@@ -2,12 +2,12 @@
 """
 Create the combined XML files with the CMIP7 requested variables for all priorities with the ECE3 - CMIP6
 matched identification info where possible, ordered in a way to allow convenient working on these lists.
-In addition similar XML files are created for the unidentified variables and for the so called var_identified
-variables. The latter are variables which are actually identified in the ECE3 - CMIP6 framework but not for
-the same CMIP7 frequency. Also various reordered variants of these three files are created, with different
-and subsequent selection criteria. The created XML files contain a large set of attributes, the CMIP7
-attributes, some additonal CMIP6 attributes and also ECE3 model component info, expression, identified status
-and identifying comment and comment author attributes.
+Similar XML files are created for the unidentified variables. In this script, the identified variables include
+both the full identified ones with a matching frequency as well and the varibales which are identified but not
+with a same matching CMIP7 frequency as within the ECE3 - CMIP6 framework. Also various reordered variants of
+these two files are created, with different and subsequent selection criteria. The created XML files contain a
+large set of attributes, the CMIP7 attributes, some additonal CMIP6 attributes and also ECE3 model component
+info, expression, identified status and identifying comment and comment author attributes.
 
 Note also the options "-m" and "-o <dr-version>". With those one can read the manual edited files which are
 archived in the repository. The purpose is to read in the manual provided identification info, i.e. the added
