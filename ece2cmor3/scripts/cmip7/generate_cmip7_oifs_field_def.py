@@ -3,8 +3,8 @@
 
  Creating a new ECE4 - CMIP7 field_def file for OIFS (at least for those ECE4 - CMIP7 identified
  variables which are not part of the already known ECE4 OIFS variables in the various OIFS
- field_def files. The latter are already part of the ecearth_field_def_inherited_nf_file and thus the
- ec-earth-definition-inherited-neat-formatted.xml as well, which is also loaded here. For the newly
+ field_def files. The latter ones are already part of the ecearth_field_def_inherited_nf_file and thus
+ the ec-earth-definition-inherited-neat-formatted.xml as well, which is also loaded here. For the newly
  identified variables the XML file:
   xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml
  is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
@@ -314,7 +314,7 @@ def main():
         selection.append(message)
       return selection
 
-  # Write a similar XML file, but one which only contains the fields with; id="None"
+  # Write a similar XML file, but one which only contains the fields with: id="None"
   oifs_cmip7_field_def_id_none_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_none_file_name)
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
@@ -327,7 +327,7 @@ def main():
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_none_match(group_other                 ))
   write_xml_file_closing(oifs_cmip7_xml_file)
 
-  # Write a similar XML file, but one which only contains the fields with; id="None"
+  # Write a similar XML file, but one which only contains the fields with: id="M7_no_*"
   oifs_cmip7_field_def_id_m7_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_m7_file_name)
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
