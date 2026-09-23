@@ -269,6 +269,8 @@ def main():
      else:
       pass
 
+  # Write the basic OIFS field_def XML file with all the id's:
+  #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , group_lon_lat               )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , group_lon_lat_time_tavg     )
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', group_lon_lat_plev19_time   )
@@ -300,6 +302,7 @@ def main():
   # Write a similar XML file, but one which only contains the fields with: id="None"
   oifs_cmip7_field_def_id_none_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_none_file_name)
+  #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_tavg     ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_none_match(group_lon_lat_plev19_time   ))
@@ -313,6 +316,7 @@ def main():
   # Write a similar XML file, but one which only contains the fields with: id="M7_no_*"
   oifs_cmip7_field_def_id_m7_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_m7_file_name)
+  #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_tavg     ))
   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_m7_match(group_lon_lat_plev19_time   ))
