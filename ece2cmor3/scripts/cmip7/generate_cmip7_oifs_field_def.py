@@ -64,23 +64,6 @@ def main():
   root_cmip7_request = tree_cmip7_request.getroot()
 
 
-  def print_message_list(message_list):
-      for message in message_list:
-       print(message)
-      print()
-      return
-
-  def add_message(message_head, message_list, element):
-      message_list.append(' {} {:10} {:20} {:10} {:55} {}'
-                          .format(message_head                      , \
-                                  element.get('priority'           ), \
-                                  element.get('status'             ), \
-                                  element.get('model_component'    ), \
-                                  element.get('cmip7_compound_name'), \
-                                  element.get('comment'            )  \
-                                 ))
-      return
-
   def write_xml_file_opening(xml_file_filename):
       xml_file = open(xml_file_filename, 'w')
       xml_file.write('<?xml version="1.0"?>\n\n')
@@ -341,6 +324,25 @@ def main():
   write_xml_file_closing(oifs_cmip7_xml_file)
 
 
+
+  # The messaging part:
+
+  def print_message_list(message_list):
+      for message in message_list:
+       print(message)
+      print()
+      return
+
+  def add_message(message_head, message_list, element):
+      message_list.append(' {} {:10} {:20} {:10} {:55} {}'
+                          .format(message_head                      , \
+                                  element.get('priority'           ), \
+                                  element.get('status'             ), \
+                                  element.get('model_component'    ), \
+                                  element.get('cmip7_compound_name'), \
+                                  element.get('comment'            )  \
+                                 ))
+      return
 
   # Lists with messages for combined printing per message cathegory afterwards:
   message_list_of_ifs_shortname_matches   = []
