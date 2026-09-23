@@ -142,12 +142,15 @@
  #  from which the identification comment and comment author are taken.
  # Due to the merging of identification comments in maual edited files, three options follow for the next step:
  # Option 1: Omit reading the identification comments
- ./identify-ece4-cmip7-request.py v1.2.2.5                > identify-ece4-cmip7-request.log
+#./identify-ece4-cmip7-request.py            v1.2.2.5                >            identify-ece4-cmip7-request.log
+ ./simplified-identify-ece4-cmip7-request.py v1.2.2.5                > simplified-identify-ece4-cmip7-request.log
  # Option 2: Reading the identification comments from files which are labeled with the same data request: -m
- ./identify-ece4-cmip7-request.py v1.2.2.5 -m             > identify-ece4-cmip7-request.log
+#./identify-ece4-cmip7-request.py            v1.2.2.5 -m             >            identify-ece4-cmip7-request.log
+ ./simplified-identify-ece4-cmip7-request.py v1.2.2.5 -m             > simplified-identify-ece4-cmip7-request.log
  # Option 3: Reading the identification comments from files which are labeled with a previous data request
  # label with the options: -m -o v1.2.2.3
- ./identify-ece4-cmip7-request.py v1.2.2.5 -m -o v1.2.2.3 > identify-ece4-cmip7-request.log
+#./identify-ece4-cmip7-request.py            v1.2.2.5 -m -o v1.2.2.3 >            identify-ece4-cmip7-request.log
+ ./simplified-identify-ece4-cmip7-request.py v1.2.2.5 -m -o v1.2.2.3 > simplified-identify-ece4-cmip7-request.log
  # The latter can be useful when a new data request update has taken place.
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/identify-ece4-cmip7/"
@@ -173,7 +176,8 @@
  ls ../../resources/pycmor-oifs-field_def/source-description.sh
  # describes its origin.
 
- # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
+## With that we can run (actually this script is REPLACED BY the            identify-ece4-cmip7-request.py script):
+ # With that we can run (actually this script is REPLACED BY the simplified-identify-ece4-cmip7-request.py script):
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
@@ -241,7 +245,8 @@
  # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.5-all:
  rsync -a --mkpath cmip7-request-v1.2.2.5-all/ archive/cmip7-request-v1.2.2.5-all/v01
 
- # Create a backup reference of all identify-ece4-cmip7-request.py created files:
+## Create a backup reference of all            identify-ece4-cmip7-request.py created files:
+ # Create a backup reference of all simplified-identify-ece4-cmip7-request.py created files:
  rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/v01
 
 
@@ -252,7 +257,8 @@
 
  # Run & check:
  rm -rf cmip7-request-v1.2.2.5-all                  ; ./cmip7-request.py --all_opportunities --priority_cutoff low v1.2.2.5; diff -r cmip7-request-v1.2.2.5-all                   archive/cmip7-request-v1.2.2.5-all/v02
- rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
+#rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./identify-ece4-cmip7-request.py                                     ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
+ rm -rf xml-files/genecec-cmip7/identify-ece4-cmip7/; ./simplified-identify-ece4-cmip7-request.py                          ; diff -r xml-files/genecec-cmip7/identify-ece4-cmip7/ archive/genecec-cmip7/v01/identify-ece4-cmip7/
 
 
 

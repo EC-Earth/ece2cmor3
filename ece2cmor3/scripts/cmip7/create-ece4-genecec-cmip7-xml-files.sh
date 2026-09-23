@@ -92,7 +92,8 @@ if [ "$#" -eq 1 ]; then
   if [ "${request_update}" = true ]; then
    echo " The option request_update has the manual activated value ${request_update}."
    # In case of a data request update: Use the line below instead:
-   ./identify-ece4-cmip7-request.py ${data_request_version} -m -o ${data_request_version_manual_edit} > identify-ece4-cmip7-request.log
+  #./identify-ece4-cmip7-request.py            ${data_request_version} -m -o ${data_request_version_manual_edit} >            identify-ece4-cmip7-request.log
+   ./simplified-identify-ece4-cmip7-request.py ${data_request_version} -m -o ${data_request_version_manual_edit} > simplified-identify-ece4-cmip7-request.log
    # Archive the most important, best ordered XML files:
    rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-identified-freq-mc-prio.xml      xml-files/
    rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-${data_request_version}-all-full-var_identified-freq-mc-prio.xml  xml-files/
@@ -103,9 +104,11 @@ if [ "$#" -eq 1 ]; then
    git add xml-files/cmip7-request-${data_request_version}-all-full-unidentified-freq-realm-prio.xml
   else
    echo " The option request_update has the default value ${request_update}."
-   ./identify-ece4-cmip7-request.py ${data_request_version} -m > identify-ece4-cmip7-request.log
+  #./identify-ece4-cmip7-request.py            ${data_request_version} -m >            identify-ece4-cmip7-request.log
+   ./simplified-identify-ece4-cmip7-request.py ${data_request_version} -m > simplified-identify-ece4-cmip7-request.log
   fi
-  mv -f identify-ece4-cmip7-request.log archive/log-files/${version}/
+ #mv -f            identify-ece4-cmip7-request.log archive/log-files/${version}/
+  mv -f simplified-identify-ece4-cmip7-request.log archive/log-files/${version}/
 
   # Create an OIFS field_def file.
   # Depending on the genecec-cmip7 input files:
@@ -120,7 +123,8 @@ if [ "$#" -eq 1 ]; then
   echo
   echo " The xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 contains ${number_of_variables} well defined variables."
 
-  # With that we can run (actually this script is REPLACED BY the identify-ece4-cmip7-request.py script):
+ ## With that we can run (actually this script is REPLACED BY the            identify-ece4-cmip7-request.py script):
+  # With that we can run (actually this script is REPLACED BY the simplified-identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:
   #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-frequency-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
@@ -130,7 +134,8 @@ if [ "$#" -eq 1 ]; then
   # Archive the results from the cmip7-request.py call which creates the cmip7-request-v1.2.2.5-all:
   rsync -a --mkpath cmip7-request-${data_request_version}-all/ archive/cmip7-request-${data_request_version}-all/${version}
 
-  # Create a backup reference of all identify-ece4-cmip7-request.py created files:
+ ## Create a backup reference of all            identify-ece4-cmip7-request.py created files:
+  # Create a backup reference of all simplified-identify-ece4-cmip7-request.py created files:
   rsync -a --mkpath xml-files/genecec-cmip7/ archive/genecec-cmip7/${version}
 
 
