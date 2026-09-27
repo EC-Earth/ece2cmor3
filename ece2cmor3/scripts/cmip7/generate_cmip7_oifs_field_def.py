@@ -228,57 +228,57 @@ def main():
                                     group_lon_lat               , \
                                     group_other                   \
                                    )
-   else: # for-else for the field_def_element iteration
-    if   cmip7_element.get('model_component') == 'ifs':
-     # Check, not sure logic is fully correct
-     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     if True:
+#   else: # for-else for the field_def_element iteration
+   if   cmip7_element.get('model_component') == 'ifs':
+    # Check, not sure logic is fully correct, indeed the for-else does not make much sense without break statements. Changed indentation here now, one to the left
+    # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+    if True:
 #     if cmip7_element.get('ifs_shortname') == 'None':
 #      print(' {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('ifs_shortname')))
 #    # This concerns 85 table 129 and 33 table 126 ifs variables (see ece2cmor3 ifspar table admin
-      add_xml_line_to_selected_group(cmip7_element               , \
-                                     cmip7_element.get('ifs_shortname'), \
-                                     group_lon_lat_time_tavg     , \
-                                     group_lon_lat_plev19_time   , \
-                                     group_lon_lat_alevel_time   , \
-                                     group_lon_lat_plev3_time1   , \
-                                     group_lon_lat_time_height2m , \
-                                     group_lon_lat_time_height10m, \
-                                     group_lon_lat               , \
-                                     group_other                   \
-                                    )
-     else:
-      pass
-    elif cmip7_element.get('model_component') == 'tm5':
-     # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     if True:
-      m7_nr += 1
-      add_xml_line_to_selected_group(cmip7_element               , \
-                                     'M7_no_{:03d}'.format(m7_nr), \
-                                     group_lon_lat_time_tavg     , \
-                                     group_lon_lat_plev19_time   , \
-                                     group_lon_lat_alevel_time   , \
-                                     group_lon_lat_plev3_time1   , \
-                                     group_lon_lat_time_height2m , \
-                                     group_lon_lat_time_height10m, \
-                                     group_lon_lat               , \
-                                     group_other                   \
-                                    )
-     else:
-      pass
-    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    cmip7_element.get('ifs_shortname'), \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
+    else:
      pass
-    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+   elif cmip7_element.get('model_component') == 'tm5':
+    # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+    if True:
+     m7_nr += 1
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    'M7_no_{:03d}'.format(m7_nr), \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
+    else:
+     pass
+   elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+    pass
+   elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+    pass
+   else:
+    if cmip7_element.get('modeling_realm') == 'atmos':
+     pass
+    if cmip7_element.get('modeling_realm') == 'atmosChem':
+     pass
+    if cmip7_element.get('modeling_realm') == 'aerosol':
      pass
     else:
-     if cmip7_element.get('modeling_realm') == 'atmos':
-      pass
-     if cmip7_element.get('modeling_realm') == 'atmosChem':
-      pass
-     if cmip7_element.get('modeling_realm') == 'aerosol':
-      pass
-     else:
-      pass
+     pass
 
   # Write the basic OIFS field_def XML file with all the id's:
   #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
@@ -381,29 +381,29 @@ def main():
     # Composing the message list just for the output messaging:
     message_head = 'An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:'
     add_message(message_head, message_list_of_ifs_shortname_matches, cmip7_element)
-   else: # for-else
-    message_head = 'No match for:'
-    if   cmip7_element.get('model_component') == 'ifs':
-     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     add_message(message_head, message_list_of_no_match_ifs , cmip7_element)
-    elif cmip7_element.get('model_component') == 'tm5':
-     # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-     add_message(message_head, message_list_of_no_match_tm5 , cmip7_element)
-    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-     message_head = 'LPJG variable:'
-     add_message(message_head, message_list_of_no_match_lpjg, cmip7_element)
-    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-     message_head = 'NEMO variable:'
-     add_message(message_head, message_list_of_no_match_nemo, cmip7_element)
+#  else: # for-else
+   message_head = 'No match for:'
+   if   cmip7_element.get('model_component') == 'ifs':
+    # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+    add_message(message_head, message_list_of_no_match_ifs , cmip7_element)
+   elif cmip7_element.get('model_component') == 'tm5':
+    # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+    add_message(message_head, message_list_of_no_match_tm5 , cmip7_element)
+   elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+    message_head = 'LPJG variable:'
+    add_message(message_head, message_list_of_no_match_lpjg, cmip7_element)
+   elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+    message_head = 'NEMO variable:'
+    add_message(message_head, message_list_of_no_match_nemo, cmip7_element)
+   else:
+    if cmip7_element.get('modeling_realm') == 'atmos':
+      add_message(message_head,  message_list_of_no_match_else_atmos    , cmip7_element)
+    if cmip7_element.get('modeling_realm') == 'atmosChem':
+      add_message(message_head,  message_list_of_no_match_else_atmosChem, cmip7_element)
+    if cmip7_element.get('modeling_realm') == 'aerosol':
+      add_message(message_head,  message_list_of_no_match_else_aerosol, cmip7_element)
     else:
-     if cmip7_element.get('modeling_realm') == 'atmos':
-       add_message(message_head,  message_list_of_no_match_else_atmos    , cmip7_element)
-     if cmip7_element.get('modeling_realm') == 'atmosChem':
-       add_message(message_head,  message_list_of_no_match_else_atmosChem, cmip7_element)
-     if cmip7_element.get('modeling_realm') == 'aerosol':
-       add_message(message_head,  message_list_of_no_match_else_aerosol, cmip7_element)
-     else:
-       add_message(message_head, message_list_of_no_match_else, cmip7_element)
+      add_message(message_head, message_list_of_no_match_else, cmip7_element)
 
   if verbose:
    print_message_list(message_list_of_ifs_shortname_matches  )
