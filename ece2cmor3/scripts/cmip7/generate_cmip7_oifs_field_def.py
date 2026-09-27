@@ -217,20 +217,6 @@ def main():
     i_ifs_id_match += 1
     ifs_id_match_message = '{:5} {}'.format(i_ifs_id_match, field_def_element.get('id'))
 
-   ## This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
-   #if add_existing_oifs_field_def_variables:
-   # add_xml_line_to_selected_group(cmip7_element               , \
-   #                                field_def_element.get('id') , \
-   #                                group_lon_lat_time_tavg     , \
-   #                                group_lon_lat_plev19_time   , \
-   #                                group_lon_lat_alevel_time   , \
-   #                                group_lon_lat_plev3_time1   , \
-   #                                group_lon_lat_time_height2m , \
-   #                                group_lon_lat_time_height10m, \
-   #                                group_lon_lat               , \
-   #                                group_other                   \
-   #                               )
-
    # In case the ifs_id_match_message is empty, it means this OIFS variable is not yet in the ECE4 field_def file:
    if ifs_id_match_message == '' \
        and cmip7_element.get('ifs_shortname') != 'NotAnIFSvar' \
@@ -244,10 +230,9 @@ def main():
     list_of_identified_variables_129_table.append(list_item)
 
    if   cmip7_element.get('model_component') == 'ifs':
-    # The statement below is probably not correct and was based on a miss interpretation of the for-else concept,
-    # the consequence is that there was no deselection of the variables which are already present in the oifs
-    # field_def file.
-    # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
+    # This includes all oifs variables (the unidentified variabless exluded because they have ?? as value for
+    # model_component) into the OIFS field_def file. So both the ones already in the field_def files in the
+    # ECE4 repo as the ones missing there:
     add_xml_line_to_selected_group(cmip7_element               , \
                                    cmip7_element.get('ifs_shortname'), \
                                    group_lon_lat_time_tavg     , \
