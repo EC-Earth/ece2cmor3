@@ -249,9 +249,6 @@ def main():
     # field_def file.
     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
     if True:
-#     if cmip7_element.get('ifs_shortname') == 'None':
-#      print(' {:55} {}'.format(cmip7_element.get('cmip7_compound_name'), cmip7_element.get('ifs_shortname')))
-#    # This concerns 85 table 129 and 33 table 126 ifs variables (see ece2cmor3 ifspar table admin
      add_xml_line_to_selected_group(cmip7_element               , \
                                     cmip7_element.get('ifs_shortname'), \
                                     group_lon_lat_time_tavg     , \
