@@ -228,9 +228,10 @@ def main():
                                     group_lon_lat               , \
                                     group_other                   \
                                    )
-#   else: # for-else for the field_def_element iteration
    if   cmip7_element.get('model_component') == 'ifs':
-    # Check, not sure logic is fully correct, indeed the for-else does not make much sense without break statements. Changed indentation here now, one to the left
+    # The statement below is probably not correct and was based on a miss interpretation of the for-else concept,
+    # the consequence is that there was no deselection of the variables which are already present in the oifs
+    # field_def file.
     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
     if True:
 #     if cmip7_element.get('ifs_shortname') == 'None':
@@ -381,7 +382,6 @@ def main():
     # Composing the message list just for the output messaging:
     message_head = 'An ifs_shortname match with ' + '{:6}'.format(cmip7_element.get('ifs_shortname'      )) + ' for:'
     add_message(message_head, message_list_of_ifs_shortname_matches, cmip7_element)
-#  else: # for-else
    message_head = 'No match for:'
    if   cmip7_element.get('model_component') == 'ifs':
     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
