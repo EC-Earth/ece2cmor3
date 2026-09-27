@@ -192,6 +192,8 @@ def main():
 
   add_existing_oifs_field_def_variables = False
 
+  list_of_identified_variables_not_in_field_def_file = []
+
   i_dr  = 0
   i_ifs_id_match = 0
   m7_nr = 0
@@ -204,16 +206,15 @@ def main():
   # variables):
   xpath_expression_cmip7_request = './/variable'
   for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
-   # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
-   # equals the ifs_shortname in the CMIP7 request file:
-
    i_dr += 1
-   print('{:5} {:7} {}'.format(i_dr, cmip7_element.get('model_component'), cmip7_element.get('ifs_shortname')))
+   ifs_id_match_message = ''
 
+   # Iterate over all the fields in the field_def file, and select the match when the field id in the field_def
+   # equals the ifs_shortname in the CMIP7 request file:
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
     i_ifs_id_match += 1
-    print('{:5} {:20} {:7} {}'.format(i_ifs_id_match, field_def_element.get('id'), cmip7_element.get('model_component'), cmip7_element.get('ifs_shortname')))
+    ifs_id_match_message = '{:5} {}'.format(i_ifs_id_match, field_def_element.get('id'))
 
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
     if add_existing_oifs_field_def_variables:
@@ -228,6 +229,13 @@ def main():
                                     group_lon_lat               , \
                                     group_other                   \
                                    )
+   # In case the ifs_id_match_message is empty, it means this OIFS variable is not yet in the ECE4 field_def file:
+   if ifs_id_match_message == '' \
+       and cmip7_element.get('ifs_shortname') != 'NotAnIFSvar' \
+       and cmip7_element.get('ifs_shortname') != '??' \
+       and cmip7_element.get('ifs_shortname') != 'None':
+    list_of_identified_variables_not_in_field_def_file.append(cmip7_element.get('ifs_shortname'))
+
    if   cmip7_element.get('model_component') == 'ifs':
     # The statement below is probably not correct and was based on a miss interpretation of the for-else concept,
     # the consequence is that there was no deselection of the variables which are already present in the oifs
@@ -310,6 +318,12 @@ def main():
        if 'id="M7_no' in message:
         selection.append(message)
       return selection
+
+  unique_list_of_identified_variables_not_in_field_def_file = sorted(list(set(list_of_identified_variables_not_in_field_def_file)))
+  print('\n The list of unique identified OIFS variables which are not in the ECE4 field_def file:')
+  for list_item in unique_list_of_identified_variables_not_in_field_def_file:
+   print('  {}'.format(list_item))
+  print()
 
   # Write a similar XML file, but one which only contains the fields with: id="None"
   oifs_cmip7_field_def_id_none_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
