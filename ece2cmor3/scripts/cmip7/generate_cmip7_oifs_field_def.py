@@ -193,6 +193,7 @@ def main():
   add_existing_oifs_field_def_variables = False
 
   list_of_identified_variables_not_in_field_def_file = []
+  list_of_identified_variables_129_table             = []
 
   i_dr  = 0
   i_ifs_id_match = 0
@@ -235,6 +236,12 @@ def main():
        and cmip7_element.get('ifs_shortname') != '??' \
        and cmip7_element.get('ifs_shortname') != 'None':
     list_of_identified_variables_not_in_field_def_file.append(cmip7_element.get('ifs_shortname'))
+
+   if ifs_id_match_message == '' \
+       and cmip7_element.get('ifs_shortname') == 'None':
+    list_item = '{:>7} {}'.format(cmip7_element.get('varname_code'), cmip7_element.get('expression'))
+   #list_of_identified_variables_129_table.append(cmip7_element.get('varname_code'))
+    list_of_identified_variables_129_table.append(list_item)
 
    if   cmip7_element.get('model_component') == 'ifs':
     # The statement below is probably not correct and was based on a miss interpretation of the for-else concept,
@@ -323,6 +330,12 @@ def main():
   print('\n The list of unique identified OIFS variables which are not in the ECE4 field_def file:')
   for list_item in unique_list_of_identified_variables_not_in_field_def_file:
    print('  {}'.format(list_item))
+  print()
+
+  unique_list_of_identified_variables_129_table = sorted(list(set(list_of_identified_variables_129_table)))
+  print('\n The list of table 126 & 129 variables:')
+  for list_item in unique_list_of_identified_variables_129_table:
+   print('  {:>7}'.format(list_item))
   print()
 
   # Write a similar XML file, but one which only contains the fields with: id="None"
