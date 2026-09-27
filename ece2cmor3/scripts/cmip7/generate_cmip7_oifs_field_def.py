@@ -240,7 +240,6 @@ def main():
    if ifs_id_match_message == '' \
        and cmip7_element.get('ifs_shortname') == 'None':
     list_item = '{:>7} {}'.format(cmip7_element.get('varname_code'), cmip7_element.get('expression'))
-   #list_of_identified_variables_129_table.append(cmip7_element.get('varname_code'))
     list_of_identified_variables_129_table.append(list_item)
 
    if   cmip7_element.get('model_component') == 'ifs':
@@ -248,20 +247,17 @@ def main():
     # the consequence is that there was no deselection of the variables which are already present in the oifs
     # field_def file.
     # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
-    if True:
-     add_xml_line_to_selected_group(cmip7_element               , \
-                                    cmip7_element.get('ifs_shortname'), \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
-                                   )
-    else:
-     pass
+    add_xml_line_to_selected_group(cmip7_element               , \
+                                   cmip7_element.get('ifs_shortname'), \
+                                   group_lon_lat_time_tavg     , \
+                                   group_lon_lat_plev19_time   , \
+                                   group_lon_lat_alevel_time   , \
+                                   group_lon_lat_plev3_time1   , \
+                                   group_lon_lat_time_height2m , \
+                                   group_lon_lat_time_height10m, \
+                                   group_lon_lat               , \
+                                   group_other                   \
+                                  )
    elif cmip7_element.get('model_component') == 'tm5':
     # This part concerns the TM7 oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
     if True:
