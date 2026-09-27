@@ -192,19 +192,29 @@ def main():
 
   add_existing_oifs_field_def_variables = False
 
+  i_dr  = 0
+  i_ifs_id_match = 0
   m7_nr = 0
   oifs_output_dir_name = 'xml-files/genecec-cmip7/oifs-field_def/'
   subprocess.run(["mkdir", "-p", oifs_output_dir_name])
   oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7.xml.j2'
   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_file_name)
 
-  # Iterate over all the CMIP7 variables:
+  # Iterate over all the CMIP7 variables (the cmip7-request-v*-all-full-priority.xml file including the unidentified
+  # variables):
   xpath_expression_cmip7_request = './/variable'
   for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
    # Iterate over all the fields in the field_def file, but only select the match when the field id in the field_def
    # equals the ifs_shortname in the CMIP7 request file:
+
+   i_dr += 1
+   print('{:5} {:7} {}'.format(i_dr, cmip7_element.get('model_component'), cmip7_element.get('ifs_shortname')))
+
    xpath_expression_field_def = './/field[@id="'+cmip7_element.get('ifs_shortname')+'"]'
    for field_def_element in root_ecearth_field_def_inherited_nf.findall(xpath_expression_field_def):
+    i_ifs_id_match += 1
+    print('{:5} {:20} {:7} {}'.format(i_ifs_id_match, field_def_element.get('id'), cmip7_element.get('model_component'), cmip7_element.get('ifs_shortname')))
+
     # This part concerns the oifs variables which are already in the existing oifs field_def file in the ECE4 repo:
     if add_existing_oifs_field_def_variables:
      add_xml_line_to_selected_group(cmip7_element               , \
@@ -218,8 +228,9 @@ def main():
                                     group_lon_lat               , \
                                     group_other                   \
                                    )
-   else: # for-else
+   else: # for-else for the field_def_element iteration
     if   cmip7_element.get('model_component') == 'ifs':
+     # Check, not sure logic is fully correct
      # This part concerns the oifs variables which are not in the existing oifs field_def file in the ECE4 repo:
      if True:
 #     if cmip7_element.get('ifs_shortname') == 'None':
