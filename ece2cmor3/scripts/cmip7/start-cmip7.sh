@@ -135,6 +135,7 @@
  # Depending on the genecec-cmip7 input files:
  #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-alphabetic-ordered.xml
  #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
+ #  ./xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml
  #  Note that with the -m option there is an additional dependency on the manual edited XML files:
  #   xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml
  #   xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-var_identified-freq-mc-prio.xml

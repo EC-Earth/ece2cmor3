@@ -89,6 +89,7 @@ if [ "$#" -eq 1 ]; then
   # Depending on the genecec-cmip7 input files:
   #  cmip7-request-v1.2.2.5-all/cmip7-request-v1.2.2.5-all-alphabetic-ordered.xml
   #  ./xml-files/genecec-cmip7/request-overview-cmip6-pextra-all-ECE3-CC-neat-formatted.xml
+  #  ./xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml
   if [ "${request_update}" = true ]; then
    echo " The option request_update has the manual activated value ${request_update}."
    # In case of a data request update: Use the line below instead:
