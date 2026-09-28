@@ -394,12 +394,16 @@ def main():
            else:
             print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, cmip6_units, element.get('cmip7_compound_name')))
 
+         # Getting for NEMO variables their essential info from the combined ECE ping file:
          xpath_expression_ping = './/field[@id="' + ece3_element.get('varname_code') + '"]'
          for ping_element in root_pingfile.findall(xpath_expression_ping):
+          ping_field_ref  = ping_element.get('field_ref')
+          ping_expression = ping_element.text
+          ping_units      = ping_element.get('ping_unit')
+         #print(' {:20} {:25} {:20}{}'.format(ping_element.get('id'), ping_field_ref, ping_units, ping_expression))
           if False:
            # Checking the CMIP7 units with the ping ones, currently only one different case:
            #  CMIP7 unit: g m-2 not equal to CMIP6 unit: 1e-3 kg m-2 for ocean.somint.tavg-u-hxy-sea.yr.glb
-           ping_units  = ping_element.get('ping_unit')
            cmip7_units =      element.get('units')
            if cmip7_units != ping_units:
             if cmip7_units == '1E-03' and ping_units == '0.001' or \
@@ -409,7 +413,6 @@ def main():
              pass
             else:
              print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, ping_units, element.get('cmip7_compound_name')))
-         #print(' {:20} {:25} {:20}{}'.format(ping_element.get('id'), ping_element.get('field_ref'), ping_element.get('ping_unit'), ping_element.text))
 
          element.set('model_component', ece3_element.get('model_component'))
          element.set('other_component', ece3_element.get('other_component'))
