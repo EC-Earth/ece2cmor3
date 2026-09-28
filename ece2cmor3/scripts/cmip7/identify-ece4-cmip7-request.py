@@ -266,6 +266,7 @@ def main():
     manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-identified-freq-mc-prio.xml'       # The     identified file with manual updated identifying comment
     manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-var_identified-freq-mc-prio.xml'   # The var_identified file with manual updated identifying comment
     manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-unidentified-freq-realm-prio.xml'  # The   unidentified file with manual updated identifying comment
+    ecearth_ping_file_neat_formatted       = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml'
 
     suggested_path_logfile                 = sys.argv[0].replace(".py", ".log").replace("./", "./archive/log-files/v*/")
 
@@ -301,6 +302,13 @@ def main():
     if dr_version_header != dr_version:
      print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
      sys.exit(abort_message)
+
+    # Read & load the ECE ping file which contains the identification info for all NEMO variables:
+    if os.path.isfile(ecearth_ping_file_neat_formatted) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./create-basic-ecearth4-cmip7-xios-configuration-file.py config-create-basic-ecearth4-cmip7-xios-configuration-file\n'.format(error_message, ecearth_ping_file_neat_formatted))
+     sys.exit(abort_message)
+    tree_pingfile = ET.parse(ecearth_ping_file_neat_formatted)
+    root_pingfile = tree_pingfile.getroot()
 
     if use_manual_files:
      # Read & load the identified file with manual updated identifying comment:
@@ -386,14 +394,50 @@ def main():
            else:
             print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, cmip6_units, element.get('cmip7_compound_name')))
 
+         # Dummy initialisation for error tracing in case:
+         ping_field_ref  = 'init-error-1'
+         ping_expression = 'init-error-2'
+         ping_units      = 'init-error-3'
+         # Getting for NEMO variables their essential info from the combined ECE ping file:
+         xpath_expression_ping = './/field[@id="' + ece3_element.get('cmip6_variable') + '"]'
+         for ping_element in root_pingfile.findall(xpath_expression_ping):
+          ping_field_ref  = ping_element.get('field_ref')
+          ping_expression = ping_element.text.strip().strip('\"').replace('&','&amp;').replace('<','&lt;')
+          ping_units      = ping_element.get('ping_unit')
+         #if 'None' in ping_expression: ping_expression = ''
+         #print(' {:20} {:25} {:20}{}'.format(ping_element.get('id'), ping_field_ref, ping_units, ping_expression))
+          if False:
+           # Checking the CMIP7 units with the ping ones, currently only one different case:
+           #  CMIP7 unit: g m-2 not equal to CMIP6 unit: 1e-3 kg m-2 for ocean.somint.tavg-u-hxy-sea.yr.glb
+           cmip7_units =      element.get('units')
+           if cmip7_units != ping_units:
+            if cmip7_units == '1E-03' and ping_units == '0.001' or \
+               cmip7_units == '1E-06' and ping_units == '1e-06' or \
+               cmip7_units == '1E-09' and ping_units == '1e-09' or \
+               cmip7_units == '1'     and ping_units == '1.0'   :
+             pass
+            else:
+             print(' CMIP7 unit: {:20} not equal to CMIP6 unit: {:20} for {}'.format(cmip7_units, ping_units, element.get('cmip7_compound_name')))
+
          element.set('model_component', ece3_element.get('model_component'))
          element.set('other_component', ece3_element.get('other_component'))
          element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
-         element.set('varname_code'   , ece3_element.get('varname_code'   ))
-         if len(ece3_element.get('expression')) < 84:
-          element.set('expression'    , ece3_element.get('expression'     ))
+         if element.get('model_component') == 'nemo':
+          if False:
+           # This shows the Bathymetry - deptho issue:
+           if ece3_element.get('varname_code') != ece3_element.get('cmip6_variable'):
+            print('\n WARNING: The NEMO var_code "{}" in the CMIP6 request-overview differs from the CMIP6 name "{}"\n'.format(ece3_element.get('varname_code'), ece3_element.get('cmip6_variable')))
+          if ping_field_ref == 'init-error-1':
+           print('\n WARNING: {} {} {} {}\n'.format(ping_field_ref, ping_expression, ece3_element.get('varname_code'), ece3_element.get('cmip6_variable')))
+          element.set('varname_code'   , ping_field_ref )
+          element.set('expression'     , ping_expression)
          else:
-          element.set('expression'    , 'See the ' + os.path.split(request_overview_xml_filename)[1] + ' file.')
+          element.set('varname_code'   , ece3_element.get('varname_code'))
+          if len(ece3_element.get('expression')) < 84:
+           element.set('expression'    , ece3_element.get('expression'))
+          else:
+           element.set('expression'    , 'See the ' + os.path.split(request_overview_xml_filename)[1] + ' file.')
+
          if element.get('physical_parameter_name') == ece3_element.get('cmip6_variable'):
           if ece3_element.get('cmip6_table') == element.get('cmip6_table'):
            element.set('comment_author' , '                 ')
