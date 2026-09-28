@@ -200,14 +200,12 @@ def main():
   group_lon_lat                = []
   group_other                  = []
 
-  add_existing_oifs_field_def_variables = False
-
   list_of_identified_variables_not_in_field_def_file = []
   list_of_identified_variables_129_table             = []
 
-  i_dr  = 0
+  i_dr           = 0
   i_ifs_id_match = 0
-  m7_nr = 0
+  m7_nr          = 0
   oifs_output_dir_name = 'xml-files/genecec-cmip7/oifs-field_def/'
   subprocess.run(["mkdir", "-p", oifs_output_dir_name])
   oifs_cmip7_field_def_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7.xml.j2'
