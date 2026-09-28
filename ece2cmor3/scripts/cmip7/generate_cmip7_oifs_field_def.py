@@ -260,9 +260,36 @@ def main():
                                    group_other                   \
                                   )
    elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
-    pass
+    if False:
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    cmip7_element.get('varname_code'), \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
+    else:
+     pass
    elif cmip7_element.get('model_component') == 'nemo':            # add other better check
-    pass
+    if False:
+     # With the varname_code based on the ECE ping file for NEMO via the request or identified files:
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    cmip7_element.get('varname_code'), \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
+    else:
+     pass
    else:
     if cmip7_element.get('modeling_realm') == 'atmos':
      pass
