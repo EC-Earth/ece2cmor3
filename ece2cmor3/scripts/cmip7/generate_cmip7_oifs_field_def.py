@@ -85,7 +85,15 @@ def main():
       return
 
   def generate_xml_line_for_variable(cmip7_element, field_id):
-      xml_line = ('      <field  id={:12}' \
+      if (cmip7_element.get('model_component')) == 'nemo':
+       if cmip7_element.get('expression') != 'None':
+        expression = cmip7_element.get('expression')
+       else:
+        expression = ''
+      else:
+       expression = ''
+     #xml_line = ('      <field  id={:12}' \
+      xml_line = ('      <field  id={:25}' \
                                ' priority={:10}' \
                                ' units={:20}' \
                                ' dimensions={:45}' \
@@ -98,7 +106,8 @@ def main():
                                ' region={:12}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
-                  ' >   </field>'.format( \
+                 #' >   </field>'.format( \
+                  ' > {:63}</field>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
@@ -111,7 +120,8 @@ def main():
                   '"' + cmip7_element.get('modeling_realm'         ) + '"', \
                   '"' + cmip7_element.get('region'                 ) + '"', \
                   '"' + cmip7_element.get('cmip6_table'            ) + '"', \
-                  '"' + cmip7_element.get('physical_parameter_name') + '"') \
+                  '"' + cmip7_element.get('physical_parameter_name') + '"', \
+                  ' ' +                    expression                + ' ') \
                  )
       return xml_line
 
