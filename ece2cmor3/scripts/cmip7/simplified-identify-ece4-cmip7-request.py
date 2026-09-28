@@ -266,6 +266,7 @@ def main():
     manual_updated_identified_filename     = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-identified-freq-mc-prio.xml'       # The     identified file with manual updated identifying comment
  ###manual_updated_var_identified_filename = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-var_identified-freq-mc-prio.xml'   # The var_identified file with manual updated identifying comment
     manual_updated_unidentified_filename   = 'xml-files/cmip7-request-' + dr_version_manual_file + '-all-full-unidentified-freq-realm-prio.xml'  # The   unidentified file with manual updated identifying comment
+    ecearth_ping_file_neat_formatted       = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml'
 
     suggested_path_logfile                 = sys.argv[0].replace(".py", ".log").replace("./", "./archive/log-files/v*/")
 
@@ -301,6 +302,13 @@ def main():
     if dr_version_header != dr_version:
      print('{} The data request version {} in the header of the file:\n  {}\n does not match the specified data request version {}\n'.format(error_message, dr_version_header, xml_filename_alphabetic_ordered, dr_version))
      sys.exit(abort_message)
+
+    # Read & load the ECE ping file which contains the identification info for all NEMO variables:
+    if os.path.isfile(ecearth_ping_file_neat_formatted) == False:
+     print('{} The file {} does not exist.\n        Try running first:\n         ./create-basic-ecearth4-cmip7-xios-configuration-file.py config-create-basic-ecearth4-cmip7-xios-configuration-file\n'.format(error_message, ecearth_ping_file_neat_formatted))
+     sys.exit(abort_message)
+    tree_pingfile = ET.parse(ecearth_ping_file_neat_formatted)
+    root_pingfile = tree_pingfile.getroot()
 
     if use_manual_files:
      # Read & load the identified file with manual updated identifying comment:
