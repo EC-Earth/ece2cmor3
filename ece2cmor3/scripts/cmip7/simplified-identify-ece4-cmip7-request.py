@@ -399,7 +399,6 @@ def main():
          ping_expression = 'init-error-2'
          ping_units      = 'init-error-3'
          # Getting for NEMO variables their essential info from the combined ECE ping file:
-        #xpath_expression_ping = './/field[@id="' + ece3_element.get('varname_code') + '"]'     # Hsa the Bathymetry deptho issue
          xpath_expression_ping = './/field[@id="' + ece3_element.get('cmip6_variable') + '"]'
          for ping_element in root_pingfile.findall(xpath_expression_ping):
           ping_field_ref  = ping_element.get('field_ref')
@@ -424,9 +423,10 @@ def main():
          element.set('other_component', ece3_element.get('other_component'))
          element.set('ifs_shortname'  , ece3_element.get('ifs_shortname'  ))
          if element.get('model_component') == 'nemo':
-          # This shows the Bathymetry - deptho issue:
-          if ece3_element.get('varname_code') != ece3_element.get('cmip6_variable'):
-           print('\n WARNING: The NEMO var_code "{}" in the CMIP6 request-overview differs from the CMIP6 name "{}"\n'.format(ece3_element.get('varname_code'), ece3_element.get('cmip6_variable')))
+          if False:
+           # This shows the Bathymetry - deptho issue:
+           if ece3_element.get('varname_code') != ece3_element.get('cmip6_variable'):
+            print('\n WARNING: The NEMO var_code "{}" in the CMIP6 request-overview differs from the CMIP6 name "{}"\n'.format(ece3_element.get('varname_code'), ece3_element.get('cmip6_variable')))
           if ping_field_ref == 'init-error-1':
            print('\n WARNING: {} {} {} {}\n'.format(ping_field_ref, ping_expression, ece3_element.get('varname_code'), ece3_element.get('cmip6_variable')))
           element.set('varname_code'   , ping_field_ref )
