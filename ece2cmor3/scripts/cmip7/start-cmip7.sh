@@ -231,7 +231,8 @@
  rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-var_identified-freq-mc-prio.xml  xml-files/
  rsync -a xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-unidentified-freq-realm-prio.xml xml-files/
 
-
+ # Archive the basic file for identifying the variable code names of M7 (so far denoted with place holders):
+ rsync -a xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_id_m7.xml.j2                                     xml-files/
 
  # Archive the results from the cmip7-request.py example call:
  rsync -a --mkpath cmip7-request-v1.2.2.5-piControl-historical archive/cmip7-request-examples/v02/
