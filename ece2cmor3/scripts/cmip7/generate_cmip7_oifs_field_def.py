@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 
- Creating a new ECE4 - CMIP7 field_def file for OIFS (at least for those ECE4 - CMIP7 identified
+ Creating a new ECE4 - CMIP7 field_def file for OIFS including those ECE4 - CMIP7 identified
  variables which are not part of the already known ECE4 OIFS variables in the various OIFS
  field_def files. The latter ones are already part of the ecearth_field_def_inherited_nf_file and thus
  the ec-earth-definition-inherited-neat-formatted.xml as well, which is also loaded here. For the newly
@@ -10,12 +10,20 @@
  is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
  including its mapping to the CMIP7 request.
 
+ Also the ECE ping file is loaded, this however is related to NEMO variables, which are clearly in fact
+ not part of this OIFS field_def. In this script inactive options are included with which LPJG & NEMO
+ variables can be merged in, which serves another goal: to reuse this code here for creating a file_def
+ generating tool.
 
  Call example:
   ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
 
  It creates the file:
   xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2
+  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_id_none.xml.j2
+  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_id_m7.xml.j2
+ and the in a post processing step a derived file is generated:
+  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2
 
 """
 import sys
