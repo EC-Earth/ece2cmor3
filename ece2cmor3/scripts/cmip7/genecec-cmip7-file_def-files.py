@@ -251,26 +251,26 @@ def main():
        expression = ''
 
 
+     #ouput_freq  = ''
+      grid_ref    = ''
+      operation   = ''
+      freq_op     = ''
+      freq_offset = ''
+
       # Set first the xpath search for iterating through the field_def file:
       xpath_path_fd         = ".//field"
       xpath_expression_fd   = xpath_path_fd + '[@' + 'id' + '="' + field_id + '"]'
       match_fd              = 0 # For bookkeeping the identification matches
 
-     #ouput_freq_info  = ''
-      grid_ref_info    = ''
-      operation_info   = ''
-      freq_op_info     = ''
-      freq_offset_info = ''
-
       for element_fd in root_ece_field_def.findall(xpath_expression_fd):
       #k_match += 1
       #match_fd += 1
 
-      #if element_fd.get('output_freq'): ouput_freq_info  = element_fd.get('output_freq')
-       if element_fd.get('grid_ref'   ): grid_ref_info    = element_fd.get('grid_ref')
-       if element_fd.get('operation'  ): operation_info   = element_fd.get('operation')
-       if element_fd.get('freq_op'    ): freq_op_info     = element_fd.get('freq_op')
-       if element_fd.get('freq_offset'): freq_offset_info = element_fd.get('freq_offset')
+      #if element_fd.get('output_freq'): ouput_freq  = element_fd.get('output_freq')
+       if element_fd.get('grid_ref'   ): grid_ref    = element_fd.get('grid_ref')
+       if element_fd.get('operation'  ): operation   = element_fd.get('operation')
+       if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
+       if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
 
 
       xml_line = ('      <field  enabled="True" '\
@@ -293,11 +293,11 @@ def main():
                   ' > {:63}</file>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
-                  '"' + grid_ref_info                                + '"', \
+                  '"' + grid_ref                                     + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + determine_operation_value(cmip7_element)     + '"', \
-                  '"' + freq_op_info                                 + '"', \
-                  '"' + freq_offset_info                             + '"', \
+                  '"' + freq_op                                      + '"', \
+                  '"' + freq_offset                                  + '"', \
                   '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
                   '"' + cmip7_element.get('long_name'              ) + '"', \
                   '"' + cmip7_element.get('standard_name'          ) + '"', \
@@ -409,7 +409,7 @@ def main():
                                     group_other                   \
                                    )
 
-   print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
+  #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
 
   # Write the basic OIFS field_def XML file with all the id's:
   #                            xml_file             , group_id                              , grid_ref        , list_with_xml_lines_of_group)
