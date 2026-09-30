@@ -249,6 +249,30 @@ def main():
      #elif cmip7_element.get('model_component') == 'ifs':
       else:
        expression = ''
+
+
+      # Set first the xpath search for iterating through the field_def file:
+      xpath_path_fd         = ".//field"
+      xpath_expression_fd   = xpath_path_fd + '[@' + 'id' + '="' + field_id + '"]'
+      match_fd              = 0 # For bookkeeping the identification matches
+
+     #ouput_freq_info  = ''
+      grid_ref_info    = ''
+      operation_info   = ''
+      freq_op_info     = ''
+      freq_offset_info = ''
+
+      for element_fd in root_ece_field_def.findall(xpath_expression_fd):
+      #k_match += 1
+      #match_fd += 1
+
+      #if element_fd.get('output_freq'): ouput_freq_info  = element_fd.get('output_freq')
+       if element_fd.get('grid_ref'   ): grid_ref_info    = element_fd.get('grid_ref')
+       if element_fd.get('operation'  ): operation_info   = element_fd.get('operation')
+       if element_fd.get('freq_op'    ): freq_op_info     = element_fd.get('freq_op')
+       if element_fd.get('freq_offset'): freq_offset_info = element_fd.get('freq_offset')
+
+
       xml_line = ('      <field  enabled="True" '\
                                ' field_ref={:25}' \
                                ' priority={:10}' \
@@ -269,11 +293,11 @@ def main():
                   ' > {:63}</file>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
-                  '"' + str(cmip7_element.get('grid_ref'               )) + '"', \
+                  '"' + grid_ref_info                                + '"', \
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + determine_operation_value(cmip7_element)     + '"', \
-                  '"' + str(cmip7_element.get('freq_op'                )) + '"', \
-                  '"' + str(cmip7_element.get('freq_offset'            )) + '"', \
+                  '"' + freq_op_info                                 + '"', \
+                  '"' + freq_offset_info                             + '"', \
                   '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
                   '"' + cmip7_element.get('long_name'              ) + '"', \
                   '"' + cmip7_element.get('standard_name'          ) + '"', \
