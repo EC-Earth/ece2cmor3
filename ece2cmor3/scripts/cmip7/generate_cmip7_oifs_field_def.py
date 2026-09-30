@@ -112,6 +112,7 @@ def main():
                                ' standard_name={:160}' \
                                ' modeling_realm={:33}' \
                                ' region={:12}' \
+                               ' frequency={:12}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
                  #' >   </field>'.format( \
@@ -127,6 +128,7 @@ def main():
                   '"' + cmip7_element.get('standard_name'          ) + '"', \
                   '"' + cmip7_element.get('modeling_realm'         ) + '"', \
                   '"' + cmip7_element.get('region'                 ) + '"', \
+                  '"' + cmip7_element.get('frequency'              ) + '"', \
                   '"' + cmip7_element.get('cmip6_table'            ) + '"', \
                   '"' + cmip7_element.get('physical_parameter_name') + '"', \
                   ' ' +                    expression                + ' ') \
@@ -240,27 +242,40 @@ def main():
        and cmip7_element.get('ifs_shortname') != 'None':
     list_of_identified_variables_not_in_field_def_file.append(cmip7_element.get('ifs_shortname'))
 
+## def unique_id_selection(input_list):
+##     selection = []
+##     for list_item in input_list:
+##      if 'id="' in list_item:
+##       selection.append(list_item)
+##     return selection
+
    if ifs_id_match_message == '' \
        and cmip7_element.get('ifs_shortname') == 'None':
     list_item = '{:>7} {}'.format(cmip7_element.get('varname_code'), cmip7_element.get('expression'))
     list_of_identified_variables_129_table.append(list_item)
 
+   include_all_oifs_vars = False
+   include_m7_vars       = False
+
    if   cmip7_element.get('model_component') == 'ifs':
-    # This includes all oifs variables (the unidentified variabless exluded because they have ?? as value for
-    # model_component) into the OIFS field_def file. So both the ones already in the field_def files in the
-    # ECE4 repo as the ones missing there:
-    add_xml_line_to_selected_group(cmip7_element               , \
-                                   cmip7_element.get('ifs_shortname'), \
-                                   group_lon_lat_time_tavg     , \
-                                   group_lon_lat_plev19_time   , \
-                                   group_lon_lat_alevel_time   , \
-                                   group_lon_lat_plev3_time1   , \
-                                   group_lon_lat_time_height2m , \
-                                   group_lon_lat_time_height10m, \
-                                   group_lon_lat               , \
-                                   group_other                   \
-                                  )
-   elif cmip7_element.get('model_component') == 'tm5':
+    # Select only those variables which are not yet in the OIFS field_def files in the repo:
+    if cmip7_element.get('ifs_shortname') in list_of_identified_variables_not_in_field_def_file \
+       or include_all_oifs_vars:
+     # This includes all oifs variables (the unidentified variabless exluded because they have ?? as value for
+     # model_component) into the OIFS field_def file. So both the ones already in the field_def files in the
+     # ECE4 repo as the ones missing there:
+     add_xml_line_to_selected_group(cmip7_element               , \
+                                    cmip7_element.get('ifs_shortname'), \
+                                    group_lon_lat_time_tavg     , \
+                                    group_lon_lat_plev19_time   , \
+                                    group_lon_lat_alevel_time   , \
+                                    group_lon_lat_plev3_time1   , \
+                                    group_lon_lat_time_height2m , \
+                                    group_lon_lat_time_height10m, \
+                                    group_lon_lat               , \
+                                    group_other                   \
+                                   )
+   elif cmip7_element.get('model_component') == 'tm5' and include_m7_vars:
     # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
     # in the ECE4 repo:
     m7_nr += 1
