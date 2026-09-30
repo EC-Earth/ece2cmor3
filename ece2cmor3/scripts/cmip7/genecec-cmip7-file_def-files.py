@@ -366,6 +366,12 @@ def main():
                                                                                    group_other                 .append(xml_line)
       return
 
+  def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
+      lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
+      for lpjg_ins_line in list_of_lpjg_ins_lines:
+       lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
+      return
+
   group_lon_lat_time_tavg      = []
   group_lon_lat_plev19_time    = []
   group_lon_lat_alevel_time    = []
@@ -375,6 +381,7 @@ def main():
   group_lon_lat                = []
   group_other                  = []
 
+  list_of_lpjg_ins_lines       = []
 
 
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename, 'id_file_group_ocean')
@@ -409,6 +416,22 @@ def main():
                                     group_other                   \
                                    )
 
+    elif element_identified.get('model_component') == 'lpjg':
+    #print(' {} {}'.format(element_dr.get('cmip7_compound_name'), element_dr.get('physical_parameter_name')))
+     if element_dr.get('frequency') == 'mon':
+      lpjg_freq = 'monthly'
+     elif element_dr.get('frequency') == 'yr':
+      lpjg_freq = 'yearly'
+     elif element_dr.get('frequency') == 'day':
+      lpjg_freq = 'daily'
+     else:
+      print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
+
+     lpjg_var = element_dr.get('physical_parameter_name')
+     lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
+     print(' {:50} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name')))
+     list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
+
   #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
 
   # Write the basic OIFS field_def XML file with all the id's:
@@ -424,15 +447,12 @@ def main():
   # grid_ref probably incorrect for several of this mixed group:
   write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , group_other                 )
 
-
   write_xml_file_closing(ecearth_file_def_file)
 
 
 
-
-
-
-
+  # Writing the LPJG .ins congiguration file for the specified data request:
+  write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
 
 
 
