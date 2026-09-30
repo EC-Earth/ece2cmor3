@@ -242,13 +242,6 @@ def main():
        and cmip7_element.get('ifs_shortname') != 'None':
     list_of_identified_variables_not_in_field_def_file.append(cmip7_element.get('ifs_shortname'))
 
-## def unique_id_selection(input_list):
-##     selection = []
-##     for list_item in input_list:
-##      if 'id="' in list_item:
-##       selection.append(list_item)
-##     return selection
-
    if ifs_id_match_message == '' \
        and cmip7_element.get('ifs_shortname') == 'None':
     list_item = '{:>7} {}'.format(cmip7_element.get('varname_code'), cmip7_element.get('expression'))
