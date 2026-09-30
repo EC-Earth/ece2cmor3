@@ -257,60 +257,60 @@ def main():
      # This includes all oifs variables (the unidentified variabless exluded because they have ?? as value for
      # model_component) into the OIFS field_def file. So both the ones already in the field_def files in the
      # ECE4 repo as the ones missing there:
-     add_xml_line_to_selected_group(cmip7_element               , \
+     add_xml_line_to_selected_group(cmip7_element                     , \
                                     cmip7_element.get('ifs_shortname'), \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
+                                    group_lon_lat_time_tavg           , \
+                                    group_lon_lat_plev19_time         , \
+                                    group_lon_lat_alevel_time         , \
+                                    group_lon_lat_plev3_time1         , \
+                                    group_lon_lat_time_height2m       , \
+                                    group_lon_lat_time_height10m      , \
+                                    group_lon_lat                     , \
+                                    group_other                         \
                                    )
    elif cmip7_element.get('model_component') == 'tm5' and include_m7_vars:
     # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
     # in the ECE4 repo:
     m7_nr += 1
-    add_xml_line_to_selected_group(cmip7_element               , \
-                                   'M7_no_{:03d}'.format(m7_nr), \
-                                   group_lon_lat_time_tavg     , \
-                                   group_lon_lat_plev19_time   , \
-                                   group_lon_lat_alevel_time   , \
-                                   group_lon_lat_plev3_time1   , \
-                                   group_lon_lat_time_height2m , \
-                                   group_lon_lat_time_height10m, \
-                                   group_lon_lat               , \
-                                   group_other                   \
+    add_xml_line_to_selected_group(cmip7_element                     , \
+                                   'M7_no_{:03d}'.format(m7_nr)      , \
+                                   group_lon_lat_time_tavg           , \
+                                   group_lon_lat_plev19_time         , \
+                                   group_lon_lat_alevel_time         , \
+                                   group_lon_lat_plev3_time1         , \
+                                   group_lon_lat_time_height2m       , \
+                                   group_lon_lat_time_height10m      , \
+                                   group_lon_lat                     , \
+                                   group_other                         \
                                   )
-   elif cmip7_element.get('model_component') == 'lpjg':            # add other better check
+   elif cmip7_element.get('model_component') == 'lpjg':
     if False:
-     add_xml_line_to_selected_group(cmip7_element               , \
+     add_xml_line_to_selected_group(cmip7_element                    , \
                                     cmip7_element.get('varname_code'), \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
+                                    group_lon_lat_time_tavg          , \
+                                    group_lon_lat_plev19_time        , \
+                                    group_lon_lat_alevel_time        , \
+                                    group_lon_lat_plev3_time1        , \
+                                    group_lon_lat_time_height2m      , \
+                                    group_lon_lat_time_height10m     , \
+                                    group_lon_lat                    , \
+                                    group_other                        \
                                    )
     else:
      pass
-   elif cmip7_element.get('model_component') == 'nemo':            # add other better check
+   elif cmip7_element.get('model_component') == 'nemo':
     if False:
      # With the varname_code based on the ECE ping file for NEMO via the request or identified files:
-     add_xml_line_to_selected_group(cmip7_element               , \
+     add_xml_line_to_selected_group(cmip7_element                    , \
                                     cmip7_element.get('varname_code'), \
-                                    group_lon_lat_time_tavg     , \
-                                    group_lon_lat_plev19_time   , \
-                                    group_lon_lat_alevel_time   , \
-                                    group_lon_lat_plev3_time1   , \
-                                    group_lon_lat_time_height2m , \
-                                    group_lon_lat_time_height10m, \
-                                    group_lon_lat               , \
-                                    group_other                   \
+                                    group_lon_lat_time_tavg          , \
+                                    group_lon_lat_plev19_time        , \
+                                    group_lon_lat_alevel_time        , \
+                                    group_lon_lat_plev3_time1        , \
+                                    group_lon_lat_time_height2m      , \
+                                    group_lon_lat_time_height10m     , \
+                                    group_lon_lat                    , \
+                                    group_other                        \
                                    )
     else:
      pass
