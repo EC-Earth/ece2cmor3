@@ -417,8 +417,7 @@ def main():
                                    )
 
     elif element_identified.get('model_component') == 'lpjg':
-    #print(' {} {}'.format(element_dr.get('cmip7_compound_name'), element_dr.get('physical_parameter_name')))
-     if element_dr.get('frequency') == 'mon':
+     if   element_dr.get('frequency') == 'mon':
       lpjg_freq = 'monthly'
      elif element_dr.get('frequency') == 'yr':
       lpjg_freq = 'yearly'
@@ -426,6 +425,7 @@ def main():
       lpjg_freq = 'daily'
      else:
       print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
+      sys.exit(' Stop in: {} due to unknown LPJG frequency'.format(sys.argv[0]))
 
      lpjg_var = element_dr.get('physical_parameter_name')
      lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
