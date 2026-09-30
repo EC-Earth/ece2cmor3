@@ -286,6 +286,7 @@ def main():
                                ' standard_name={:160}' \
                                ' modeling_realm={:33}' \
                                ' region={:12}' \
+                               ' frequency={:12}' \
                                ' dimensions={:45}' \
                                ' branding_label={:25}' \
                                ' cmip6_table={:14}' \
@@ -303,6 +304,7 @@ def main():
                   '"' + cmip7_element.get('standard_name'          ) + '"', \
                   '"' + cmip7_element.get('modeling_realm'         ) + '"', \
                   '"' + cmip7_element.get('region'                 ) + '"', \
+                  '"' + cmip7_element.get('frequency'              ) + '"', \
                   '"' + cmip7_element.get('dimensions'             ) + '"', \
                   '"' + cmip7_element.get('branding_label'         ) + '"', \
                   '"' + cmip7_element.get('cmip6_table'            ) + '"', \
