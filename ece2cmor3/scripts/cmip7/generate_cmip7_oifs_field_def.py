@@ -40,9 +40,11 @@ def parse_args():
         description='Generate an OIFS field_def file including the CMIP7 variables.'
     )
     # Positional (mandatory) input arguments
-    parser.add_argument('dreq_version', choices=dc.get_versions()           , help="data request version")
+    parser.add_argument('dreq_version', choices=dc.get_versions()                     , help="data request version")
     # Optional input arguments
-    parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose messaging')
+    parser.add_argument('-v', '--verbose'         , action='store_true', default=False, help='Verbose messaging')
+    parser.add_argument('-a', '--include_all_oifs', action='store_true', default=False, help='Include all OIFS variables, aslo the ones already present in the ECE4 repo')
+    parser.add_argument('-m', '--incude_m7'       , action='store_true', default=False, help='Include the M7 variables')
     return parser.parse_args()
 
 def print_next_step_message(step, comment):
@@ -56,8 +58,10 @@ def main():
 
   args = parse_args()
 
-  dr_version = args.dreq_version
-  verbose    = args.verbose
+  dr_version            = args.dreq_version
+  verbose               = args.verbose
+  include_all_oifs_vars = args.include_all_oifs
+  include_m7_vars       = args.incude_m7
 
   print_next_step_message(1, 'Generate an OIFS field_def file including CMIP7 variables')
 
@@ -249,9 +253,6 @@ def main():
        and cmip7_element.get('ifs_shortname') == 'None':
     list_item = '{:>7} {}'.format(cmip7_element.get('varname_code'), cmip7_element.get('expression'))
     list_of_identified_variables_129_table.append(list_item)
-
-   include_all_oifs_vars = False
-   include_m7_vars       = False
 
    if   cmip7_element.get('model_component') == 'ifs':
     # Select only those variables which are not yet in the OIFS field_def files in the repo:
