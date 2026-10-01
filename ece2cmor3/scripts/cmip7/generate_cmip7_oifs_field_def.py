@@ -213,6 +213,9 @@ def main():
   list_of_identified_variables_not_in_field_def_file = []
   list_of_identified_variables_129_table             = []
 
+  list_of_unique_selected_ids     = []
+  list_of_unique_selected_ids_m7  = []
+
   i_dr           = 0
   i_ifs_id_match = 0
   m7_nr          = 0
@@ -254,11 +257,33 @@ def main():
     # Select only those variables which are not yet in the OIFS field_def files in the repo:
     if cmip7_element.get('ifs_shortname') in list_of_identified_variables_not_in_field_def_file \
        or include_all_oifs_vars:
-     # This includes all oifs variables (the unidentified variabless exluded because they have ?? as value for
-     # model_component) into the OIFS field_def file. So both the ones already in the field_def files in the
-     # ECE4 repo as the ones missing there:
+     if cmip7_element.get('ifs_shortname') not in list_of_unique_selected_ids:
+      # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
+
+      # For the case include_all_oifs_vars = True this includes all oifs variables (the unidentified variabless
+      # exluded because they have ?? as value for model_component) into the OIFS field_def file. For the case
+      # include_all_oifs_vars = False this includes only th evariables which are yet missing from the OIFS
+      # field_def file(s) in the ECE4 repo.
+      add_xml_line_to_selected_group(cmip7_element                     , \
+                                     cmip7_element.get('ifs_shortname'), \
+                                     group_lon_lat_time_tavg           , \
+                                     group_lon_lat_plev19_time         , \
+                                     group_lon_lat_alevel_time         , \
+                                     group_lon_lat_plev3_time1         , \
+                                     group_lon_lat_time_height2m       , \
+                                     group_lon_lat_time_height10m      , \
+                                     group_lon_lat                     , \
+                                     group_other                         \
+                                    )
+      list_of_unique_selected_ids.append(cmip7_element.get('ifs_shortname'))
+   elif cmip7_element.get('model_component') == 'tm5' and include_m7_vars:
+    # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
+    # in the ECE4 repo
+    if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids_m7:
+     # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
+     m7_nr += 1
      add_xml_line_to_selected_group(cmip7_element                     , \
-                                    cmip7_element.get('ifs_shortname'), \
+                                    'M7_no_{:03d}'.format(m7_nr)      , \
                                     group_lon_lat_time_tavg           , \
                                     group_lon_lat_plev19_time         , \
                                     group_lon_lat_alevel_time         , \
@@ -268,21 +293,7 @@ def main():
                                     group_lon_lat                     , \
                                     group_other                         \
                                    )
-   elif cmip7_element.get('model_component') == 'tm5' and include_m7_vars:
-    # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
-    # in the ECE4 repo:
-    m7_nr += 1
-    add_xml_line_to_selected_group(cmip7_element                     , \
-                                   'M7_no_{:03d}'.format(m7_nr)      , \
-                                   group_lon_lat_time_tavg           , \
-                                   group_lon_lat_plev19_time         , \
-                                   group_lon_lat_alevel_time         , \
-                                   group_lon_lat_plev3_time1         , \
-                                   group_lon_lat_time_height2m       , \
-                                   group_lon_lat_time_height10m      , \
-                                   group_lon_lat                     , \
-                                   group_other                         \
-                                  )
+     list_of_unique_selected_ids_m7.append(cmip7_element.get('physical_parameter_name'))
    elif cmip7_element.get('model_component') == 'lpjg':
     if False:
      add_xml_line_to_selected_group(cmip7_element                    , \
