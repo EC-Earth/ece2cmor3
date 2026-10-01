@@ -441,26 +441,31 @@ def main():
     elif cmip6_variable in ['siconca']:
         cmip7_grid_label = 'g114'
     elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
-        first_lon_point = cubelist[0].coord('longitude').points[0][0]
-        first_lat_point = cubelist[0].coord('latitude') .points[0][0]
-        if verbose:
-         first_lon_bounds = cubelist[0].coord('longitude').bounds[0][0]
-         first_lat_bounds = cubelist[0].coord('latitude') .bounds[0][0]
-         print(' First lon, lat point:  {}, {}'  .format(first_lon_point , first_lat_point ))
-         print(' First lon, lat bounds: {}, {}\n'.format(first_lon_bounds, first_lat_bounds))
-        accepted_error = 1e-6
-        if   abs( 72.5              - first_lon_point) < accepted_error and \
-             abs(-78.39350128173828 - first_lat_point) < accepted_error:
-         cmip7_grid_label = 'g102'                                            # The mass or T grid
-        elif abs( 73.0              - first_lon_point) < accepted_error and \
-             abs(-78.39350128173828 - first_lat_point) < accepted_error:
-         cmip7_grid_label = 'g103'                                            # The staggered x-velocity grid
-        elif abs( 72.5              - first_lon_point) < accepted_error and \
-             abs(-78.29248046875    - first_lat_point) < accepted_error:
-         cmip7_grid_label = 'g104'                                            # The staggered y-velocity grid
+        # catch case with horizontal means (= 1-d grid)
+        if 'hm' in branded_variable_name.split('-') \
+                or 'hyb' in branded_variable_name.split('-'):
+             cmip7_grid_label = 'g102'                                            # The mass or T grid
         else:
-         print('{} Problem in detecting the correct ORCA1 grid, a dummy g999 label is assigned.'.format(error_message))
-         cmip7_grid_label = 'g999'           # A dummy grid_label
+            first_lon_point = cubelist[0].coord('longitude').points[0][0]
+            first_lat_point = cubelist[0].coord('latitude') .points[0][0]
+            if verbose:
+             first_lon_bounds = cubelist[0].coord('longitude').bounds[0][0]
+             first_lat_bounds = cubelist[0].coord('latitude') .bounds[0][0]
+             print(' First lon, lat point:  {}, {}'  .format(first_lon_point , first_lat_point ))
+             print(' First lon, lat bounds: {}, {}\n'.format(first_lon_bounds, first_lat_bounds))
+            accepted_error = 1e-6
+            if   abs( 72.5              - first_lon_point) < accepted_error and \
+                 abs(-78.39350128173828 - first_lat_point) < accepted_error:
+             cmip7_grid_label = 'g102'                                            # The mass or T grid
+            elif abs( 73.0              - first_lon_point) < accepted_error and \
+                 abs(-78.39350128173828 - first_lat_point) < accepted_error:
+             cmip7_grid_label = 'g103'                                            # The staggered x-velocity grid
+            elif abs( 72.5              - first_lon_point) < accepted_error and \
+                 abs(-78.29248046875    - first_lat_point) < accepted_error:
+             cmip7_grid_label = 'g104'                                            # The staggered y-velocity grid
+            else:
+             print('{} Problem in detecting the correct ORCA1 grid, a dummy g999 label is assigned.'.format(error_message))
+             cmip7_grid_label = 'g999'           # A dummy grid_label
     elif cmip7_realm    in ['landIce']:
         cmip7_grid_label = 'g185'
     else:
@@ -519,7 +524,7 @@ def main():
     else:
         # avoid that the last year of scenarios becomes a single-year orphan when files are
         # bundled to multi-year files (e.g. monthly means)
-        if 'scen7' in experiment_id:
+        if 'scen7' in experiment_id and nyears>1:
             time_range = range(int(first_year/nyears)*nyears+1,last_year+1,nyears)
         else:
             time_range = range(int(first_year/nyears)*nyears,last_year+1,nyears)
