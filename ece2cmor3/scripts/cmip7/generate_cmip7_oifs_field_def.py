@@ -36,14 +36,18 @@ def parse_args():
     """
     Parse command-line arguments
     """
+
+    less_indent_formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=26)
+
     parser = argparse.ArgumentParser(
+        formatter_class=less_indent_formatter,
         description='Generate an OIFS field_def file including the CMIP7 variables.'
     )
     # Positional (mandatory) input arguments
     parser.add_argument('dreq_version', choices=dc.get_versions()                     , help="data request version")
     # Optional input arguments
     parser.add_argument('-v', '--verbose'         , action='store_true', default=False, help='Verbose messaging')
-    parser.add_argument('-a', '--include_all_oifs', action='store_true', default=False, help='Include all OIFS variables, aslo the ones already present in the ECE4 repo')
+    parser.add_argument('-a', '--include_all_oifs', action='store_true', default=False, help='Include all OIFS variables, also the ones already present in the ECE4 repo')
     parser.add_argument('-m', '--incude_m7'       , action='store_true', default=False, help='Include the M7 variables')
     parser.add_argument('-k', '--keep_all'        , action='store_true', default=False, help='Keep all variable combinations for all frequencies and regions')
     return parser.parse_args()
