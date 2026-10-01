@@ -45,6 +45,7 @@ def parse_args():
     parser.add_argument('-v', '--verbose'         , action='store_true', default=False, help='Verbose messaging')
     parser.add_argument('-a', '--include_all_oifs', action='store_true', default=False, help='Include all OIFS variables, aslo the ones already present in the ECE4 repo')
     parser.add_argument('-m', '--incude_m7'       , action='store_true', default=False, help='Include the M7 variables')
+    parser.add_argument('-k', '--keep_all'        , action='store_true', default=False, help='Keep all variable combinations for all frequencies and regions')
     return parser.parse_args()
 
 def print_next_step_message(step, comment):
@@ -58,10 +59,11 @@ def main():
 
   args = parse_args()
 
-  dr_version            = args.dreq_version
-  verbose               = args.verbose
-  include_all_oifs_vars = args.include_all_oifs
-  include_m7_vars       = args.incude_m7
+  dr_version              = args.dreq_version
+  verbose                 = args.verbose
+  include_all_oifs_vars   = args.include_all_oifs
+  include_m7_vars         = args.incude_m7
+  keep_all_id_cmbinations = args.keep_all
 
   print_next_step_message(1, 'Generate an OIFS field_def file including CMIP7 variables')
 
@@ -255,11 +257,14 @@ def main():
     list_of_identified_variables_129_table.append(list_item)
 
    if   cmip7_element.get('model_component') == 'ifs':
-    # Select only those variables which are not yet in the OIFS field_def files in the repo:
+    # Select only those variables which are not yet in the OIFS field_def files in the repo
     if cmip7_element.get('ifs_shortname') in list_of_identified_variables_not_in_field_def_file \
        or include_all_oifs_vars:
-     if cmip7_element.get('ifs_shortname') not in list_of_unique_selected_ids:
+     if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids \
+        or keep_all_id_cmbinations:
       # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
+      # Note for id dhrgrd we have now sfcWind & sfcWindmax when using 'physical_parameter_name' instead of
+      # 'ifs_shortname'. Leading to a duplicate dhrgrd ID. The sfcWindmax should make use of a field_ref='dhrgrd'
 
       # For the case include_all_oifs_vars = True this includes all oifs variables (the unidentified variabless
       # exluded because they have ?? as value for model_component) into the OIFS field_def file. For the case
@@ -276,11 +281,12 @@ def main():
                                      group_lon_lat                     , \
                                      group_other                         \
                                     )
-      list_of_unique_selected_ids.append(cmip7_element.get('ifs_shortname'))
+      list_of_unique_selected_ids.append(cmip7_element.get('physical_parameter_name'))
    elif cmip7_element.get('model_component') == 'tm5' and include_m7_vars:
     # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
     # in the ECE4 repo
-    if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids_m7:
+    if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids_m7 \
+       or keep_all_id_cmbinations:
      # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
      m7_nr += 1
      add_xml_line_to_selected_group(cmip7_element                     , \
@@ -380,31 +386,35 @@ def main():
 
   # Write a similar XML file, but one which only contains the fields with: id="None"
   oifs_cmip7_field_def_id_none_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_none.xml.j2'
-  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_none_file_name)
-  #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_tavg     ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_none_match(group_lon_lat_plev19_time   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_none_match(group_lon_lat_alevel_time   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_none_match(group_lon_lat_plev3_time1   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height2m ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height10m))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_none_match(group_other                 ))
-  write_xml_file_closing(oifs_cmip7_xml_file)
+  # Do only write this file in case the option -a & -k are active (makes no sense else):
+  if include_all_oifs_vars:
+   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_none_file_name)
+   #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat               ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_tavg     ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_none_match(group_lon_lat_plev19_time   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_none_match(group_lon_lat_alevel_time   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_none_match(group_lon_lat_plev3_time1   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height2m ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_none_match(group_lon_lat_time_height10m))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_none_match(group_other                 ))
+   write_xml_file_closing(oifs_cmip7_xml_file)
 
   # Write a similar XML file, but one which only contains the fields with: id="M7_no_*"
   oifs_cmip7_field_def_id_m7_file_name = oifs_output_dir_name + 'field_def_oifs_cmip7_id_m7.xml.j2'
-  oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_m7_file_name)
-  #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_tavg     ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_m7_match(group_lon_lat_plev19_time   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_m7_match(group_lon_lat_alevel_time   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_m7_match(group_lon_lat_plev3_time1   ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height2m ))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height10m))
-  write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_m7_match(group_other                 ))
-  write_xml_file_closing(oifs_cmip7_xml_file)
+  # Do only write this file in case the option -m is active (makes no sense else):
+  if include_m7_vars:
+   oifs_cmip7_xml_file = write_xml_file_opening(oifs_cmip7_field_def_id_m7_file_name)
+   #                             xml_file           , group_id                              , grid_ref        , list_with_xml_lines_of_group):
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat'                  , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat               ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_tavg'        , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_tavg     ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', select_on_id_m7_match(group_lon_lat_plev19_time   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , select_on_id_m7_match(group_lon_lat_alevel_time   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , select_on_id_m7_match(group_lon_lat_plev3_time1   ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height2m ))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , select_on_id_m7_match(group_lon_lat_time_height10m))
+   write_field_group_to_xml_file(oifs_cmip7_xml_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , select_on_id_m7_match(group_other                 ))
+   write_xml_file_closing(oifs_cmip7_xml_file)
 
 
 
