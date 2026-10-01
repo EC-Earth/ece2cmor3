@@ -160,7 +160,9 @@
  # Depending on the genecec-cmip7 input files:
  #  ./xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
  #  ./xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-priority.xml
- ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
+ ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v -m > generate_cmip7_oifs_field_def.log
+ ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v -a > generate_cmip7_oifs_field_def.log
+ ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v    > generate_cmip7_oifs_field_def.log
  echo " Produces:"
  echo "  xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2"
 
