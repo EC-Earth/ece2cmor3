@@ -241,17 +241,14 @@ def main():
       return
 
   def generate_xml_line_for_variable(cmip7_element, field_id):
-      if cmip7_element.get('model_component') == 'nemo':
+      if cmip7_element.get('expression'):
        if cmip7_element.get('expression') != 'None':
         expression = cmip7_element.get('expression')
        else:
         expression = ''
-     #elif cmip7_element.get('model_component') == 'ifs':
       else:
        expression = ''
 
-
-     #ouput_freq  = ''
       grid_ref    = ''
       operation   = ''
       freq_op     = ''
@@ -262,16 +259,12 @@ def main():
       xpath_expression_fd   = xpath_path_fd + '[@' + 'id' + '="' + field_id + '"]'
       match_fd              = 0 # For bookkeeping the identification matches
 
+      # Taking the grid_ref, freq_op, freq_offset and operation from the ECE4 inherited field_def file:
       for element_fd in root_ece_field_def.findall(xpath_expression_fd):
-      #k_match += 1
-      #match_fd += 1
-
-      #if element_fd.get('output_freq'): ouput_freq  = element_fd.get('output_freq')
        if element_fd.get('grid_ref'   ): grid_ref    = element_fd.get('grid_ref')
-       if element_fd.get('operation'  ): operation   = element_fd.get('operation')
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
        if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
-
+       if element_fd.get('operation'  ): operation   = element_fd.get('operation')
 
       xml_line = ('      <field  enabled="True" '\
                                ' field_ref={:25}' \
