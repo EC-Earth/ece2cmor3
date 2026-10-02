@@ -240,6 +240,29 @@ def main():
       xml_file.write('    </file>\n')
       return
 
+  def determine_operation_value(element):
+    if   element.get('branding_label')[:5] == 'tavg-':
+     operation = 'average'
+    elif element.get('branding_label')[:4] == 'tpt-':
+     operation = 'instant'
+    elif element.get('branding_label')[:5] == 'tmax-':
+     operation = 'maximum'
+    elif element.get('branding_label')[:5] == 'tmin-':
+     operation = 'minimum'
+    elif element.get('branding_label')[:3] == 'ti-':
+     operation = 'once'
+   #elif element.get('branding_label')[:3] == 'tmaxavg-':
+   # operation = ''                                            # Achieve: Daily Maximum
+   #elif element.get('branding_label')[:3] == 'tminavg-':
+   # operation = ''                                            # Achieve: Daily Minimum
+   #elif element.get('branding_label')[:3] == 'tclm-':
+   # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
+   #elif element.get('branding_label')[:3] == 'tclmdc-':
+   # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
+    else:
+     operation = 'unknown'
+    return operation
+
   def generate_xml_line_for_variable(cmip7_element, field_id):
       if cmip7_element.get('expression'):
        if cmip7_element.get('expression') != 'None':
@@ -261,6 +284,11 @@ def main():
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
        if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
        if element_fd.get('operation'  ): operation   = element_fd.get('operation')
+
+      operation_based_on_branding = determine_operation_value(cmip7_element)
+      if operation != operation_based_on_branding:
+       message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:15} for {}'.format(operation, operation_based_on_branding, field_id, cmip7_element.get('cmip7_compound_name'))
+       message_list_of_operation_comparsion.append(message)
 
       xml_line = ('      <field  enabled="True" '\
                                ' field_ref={:25}' \
@@ -301,29 +329,6 @@ def main():
                   ' ' +                    expression                + ' ') \
                  )
       return xml_line
-
-  def determine_operation_value(element):
-    if   element.get('branding_label')[:5] == 'tavg-':
-     operation = 'average'
-    elif element.get('branding_label')[:4] == 'tpt-':
-     operation = 'instant'
-    elif element.get('branding_label')[:5] == 'tmax-':
-     operation = 'maximum'
-    elif element.get('branding_label')[:5] == 'tmin-':
-     operation = 'minimum'
-    elif element.get('branding_label')[:3] == 'ti-':
-     operation = 'once'
-   #elif element.get('branding_label')[:3] == 'tmaxavg-':
-   # operation = ''                                            # Achieve: Daily Maximum
-   #elif element.get('branding_label')[:3] == 'tminavg-':
-   # operation = ''                                            # Achieve: Daily Minimum
-   #elif element.get('branding_label')[:3] == 'tclm-':
-   # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
-   #elif element.get('branding_label')[:3] == 'tclmdc-':
-   # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
-    else:
-     operation = 'unknown'
-    return operation
 
   def add_xml_line_to_selected_group(cmip7_element               , \
                                      field_id                    , \
@@ -404,6 +409,8 @@ def main():
 
   list_of_lpjg_ins_lines       = []
 
+  message_list_of_operation_comparsion = []
+  message_list_lpjg_ins_vars           = []
 
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename, 'id_file_group_ocean')
 
@@ -459,7 +466,8 @@ def main():
 
      lpjg_var = element_dr.get('physical_parameter_name')
      lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
-     print(' {:50} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name')))
+     message = ' {:50} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
+     message_list_lpjg_ins_vars.append(message)
      list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
 
   #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
@@ -486,7 +494,8 @@ def main():
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
 
-
+  print_message_list(message_list_of_operation_comparsion)
+  print_message_list(message_list_lpjg_ins_vars)
 
   print_next_step_message(10, 'FINISHING')
   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
