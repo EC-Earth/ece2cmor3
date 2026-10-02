@@ -249,17 +249,13 @@ def main():
       else:
        expression = ''
 
+      # Taking the grid_ref, freq_op, freq_offset and operation from the ECE4 inherited field_def file if available:
       grid_ref    = ''
       operation   = ''
       freq_op     = ''
       freq_offset = ''
-
       # Set first the xpath search for iterating through the field_def file:
-      xpath_path_fd         = ".//field"
-      xpath_expression_fd   = xpath_path_fd + '[@' + 'id' + '="' + field_id + '"]'
-      match_fd              = 0 # For bookkeeping the identification matches
-
-      # Taking the grid_ref, freq_op, freq_offset and operation from the ECE4 inherited field_def file:
+      xpath_expression_fd = './/field[@id="' + field_id + '"]'
       for element_fd in root_ece_field_def.findall(xpath_expression_fd):
        if element_fd.get('grid_ref'   ): grid_ref    = element_fd.get('grid_ref')
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
