@@ -442,10 +442,7 @@ def main():
         cmip7_grid_label = 'g114'
     elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
         # catch case with horizontal means (= 1-d grid)
-        if 'hm' in branded_variable_name.split('-') \
-                or 'hyb' in branded_variable_name.split('-'):
-             cmip7_grid_label = 'g102'                                            # The mass or T grid
-        else:
+        try:
             first_lon_point = cubelist[0].coord('longitude').points[0][0]
             first_lat_point = cubelist[0].coord('latitude') .points[0][0]
             if verbose:
@@ -466,6 +463,9 @@ def main():
             else:
              print('{} Problem in detecting the correct ORCA1 grid, a dummy g999 label is assigned.'.format(error_message))
              cmip7_grid_label = 'g999'           # A dummy grid_label
+        except:
+             # horizontal means of any kind
+             cmip7_grid_label = 'g102'           # The mass or T grid
     elif cmip7_realm    in ['landIce']:
         cmip7_grid_label = 'g185'
     else:
