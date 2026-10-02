@@ -419,8 +419,7 @@ def main():
   i_dr = 0
 
   # Iterate over the variables in the (experiment) CMIP7 data request (including unidentified variables):
-  xpath_expression_cmip7_request = './/variable'
-  for element_dr in root_dr.findall(xpath_expression_cmip7_request):
+  for element_dr in root_dr.findall('.//variable'):
    i_dr += 1
 
    # Set the xpath search for iterating through the identified file:
