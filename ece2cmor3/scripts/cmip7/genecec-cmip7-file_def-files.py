@@ -363,7 +363,7 @@ def main():
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-                                                                                   oifs_groups['group_lon_lat_time_tavg'     ].append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_time_tavg_day'     ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
                                                                                    oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
@@ -480,13 +480,15 @@ def main():
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_ocean')
   #                            xml_file                  , group_id                              , grid_ref        , list_with_xml_lines_of_group)
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', group_lon_lat_plev19_time   )
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , group_lon_lat_alevel_time   )
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , group_lon_lat_plev3_time1   )
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , group_lon_lat_time_height2m )
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , group_lon_lat_time_height10m)
+ #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', oifs_groups['group_lon_lat'               ])
+ #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , oifs_groups['group_lon_lat_time_tavg_day' ])
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', '1d'  , oifs_groups['group_lon_lat_plev19_time'   ])
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , '1d'  , oifs_groups['group_lon_lat_alevel_time'   ])
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , '1d'  , oifs_groups['group_lon_lat_plev3_time1'   ])
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height2m' ])
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height10m'])
   # grid_ref probably incorrect for several of this mixed group:
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , '??', group_other           )
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , '??'  , oifs_groups['group_other'                 ])
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
 
