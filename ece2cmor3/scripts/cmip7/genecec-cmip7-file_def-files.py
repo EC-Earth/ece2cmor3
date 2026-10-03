@@ -333,36 +333,26 @@ def main():
                  )
       return xml_line
 
-  def add_xml_line_to_selected_group(cmip7_element               , \
-                                     field_id                    , \
-                                     group_lon_lat_time_tavg     , \
-                                     group_lon_lat_plev19_time   , \
-                                     group_lon_lat_alevel_time   , \
-                                     group_lon_lat_plev3_time1   , \
-                                     group_lon_lat_time_height2m , \
-                                     group_lon_lat_time_height10m, \
-                                     group_lon_lat               , \
-                                     group_other                   \
-                                    ):
+  def add_xml_line_to_selected_group(cmip7_element, field_id, oifs_groups):
       xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-                                                                                   group_lon_lat_time_tavg     .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_time_tavg'     ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
-                                                                                   group_lon_lat_plev19_time   .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
-                                                                                   group_lon_lat_alevel_time   .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_alevel_time'   ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
-                                                                                   group_lon_lat_plev3_time1   .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_plev3_time1'   ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
-                                                                                   group_lon_lat_time_height2m .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_time_height2m' ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
-                                                                                   group_lon_lat_time_height10m.append(xml_line)
+                                                                                   oifs_groups['group_lon_lat_time_height10m'].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude'                :
-                                                                                   group_lon_lat               .append(xml_line)
+                                                                                   oifs_groups['group_lon_lat'               ].append(xml_line)
       else                                                                        :
-                                                                                   group_other                 .append(xml_line)
+                                                                                   oifs_groups['group_other'                 ].append(xml_line)
       return
 
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
@@ -378,10 +368,10 @@ def main():
                                                      nemo_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
        else:
         print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
-      elif cmip7_element.get('dimensions') == 'longitude latitude'                :
-                                                                                   group_lon_lat               .append(xml_line)
-      else                                                                        :
-                                                                                   group_other                 .append(xml_line)
+      elif cmip7_element.get('dimensions') == 'longitude latitude':
+                                                     nemo_groups['group_lon_lat'              ].append(xml_line)
+      else:
+                                                     nemo_groups['group_other'                ].append(xml_line)
       return
 
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
@@ -490,13 +480,13 @@ def main():
 
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename, 'id_file_group_ocean')
-  #                            xml_file                  , group_id                              , grid_ref        , freq  , list_with_xml_lines_of_group)
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', group_lon_lat               )
+  #                            xml_file                  , group_id                              , grid_ref        , freq  , dict['group_list'] = list_with_xml_lines_of_group
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', nemo_groups['group_lon_lat'              ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , nemo_groups['group_lon_lat_time_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_mon'    , 'grid_T_2D'     , '1mo' , nemo_groups['group_lon_lat_time_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_yr '    , 'grid_T_2D'     , '1yr' , nemo_groups['group_lon_lat_time_tavg_yr' ])
   # grid_ref probably incorrect for several of this mixed group:
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , '??', group_other                   )
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , '??'  , nemo_groups['group_other'                ])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
 
