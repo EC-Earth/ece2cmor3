@@ -212,10 +212,9 @@ def main():
   output_dir_name = 'xml-files/genecec-cmip7/ec-earth-file_def-files/'
   subprocess.run(["mkdir", "-p", output_dir_name])
 
-  ecearth_file_def_filename = output_dir_name + 'ece4_file_def.xml'
- #tree_main.write(ecearth_file_def_filename)
-
-
+  ecearth_file_def_filename      = output_dir_name + 'ece4_file_def.xml'
+  ecearth_nemo_file_def_filename = output_dir_name + 'ece4_nemo_file_def.xml'
+  ecearth_oifs_file_def_filename = output_dir_name + 'ece4_oifs_file_def.xml'
 
 
 
@@ -284,6 +283,8 @@ def main():
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
        if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
        if element_fd.get('operation'  ): operation   = element_fd.get('operation')
+      #print(' TEST A: {}'.format(element_fd.attrib))
+      #print(' TEST B: {}'.format(cmip7_element.attrib))
 
       operation_based_on_branding = determine_operation_value(cmip7_element)
       if operation != operation_based_on_branding:
@@ -396,25 +397,23 @@ def main():
        lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
       return
 
-  group_lon_lat_time_tavg_day  = []
-  group_lon_lat_time_tavg_mon  = []
-  group_lon_lat_time_tavg_yr   = []
+  group_lon_lat_time_tavg_day          = []
+  group_lon_lat_time_tavg_mon          = []
+  group_lon_lat_time_tavg_yr           = []
 
-  group_lon_lat_time_tavg      = []
-  group_lon_lat_plev19_time    = []
-  group_lon_lat_alevel_time    = []
-  group_lon_lat_plev3_time1    = []
-  group_lon_lat_time_height2m  = []
-  group_lon_lat_time_height10m = []
-  group_lon_lat                = []
-  group_other                  = []
+ #group_lon_lat_time_tavg              = []
+ #group_lon_lat_plev19_time            = []
+ #group_lon_lat_alevel_time            = []
+ #group_lon_lat_plev3_time1            = []
+ #group_lon_lat_time_height2m          = []
+ #group_lon_lat_time_height10m         = []
+  group_lon_lat                        = []
+  group_other                          = []
 
-  list_of_lpjg_ins_lines       = []
+  list_of_lpjg_ins_lines               = []
 
   message_list_of_operation_comparsion = []
   message_list_lpjg_ins_vars           = []
-
-  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename, 'id_file_group_ocean')
 
   i_dr = 0
 
@@ -433,7 +432,7 @@ def main():
 
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group(element_identified, \
+     add_xml_line_to_selected_nemo_group(element_identified                    , \
                                          element_identified.get('varname_code'), \
                                          group_lon_lat_time_tavg_day           , \
                                          group_lon_lat_time_tavg_mon           , \
@@ -442,19 +441,22 @@ def main():
                                          group_other                             \
                                         )
     elif element_identified.get('model_component') == 'oifs':
-    #add_xml_line_to_selected_group(element_identified, \
+     # Handling the OIFS cases in order to create the OIFS file_def file
+    #add_xml_line_to_selected_group(element_identified                    , \
     #                               element_identified.get('varname_code'), \
-    #                               group_lon_lat_time_tavg     , \
-    #                               group_lon_lat_plev19_time   , \
-    #                               group_lon_lat_alevel_time   , \
-    #                               group_lon_lat_plev3_time1   , \
-    #                               group_lon_lat_time_height2m , \
-    #                               group_lon_lat_time_height10m, \
-    #                               group_lon_lat               , \
-    #                               group_other                   \
+    #                               group_lon_lat_time_tavg               , \
+    #                               group_lon_lat_plev19_time             , \
+    #                               group_lon_lat_alevel_time             , \
+    #                               group_lon_lat_plev3_time1             , \
+    #                               group_lon_lat_time_height2m           , \
+    #                               group_lon_lat_time_height10m          , \
+    #                               group_lon_lat                         , \
+    #                               group_other                             \
     #                              )
      pass
     elif element_identified.get('model_component') == 'lpjg':
+     # Handling the LPJG cases in order to create the LPJG configuration .ins file
+     # Determine the LPJG frequency naming in the .ins file:
      if   element_dr.get('frequency') == 'mon':
       lpjg_freq = 'monthly'
      elif element_dr.get('frequency') == 'yr':
@@ -464,38 +466,59 @@ def main():
      else:
       print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
       sys.exit(' Stop in: {} due to unknown LPJG frequency'.format(sys.argv[0]))
-
+     # Determine the CMIP6 LPJG CMOR name for in the .ins file:
      lpjg_var = element_dr.get('physical_parameter_name')
+     # Compose the LPJG .ins line for the considered CMIP7 variable - frequency combination:
      lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
+     # Append the .ins file line for this CMIP7 variable - frequency combination to the list of .ins lines:
+     list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
+     # Besides, create a message list for this includive printing the cmip7_compound_name:
      message = ' {:50} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
      message_list_lpjg_ins_vars.append(message)
-     list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
 
   #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
 
-  # Write the basic OIFS field_def XML file with all the id's:
-  #                            xml_file             , group_id                              , grid_ref        , list_with_xml_lines_of_group)
-  write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', group_lon_lat               )
-  write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , group_lon_lat_time_tavg_day )
-  write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_mon'    , 'grid_T_2D'     , '1mo' , group_lon_lat_time_tavg_mon )
-  write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_yr '    , 'grid_T_2D'     , '1yr' , group_lon_lat_time_tavg_yr  )
 
- #write_file_group_to_xml_file(ecearth_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', group_lon_lat_plev19_time   )
- #write_file_group_to_xml_file(ecearth_file_def_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , group_lon_lat_alevel_time   )
- #write_file_group_to_xml_file(ecearth_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , group_lon_lat_plev3_time1   )
- #write_file_group_to_xml_file(ecearth_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , group_lon_lat_time_height2m )
- #write_file_group_to_xml_file(ecearth_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , group_lon_lat_time_height10m)
-  # grid_ref probably incorrect for several of this mixed group:
-  write_file_group_to_xml_file(ecearth_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , '??', group_other                 )
-
+  # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
+  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename     , 'id_file_group_ocean')
+  # Yet empty.
   write_xml_file_closing(ecearth_file_def_file)
 
+
+  # Write the NEMO file_def XML file with all the id's:
+  ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename, 'id_file_group_ocean')
+  #                            xml_file                  , group_id                              , grid_ref        , freq  , list_with_xml_lines_of_group)
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', group_lon_lat               )
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , group_lon_lat_time_tavg_day )
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_mon'    , 'grid_T_2D'     , '1mo' , group_lon_lat_time_tavg_mon )
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_yr '    , 'grid_T_2D'     , '1yr' , group_lon_lat_time_tavg_yr  )
+  # grid_ref probably incorrect for several of this mixed group:
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , '??', group_other                   )
+  write_xml_file_closing(ecearth_nemo_file_def_file)
+
+
+  # Write the OIFS file_def XML file with all the id's:
+  ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_ocean')
+  #                            xml_file                  , group_id                              , grid_ref        , list_with_xml_lines_of_group)
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', group_lon_lat_plev19_time   )
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , group_lon_lat_alevel_time   )
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , group_lon_lat_plev3_time1   )
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , group_lon_lat_time_height2m )
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , group_lon_lat_time_height10m)
+  # grid_ref probably incorrect for several of this mixed group:
+ #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , '??', group_other           )
+  write_xml_file_closing(ecearth_oifs_file_def_file)
 
 
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
 
+
+  # Print the message list for those variable-cases where the operation from inheriting differs
+  # from the one deduced from the CMIP7 branding:
   print_message_list(message_list_of_operation_comparsion)
+
+  # Print each .ins-file line with the CMIP7 compound name attached:
   print_message_list(message_list_lpjg_ins_vars)
 
   print_next_step_message(10, 'FINISHING')
