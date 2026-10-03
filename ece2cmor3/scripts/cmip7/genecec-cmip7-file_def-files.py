@@ -400,24 +400,22 @@ def main():
     'group_lon_lat'              : [],
     'group_other'                : []
   }
-  # Testing:
- #nemo_groups['group_lon_lat_time_tavg_day'].append(2)
- #nemo_groups['group_lon_lat_time_tavg_day'].append(5)
- #print(nemo_groups['group_lon_lat_time_tavg_day'])
 
-
-##group_lon_lat_time_tavg_day          = []
-##group_lon_lat_time_tavg_mon          = []
-##group_lon_lat_time_tavg_yr           = []
-
- #group_lon_lat_time_tavg              = []
- #group_lon_lat_plev19_time            = []
- #group_lon_lat_alevel_time            = []
- #group_lon_lat_plev3_time1            = []
- #group_lon_lat_time_height2m          = []
- #group_lon_lat_time_height10m         = []
-  group_lon_lat                        = []
-  group_other                          = []
+  # Create a dictionary for the OIFS file groups (each group covers a grid_ref, output_freq combination
+  # [later maybe extended with region]):
+  # The XXX frequency needs to be set and extended in case several frequencies per grid_ref case are encountered
+  oifs_groups = {
+    'group_lon_lat_time_tavg_day'     : [],
+    'group_lon_lat_time_tavg_mon'     : [],
+    'group_lon_lat_time_tavg_yr'      : [],
+    'group_lon_lat_plev19_time_XXX'   : [],
+    'group_lon_lat_alevel_time_XXX'   : [],
+    'group_lon_lat_plev3_time1_XXX'   : [],
+    'group_lon_lat_time_height2m_XXX' : [],
+    'group_lon_lat_time_height10m_XXX': [],
+    'group_lon_lat'                   : [],
+    'group_other'                     : []
+  }
 
   list_of_lpjg_ins_lines               = []
 
