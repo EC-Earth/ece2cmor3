@@ -233,10 +233,12 @@ def main():
 
   # The name of this function is not so adequate:
   def write_file_group_to_xml_file(xml_file, group_id, group_grid_ref_value, output_freq, list_with_xml_lines_of_group):
-      xml_file.write('    <file id="{}" grid_ref="{}" output_freq="{}">\n'.format(group_id.strip(), group_grid_ref_value.strip(), output_freq.strip()))
-      for xml_line in list_with_xml_lines_of_group:
-       xml_file.write('{}\n'.format(xml_line))
-      xml_file.write('    </file>\n')
+      # Add a group only if it has some content:
+      if len(list_with_xml_lines_of_group) != 0:
+       xml_file.write('    <file id="{}" grid_ref="{}" output_freq="{}">\n'.format(group_id.strip(), group_grid_ref_value.strip(), output_freq.strip()))
+       for xml_line in list_with_xml_lines_of_group:
+        xml_file.write('{}\n'.format(xml_line))
+       xml_file.write('    </file>\n')
       return
 
   def determine_operation_value(element):
@@ -278,6 +280,7 @@ def main():
       freq_offset = ''
       # Set first the xpath search for iterating through the field_def file:
       xpath_expression_fd = './/field[@id="' + field_id + '"]'
+      match_fd = 0
       for element_fd in root_ece_field_def.findall(xpath_expression_fd):
        if element_fd.get('grid_ref'   ): grid_ref    = element_fd.get('grid_ref')
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
@@ -285,6 +288,12 @@ def main():
        if element_fd.get('operation'  ): operation   = element_fd.get('operation')
       #print(' TEST A: {}'.format(element_fd.attrib))
       #print(' TEST B: {}'.format(cmip7_element.attrib))
+       match_fd += 1
+       print(' A  fd match for {:20} with i = {}'.format(field_id, match_fd))
+      if match_fd == 0:
+       print(' No fd match for {:20} with i = {}'.format(field_id, match_fd))
+       # Initialisation required because this variable is an returned function argument.
+       element_fd = None
 
       operation_based_on_branding = determine_operation_value(cmip7_element)
       if operation != operation_based_on_branding:
@@ -331,29 +340,102 @@ def main():
                   '"' + cmip7_element.get('physical_parameter_name') + '"', \
                   ' ' +                    expression                + ' ') \
                  )
-      return xml_line
+      return element_fd, xml_line
 
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
-      xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
+      element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
-      if   cmip7_element.get('dimensions') == 'longitude latitude time':
-       if   cmip7_element.get('frequency') == 'day':
-                                                     nemo_groups['group_lon_lat_time_tavg_day'].append(xml_line)
-       elif cmip7_element.get('frequency') == 'mon':
-                                                     nemo_groups['group_lon_lat_time_tavg_mon'].append(xml_line)
-       elif cmip7_element.get('frequency') == 'yr':
-                                                     nemo_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
+
+      output_freq = cmip7_element.get('frequency')
+
+     #if   cmip7_element.get('dimensions') == 'longitude latitude time':
+     #elif cmip7_element.get('dimensions') == 'longitude latitude':
+      if   element_fd == None:
+       pass
+      elif   element_fd.get('grid_ref') == 'grid_T_2D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_T_2D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_T_2D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_T_2D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_T_2D_tavg_yr' ].append(xml_line)
        else:
-        print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
-      elif cmip7_element.get('dimensions') == 'longitude latitude':
-                                                     nemo_groups['group_lon_lat'              ].append(xml_line)
+        print(' Warning: frequency {} not covered for group_T_2D_tavg for {}'.format(output_freq, field_id))
+      elif   element_fd.get('grid_ref') == 'grid_U_2D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_U_2D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_U_2D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_U_2D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_U_2D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_U_2D_tavg for {}'.format(output_freq, field_id))
+      elif   element_fd.get('grid_ref') == 'grid_V_2D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_V_2D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_V_2D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_V_2D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_V_2D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_V_2D_tavg for {}'.format(output_freq, field_id))
+      elif element_fd.get('grid_ref') == 'grid_T_3D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_T_3D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_T_3D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_T_3D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_T_3D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+      elif element_fd.get('grid_ref') == 'grid_U_3D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_U_3D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_U_3D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_U_3D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_U_3D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+      elif element_fd.get('grid_ref') == 'grid_V_3D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_V_3D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_V_3D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_V_3D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_V_3D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+      elif element_fd.get('grid_ref') == 'grid_W_3D':
+       if   output_freq == 'fx':
+                                  nemo_groups['group_W_3D_fx'      ].append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_groups['group_W_3D_tavg_day'].append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_groups['group_W_3D_tavg_mon'].append(xml_line)
+       elif output_freq == 'yr':
+                                  nemo_groups['group_W_3D_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
       else:
                                                      nemo_groups['group_other'                ].append(xml_line)
       return
 
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
-      xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
+      element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
@@ -391,11 +473,35 @@ def main():
   # Create a dictionary for the NEMO file groups (each group covers a grid_ref, output_freq combination
   # [later maybe extended with region]):
   nemo_groups = {
-    'group_lon_lat_time_tavg_day': [],
-    'group_lon_lat_time_tavg_mon': [],
-    'group_lon_lat_time_tavg_yr' : [],
-    'group_lon_lat'              : [],
-    'group_other'                : []
+    'group_T_2D_fx'      : [],
+    'group_T_2D_tavg_day': [],
+    'group_T_2D_tavg_mon': [],
+    'group_T_2D_tavg_yr' : [],
+    'group_U_2D_fx'      : [],
+    'group_U_2D_tavg_day': [],
+    'group_U_2D_tavg_mon': [],
+    'group_U_2D_tavg_yr' : [],
+    'group_V_2D_fx'      : [],
+    'group_V_2D_tavg_day': [],
+    'group_V_2D_tavg_mon': [],
+    'group_V_2D_tavg_yr' : [],
+    'group_T_3D_fx'      : [],
+    'group_T_3D_tavg_day': [],
+    'group_T_3D_tavg_mon': [],
+    'group_T_3D_tavg_yr' : [],
+    'group_U_3D_fx'      : [],
+    'group_U_3D_tavg_day': [],
+    'group_U_3D_tavg_mon': [],
+    'group_U_3D_tavg_yr' : [],
+    'group_V_3D_fx'      : [],
+    'group_V_3D_tavg_day': [],
+    'group_V_3D_tavg_mon': [],
+    'group_V_3D_tavg_yr' : [],
+    'group_W_3D_fx'      : [],
+    'group_W_3D_tavg_day': [],
+    'group_W_3D_tavg_mon': [],
+    'group_W_3D_tavg_yr' : [],
+    'group_other'        : []
   }
 
   # Create a dictionary for the OIFS file groups (each group covers a grid_ref, output_freq combination
@@ -474,13 +580,44 @@ def main():
 
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename, 'id_file_group_ocean')
-  #                            xml_file                  , group_id                              , grid_ref        , freq  , dict['group_list'] = list_with_xml_lines_of_group
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', nemo_groups['group_lon_lat'              ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , nemo_groups['group_lon_lat_time_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_mon'    , 'grid_T_2D'     , '1mo' , nemo_groups['group_lon_lat_time_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_lon_lat_time_tavg_yr '    , 'grid_T_2D'     , '1yr' , nemo_groups['group_lon_lat_time_tavg_yr' ])
+  #                            xml_file                  , group_id              , grid_ref        , freq  , dict['group_list'] = list_with_xml_lines_of_group
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_fx'       , 'grid_T_2D'     , 'once', nemo_groups['group_T_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_day' , 'grid_T_2D'     , '1d'  , nemo_groups['group_T_2D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_mon' , 'grid_T_2D'     , '1mo' , nemo_groups['group_T_2D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_yr'  , 'grid_T_2D'     , '1yr' , nemo_groups['group_T_2D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_fx'       , 'grid_U_2D'     , 'once', nemo_groups['group_U_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_day' , 'grid_U_2D'     , '1d'  , nemo_groups['group_U_2D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_mon' , 'grid_U_2D'     , '1mo' , nemo_groups['group_U_2D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_yr'  , 'grid_U_2D'     , '1yr' , nemo_groups['group_U_2D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_fx'       , 'grid_V_2D'     , 'once', nemo_groups['group_V_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_day' , 'grid_V_2D'     , '1d'  , nemo_groups['group_V_2D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_mon' , 'grid_V_2D'     , '1mo' , nemo_groups['group_V_2D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_yr'  , 'grid_V_2D'     , '1yr' , nemo_groups['group_V_2D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_fx'       , 'grid_T_3D'     , 'once', nemo_groups['group_T_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_day' , 'grid_T_3D'     , '1d'  , nemo_groups['group_T_3D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_mon' , 'grid_T_3D'     , '1mo' , nemo_groups['group_T_3D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_yr'  , 'grid_T_3D'     , '1yr' , nemo_groups['group_T_3D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_fx'       , 'grid_U_3D'     , 'once', nemo_groups['group_U_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_day' , 'grid_U_3D'     , '1d'  , nemo_groups['group_U_3D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_mon' , 'grid_U_3D'     , '1mo' , nemo_groups['group_U_3D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_yr'  , 'grid_U_3D'     , '1yr' , nemo_groups['group_U_3D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_fx'       , 'grid_V_3D'     , 'once', nemo_groups['group_V_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_day' , 'grid_V_3D'     , '1d'  , nemo_groups['group_V_3D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_mon' , 'grid_V_3D'     , '1mo' , nemo_groups['group_V_3D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_yr'  , 'grid_V_3D'     , '1yr' , nemo_groups['group_V_3D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_fx'       , 'grid_W_3D'     , 'once', nemo_groups['group_W_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_day' , 'grid_W_3D'     , '1d'  , nemo_groups['group_W_3D_tavg_day'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_mon' , 'grid_W_3D'     , '1mo' , nemo_groups['group_W_3D_tavg_mon'])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
+
   # grid_ref probably incorrect for several of this mixed group:
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'                    , 'reduced_sfc'   , '??'  , nemo_groups['group_other'                ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , 'reduced_sfc'   , '??'  , nemo_groups['group_other'        ])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
 
@@ -502,6 +639,8 @@ def main():
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
 
+
+  print()
 
   # Print the message list for those variable-cases where the operation from inheriting differs
   # from the one deduced from the CMIP7 branding:
