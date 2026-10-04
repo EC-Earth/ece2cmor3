@@ -352,18 +352,19 @@ def main():
                                                      nemo_groups['group_other'                ].append(xml_line)
       return
 
-  def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
-      lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
-      for lpjg_ins_line in list_of_lpjg_ins_lines:
-       lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
-      return
-
-  def add_xml_line_to_selected_group(cmip7_element, field_id, oifs_groups):
+  def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
       xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
       if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-                                                                                   oifs_groups['group_lon_lat_time_tavg_day'     ].append(xml_line)
+       if   cmip7_element.get('frequency') == 'day':
+                                                     oifs_groups['group_lon_lat_time_tavg_day'].append(xml_line)
+       elif cmip7_element.get('frequency') == 'mon':
+                                                     oifs_groups['group_lon_lat_time_tavg_mon'].append(xml_line)
+       elif cmip7_element.get('frequency') == 'yr':
+                                                     oifs_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
+       else:
+        print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
                                                                                    oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
       elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
@@ -378,6 +379,12 @@ def main():
                                                                                    oifs_groups['group_lon_lat'               ].append(xml_line)
       else                                                                        :
                                                                                    oifs_groups['group_other'                 ].append(xml_line)
+      return
+
+  def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
+      lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
+      for lpjg_ins_line in list_of_lpjg_ins_lines:
+       lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
       return
 
 
