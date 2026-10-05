@@ -415,6 +415,13 @@ def main():
                                                        nemo_groups['group_W_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_basin':
                                                        nemo_groups['group_basin'        ].append(xml_line)
+      elif element_fd.get('grid_ref') == 'grid_T_vsum':
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_vsum_fx'    ], \
+                                                       nemo_groups['group_T_vsum_day'   ], \
+                                                       nemo_groups['group_T_vsum_mon'   ], \
+                                                       nemo_groups['group_T_vsum_yr'    ]  )
+      elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
+                                                       nemo_groups['group_T_iax_20C'    ].append(xml_line)
       else:
                                                        nemo_groups['group_other'        ].append(xml_line)
       return
@@ -488,6 +495,11 @@ def main():
     'group_W_3D_tavg_yr' : [],
     'group_time'         : [],
     'group_basin'        : [],
+    'group_T_vsum_fx'    : [],
+    'group_T_vsum_day'   : [],
+    'group_T_vsum_mon'   : [],
+    'group_T_vsum_yr'    : [],
+    'group_T_iax_20C'    : [],
     'group_other'        : []
   }
 
@@ -606,6 +618,11 @@ def main():
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_day' , 'grid_W_3D'     , '1d'  , nemo_groups['group_W_3D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_mon' , 'grid_W_3D'     , '1mo' , nemo_groups['group_W_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_fx'     , 'grid_T_vsum'   , 'once', nemo_groups['group_T_vsum_fx'    ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_day'    , 'grid_T_vsum'   , '1d'  , nemo_groups['group_T_vsum_day'   ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_mon'    , 'grid_T_vsum'   , '1mo' , nemo_groups['group_T_vsum_mon'   ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_yr'     , 'grid_T_vsum'   , '1yr' , nemo_groups['group_T_vsum_yr'    ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , '??'            , '??'  , nemo_groups['group_other'        ])
   write_xml_file_closing(ecearth_nemo_file_def_file)
