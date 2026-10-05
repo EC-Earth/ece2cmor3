@@ -374,15 +374,17 @@ def main():
         cmip6_grid_label = 'gr'
     elif cmip7_realm    in ['ocean', 'seaIce', 'ocnBgchem']:
         cmip6_grid_label = 'gn'
-    elif cmip7_realm    in ['landIce']:
+    elif cmip7_realm    in ['landIce'] and cmip6_table != 'LPJGmon':
         cmip6_grid_label = 'gn'
+        print(f'Stop: {cmip6_variable} from PISM bot defined yet.')
+        sys.exit()
     else:
         cmip6_grid_label = 'gr'
 
     # Set the nominal_resolution for CMIP7:
     if   cmip6_variable in ['co2s', 'co2mass']:
         nominal_resolution = '10000 km'
-    elif cmip7_realm    in ['landIce']:
+    elif cmip7_realm    in ['landIce'] and cmip6_table != 'LPJGmon':
         nominal_resolution = '5 km'
     else:
         nominal_resolution = '100 km'
@@ -466,7 +468,7 @@ def main():
         except:
              # horizontal means of any kind
              cmip7_grid_label = 'g102'           # The mass or T grid
-    elif cmip7_realm    in ['landIce']:
+    elif cmip7_realm    in ['landIce'] and cmip6_table != 'LPJGmon':
         cmip7_grid_label = 'g185'
     else:
         cmip7_grid_label = 'g114'
