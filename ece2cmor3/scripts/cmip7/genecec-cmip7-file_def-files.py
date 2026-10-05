@@ -372,6 +372,8 @@ def main():
                                                         nemo_groups['group_T_2D_tavg_yr' ]  )
        elif cmip7_element.get('dimensions') == 'time':
                                                         nemo_groups['group_time'         ].append(xml_line)
+       else:
+        print(' Warning: case {} not covered in NEMO part with element_fd = None {}'.format(output_freq))
       elif   element_fd.get('grid_ref') == 'grid_T_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
                                                        nemo_groups['group_T_2D_tavg_day'], \
@@ -562,6 +564,10 @@ def main():
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename, 'id_file_group_ocean')
   #                            xml_file                  , group_id              , grid_ref        , freq  , dict['group_list'] = list_with_xml_lines_of_group
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_time'          , 'grid_1point'   , 'mon' , nemo_groups['group_time'         ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_basin'         , 'grid_basin'    , 'once', nemo_groups['group_basin'        ])
+
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_fx'       , 'grid_T_2D'     , 'once', nemo_groups['group_T_2D_fx'      ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_day' , 'grid_T_2D'     , '1d'  , nemo_groups['group_T_2D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_mon' , 'grid_T_2D'     , '1mo' , nemo_groups['group_T_2D_tavg_mon'])
@@ -597,12 +603,7 @@ def main():
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_mon' , 'grid_W_3D'     , '1mo' , nemo_groups['group_W_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
 
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_time'          , 'grid_T_2D'     , 'mon' , nemo_groups['group_time'         ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_basin'         , 'grid_basin'    , 'once', nemo_groups['group_basin'        ])
-
-  # grid_ref probably incorrect for several of this mixed group:
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , 'reduced_sfc'   , '??'  , nemo_groups['group_other'        ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , '??'            , '??'  , nemo_groups['group_other'        ])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
 
