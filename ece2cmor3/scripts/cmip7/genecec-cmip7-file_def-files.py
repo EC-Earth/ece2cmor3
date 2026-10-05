@@ -301,7 +301,7 @@ def main():
 
       operation_based_on_branding = determine_operation_value(cmip7_element)
       if operation != operation_based_on_branding:
-       message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:15} for {}'.format(operation, operation_based_on_branding, field_id, cmip7_element.get('cmip7_compound_name'))
+       message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:23} for {}'.format(operation, operation_based_on_branding, field_id, cmip7_element.get('cmip7_compound_name'))
        message_list_of_operation_comparsion.append(message)
        # Give preference to the operation value from the CMIP7 branding:
        operation = operation_based_on_branding
