@@ -29,7 +29,10 @@ def print_message_list(message_list):
 def main():
 
   # The input files:
-  dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
+ #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
+ #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml'
+ #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-historical-priority-ordered.xml'
+  dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
   identified_filename    = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
   ece_field_def_filename = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
 
