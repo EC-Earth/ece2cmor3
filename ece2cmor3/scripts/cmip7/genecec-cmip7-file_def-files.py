@@ -407,6 +407,8 @@ def main():
                                                        nemo_groups['group_W_3D_tavg_day'], \
                                                        nemo_groups['group_W_3D_tavg_mon'], \
                                                        nemo_groups['group_W_3D_tavg_yr' ]  )
+      elif element_fd.get('grid_ref') == 'grid_basin':
+                                                       nemo_groups['group_basin'        ].append(xml_line)
       else:
                                                        nemo_groups['group_other'        ].append(xml_line)
       return
@@ -479,6 +481,7 @@ def main():
     'group_W_3D_tavg_mon': [],
     'group_W_3D_tavg_yr' : [],
     'group_time'         : [],
+    'group_basin'        : [],
     'group_other'        : []
   }
 
@@ -595,6 +598,8 @@ def main():
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_time'          , 'grid_T_2D'     , 'mon' , nemo_groups['group_time'         ])
+
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_basin'         , 'grid_basin'    , 'once', nemo_groups['group_basin'        ])
 
   # grid_ref probably incorrect for several of this mixed group:
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , 'reduced_sfc'   , '??'  , nemo_groups['group_other'        ])
