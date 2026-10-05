@@ -221,7 +221,7 @@ def main():
   def write_xml_file_opening(xml_file_filename, file_group_id):
       xml_file = open(xml_file_filename, 'w')
       xml_file.write('<?xml version="1.0"?>\n\n')
-      xml_file.write('<file_definition>\n')
+      xml_file.write('<file_definition min_digits="4" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" type="one_file">\n')
       xml_file.write('  <file_group id="' + file_group_id + '" default_value="1e20" chunking_blocksize_target="3.0">\n')
       return xml_file
 
