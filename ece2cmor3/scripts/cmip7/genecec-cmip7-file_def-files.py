@@ -624,6 +624,8 @@ def main():
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_mon'    , 'grid_T_vsum'   , '1mo' , nemo_groups['group_T_vsum_mon'   ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_yr'     , 'grid_T_vsum'   , '1yr' , nemo_groups['group_T_vsum_yr'    ])
 
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_iax_20C'     , 'grid_T_iax_20C', 'mon' , nemo_groups['group_T_iax_20C'    ])
+
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , '??'            , '??'  , nemo_groups['group_other'        ])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
