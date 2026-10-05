@@ -342,6 +342,21 @@ def main():
                  )
       return element_fd, xml_line
 
+
+  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_tavg_day, group_tavg_mon, group_tavg_yr):
+       if   output_freq == 'fx':
+                                  group_fx      .append(xml_line)
+       elif output_freq == 'day':
+                                  group_tavg_day.append(xml_line)
+       elif output_freq == 'mon':
+                                  group_tavg_mon.append(xml_line)
+       elif output_freq == 'yr':
+                                  group_tavg_yr .append(xml_line)
+       else:
+        print(' Warning: frequency {} not covered for group_T_2D_tavg for {}'.format(output_freq))
+
+
+
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
@@ -349,89 +364,47 @@ def main():
 
       output_freq = cmip7_element.get('frequency')
 
-     #if   cmip7_element.get('dimensions') == 'longitude latitude time':
-     #elif cmip7_element.get('dimensions') == 'longitude latitude':
       if   element_fd == None:
+      #if   cmip7_element.get('dimensions') == 'longitude latitude time':
+      #elif cmip7_element.get('dimensions') == 'longitude latitude':
        pass
       elif   element_fd.get('grid_ref') == 'grid_T_2D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_T_2D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_T_2D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_T_2D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_T_2D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_T_2D_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
+                                                       nemo_groups['group_T_2D_tavg_day'], \
+                                                       nemo_groups['group_T_2D_tavg_mon'], \
+                                                       nemo_groups['group_T_2D_tavg_yr' ]  )
       elif   element_fd.get('grid_ref') == 'grid_U_2D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_U_2D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_U_2D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_U_2D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_U_2D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_U_2D_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_2D_fx'      ], \
+                                                       nemo_groups['group_U_2D_tavg_day'], \
+                                                       nemo_groups['group_U_2D_tavg_mon'], \
+                                                       nemo_groups['group_U_2D_tavg_yr' ]  )
       elif   element_fd.get('grid_ref') == 'grid_V_2D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_V_2D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_V_2D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_V_2D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_V_2D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_V_2D_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_2D_fx'      ], \
+                                                       nemo_groups['group_V_2D_tavg_day'], \
+                                                       nemo_groups['group_V_2D_tavg_mon'], \
+                                                       nemo_groups['group_V_2D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_T_3D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_T_3D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_T_3D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_T_3D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_T_3D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_3D_fx'      ], \
+                                                       nemo_groups['group_T_3D_tavg_day'], \
+                                                       nemo_groups['group_T_3D_tavg_mon'], \
+                                                       nemo_groups['group_T_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_U_3D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_U_3D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_U_3D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_U_3D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_U_3D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_3D_fx'      ], \
+                                                       nemo_groups['group_U_3D_tavg_day'], \
+                                                       nemo_groups['group_U_3D_tavg_mon'], \
+                                                       nemo_groups['group_U_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_V_3D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_V_3D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_V_3D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_V_3D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_V_3D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_3D_fx'      ], \
+                                                       nemo_groups['group_V_3D_tavg_day'], \
+                                                       nemo_groups['group_V_3D_tavg_mon'], \
+                                                       nemo_groups['group_V_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_W_3D':
-       if   output_freq == 'fx':
-                                  nemo_groups['group_W_3D_fx'      ].append(xml_line)
-       elif output_freq == 'day':
-                                  nemo_groups['group_W_3D_tavg_day'].append(xml_line)
-       elif output_freq == 'mon':
-                                  nemo_groups['group_W_3D_tavg_mon'].append(xml_line)
-       elif output_freq == 'yr':
-                                  nemo_groups['group_W_3D_tavg_yr' ].append(xml_line)
-       else:
-        print(' Warning: frequency {} not covered for group_lon_lat_time_tavg for {}'.format(output_freq, field_id))
+       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_W_3D_fx'      ], \
+                                                       nemo_groups['group_W_3D_tavg_day'], \
+                                                       nemo_groups['group_W_3D_tavg_mon'], \
+                                                       nemo_groups['group_W_3D_tavg_yr' ]  )
       else:
-                                                     nemo_groups['group_other'                ].append(xml_line)
+                                                       nemo_groups['group_other'        ].append(xml_line)
       return
 
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
