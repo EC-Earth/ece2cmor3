@@ -354,7 +354,7 @@ def main():
        elif output_freq == 'yr':
                                   group_tavg_yr .append(xml_line)
        else:
-        print(' Warning: frequency {} not covered for group_T_2D_tavg for {}'.format(output_freq))
+        print(' Warning: frequency {} not covered for group_T_2D_tavg'.format(output_freq))
 
 
 
@@ -374,7 +374,7 @@ def main():
        elif cmip7_element.get('dimensions') == 'time':
                                                         nemo_groups['group_time'         ].append(xml_line)
        else:
-        print(' Warning: case {} not covered in NEMO part with element_fd = None {}'.format(output_freq))
+        print(' Warning: case {} not covered in NEMO part with element_fd = None'.format(output_freq))
       elif   element_fd.get('grid_ref') == 'grid_T_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
                                                        nemo_groups['group_T_2D_tavg_day'], \
