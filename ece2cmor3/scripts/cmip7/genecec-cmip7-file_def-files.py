@@ -348,9 +348,11 @@ def main():
       return element_fd, xml_line
 
 
-  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_tavg_day, group_tavg_mon, group_tavg_yr):
+  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_tavg_3hr, group_tavg_day, group_tavg_mon, group_tavg_yr):
        if   output_freq == 'fx':
                                   group_fx      .append(xml_line)
+       elif output_freq == '3hr':
+                                  group_tavg_3hr.append(xml_line)
        elif output_freq == 'day':
                                   group_tavg_day.append(xml_line)
        elif output_freq == 'mon':
@@ -375,6 +377,7 @@ def main():
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
         distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
+                                                        nemo_groups['group_T_2D_tavg_3hr'], \
                                                         nemo_groups['group_T_2D_tavg_day'], \
                                                         nemo_groups['group_T_2D_tavg_mon'], \
                                                         nemo_groups['group_T_2D_tavg_yr' ]  )
@@ -384,36 +387,43 @@ def main():
         print(' Warning: case {} not covered in NEMO part with element_fd = None'.format(output_freq))
       elif   element_fd.get('grid_ref') == 'grid_T_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
+                                                       nemo_groups['group_T_2D_tavg_3hr'], \
                                                        nemo_groups['group_T_2D_tavg_day'], \
                                                        nemo_groups['group_T_2D_tavg_mon'], \
                                                        nemo_groups['group_T_2D_tavg_yr' ]  )
       elif   element_fd.get('grid_ref') == 'grid_U_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_2D_fx'      ], \
+                                                       nemo_groups['group_U_2D_tavg_3hr'], \
                                                        nemo_groups['group_U_2D_tavg_day'], \
                                                        nemo_groups['group_U_2D_tavg_mon'], \
                                                        nemo_groups['group_U_2D_tavg_yr' ]  )
       elif   element_fd.get('grid_ref') == 'grid_V_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_2D_fx'      ], \
+                                                       nemo_groups['group_V_2D_tavg_3hr'], \
                                                        nemo_groups['group_V_2D_tavg_day'], \
                                                        nemo_groups['group_V_2D_tavg_mon'], \
                                                        nemo_groups['group_V_2D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_T_3D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_3D_fx'      ], \
+                                                       nemo_groups['group_T_3D_tavg_3hr'], \
                                                        nemo_groups['group_T_3D_tavg_day'], \
                                                        nemo_groups['group_T_3D_tavg_mon'], \
                                                        nemo_groups['group_T_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_U_3D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_3D_fx'      ], \
+                                                       nemo_groups['group_U_3D_tavg_3hr'], \
                                                        nemo_groups['group_U_3D_tavg_day'], \
                                                        nemo_groups['group_U_3D_tavg_mon'], \
                                                        nemo_groups['group_U_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_V_3D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_3D_fx'      ], \
+                                                       nemo_groups['group_V_3D_tavg_3hr'], \
                                                        nemo_groups['group_V_3D_tavg_day'], \
                                                        nemo_groups['group_V_3D_tavg_mon'], \
                                                        nemo_groups['group_V_3D_tavg_yr' ]  )
       elif element_fd.get('grid_ref') == 'grid_W_3D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_W_3D_fx'      ], \
+                                                       nemo_groups['group_W_3D_tavg_3hr'], \
                                                        nemo_groups['group_W_3D_tavg_day'], \
                                                        nemo_groups['group_W_3D_tavg_mon'], \
                                                        nemo_groups['group_W_3D_tavg_yr' ]  )
@@ -421,6 +431,7 @@ def main():
                                                        nemo_groups['group_basin'        ].append(xml_line)
       elif element_fd.get('grid_ref') == 'grid_T_vsum':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_vsum_fx'    ], \
+                                                       nemo_groups['group_T_vsum_3hr'   ], \
                                                        nemo_groups['group_T_vsum_day'   ], \
                                                        nemo_groups['group_T_vsum_mon'   ], \
                                                        nemo_groups['group_T_vsum_yr'    ]  )
@@ -470,36 +481,44 @@ def main():
   # [later maybe extended with region]):
   nemo_groups = {
     'group_T_2D_fx'      : [],
+    'group_T_2D_tavg_3hr': [],
     'group_T_2D_tavg_day': [],
     'group_T_2D_tavg_mon': [],
     'group_T_2D_tavg_yr' : [],
     'group_U_2D_fx'      : [],
+    'group_U_2D_tavg_3hr': [],
     'group_U_2D_tavg_day': [],
     'group_U_2D_tavg_mon': [],
     'group_U_2D_tavg_yr' : [],
     'group_V_2D_fx'      : [],
+    'group_V_2D_tavg_3hr': [],
     'group_V_2D_tavg_day': [],
     'group_V_2D_tavg_mon': [],
     'group_V_2D_tavg_yr' : [],
     'group_T_3D_fx'      : [],
+    'group_T_3D_tavg_3hr': [],
     'group_T_3D_tavg_day': [],
     'group_T_3D_tavg_mon': [],
     'group_T_3D_tavg_yr' : [],
     'group_U_3D_fx'      : [],
+    'group_U_3D_tavg_3hr': [],
     'group_U_3D_tavg_day': [],
     'group_U_3D_tavg_mon': [],
     'group_U_3D_tavg_yr' : [],
     'group_V_3D_fx'      : [],
+    'group_V_3D_tavg_3hr': [],
     'group_V_3D_tavg_day': [],
     'group_V_3D_tavg_mon': [],
     'group_V_3D_tavg_yr' : [],
     'group_W_3D_fx'      : [],
+    'group_W_3D_tavg_3hr': [],
     'group_W_3D_tavg_day': [],
     'group_W_3D_tavg_mon': [],
     'group_W_3D_tavg_yr' : [],
     'group_time'         : [],
     'group_basin'        : [],
     'group_T_vsum_fx'    : [],
+    'group_T_vsum_3hr'   : [],
     'group_T_vsum_day'   : [],
     'group_T_vsum_mon'   : [],
     'group_T_vsum_yr'    : [],
@@ -589,41 +608,49 @@ def main():
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_basin'         , 'grid_basin'    , 'once', nemo_groups['group_basin'        ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_fx'       , 'grid_T_2D'     , 'once', nemo_groups['group_T_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_3hr' , 'grid_T_2D'     , '3hr' , nemo_groups['group_T_2D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_day' , 'grid_T_2D'     , '1d'  , nemo_groups['group_T_2D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_mon' , 'grid_T_2D'     , '1mo' , nemo_groups['group_T_2D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_yr'  , 'grid_T_2D'     , '1yr' , nemo_groups['group_T_2D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_fx'       , 'grid_U_2D'     , 'once', nemo_groups['group_U_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_3hr' , 'grid_U_2D'     , '3hr' , nemo_groups['group_U_2D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_day' , 'grid_U_2D'     , '1d'  , nemo_groups['group_U_2D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_mon' , 'grid_U_2D'     , '1mo' , nemo_groups['group_U_2D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_yr'  , 'grid_U_2D'     , '1yr' , nemo_groups['group_U_2D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_fx'       , 'grid_V_2D'     , 'once', nemo_groups['group_V_2D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_3hr' , 'grid_V_2D'     , '3hr' , nemo_groups['group_V_2D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_day' , 'grid_V_2D'     , '1d'  , nemo_groups['group_V_2D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_mon' , 'grid_V_2D'     , '1mo' , nemo_groups['group_V_2D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_yr'  , 'grid_V_2D'     , '1yr' , nemo_groups['group_V_2D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_fx'       , 'grid_T_3D'     , 'once', nemo_groups['group_T_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_3hr' , 'grid_T_3D'     , '3hr' , nemo_groups['group_T_3D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_day' , 'grid_T_3D'     , '1d'  , nemo_groups['group_T_3D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_mon' , 'grid_T_3D'     , '1mo' , nemo_groups['group_T_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_yr'  , 'grid_T_3D'     , '1yr' , nemo_groups['group_T_3D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_fx'       , 'grid_U_3D'     , 'once', nemo_groups['group_U_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_3hr' , 'grid_U_3D'     , '3hr' , nemo_groups['group_U_3D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_day' , 'grid_U_3D'     , '1d'  , nemo_groups['group_U_3D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_mon' , 'grid_U_3D'     , '1mo' , nemo_groups['group_U_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_yr'  , 'grid_U_3D'     , '1yr' , nemo_groups['group_U_3D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_fx'       , 'grid_V_3D'     , 'once', nemo_groups['group_V_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_3hr' , 'grid_V_3D'     , '3hr' , nemo_groups['group_V_3D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_day' , 'grid_V_3D'     , '1d'  , nemo_groups['group_V_3D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_mon' , 'grid_V_3D'     , '1mo' , nemo_groups['group_V_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_yr'  , 'grid_V_3D'     , '1yr' , nemo_groups['group_V_3D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_fx'       , 'grid_W_3D'     , 'once', nemo_groups['group_W_3D_fx'      ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_3hr' , 'grid_W_3D'     , '3hr' , nemo_groups['group_W_3D_tavg_3hr'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_day' , 'grid_W_3D'     , '1d'  , nemo_groups['group_W_3D_tavg_day'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_mon' , 'grid_W_3D'     , '1mo' , nemo_groups['group_W_3D_tavg_mon'])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
 
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_fx'     , 'grid_T_vsum'   , 'once', nemo_groups['group_T_vsum_fx'    ])
+  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_3hr'    , 'grid_T_vsum'   , '3hr' , nemo_groups['group_T_vsum_3hr'   ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_day'    , 'grid_T_vsum'   , '1d'  , nemo_groups['group_T_vsum_day'   ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_mon'    , 'grid_T_vsum'   , '1mo' , nemo_groups['group_T_vsum_mon'   ])
   write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_yr'     , 'grid_T_vsum'   , '1yr' , nemo_groups['group_T_vsum_yr'    ])
