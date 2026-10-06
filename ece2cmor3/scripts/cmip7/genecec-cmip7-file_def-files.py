@@ -362,7 +362,8 @@ def main():
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
 
-
+  # Remark: Should we distinguish on region as well here? The question is whether we will define
+  # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
