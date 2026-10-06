@@ -130,7 +130,7 @@ def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
                                 ' model_component={:10}' \
                                 ' other_component={:8}' \
                                 ' ifs_shortname={:13}' \
-                                ' varname_code={:20}' \
+                                ' varname_code={:25}' \
                                 ' comment_author={:20}' \
                                 ' comment={:75}' \
                                 ' expression={:83}' \
