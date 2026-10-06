@@ -384,7 +384,12 @@ def main():
        elif cmip7_element.get('dimensions') == 'time':
                                                         nemo_groups['group_time'         ].append(xml_line)
        else:
-        print(' Warning: case {} not covered in NEMO part with element_fd = None'.format(output_freq))
+        print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+                 output_freq                                           , \
+                 'dimensions="' + cmip7_element.get('dimensions') + '"', \
+                 cmip7_element.get('priority')                         , \
+                 cmip7_element.get('status')                         , \
+                 cmip7_element.get('cmip7_compound_name')))
       elif   element_fd.get('grid_ref') == 'grid_T_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
                                                        nemo_groups['group_T_2D_tavg_3hr'], \
