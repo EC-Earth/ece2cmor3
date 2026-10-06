@@ -388,19 +388,19 @@ def main():
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                         , \
                  cmip7_element.get('cmip7_compound_name')))
-      elif   element_fd.get('grid_ref') == 'grid_T_2D':
+      elif element_fd.get('grid_ref') == 'grid_T_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
                                                        nemo_groups['group_T_2D_tavg_3hr'], \
                                                        nemo_groups['group_T_2D_tavg_day'], \
                                                        nemo_groups['group_T_2D_tavg_mon'], \
                                                        nemo_groups['group_T_2D_tavg_yr' ]  )
-      elif   element_fd.get('grid_ref') == 'grid_U_2D':
+      elif element_fd.get('grid_ref') == 'grid_U_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_2D_fx'      ], \
                                                        nemo_groups['group_U_2D_tavg_3hr'], \
                                                        nemo_groups['group_U_2D_tavg_day'], \
                                                        nemo_groups['group_U_2D_tavg_mon'], \
                                                        nemo_groups['group_U_2D_tavg_yr' ]  )
-      elif   element_fd.get('grid_ref') == 'grid_V_2D':
+      elif element_fd.get('grid_ref') == 'grid_V_2D':
        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_2D_fx'      ], \
                                                        nemo_groups['group_V_2D_tavg_3hr'], \
                                                        nemo_groups['group_V_2D_tavg_day'], \
@@ -444,34 +444,95 @@ def main():
                                                        nemo_groups['group_other'        ].append(xml_line)
       return
 
+
+#   Encountered grid_ref for OIFS in ECE4 inherited field_def:
+#   grid_ref="reduced_sfc"
+#   grid_ref="reduced_ml"
+#   grid_ref="reduced_plev39"
+#   grid_ref="reduced_pv"
+#   grid_ref="reduced_th"
+
+
+  # Remark: Should we distinguish on region as well here? The question is whether we will define
+  # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
+  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
+      output_freq = cmip7_element.get('frequency')
+      # Generate the XML file line for one variable, also make the inherited field_def info of
+      # this variable available at this level in this function:
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
-      if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-       if   cmip7_element.get('frequency') == 'day':
-                                                     oifs_groups['group_lon_lat_time_tavg_day'].append(xml_line)
-       elif cmip7_element.get('frequency') == 'mon':
-                                                     oifs_groups['group_lon_lat_time_tavg_mon'].append(xml_line)
-       elif cmip7_element.get('frequency') == 'yr':
-                                                     oifs_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
+      if   element_fd == None:
+       if   cmip7_element.get('dimensions') == 'longitude latitude time':
+        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx' ], \
+                                                        oifs_groups['reduced_sfc_3hr'], \
+                                                        oifs_groups['reduced_sfc_day'], \
+                                                        oifs_groups['reduced_sfc_mon'], \
+                                                        oifs_groups['reduced_sfc_yr' ]  )
+       elif cmip7_element.get('dimensions') == 'time':
+                                                        oifs_groups['group_time'     ].append(xml_line)
        else:
-        print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
-      elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
-                                                                                   oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
-      elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
-                                                                                   oifs_groups['group_lon_lat_alevel_time'   ].append(xml_line)
-      elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
-                                                                                   oifs_groups['group_lon_lat_plev3_time1'   ].append(xml_line)
-      elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
-                                                                                   oifs_groups['group_lon_lat_time_height2m' ].append(xml_line)
-      elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
-                                                                                   oifs_groups['group_lon_lat_time_height10m'].append(xml_line)
-      elif cmip7_element.get('dimensions') == 'longitude latitude'                :
-                                                                                   oifs_groups['group_lon_lat'               ].append(xml_line)
-      else                                                                        :
-                                                                                   oifs_groups['group_other'                 ].append(xml_line)
+        print(' Warning: case {} not covered in oifs part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+                 output_freq                                           , \
+                 'dimensions="' + cmip7_element.get('dimensions') + '"', \
+                 cmip7_element.get('priority')                         , \
+                 cmip7_element.get('status')                         , \
+                 cmip7_element.get('cmip7_compound_name')))
+      elif element_fd.get('grid_ref') == 'reduced_sfc':
+       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx' ], \
+                                                       oifs_groups['reduced_sfc_3hr'], \
+                                                       oifs_groups['reduced_sfc_day'], \
+                                                       oifs_groups['reduced_sfc_mon'], \
+                                                       oifs_groups['reduced_sfc_yr' ]  )
+     #elif element_fd.get('grid_ref') == 'grid_U_2D':
+     #elif element_fd.get('grid_ref') == 'grid_V_2D':
+     #elif element_fd.get('grid_ref') == 'grid_T_3D':
+     #elif element_fd.get('grid_ref') == 'grid_U_3D':
+     #elif element_fd.get('grid_ref') == 'grid_V_3D':
+     #elif element_fd.get('grid_ref') == 'grid_W_3D':
+     #elif element_fd.get('grid_ref') == 'grid_basin':
+     #                                                 oifs_groups['group_basin'        ].append(xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_T_vsum':
+     #elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
+     #                                                 oifs_groups['group_T_iax_20C'    ].append(xml_line)
+      else:
+                                                       oifs_groups['group_other'        ].append(xml_line)
       return
+
+
+
+
+
+
+# def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
+#     element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
+#     # Note that this method does not create a new XML tree, but with the group knowledge the
+#     # XML file is directly written
+#     if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
+#      if   cmip7_element.get('frequency') == 'day':
+#                                                    oifs_groups['group_lon_lat_time_tavg_day'].append(xml_line)
+#      elif cmip7_element.get('frequency') == 'mon':
+#                                                    oifs_groups['group_lon_lat_time_tavg_mon'].append(xml_line)
+#      elif cmip7_element.get('frequency') == 'yr':
+#                                                    oifs_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
+#      else:
+#       print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
+#     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
+#                                                                                  oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
+#     elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
+#                                                                                  oifs_groups['group_lon_lat_alevel_time'   ].append(xml_line)
+#     elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
+#                                                                                  oifs_groups['group_lon_lat_plev3_time1'   ].append(xml_line)
+#     elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
+#                                                                                  oifs_groups['group_lon_lat_time_height2m' ].append(xml_line)
+#     elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
+#                                                                                  oifs_groups['group_lon_lat_time_height10m'].append(xml_line)
+#     elif cmip7_element.get('dimensions') == 'longitude latitude'                :
+#                                                                                  oifs_groups['group_lon_lat'               ].append(xml_line)
+#     else                                                                        :
+#                                                                                  oifs_groups['group_other'                 ].append(xml_line)
+#     return
 
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
       lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
@@ -533,14 +594,16 @@ def main():
   # [later maybe extended with region]):
   # The XXX frequency needs to be set and extended in case several frequencies per grid_ref case are encountered
   oifs_groups = {
-    'group_lon_lat_time_tavg_day'     : [],
-    'group_lon_lat_time_tavg_mon'     : [],
-    'group_lon_lat_time_tavg_yr'      : [],
-    'group_lon_lat_plev19_time_XXX'   : [],
-    'group_lon_lat_alevel_time_XXX'   : [],
-    'group_lon_lat_plev3_time1_XXX'   : [],
-    'group_lon_lat_time_height2m_XXX' : [],
-    'group_lon_lat_time_height10m_XXX': [],
+    'reduced_sfc_fx'      : [],
+    'reduced_sfc_3hr'     : [],
+    'reduced_sfc_day'     : [],
+    'reduced_sfc_mon'     : [],
+    'reduced_sfc_yr'      : [],
+   #'group_lon_lat_plev19_time_XXX'   : [],
+   #'group_lon_lat_alevel_time_XXX'   : [],
+   #'group_lon_lat_plev3_time1_XXX'   : [],
+   #'group_lon_lat_time_height2m_XXX' : [],
+   #'group_lon_lat_time_height10m_XXX': [],
     'group_lon_lat'                   : [],
     'group_other'                     : []
   }
@@ -568,10 +631,10 @@ def main():
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
      add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_groups)
-    elif element_identified.get('model_component') == 'oifs':
+    elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
     #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_groups)
-     pass
+     add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_groups)
     elif element_identified.get('model_component') == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
@@ -666,7 +729,14 @@ def main():
 
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_ocean')
-  #                            xml_file                  , group_id                              , grid_ref        , list_with_xml_lines_of_group)
+  #                            xml_file                  , group_id          , grid_ref     , list_with_xml_lines_of_group)
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_fx'  , 'reduced_sfc', 'once', oifs_groups['reduced_sfc_fx' ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_3hr' , 'reduced_sfc', '3hr' , oifs_groups['reduced_sfc_3hr'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_day' , 'reduced_sfc', '1d'  , oifs_groups['reduced_sfc_day'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_mon' , 'reduced_sfc', '1mo' , oifs_groups['reduced_sfc_mon'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_yr'  , 'reduced_sfc', '1yr' , oifs_groups['reduced_sfc_yr' ])
+
+
  #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', oifs_groups['group_lon_lat'               ])
  #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , oifs_groups['group_lon_lat_time_tavg_day' ])
  #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', '1d'  , oifs_groups['group_lon_lat_plev19_time'   ])
