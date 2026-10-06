@@ -473,6 +473,12 @@ def main():
                                                         oifs_groups['reduced_sfc_day'   ], \
                                                         oifs_groups['reduced_sfc_mon'   ], \
                                                         oifs_groups['reduced_sfc_yr'    ]  )
+       elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
+        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev19_fx' ], \
+                                                        oifs_groups['reduced_plev19_3hr'], \
+                                                        oifs_groups['reduced_plev19_day'], \
+                                                        oifs_groups['reduced_plev19_mon'], \
+                                                        oifs_groups['reduced_plev19_yr' ]  )
        elif cmip7_element.get('dimensions') == 'longitude latitude plev39 time':
         distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev39_fx' ], \
                                                         oifs_groups['reduced_plev39_3hr'], \
@@ -494,6 +500,12 @@ def main():
                                                        oifs_groups['reduced_sfc_day'   ], \
                                                        oifs_groups['reduced_sfc_mon'   ], \
                                                        oifs_groups['reduced_sfc_yr'    ]  )
+      elif element_fd.get('grid_ref') == 'reduced_plev19':
+       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev19_fx' ], \
+                                                       oifs_groups['reduced_plev19_3hr'], \
+                                                       oifs_groups['reduced_plev19_day'], \
+                                                       oifs_groups['reduced_plev19_mon'], \
+                                                       oifs_groups['reduced_plev19_yr' ]  )
       elif element_fd.get('grid_ref') == 'reduced_plev39':
        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev39_fx' ], \
                                                        oifs_groups['reduced_plev39_3hr'], \
@@ -620,6 +632,11 @@ def main():
     'reduced_sfc_day'     : [],
     'reduced_sfc_mon'     : [],
     'reduced_sfc_yr'      : [],
+    'reduced_plev19_fx'   : [],
+    'reduced_plev19_3hr'  : [],
+    'reduced_plev19_day'  : [],
+    'reduced_plev19_mon'  : [],
+    'reduced_plev19_yr'   : [],
     'reduced_plev39_fx'   : [],
     'reduced_plev39_3hr'  : [],
     'reduced_plev39_day'  : [],
@@ -766,6 +783,12 @@ def main():
   write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_day'   , 'reduced_sfc'   , '1d'  , oifs_groups['reduced_sfc_day'   ])
   write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_mon'   , 'reduced_sfc'   , '1mo' , oifs_groups['reduced_sfc_mon'   ])
   write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_yr'    , 'reduced_sfc'   , '1yr' , oifs_groups['reduced_sfc_yr'    ])
+
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_fx' , 'reduced_plev19', 'once', oifs_groups['reduced_plev19_fx' ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_3hr', 'reduced_plev19', '3hr' , oifs_groups['reduced_plev19_3hr'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_day', 'reduced_plev19', '1d'  , oifs_groups['reduced_plev19_day'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_mon', 'reduced_plev19', '1mo' , oifs_groups['reduced_plev19_mon'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_yr' , 'reduced_plev19', '1yr' , oifs_groups['reduced_plev19_yr' ])
 
   write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_fx' , 'reduced_plev39', 'once', oifs_groups['reduced_plev39_fx' ])
   write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_3hr', 'reduced_plev39', '3hr' , oifs_groups['reduced_plev39_3hr'])
