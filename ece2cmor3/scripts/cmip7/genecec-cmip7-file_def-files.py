@@ -347,7 +347,6 @@ def main():
                  )
       return element_fd, xml_line
 
-
   def distinguish_in_frequency(output_freq, xml_line, group_fx, group_tavg_3hr, group_tavg_day, group_tavg_mon, group_tavg_yr):
        if   output_freq == 'fx':
                                   group_fx      .append(xml_line)
@@ -363,17 +362,16 @@ def main():
         grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
-
   # Remark: Should we distinguish on region as well here? The question is whether we will define
   # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
+      output_freq = cmip7_element.get('frequency')
+      # Generate the XML file line for one variable, also make the inherited field_def info of
+      # this variable available at this level in this function:
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
       # XML file is directly written
-
-      output_freq = cmip7_element.get('frequency')
-
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
         distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
