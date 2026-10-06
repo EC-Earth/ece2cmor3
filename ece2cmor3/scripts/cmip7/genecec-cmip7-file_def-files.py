@@ -10,6 +10,7 @@
 import sys
 import os
 import subprocess
+import re
 import xml.etree.ElementTree as ET
 
 
@@ -357,10 +358,12 @@ def main():
        elif output_freq == 'yr':
                                   group_tavg_yr .append(xml_line)
        else:
-        print(' Warning: frequency {} not covered for group_T_2D_tavg'.format(output_freq))
+        grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
+        print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
 
 
+  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
       # Note that this method does not create a new XML tree, but with the group knowledge the
