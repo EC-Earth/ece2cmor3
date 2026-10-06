@@ -685,7 +685,7 @@ def main():
      # Append the .ins file line for this CMIP7 variable - frequency combination to the list of .ins lines:
      list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
      # Besides, create a message list for this includive printing the cmip7_compound_name:
-     message = ' {:50} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
+     message = ' {:66} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
      message_list_lpjg_ins_vars.append(message)
 
   #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
