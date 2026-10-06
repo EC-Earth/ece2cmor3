@@ -445,6 +445,7 @@ def main():
       return
 
 
+# sed -e 's/^.*grid_ref/grid_ref/' -e 's/name=.*$//' -e 's/standard_.*$//' -e 's/operation.*$//' ec-earth-definition-inherited-neat-formatted.xml|sort|uniq|grep grid_ref
 #   Encountered grid_ref for OIFS in ECE4 inherited field_def:
 #   grid_ref="reduced_sfc"
 #   grid_ref="reduced_ml"
@@ -452,6 +453,8 @@ def main():
 #   grid_ref="reduced_pv"
 #   grid_ref="reduced_th"
 
+  # Note that the OIFS field_def files contain a group with grid_ref="reduced_plev39 while the CMIP7 request asks
+  # mainly for grid_ref="reduced_plev19. Figure out if the 39 set overlaps the 19 set.
 
   # Remark: Should we distinguish on region as well here? The question is whether we will define
   # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
@@ -465,13 +468,19 @@ def main():
       # XML file is directly written
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
-        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx' ], \
-                                                        oifs_groups['reduced_sfc_3hr'], \
-                                                        oifs_groups['reduced_sfc_day'], \
-                                                        oifs_groups['reduced_sfc_mon'], \
-                                                        oifs_groups['reduced_sfc_yr' ]  )
+        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx'    ], \
+                                                        oifs_groups['reduced_sfc_3hr'   ], \
+                                                        oifs_groups['reduced_sfc_day'   ], \
+                                                        oifs_groups['reduced_sfc_mon'   ], \
+                                                        oifs_groups['reduced_sfc_yr'    ]  )
+       elif cmip7_element.get('dimensions') == 'longitude latitude plev39 time':
+        distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev39_fx' ], \
+                                                        oifs_groups['reduced_plev39_3hr'], \
+                                                        oifs_groups['reduced_plev39_day'], \
+                                                        oifs_groups['reduced_plev39_mon'], \
+                                                        oifs_groups['reduced_plev39_yr' ]  )
        elif cmip7_element.get('dimensions') == 'time':
-                                                        oifs_groups['group_time'     ].append(xml_line)
+                                                        oifs_groups['group_time'        ].append(xml_line)
        else:
         print(' Warning: case {} not covered in oifs part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
@@ -480,11 +489,23 @@ def main():
                  cmip7_element.get('status')                         , \
                  cmip7_element.get('cmip7_compound_name')))
       elif element_fd.get('grid_ref') == 'reduced_sfc':
-       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx' ], \
-                                                       oifs_groups['reduced_sfc_3hr'], \
-                                                       oifs_groups['reduced_sfc_day'], \
-                                                       oifs_groups['reduced_sfc_mon'], \
-                                                       oifs_groups['reduced_sfc_yr' ]  )
+       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_sfc_fx'    ], \
+                                                       oifs_groups['reduced_sfc_3hr'   ], \
+                                                       oifs_groups['reduced_sfc_day'   ], \
+                                                       oifs_groups['reduced_sfc_mon'   ], \
+                                                       oifs_groups['reduced_sfc_yr'    ]  )
+      elif element_fd.get('grid_ref') == 'reduced_plev39':
+       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_plev39_fx' ], \
+                                                       oifs_groups['reduced_plev39_3hr'], \
+                                                       oifs_groups['reduced_plev39_day'], \
+                                                       oifs_groups['reduced_plev39_mon'], \
+                                                       oifs_groups['reduced_plev39_yr' ]  )
+      elif element_fd.get('grid_ref') == 'reduced_ml':
+       distinguish_in_frequency(output_freq, xml_line, oifs_groups['reduced_ml_fx'     ], \
+                                                       oifs_groups['reduced_ml_3hr'    ], \
+                                                       oifs_groups['reduced_ml_day'    ], \
+                                                       oifs_groups['reduced_ml_mon'    ], \
+                                                       oifs_groups['reduced_ml_yr'     ]  )
      #elif element_fd.get('grid_ref') == 'grid_U_2D':
      #elif element_fd.get('grid_ref') == 'grid_V_2D':
      #elif element_fd.get('grid_ref') == 'grid_T_3D':
@@ -497,7 +518,7 @@ def main():
      #elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
      #                                                 oifs_groups['group_T_iax_20C'    ].append(xml_line)
       else:
-                                                       oifs_groups['group_other'        ].append(xml_line)
+                                                       oifs_groups['group_other'    ].append(xml_line)
       return
 
 
@@ -599,6 +620,16 @@ def main():
     'reduced_sfc_day'     : [],
     'reduced_sfc_mon'     : [],
     'reduced_sfc_yr'      : [],
+    'reduced_plev39_fx'   : [],
+    'reduced_plev39_3hr'  : [],
+    'reduced_plev39_day'  : [],
+    'reduced_plev39_mon'  : [],
+    'reduced_plev39_yr'   : [],
+    'reduced_ml_fx'       : [],
+    'reduced_ml_3hr'      : [],
+    'reduced_ml_day'      : [],
+    'reduced_ml_mon'      : [],
+    'reduced_ml_yr'       : [],
    #'group_lon_lat_plev19_time_XXX'   : [],
    #'group_lon_lat_alevel_time_XXX'   : [],
    #'group_lon_lat_plev3_time1_XXX'   : [],
@@ -729,13 +760,27 @@ def main():
 
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_ocean')
-  #                            xml_file                  , group_id          , grid_ref     , list_with_xml_lines_of_group)
-  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_fx'  , 'reduced_sfc', 'once', oifs_groups['reduced_sfc_fx' ])
-  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_3hr' , 'reduced_sfc', '3hr' , oifs_groups['reduced_sfc_3hr'])
-  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_day' , 'reduced_sfc', '1d'  , oifs_groups['reduced_sfc_day'])
-  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_mon' , 'reduced_sfc', '1mo' , oifs_groups['reduced_sfc_mon'])
-  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_yr'  , 'reduced_sfc', '1yr' , oifs_groups['reduced_sfc_yr' ])
+  #                            xml_file                  , group_id            , grid_ref     , list_with_xml_lines_of_group)
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_fx'    , 'reduced_sfc'   , 'once', oifs_groups['reduced_sfc_fx'    ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_3hr'   , 'reduced_sfc'   , '3hr' , oifs_groups['reduced_sfc_3hr'   ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_day'   , 'reduced_sfc'   , '1d'  , oifs_groups['reduced_sfc_day'   ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_mon'   , 'reduced_sfc'   , '1mo' , oifs_groups['reduced_sfc_mon'   ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_yr'    , 'reduced_sfc'   , '1yr' , oifs_groups['reduced_sfc_yr'    ])
 
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_fx' , 'reduced_plev39', 'once', oifs_groups['reduced_plev39_fx' ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_3hr', 'reduced_plev39', '3hr' , oifs_groups['reduced_plev39_3hr'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_day', 'reduced_plev39', '1d'  , oifs_groups['reduced_plev39_day'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_mon', 'reduced_plev39', '1mo' , oifs_groups['reduced_plev39_mon'])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_yr' , 'reduced_plev39', '1yr' , oifs_groups['reduced_plev39_yr' ])
+
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_fx'     , 'reduced_ml'    , 'once', oifs_groups['reduced_ml_fx'     ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_3hr'    , 'reduced_ml'    , '3hr' , oifs_groups['reduced_ml_3hr'    ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_day'    , 'reduced_ml'    , '1d'  , oifs_groups['reduced_ml_day'    ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_mon'    , 'reduced_ml'    , '1mo' , oifs_groups['reduced_ml_mon'    ])
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_yr'     , 'reduced_ml'    , '1yr' , oifs_groups['reduced_ml_yr'     ])
+
+  write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'  , '??'            , '??'  , oifs_groups['group_other'       ])
+  write_xml_file_closing(ecearth_oifs_file_def_file)
 
  #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', oifs_groups['group_lon_lat'               ])
  #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , oifs_groups['group_lon_lat_time_tavg_day' ])
@@ -744,9 +789,6 @@ def main():
  #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , '1d'  , oifs_groups['group_lon_lat_plev3_time1'   ])
  #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height2m' ])
  #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height10m'])
-  # grid_ref probably incorrect for several of this mixed group:
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'                    , 'reduced_sfc'   , '??'  , oifs_groups['group_other'                 ])
-  write_xml_file_closing(ecearth_oifs_file_def_file)
 
 
   # Writing the LPJG .ins congiguration file for the specified data request:
