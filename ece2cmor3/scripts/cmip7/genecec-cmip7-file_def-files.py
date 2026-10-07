@@ -248,6 +248,21 @@ def main():
       return frequency
 
   # The name of this function is not so adequate:
+  def write_file_group_to_xml_file_2(xml_file, grid, output_freq, region, list_with_xml_lines_of_group):
+      # Add a group only if it has some content:
+      if len(list_with_xml_lines_of_group) != 0:
+      #if region == 's30': region = '30S-90S'
+       if region == 's30': region = '30Sto90S'
+       group_id  = grid.strip() + '_' + output_freq.strip() + '_' + region.strip()
+       xios_freq = map_freq(output_freq.strip())
+      #xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}">\n'.format(group_id, group_id, xios_freq))
+       xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}" grid_ref="grid_{}" region="{}">\n'.format(group_id, group_id, xios_freq, grid, region.replace('to', '-')))
+       for xml_line in list_with_xml_lines_of_group:
+        xml_file.write('{}\n'.format(xml_line))
+       xml_file.write('    </file>\n')
+      return
+
+  # The name of this function is not so adequate:
   def write_file_group_to_xml_file(xml_file, group_id, group_grid_ref_value, output_freq, list_with_xml_lines_of_group):
       # Add a group only if it has some content:
       if len(list_with_xml_lines_of_group) != 0:
@@ -1345,7 +1360,8 @@ def main():
       # Write the non empty lists:
      #print(' {:10} {:8} {:8} {}'.format(ii, jj, kk,     nemo_dict[ii][jj][kk] ))
       print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
-      write_file_group_to_xml_file(ecearth_file_def_file, 'group_' + ii + '_' + jj, 'grid_' + ii, jj, nemo_dict[ii][jj][kk])
+     #write_file_group_to_xml_file(ecearth_file_def_file, 'group_' + ii + '_' + jj, 'grid_' + ii, jj, nemo_dict[ii][jj][kk])
+      write_file_group_to_xml_file_2(ecearth_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_file_def_file)
 
 
