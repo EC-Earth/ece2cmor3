@@ -362,6 +362,80 @@ def main():
         grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
+  def ddistinguish_in_frequency(nemo_dict, grid_ref, output_freq, xml_line):
+       if   output_freq == 'fx':
+                                  nemo_dict[grid_ref].freq_fx .glb.append(xml_line)
+       elif output_freq == '1hr':
+                                  nemo_dict[grid_ref].freq_1hr.glb.append(xml_line)
+       elif output_freq == '3hr':
+                                  nemo_dict[grid_ref].freq_3hr.glb.append(xml_line)
+       elif output_freq == '6hr':
+                                  nemo_dict[grid_ref].freq_6hr.glb.append(xml_line)
+       elif output_freq == 'day':
+                                  nemo_dict[grid_ref].freq_day.glb.append(xml_line)
+       elif output_freq == 'mon':
+                                  nemo_dict[grid_ref].freq_mon.glb.append(xml_line)
+                                 #print(' TEST A: {} {}'.format(grid_ref, xml_line))
+       elif output_freq == 'yr':
+                                  nemo_dict[grid_ref].freq_yr .glb.append(xml_line)
+       else:
+        grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
+        print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
+
+
+
+
+  # Remark: Should we distinguish on region as well here? The question is whether we will define
+  # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
+  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
+  def add_xml_line_to_selected_nemo_group_2(cmip7_element, field_id, nemo_dict):
+      output_freq = cmip7_element.get('frequency')
+      # Generate the XML file line for one variable, also make the inherited field_def info of
+      # this variable available at this level in this function:
+      element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
+      # Note that this method does not create a new XML tree, but with the group knowledge the
+      # XML file is directly written
+      if   element_fd == None:
+      #if   cmip7_element.get('dimensions') == 'longitude latitude time':
+      #                                              ddistinguish_in_frequency(nemo_dict, 'T_2D'     , output_freq, xml_line)
+      #elif cmip7_element.get('dimensions') == 'time':
+      #                                              ddistinguish_in_frequency(nemo_dict, 'time'     , output_freq, xml_line)
+      #else:
+      # print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+      #          output_freq                                           , \
+      #          'dimensions="' + cmip7_element.get('dimensions') + '"', \
+      #          cmip7_element.get('priority')                         , \
+      #          cmip7_element.get('status')                         , \
+      #          cmip7_element.get('cmip7_compound_name')))
+       pass
+      elif element_fd.get('grid_ref') == 'grid_T_2D':
+                                                     ddistinguish_in_frequency(nemo_dict, 'T_2D'     , output_freq, xml_line)
+      elif element_fd.get('grid_ref') == 'grid_U_2D':
+                                                     ddistinguish_in_frequency(nemo_dict, 'U_2D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_V_2D':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'V_2D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_T_3D':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'T_3D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_U_3D':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'U_3D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_V_3D':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'V_3D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_W_3D':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'W_3D'     , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_T_vsum':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'T_vsum'   , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_basin':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'basin'    , output_freq, xml_line)
+     #elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
+     #                                               ddistinguish_in_frequency(nemo_dict, 'T_iax_20C', output_freq, xml_line)
+     #else:
+     #                                               ddistinguish_in_frequency(nemo_dict, 'other'    , output_freq, xml_line)
+      return
+
+
+
+
+
   # Remark: Should we distinguish on region as well here? The question is whether we will define
   # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
@@ -589,29 +663,81 @@ def main():
     freq_mon = region()
     freq_yr  = region()
 
-  class nemo_group:
+  class nemo:
     # NEMO grid_ref or dimensional shape cases
-    T_2D    = frequency()
-    U_2D    = frequency()
-    V_2D    = frequency()
-    T_3D    = frequency()
-    U_3D    = frequency()
-    V_3D    = frequency()
-    W_3D    = frequency()
-    T_vsum  = frequency()
-    time    = frequency()
-    basin   = frequency()
-    other   = frequency()
+    T_2D           = frequency()
+    U_2D           = frequency()
+    V_2D           = frequency()
+    T_3D           = frequency()
+    U_3D           = frequency()
+    V_3D           = frequency()
+    W_3D           = frequency()
+    T_vsum         = frequency()
+    time           = frequency()
+    basin          = frequency()
+    other          = frequency()
 
-  class oifs_group:
+  class oifs:
     # OIFS grid_ref or dimensional shape cases
     reduced_sfc    = frequency()
     reduced_plev19 = frequency()
     reduced_plev39 = frequency()
     reduced_ml     = frequency()
 
- #nemo_group.T_2D.freq_mon.glb.append(7)
- #print('\n{}'.format(nemo_group.T_2D.freq_mon.glb))
+  nemo_dict = {
+    # NEMO grid_ref or dimensional shape cases
+    'T_2D'         : frequency(),
+    'U_2D'         : frequency(),
+    'V_2D'         : frequency(),
+    'T_3D'         : frequency(),
+    'U_3D'         : frequency(),
+    'V_3D'         : frequency(),
+    'W_3D'         : frequency(),
+    'T_vsum'       : frequency(),
+    'T_iax_20C'    : frequency(),
+    'time'         : frequency(),
+    'basin'        : frequency(),
+    'other'        : frequency(),
+   }
+
+
+
+  freq_dict = {
+    'fx'  : [],
+    '1hr' : [],
+    '3hr' : [],
+    '6hr' : [],
+    'day' : [],
+    'mon' : [],
+    'yr'  : [],
+  }
+
+  nemo_dict_2 = {
+    # NEMO grid_ref or dimensional shape cases
+    'T_2D'         : freq_dict,
+    'U_2D'         : freq_dict,
+    'V_2D'         : freq_dict,
+    'T_3D'         : freq_dict,
+    'U_3D'         : freq_dict,
+    'V_3D'         : freq_dict,
+    'W_3D'         : freq_dict,
+    'T_vsum'       : freq_dict,
+    'T_iax_20C'    : freq_dict,
+    'time'         : freq_dict,
+    'basin'        : freq_dict,
+    'other'        : freq_dict,
+   }
+
+  choice_1 = 'T_2D'
+  choice_2 = 'U_2D'
+
+  nemo_dict_2[choice_1]['mon'].append(88)
+  nemo_dict_2[choice_2]['mon'].append(77)
+
+  print(nemo_dict_2[choice_1]['mon'])
+
+ #nemo.T_2D.freq_mon.glb.append(7)
+ #print('\n{}'.format(nemo.T_2D.freq_mon.glb))
 
   # Create a dictionary for the NEMO file groups (each group covers a grid_ref, output_freq combination
   # [later maybe extended with region]):
@@ -718,6 +844,7 @@ def main():
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
      add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_groups)
+     add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
     #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_groups)
@@ -749,6 +876,7 @@ def main():
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename     , 'id_file_group_ocean')
+  write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D'].freq_mon.glb)
   # Yet empty.
   write_xml_file_closing(ecearth_file_def_file)
 
