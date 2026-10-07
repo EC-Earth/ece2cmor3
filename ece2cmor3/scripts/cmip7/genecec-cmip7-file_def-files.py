@@ -347,17 +347,17 @@ def main():
                  )
       return element_fd, xml_line
 
-  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_tavg_3hr, group_tavg_day, group_tavg_mon, group_tavg_yr):
+  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_3hr, group_day, group_mon, group_yr):
        if   output_freq == 'fx':
-                                  group_fx      .append(xml_line)
+                                  group_fx .append(xml_line)
        elif output_freq == '3hr':
-                                  group_tavg_3hr.append(xml_line)
+                                  group_3hr.append(xml_line)
        elif output_freq == 'day':
-                                  group_tavg_day.append(xml_line)
+                                  group_day.append(xml_line)
        elif output_freq == 'mon':
-                                  group_tavg_mon.append(xml_line)
+                                  group_mon.append(xml_line)
        elif output_freq == 'yr':
-                                  group_tavg_yr .append(xml_line)
+                                  group_yr .append(xml_line)
        else:
         grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
@@ -573,6 +573,45 @@ def main():
        lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
       return
 
+
+  class region:
+    glb = []    # Global
+    nh  = []    # Northern hemisphere
+    sh  = []    # Southern hemisphere
+    s30 = []    # 30S-90S
+
+  class frequency:
+    freq_fx  = region()
+    freq_1hr = region()
+    freq_3hr = region()
+    freq_6hr = region()
+    freq_day = region()
+    freq_mon = region()
+    freq_yr  = region()
+
+  class nemo_group:
+    # NEMO grid_ref or dimensional shape cases
+    T_2D    = frequency()
+    U_2D    = frequency()
+    V_2D    = frequency()
+    T_3D    = frequency()
+    U_3D    = frequency()
+    V_3D    = frequency()
+    W_3D    = frequency()
+    T_vsum  = frequency()
+    time    = frequency()
+    basin   = frequency()
+    other   = frequency()
+
+  class oifs_group:
+    # OIFS grid_ref or dimensional shape cases
+    reduced_sfc    = frequency()
+    reduced_plev19 = frequency()
+    reduced_plev39 = frequency()
+    reduced_ml     = frequency()
+
+ #nemo_group.T_2D.freq_mon.glb.append(7)
+ #print('\n{}'.format(nemo_group.T_2D.freq_mon.glb))
 
   # Create a dictionary for the NEMO file groups (each group covers a grid_ref, output_freq combination
   # [later maybe extended with region]):
