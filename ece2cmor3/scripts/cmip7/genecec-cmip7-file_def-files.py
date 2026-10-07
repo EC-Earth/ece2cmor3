@@ -235,12 +235,24 @@ def main():
       xml_file.close()
       return
 
+  def map_freq(frequency):
+      # Those frequency strings which differ in XIOS from CMIP7 are mapped:
+      if   frequency == 'fx':
+           frequency =  'once'
+      elif frequency == 'day':
+           frequency =  '1d'
+      elif frequency == 'mon':
+           frequency =  '1mon'
+      elif frequency == 'yr':
+           frequency =  '1yr'
+      return
+
   # The name of this function is not so adequate:
   def write_file_group_to_xml_file(xml_file, group_id, group_grid_ref_value, output_freq, list_with_xml_lines_of_group):
       # Add a group only if it has some content:
       if len(list_with_xml_lines_of_group) != 0:
        suffix = '_' + group_id.strip()
-       xml_file.write('    <file id="{}" name_suffix="{}" grid_ref="{}" output_freq="{}">\n'.format(group_id.strip(), suffix, group_grid_ref_value.strip(), output_freq.strip()))
+       xml_file.write('    <file id="{}" name_suffix="{}" grid_ref="{}" output_freq="{}">\n'.format(group_id.strip(), suffix, group_grid_ref_value.strip(), map_freq(output_freq.strip())))
        for xml_line in list_with_xml_lines_of_group:
         xml_file.write('{}\n'.format(xml_line))
        xml_file.write('    </file>\n')
