@@ -1351,16 +1351,13 @@ def main():
 
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
-  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename     , 'id_file_group_ocean')
-
+  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename, 'id_file_group_ocean')
   for ii in nemo_dict:
    for jj in nemo_dict[ii]:
     for kk in nemo_dict[ii][jj]:
      if nemo_dict[ii][jj][kk] != []:
       # Write the non empty lists:
-     #print(' {:10} {:8} {:8} {}'.format(ii, jj, kk,     nemo_dict[ii][jj][kk] ))
       print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
-     #write_file_group_to_xml_file(ecearth_file_def_file, 'group_' + ii + '_' + jj, 'grid_' + ii, jj, nemo_dict[ii][jj][kk])
       write_file_group_to_xml_file_2(ecearth_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_file_def_file)
 
