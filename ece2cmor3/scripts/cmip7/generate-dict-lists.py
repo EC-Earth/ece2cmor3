@@ -60,24 +60,27 @@ nemo_dict = {
  #  region
 '''
 
-dict_list_file = open(file_name_nemo_list_module, 'w')
-dict_list_file.write('{}\n'.format(head_nemo_file.strip()))
-for ii in grid:
- dict_list_file.write(' {:12}: {{\n'.format("'" + ii + "'"))
- for jj in frequency:
-  dict_list_file.write('                 {:6}: {{\n'.format("'" + jj + "'"))
-  for kk in region:
-   if kk == region[-1]:
-    dict_list_file.write('                           {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
-   else:
-    dict_list_file.write('                           {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))
-  if jj == frequency[-1]:
-   dict_list_file.write('                         }\n')                                                           # Closing
-  else:
-   dict_list_file.write('                         },\n')
- if ii == grid[-1]:
-  dict_list_file.write('               }\n')                                                                      # Closing
- else:
-  dict_list_file.write('               },\n')
-dict_list_file.write('}\n')
-dict_list_file.close()
+def write_list_module(file_name, head_file):
+    dict_list_file = open(file_name, 'w')
+    dict_list_file.write('{}\n'.format(head_file.strip()))
+    for ii in grid:
+     dict_list_file.write(' {:12}: {{\n'.format("'" + ii + "'"))
+     for jj in frequency:
+      dict_list_file.write('                 {:6}: {{\n'.format("'" + jj + "'"))
+      for kk in region:
+       if kk == region[-1]:
+        dict_list_file.write('                           {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+       else:
+        dict_list_file.write('                           {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))
+      if jj == frequency[-1]:
+       dict_list_file.write('                         }\n')                                                           # Closing
+      else:
+       dict_list_file.write('                         },\n')
+     if ii == grid[-1]:
+      dict_list_file.write('               }\n')                                                                      # Closing
+     else:
+      dict_list_file.write('               },\n')
+    dict_list_file.write('}\n')
+    dict_list_file.close()
+
+write_list_module('list_dict_nemo.py', head_nemo_file)
