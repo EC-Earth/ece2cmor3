@@ -398,39 +398,42 @@ def main():
       # XML file is directly written
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
-                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, region, xml_line)
+        grid = 'T_2D'
        elif cmip7_element.get('dimensions') == 'time':
-                                                     distinguish_list(list_cluster, 'time'     , output_freq, region, xml_line)
+        grid = 'time'
        else:
+        grid = 'other' # To bypass the 'dec' case which is not implemented
         print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
-                 cmip7_element.get('status')                         , \
+                 cmip7_element.get('status')                           , \
                  cmip7_element.get('cmip7_compound_name')))
       elif element_fd.get('grid_ref') == 'grid_T_2D':
-                                                    #list_cluster[grid_ref][output_freq][region].append(xml_line)
-                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, region, xml_line)
+       grid = 'T_2D'
       elif element_fd.get('grid_ref') == 'grid_U_2D':
-                                                     distinguish_list(list_cluster, 'U_2D'     , output_freq, region, xml_line)
+       grid = 'U_2D'
       elif element_fd.get('grid_ref') == 'grid_V_2D':
-                                                     distinguish_list(list_cluster, 'V_2D'     , output_freq, region, xml_line)
+       grid = 'V_2D'
       elif element_fd.get('grid_ref') == 'grid_T_3D':
-                                                     distinguish_list(list_cluster, 'T_3D'     , output_freq, region, xml_line)
+       grid = 'T_3D'
       elif element_fd.get('grid_ref') == 'grid_U_3D':
-                                                     distinguish_list(list_cluster, 'U_3D'     , output_freq, region, xml_line)
+       grid = 'U_3D'
       elif element_fd.get('grid_ref') == 'grid_V_3D':
-                                                     distinguish_list(list_cluster, 'V_3D'     , output_freq, region, xml_line)
+       grid = 'V_3D'
       elif element_fd.get('grid_ref') == 'grid_W_3D':
-                                                     distinguish_list(list_cluster, 'W_3D'     , output_freq, region, xml_line)
+       grid = 'W_3D'
       elif element_fd.get('grid_ref') == 'grid_T_vsum':
-                                                     distinguish_list(list_cluster, 'T_vsum'   , output_freq, region, xml_line)
+       grid = 'T_vsum'
       elif element_fd.get('grid_ref') == 'grid_basin':
-                                                     distinguish_list(list_cluster, 'basin'    , output_freq, region, xml_line)
+       grid = 'basin'
       elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
-                                                     distinguish_list(list_cluster, 'T_iax_20C', output_freq, region, xml_line)
+       grid = 'T_iax_20C'
       else:
-                                                     distinguish_list(list_cluster, 'other'    , output_freq, region, xml_line)
+       grid = 'other'
+      # To bypass the 'dec' case which is not implemented
+      if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
+       list_cluster[grid][output_freq][region].append(xml_line)
       return
 
 
