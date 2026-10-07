@@ -383,9 +383,6 @@ def main():
 
 
 
-
-  # Remark: Should we distinguish on region as well here? The question is whether we will define
-  # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group_2(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
@@ -1331,6 +1328,7 @@ def main():
   write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D']['mon']['glb'])
   write_file_group_to_xml_file(ecearth_file_def_file, 'group_U_2D_mon'       , 'grid_U_2D'     , 'mon', nemo_dict['U_2D']['mon']['glb'])
   write_file_group_to_xml_file(ecearth_file_def_file, 'group_V_2D_mon'       , 'grid_V_2D'     , 'mon', nemo_dict['V_2D']['mon']['glb'])
+  write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D']['mon']['s30'])
   # Yet empty.
   write_xml_file_closing(ecearth_file_def_file)
 
