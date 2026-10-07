@@ -1325,11 +1325,15 @@ def main():
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename     , 'id_file_group_ocean')
-  write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D']['mon']['glb'])
-  write_file_group_to_xml_file(ecearth_file_def_file, 'group_U_2D_mon'       , 'grid_U_2D'     , 'mon', nemo_dict['U_2D']['mon']['glb'])
-  write_file_group_to_xml_file(ecearth_file_def_file, 'group_V_2D_mon'       , 'grid_V_2D'     , 'mon', nemo_dict['V_2D']['mon']['glb'])
-  write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D']['mon']['s30'])
-  # Yet empty.
+
+  for ii in nemo_dict:
+   for jj in nemo_dict[ii]:
+    for kk in nemo_dict[ii][jj]:
+     if nemo_dict[ii][jj][kk] != []:
+      # Write the non empty lists:
+     #print(' {:10} {:8} {:8} {}'.format(ii, jj, kk,     nemo_dict[ii][jj][kk] ))
+      print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
+      write_file_group_to_xml_file(ecearth_file_def_file, 'group_' + ii + '_' + jj, 'grid_' + ii, jj, nemo_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_file_def_file)
 
 
@@ -1441,10 +1445,10 @@ def main():
 
   # Print the message list for those variable-cases where the operation from inheriting differs
   # from the one deduced from the CMIP7 branding:
-  print_message_list(message_list_of_operation_comparsion)
+ #print_message_list(message_list_of_operation_comparsion)
 
   # Print each .ins-file line with the CMIP7 compound name attached:
-  print_message_list(message_list_lpjg_ins_vars)
+ #print_message_list(message_list_lpjg_ins_vars)
 
   print_next_step_message(10, 'FINISHING')
   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
