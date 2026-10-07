@@ -242,10 +242,10 @@ def main():
       elif frequency == 'day':
            frequency =  '1d'
       elif frequency == 'mon':
-           frequency =  '1mon'
+           frequency =  '1mo'
       elif frequency == 'yr':
            frequency =  '1yr'
-      return
+      return frequency
 
   # The name of this function is not so adequate:
   def write_file_group_to_xml_file(xml_file, group_id, group_grid_ref_value, output_freq, list_with_xml_lines_of_group):
