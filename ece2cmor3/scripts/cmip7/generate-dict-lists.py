@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+from list_dict_nemo import nemo_dict
+
+grid      = [             \
+             'T_2D'     , \
+             'U_2D'     , \
+             'V_2D'     , \
+             'T_3D'     , \
+             'U_3D'     , \
+             'V_3D'     , \
+             'W_3D'     , \
+             'T_vsum'   , \
+             'T_iax_20C', \
+             'time'     , \
+             'basin'    , \
+             'other'      \
+            ]
+
+frequency = [       \
+             'fx' , \
+             '1hr', \
+             '3hr', \
+             '6hr', \
+             'day', \
+             'mon', \
+             'yr'   \
+            ]
+
+region    = [       \
+             'glb', \
+             'nh' , \
+             'sh' , \
+             's30'  \
+            ]
+
+def map_comment(region):
+    if   region == 'glb':
+     comment = 'Global'
+    elif region == 'nh':
+     comment = 'Northern hemisphere'
+    elif region == 'sh':
+     comment = 'Southern hemisphere'
+    elif region == 's30':
+     comment = '30S-90S'
+    else:
+     comment = ''
+    return comment
+
+head_nemo_file = \
+'''
+#!/usr/bin/env python3
+
+nemo_dict = {
+ # The netsed dictionary list cluster for NEMO with string indices for:
+ #  grid_ref (or dimensional shape cases)
+ #  frequency
+ #  region
+'''
+
+dict_list_file = open('list_dict_nemo.py', 'w')
+dict_list_file.write('{}\n'.format(head_nemo_file.strip()))
+for ii in grid:
+ dict_list_file.write(' {:12}: {{\n'.format("'" + ii + "'"))
+ for jj in frequency:
+  dict_list_file.write('                 {:6}: {{\n'.format("'" + jj + "'"))
+  for kk in region:
+   if kk == region[-1]:
+    dict_list_file.write('                           {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+   else:
+    dict_list_file.write('                           {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))
+  if jj == frequency[-1]:
+   dict_list_file.write('                         }\n')                                                           # Closing
+  else:
+   dict_list_file.write('                         },\n')
+ if ii == grid[-1]:
+  dict_list_file.write('               }\n')                                                                      # Closing
+ else:
+  dict_list_file.write('               },\n')
+dict_list_file.write('}\n')
+dict_list_file.close()
