@@ -465,90 +465,6 @@ def main():
 
 
 
-
-  # Remark: Should we distinguish on region as well here? The question is whether we will define
-  # other domains (other grid_ref cases) for non global regions like: nh, sh, 30S-90S
-  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
-  def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, nemo_groups):
-      output_freq = cmip7_element.get('frequency')
-      # Generate the XML file line for one variable, also make the inherited field_def info of
-      # this variable available at this level in this function:
-      element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
-      # Note that this method does not create a new XML tree, but with the group knowledge the
-      # XML file is directly written
-      if   element_fd == None:
-       if   cmip7_element.get('dimensions') == 'longitude latitude time':
-        distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
-                                                        nemo_groups['group_T_2D_tavg_3hr'], \
-                                                        nemo_groups['group_T_2D_tavg_day'], \
-                                                        nemo_groups['group_T_2D_tavg_mon'], \
-                                                        nemo_groups['group_T_2D_tavg_yr' ]  )
-       elif cmip7_element.get('dimensions') == 'time':
-                                                        nemo_groups['group_time'         ].append(xml_line)
-       else:
-        print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
-                 output_freq                                           , \
-                 'dimensions="' + cmip7_element.get('dimensions') + '"', \
-                 cmip7_element.get('priority')                         , \
-                 cmip7_element.get('status')                         , \
-                 cmip7_element.get('cmip7_compound_name')))
-      elif element_fd.get('grid_ref') == 'grid_T_2D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_2D_fx'      ], \
-                                                       nemo_groups['group_T_2D_tavg_3hr'], \
-                                                       nemo_groups['group_T_2D_tavg_day'], \
-                                                       nemo_groups['group_T_2D_tavg_mon'], \
-                                                       nemo_groups['group_T_2D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_U_2D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_2D_fx'      ], \
-                                                       nemo_groups['group_U_2D_tavg_3hr'], \
-                                                       nemo_groups['group_U_2D_tavg_day'], \
-                                                       nemo_groups['group_U_2D_tavg_mon'], \
-                                                       nemo_groups['group_U_2D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_V_2D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_2D_fx'      ], \
-                                                       nemo_groups['group_V_2D_tavg_3hr'], \
-                                                       nemo_groups['group_V_2D_tavg_day'], \
-                                                       nemo_groups['group_V_2D_tavg_mon'], \
-                                                       nemo_groups['group_V_2D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_T_3D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_3D_fx'      ], \
-                                                       nemo_groups['group_T_3D_tavg_3hr'], \
-                                                       nemo_groups['group_T_3D_tavg_day'], \
-                                                       nemo_groups['group_T_3D_tavg_mon'], \
-                                                       nemo_groups['group_T_3D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_U_3D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_U_3D_fx'      ], \
-                                                       nemo_groups['group_U_3D_tavg_3hr'], \
-                                                       nemo_groups['group_U_3D_tavg_day'], \
-                                                       nemo_groups['group_U_3D_tavg_mon'], \
-                                                       nemo_groups['group_U_3D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_V_3D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_V_3D_fx'      ], \
-                                                       nemo_groups['group_V_3D_tavg_3hr'], \
-                                                       nemo_groups['group_V_3D_tavg_day'], \
-                                                       nemo_groups['group_V_3D_tavg_mon'], \
-                                                       nemo_groups['group_V_3D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_W_3D':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_W_3D_fx'      ], \
-                                                       nemo_groups['group_W_3D_tavg_3hr'], \
-                                                       nemo_groups['group_W_3D_tavg_day'], \
-                                                       nemo_groups['group_W_3D_tavg_mon'], \
-                                                       nemo_groups['group_W_3D_tavg_yr' ]  )
-      elif element_fd.get('grid_ref') == 'grid_basin':
-                                                       nemo_groups['group_basin'        ].append(xml_line)
-      elif element_fd.get('grid_ref') == 'grid_T_vsum':
-       distinguish_in_frequency(output_freq, xml_line, nemo_groups['group_T_vsum_fx'    ], \
-                                                       nemo_groups['group_T_vsum_3hr'   ], \
-                                                       nemo_groups['group_T_vsum_day'   ], \
-                                                       nemo_groups['group_T_vsum_mon'   ], \
-                                                       nemo_groups['group_T_vsum_yr'    ]  )
-      elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
-                                                       nemo_groups['group_T_iax_20C'    ].append(xml_line)
-      else:
-                                                       nemo_groups['group_other'        ].append(xml_line)
-      return
-
-
 # sed -e 's/^.*grid_ref/grid_ref/' -e 's/name=.*$//' -e 's/standard_.*$//' -e 's/operation.*$//' ec-earth-definition-inherited-neat-formatted.xml|sort|uniq|grep grid_ref
 #   Encountered grid_ref for OIFS in ECE4 inherited field_def:
 #   grid_ref="reduced_sfc"
@@ -781,7 +697,6 @@ def main():
 
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_groups)
      add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
