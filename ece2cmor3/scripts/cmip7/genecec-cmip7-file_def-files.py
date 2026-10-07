@@ -555,38 +555,6 @@ def main():
 
 
 
-
-
-
-# def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, oifs_groups):
-#     element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
-#     # Note that this method does not create a new XML tree, but with the group knowledge the
-#     # XML file is directly written
-#     if   cmip7_element.get('dimensions') == 'longitude latitude time'           :
-#      if   cmip7_element.get('frequency') == 'day':
-#                                                    oifs_groups['group_lon_lat_time_tavg_day'].append(xml_line)
-#      elif cmip7_element.get('frequency') == 'mon':
-#                                                    oifs_groups['group_lon_lat_time_tavg_mon'].append(xml_line)
-#      elif cmip7_element.get('frequency') == 'yr':
-#                                                    oifs_groups['group_lon_lat_time_tavg_yr' ].append(xml_line)
-#      else:
-#       print(' Warning: frequency not covered for group_lon_lat_time_tavg for {}'.format(field_id))
-#     elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time'    :
-#                                                                                  oifs_groups['group_lon_lat_plev19_time'   ].append(xml_line)
-#     elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'    :
-#                                                                                  oifs_groups['group_lon_lat_alevel_time'   ].append(xml_line)
-#     elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1'    :
-#                                                                                  oifs_groups['group_lon_lat_plev3_time1'   ].append(xml_line)
-#     elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'  :
-#                                                                                  oifs_groups['group_lon_lat_time_height2m' ].append(xml_line)
-#     elif cmip7_element.get('dimensions') == 'longitude latitude time height10m' :
-#                                                                                  oifs_groups['group_lon_lat_time_height10m'].append(xml_line)
-#     elif cmip7_element.get('dimensions') == 'longitude latitude'                :
-#                                                                                  oifs_groups['group_lon_lat'               ].append(xml_line)
-#     else                                                                        :
-#                                                                                  oifs_groups['group_other'                 ].append(xml_line)
-#     return
-
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
       lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
       for lpjg_ins_line in list_of_lpjg_ins_lines:
@@ -651,7 +619,6 @@ def main():
      add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
-    #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_groups)
      add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_groups)
     elif element_identified.get('model_component') == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
