@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 nemo_dict = {
- # The netsed dictionary list cluster for NEMO with string indices for:
+ # The nested dictionary of lists for NEMO with string indices for:
  #  grid_ref (or dimensional shape cases)
  #  frequency
  #  region

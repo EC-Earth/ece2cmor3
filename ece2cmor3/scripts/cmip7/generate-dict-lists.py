@@ -47,18 +47,20 @@ def map_comment(region):
      comment = ''
     return comment
 
+file_name_nemo_list_module = 'list_dict_nemo.py'
+
 head_nemo_file = \
 '''
 #!/usr/bin/env python3
 
 nemo_dict = {
- # The netsed dictionary list cluster for NEMO with string indices for:
+ # The nested dictionary of lists for NEMO with string indices for:
  #  grid_ref (or dimensional shape cases)
  #  frequency
  #  region
 '''
 
-dict_list_file = open('list_dict_nemo.py', 'w')
+dict_list_file = open(file_name_nemo_list_module, 'w')
 dict_list_file.write('{}\n'.format(head_nemo_file.strip()))
 for ii in grid:
  dict_list_file.write(' {:12}: {{\n'.format("'" + ii + "'"))
