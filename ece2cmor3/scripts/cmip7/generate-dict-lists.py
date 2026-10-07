@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from list_dict_nemo import nemo_dict
-
 grid      = [             \
              'T_2D'     , \
              'U_2D'     , \
@@ -47,18 +45,6 @@ def map_comment(region):
      comment = ''
     return comment
 
-file_name_nemo_list_module = 'list_dict_nemo.py'
-
-head_nemo_file = \
-'''
-#!/usr/bin/env python3
-
-nemo_dict = {
- # The nested dictionary of lists for NEMO with string indices for:
- #  grid_ref (or dimensional shape cases)
- #  frequency
- #  region
-'''
 
 def write_list_module(file_name, head_file):
     dict_list_file = open(file_name, 'w')
@@ -83,4 +69,18 @@ def write_list_module(file_name, head_file):
     dict_list_file.write('}\n')
     dict_list_file.close()
 
+head_nemo_file = \
+'''
+#!/usr/bin/env python3
+
+nemo_dict = {
+ # The nested dictionary of lists for NEMO with string indices for:
+ #  grid_ref (or dimensional shape cases)
+ #  frequency
+ #  region
+'''
+
+head_oifs_file = head_nemo_file.replace('NEMO', 'OIFS').replace('nemo', 'oifs')
+
 write_list_module('list_dict_nemo.py', head_nemo_file)
+write_list_module('list_dict_oifs.py', head_oifs_file)
