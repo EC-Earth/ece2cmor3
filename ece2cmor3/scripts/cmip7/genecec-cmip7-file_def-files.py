@@ -465,12 +465,12 @@ def main():
 
 
 
-# sed -e 's/^.*grid_ref/grid_ref/' -e 's/name=.*$//' -e 's/standard_.*$//' -e 's/operation.*$//' ec-earth-definition-inherited-neat-formatted.xml|sort|uniq|grep grid_ref
+# grep -e '<field ' ec-earth-definition-inherited-neat-formatted.xml | sed -e 's/^.*grid_ref/grid_ref/' -e 's/operation.*$//' -e 's/name=.*$//' -e 's/ //g' | sort | uniq
 #   Encountered grid_ref for OIFS in ECE4 inherited field_def:
-#   grid_ref="reduced_sfc"
 #   grid_ref="reduced_ml"
 #   grid_ref="reduced_plev39"
 #   grid_ref="reduced_pv"
+#   grid_ref="reduced_sfc"
 #   grid_ref="reduced_th"
 
   # Note that the OIFS field_def files contain a group with grid_ref="reduced_plev39 while the CMIP7 request asks
