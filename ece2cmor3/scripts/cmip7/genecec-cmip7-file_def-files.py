@@ -389,6 +389,8 @@ def main():
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group_2(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
+      region      = cmip7_element.get('region')
+      if region == '30S-90S': region = 's30'
       # Generate the XML file line for one variable, also make the inherited field_def info of
       # this variable available at this level in this function:
       element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
@@ -396,9 +398,9 @@ def main():
       # XML file is directly written
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
-                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, region, xml_line)
        elif cmip7_element.get('dimensions') == 'time':
-                                                     distinguish_list(list_cluster, 'time'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'time'     , output_freq, region, xml_line)
        else:
         print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
@@ -407,27 +409,28 @@ def main():
                  cmip7_element.get('status')                         , \
                  cmip7_element.get('cmip7_compound_name')))
       elif element_fd.get('grid_ref') == 'grid_T_2D':
-                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, 'glb', xml_line)
+                                                    #list_cluster[grid_ref][output_freq][region].append(xml_line)
+                                                     distinguish_list(list_cluster, 'T_2D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_U_2D':
-                                                     distinguish_list(list_cluster, 'U_2D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'U_2D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_V_2D':
-                                                     distinguish_list(list_cluster, 'V_2D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'V_2D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_T_3D':
-                                                     distinguish_list(list_cluster, 'T_3D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'T_3D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_U_3D':
-                                                     distinguish_list(list_cluster, 'U_3D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'U_3D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_V_3D':
-                                                     distinguish_list(list_cluster, 'V_3D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'V_3D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_W_3D':
-                                                     distinguish_list(list_cluster, 'W_3D'     , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'W_3D'     , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_T_vsum':
-                                                     distinguish_list(list_cluster, 'T_vsum'   , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'T_vsum'   , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_basin':
-                                                     distinguish_list(list_cluster, 'basin'    , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'basin'    , output_freq, region, xml_line)
       elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
-                                                     distinguish_list(list_cluster, 'T_iax_20C', output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'T_iax_20C', output_freq, region, xml_line)
       else:
-                                                     distinguish_list(list_cluster, 'other'    , output_freq, 'glb', xml_line)
+                                                     distinguish_list(list_cluster, 'other'    , output_freq, region, xml_line)
       return
 
 
@@ -727,6 +730,546 @@ def main():
     'group_other'                     : []
   }
 
+
+
+  nemo_dict = {
+    # The netsed dictionary list cluster for NEMO with string indices for:
+    #  grid_ref (or dimensional shape cases)
+    #  frequency
+    #  region
+    'T_2D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'U_2D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'V_2D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'T_3D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'U_3D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'V_3D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'W_3D'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'T_vsum'    : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'T_iax_20C' : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'time'      : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'basin'     : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  },
+    'other'     : {
+                    'fx'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '1hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '3hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    '6hr' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'day' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'mon' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            },
+                    'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : []  # 30S-90S
+                            }
+                  }
+   }
+
+
+
+
   list_of_lpjg_ins_lines               = []
 
   message_list_of_operation_comparsion = []
@@ -750,7 +1293,7 @@ def main():
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
      add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_groups)
-    #add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
+     add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
     #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_groups)
@@ -782,7 +1325,9 @@ def main():
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename     , 'id_file_group_ocean')
- #write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D'].freq_mon.glb)
+  write_file_group_to_xml_file(ecearth_file_def_file, 'group_T_2D_mon'       , 'grid_T_2D'     , 'mon', nemo_dict['T_2D']['mon']['glb'])
+  write_file_group_to_xml_file(ecearth_file_def_file, 'group_U_2D_mon'       , 'grid_U_2D'     , 'mon', nemo_dict['U_2D']['mon']['glb'])
+  write_file_group_to_xml_file(ecearth_file_def_file, 'group_V_2D_mon'       , 'grid_V_2D'     , 'mon', nemo_dict['V_2D']['mon']['glb'])
   # Yet empty.
   write_xml_file_closing(ecearth_file_def_file)
 
