@@ -593,55 +593,6 @@ def main():
        lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
       return
 
-  # Create a dictionary for the NEMO file groups (each group covers a grid_ref, output_freq combination
-  # [later maybe extended with region]):
-  nemo_groups = {
-    'group_T_2D_fx'      : [],
-    'group_T_2D_tavg_3hr': [],
-    'group_T_2D_tavg_day': [],
-    'group_T_2D_tavg_mon': [],
-    'group_T_2D_tavg_yr' : [],
-    'group_U_2D_fx'      : [],
-    'group_U_2D_tavg_3hr': [],
-    'group_U_2D_tavg_day': [],
-    'group_U_2D_tavg_mon': [],
-    'group_U_2D_tavg_yr' : [],
-    'group_V_2D_fx'      : [],
-    'group_V_2D_tavg_3hr': [],
-    'group_V_2D_tavg_day': [],
-    'group_V_2D_tavg_mon': [],
-    'group_V_2D_tavg_yr' : [],
-    'group_T_3D_fx'      : [],
-    'group_T_3D_tavg_3hr': [],
-    'group_T_3D_tavg_day': [],
-    'group_T_3D_tavg_mon': [],
-    'group_T_3D_tavg_yr' : [],
-    'group_U_3D_fx'      : [],
-    'group_U_3D_tavg_3hr': [],
-    'group_U_3D_tavg_day': [],
-    'group_U_3D_tavg_mon': [],
-    'group_U_3D_tavg_yr' : [],
-    'group_V_3D_fx'      : [],
-    'group_V_3D_tavg_3hr': [],
-    'group_V_3D_tavg_day': [],
-    'group_V_3D_tavg_mon': [],
-    'group_V_3D_tavg_yr' : [],
-    'group_W_3D_fx'      : [],
-    'group_W_3D_tavg_3hr': [],
-    'group_W_3D_tavg_day': [],
-    'group_W_3D_tavg_mon': [],
-    'group_W_3D_tavg_yr' : [],
-    'group_time'         : [],
-    'group_basin'        : [],
-    'group_T_vsum_fx'    : [],
-    'group_T_vsum_3hr'   : [],
-    'group_T_vsum_day'   : [],
-    'group_T_vsum_mon'   : [],
-    'group_T_vsum_yr'    : [],
-    'group_T_iax_20C'    : [],
-    'group_other'        : []
-  }
-
   # Create a dictionary for the OIFS file groups (each group covers a grid_ref, output_freq combination
   # [later maybe extended with region]):
   # The XXX frequency needs to be set and extended in case several frequencies per grid_ref case are encountered
