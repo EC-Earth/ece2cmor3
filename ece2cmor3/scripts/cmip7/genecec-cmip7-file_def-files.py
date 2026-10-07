@@ -1364,62 +1364,13 @@ def main():
 
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename, 'id_file_group_ocean')
-  #                            xml_file                  , group_id              , grid_ref        , freq  , dict['group_list'] = list_with_xml_lines_of_group
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_time'          , 'grid_1point'   , 'mon' , nemo_groups['group_time'         ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_basin'         , 'grid_basin'    , 'once', nemo_groups['group_basin'        ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_fx'       , 'grid_T_2D'     , 'once', nemo_groups['group_T_2D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_3hr' , 'grid_T_2D'     , '3hr' , nemo_groups['group_T_2D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_day' , 'grid_T_2D'     , '1d'  , nemo_groups['group_T_2D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_mon' , 'grid_T_2D'     , '1mo' , nemo_groups['group_T_2D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_2D_tavg_yr'  , 'grid_T_2D'     , '1yr' , nemo_groups['group_T_2D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_fx'       , 'grid_U_2D'     , 'once', nemo_groups['group_U_2D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_3hr' , 'grid_U_2D'     , '3hr' , nemo_groups['group_U_2D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_day' , 'grid_U_2D'     , '1d'  , nemo_groups['group_U_2D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_mon' , 'grid_U_2D'     , '1mo' , nemo_groups['group_U_2D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_2D_tavg_yr'  , 'grid_U_2D'     , '1yr' , nemo_groups['group_U_2D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_fx'       , 'grid_V_2D'     , 'once', nemo_groups['group_V_2D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_3hr' , 'grid_V_2D'     , '3hr' , nemo_groups['group_V_2D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_day' , 'grid_V_2D'     , '1d'  , nemo_groups['group_V_2D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_mon' , 'grid_V_2D'     , '1mo' , nemo_groups['group_V_2D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_2D_tavg_yr'  , 'grid_V_2D'     , '1yr' , nemo_groups['group_V_2D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_fx'       , 'grid_T_3D'     , 'once', nemo_groups['group_T_3D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_3hr' , 'grid_T_3D'     , '3hr' , nemo_groups['group_T_3D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_day' , 'grid_T_3D'     , '1d'  , nemo_groups['group_T_3D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_mon' , 'grid_T_3D'     , '1mo' , nemo_groups['group_T_3D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_3D_tavg_yr'  , 'grid_T_3D'     , '1yr' , nemo_groups['group_T_3D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_fx'       , 'grid_U_3D'     , 'once', nemo_groups['group_U_3D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_3hr' , 'grid_U_3D'     , '3hr' , nemo_groups['group_U_3D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_day' , 'grid_U_3D'     , '1d'  , nemo_groups['group_U_3D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_mon' , 'grid_U_3D'     , '1mo' , nemo_groups['group_U_3D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_U_3D_tavg_yr'  , 'grid_U_3D'     , '1yr' , nemo_groups['group_U_3D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_fx'       , 'grid_V_3D'     , 'once', nemo_groups['group_V_3D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_3hr' , 'grid_V_3D'     , '3hr' , nemo_groups['group_V_3D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_day' , 'grid_V_3D'     , '1d'  , nemo_groups['group_V_3D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_mon' , 'grid_V_3D'     , '1mo' , nemo_groups['group_V_3D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_V_3D_tavg_yr'  , 'grid_V_3D'     , '1yr' , nemo_groups['group_V_3D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_fx'       , 'grid_W_3D'     , 'once', nemo_groups['group_W_3D_fx'      ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_3hr' , 'grid_W_3D'     , '3hr' , nemo_groups['group_W_3D_tavg_3hr'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_day' , 'grid_W_3D'     , '1d'  , nemo_groups['group_W_3D_tavg_day'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_mon' , 'grid_W_3D'     , '1mo' , nemo_groups['group_W_3D_tavg_mon'])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_W_3D_tavg_yr'  , 'grid_W_3D'     , '1yr' , nemo_groups['group_W_3D_tavg_yr' ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_fx'     , 'grid_T_vsum'   , 'once', nemo_groups['group_T_vsum_fx'    ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_3hr'    , 'grid_T_vsum'   , '3hr' , nemo_groups['group_T_vsum_3hr'   ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_day'    , 'grid_T_vsum'   , '1d'  , nemo_groups['group_T_vsum_day'   ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_mon'    , 'grid_T_vsum'   , '1mo' , nemo_groups['group_T_vsum_mon'   ])
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_vsum_yr'     , 'grid_T_vsum'   , '1yr' , nemo_groups['group_T_vsum_yr'    ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'group_T_iax_20C'     , 'grid_T_iax_20C', 'mon' , nemo_groups['group_T_iax_20C'    ])
-
-  write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'nemo_cmip7_other'    , '??'            , '??'  , nemo_groups['group_other'        ])
+  for ii in nemo_dict:
+   for jj in nemo_dict[ii]:
+    for kk in nemo_dict[ii][jj]:
+     if nemo_dict[ii][jj][kk] != []:
+      # Write the non empty lists:
+      print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
+      write_file_group_to_xml_file_2(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
 
