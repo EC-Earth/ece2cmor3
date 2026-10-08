@@ -296,7 +296,7 @@ def main():
   def generate_xml_line_for_variable(cmip7_element, field_id):
       if cmip7_element.get('expression'):
        if cmip7_element.get('expression') != 'None':
-        expression = cmip7_element.get('expression')
+        expression = cmip7_element.get('expression').replace('&','&amp;').replace('<','&lt;')
        else:
         expression = ''
       else:
@@ -577,6 +577,10 @@ def main():
   # Test the XML syntax by reading the just created file_def_nemo file:
   tree_ece_file_def_nemo = ET.parse(ecearth_nemo_file_def_filename)
   root_ece_file_def_nemo = tree_ece_file_def_nemo.getroot()
+
+  # Test the XML syntax by reading the just created file_def_oifs file:
+  tree_ece_file_def_oifs = ET.parse(ecearth_oifs_file_def_filename)
+  root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
 
   print()
 
