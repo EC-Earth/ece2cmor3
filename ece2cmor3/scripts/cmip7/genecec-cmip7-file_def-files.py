@@ -479,13 +479,22 @@ def main():
    for element_identified in root_identified.findall(xpath_expression_identified):
     match += 1
 
-    if element_identified.get('model_component') == 'nemo':
+    model_component = element_identified.get('model_component')
+    if model_component == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_dict, message_lists_warnings_nemo)
-    elif element_identified.get('model_component') == 'ifs':
+     add_xml_line_to_selected_nemo_group(element_identified                     , \
+                                         element_identified.get('varname_code') , \
+                                         nemo_dict                              , \
+                                         message_lists_warnings_nemo              \
+                                        )
+    elif model_component == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
-     add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_dict, message_lists_warnings_oifs)
-    elif element_identified.get('model_component') == 'lpjg':
+     add_xml_line_to_selected_oifs_group(element_identified                     , \
+                                         element_identified.get('ifs_shortname'), \
+                                         oifs_dict                              , \
+                                         message_lists_warnings_oifs
+                                        )
+    elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
      if   element_dr.get('frequency') == 'mon':
@@ -506,6 +515,11 @@ def main():
      # Besides, create a message list for this includive printing the cmip7_compound_name:
      message = ' {:66} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
      message_list_lpjg_ins_vars.append(message)
+    elif model_component == 'tm5':
+     # To be added
+     pass
+    else:
+     print(' Warning: the component {} is not covered.'.format(model_component))
 
   #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
 
