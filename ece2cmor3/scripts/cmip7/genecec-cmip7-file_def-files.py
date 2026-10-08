@@ -349,7 +349,7 @@ def main():
                                ' branding_label={:25}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
-                  ' > {:63}</field>'.format( \
+                  ' > {:81}</field>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + grid_ref                                     + '"', \
