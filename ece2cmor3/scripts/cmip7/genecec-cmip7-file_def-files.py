@@ -206,12 +206,6 @@ def main():
 
 
 
-   # Test the XML syntax by reading the just created file_def_1 file:
-  #tree_file_def_1 = ET.parse(file_def_1_filename)
-  #root_file_def_1 = tree_file_def_1.getroot()
-
-
-
   print_next_step_message(5, 'Creating a file_def file')
 
 
@@ -355,7 +349,7 @@ def main():
                                ' branding_label={:25}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
-                  ' > {:63}</file>'.format( \
+                  ' > {:63}</field>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
                   '"' + grid_ref                                     + '"', \
@@ -579,6 +573,10 @@ def main():
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
 
+
+  # Test the XML syntax by reading the just created file_def_nemo file:
+  tree_ece_file_def_nemo = ET.parse(ecearth_nemo_file_def_filename)
+  root_ece_file_def_nemo = tree_ece_file_def_nemo.getroot()
 
   print()
 
