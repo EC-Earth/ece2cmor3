@@ -414,7 +414,7 @@ def main():
 
 
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
-  def add_xml_line_to_selected_nemo_group_2(cmip7_element, field_id, list_cluster):
+  def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
@@ -466,7 +466,7 @@ def main():
 
 
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
-  def add_xml_line_to_selected_oifs_group_2(cmip7_element, field_id, list_cluster):
+  def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
@@ -565,11 +565,11 @@ def main():
 
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group_2(element_identified, element_identified.get('varname_code'), nemo_dict)
+     add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_dict)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
-    #add_xml_line_to_selected_oifs_group_2(element_identified, element_identified.get('varname_code'), oifs_dict)
-     add_xml_line_to_selected_oifs_group_2(element_identified, element_identified.get('ifs_shortname'), oifs_dict)
+    #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_dict)
+     add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_dict)
     elif element_identified.get('model_component') == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
