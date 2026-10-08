@@ -307,10 +307,8 @@ def main():
        if element_fd.get('freq_op'    ): freq_op     = element_fd.get('freq_op')
        if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
        if element_fd.get('operation'  ): operation   = element_fd.get('operation')
-      #print(' TEST A: {}'.format(element_fd.attrib))
-      #print(' TEST B: {}'.format(cmip7_element.attrib))
        match_fd += 1
-       print(' A  fd match for {:20} with i = {}'.format(field_id, match_fd))
+      #print(' A  fd match for {:20} with i = {}'.format(field_id, match_fd))
       if match_fd == 0:
        print(' No fd match for {:20} with i = {}'.format(field_id, match_fd))
        # Initialisation required because this variable is an returned function argument.
