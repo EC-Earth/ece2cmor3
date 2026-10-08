@@ -218,13 +218,10 @@ def main():
   ecearth_oifs_file_def_filename = output_dir_name + 'ece4_oifs_file_def.xml'
 
 
-
- #def write_xml_file_opening(xml_file_filename, file_group_id):
   def write_xml_file_opening(xml_file_filename):
       xml_file = open(xml_file_filename, 'w')
       xml_file.write('<?xml version="1.0"?>\n\n')
       xml_file.write('<file_definition min_digits="4" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" type="one_file">\n')
-     #xml_file.write('  <file_group id="' + file_group_id + '" default_value="1e20" chunking_blocksize_target="3.0">\n')
       return xml_file
 
   def write_xml_file_group_opening(xml_file, file_group_id):
@@ -235,7 +232,6 @@ def main():
       return
 
   def write_xml_file_closing(xml_file):
-     #xml_file.write('   </file_group>\n')
       xml_file.write('</file_definition>\n')
       xml_file.close()
       return
