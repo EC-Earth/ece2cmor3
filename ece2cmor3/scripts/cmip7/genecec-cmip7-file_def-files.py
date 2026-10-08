@@ -57,8 +57,6 @@ if len(sys.argv) == 2:
   ece4_file_def_file_nemo = os.path.expanduser(config['ece4_file_def_file_nemo']) # ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
   ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
 
-  # n xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
-
 
   print_next_step_message(1, 'Read the experiment CMIP7 data request')
 
