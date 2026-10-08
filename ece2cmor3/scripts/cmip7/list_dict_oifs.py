@@ -10,43 +10,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_plev19': {
@@ -54,43 +61,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_plev39': {
@@ -98,43 +112,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_pv'    : {
@@ -142,43 +163,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_sfc'   : {
@@ -186,43 +214,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_th'    : {
@@ -230,43 +265,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'time'          : {
@@ -274,43 +316,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'other'         : {
@@ -318,43 +367,50 @@ oifs_dict = {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '1hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '3hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     '6hr' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'day' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'mon' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             },
                     'yr'  : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
-                              's30' : []  # 30S-90S
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    }
 }

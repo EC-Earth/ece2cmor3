@@ -464,7 +464,7 @@ def main():
         grid = 'other'
       # To bypass the 'dec' case which is not implemented
       if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
-       if region in ['glb', 'nh', 'sh', 's30']:
+       if region in ['glb', 'nh', 'sh', 's30', 'grl']:
         list_cluster[grid][output_freq][region].append(xml_line)
        else:
         print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))

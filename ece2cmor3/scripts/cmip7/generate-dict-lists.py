@@ -56,7 +56,8 @@ region    = [       \
              'glb', \
              'nh' , \
              'sh' , \
-             's30'  \
+             's30', \
+             'grl'  \
             ]
 
 def map_comment(region):
@@ -68,6 +69,8 @@ def map_comment(region):
      comment = 'Southern hemisphere'
     elif region == 's30':
      comment = '30S-90S'
+    elif region == 'grl':
+     comment = 'Greenland area'
     else:
      comment = ''
     return comment
