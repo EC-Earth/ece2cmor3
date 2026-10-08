@@ -467,10 +467,11 @@ def main():
       # To bypass the 'dec' case which is not implemented
       if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
        if region in ['glb', 'nh', 'sh', 's30']:
-        print(' TEST Z: {:20} {:7} {}'.format(grid, output_freq, region))
         list_cluster[grid][output_freq][region].append(xml_line)
        else:
         print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
+      else:
+        print(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
       return
 
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
