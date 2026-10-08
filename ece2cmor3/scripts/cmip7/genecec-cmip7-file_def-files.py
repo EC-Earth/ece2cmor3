@@ -374,52 +374,7 @@ def main():
   # Note: there are cases left which are not covered due to deviating dimensional shape and
   # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
   # region, another warning will be given.
-  def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster, message_list):
-      model_component = cmip7_element.get('model_component')
-      output_freq     = cmip7_element.get('frequency')
-      region          = cmip7_element.get('region')
-      if region == '30S-90S': region = 's30'
-      # Generate the XML file line for one variable, also make the inherited field_def info of
-      # this variable available at this level in this function:
-      element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
-      # Note that this method does not create a new XML tree, but with the group knowledge the
-      # XML file is directly written
-      if   element_fd == None:
-       if   cmip7_element.get('dimensions') == 'longitude latitude time':
-        if model_component == 'nemo':
-         grid = 'T_2D'
-        elif model_component == 'ifs':
-         grid = 'reduced_sfc'
-       elif cmip7_element.get('dimensions') == 'time':
-        grid = 'time'
-       else:
-        grid = 'other' # To bypass the 'dec' case which is not implemented
-        message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
-                 output_freq                                           , \
-                 model_component.upper()                               , \
-                 'dimensions="' + cmip7_element.get('dimensions') + '"', \
-                 cmip7_element.get('priority')                         , \
-                 cmip7_element.get('status')                           , \
-                 cmip7_element.get('cmip7_compound_name')))
-      else:
-       if element_fd.get('grid_ref'):
-        grid = element_fd.get('grid_ref').replace('grid_', '')
-       else:
-        grid = 'other'
-      # To bypass the 'dec' case which is not implemented
-      if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
-       if region in ['glb', 'nh', 'sh', 's30', 'grl']:
-        list_cluster[grid][output_freq][region].append(xml_line)
-       else:
-        message_list['region'].append(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
-      else:
-       message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
-      return
-
-  # Note: there are cases left which are not covered due to deviating dimensional shape and
-  # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
-  # region, another warning will be given.
-  def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster, message_list):
+  def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, message_list):
       model_component = cmip7_element.get('model_component')
       output_freq     = cmip7_element.get('frequency')
       region          = cmip7_element.get('region')
@@ -491,18 +446,18 @@ def main():
     model_component = element_identified.get('model_component')
     if model_component == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group(element_identified                     , \
-                                         element_identified.get('varname_code') , \
-                                         nemo_dict                              , \
-                                         warnings_nemo                            \
-                                        )
+     add_xml_line_to_selected_group(element_identified                     , \
+                                    element_identified.get('varname_code') , \
+                                    nemo_dict                              , \
+                                    warnings_nemo                            \
+                                   )
     elif model_component == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
-     add_xml_line_to_selected_oifs_group(element_identified                     , \
-                                         element_identified.get('ifs_shortname'), \
-                                         oifs_dict                              , \
-                                         warnings_oifs                            \
-                                        )
+     add_xml_line_to_selected_group(element_identified                     , \
+                                    element_identified.get('ifs_shortname'), \
+                                    oifs_dict                              , \
+                                    warnings_oifs                            \
+                                   )
     elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
