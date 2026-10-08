@@ -43,7 +43,6 @@ def main():
   # n xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
 
 
-  ### PART 1 ###
   print_next_step_message(1, 'Read the experiment CMIP7 data request')
 
   if os.path.isfile(dr_filename) == False:
@@ -59,14 +58,7 @@ def main():
   root_dr = tree_dr.getroot()
 
   selected_attribute = 'cmip7_compound_name'
- #xpath_path         = "./field_group/field_group/"            # Looping over only the field_group elements in the field_group/field_group/       layer
- #xpath_path         = "./field_group/"                        # Looping over only the field_group elements in the field_group/                   layer
- #xpath_path         = ".//field_group"                        # Looping over all      field_group elements in any                                layer
- #xpath_path         = "./field_group/field_group/field/"      # Looping over only the field       elements in the field_group/field_group/field/ layer
- #xpath_path         = "./field_group/field/"                  # Looping over only the field       elements in the field_group/                   layer
- #xpath_path         = "./field/"                              # Looping over only the field       elements in the field                          layer  id: agrif_spf, ahmf_2d, ahmf_3d
   xpath_path         = ".//variable"                           # Looping over all      variable    elements in any                                layer
- #xpath_expression   = xpath_path + "[@" + selected_attribute + "]"
   xpath_expression   = xpath_path
 
   i = 0
@@ -76,7 +68,6 @@ def main():
    print('{:4} {}'.format(i, element.get(selected_attribute)))
 
 
-  ### PART 2 ###
   print_next_step_message(2, 'Read the CMIP7 - ECE4 identified files')
 
   if os.path.isfile(identified_filename) == False:
@@ -102,7 +93,6 @@ def main():
 
 
 
-  ### PART 3 ###
   print_next_step_message(3, 'Read the ECE4 inherited neat formatted field_def file')
 
   if os.path.isfile(ece_field_def_filename) == False:
@@ -128,7 +118,6 @@ def main():
 
 
 
-  ### PART 4 ###
   print_next_step_message(4, 'Iterate over the experiment DR while iterating for each variable through the identified file')
 
   message_list_identified_var   = []
@@ -172,12 +161,10 @@ def main():
      k_match += 1
      match_fd += 1
 
-    #ouput_freq_info  = ''
      grid_ref_info    = ''
      operation_info   = ''
      freq_op_info     = ''
      freq_offset_info = ''
-    #if element_fd.get('output_freq'): ouput_freq_info  = ' output_freq = {}'.format(element_fd.get('output_freq'))
      if element_fd.get('grid_ref'   ): grid_ref_info    = ' grid_ref = {}'   .format(element_fd.get('grid_ref'))
      if element_fd.get('operation'  ): operation_info   = ' operation = {}'  .format(element_fd.get('operation'))
      if element_fd.get('freq_op'    ): freq_op_info     = ' freq_op = {}'    .format(element_fd.get('freq_op'))
