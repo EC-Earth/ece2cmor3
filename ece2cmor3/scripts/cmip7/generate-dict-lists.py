@@ -15,20 +15,24 @@ grid_nemo = [             \
              'other'      \
             ]
 
-# To be adjusted:
-grid_oifs = [             \
-             'T_2D'     , \
-             'U_2D'     , \
-             'V_2D'     , \
-             'T_3D'     , \
-             'U_3D'     , \
-             'V_3D'     , \
-             'W_3D'     , \
-             'T_vsum'   , \
-             'T_iax_20C', \
-             'time'     , \
-             'basin'    , \
-             'other'      \
+# grep -e '<field ' ec-earth-definition-inherited-neat-formatted.xml | sed -e 's/^.*grid_ref/grid_ref/' -e 's/operation.*$//' -e 's/name=.*$//' -e 's/ //g' | sort | uniq
+#   Encountered grid_ref for OIFS in ECE4 inherited field_def:
+#   grid_ref="reduced_ml"
+#   grid_ref="reduced_plev39"
+#   grid_ref="reduced_pv"
+#   grid_ref="reduced_sfc"
+#   grid_ref="reduced_th"
+# Add also:
+#   grid_ref="reduced_plev39"
+grid_oifs = [                   \
+             'reduced_ml'     , \
+             'reduced_plev19' , \
+             'reduced_plev39' , \
+             'reduced_pv'     , \
+             'reduced_sfc'    , \
+             'reduced_th'     , \
+             'time'           , \
+             'other'            \
             ]
 
 frequency = [       \
@@ -66,22 +70,22 @@ def write_list_module(file_name, grid, head_file):
     dict_list_file = open(file_name, 'w')
     dict_list_file.write('{}\n'.format(head_file.strip()))
     for ii in grid:
-     dict_list_file.write(' {:12}: {{\n'.format("'" + ii + "'"))
+     dict_list_file.write(' {:16}: {{\n'.format("'" + ii + "'"))
      for jj in frequency:
-      dict_list_file.write('                 {:6}: {{\n'.format("'" + jj + "'"))
+      dict_list_file.write('                    {:6}: {{\n'.format("'" + jj + "'"))
       for kk in region:
        if kk == region[-1]:
-        dict_list_file.write('                           {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+        dict_list_file.write('                              {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
        else:
-        dict_list_file.write('                           {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))
+        dict_list_file.write('                              {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Usual
       if jj == frequency[-1]:
-       dict_list_file.write('                         }\n')                                                           # Closing
+       dict_list_file.write('                            }\n')                                                           # Closing
       else:
-       dict_list_file.write('                         },\n')
+       dict_list_file.write('                            },\n')                                                          # Usual
      if ii == grid[-1]:
-      dict_list_file.write('               }\n')                                                                      # Closing
+      dict_list_file.write('                   }\n')                                                                     # Closing
      else:
-      dict_list_file.write('               },\n')
+      dict_list_file.write('                   },\n')                                                                    # Usual
     dict_list_file.write('}\n')
     dict_list_file.close()
 
