@@ -248,8 +248,7 @@ def main():
            frequency =  '1yr'
       return frequency
 
-  # The name of this function is not so adequate:
-  def write_file_group_to_xml_file_2(xml_file, grid, output_freq, region, list_with_xml_lines_of_group):
+  def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_with_xml_lines_of_group):
       # Add a group only if it has some content:
       if len(list_with_xml_lines_of_group) != 0:
       #if region == 's30': region = '30S-90S'
@@ -540,7 +539,7 @@ def main():
     for kk in nemo_dict[ii][jj]:
      if nemo_dict[ii][jj][kk] != []:
       # Write the non empty lists:
-      write_file_group_to_xml_file_2(ecearth_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
+      write_file_group_body_to_xml_file(ecearth_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_file_def_file)
   write_xml_file_group_opening(ecearth_file_def_file, 'id_file_group_atmosphere')
   for ii in oifs_dict:
@@ -548,7 +547,7 @@ def main():
     for kk in oifs_dict[ii][jj]:
      if oifs_dict[ii][jj][kk] != []:
       # Write the non empty lists:
-      write_file_group_to_xml_file_2(ecearth_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
+      write_file_group_body_to_xml_file(ecearth_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_file_def_file)
   write_xml_file_closing(ecearth_file_def_file)
 
@@ -562,7 +561,7 @@ def main():
      if nemo_dict[ii][jj][kk] != []:
       # Write the non empty lists:
       print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
-      write_file_group_to_xml_file_2(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
+      write_file_group_body_to_xml_file(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_nemo_file_def_file)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
@@ -576,7 +575,7 @@ def main():
      if oifs_dict[ii][jj][kk] != []:
       # Write the non empty lists:
       print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(oifs_dict[ii][jj][kk])))
-      write_file_group_to_xml_file_2(ecearth_oifs_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
+      write_file_group_body_to_xml_file(ecearth_oifs_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_oifs_file_def_file)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
