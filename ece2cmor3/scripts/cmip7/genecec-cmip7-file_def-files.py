@@ -12,9 +12,13 @@ import os
 import subprocess
 import re
 import xml.etree.ElementTree as ET
+from os.path import expanduser
 
 from list_dict_nemo import nemo_dict
 from list_dict_oifs import oifs_dict
+
+error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
+warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
 
 
 def print_next_step_message(step, comment):
@@ -30,15 +34,28 @@ def print_message_list(message_list):
     print()
 
 
-def main():
+if len(sys.argv) == 2:
+
+  if __name__ == "__main__": config = {}                       # python config syntax
+
+  config_filename = sys.argv[1]                                # Reading the config file name from the argument line
+  if os.path.isfile(config_filename) == False:                 # Checking if the config file exists
+   print(error_message, ' The config file ', config_filename, '  does not exist.\n')
+   sys.exit()
+  exec(open(config_filename).read(), config)                   # Reading the config file
+
+  # Echo the exact call of the script in the log messages:
+  print('Running:\n\n {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
   # The input files:
- #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
- #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml'
- #dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-historical-priority-ordered.xml'
-  dr_filename            = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
-  identified_filename    = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
-  ece_field_def_filename = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
+  dr_filename             = os.path.expanduser(config['dr_filename'            ]) # dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
+  identified_filename     = os.path.expanduser(config['identified_filename'    ]) # identified_filename       = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
+  ece_field_def_filename  = os.path.expanduser(config['ece_field_def_filename' ]) # ece_field_def_filename    = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
+
+  # The outnput files:
+  ece4_file_def_file      = os.path.expanduser(config['ece4_file_def_file'     ]) # ece4_file_def_file        = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_file_def.xml'
+  ece4_file_def_file_nemo = os.path.expanduser(config['ece4_file_def_file_nemo']) # ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
+  ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
 
   # n xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml
 
@@ -549,5 +566,8 @@ def main():
   print_next_step_message(10, 'FINISHING')
   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
-if __name__ == '__main__':
-    main()
+else:
+   print()
+   print(' This script needs one argument: a config file name. E.g.:')
+   print('  ', sys.argv[0], 'config-genecec-cmip7-file_def')
+   print()
