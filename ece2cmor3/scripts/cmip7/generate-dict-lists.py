@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
 
-grid      = [             \
+grid_nemo = [             \
+             'T_2D'     , \
+             'U_2D'     , \
+             'V_2D'     , \
+             'T_3D'     , \
+             'U_3D'     , \
+             'V_3D'     , \
+             'W_3D'     , \
+             'T_vsum'   , \
+             'T_iax_20C', \
+             'time'     , \
+             'basin'    , \
+             'other'      \
+            ]
+
+# To be adjusted:
+grid_oifs = [             \
              'T_2D'     , \
              'U_2D'     , \
              'V_2D'     , \
@@ -46,7 +62,7 @@ def map_comment(region):
     return comment
 
 
-def write_list_module(file_name, head_file):
+def write_list_module(file_name, grid, head_file):
     dict_list_file = open(file_name, 'w')
     dict_list_file.write('{}\n'.format(head_file.strip()))
     for ii in grid:
@@ -82,5 +98,5 @@ nemo_dict = {
 
 head_oifs_file = head_nemo_file.replace('NEMO', 'OIFS').replace('nemo', 'oifs')
 
-write_list_module('list_dict_nemo.py', head_nemo_file)
-write_list_module('list_dict_oifs.py', head_oifs_file)
+write_list_module('list_dict_nemo.py', grid_nemo, head_nemo_file)
+write_list_module('list_dict_oifs.py', grid_oifs, head_oifs_file)
