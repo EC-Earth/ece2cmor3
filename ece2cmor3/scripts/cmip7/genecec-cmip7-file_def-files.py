@@ -377,21 +377,6 @@ def main():
                  )
       return element_fd, xml_line
 
-  def distinguish_in_frequency(output_freq, xml_line, group_fx, group_3hr, group_day, group_mon, group_yr):
-       if   output_freq == 'fx':
-                                  group_fx .append(xml_line)
-       elif output_freq == '3hr':
-                                  group_3hr.append(xml_line)
-       elif output_freq == 'day':
-                                  group_day.append(xml_line)
-       elif output_freq == 'mon':
-                                  group_mon.append(xml_line)
-       elif output_freq == 'yr':
-                                  group_yr .append(xml_line)
-       else:
-        grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
-        print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
-
   def distinguish_list(list_cluster, grid_ref, output_freq, region, xml_line):
        if   output_freq == 'fx':
                                   list_cluster[grid_ref]['fx' ][region].append(xml_line)
