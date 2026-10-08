@@ -352,25 +352,6 @@ def main():
                  )
       return element_fd, xml_line
 
-  def distinguish_list(list_cluster, grid_ref, output_freq, region, xml_line):
-       if   output_freq == 'fx':
-                                  list_cluster[grid_ref]['fx' ][region].append(xml_line)
-       elif output_freq == '1hr':
-                                  list_cluster[grid_ref]['1hr'][region].append(xml_line)
-       elif output_freq == '3hr':
-                                  list_cluster[grid_ref]['3hr'][region].append(xml_line)
-       elif output_freq == '6hr':
-                                  list_cluster[grid_ref]['6hr'][region].append(xml_line)
-       elif output_freq == 'day':
-                                  list_cluster[grid_ref]['day'][region].append(xml_line)
-       elif output_freq == 'mon':
-                                  list_cluster[grid_ref]['mon'][region].append(xml_line)
-       elif output_freq == 'yr':
-                                  list_cluster[grid_ref]['yr' ][region].append(xml_line)
-       else:
-        grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
-        print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
-
   # Note: there are cases left which are not covered due to deviating dimensional shape and
   # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
   # region, another warning will be given.
