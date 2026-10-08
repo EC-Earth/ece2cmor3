@@ -484,7 +484,6 @@ def main():
      add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_dict, message_lists_warnings_nemo)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
-    #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_dict)
      add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_dict, message_lists_warnings_oifs)
     elif element_identified.get('model_component') == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
