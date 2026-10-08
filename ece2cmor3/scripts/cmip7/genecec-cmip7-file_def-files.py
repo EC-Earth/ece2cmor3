@@ -371,7 +371,9 @@ def main():
         grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
-  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
+  # Note: there are cases left which are not covered due to deviating dimensional shape and
+  # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
+  # region, another warning will be given.
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster, message_list):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
@@ -418,10 +420,17 @@ def main():
        grid = 'other'
       # To bypass the 'dec' case which is not implemented
       if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
-       list_cluster[grid][output_freq][region].append(xml_line)
+       if region in ['glb', 'nh', 'sh', 's30', 'grl']:
+        list_cluster[grid][output_freq][region].append(xml_line)
+       else:
+        print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
+      else:
+        print(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
       return
 
-  # Note: there are cases left which are not covered (see the two type of warnings in the log files)
+  # Note: there are cases left which are not covered due to deviating dimensional shape and
+  # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
+  # region, another warning will be given.
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster, message_list):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
