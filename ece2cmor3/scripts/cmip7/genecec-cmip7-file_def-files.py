@@ -617,6 +617,7 @@ def main():
       write_file_group_to_xml_file_2(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
+
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_atmosphere')
   for ii in oifs_dict:
@@ -627,45 +628,6 @@ def main():
       print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(oifs_dict[ii][jj][kk])))
       write_file_group_to_xml_file_2(ecearth_oifs_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
   write_xml_file_closing(ecearth_oifs_file_def_file)
-
-
-# # Write the OIFS file_def XML file with all the id's:
-# ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename, 'id_file_group_ocean')
-# #                            xml_file                  , group_id            , grid_ref     , list_with_xml_lines_of_group)
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_fx'    , 'reduced_sfc'   , 'once', oifs_groups['reduced_sfc_fx'    ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_3hr'   , 'reduced_sfc'   , '3hr' , oifs_groups['reduced_sfc_3hr'   ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_day'   , 'reduced_sfc'   , '1d'  , oifs_groups['reduced_sfc_day'   ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_mon'   , 'reduced_sfc'   , '1mo' , oifs_groups['reduced_sfc_mon'   ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_sfc_yr'    , 'reduced_sfc'   , '1yr' , oifs_groups['reduced_sfc_yr'    ])
-
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_fx' , 'reduced_plev19', 'once', oifs_groups['reduced_plev19_fx' ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_3hr', 'reduced_plev19', '3hr' , oifs_groups['reduced_plev19_3hr'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_day', 'reduced_plev19', '1d'  , oifs_groups['reduced_plev19_day'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_mon', 'reduced_plev19', '1mo' , oifs_groups['reduced_plev19_mon'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev19_yr' , 'reduced_plev19', '1yr' , oifs_groups['reduced_plev19_yr' ])
-
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_fx' , 'reduced_plev39', 'once', oifs_groups['reduced_plev39_fx' ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_3hr', 'reduced_plev39', '3hr' , oifs_groups['reduced_plev39_3hr'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_day', 'reduced_plev39', '1d'  , oifs_groups['reduced_plev39_day'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_mon', 'reduced_plev39', '1mo' , oifs_groups['reduced_plev39_mon'])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_plev39_yr' , 'reduced_plev39', '1yr' , oifs_groups['reduced_plev39_yr' ])
-
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_fx'     , 'reduced_ml'    , 'once', oifs_groups['reduced_ml_fx'     ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_3hr'    , 'reduced_ml'    , '3hr' , oifs_groups['reduced_ml_3hr'    ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_day'    , 'reduced_ml'    , '1d'  , oifs_groups['reduced_ml_day'    ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_mon'    , 'reduced_ml'    , '1mo' , oifs_groups['reduced_ml_mon'    ])
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'reduced_ml_yr'     , 'reduced_ml'    , '1yr' , oifs_groups['reduced_ml_yr'     ])
-
-# write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_other'  , '??'            , '??'  , oifs_groups['group_other'       ])
-# write_xml_file_closing(ecearth_oifs_file_def_file)
-
- #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat'                  , 'grid_T_2D'     , 'once', oifs_groups['group_lon_lat'               ])
- #write_file_group_to_xml_file(ecearth_nemo_file_def_file, 'oifs_cmip7_lon_lat_time_tavg_day'    , 'grid_T_2D'     , '1d'  , oifs_groups['group_lon_lat_time_tavg_day' ])
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev19_time_tavg' , 'reduced_plev19', '1d'  , oifs_groups['group_lon_lat_plev19_time'   ])
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_alevel_time_tavg' , 'reduced_ml'    , '1d'  , oifs_groups['group_lon_lat_alevel_time'   ])
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_plev3_time1'      , 'reduced_plev3' , '1d'  , oifs_groups['group_lon_lat_plev3_time1'   ])
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height2m'    , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height2m' ])
- #write_file_group_to_xml_file(ecearth_oifs_file_def_file, 'oifs_cmip7_lon_lat_time_height10m'   , 'reduced_sfc'   , '1d'  , oifs_groups['group_lon_lat_time_height10m'])
 
 
   # Writing the LPJG .ins congiguration file for the specified data request:
