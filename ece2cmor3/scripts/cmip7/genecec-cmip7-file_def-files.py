@@ -375,8 +375,9 @@ def main():
   # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
   # region, another warning will be given.
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster, message_list):
-      output_freq = cmip7_element.get('frequency')
-      region      = cmip7_element.get('region')
+      model_component = cmip7_element.get('model_component')
+      output_freq     = cmip7_element.get('frequency')
+      region          = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
       # Generate the XML file line for one variable, also make the inherited field_def info of
       # this variable available at this level in this function:
@@ -385,14 +386,17 @@ def main():
       # XML file is directly written
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
-        grid = 'T_2D'
+        if model_component == 'nemo':
+         grid = 'T_2D'
+        elif model_component == 'ifs':
+         grid = 'reduced_sfc'
        elif cmip7_element.get('dimensions') == 'time':
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
         message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
-                 cmip7_element.get('model_component').upper()          , \
+                 model_component.upper()                               , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                           , \
@@ -416,8 +420,9 @@ def main():
   # a lacking grid_ref definition (see the warning list). In case of a not earlier catched
   # region, another warning will be given.
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster, message_list):
-      output_freq = cmip7_element.get('frequency')
-      region      = cmip7_element.get('region')
+      model_component = cmip7_element.get('model_component')
+      output_freq     = cmip7_element.get('frequency')
+      region          = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
       # Generate the XML file line for one variable, also make the inherited field_def info of
       # this variable available at this level in this function:
@@ -426,14 +431,17 @@ def main():
       # XML file is directly written
       if   element_fd == None:
        if   cmip7_element.get('dimensions') == 'longitude latitude time':
-        grid = 'reduced_sfc'
+        if model_component == 'nemo':
+         grid = 'T_2D'
+        elif model_component == 'ifs':
+         grid = 'reduced_sfc'
        elif cmip7_element.get('dimensions') == 'time':
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
         message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
-                 cmip7_element.get('model_component').upper()          , \
+                 model_component.upper()                               , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                           , \
