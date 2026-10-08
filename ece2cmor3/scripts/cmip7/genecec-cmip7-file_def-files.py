@@ -390,8 +390,9 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        message_list['grid'].append(' Warning: case {:3} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
+                 cmip7_element.get('model_component').upper()          , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                           , \
@@ -430,15 +431,16 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        message_list['grid'].append(' Warning: case {:3} not covered in OIFS part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
+                 cmip7_element.get('model_component').upper()          , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                           , \
                  cmip7_element.get('cmip7_compound_name')))
       else:
        if element_fd.get('grid_ref'):
-        grid = element_fd.get('grid_ref')
+        grid = element_fd.get('grid_ref').replace('grid_', '')
        else:
         grid = 'other'
       # To bypass the 'dec' case which is not implemented
