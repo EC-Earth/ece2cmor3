@@ -396,28 +396,11 @@ def main():
                  cmip7_element.get('priority')                         , \
                  cmip7_element.get('status')                           , \
                  cmip7_element.get('cmip7_compound_name')))
-      elif element_fd.get('grid_ref') == 'grid_T_2D':
-       grid = 'T_2D'
-      elif element_fd.get('grid_ref') == 'grid_U_2D':
-       grid = 'U_2D'
-      elif element_fd.get('grid_ref') == 'grid_V_2D':
-       grid = 'V_2D'
-      elif element_fd.get('grid_ref') == 'grid_T_3D':
-       grid = 'T_3D'
-      elif element_fd.get('grid_ref') == 'grid_U_3D':
-       grid = 'U_3D'
-      elif element_fd.get('grid_ref') == 'grid_V_3D':
-       grid = 'V_3D'
-      elif element_fd.get('grid_ref') == 'grid_W_3D':
-       grid = 'W_3D'
-      elif element_fd.get('grid_ref') == 'grid_T_vsum':
-       grid = 'T_vsum'
-      elif element_fd.get('grid_ref') == 'grid_basin':
-       grid = 'basin'
-      elif element_fd.get('grid_ref') == 'grid_T_iax_20C':
-       grid = 'T_iax_20C'
       else:
-       grid = 'other'
+       if element_fd.get('grid_ref'):
+        grid = element_fd.get('grid_ref').replace('grid_', '')
+       else:
+        grid = 'other'
       # To bypass the 'dec' case which is not implemented
       if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
        if region in ['glb', 'nh', 'sh', 's30', 'grl']:
