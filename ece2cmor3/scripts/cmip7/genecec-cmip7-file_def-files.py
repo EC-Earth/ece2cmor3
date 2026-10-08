@@ -411,8 +411,6 @@ def main():
         grid_info = re.sub(".*grid_ref", "grid_ref", re.sub("units.*", "", xml_line)).strip()
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
-
-
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
@@ -463,8 +461,6 @@ def main():
        list_cluster[grid][output_freq][region].append(xml_line)
       return
 
-
-
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
   def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster):
       output_freq = cmip7_element.get('frequency')
@@ -502,46 +498,11 @@ def main():
         print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
       return
 
-
-
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
       lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
       for lpjg_ins_line in list_of_lpjg_ins_lines:
        lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
       return
-
-  # Create a dictionary for the OIFS file groups (each group covers a grid_ref, output_freq combination
-  # [later maybe extended with region]):
-  # The XXX frequency needs to be set and extended in case several frequencies per grid_ref case are encountered
-  oifs_groups = {
-    'reduced_sfc_fx'      : [],
-    'reduced_sfc_3hr'     : [],
-    'reduced_sfc_day'     : [],
-    'reduced_sfc_mon'     : [],
-    'reduced_sfc_yr'      : [],
-    'reduced_plev19_fx'   : [],
-    'reduced_plev19_3hr'  : [],
-    'reduced_plev19_day'  : [],
-    'reduced_plev19_mon'  : [],
-    'reduced_plev19_yr'   : [],
-    'reduced_plev39_fx'   : [],
-    'reduced_plev39_3hr'  : [],
-    'reduced_plev39_day'  : [],
-    'reduced_plev39_mon'  : [],
-    'reduced_plev39_yr'   : [],
-    'reduced_ml_fx'       : [],
-    'reduced_ml_3hr'      : [],
-    'reduced_ml_day'      : [],
-    'reduced_ml_mon'      : [],
-    'reduced_ml_yr'       : [],
-   #'group_lon_lat_plev19_time_XXX'   : [],
-   #'group_lon_lat_alevel_time_XXX'   : [],
-   #'group_lon_lat_plev3_time1_XXX'   : [],
-   #'group_lon_lat_time_height2m_XXX' : [],
-   #'group_lon_lat_time_height10m_XXX': [],
-    'group_lon_lat'                   : [],
-    'group_other'                     : []
-  }
 
   list_of_lpjg_ins_lines               = []
 
