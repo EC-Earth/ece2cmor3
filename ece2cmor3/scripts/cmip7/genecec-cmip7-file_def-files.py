@@ -349,6 +349,8 @@ def main():
                                ' branding_label={:25}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
+                               ' ifs_shortname={:13}' \
+                               ' varname_code={:25}' \
                   ' > {:81}</field>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
@@ -367,6 +369,8 @@ def main():
                   '"' + cmip7_element.get('branding_label'         ) + '"', \
                   '"' + cmip7_element.get('cmip6_table'            ) + '"', \
                   '"' + cmip7_element.get('physical_parameter_name') + '"', \
+                  '"' + cmip7_element.get('ifs_shortname'          ) + '"', \
+                  '"' + cmip7_element.get('varname_code'           ) + '"', \
                   ' ' +                    expression                + ' ') \
                  )
       return element_fd, xml_line
