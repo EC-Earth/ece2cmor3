@@ -390,7 +390,7 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        message_list.append(' Warning: case {:3} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list['grid'].append(' Warning: case {:3} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
@@ -406,9 +406,9 @@ def main():
        if region in ['glb', 'nh', 'sh', 's30', 'grl']:
         list_cluster[grid][output_freq][region].append(xml_line)
        else:
-        print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
+        message_list['region'].append(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
       else:
-        print(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
+       message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
       return
 
   # Note: there are cases left which are not covered due to deviating dimensional shape and
@@ -430,7 +430,7 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        message_list.append(' Warning: case {:3} not covered in OIFS part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list['grid'].append(' Warning: case {:3} not covered in OIFS part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
@@ -446,9 +446,9 @@ def main():
        if region in ['glb', 'nh', 'sh', 's30', 'grl']:
         list_cluster[grid][output_freq][region].append(xml_line)
        else:
-        print(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
+        message_list['region'].append(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
       else:
-        print(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
+       message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
       return
 
   def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
@@ -458,11 +458,10 @@ def main():
       return
 
   list_of_lpjg_ins_lines               = []
-
   message_list_of_operation_comparsion = []
-  message_lists_warnings_nemo          = []
-  message_lists_warnings_oifs          = []
   message_list_lpjg_ins_vars           = []
+  warnings_nemo = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
+  warnings_oifs = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
 
   i_dr = 0
 
@@ -485,14 +484,14 @@ def main():
      add_xml_line_to_selected_nemo_group(element_identified                     , \
                                          element_identified.get('varname_code') , \
                                          nemo_dict                              , \
-                                         message_lists_warnings_nemo              \
+                                         warnings_nemo                            \
                                         )
     elif model_component == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
      add_xml_line_to_selected_oifs_group(element_identified                     , \
                                          element_identified.get('ifs_shortname'), \
                                          oifs_dict                              , \
-                                         message_lists_warnings_oifs
+                                         warnings_oifs                            \
                                         )
     elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
@@ -520,8 +519,6 @@ def main():
      pass
     else:
      print(' Warning: the component {} is not covered.'.format(model_component))
-
-  #print(' TEST {:4} {}'.format(i_dr, selected_attribute_dr_value))
 
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
@@ -593,8 +590,12 @@ def main():
 
   print()
   # Print the warning messages for fields which are not in the fd file:
-  print_message_list(message_lists_warnings_nemo)
-  print_message_list(message_lists_warnings_oifs)
+  print_message_list(warnings_nemo['grid'  ])
+  print_message_list(warnings_oifs['grid'  ])
+  print_message_list(warnings_nemo['freq'  ])
+  print_message_list(warnings_oifs['freq'  ])
+  print_message_list(warnings_nemo['region'])
+  print_message_list(warnings_oifs['region'])
 
   # Print each .ins-file line with the CMIP7 compound name attached:
  #print_message_list(message_list_lpjg_ins_vars)
