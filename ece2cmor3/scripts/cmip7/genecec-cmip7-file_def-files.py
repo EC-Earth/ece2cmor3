@@ -387,7 +387,7 @@ def main():
         print(' Warning: frequency {} not covered for {}'.format(output_freq, grid_info))
 
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
-  def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster):
+  def add_xml_line_to_selected_nemo_group(cmip7_element, field_id, list_cluster, message_list):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
@@ -403,7 +403,7 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        print(' Warning: case {} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list.append(' Warning: case {:3} not covered in NEMO part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
@@ -437,7 +437,7 @@ def main():
       return
 
   # Note: there are cases left which are not covered (see the two type of warnings in the log files)
-  def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster):
+  def add_xml_line_to_selected_oifs_group(cmip7_element, field_id, list_cluster, message_list):
       output_freq = cmip7_element.get('frequency')
       region      = cmip7_element.get('region')
       if region == '30S-90S': region = 's30'
@@ -453,7 +453,7 @@ def main():
         grid = 'time'
        else:
         grid = 'other' # To bypass the 'dec' case which is not implemented
-        print(' Warning: case {} not covered in OIFS part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+        message_list.append(' Warning: case {:3} not covered in OIFS part with element_fd = None with {:48} {:6} {:12} {}'.format( \
                  output_freq                                           , \
                  'dimensions="' + cmip7_element.get('dimensions') + '"', \
                  cmip7_element.get('priority')                         , \
@@ -482,6 +482,8 @@ def main():
   list_of_lpjg_ins_lines               = []
 
   message_list_of_operation_comparsion = []
+  message_lists_warnings_nemo          = []
+  message_lists_warnings_oifs          = []
   message_list_lpjg_ins_vars           = []
 
   i_dr = 0
@@ -501,11 +503,11 @@ def main():
 
     if element_identified.get('model_component') == 'nemo':
      # The varname_code is based on the ECE ping file for NEMO via the request or identified files
-     add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_dict)
+     add_xml_line_to_selected_nemo_group(element_identified, element_identified.get('varname_code'), nemo_dict, message_lists_warnings_nemo)
     elif element_identified.get('model_component') == 'ifs':
      # Handling the OIFS cases in order to create the OIFS file_def file
     #add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('varname_code'), oifs_dict)
-     add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_dict)
+     add_xml_line_to_selected_oifs_group(element_identified, element_identified.get('ifs_shortname'), oifs_dict, message_lists_warnings_oifs)
     elif element_identified.get('model_component') == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
@@ -552,6 +554,7 @@ def main():
   write_xml_file_closing(ecearth_file_def_file)
 
 
+  print()
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
   write_xml_file_group_opening(ecearth_nemo_file_def_file, 'id_file_group_ocean')
@@ -560,12 +563,12 @@ def main():
     for kk in nemo_dict[ii][jj]:
      if nemo_dict[ii][jj][kk] != []:
       # Write the non empty lists:
-      print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
+      print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
       write_file_group_body_to_xml_file(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_nemo_file_def_file)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
-
+  print()
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
   write_xml_file_group_opening(ecearth_oifs_file_def_file, 'id_file_group_atmosphere')
@@ -574,7 +577,7 @@ def main():
     for kk in oifs_dict[ii][jj]:
      if oifs_dict[ii][jj][kk] != []:
       # Write the non empty lists:
-      print(' {:10} {:8} {:8} {}'.format(ii, jj, kk, len(oifs_dict[ii][jj][kk])))
+      print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(oifs_dict[ii][jj][kk])))
       write_file_group_body_to_xml_file(ecearth_oifs_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
   write_xml_file_group_closing(ecearth_oifs_file_def_file)
   write_xml_file_closing(ecearth_oifs_file_def_file)
@@ -592,11 +595,15 @@ def main():
   tree_ece_file_def_oifs = ET.parse(ecearth_oifs_file_def_filename)
   root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
 
-  print()
 
   # Print the message list for those variable-cases where the operation from inheriting differs
   # from the one deduced from the CMIP7 branding:
  #print_message_list(message_list_of_operation_comparsion)
+
+  print()
+  # Print the warning messages for fields which are not in the fd file:
+  print_message_list(message_lists_warnings_nemo)
+  print_message_list(message_lists_warnings_oifs)
 
   # Print each .ins-file line with the CMIP7 compound name attached:
  #print_message_list(message_list_lpjg_ins_vars)
