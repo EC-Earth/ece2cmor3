@@ -263,17 +263,6 @@ def main():
        xml_file.write('    </file>\n')
       return
 
-  # The name of this function is not so adequate:
-  def write_file_group_to_xml_file(xml_file, group_id, group_grid_ref_value, output_freq, list_with_xml_lines_of_group):
-      # Add a group only if it has some content:
-      if len(list_with_xml_lines_of_group) != 0:
-       suffix = '_' + group_id.strip()
-       xml_file.write('    <file id="{}" name_suffix="{}" grid_ref="{}" output_freq="{}">\n'.format(group_id.strip(), suffix, group_grid_ref_value.strip(), map_freq(output_freq.strip())))
-       for xml_line in list_with_xml_lines_of_group:
-        xml_file.write('{}\n'.format(xml_line))
-       xml_file.write('    </file>\n')
-      return
-
   def determine_operation_value(element):
     if   element.get('branding_label')[:5] == 'tavg-':
      operation = 'average'
