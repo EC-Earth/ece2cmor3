@@ -111,6 +111,8 @@ nemo_dict = {
 '''
 
 head_oifs_file = head_nemo_file.replace('NEMO', 'OIFS').replace('nemo', 'oifs')
+head_m7_file   = head_nemo_file.replace('NEMO', 'M7'  ).replace('nemo', 'm7')
 
 write_list_module('list_dict_nemo.py', grid_nemo, head_nemo_file)
 write_list_module('list_dict_oifs.py', grid_oifs, head_oifs_file)
+write_list_module('list_dict_m7.py'  , grid_oifs, head_m7_file  )
