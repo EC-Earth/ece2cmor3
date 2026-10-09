@@ -27,6 +27,7 @@ def print_message_list(message_list):
      for message in message_list:
       print(message)
      print()
+    return
 
 def write_xml_file_opening(xml_file_filename):
     xml_file = open(xml_file_filename, 'w')
@@ -56,6 +57,7 @@ def write_xml_file_group(file_def_file, id_file_group, model_dict, verbose):
         if verbose: print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(model_dict[ii][jj][kk])))
         write_file_group_body_to_xml_file(file_def_file, ii, jj, kk, model_dict[ii][jj][kk])
     write_xml_file_group_closing(file_def_file)
+    return
 
 def map_to_xios_freq(frequency):
     # Those frequency strings which differ in XIOS from CMIP7 are mapped:
@@ -238,7 +240,7 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     return
 
 def map_to_lpjg_freq(frequency):
-    # Those frequency strings which differ in XIOS from CMIP7 are mapped:
+    # Determine the LPJG frequency naming in the .ins file
     if   frequency == 'day':
          lpjg_freq =  'daily'
     elif frequency == 'mon':
@@ -249,6 +251,19 @@ def map_to_lpjg_freq(frequency):
          print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
          sys.exit(' Stop in: {} due to unknown LPJG frequency'.format(sys.argv[0]))
     return lpjg_freq
+
+def add_lpjg_ins_line(element_dr, list_of_lpjg_ins_lines, message_list_lpjg_ins_vars):
+    # Determine the CMIP6 LPJG CMOR name for in the .ins file:
+    lpjg_var  = element_dr.get('physical_parameter_name')
+    lpjg_freq = map_to_lpjg_freq(element_dr.get('frequency'))
+    # Compose the LPJG .ins line for the considered CMIP7 variable - frequency combination:
+    lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
+    # Append the .ins file line for this CMIP7 variable - frequency combination to the list of .ins lines:
+    list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
+    # Besides, create a message list for this includive printing the cmip7_compound_name:
+    message = ' {:66} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
+    message_list_lpjg_ins_vars.append(message)
+    return
 
 def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
     lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
@@ -377,17 +392,7 @@ if len(sys.argv) == 2:
                                    )
     elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
-     # Determine the LPJG frequency naming in the .ins file:
-     lpjg_freq = map_to_lpjg_freq(element_dr.get('frequency'))
-     # Determine the CMIP6 LPJG CMOR name for in the .ins file:
-     lpjg_var = element_dr.get('physical_parameter_name')
-     # Compose the LPJG .ins line for the considered CMIP7 variable - frequency combination:
-     lpjg_ins_file_line = 'file_{}_{} "{}_{}.out"'.format(lpjg_var, lpjg_freq, lpjg_var, lpjg_freq)
-     # Append the .ins file line for this CMIP7 variable - frequency combination to the list of .ins lines:
-     list_of_lpjg_ins_lines.append(lpjg_ins_file_line)
-     # Besides, create a message list for this includive printing the cmip7_compound_name:
-     message = ' {:66} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
-     message_list_lpjg_ins_vars.append(message)
+     add_lpjg_ins_line(element_dr, list_of_lpjg_ins_lines, message_list_lpjg_ins_vars)
     else:
      print(' Warning: the component {} is not covered.'.format(model_component))
 
