@@ -9,9 +9,9 @@
 """
 import sys
 import os
-import subprocess
 import re
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from os.path import expanduser
 
 from list_dict_nemo import nemo_dict
@@ -41,6 +41,7 @@ def root_of_xml_file(xml_file_name, file_description):
     return tree_xml_file.getroot()
 
 def write_xml_file_opening(xml_file_filename):
+    Path(xml_file_filename).parent.mkdir(parents=True, exist_ok=True) # Ensure the dir and subdirs are created
     xml_file = open(xml_file_filename, 'w')
     xml_file.write('<?xml version="1.0"?>\n\n')
     xml_file.write('<file_definition min_digits="4" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" type="one_file">\n')
@@ -277,6 +278,7 @@ def add_lpjg_ins_line(element_dr, list_of_lpjg_ins_lines, message_list_lpjg_ins_
     return
 
 def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
+    Path(lpjg_ins_file_filename).parent.mkdir(parents=True, exist_ok=True) # Ensure the dir and subdirs are created
     lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
     for lpjg_ins_line in list_of_lpjg_ins_lines:
      lpjg_ins_file_file.write('{}\n'.format(lpjg_ins_line))
@@ -317,10 +319,6 @@ if len(sys.argv) == 2:
   root_dr            = root_of_xml_file(dr_filename, 'data request')
   root_identified    = root_of_xml_file(identified_filename, 'identified')
   root_ece_field_def = root_of_xml_file(ece_field_def_filename, 'ECE4 inherited field_def')
-
-  # Writing the combined result to a new xml file:
-  output_dir_name = 'xml-files/genecec-cmip7/ec-earth-file_def-files/'
-  subprocess.run(["mkdir", "-p", output_dir_name])
 
   list_of_lpjg_ins_lines               = []
   message_list_of_operation_comparsion = []
@@ -439,7 +437,8 @@ if len(sys.argv) == 2:
   if verbosity_level > 2:
    print_message_list(message_list_lpjg_ins_vars)
 
-  print(' The script {} has finished, the results can be found in the directory:\n  {}'.format(sys.argv[0], output_dir_name))
+  output_dir_name = Path(ece4_file_def_filename_nemo).parent
+  print(' The script {} has finished, the results can be found in the directory:\n  {}/'.format(sys.argv[0], output_dir_name))
 
 else:
    print()
