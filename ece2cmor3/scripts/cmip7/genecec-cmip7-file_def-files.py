@@ -206,8 +206,8 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
     return element_fd, xml_line
 
 # Note: there are cases left which are not covered due to deviating dimensional shape and
-# a lacking grid_ref definition (see the warning list). In case of a not earlier catched
-# region, another warning will be given.
+# a lacking grid_ref definition (see the warning list). In case of a non earlier catched
+# frequency or region, another warning will be given.
 def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, message_list):
     model_component = cmip7_element.get('model_component')
     output_freq     = cmip7_element.get('frequency')
