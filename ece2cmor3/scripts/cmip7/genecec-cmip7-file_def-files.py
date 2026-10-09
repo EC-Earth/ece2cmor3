@@ -368,12 +368,6 @@ if len(sys.argv) == 2:
      print(' Warning: the component {} is not covered.'.format(model_component))
 
 
-  # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
-  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
-  write_xml_file_group(ecearth_file_def_file, 'id_file_group_ocean'     , nemo_dict)
-  write_xml_file_group(ecearth_file_def_file, 'id_file_group_atmosphere', oifs_dict)
-  write_xml_file_closing(ecearth_file_def_file)
-
   print()
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
@@ -386,6 +380,11 @@ if len(sys.argv) == 2:
   write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
+  # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
+  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
+  write_xml_file_group(ecearth_file_def_file, 'id_file_group_ocean'     , nemo_dict)
+  write_xml_file_group(ecearth_file_def_file, 'id_file_group_atmosphere', oifs_dict)
+  write_xml_file_closing(ecearth_file_def_file)
 
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
@@ -398,6 +397,10 @@ if len(sys.argv) == 2:
   # Test the XML syntax by reading the just created file_def_oifs file:
   tree_ece_file_def_oifs = ET.parse(ecearth_oifs_file_def_filename)
   root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
+
+  # Test the XML syntax by reading the just created file_def file:
+  tree_ece_file_def = ET.parse(ecearth_file_def_filename)
+  root_ece_file_def = tree_ece_file_def.getroot()
 
 
   # Print the message list for those variable-cases where the operation from inheriting differs
