@@ -44,6 +44,17 @@ def write_xml_file_closing(xml_file):
     xml_file.close()
     return
 
+def write_xml_file_group(file_def_filename, id_file_group, model_dict):
+    write_xml_file_group_opening(file_def_file, id_file_group)
+    for ii in model_dict:
+     for jj in model_dict[ii]:
+      for kk in model_dict[ii][jj]:
+       if model_dict[ii][jj][kk] != []:
+        # Write the non empty lists:
+        print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(model_dict[ii][jj][kk])))
+        write_file_group_body_to_xml_file(file_def_file, ii, jj, kk, model_dict[ii][jj][kk])
+    write_xml_file_group_closing(file_def_file)
+
 def map_freq(frequency):
     # Those frequency strings which differ in XIOS from CMIP7 are mapped:
     if   frequency == 'fx':
@@ -358,53 +369,22 @@ if len(sys.argv) == 2:
 
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
-  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
-  write_xml_file_group_opening(ecearth_file_def_file, 'id_file_group_ocean')
-  for ii in nemo_dict:
-   for jj in nemo_dict[ii]:
-    for kk in nemo_dict[ii][jj]:
-     if nemo_dict[ii][jj][kk] != []:
-      # Write the non empty lists:
-      write_file_group_body_to_xml_file(ecearth_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
-  write_xml_file_group_closing(ecearth_file_def_file)
-  write_xml_file_group_opening(ecearth_file_def_file, 'id_file_group_atmosphere')
-  for ii in oifs_dict:
-   for jj in oifs_dict[ii]:
-    for kk in oifs_dict[ii][jj]:
-     if oifs_dict[ii][jj][kk] != []:
-      # Write the non empty lists:
-      write_file_group_body_to_xml_file(ecearth_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
-  write_xml_file_group_closing(ecearth_file_def_file)
-  write_xml_file_closing(ecearth_file_def_file)
-
+  file_def_file = write_xml_file_opening(file_def_filename)
+  write_xml_file_group(ecearth_file_def_filename, 'id_file_group_ocean'     , nemo_dict)
+  write_xml_file_group(ecearth_file_def_filename, 'id_file_group_atmosphere', oifs_dict)
+  write_xml_file_closing(file_def_file)
 
   print()
   # Write the NEMO file_def XML file with all the id's:
-  ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
-  write_xml_file_group_opening(ecearth_nemo_file_def_file, 'id_file_group_ocean')
-  for ii in nemo_dict:
-   for jj in nemo_dict[ii]:
-    for kk in nemo_dict[ii][jj]:
-     if nemo_dict[ii][jj][kk] != []:
-      # Write the non empty lists:
-      print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(nemo_dict[ii][jj][kk])))
-      write_file_group_body_to_xml_file(ecearth_nemo_file_def_file, ii, jj, kk, nemo_dict[ii][jj][kk])
-  write_xml_file_group_closing(ecearth_nemo_file_def_file)
-  write_xml_file_closing(ecearth_nemo_file_def_file)
+  file_def_file = write_xml_file_opening(file_def_filename)
+  write_xml_file_group(ecearth_nemo_file_def_filename, 'id_file_group_ocean'     , nemo_dict)
+  write_xml_file_closing(file_def_file)
 
   print()
   # Write the OIFS file_def XML file with all the id's:
-  ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
-  write_xml_file_group_opening(ecearth_oifs_file_def_file, 'id_file_group_atmosphere')
-  for ii in oifs_dict:
-   for jj in oifs_dict[ii]:
-    for kk in oifs_dict[ii][jj]:
-     if oifs_dict[ii][jj][kk] != []:
-      # Write the non empty lists:
-      print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(oifs_dict[ii][jj][kk])))
-      write_file_group_body_to_xml_file(ecearth_oifs_file_def_file, ii, jj, kk, oifs_dict[ii][jj][kk])
-  write_xml_file_group_closing(ecearth_oifs_file_def_file)
-  write_xml_file_closing(ecearth_oifs_file_def_file)
+  file_def_file = write_xml_file_opening(file_def_filename)
+  write_xml_file_group(ecearth_oifs_file_def_filename, 'id_file_group_atmosphere', oifs_dict)
+  write_xml_file_closing(file_def_file)
 
 
   # Writing the LPJG .ins congiguration file for the specified data request:
