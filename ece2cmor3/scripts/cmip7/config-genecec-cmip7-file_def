@@ -1,5 +1,5 @@
 # This config file can be used with:
-#  ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def &> genecec-cmip7-file_def-files.log
+#  ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
 
 # The input files:
 dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
