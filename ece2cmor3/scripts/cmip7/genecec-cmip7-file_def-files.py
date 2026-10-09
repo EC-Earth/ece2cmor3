@@ -136,8 +136,14 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
 
     operation_based_on_branding = determine_operation_value(cmip7_element)
     if operation != operation_based_on_branding:
-     message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:23} for {}'.format(operation, operation_based_on_branding, field_id, cmip7_element.get('cmip7_compound_name'))
-     message_list_of_operation_comparsion.append(message)
+     # Filtering out those inherited which are an empty string:
+     if operation != '':
+      message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:23} for {}'.format( \
+                   operation, \
+                   operation_based_on_branding, \
+                   field_id, \
+                   cmip7_element.get('cmip7_compound_name'))
+      message_list_of_operation_comparsion.append(message)
      # Give preference to the operation value from the CMIP7 branding:
      operation = operation_based_on_branding
 
