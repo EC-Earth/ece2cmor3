@@ -29,13 +29,13 @@ def print_message_list(message_list):
      print()
     return
 
-def root_of_xml_file(xml_file_name, file_description):
+def root_of_xml_file(xml_file_name, file_description, verbose=False):
     if os.path.isfile(xml_file_name) == False:
      print(' The file {} does not exist.'.format(xml_file_name))
      sys.exit(' Stop in: {}'.format(sys.argv[0]))
     # Split in path pf[0] & file pf[1]:
     pf = os.path.split(xml_file_name)
-    print(' Reading the {} file: {}\n'.format(file_description, pf[1]))
+    if verbose: print(' Reading the {} file: {}'.format(file_description, pf[1]))
     # Load the xml file:
     tree_xml_file = ET.parse(xml_file_name)
     return tree_xml_file.getroot()
@@ -316,9 +316,9 @@ if len(sys.argv) == 2:
 
 
   # Loading the XML input files:
-  root_dr            = root_of_xml_file(dr_filename, 'data request')
-  root_identified    = root_of_xml_file(identified_filename, 'identified')
-  root_ece_field_def = root_of_xml_file(ece_field_def_filename, 'ECE4 inherited field_def')
+  root_dr            = root_of_xml_file(dr_filename           , 'data request'            , verbosity_level > 0)
+  root_identified    = root_of_xml_file(identified_filename   , 'identified'              , verbosity_level > 0)
+  root_ece_field_def = root_of_xml_file(ece_field_def_filename, 'ECE4 inherited field_def', verbosity_level > 0)
 
   list_of_lpjg_ins_lines               = []
   message_list_of_operation_comparsion = []
@@ -399,22 +399,11 @@ if len(sys.argv) == 2:
   # Writing the LPJG .ins congiguration file for the specified data request:
   write_lpjg_ins_file(ece4_lpjg_ins_filename, list_of_lpjg_ins_lines)
 
-
-  # Test the XML syntax by reading the just created file_def_nemo file:
-  tree_ece_file_def_nemo = ET.parse(ece4_file_def_filename_nemo)
-  root_ece_file_def_nemo = tree_ece_file_def_nemo.getroot()
-
-  # Test the XML syntax by reading the just created file_def_oifs file:
-  tree_ece_file_def_oifs = ET.parse(ece4_file_def_filename_oifs)
-  root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
-
-  # Test the XML syntax by reading the just created file_def_m7 file:
-  tree_ece_file_def_m7 = ET.parse(ece4_file_def_filename_m7)
-  root_ece_file_def_m7 = tree_ece_file_def_m7.getroot()
-
-  # Test the XML syntax by reading the just created file_def file:
-  tree_ece_file_def = ET.parse(ece4_file_def_filename_all)
-  root_ece_file_def = tree_ece_file_def.getroot()
+  # Test the XML syntax by loading these XML file_def files:
+  root_ece_file_def_nemo = root_of_xml_file(ece4_file_def_filename_nemo, 'file_def')
+  root_ece_file_def_oifs = root_of_xml_file(ece4_file_def_filename_oifs, 'file_def')
+  root_ece_file_def_m7   = root_of_xml_file(ece4_file_def_filename_m7  , 'file_def')
+  root_ece_file_def_all  = root_of_xml_file(ece4_file_def_filename_all , 'file_def')
 
   # Print the warning messages for fields which are not in the fd file:
   if show_warnings:
@@ -437,8 +426,15 @@ if len(sys.argv) == 2:
   if verbosity_level > 2:
    print_message_list(message_list_lpjg_ins_vars)
 
-  output_dir_name = Path(ece4_file_def_filename_nemo).parent
-  print(' The script {} has finished, the results can be found in the directory:\n  {}/'.format(sys.argv[0], output_dir_name))
+  print('\n The script {} has finished, the results can be found in the directory:\n  {}\n  {}\n  {}\n  {}\n  {}' \
+        .format(sys.argv[0]                , \
+                ece4_file_def_filename_nemo, \
+                ece4_file_def_filename_oifs, \
+                ece4_file_def_filename_m7  , \
+                ece4_file_def_filename_all , \
+                ece4_lpjg_ins_filename       \
+               )
+       )
 
 else:
    print()
