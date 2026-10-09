@@ -15,5 +15,5 @@ ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece
 ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
 
 # Options:
-verbosity_level           = 2          # Default 0     options: 0-3
+verbosity_level           = 3          # Default 0     options: 0-3
 show_warnings             = True       # Default True  options: True, False

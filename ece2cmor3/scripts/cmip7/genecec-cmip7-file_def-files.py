@@ -409,19 +409,21 @@ if len(sys.argv) == 2:
 
   # Print the message list for those variable-cases where the operation from inheriting differs
   # from the one deduced from the CMIP7 branding:
- #print_message_list(message_list_of_operation_comparsion)
+  if verbosity_level >= 3:
+   print()
+   print_message_list(message_list_of_operation_comparsion)
 
-  print()
   # Print the warning messages for fields which are not in the fd file:
-  print_message_list(warnings_nemo['grid'  ])
-  print_message_list(warnings_oifs['grid'  ])
-  print_message_list(warnings_nemo['freq'  ])
-  print_message_list(warnings_oifs['freq'  ])
-  print_message_list(warnings_nemo['region'])
-  print_message_list(warnings_oifs['region'])
+  if len(warnings_nemo['grid'  ]) > 0: print_message_list(warnings_nemo['grid'  ])
+  if len(warnings_nemo['grid'  ]) > 0: print_message_list(warnings_oifs['grid'  ])
+  if len(warnings_nemo['freq'  ]) > 0: print_message_list(warnings_nemo['freq'  ])
+  if len(warnings_nemo['freq'  ]) > 0: print_message_list(warnings_oifs['freq'  ])
+  if len(warnings_nemo['region']) > 0: print_message_list(warnings_nemo['region'])
+  if len(warnings_nemo['region']) > 0: print_message_list(warnings_oifs['region'])
 
   # Print each .ins-file line with the CMIP7 compound name attached:
- #print_message_list(message_list_lpjg_ins_vars)
+  if verbosity_level >= 3:
+   print_message_list(message_list_lpjg_ins_vars)
 
   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
 
