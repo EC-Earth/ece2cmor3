@@ -22,9 +22,10 @@ warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning
 
 
 def print_message_list(message_list):
-    for message in message_list:
-     print(message)
-    print()
+    if len(message_list) > 0:
+     for message in message_list:
+      print(message)
+     print()
 
 def write_xml_file_opening(xml_file_filename):
     xml_file = open(xml_file_filename, 'w')
@@ -375,13 +376,13 @@ if len(sys.argv) == 2:
   print()
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
-  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbosity_level >= 1)
+  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbosity_level > 0)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
   print()
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
-  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbosity_level >= 1)
+  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbosity_level > 0)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
@@ -409,20 +410,20 @@ if len(sys.argv) == 2:
 
   # Print the message list for those variable-cases where the operation from inheriting differs
   # from the one deduced from the CMIP7 branding:
-  if verbosity_level >= 3:
+  if verbosity_level > 2:
    print()
-   print_message_list(message_list_of_operation_comparsion)
+   print_message_list(message_list_of_operation_comparsion) # Actually a warning
 
   # Print the warning messages for fields which are not in the fd file:
-  if len(warnings_nemo['grid'  ]) > 0: print_message_list(warnings_nemo['grid'  ])
-  if len(warnings_nemo['grid'  ]) > 0: print_message_list(warnings_oifs['grid'  ])
-  if len(warnings_nemo['freq'  ]) > 0: print_message_list(warnings_nemo['freq'  ])
-  if len(warnings_nemo['freq'  ]) > 0: print_message_list(warnings_oifs['freq'  ])
-  if len(warnings_nemo['region']) > 0: print_message_list(warnings_nemo['region'])
-  if len(warnings_nemo['region']) > 0: print_message_list(warnings_oifs['region'])
+  print_message_list(warnings_nemo['grid'  ])
+  print_message_list(warnings_oifs['grid'  ])
+  print_message_list(warnings_nemo['freq'  ])
+  print_message_list(warnings_oifs['freq'  ])
+  print_message_list(warnings_nemo['region'])
+  print_message_list(warnings_oifs['region'])
 
   # Print each .ins-file line with the CMIP7 compound name attached:
-  if verbosity_level >= 3:
+  if verbosity_level > 2:
    print_message_list(message_list_lpjg_ins_vars)
 
   print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
