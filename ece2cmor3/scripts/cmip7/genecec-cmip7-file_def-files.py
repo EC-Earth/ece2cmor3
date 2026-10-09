@@ -29,6 +29,17 @@ def print_message_list(message_list):
      print()
     return
 
+def root_of_xml_file(xml_file_name, file_description):
+    if os.path.isfile(xml_file_name) == False:
+     print(' The file {} does not exist.'.format(xml_file_name))
+     sys.exit(' Stop in: {}'.format(sys.argv[0]))
+    # Split in path pf[0] & file pf[1]:
+    pf = os.path.split(xml_file_name)
+    print(' Reading the {} file: {}\n'.format(file_description, pf[1]))
+    # Load the xml file:
+    tree_xml_file = ET.parse(xml_file_name)
+    return tree_xml_file.getroot()
+
 def write_xml_file_opening(xml_file_filename):
     xml_file = open(xml_file_filename, 'w')
     xml_file.write('<?xml version="1.0"?>\n\n')
@@ -302,44 +313,10 @@ if len(sys.argv) == 2:
   show_warnings               =                    config['show_warnings'              ]  # show_warnings               = True       # Default True  options: True, False
 
 
-  if os.path.isfile(dr_filename) == False:
-   print(' The file {} does not exist.'.format(dr_filename))
-   sys.exit(' Stop in: {}'.format(sys.argv[0]))
-
-  # Split in path pf[0] & file pf[1]:
-  pf = os.path.split(dr_filename)
-  print(' Reading the data request file: {}\n'.format(pf[1]))
-
-  # Load the xml file:
-  tree_dr = ET.parse(dr_filename)
-  root_dr = tree_dr.getroot()
-
-
-  if os.path.isfile(identified_filename) == False:
-   print(' The file {} does not exist.'.format(identified_filename))
-   sys.exit(' Stop in: {}'.format(sys.argv[0]))
-
-  # Split in path pf[0] & file pf[1]:
-  pf = os.path.split(identified_filename)
-  print(' Reading the data request file: {}\n'.format(pf[1]))
-
-  # Load the xml file:
-  tree_identified = ET.parse(identified_filename)
-  root_identified = tree_identified.getroot()
-
-
-  if os.path.isfile(ece_field_def_filename) == False:
-   print(' The file {} does not exist.'.format(ece_field_def_filename))
-   sys.exit(' Stop in: {}'.format(sys.argv[0]))
-
-  # Split in path pf[0] & file pf[1]:
-  pf = os.path.split(ece_field_def_filename)
-  print(' Reading the data request file: {}\n'.format(pf[1]))
-
-  # Load the xml file:
-  tree_ece_field_def = ET.parse(ece_field_def_filename)
-  root_ece_field_def = tree_ece_field_def.getroot()
-
+  # Loading the XML input files:
+  root_dr            = root_of_xml_file(dr_filename, 'data request')
+  root_identified    = root_of_xml_file(identified_filename, 'identified')
+  root_ece_field_def = root_of_xml_file(ece_field_def_filename, 'ECE4 inherited field_def')
 
   # Writing the combined result to a new xml file:
   output_dir_name = 'xml-files/genecec-cmip7/ec-earth-file_def-files/'
