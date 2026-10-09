@@ -286,21 +286,20 @@ if len(sys.argv) == 2:
   print(' Running:\n  {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
   # The input files:
-  dr_filename             = os.path.expanduser(config['dr_filename'            ]) # dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
-  identified_filename     = os.path.expanduser(config['identified_filename'    ]) # identified_filename       = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
-  ece_field_def_filename  = os.path.expanduser(config['ece_field_def_filename' ]) # ece_field_def_filename    = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
+  dr_filename                 = os.path.expanduser(config['dr_filename'                ]) # dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
+  identified_filename         = os.path.expanduser(config['identified_filename'        ]) # identified_filename         = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
+  ece_field_def_filename      = os.path.expanduser(config['ece_field_def_filename'     ]) # ece_field_def_filename      = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
 
-  # The outnput files (not used yet):
-  ece4_file_def_file      = os.path.expanduser(config['ece4_file_def_file'     ]) # ece4_file_def_file        = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_file_def.xml'
-  ece4_file_def_file_nemo = os.path.expanduser(config['ece4_file_def_file_nemo']) # ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
-  ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
-  ece4_file_def_file_m7   = os.path.expanduser(config['ece4_file_def_file_m7'  ]) # ece4_file_def_file_m7     = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_m7_file_def.xml'
-
-  ece4_lpjg_ins_filename  = os.path.expanduser(config['ece4_lpjg_ins_filename' ]) # ece4_lpjg_ins_filename    = 'xml-files/genecec-cmip7/ec-earth-file_def-files/lpjg-cmip7-output.ins'
+  # The outnput files:
+  ece4_file_def_filename_nemo = os.path.expanduser(config['ece4_file_def_filename_nemo']) # ece4_file_def_filename_nemo = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-nemo.xml'
+  ece4_file_def_filename_oifs = os.path.expanduser(config['ece4_file_def_filename_oifs']) # ece4_file_def_filename_oifs = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-oifs.xml'
+  ece4_file_def_filename_m7   = os.path.expanduser(config['ece4_file_def_filename_m7'  ]) # ece4_file_def_filename_m7   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-m7.xml'
+  ece4_file_def_filename_all  = os.path.expanduser(config['ece4_file_def_filename_all' ]) # ece4_file_def_filename_all  = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def.xml'
+  ece4_lpjg_ins_filename      = os.path.expanduser(config['ece4_lpjg_ins_filename'     ]) # ece4_lpjg_ins_filename      = 'xml-files/genecec-cmip7/ec-earth-file_def-files/lpjg-cmip7-output.ins'
 
   # Options:
-  verbosity_level         =                    config['verbosity_level'        ]  # verbosity_level           = 0          # Default 0     options: 0-3
-  show_warnings           =                    config['show_warnings'          ]  # show_warnings             = True       # Default True  options: True, False
+  verbosity_level             =                    config['verbosity_level'            ]  # verbosity_level             = 0          # Default 0     options: 0-3
+  show_warnings               =                    config['show_warnings'              ]  # show_warnings               = True       # Default True  options: True, False
 
 
   if os.path.isfile(dr_filename) == False:
@@ -342,11 +341,6 @@ if len(sys.argv) == 2:
   # Writing the combined result to a new xml file:
   output_dir_name = 'xml-files/genecec-cmip7/ec-earth-file_def-files/'
   subprocess.run(["mkdir", "-p", output_dir_name])
-
-  ecearth_file_def_filename      = output_dir_name + 'ece4_file_def.xml'
-  ecearth_nemo_file_def_filename = output_dir_name + 'ece4_nemo_file_def.xml'
-  ecearth_oifs_file_def_filename = output_dir_name + 'ece4_oifs_file_def.xml'
-  ecearth_m7_file_def_filename   = output_dir_name + 'ece4_m7_file_def.xml'
 
   list_of_lpjg_ins_lines               = []
   message_list_of_operation_comparsion = []
@@ -401,24 +395,24 @@ if len(sys.argv) == 2:
 
   print()
   # Write the NEMO file_def XML file with all the id's:
-  ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
+  ecearth_nemo_file_def_file = write_xml_file_opening(ece4_file_def_filename_nemo)
   write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbosity_level > 0)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
   print()
   # Write the OIFS file_def XML file with all the id's:
-  ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
+  ecearth_oifs_file_def_file = write_xml_file_opening(ece4_file_def_filename_oifs)
   write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbosity_level > 0)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
   print()
   # Write the M7 file_def XML file with all the id's:
-  ecearth_m7_file_def_file = write_xml_file_opening(ecearth_m7_file_def_filename)
+  ecearth_m7_file_def_file = write_xml_file_opening(ece4_file_def_filename_m7)
   write_xml_file_group(ecearth_m7_file_def_file,   'id_file_group_atmosphere', m7_dict  , verbosity_level > 0)
   write_xml_file_closing(ecearth_m7_file_def_file)
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS + M7):
-  ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
+  ecearth_file_def_file = write_xml_file_opening(ece4_file_def_filename_all)
   write_xml_file_group(ecearth_file_def_file     , 'id_file_group_ocean'     , nemo_dict, False)
   write_xml_file_group(ecearth_file_def_file     , 'id_file_group_atmosphere', oifs_dict, False)
   write_xml_file_group(ecearth_file_def_file     , 'id_file_group_aerosol'   , m7_dict  , False)
@@ -429,19 +423,19 @@ if len(sys.argv) == 2:
 
 
   # Test the XML syntax by reading the just created file_def_nemo file:
-  tree_ece_file_def_nemo = ET.parse(ecearth_nemo_file_def_filename)
+  tree_ece_file_def_nemo = ET.parse(ece4_file_def_filename_nemo)
   root_ece_file_def_nemo = tree_ece_file_def_nemo.getroot()
 
   # Test the XML syntax by reading the just created file_def_oifs file:
-  tree_ece_file_def_oifs = ET.parse(ecearth_oifs_file_def_filename)
+  tree_ece_file_def_oifs = ET.parse(ece4_file_def_filename_oifs)
   root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
 
   # Test the XML syntax by reading the just created file_def_m7 file:
-  tree_ece_file_def_m7 = ET.parse(ecearth_m7_file_def_filename)
+  tree_ece_file_def_m7 = ET.parse(ece4_file_def_filename_m7)
   root_ece_file_def_m7 = tree_ece_file_def_m7.getroot()
 
   # Test the XML syntax by reading the just created file_def file:
-  tree_ece_file_def = ET.parse(ecearth_file_def_filename)
+  tree_ece_file_def = ET.parse(ece4_file_def_filename_all)
   root_ece_file_def = tree_ece_file_def.getroot()
 
   # Print the warning messages for fields which are not in the fd file:

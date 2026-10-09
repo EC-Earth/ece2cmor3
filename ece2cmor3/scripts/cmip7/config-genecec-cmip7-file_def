@@ -2,21 +2,21 @@
 #  ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
 
 # The input files:
-dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
-dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml'
-dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-historical-priority-ordered.xml'
-dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
-identified_filename       = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
-ece_field_def_filename    = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
+dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml'
+dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml'
+dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-historical-priority-ordered.xml'
+dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
+identified_filename         = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
+ece_field_def_filename      = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
 
-# The output files (not used yet):
-ece4_file_def_file        = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_file_def.xml'
-ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
-ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
-ece4_file_def_file_m7     = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_m7_file_def.xml'
+# The output files:
+ece4_file_def_filename_nemo = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-nemo.xml'
+ece4_file_def_filename_oifs = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-oifs.xml'
+ece4_file_def_filename_m7   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def-m7.xml'
+ece4_file_def_filename_all  = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ec-earth-4-file_def.xml'
 
-ece4_lpjg_ins_filename    = 'xml-files/genecec-cmip7/ec-earth-file_def-files/lpjg-cmip7-output.ins'
+ece4_lpjg_ins_filename      = 'xml-files/genecec-cmip7/ec-earth-file_def-files/lpjg-cmip7-output.ins'
 
 # Options:
-verbosity_level           = 0          # Default 0     options: 0-3
-show_warnings             = True       # Default True  options: True, False
+verbosity_level             = 0          # Default 0     options: 0-3
+show_warnings               = True       # Default True  options: True, False
