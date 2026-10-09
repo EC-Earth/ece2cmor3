@@ -57,7 +57,7 @@ def write_xml_file_group(file_def_file, id_file_group, model_dict, verbose):
         write_file_group_body_to_xml_file(file_def_file, ii, jj, kk, model_dict[ii][jj][kk])
     write_xml_file_group_closing(file_def_file)
 
-def map_freq(frequency):
+def map_to_xios_freq(frequency):
     # Those frequency strings which differ in XIOS from CMIP7 are mapped:
     if   frequency == 'fx':
          frequency =  'once'
@@ -75,7 +75,7 @@ def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_
     #if region == 's30': region = '30S-90S'
      if region == 's30': region = '30Sto90S'
      group_id  = grid.strip() + '_' + output_freq.strip() + '_' + region.strip()
-     xios_freq = map_freq(output_freq.strip())
+     xios_freq = map_to_xios_freq(output_freq.strip())
     #xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}">\n'.format(group_id, group_id, xios_freq))
      xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}" grid_ref="grid_{}" region="{}">\n'.format(group_id, group_id, xios_freq, grid, region.replace('to', '-')))
      for xml_line in list_with_xml_lines_of_group:
@@ -237,6 +237,19 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
      message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
     return
 
+def map_to_lpjg_freq(frequency):
+    # Those frequency strings which differ in XIOS from CMIP7 are mapped:
+    if   frequency == 'day':
+         lpjg_freq =  'daily'
+    elif frequency == 'mon':
+         lpjg_freq =  'monthly'
+    elif frequency == 'yr':
+         lpjg_freq =  'yearly'
+    else:
+         print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
+         sys.exit(' Stop in: {} due to unknown LPJG frequency'.format(sys.argv[0]))
+    return lpjg_freq
+
 def write_lpjg_ins_file(lpjg_ins_file_filename, list_of_lpjg_ins_lines):
     lpjg_ins_file_file = open(lpjg_ins_file_filename, 'w')
     for lpjg_ins_line in list_of_lpjg_ins_lines:
@@ -365,15 +378,7 @@ if len(sys.argv) == 2:
     elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
-     if   element_dr.get('frequency') == 'mon':
-      lpjg_freq = 'monthly'
-     elif element_dr.get('frequency') == 'yr':
-      lpjg_freq = 'yearly'
-     elif element_dr.get('frequency') == 'day':
-      lpjg_freq = 'daily'
-     else:
-      print(' Unknown LPJG frequency: {}'.format(element_dr.get('frequency')))
-      sys.exit(' Stop in: {} due to unknown LPJG frequency'.format(sys.argv[0]))
+     lpjg_freq = map_to_lpjg_freq(element_dr.get('frequency'))
      # Determine the CMIP6 LPJG CMOR name for in the .ins file:
      lpjg_var = element_dr.get('physical_parameter_name')
      # Compose the LPJG .ins line for the considered CMIP7 variable - frequency combination:
@@ -437,11 +442,11 @@ if len(sys.argv) == 2:
    # Print the message list for those variable-cases where the operation from inheriting differs
    # from the one deduced from the CMIP7 branding:
    print()
-   print_message_list(message_list_of_operation_comparsion) # Actually a warning
+   print_message_list(message_list_of_operation_comparsion)
 
    print_message_list(warnings_nemo['grid'  ])
    print_message_list(warnings_oifs['grid'  ])
-   print_message_list(warnings_mf  ['grid'  ])
+   print_message_list(warnings_m7  ['grid'  ])
    print_message_list(warnings_nemo['freq'  ])
    print_message_list(warnings_oifs['freq'  ])
    print_message_list(warnings_m7  ['freq'  ])
