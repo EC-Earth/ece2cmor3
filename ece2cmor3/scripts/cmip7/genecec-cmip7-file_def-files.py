@@ -342,9 +342,9 @@ if len(sys.argv) == 2:
    selected_attribute_dr_value = element_dr.get(selected_attribute_dr)
    xpath_path_identified       = ".//variable"
    xpath_expression_identified = xpath_path_identified + '[@' + selected_attribute_dr + '="' + selected_attribute_dr_value + '"]'
-   match = 0 # For bookkeeping the number of identification matches
+   match_identified = 0
    for element_identified in root_identified.findall(xpath_expression_identified):
-    match += 1
+    match_identified += 1
 
     model_component = element_identified.get('model_component')
     if model_component == 'nemo':
