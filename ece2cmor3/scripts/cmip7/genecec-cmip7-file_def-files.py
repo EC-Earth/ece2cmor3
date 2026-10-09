@@ -286,7 +286,7 @@ if len(sys.argv) == 2:
   print(' Running:\n  {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
   # The input files:
-  dr_filename                 = os.path.expanduser(config['dr_filename'                ]) # dr_filename                 = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
+  dr_filename                 = os.path.expanduser(config['data_request_filename'      ]) # data_request_filename       = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
   identified_filename         = os.path.expanduser(config['identified_filename'        ]) # identified_filename         = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-v1.2.2.5-all-full-identified-freq-mc-prio.xml'
   ece_field_def_filename      = os.path.expanduser(config['ece_field_def_filename'     ]) # ece_field_def_filename      = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
 
@@ -314,6 +314,7 @@ if len(sys.argv) == 2:
   tree_dr = ET.parse(dr_filename)
   root_dr = tree_dr.getroot()
 
+
   if os.path.isfile(identified_filename) == False:
    print(' The file {} does not exist.'.format(identified_filename))
    sys.exit(' Stop in: {}'.format(sys.argv[0]))
@@ -326,6 +327,7 @@ if len(sys.argv) == 2:
   tree_identified = ET.parse(identified_filename)
   root_identified = tree_identified.getroot()
 
+
   if os.path.isfile(ece_field_def_filename) == False:
    print(' The file {} does not exist.'.format(ece_field_def_filename))
    sys.exit(' Stop in: {}'.format(sys.argv[0]))
@@ -337,6 +339,7 @@ if len(sys.argv) == 2:
   # Load the xml file:
   tree_ece_field_def = ET.parse(ece_field_def_filename)
   root_ece_field_def = tree_ece_field_def.getroot()
+
 
   # Writing the combined result to a new xml file:
   output_dir_name = 'xml-files/genecec-cmip7/ec-earth-file_def-files/'
