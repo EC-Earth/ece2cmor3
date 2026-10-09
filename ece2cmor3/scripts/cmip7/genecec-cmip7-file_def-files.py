@@ -16,6 +16,7 @@ from os.path import expanduser
 
 from list_dict_nemo import nemo_dict
 from list_dict_oifs import oifs_dict
+from list_dict_m7   import m7_dict
 
 error_message   = '\n \033[91m' + 'Error:'   + '\033[0m'        # Red    error   message
 warning_message = '\n \033[93m' + 'Warning:' + '\033[0m'        # Yellow warning message
@@ -208,7 +209,7 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
      if   cmip7_element.get('dimensions') == 'longitude latitude time':
       if model_component == 'nemo':
        grid = 'T_2D'
-      elif model_component == 'ifs':
+      elif model_component == 'ifs' or model_component == 'tm5':
        grid = 'reduced_sfc'
      elif cmip7_element.get('dimensions') == 'time':
       grid = 'time'
@@ -265,6 +266,7 @@ if len(sys.argv) == 2:
   ece4_file_def_file      = os.path.expanduser(config['ece4_file_def_file'     ]) # ece4_file_def_file        = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_file_def.xml'
   ece4_file_def_file_nemo = os.path.expanduser(config['ece4_file_def_file_nemo']) # ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
   ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
+  ece4_file_def_file_m7   = os.path.expanduser(config['ece4_file_def_file_m7'  ]) # ece4_file_def_file_m7     = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_m7_file_def.xml'
 
   # Options:
   verbosity_level         =                    config['verbosity_level'        ]  # verbosity_level           = 0          # Default 0     options: 0-3
@@ -314,12 +316,14 @@ if len(sys.argv) == 2:
   ecearth_file_def_filename      = output_dir_name + 'ece4_file_def.xml'
   ecearth_nemo_file_def_filename = output_dir_name + 'ece4_nemo_file_def.xml'
   ecearth_oifs_file_def_filename = output_dir_name + 'ece4_oifs_file_def.xml'
+  ecearth_m7_file_def_filename   = output_dir_name + 'ece4_m7_file_def.xml'
 
   list_of_lpjg_ins_lines               = []
   message_list_of_operation_comparsion = []
   message_list_lpjg_ins_vars           = []
   warnings_nemo = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
   warnings_oifs = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
+  warnings_m7   = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
 
   i_dr = 0
 
@@ -351,6 +355,13 @@ if len(sys.argv) == 2:
                                     oifs_dict                              , \
                                     warnings_oifs                            \
                                    )
+    elif model_component == 'tm5':
+     # Handling the M7 cases in order to create the M7 file_def file
+     add_xml_line_to_selected_group(element_identified                     , \
+                                    element_identified.get('varname_code') , \
+                                    m7_dict                                , \
+                                    warnings_m7                              \
+                                   )
     elif model_component == 'lpjg':
      # Handling the LPJG cases in order to create the LPJG configuration .ins file
      # Determine the LPJG frequency naming in the .ins file:
@@ -372,9 +383,6 @@ if len(sys.argv) == 2:
      # Besides, create a message list for this includive printing the cmip7_compound_name:
      message = ' {:66} {}'.format(lpjg_ins_file_line, element_dr.get('cmip7_compound_name'))
      message_list_lpjg_ins_vars.append(message)
-    elif model_component == 'tm5':
-     # To be added
-     pass
     else:
      print(' Warning: the component {} is not covered.'.format(model_component))
 
@@ -391,10 +399,17 @@ if len(sys.argv) == 2:
   write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbosity_level > 0)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
-  # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
+  print()
+  # Write the M7 file_def XML file with all the id's:
+  ecearth_m7_file_def_file = write_xml_file_opening(ecearth_m7_file_def_filename)
+  write_xml_file_group(ecearth_m7_file_def_file,   'id_file_group_atmosphere', m7_dict  , verbosity_level > 0)
+  write_xml_file_closing(ecearth_m7_file_def_file)
+
+  # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS + M7):
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
   write_xml_file_group(ecearth_file_def_file     , 'id_file_group_ocean'     , nemo_dict, False)
   write_xml_file_group(ecearth_file_def_file     , 'id_file_group_atmosphere', oifs_dict, False)
+  write_xml_file_group(ecearth_file_def_file     , 'id_file_group_aerosol'   , m7_dict  , False)
   write_xml_file_closing(ecearth_file_def_file)
 
   # Writing the LPJG .ins congiguration file for the specified data request:
@@ -409,6 +424,10 @@ if len(sys.argv) == 2:
   tree_ece_file_def_oifs = ET.parse(ecearth_oifs_file_def_filename)
   root_ece_file_def_oifs = tree_ece_file_def_oifs.getroot()
 
+  # Test the XML syntax by reading the just created file_def_m7 file:
+  tree_ece_file_def_m7 = ET.parse(ecearth_m7_file_def_filename)
+  root_ece_file_def_m7 = tree_ece_file_def_m7.getroot()
+
   # Test the XML syntax by reading the just created file_def file:
   tree_ece_file_def = ET.parse(ecearth_file_def_filename)
   root_ece_file_def = tree_ece_file_def.getroot()
@@ -422,10 +441,13 @@ if len(sys.argv) == 2:
 
    print_message_list(warnings_nemo['grid'  ])
    print_message_list(warnings_oifs['grid'  ])
+   print_message_list(warnings_mf  ['grid'  ])
    print_message_list(warnings_nemo['freq'  ])
    print_message_list(warnings_oifs['freq'  ])
+   print_message_list(warnings_m7  ['freq'  ])
    print_message_list(warnings_nemo['region'])
    print_message_list(warnings_oifs['region'])
+   print_message_list(warnings_m7  ['region'])
 
   # Print each .ins-file line with the CMIP7 compound name attached:
   if verbosity_level > 2:

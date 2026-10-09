@@ -13,6 +13,7 @@ ece_field_def_filename    = 'xml-files/genecec-cmip7/ec-earth-definition/ec-eart
 ece4_file_def_file        = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_file_def.xml'
 ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
 ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
+ece4_file_def_file_m7     = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_m7_file_def.xml'
 
 # Options:
 verbosity_level           = 0          # Default 0     options: 0-3
