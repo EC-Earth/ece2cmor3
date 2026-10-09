@@ -296,6 +296,8 @@ if len(sys.argv) == 2:
   ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
   ece4_file_def_file_m7   = os.path.expanduser(config['ece4_file_def_file_m7'  ]) # ece4_file_def_file_m7     = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_m7_file_def.xml'
 
+  ece4_lpjg_ins_filename  = os.path.expanduser(config['ece4_lpjg_ins_filename' ]) # ece4_lpjg_ins_filename    = 'xml-files/genecec-cmip7/ec-earth-file_def-files/lpjg-cmip7-output.ins'
+
   # Options:
   verbosity_level         =                    config['verbosity_level'        ]  # verbosity_level           = 0          # Default 0     options: 0-3
   show_warnings           =                    config['show_warnings'          ]  # show_warnings             = True       # Default True  options: True, False
@@ -423,7 +425,7 @@ if len(sys.argv) == 2:
   write_xml_file_closing(ecearth_file_def_file)
 
   # Writing the LPJG .ins congiguration file for the specified data request:
-  write_lpjg_ins_file('lpjg-cmip7-output.ins', list_of_lpjg_ins_lines)
+  write_lpjg_ins_file(ece4_lpjg_ins_filename, list_of_lpjg_ins_lines)
 
 
   # Test the XML syntax by reading the just created file_def_nemo file:
