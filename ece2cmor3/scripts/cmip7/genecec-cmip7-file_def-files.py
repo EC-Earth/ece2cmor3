@@ -254,7 +254,7 @@ if len(sys.argv) == 2:
   exec(open(config_filename).read(), config)                   # Reading the config file
 
   # Echo the exact call of the script in the log messages:
-  print('Running:\n\n {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
+  print(' Running:\n  {:} {:}\n'.format(sys.argv[0], sys.argv[1]))
 
   # The input files:
   dr_filename             = os.path.expanduser(config['dr_filename'            ]) # dr_filename               = 'xml-files/experiment-requests/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml'
