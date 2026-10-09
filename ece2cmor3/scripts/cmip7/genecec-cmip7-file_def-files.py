@@ -127,9 +127,9 @@ def generate_xml_line_for_variable(cmip7_element, field_id):
      if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
      if element_fd.get('operation'  ): operation   = element_fd.get('operation')
      match_fd += 1
-    #print(' A  fd match for {:25} with i = {}'.format(field_id, match_fd))
+    #if verbose: print(' A  fd match for {:25} with i = {}'.format(field_id, match_fd))
     if match_fd == 0:
-     print(' No fd match for {:25} with i = {}'.format(field_id, match_fd))
+     if verbose: print(' No fd match for {:25} with i = {}'.format(field_id, match_fd))
      # Initialisation required because this variable is an returned function argument.
      element_fd = None
 
@@ -259,6 +259,9 @@ if len(sys.argv) == 2:
   ece4_file_def_file_nemo = os.path.expanduser(config['ece4_file_def_file_nemo']) # ece4_file_def_file_nemo   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_nemo_file_def.xml'
   ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
 
+  # Options:
+  verbose                 =                    config['verbose'                ]  # verbose                   = False
+
 
   if os.path.isfile(dr_filename) == False:
    print(' The file {} does not exist.'.format(dr_filename))
@@ -371,19 +374,19 @@ if len(sys.argv) == 2:
   print()
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
-  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean', nemo_dict, True)
+  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbose)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
   print()
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
-  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, True)
+  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbose)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
   ecearth_file_def_file = write_xml_file_opening(ecearth_file_def_filename)
-  write_xml_file_group(ecearth_file_def_file, 'id_file_group_ocean'     , nemo_dict, False)
-  write_xml_file_group(ecearth_file_def_file, 'id_file_group_atmosphere', oifs_dict, False)
+  write_xml_file_group(ecearth_file_def_file     , 'id_file_group_ocean'     , nemo_dict, False)
+  write_xml_file_group(ecearth_file_def_file     , 'id_file_group_atmosphere', oifs_dict, False)
   write_xml_file_closing(ecearth_file_def_file)
 
   # Writing the LPJG .ins congiguration file for the specified data request:
