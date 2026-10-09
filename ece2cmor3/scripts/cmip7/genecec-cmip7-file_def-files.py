@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
 
- Creating the various file_def files for XIOS for ECE4 based on the CMIP7 data request.
+ Creating the various file_def files for XIOS for ECE4 and the .ins file for LPJG in ECE4
+ based on an XML CMIP7 data request file.
+
+ For instance this CMIP7 XML data request file can be generated for the esm-hist experiment by:
+  ./cmip7-request.py -a -e esm-hist -p high v1.2.2.5
 
  Call example:
-  ./genecec-cmip7-file_def-files.py &> genecec-cmip7-file_def-files.log
+  ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
 
 """
 import sys
