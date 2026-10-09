@@ -104,7 +104,7 @@ def determine_operation_value(element):
    operation = 'unknown'
   return operation
 
-def generate_xml_line_for_variable(cmip7_element, field_id):
+def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
     if cmip7_element.get('expression'):
      if cmip7_element.get('expression') != 'None':
       expression = cmip7_element.get('expression').replace('&','&amp;').replace('<','&lt;')
@@ -127,9 +127,9 @@ def generate_xml_line_for_variable(cmip7_element, field_id):
      if element_fd.get('freq_offset'): freq_offset = element_fd.get('freq_offset')
      if element_fd.get('operation'  ): operation   = element_fd.get('operation')
      match_fd += 1
-    #if verbose: print(' A  fd match for {:25} with i = {}'.format(field_id, match_fd))
+     if verbosity >= 2: print(' A  fd match for {:25} with i = {}'.format(field_id, match_fd))
     if match_fd == 0:
-     if verbose: print(' No fd match for {:25} with i = {}'.format(field_id, match_fd))
+     if verbosity >= 1: print(' No fd match for {:25} with i = {}'.format(field_id, match_fd))
      # Initialisation required because this variable is an returned function argument.
      element_fd = None
 
@@ -194,7 +194,7 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     if region == '30S-90S': region = 's30'
     # Generate the XML file line for one variable, also make the inherited field_def info of
     # this variable available at this level in this function:
-    element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id)
+    element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id, verbosity_level)
     # Note that this method does not create a new XML tree, but with the group knowledge the
     # XML file is directly written
     if   element_fd == None:
@@ -260,7 +260,8 @@ if len(sys.argv) == 2:
   ece4_file_def_file_oifs = os.path.expanduser(config['ece4_file_def_file_oifs']) # ece4_file_def_file_oifs   = 'xml-files/genecec-cmip7/ec-earth-file_def-files/ece4_oifs_file_def.xml'
 
   # Options:
-  verbose                 =                    config['verbose'                ]  # verbose                   = False
+  verbosity_level         =                    config['verbosity_level'        ]  # verbosity_level           = 0          # Default 0     options: 0-3
+  show_warnings           =                    config['show_warnings'          ]  # show_warnings             = True       # Default True  options: True, False
 
 
   if os.path.isfile(dr_filename) == False:
@@ -374,13 +375,13 @@ if len(sys.argv) == 2:
   print()
   # Write the NEMO file_def XML file with all the id's:
   ecearth_nemo_file_def_file = write_xml_file_opening(ecearth_nemo_file_def_filename)
-  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbose)
+  write_xml_file_group(ecearth_nemo_file_def_file, 'id_file_group_ocean'     , nemo_dict, verbosity_level >= 1)
   write_xml_file_closing(ecearth_nemo_file_def_file)
 
   print()
   # Write the OIFS file_def XML file with all the id's:
   ecearth_oifs_file_def_file = write_xml_file_opening(ecearth_oifs_file_def_filename)
-  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbose)
+  write_xml_file_group(ecearth_oifs_file_def_file, 'id_file_group_atmosphere', oifs_dict, verbosity_level >= 1)
   write_xml_file_closing(ecearth_oifs_file_def_file)
 
   # In case we would prefer to have one XML file_def file for ECE4 (NEMO + OIFS):
