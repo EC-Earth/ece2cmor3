@@ -407,26 +407,25 @@ if len(sys.argv) == 2:
   tree_ece_file_def = ET.parse(ecearth_file_def_filename)
   root_ece_file_def = tree_ece_file_def.getroot()
 
-
-  # Print the message list for those variable-cases where the operation from inheriting differs
-  # from the one deduced from the CMIP7 branding:
-  if verbosity_level > 2:
+  # Print the warning messages for fields which are not in the fd file:
+  if show_warnings:
+   # Print the message list for those variable-cases where the operation from inheriting differs
+   # from the one deduced from the CMIP7 branding:
    print()
    print_message_list(message_list_of_operation_comparsion) # Actually a warning
 
-  # Print the warning messages for fields which are not in the fd file:
-  print_message_list(warnings_nemo['grid'  ])
-  print_message_list(warnings_oifs['grid'  ])
-  print_message_list(warnings_nemo['freq'  ])
-  print_message_list(warnings_oifs['freq'  ])
-  print_message_list(warnings_nemo['region'])
-  print_message_list(warnings_oifs['region'])
+   print_message_list(warnings_nemo['grid'  ])
+   print_message_list(warnings_oifs['grid'  ])
+   print_message_list(warnings_nemo['freq'  ])
+   print_message_list(warnings_oifs['freq'  ])
+   print_message_list(warnings_nemo['region'])
+   print_message_list(warnings_oifs['region'])
 
   # Print each .ins-file line with the CMIP7 compound name attached:
   if verbosity_level > 2:
    print_message_list(message_list_lpjg_ins_vars)
 
-  print(' The script {} has finished, the results can be found in the directory:\n  {}\n'.format(sys.argv[0], output_dir_name))
+  print(' The script {} has finished, the results can be found in the directory:\n  {}'.format(sys.argv[0], output_dir_name))
 
 else:
    print()
