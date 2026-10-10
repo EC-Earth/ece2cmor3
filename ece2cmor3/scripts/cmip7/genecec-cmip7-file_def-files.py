@@ -228,6 +228,15 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
           if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
                cmip7_element.get('dimensions') == 'longitude latitude time deltasigt'    :
                 grid = 'T_2D'
+          elif cmip7_element.get('dimensions') == 'longitude latitude olevel time':
+                if   field_id[0] == 'u':
+                      grid = 'U_3D'
+                elif field_id[0] == 'v':
+                      grid = 'V_3D'
+                elif field_id[0] == 'w':
+                      grid = 'W_3D'
+                else:
+                      grid = 'T_3D'
           elif cmip7_element.get('dimensions') == 'time':
                 grid = 'time'
           else:
