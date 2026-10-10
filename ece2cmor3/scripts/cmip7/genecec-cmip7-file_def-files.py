@@ -224,10 +224,12 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     # Note that this method does not create a new XML tree, but with the group knowledge the
     # XML file is directly written
     if   element_fd == None:
-     if   cmip7_element.get('dimensions') == 'longitude latitude time':
+     if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
+          cmip7_element.get('dimensions') == 'longitude latitude time deltasigt'    : # deltasigt only occurs in NEMO
       if model_component == 'nemo':
        grid = 'T_2D'
-      elif model_component == 'ifs' or model_component == 'tm5':
+      elif model_component == 'ifs' or \
+           model_component == 'tm5'    :
        grid = 'reduced_sfc'
      elif cmip7_element.get('dimensions') == 'time':
       grid = 'time'
