@@ -226,7 +226,8 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     if element_fd == None:
      if   model_component == 'nemo':
           if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
-               cmip7_element.get('dimensions') == 'longitude latitude time deltasigt'    :
+               cmip7_element.get('dimensions') == 'longitude latitude time deltasigt' or \
+               cmip7_element.get('dimensions') == 'longitude latitude time osurf'        :  # Not sure (no implemented similar example)
                 grid = 'T_2D'
           elif cmip7_element.get('dimensions') == 'longitude latitude olevel time':
                 if   field_id[0] == 'u':
