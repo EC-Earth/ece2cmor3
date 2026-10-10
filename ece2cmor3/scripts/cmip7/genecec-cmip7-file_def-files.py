@@ -223,25 +223,39 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id, verbosity_level)
     # Note that this method does not create a new XML tree, but with the group knowledge the
     # XML file is directly written
-    if   element_fd == None:
-     if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
-          cmip7_element.get('dimensions') == 'longitude latitude time deltasigt'    : # deltasigt only occurs in NEMO
-      if model_component == 'nemo':
-       grid = 'T_2D'
-      elif model_component == 'ifs' or \
-           model_component == 'tm5'    :
-       grid = 'reduced_sfc'
-     elif cmip7_element.get('dimensions') == 'time':
-      grid = 'time'
+    if element_fd == None:
+     if   model_component == 'nemo':
+          if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
+               cmip7_element.get('dimensions') == 'longitude latitude time deltasigt'    :
+                grid = 'T_2D'
+          elif cmip7_element.get('dimensions') == 'time':
+                grid = 'time'
+          else:
+                grid = 'other'
+                message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+                         output_freq                                           , \
+                         model_component.upper()                               , \
+                         'dimensions="' + cmip7_element.get('dimensions') + '"', \
+                         cmip7_element.get('priority')                         , \
+                         cmip7_element.get('status')                           , \
+                         cmip7_element.get('cmip7_compound_name')))
+     elif model_component == 'ifs' or \
+          model_component == 'tm5'    :
+          if   cmip7_element.get('dimensions') == 'longitude latitude time':
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'time':
+                grid = 'time'
+          else:
+                grid = 'other'
+                message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
+                         output_freq                                           , \
+                         model_component.upper()                               , \
+                         'dimensions="' + cmip7_element.get('dimensions') + '"', \
+                         cmip7_element.get('priority')                         , \
+                         cmip7_element.get('status')                           , \
+                         cmip7_element.get('cmip7_compound_name')))
      else:
-      grid = 'other' # To bypass the 'dec' case which is not implemented
-      message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
-               output_freq                                           , \
-               model_component.upper()                               , \
-               'dimensions="' + cmip7_element.get('dimensions') + '"', \
-               cmip7_element.get('priority')                         , \
-               cmip7_element.get('status')                           , \
-               cmip7_element.get('cmip7_compound_name')))
+      print(' Warning: Component {} not implemented yet here.'.format(model_component))
     else:
      if element_fd.get('grid_ref'):
       grid = element_fd.get('grid_ref').replace('grid_', '')
