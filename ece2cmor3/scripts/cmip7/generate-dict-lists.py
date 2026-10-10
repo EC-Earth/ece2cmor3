@@ -49,7 +49,8 @@ frequency = [       \
              '6hr', \
              'day', \
              'mon', \
-             'yr'   \
+             'yr',  \
+             'dec'  \
             ]
 
 region    = [       \

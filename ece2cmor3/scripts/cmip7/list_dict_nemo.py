@@ -54,6 +54,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'U_2D'          : {
@@ -100,6 +107,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -156,6 +170,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'T_3D'          : {
@@ -202,6 +223,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -258,6 +286,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'V_3D'          : {
@@ -304,6 +339,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -360,6 +402,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'T_vsum'        : {
@@ -406,6 +455,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -462,6 +518,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'time'          : {
@@ -508,6 +571,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -564,6 +634,13 @@ nemo_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'other'         : {
@@ -610,6 +687,13 @@ nemo_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere

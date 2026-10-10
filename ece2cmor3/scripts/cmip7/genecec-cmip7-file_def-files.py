@@ -85,6 +85,8 @@ def map_to_xios_freq(frequency):
          frequency =  '1mo'
     elif frequency == 'yr':
          frequency =  '1yr'
+    elif frequency == 'dec':
+         frequency =  '10yr'
     return frequency
 
 def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_with_xml_lines_of_group):
@@ -271,8 +273,7 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
       grid = element_fd.get('grid_ref').replace('grid_', '')
      else:
       grid = 'other'
-    # To bypass the 'dec' case which is not implemented
-    if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr']:
+    if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr', 'dec']:
      if region in ['glb', 'nh', 'sh', 's30', 'grl']:
       list_cluster[grid][output_freq][region].append(xml_line)
      else:

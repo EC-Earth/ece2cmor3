@@ -54,6 +54,13 @@ m7_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_plev19': {
@@ -100,6 +107,13 @@ m7_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -156,6 +170,13 @@ m7_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_pv'    : {
@@ -202,6 +223,13 @@ m7_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -258,6 +286,13 @@ m7_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'reduced_th'    : {
@@ -304,6 +339,13 @@ m7_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
@@ -360,6 +402,13 @@ m7_dict = {
                               'sh'  : [], # Southern hemisphere
                               's30' : [], # 30S-90S
                               'grl' : []  # Greenland area
+                            },
+                    'dec' : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
                             }
                    },
  'other'         : {
@@ -406,6 +455,13 @@ m7_dict = {
                               'grl' : []  # Greenland area
                             },
                     'yr'  : {
+                              'glb' : [], # Global
+                              'nh'  : [], # Northern hemisphere
+                              'sh'  : [], # Southern hemisphere
+                              's30' : [], # 30S-90S
+                              'grl' : []  # Greenland area
+                            },
+                    'dec' : {
                               'glb' : [], # Global
                               'nh'  : [], # Northern hemisphere
                               'sh'  : [], # Southern hemisphere
