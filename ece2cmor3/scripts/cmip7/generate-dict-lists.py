@@ -12,6 +12,8 @@ grid_nemo = [             \
              'T_iax_20C', \
              'time'     , \
              'basin'    , \
+             'znl_T_2D' , \
+             'znl_W_3D' , \
              'other'      \
             ]
 

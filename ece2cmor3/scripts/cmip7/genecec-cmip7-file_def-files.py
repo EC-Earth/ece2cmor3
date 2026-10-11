@@ -216,6 +216,40 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
 # a lacking grid_ref definition (see the warning list). In case of a non earlier catched
 # frequency or region, another warning will be given.
 def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, message_list):
+    # Mapping of legacy basin diagnostics to NEMO 4.2, i.e. the XIOS field_ref and grid_ref:
+    legacy_basin_diagnostics_map = {
+      # 1. Total Transports (Note the structural name change to vtr)
+      "sopht_vt_3bsn":  {"field_ref": "sophtvtr",  "grid_ref": "znl_T_2D"}, # Total Heat Transport
+      "sopst_vs_3bsn":  {"field_ref": "sopstvtr",  "grid_ref": "znl_T_2D"}, # Alternative total salt transport name
+      "sopst_vt_3bsn":  {"field_ref": "sopstvtr",  "grid_ref": "znl_T_2D"}, # Standard total Salt Transport
+      # 2. Overturning Components (Stripped _3bsn)
+      "sophtove_3bsn":  {"field_ref": "sophtove",  "grid_ref": "znl_T_2D"}, # Overturning Heat Transport
+      "sopstove_3bsn":  {"field_ref": "sopstove",  "grid_ref": "znl_T_2D"}, # Overturning Salt Transport
+      # 3. Gyre Components (Stripped _3bsn)
+      "sophtgyre_3bsn": {"field_ref": "sophtgyre", "grid_ref": "znl_T_2D"}, # Gyre Heat Transport
+      "sopstgyre_3bsn": {"field_ref": "sopstgyre", "grid_ref": "znl_T_2D"}, # Gyre Salt Transport
+      # 4. Barotropic Components (Stripped _3bsn)
+      "sophtbtr_3bsn":  {"field_ref": "sophtbtr",  "grid_ref": "znl_T_2D"}, # Barotropic Heat Transport
+      "sopstbtr_3bsn":  {"field_ref": "sopstbtr",  "grid_ref": "znl_T_2D"}, # Barotropic Salt Transport
+      # 5. Mesoscale Eddy Advection Fluxes (Stripped _3bsn)
+      "sophteiv_3bsn":  {"field_ref": "sophteiv",  "grid_ref": "znl_T_2D"}, # Eddy Induced Heat Transport
+      "sopsteiv_3bsn":  {"field_ref": "sopsteiv",  "grid_ref": "znl_T_2D"}, # Eddy Induced Salt Transport
+      # 6. Lateral Diffusion / Mixing Components (Stripped _3bsn)
+      "sophtldf_3bsn":  {"field_ref": "sophtldf",  "grid_ref": "znl_T_2D"}, # Lateral Diffusive Heat Transport
+      "sopstldf_3bsn":  {"field_ref": "sopstldf",  "grid_ref": "znl_T_2D"}, # Lateral Diffusive Salt Transport
+      # 7. Core Zonal Structural Variables (Note the W-staggering shift on overturning streamfunction)
+      "zomsf_3bsn"   :  {"field_ref": "zomsf",     "grid_ref": "znl_W_3D"}, # Overturning Stream-Function
+      "mld_3bsn"     :  {"field_ref": "zotem",     "grid_ref": "znl_T_3D"}, # Zonal Mean Temperature profile
+    }
+    if field_id in legacy_basin_diagnostics_map:
+     print(' Legacy catch {:15}: New id: {:10} with grid_ref="{}"'.format(field_id, legacy_basin_diagnostics_map[field_id]['field_ref'], legacy_basin_diagnostics_map[field_id]['grid_ref']))
+
+    zonal_reductions = {
+        "stfhtn"  : "znl_T_3D",  # Ocean  Physics Diagnostics; znltem (nemo internal naming)
+        "stfsan"  : "znl_T_3D",  # Ocean  Physics Diagnostics; znlsal (nemo internal naming)
+        "bmgc_znl": "znl_T_2D",  # PISCES Zonal   Diagnostics (if compiled with BGC zonal averages)
+    }
+
     model_component = cmip7_element.get('model_component')
     output_freq     = cmip7_element.get('frequency')
     region          = cmip7_element.get('region')
@@ -245,7 +279,22 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                 else:
                       grid = 'T_3D'
           elif cmip7_element.get('dimensions') == 'time':
-                grid = 'time'
+                 grid = 'time'
+          elif field_id in legacy_basin_diagnostics_map:
+                 # This needs a fix higher up, there where the ECE4 field_def file is created.
+                 grid = legacy_basin_diagnostics_map[field_id]['grid_ref']
+                 xml_line = xml_line.replace(field_id, legacy_basin_diagnostics_map[field_id]['field_ref'])
+                 # Adhoc fix of alignment:
+                 xml_line = xml_line.replace('priority="', '     priority="') # Fix alignment
+                 xml_line = xml_line.replace(' > '       , '      > '       ) # Fix alignment
+                 # Dirty fix for expressions:
+                 xml_line = xml_line.replace('sopht_vt_3bsn', legacy_basin_diagnostics_map['sopht_vt_3bsn']['field_ref'])
+                 xml_line = xml_line.replace('sopst_vs_3bsn', legacy_basin_diagnostics_map['sopst_vs_3bsn']['field_ref'])
+         #elif field_id in zonal_reductions:
+         #       grid = zonal_reductions[field_id]
+         #elif "taum" in field_id or "tauo" in field_id:
+         #       # 3. Ultimate structural default based on cell-type keywords in field names
+         #       grid = 'T_2D'
           else:
                 grid = 'other'
                 message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
