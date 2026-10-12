@@ -261,8 +261,10 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     # XML file is directly written
     if element_fd == None:
      if   model_component == 'nemo':
-          # For osurf no similar implemented example (correct to add this here?)
-          # With iceband related to ncatice in NEMO?
+          # The dimension deltasigt is a new scalar coordinate introduced in the CMIP7 Data Request. It stands for the density threshold criterion (Delta sigma_t) used to compute specific mixed layer properties\u2014most notably for variables like mlotstsq (Ocean Mixed Layer Thickness Square Defined by Delta Sigma-T of 0.03 kg m-3)
+          # The dimension osurf (ocean surface) is a new coordinate introduced in the CMIP7 DR. It explicitly replaces legacy depth coordinate tags (like depth0m or d0m) for ocean variables sampled at the sea surface layer.
+          # The iceband is related to the ncatice coordinate in NEMO.
+          # The olayer coordinate (ocean layer) is another structural addition used in CMIP7 data requests. It tracks quantities that are integrated or evaluated over specific defined physical layers of the ocean column (such as the upper 100 m, the upper 200m, or mixed layer subsets) rather than continuous, full-depth 3D profiles.
           if   cmip7_element.get('dimensions') == 'longitude latitude time'           or \
                cmip7_element.get('dimensions') == 'longitude latitude time deltasigt' or \
                cmip7_element.get('dimensions') == 'longitude latitude time osurf'     or \
@@ -272,12 +274,16 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
           elif cmip7_element.get('dimensions') == 'longitude latitude olevel time':
                 if   field_id[0] == 'u':
                       grid = 'U_3D'
+                      print(' Inform: in olevel determination the grid_ref="U_3D" is set for {}'.format(field_id))
                 elif field_id[0] == 'v':
                       grid = 'V_3D'
+                      print(' Inform: in olevel determination the grid_ref="V_3D" is set for {}'.format(field_id))
                 elif field_id[0] == 'w':
                       grid = 'W_3D'
+                      print(' Inform: in olevel determination the grid_ref="W_3D" is set for {}'.format(field_id))
                 else:
                       grid = 'T_3D'
+                     #print(' Inform: in olevel determination the grid_ref="T_3D" is set for {}'.format(field_id))
           elif cmip7_element.get('dimensions') == 'time':
                  grid = 'time'
           elif field_id in legacy_basin_diagnostics_map:
