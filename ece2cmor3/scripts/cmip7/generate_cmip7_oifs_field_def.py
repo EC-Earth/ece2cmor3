@@ -116,7 +116,7 @@ def main():
                                ' units={:20}' \
                                ' dimensions={:45}' \
                                ' operation={:10}' \
-                               ' branding_label={:25}' \
+                               ' branding_suffix={:25}' \
                                ' cmip7_compound_name={:55}' \
                                ' long_name={:132}' \
                                ' standard_name={:160}' \
@@ -132,7 +132,7 @@ def main():
                   '"' + cmip7_element.get('units'                  ) + '"', \
                   '"' + cmip7_element.get('dimensions'             ) + '"', \
                   '"' + determine_operation_value(cmip7_element)     + '"', \
-                  '"' + cmip7_element.get('branding_label'         ) + '"', \
+                  '"' + cmip7_element.get('branding_suffix'        ) + '"', \
                   '"' + cmip7_element.get('cmip7_compound_name'    ) + '"', \
                   '"' + cmip7_element.get('long_name'              ) + '"', \
                   '"' + cmip7_element.get('standard_name'          ) + '"', \
@@ -146,23 +146,23 @@ def main():
       return xml_line
 
   def determine_operation_value(element):
-    if   element.get('branding_label')[:5] == 'tavg-':
+    if   element.get('branding_suffix')[:5] == 'tavg-':
      operation = 'average'
-    elif element.get('branding_label')[:4] == 'tpt-':
+    elif element.get('branding_suffix')[:4] == 'tpt-':
      operation = 'instant'
-    elif element.get('branding_label')[:5] == 'tmax-':
+    elif element.get('branding_suffix')[:5] == 'tmax-':
      operation = 'maximum'
-    elif element.get('branding_label')[:5] == 'tmin-':
+    elif element.get('branding_suffix')[:5] == 'tmin-':
      operation = 'minimum'
-    elif element.get('branding_label')[:3] == 'ti-':
+    elif element.get('branding_suffix')[:3] == 'ti-':
      operation = 'once'
-   #elif element.get('branding_label')[:3] == 'tmaxavg-':
+   #elif element.get('branding_suffix')[:3] == 'tmaxavg-':
    # operation = ''                                            # Achieve: Daily Maximum
-   #elif element.get('branding_label')[:3] == 'tminavg-':
+   #elif element.get('branding_suffix')[:3] == 'tminavg-':
    # operation = ''                                            # Achieve: Daily Minimum
-   #elif element.get('branding_label')[:3] == 'tclm-':
+   #elif element.get('branding_suffix')[:3] == 'tclm-':
    # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
-   #elif element.get('branding_label')[:3] == 'tclmdc-':
+   #elif element.get('branding_suffix')[:3] == 'tclmdc-':
    # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
     else:
      operation = 'unknown'
