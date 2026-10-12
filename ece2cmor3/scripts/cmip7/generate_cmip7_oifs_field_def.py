@@ -27,6 +27,7 @@
 
 """
 import sys
+import os
 import subprocess
 import argparse
 import xml.etree.ElementTree as ET
@@ -73,11 +74,17 @@ def main():
 
   # Load the ecearth_field_def_inherited_nf_file:
   ecearth_field_def_inherited_nf_filename = 'xml-files/genecec-cmip7/ec-earth-definition/ec-earth-definition-inherited-neat-formatted.xml'
+  if os.path.isfile(ecearth_field_def_inherited_nf_filename) == False:
+   print(' The file {} does not exist.'.format(ecearth_field_def_inherited_nf_filename))
+   sys.exit(' Stop in: {}'.format(sys.argv[0]))
   tree_ecearth_field_def_inherited_nf = ET.parse(ecearth_field_def_inherited_nf_filename)
   root_ecearth_field_def_inherited_nf = tree_ecearth_field_def_inherited_nf.getroot()
 
   # Load the CMIP7 request with the identified info from CMIP6 - ECE3 mapped to the CMIP7 request:
   xml_filename_priority_ordered = 'xml-files/genecec-cmip7/identify-ece4-cmip7/cmip7-request-{}-all-full-priority.xml'.format(dr_version)
+  if os.path.isfile(xml_filename_priority_ordered) == False:
+   print(' The file {} does not exist.'.format(xml_filename_priority_ordered))
+   sys.exit(' Stop in: {}'.format(sys.argv[0]))
   tree_cmip7_request = ET.parse(xml_filename_priority_ordered)
   root_cmip7_request = tree_cmip7_request.getroot()
 
