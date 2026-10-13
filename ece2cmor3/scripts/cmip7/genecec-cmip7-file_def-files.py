@@ -104,23 +104,23 @@ def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_
     return
 
 def determine_operation_value(element):
-  if   element.get('branding_label')[:5] == 'tavg-':
+  if   element.get('branding_suffix')[:5] == 'tavg-':
    operation = 'average'
-  elif element.get('branding_label')[:4] == 'tpt-':
+  elif element.get('branding_suffix')[:4] == 'tpt-':
    operation = 'instant'
-  elif element.get('branding_label')[:5] == 'tmax-':
+  elif element.get('branding_suffix')[:5] == 'tmax-':
    operation = 'maximum'
-  elif element.get('branding_label')[:5] == 'tmin-':
+  elif element.get('branding_suffix')[:5] == 'tmin-':
    operation = 'minimum'
-  elif element.get('branding_label')[:3] == 'ti-':
+  elif element.get('branding_suffix')[:3] == 'ti-':
    operation = 'once'
- #elif element.get('branding_label')[:3] == 'tmaxavg-':
+ #elif element.get('branding_suffix')[:3] == 'tmaxavg-':
  # operation = ''                                            # Achieve: Daily Maximum
- #elif element.get('branding_label')[:3] == 'tminavg-':
+ #elif element.get('branding_suffix')[:3] == 'tminavg-':
  # operation = ''                                            # Achieve: Daily Minimum
- #elif element.get('branding_label')[:3] == 'tclm-':
+ #elif element.get('branding_suffix')[:3] == 'tclm-':
  # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
- #elif element.get('branding_label')[:3] == 'tclmdc-':
+ #elif element.get('branding_suffix')[:3] == 'tclmdc-':
  # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
   else:
    operation = 'unknown'
@@ -183,7 +183,7 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
                              ' region={:12}' \
                              ' frequency={:12}' \
                              ' dimensions={:45}' \
-                             ' branding_label={:25}' \
+                             ' branding_suffix={:25}' \
                              ' cmip6_table={:14}' \
                              ' physical_parameter_name={:28}' \
                              ' ifs_shortname={:13}' \
@@ -203,7 +203,7 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
                 '"' + cmip7_element.get('region'                 ) + '"', \
                 '"' + cmip7_element.get('frequency'              ) + '"', \
                 '"' + cmip7_element.get('dimensions'             ) + '"', \
-                '"' + cmip7_element.get('branding_label'         ) + '"', \
+                '"' + cmip7_element.get('branding_suffix'        ) + '"', \
                 '"' + cmip7_element.get('cmip6_table'            ) + '"', \
                 '"' + cmip7_element.get('physical_parameter_name') + '"', \
                 '"' + cmip7_element.get('ifs_shortname'          ) + '"', \
