@@ -142,10 +142,10 @@ if [ "$#" -eq 1 ]; then
  ./cmip7-request.py -a -e piControl  -p high ${data_request_version}
  ./cmip7-request.py -a -e historical -p high ${data_request_version}
  ./cmip7-request.py -a -e esm-hist   -p high ${data_request_version}
- mv cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/cmip7-request-${data_request_version}-core.xml
- mv cmip7-request-${data_request_version}-piControl/cmip7-request-${data_request_version}-piControl-priority-ordered.xml   xml-files/experiment-requests/
- mv cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/
- mv cmip7-request-${data_request_version}-esm-hist/cmip7-request-${data_request_version}-esm-hist-priority-ordered.xml     xml-files/experiment-requests/
+ rsync -a cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/cmip7-request-${data_request_version}-core.xml
+ rsync -a cmip7-request-${data_request_version}-piControl/cmip7-request-${data_request_version}-piControl-priority-ordered.xml   xml-files/experiment-requests/
+ rsync -a cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/
+ rsync -a cmip7-request-${data_request_version}-esm-hist/cmip7-request-${data_request_version}-esm-hist-priority-ordered.xml     xml-files/experiment-requests/
 
   # Creating NEMO & OIFS file_def files and the .ins LPJG file:
   ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
