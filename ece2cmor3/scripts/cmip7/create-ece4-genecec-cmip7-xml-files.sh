@@ -129,6 +129,10 @@ if [ "$#" -eq 1 ]; then
   echo
   echo " The xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 contains ${number_of_variables} well defined variables."
 
+  # Creating NEMO & OIFS file_def files and the .ins LPJG file:
+  ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
+
+
  ## With that we can run (actually this script is REPLACED BY the            identify-ece4-cmip7-request.py script):
   # With that we can run (actually this script is REPLACED BY the simplified-identify-ece4-cmip7-request.py script):
   # Depending on the genecec-cmip7 input files:

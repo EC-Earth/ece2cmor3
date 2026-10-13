@@ -225,7 +225,8 @@
 # for the export_dreq_lists_json.py script. This "all" list could be used to make one basic list with all collected info
 # like the previous basic flat file. This would be an alternative variant approch to the described plan above.
 
-
+ # Creating NEMO & OIFS file_def files and the .ins LPJG file:
+ ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
 
 
  # Archive the most important, best ordered XML files:

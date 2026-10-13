@@ -463,7 +463,7 @@ def main():
                                 'comment'               \
                                ]:
             print(' WARNING: attribute missed: {} tag={}'.format(attribute, elem_nf.tag))
-          ecearth_field_def_nf.write(' {:55} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
+          ecearth_field_def_nf.write(' {:73} {:40} {:17} {:25} {:42} {:18} {:40} {:20} {:18} {:22} {:50} {:31} {:9} {:19}{:99} {:102} {:58}' \
                                      .format(attribute_id                  , \
                                              attribute_field_ref           , \
                                              attribute_enabled             , \

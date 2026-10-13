@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+
+grid_nemo = [             \
+             'T_2D'     , \
+             'U_2D'     , \
+             'V_2D'     , \
+             'T_3D'     , \
+             'U_3D'     , \
+             'V_3D'     , \
+             'W_3D'     , \
+             'T_vsum'   , \
+             'T_iax_20C', \
+             'time'     , \
+             'basin'    , \
+             'znl_T_2D' , \
+             'znl_W_3D' , \
+             'other'      \
+            ]
+
+# grep -e '<field ' ec-earth-definition-inherited-neat-formatted.xml | sed -e 's/^.*grid_ref/grid_ref/' -e 's/operation.*$//' -e 's/name=.*$//' -e 's/ //g' | sort | uniq
+#   Encountered grid_ref for OIFS in ECE4 inherited field_def:
+#   grid_ref="reduced_ml"
+#   grid_ref="reduced_plev39"
+#   grid_ref="reduced_pv"
+#   grid_ref="reduced_sfc"
+#   grid_ref="reduced_th"
+# Add also:
+#   grid_ref="reduced_plev39"
+
+# Possibly other OIFS groups to be implemented:
+# group_lon_lat_alevel_time
+# group_lon_lat_plev3_time1
+# group_lon_lat_time_height2m
+# group_lon_lat_time_height10m
+
+grid_oifs = [                   \
+             'reduced_ml'     , \
+             'reduced_plev19' , \
+             'reduced_plev39' , \
+             'reduced_pv'     , \
+             'reduced_sfc'    , \
+             'reduced_th'     , \
+             'time'           , \
+             'other'            \
+            ]
+
+frequency = [       \
+             'fx' , \
+             '1hr', \
+             '3hr', \
+             '6hr', \
+             'day', \
+             'mon', \
+             'yr',  \
+             'dec'  \
+            ]
+
+region    = [       \
+             'glb', \
+             'nh' , \
+             'sh' , \
+             's30', \
+             'grl'  \
+            ]
+
+def map_comment(region):
+    if   region == 'glb':
+     comment = 'Global'
+    elif region == 'nh':
+     comment = 'Northern hemisphere'
+    elif region == 'sh':
+     comment = 'Southern hemisphere'
+    elif region == 's30':
+     comment = '30S-90S'
+    elif region == 'grl':
+     comment = 'Greenland area'
+    else:
+     comment = ''
+    return comment
+
+
+def write_list_module(file_name, grid, head_file):
+    dict_list_file = open(file_name, 'w')
+    dict_list_file.write('{}\n'.format(head_file.strip()))
+    for ii in grid:
+     dict_list_file.write(' {:16}: {{\n'.format("'" + ii + "'"))
+     for jj in frequency:
+      dict_list_file.write('                    {:6}: {{\n'.format("'" + jj + "'"))
+      for kk in region:
+       if kk == region[-1]:
+        dict_list_file.write('                              {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+       else:
+        dict_list_file.write('                              {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Usual
+      if jj == frequency[-1]:
+       dict_list_file.write('                            }\n')                                                           # Closing
+      else:
+       dict_list_file.write('                            },\n')                                                          # Usual
+     if ii == grid[-1]:
+      dict_list_file.write('                   }\n')                                                                     # Closing
+     else:
+      dict_list_file.write('                   },\n')                                                                    # Usual
+    dict_list_file.write('}\n')
+    dict_list_file.close()
+
+head_nemo_file = \
+'''
+#!/usr/bin/env python3
+
+nemo_dict = {
+ # The nested dictionary of lists for NEMO with string indices for:
+ #  grid_ref (or dimensional shape cases)
+ #  frequency
+ #  region
+'''
+
+head_oifs_file = head_nemo_file.replace('NEMO', 'OIFS').replace('nemo', 'oifs')
+head_m7_file   = head_nemo_file.replace('NEMO', 'M7'  ).replace('nemo', 'm7')
+
+write_list_module('list_dict_nemo.py', grid_nemo, head_nemo_file)
+write_list_module('list_dict_oifs.py', grid_oifs, head_oifs_file)
+write_list_module('list_dict_m7.py'  , grid_oifs, head_m7_file  )
