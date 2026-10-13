@@ -94,14 +94,14 @@ def main():
       if args.showextracolumns == False:
        varasciifile.write(' {:14} {:25}     {:65}   {}\n'                                                                                             .format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name'))
       else:
-       varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_label' ,'cmip6_compound_name' ,'long_name' ,'standard_name' ,'units' ,'dimensions' ,'frequency' ,'temporal_shape' ,'spatial_shape' ,'region' ,'cell_measures' ,'cell_methods' ,'modeling_realm' ,'out_name' ,'type'))
+       varasciifile.write(' {:14} {:25}     {:65}   {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format('cmip6 table', 'cmip6 variable name', 'cmip7 compound name', 'cmip7 branded variable name', 'branding_suffix', 'cmip6_compound_name', 'long_name', 'standard_name', 'units', 'dimensions', 'frequency', 'temporal_shape', 'spatial_shape', 'region', 'cell_measures', 'cell_methods', 'modeling_realm', 'out_name', 'type'))
       varasciifile.write('\n')
 
       for k, v in all_var_info.items():
        if args.showextracolumns == False:
         varasciifile.write(' {:14} {:25} ==> {:65} | {}\n'                                                                                             .format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name']))
        else:
-        varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_label'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
+        varasciifile.write(' {:14} {:25} ==> {:65} | {:40} {:25} {:40} {:130} {:160} {:20} {:45} {:15} {:25} {:15} {:15} {:35} {:140} {:33} {:25} {}\n'.format(v['cmip6_table'], v['physical_parameter_name'], k, v['branded_variable_name'], v['branding_suffix'] ,v['cmip6_compound_name'] ,v['long_name'] ,v['standard_name'] ,v['units'] ,v['dimensions'] ,v['frequency'] ,v['temporal_shape'] ,v['spatial_shape'] ,v['region'] ,v['cell_measures'] ,v['cell_methods'] ,v['modeling_realm'] ,v['out_name'] ,v['type']))
 
     if args.showmetadata:
      # Write the metadata of the selected list of variables to a json file:
@@ -122,11 +122,11 @@ def main():
      count_dim_changed = 0
      for k, v in all_var_info.items():
       variable_id = re.sub(r'_.*','', v['branded_variable_name'])
-      varxmlfile.write('  <variable  cmip7_compound_name={:55} variable_id={:28} branded_variable_name={:44} branding_label={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
+      varxmlfile.write('  <variable  cmip7_compound_name={:55} variable_id={:28} branded_variable_name={:44} branding_suffix={:25} cmip6_table={:14} physical_parameter_name={:28} cmip6_compound_name={:40} long_name={:132} standard_name={:160} units={:20} dimensions={:45} frequency={:15} temporal_shape={:25} spatial_shape={:15} region={:15} cell_measures={:35} cell_methods={:140} modeling_realm={:33} out_name={:28} type={:10} >   </variable>\n' \
                          .format('"' + k                            + '"', \
                                  '"' + variable_id                  + '"', \
                                  '"' + v['branded_variable_name'  ] + '"', \
-                                 '"' + v['branding_label'         ] + '"', \
+                                 '"' + v['branding_suffix'        ] + '"', \
                                  '"' + v['cmip6_table'            ] + '"', \
                                  '"' + v['physical_parameter_name'] + '"', \
                                  '"' + v['cmip6_compound_name'    ] + '"', \
