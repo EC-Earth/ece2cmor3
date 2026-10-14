@@ -282,8 +282,8 @@ that are available in the tidal-forcing implementation (see
     <field id="ttbl_cav"        long_name="temperature in Losch tbl"                      unit="degC"     />
     <field id="ttbl_par"        long_name="temperature in the parametrisation boundary layer" unit="degC" />
     <field id="stbl"            long_name="salinity in the Losh tbl"                      unit="1e-3"     />
-    <field id="utbl2"           long_name="zonal current in the Losh tbl at T point"      unit="m/s"      />
-    <field id="vtbl2"           long_name="merid current in the Losh tbl at T point"      unit="m/s"      />
+    <field id="utbl"            long_name="zonal current in the Losh tbl at T point"      unit="m/s"      />
+    <field id="vtbl"            long_name="merid current in the Losh tbl at T point"      unit="m/s"      />
     <field id="isfustar"        long_name="ustar at T point used in ice shelf melting"    unit="m/s"      />
 
   </field_group> <!-- grid_T -->
@@ -292,7 +292,7 @@ that are available in the tidal-forcing implementation (see
     <field id="20d" long_name="Depth of 20C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_20C" /> 
     <field id="26d" long_name="Depth of 26C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_26C" />
     <field id="28d" long_name="Depth of 28C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_28C" /> 
-  </field_group> <!-- grid_T_iso -->
+  </field_group> <!-- grid_T_iso ->
 
   <!-- Tides -->
 
@@ -477,9 +477,9 @@ that are available in the tidal-forcing implementation (see
       <field id="ssq"         long_name="Saturation specific humidity of air at z=0"    standard_name="surface_air_saturation_spec_humidity"  unit="kg/kg" />
       <field id="wspd_blk"    long_name="Bulk wind speed at z=zu"                       standard_name="bulk_wind_speed_at_zu"                 unit="m/s"   />
       <!-- ln_blk + key_si3 -->
-      <field id="Cd_ice2"     long_name="Drag coefficient over ice"                     standard_name="drag_coefficient_ice"                 unit="1"  />
-      <field id="Ce_ice2"     long_name="Evaporaion coefficient over ice"               standard_name="evap_coefficient_ice"                 unit="1"  />
-      <field id="Ch_ice2"     long_name="Sensible heat coefficient over ice"            standard_name="sensible_heat_coefficient_ice"        unit="1"  />
+      <field id="Cd_ice"      long_name="Drag coefficient over ice"                     standard_name="drag_coefficient_ice"                 unit="1"  />
+      <field id="Ce_ice"      long_name="Evaporaion coefficient over ice"               standard_name="evap_coefficient_ice"                 unit="1"  />
+      <field id="Ch_ice"      long_name="Sensible heat coefficient over ice"            standard_name="sensible_heat_coefficient_ice"        unit="1"  />
 
       <!-- available key_oasis3 -->
       <field id="snow_ao_cea"  long_name="Snow over ice-free ocean (cell average)"   standard_name="snowfall_flux"                             unit="kg/m2/s"  />
@@ -901,7 +901,7 @@ that are available in the tidal-forcing implementation (see
     <field id="sophtbtr"      long_name="Barotropic Heat Transport: All basins"                        unit="PW"         grid_ref="grid_znl_T_2D" />
     <field id="sopstbtr"      long_name="Barotropic Salt Transport: All basins"                        unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
     <field id="sophtadv"      long_name="Advective Heat Transport: All basins"                         unit="PW"         grid_ref="grid_znl_T_2D" />
-    <field id="sopstadv2"      long_name="Advective Salt Transport: All basins"                         unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
+    <field id="sopstadv"      long_name="Advective Salt Transport: All basins"                         unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
     <field id="sophtldf"      long_name="Diffusive Heat Transport: All basins"                         unit="PW"         grid_ref="grid_znl_T_2D" />
     <field id="sopstldf"      long_name="Diffusive Salt Transport: All basins"                         unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
     <field id="sophtvtr"      long_name="Heat Transport : All basins"                                  unit="PW"         grid_ref="grid_znl_T_2D" />
@@ -1029,8 +1029,8 @@ that are available in the tidal-forcing implementation (see
     <field id="strd_totad_li"    long_name="layer integrated salt-trend: total advection"         unit="kg/(m^2 s)"    > strd_totad_e3t * 1026.0 * 0.001  </field>
     <field id="ttrd_osm_li"    long_name="layer integrated heat-trend: non-local OSM"         unit="W/m^2"     > ttrd_osm_e3t * 1026.0 * 3991.86795711963 </field>
     <field id="strd_osm_li"    long_name="layer integrated salt-trend: non-local OSM"         unit="kg/(m^2 s)"    > strd_osm_e3t * 1026.0 * 0.001  </field>
-    <field id="ttrd_evd_li2"     long_name="layer integrated heat-trend: EVD convection"          unit="W/m^2"    > ttrd_evd_e3t * 1026.0 * 3991.86795711963 </field>
-    <field id="strd_evd_li2"     long_name="layer integrated salt-trend: EVD convection"          unit="kg/(m^2 s)"  > strd_evd_e3t * 1026.0 * 0.001  </field>
+    <field id="ttrd_evd_li"      long_name="layer integrated heat-trend: EVD convection"          unit="W/m^2"    > ttrd_evd_e3t * 1026.0 * 3991.86795711963 </field>
+    <field id="strd_evd_li"      long_name="layer integrated salt-trend: EVD convection"          unit="kg/(m^2 s)"  > strd_evd_e3t * 1026.0 * 0.001  </field>
     <field id="ttrd_iso_li"      long_name="layer integrated heat-trend: isopycnal diffusion"     unit="W/m^2" > ttrd_iso_e3t * 1026.0 * 3991.86795711963 </field>
     <field id="strd_iso_li"      long_name="layer integrated salt-trend: isopycnal diffusion"     unit="kg/(m^2 s)" > strd_iso_e3t * 1026.0 * 0.001  </field>
     <field id="ttrd_zdfp_li"     long_name="layer integrated heat-trend: pure vert. diffusion"    unit="W/m^2" > ttrd_zdfp_e3t * 1026.0 * 3991.86795711963 </field>
@@ -1148,7 +1148,7 @@ that are available in the tidal-forcing implementation (see
   <!-- shared variables available with TOP interface -->
   <field_group id="top_shared" grid_ref="grid_T_3D">
     <field id="xeps"           long_name="Broadband light attenuation"                     unit="-"                            />
-    <field id="Heup2"          long_name="Euphotic layer depth"                            unit="m"     grid_ref="grid_T_2D"   />
+    <field id="Heup"           long_name="Euphotic layer depth"                            unit="m"     grid_ref="grid_T_2D"   />
   </field_group>
 
 
