@@ -21,7 +21,11 @@ def print_next_step_message(step, comment):
 
 def main():
 
- ece4_xios_dir               ='/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/'
+ # Update from the ECE4 repo:
+#rsync -a ~/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def* ../../resources/ecearth4-xios/
+
+#ece4_xios_dir               ='~/ec-earth/ecearth4/scripts/runtime/templates/xios/'
+ ece4_xios_dir               ='../../resources/ecearth4-xios/'
 
  # For a number of variables duplicate id's exist, one of the pair has got a deviating id by the addition of a 2 in the
  # id name. This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
