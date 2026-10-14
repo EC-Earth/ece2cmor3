@@ -134,7 +134,6 @@ if len(sys.argv) == 2:
    output_dir_name = 'xml-files/genecec-cmip7/ping-files/'
    subprocess.run(["mkdir", "-p", output_dir_name])
 
-   offline_mode = True
    if not offline_mode:
     # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
     previous_working_dir = os.getcwd()
