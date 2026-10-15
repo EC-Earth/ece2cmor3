@@ -27,14 +27,10 @@ grid_nemo = [             \
 # Add also:
 #   grid_ref="reduced_plev39"
 
-# Possibly other OIFS groups to be implemented:
-# group_lon_lat_alevel_time
-# group_lon_lat_plev3_time1
-# group_lon_lat_time_height2m
-# group_lon_lat_time_height10m
-
 grid_oifs = [                   \
              'reduced_ml'     , \
+             'reduced_plev3'  , \
+             'reduced_plev7h' , \
              'reduced_plev19' , \
              'reduced_plev39' , \
              'reduced_pv'     , \

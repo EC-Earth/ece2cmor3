@@ -326,10 +326,17 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                cmip7_element.get('dimensions') == 'longitude latitude time4 height2m'      :
                 grid = 'reduced_sfc'
           elif cmip7_element.get('dimensions') == 'longitude latitude time height10m'   or \
-               cmip7_element.get('dimensions') == 'longitude latitude time1 height10m'     :
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height10m'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time4 height10m'     :
                 grid = 'reduced_sfc'
           elif cmip7_element.get('dimensions') == 'longitude latitude time height100m'  or \
                cmip7_element.get('dimensions') == 'longitude latitude time1 height100m'    :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time sdepth10cm'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 sdepth10cm'    :
+                grid = 'reduced_sfc'
+          elif 'longitude latitude time p'  in cmip7_element.get('dimensions') or \
+               'longitude latitude time1 p' in cmip7_element.get('dimensions')    :
                 grid = 'reduced_sfc'
           elif cmip7_element.get('dimensions') == 'longitude latitude':
                 grid = 'reduced_sfc'
@@ -337,6 +344,10 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                cmip7_element.get('dimensions') == 'longitude latitude alevel time1'     or \
                cmip7_element.get('dimensions') == 'longitude latitude alevel time2'        :
                 grid = 'reduced_ml'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1':
+                grid = 'reduced_plev3'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev7h time1':
+                grid = 'reduced_plev7h'
           elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
                 grid = 'reduced_plev19'
           elif cmip7_element.get('dimensions') == 'time':
