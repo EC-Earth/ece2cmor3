@@ -317,9 +317,15 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
        grid = 'other'
     elif model_component == 'ifs' or \
          model_component == 'tm5'    :
-     if element_fd == None:
+    #if element_fd == None:
           if   cmip7_element.get('dimensions') == 'longitude latitude time':
                 grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time1' or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time2'    :
+                grid = 'reduced_ml'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
+                grid = 'reduced_plev19'
           elif cmip7_element.get('dimensions') == 'time':
                 grid = 'time'
           else:
@@ -331,11 +337,11 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('priority')                         , \
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
-     else:
-      if element_fd.get('grid_ref'):
-       grid = element_fd.get('grid_ref').replace('grid_', '')
-      else:
-       grid = 'other'
+    #else:
+    # if element_fd.get('grid_ref'):
+    #  grid = element_fd.get('grid_ref').replace('grid_', '')
+    # else:
+    #  grid = 'other'
     else:
      print(' Warning: Component {} not implemented yet here.'.format(model_component))
 
