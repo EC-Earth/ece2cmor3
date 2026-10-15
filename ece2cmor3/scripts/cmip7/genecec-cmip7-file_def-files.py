@@ -350,8 +350,14 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                 grid = 'reduced_plev7h'
           elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
                 grid = 'reduced_plev19'
+          elif cmip7_element.get('dimensions') == 'latitude plev39 time':
+                grid = 'lat_plev39'
           elif cmip7_element.get('dimensions') == 'time':
                 grid = 'time'
+          elif cmip7_element.get('dimensions') == 'longitude latitude sdepth time':
+                grid = 'reduced_sfc_sdepth'
+          elif cmip7_element.get('dimensions') == 'longitude latitude sdepth':
+                grid = 'reduced_sfc_sdepth'
           else:
                 grid = 'other'
                 message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
