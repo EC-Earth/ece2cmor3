@@ -310,6 +310,11 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('priority')                         , \
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
+     else:
+      if element_fd.get('grid_ref'):
+       grid = element_fd.get('grid_ref').replace('grid_', '')
+      else:
+       grid = 'other'
     elif model_component == 'ifs' or \
          model_component == 'tm5'    :
      if element_fd == None:
