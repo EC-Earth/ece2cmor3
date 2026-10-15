@@ -318,11 +318,24 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     elif model_component == 'ifs' or \
          model_component == 'tm5'    :
     #if element_fd == None:
-          if   cmip7_element.get('dimensions') == 'longitude latitude time':
+          if   cmip7_element.get('dimensions') == 'longitude latitude time'             or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1'               :
                 grid = 'reduced_sfc'
-          elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'  or \
-               cmip7_element.get('dimensions') == 'longitude latitude alevel time1' or \
-               cmip7_element.get('dimensions') == 'longitude latitude alevel time2'    :
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'    or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height2m'   or \
+               cmip7_element.get('dimensions') == 'longitude latitude time4 height2m'      :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height10m'   or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height10m'     :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height100m'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height100m'    :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude':
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'      or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time1'     or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time2'        :
                 grid = 'reduced_ml'
           elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
                 grid = 'reduced_plev19'
