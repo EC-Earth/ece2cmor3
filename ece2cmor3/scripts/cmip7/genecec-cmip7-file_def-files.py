@@ -259,8 +259,8 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id, verbosity_level)
     # Note that this method does not create a new XML tree, but with the group knowledge the
     # XML file is directly written
-    if element_fd == None:
-     if   model_component == 'nemo':
+    if   model_component == 'nemo':
+     if element_fd == None:
           # The dimension deltasigt is a new scalar coordinate introduced in the CMIP7 Data Request. It stands for the density threshold criterion (Delta sigma_t) used to compute specific mixed layer properties\u2014most notably for variables like mlotstsq (Ocean Mixed Layer Thickness Square Defined by Delta Sigma-T of 0.03 kg m-3)
           # The dimension osurf (ocean surface) is a new coordinate introduced in the CMIP7 DR. It explicitly replaces legacy depth coordinate tags (like depth0m or d0m) for ocean variables sampled at the sea surface layer.
           # The iceband is related to the ncatice coordinate in NEMO.
@@ -310,8 +310,9 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('priority')                         , \
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
-     elif model_component == 'ifs' or \
-          model_component == 'tm5'    :
+    elif model_component == 'ifs' or \
+         model_component == 'tm5'    :
+     if element_fd == None:
           if   cmip7_element.get('dimensions') == 'longitude latitude time':
                 grid = 'reduced_sfc'
           elif cmip7_element.get('dimensions') == 'time':
@@ -326,12 +327,13 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
      else:
-      print(' Warning: Component {} not implemented yet here.'.format(model_component))
+      if element_fd.get('grid_ref'):
+       grid = element_fd.get('grid_ref').replace('grid_', '')
+      else:
+       grid = 'other'
     else:
-     if element_fd.get('grid_ref'):
-      grid = element_fd.get('grid_ref').replace('grid_', '')
-     else:
-      grid = 'other'
+     print(' Warning: Component {} not implemented yet here.'.format(model_component))
+
     if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr', 'dec']:
      if region in ['glb', 'nh', 'sh', 's30', 'grl']:
       list_cluster[grid][output_freq][region].append(xml_line)
