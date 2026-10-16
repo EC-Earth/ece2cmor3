@@ -37,7 +37,8 @@ def main():
  field_def_file_ifs_raw      = ece4_xios_dir + 'field_def_oifs_raw.xml.j2'
  field_def_file_ifs_cmip6    = ece4_xios_dir + 'field_def_oifs_cmip6.xml.j2'
  field_def_file_ifs_noncmip6 = ece4_xios_dir + 'field_def_oifs_noncmip6.xml.j2'
- field_def_file_ifs_cmip7    = './xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2'
+#field_def_file_ifs_cmip7    = './xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2'
+ field_def_file_ifs_cmip7    = './xml-files/field_def_oifs_cmip7.xml.j2'
  # Not yet existing:
  field_def_file_lpj          = ece4_xios_dir + 'field_def_lpjg.xml.j2'
 
@@ -51,6 +52,8 @@ def main():
                              #field_def_file_ifs_cmip7     \
                              #field_def_file_lpj           \
                              ]
+ # Including field_def_file_ifs_cmip7 actually does not make much difference, they are already: only the grid_ref is set
+ # explicitly because of the inheriting scan on this file.
 
  if True:
   # Scan the field_def file stucture, how many layers (child, grandchild and so on). Discover whether a field_group
