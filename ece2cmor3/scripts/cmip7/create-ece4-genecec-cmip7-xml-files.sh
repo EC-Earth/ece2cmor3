@@ -129,6 +129,24 @@ if [ "$#" -eq 1 ]; then
   echo
   echo " The xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7_cleaned.xml.j2 contains ${number_of_variables} well defined variables."
 
+ # Experiment requests are archived in the xml-files/experiment-requests/ directory. Here a kind
+ # of intermediate layer is created because also CMIP7 adjusted data requests could be made. For
+ # instance combined requests, or manual adjusted requests.
+ # We choose the *-priority-ordered.xml because these files already include all the data request
+ # attributes (and thus the CMOR table attributes). This means an xml merge tool has to be added
+ # to combine two xml files.
+ # Another choice could have been to use the json file, with the advantage that we have a json file
+ # merge tool already.
+ mkdir -p xml-files/experiment-requests/
+ ./cmip7-request.py -a -e historical -p core ${data_request_version}
+ ./cmip7-request.py -a -e piControl  -p high ${data_request_version}
+ ./cmip7-request.py -a -e historical -p high ${data_request_version}
+ ./cmip7-request.py -a -e esm-hist   -p high ${data_request_version}
+ rsync -a cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/cmip7-request-${data_request_version}-core.xml
+ rsync -a cmip7-request-${data_request_version}-piControl/cmip7-request-${data_request_version}-piControl-priority-ordered.xml   xml-files/experiment-requests/
+ rsync -a cmip7-request-${data_request_version}-historical/cmip7-request-${data_request_version}-historical-priority-ordered.xml xml-files/experiment-requests/
+ rsync -a cmip7-request-${data_request_version}-esm-hist/cmip7-request-${data_request_version}-esm-hist-priority-ordered.xml     xml-files/experiment-requests/
+
   # Creating NEMO & OIFS file_def files and the .ins LPJG file:
   ./genecec-cmip7-file_def-files.py config-genecec-cmip7-file_def > genecec-cmip7-file_def-files.log
 

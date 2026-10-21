@@ -21,18 +21,26 @@ def print_next_step_message(step, comment):
 
 def main():
 
- field_def_file_inn          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-innerttrc.xml.j2'
- field_def_file_pis          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-pisces.xml.j2'
- field_def_file_ice          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-ice.xml.j2'
-#field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2'
+ # Update from the ECE4 repo:
+#rsync -a ~/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def* ../../resources/ecearth4-xios/
+
+#ece4_xios_dir               ='~/ec-earth/ecearth4/scripts/runtime/templates/xios/'
+ ece4_xios_dir               ='../../resources/ecearth4-xios/'
+
  # For a number of variables duplicate id's exist, one of the pair has got a deviating id by the addition of a 2 in the
  # id name. This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
- field_def_file_oce          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_nemo-oce.xml.j2-unique-id'
- field_def_file_ifs_raw      = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_raw.xml.j2'
- field_def_file_ifs_cmip6    = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_cmip6.xml.j2'
- field_def_file_ifs_noncmip6 = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_oifs_noncmip6.xml.j2'
- field_def_file_ifs_cmip7    = './xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2'                               # Created at the end of this script
- field_def_file_lpj          = '/home/reerink/ec-earth/ecearth4/scripts/runtime/templates/xios/field_def_lpjg.xml.j2'               # Not existing yet
+ field_def_file_oce          = ece4_xios_dir + 'field_def_nemo-oce.xml.j2-unique-id'
+#field_def_file_oce          = ece4_xios_dir + 'field_def_nemo-oce.xml.j2'
+ field_def_file_ice          = ece4_xios_dir + 'field_def_nemo-ice.xml.j2'
+ field_def_file_pis          = ece4_xios_dir + 'field_def_nemo-pisces.xml.j2'
+ field_def_file_inn          = ece4_xios_dir + 'field_def_nemo-innerttrc.xml.j2'
+ field_def_file_ifs_raw      = ece4_xios_dir + 'field_def_oifs_raw.xml.j2'
+ field_def_file_ifs_cmip6    = ece4_xios_dir + 'field_def_oifs_cmip6.xml.j2'
+ field_def_file_ifs_noncmip6 = ece4_xios_dir + 'field_def_oifs_noncmip6.xml.j2'
+#field_def_file_ifs_cmip7    = './xml-files/genecec-cmip7/oifs-field_def/field_def_oifs_cmip7.xml.j2'
+ field_def_file_ifs_cmip7    = './xml-files/field_def_oifs_cmip7.xml.j2'
+ # Not yet existing:
+ field_def_file_lpj          = ece4_xios_dir + 'field_def_lpjg.xml.j2'
 
  field_def_file_collection = [field_def_file_inn         , \
                               field_def_file_pis         , \
@@ -44,6 +52,8 @@ def main():
                              #field_def_file_ifs_cmip7     \
                              #field_def_file_lpj           \
                              ]
+ # Including field_def_file_ifs_cmip7 actually does not make much difference, they are already: only the grid_ref is set
+ # explicitly because of the inheriting scan on this file.
 
  if True:
   # Scan the field_def file stucture, how many layers (child, grandchild and so on). Discover whether a field_group

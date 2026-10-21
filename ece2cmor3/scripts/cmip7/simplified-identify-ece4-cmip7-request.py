@@ -144,7 +144,7 @@ def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
                                 ' standard_name={:160}' \
                                 ' modeling_realm={:33}' \
                                 ' branded_variable_name={:44}' \
-                                ' branding_label={:25}' \
+                                ' branding_suffix={:25}' \
                                 ' cmip6_compound_name={:40}' \
                                 ' temporal_shape={:25}' \
                                 ' spatial_shape={:15}' \
@@ -173,7 +173,7 @@ def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
                     '"' + element.get('standard_name'          )                                          + '"', \
                     '"' + element.get('modeling_realm'         )                                          + '"', \
                     '"' + element.get('branded_variable_name'  )                                          + '"', \
-                    '"' + element.get('branding_label'         )                                          + '"', \
+                    '"' + element.get('branding_suffix'        )                                          + '"', \
                     '"' + element.get('cmip6_compound_name'    )                                          + '"', \
                     '"' + element.get('temporal_shape'         )                                          + '"', \
                     '"' + element.get('spatial_shape'          )                                          + '"', \

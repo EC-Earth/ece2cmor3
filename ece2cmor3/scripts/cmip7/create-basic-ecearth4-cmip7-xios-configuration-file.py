@@ -127,27 +127,13 @@ if len(sys.argv) == 2:
    ecearth_ping_file_canonic                        = os.path.expanduser(config['ecearth_ping_file_canonic'                       ]) # ecearth_ping_file_canonic                        = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-canonic.xml'               # The one which is     canonicalized
    ecearth_ping_file_neat_formatted                 = os.path.expanduser(config['ecearth_ping_file_neat_formatted'                ]) # ecearth_ping_file_neat_formatted                 = 'xml-files/genecec-cmip7/ping-files/ec-earth-ping-neat-formatted.xml'        # The one which is neat-formatted
 
-   field_def_file_ocean                             = os.path.expanduser(config['field_def_file_ocean'                            ]) # field_def_file_ocean                             = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-opa.xml'
-   field_def_file_seaice                            = os.path.expanduser(config['field_def_file_seaice'                           ]) # field_def_file_seaice                            = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-lim.xml'
-   field_def_file_ocnchem                           = os.path.expanduser(config['field_def_file_ocnchem'                          ]) # field_def_file_ocnchem                           = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-pisces.xml'
-   field_def_file_innerttrc                         = os.path.expanduser(config['field_def_file_innerttrc'                        ]) # field_def_file_innerttrc                         = '~/ec-earth/ecearth3/trunk/runtime/classic/ctrl/field_def_nemo-inerttrc.xml'
-
-   basic_flat_file_def_file_name                    = os.path.expanduser(config['basic_flat_file_def_file_name'                   ]) # basic_flat_file_def_file_name                    =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-flat-cmip6-file_def_nemo.xml"
-   basic_file_def_file_name                         = os.path.expanduser(config['basic_file_def_file_name'                        ]) # basic_file_def_file_name                         =  ece2cmor_root_directory + "ece2cmor3/resources/xios-nemo-file_def-files/basic-cmip6-file_def_nemo.xml"
-
    message_ping_expression_selection                =                    config['message_ping_expression_selection'               ]  # message_ping_expression_selection                = False
-  #message_occurence_identical_id                   =                    config['message_occurence_identical_id'                  ]  # message_occurence_identical_id                   = False
-   include_root_field_group_attributes              =                    config['include_root_field_group_attributes'             ]  # include_root_field_group_attributes              = False
-   exclude_dummy_fields                             =                    config['exclude_dummy_fields'                            ]  # exclude_dummy_fields                             = True   # Keep this on True
    give_preference_to_pingfile_expression_attribute =                    config['give_preference_to_pingfile_expression_attribute']  # give_preference_to_pingfile_expression_attribute = True
-  #include_grid_ref_from_field_def_files            =                    config['include_grid_ref_from_field_def_files'           ]  # include_grid_ref_from_field_def_files            = True
-   produce_varlistjson_file                         =                    config['produce_varlistjson_file'                        ]  # produce_varlistjson_file                         = True
 
 
    output_dir_name = 'xml-files/genecec-cmip7/ping-files/'
    subprocess.run(["mkdir", "-p", output_dir_name])
 
-   offline_mode = True
    if not offline_mode:
     # Run ece2cmor's install & check whether an existing ece2cmor root directory is specified in the config file:
     previous_working_dir = os.getcwd()

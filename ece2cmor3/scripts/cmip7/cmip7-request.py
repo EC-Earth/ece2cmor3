@@ -170,7 +170,7 @@ def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
                                 ' standard_name={:160}' \
                                 ' modeling_realm={:33}' \
                                 ' branded_variable_name={:44}' \
-                                ' branding_label={:25}' \
+                                ' branding_suffix={:25}' \
                                 ' cmip6_compound_name={:40}' \
                                 ' temporal_shape={:25}' \
                                 ' spatial_shape={:15}' \
@@ -191,7 +191,7 @@ def write_xml_file_line_for_variable(xml_file, element, reduce_attributes):
                     '"' + str(element.get('standard_name'          )) + '"', \
                     '"' + str(element.get('modeling_realm'         )) + '"', \
                     '"' + str(element.get('branded_variable_name'  )) + '"', \
-                    '"' + str(element.get('branding_label'         )) + '"', \
+                    '"' + str(element.get('branding_suffix'        )) + '"', \
                     '"' +     element.get('cmip6_compound_name'    )  + '"', \
                     '"' + str(element.get('temporal_shape'         )) + '"', \
                     '"' + str(element.get('spatial_shape'          )) + '"', \
@@ -233,7 +233,7 @@ def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, prior
                                 ' standard_name={:160}' \
                                 ' modeling_realm={:33}' \
                                 ' branded_variable_name={:44}' \
-                                ' branding_label={:25}' \
+                                ' branding_suffix={:25}' \
                                 ' cmip6_compound_name={:40}' \
                                 ' temporal_shape={:25}' \
                                 ' spatial_shape={:15}' \
@@ -254,7 +254,7 @@ def append_xml_file_line_for_variable(varlist, var_metadata, compound_var, prior
                     '"' + var_metadata[compound_var]['standard_name'          ] + '"', \
                     '"' + var_metadata[compound_var]['modeling_realm'         ] + '"', \
                     '"' + var_metadata[compound_var]['branded_variable_name'  ] + '"', \
-                    '"' + var_metadata[compound_var]['branding_label'         ] + '"', \
+                    '"' + var_metadata[compound_var]['branding_suffix'        ] + '"', \
                     '"' + var_metadata[compound_var]['cmip6_compound_name'    ] + '"', \
                     '"' + var_metadata[compound_var]['temporal_shape'         ] + '"', \
                     '"' + var_metadata[compound_var]['spatial_shape'          ] + '"', \

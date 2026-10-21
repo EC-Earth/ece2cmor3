@@ -187,21 +187,23 @@
 #./cmip7-variable-identification-with-help-of-ECE3-CMIP6.py > cmip7-variable-identification-with-help-of-ECE3-CMIP6.log
 
 
- # Experiment requests are archived in the xml-files/experiment-requests/ directory. A kind
- # of intermediate layer is created because also CMIP7 adjusted data requests could be made.
- # For instance combined requests, or manual adjusted requests.
- # We choose the *-priority-ordered.xml because these files already include all the data request attributes
- # (and thus the CMOR table attributes). This means an xml merge tool has to be added to combine two xml files.
- # Another choice could have been to use the json file, with the advantage that we have a json file merge tool already.
+ # Experiment requests are archived in the xml-files/experiment-requests/ directory. Here a kind
+ # of intermediate layer is created because also CMIP7 adjusted data requests could be made. For
+ # instance combined requests, or manual adjusted requests.
+ # We choose the *-priority-ordered.xml because these files already include all the data request
+ # attributes (and thus the CMOR table attributes). This means an xml merge tool has to be added
+ # to combine two xml files.
+ # Another choice could have been to use the json file, with the advantage that we have a json file
+ # merge tool already.
  mkdir -p xml-files/experiment-requests/
  ./cmip7-request.py -a -e historical -p core v1.2.2.5
- mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml
- ./cmip7-request.py -a -e piControl -p high v1.2.2.5
- mv cmip7-request-v1.2.2.5-piControl/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml    xml-files/experiment-requests/
+ ./cmip7-request.py -a -e piControl  -p high v1.2.2.5
  ./cmip7-request.py -a -e historical -p high v1.2.2.5
- mv cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml  xml-files/experiment-requests/
- ./cmip7-request.py -a -e esm-hist -p high v1.2.2.5
- mv cmip7-request-v1.2.2.5-esm-hist/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml      xml-files/experiment-requests/
+ ./cmip7-request.py -a -e esm-hist   -p high v1.2.2.5
+ rsync -a cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml xml-files/experiment-requests/cmip7-request-v1.2.2.5-core.xml
+ rsync -a cmip7-request-v1.2.2.5-piControl/cmip7-request-v1.2.2.5-piControl-priority-ordered.xml   xml-files/experiment-requests/
+ rsync -a cmip7-request-v1.2.2.5-historical/cmip7-request-v1.2.2.5-historical-priority-ordered.xml xml-files/experiment-requests/
+ rsync -a cmip7-request-v1.2.2.5-esm-hist/cmip7-request-v1.2.2.5-esm-hist-priority-ordered.xml     xml-files/experiment-requests/
 
  # Add a script which reads such xml files (which usually contain the requested variables of one experiment) and then
  # iteratates over each variable (i.e. each cmip7_compound_name) and search whether it exists in the identified file

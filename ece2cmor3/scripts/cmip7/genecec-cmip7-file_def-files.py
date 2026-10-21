@@ -104,23 +104,23 @@ def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_
     return
 
 def determine_operation_value(element):
-  if   element.get('branding_label')[:5] == 'tavg-':
+  if   element.get('branding_suffix')[:5] == 'tavg-':
    operation = 'average'
-  elif element.get('branding_label')[:4] == 'tpt-':
+  elif element.get('branding_suffix')[:4] == 'tpt-':
    operation = 'instant'
-  elif element.get('branding_label')[:5] == 'tmax-':
+  elif element.get('branding_suffix')[:5] == 'tmax-':
    operation = 'maximum'
-  elif element.get('branding_label')[:5] == 'tmin-':
+  elif element.get('branding_suffix')[:5] == 'tmin-':
    operation = 'minimum'
-  elif element.get('branding_label')[:3] == 'ti-':
+  elif element.get('branding_suffix')[:3] == 'ti-':
    operation = 'once'
- #elif element.get('branding_label')[:3] == 'tmaxavg-':
+ #elif element.get('branding_suffix')[:3] == 'tmaxavg-':
  # operation = ''                                            # Achieve: Daily Maximum
- #elif element.get('branding_label')[:3] == 'tminavg-':
+ #elif element.get('branding_suffix')[:3] == 'tminavg-':
  # operation = ''                                            # Achieve: Daily Minimum
- #elif element.get('branding_label')[:3] == 'tclm-':
+ #elif element.get('branding_suffix')[:3] == 'tclm-':
  # operation = ''                                            # Achieve: temporal_shape="climatology", i.e. a 30 year mean of monly means [Standard climatology (time2 dimensions)]
- #elif element.get('branding_label')[:3] == 'tclmdc-':
+ #elif element.get('branding_suffix')[:3] == 'tclmdc-':
  # operation = ''                                            # Achieve: temporal_shape="diurnal-cycle", i.e. a 30 year mean of hourly means [diurnal mean climatology (a daily cycle pattern averaged over a reference climatological period), using the time3 dimension]
   else:
    operation = 'unknown'
@@ -183,7 +183,7 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
                              ' region={:12}' \
                              ' frequency={:12}' \
                              ' dimensions={:45}' \
-                             ' branding_label={:25}' \
+                             ' branding_suffix={:25}' \
                              ' cmip6_table={:14}' \
                              ' physical_parameter_name={:28}' \
                              ' ifs_shortname={:13}' \
@@ -203,7 +203,7 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
                 '"' + cmip7_element.get('region'                 ) + '"', \
                 '"' + cmip7_element.get('frequency'              ) + '"', \
                 '"' + cmip7_element.get('dimensions'             ) + '"', \
-                '"' + cmip7_element.get('branding_label'         ) + '"', \
+                '"' + cmip7_element.get('branding_suffix'        ) + '"', \
                 '"' + cmip7_element.get('cmip6_table'            ) + '"', \
                 '"' + cmip7_element.get('physical_parameter_name') + '"', \
                 '"' + cmip7_element.get('ifs_shortname'          ) + '"', \
@@ -259,8 +259,8 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
     element_fd, xml_line = generate_xml_line_for_variable(cmip7_element, field_id, verbosity_level)
     # Note that this method does not create a new XML tree, but with the group knowledge the
     # XML file is directly written
-    if element_fd == None:
-     if   model_component == 'nemo':
+    if   model_component == 'nemo':
+     if element_fd == None:
           # The dimension deltasigt is a new scalar coordinate introduced in the CMIP7 Data Request. It stands for the density threshold criterion (Delta sigma_t) used to compute specific mixed layer properties\u2014most notably for variables like mlotstsq (Ocean Mixed Layer Thickness Square Defined by Delta Sigma-T of 0.03 kg m-3)
           # The dimension osurf (ocean surface) is a new coordinate introduced in the CMIP7 DR. It explicitly replaces legacy depth coordinate tags (like depth0m or d0m) for ocean variables sampled at the sea surface layer.
           # The iceband is related to the ncatice coordinate in NEMO.
@@ -310,12 +310,54 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('priority')                         , \
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
-     elif model_component == 'ifs' or \
-          model_component == 'tm5'    :
-          if   cmip7_element.get('dimensions') == 'longitude latitude time':
+     else:
+      if element_fd.get('grid_ref'):
+       grid = element_fd.get('grid_ref').replace('grid_', '')
+      else:
+       grid = 'other'
+    elif model_component == 'ifs' or \
+         model_component == 'tm5'    :
+    #if element_fd == None:
+          if   cmip7_element.get('dimensions') == 'longitude latitude time'             or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1'               :
                 grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height2m'    or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height2m'   or \
+               cmip7_element.get('dimensions') == 'longitude latitude time4 height2m'      :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height10m'   or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height10m'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time4 height10m'     :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time height100m'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 height100m'    :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude time sdepth10cm'  or \
+               cmip7_element.get('dimensions') == 'longitude latitude time1 sdepth10cm'    :
+                grid = 'reduced_sfc'
+          elif 'longitude latitude time p'  in cmip7_element.get('dimensions') or \
+               'longitude latitude time1 p' in cmip7_element.get('dimensions')    :
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude':
+                grid = 'reduced_sfc'
+          elif cmip7_element.get('dimensions') == 'longitude latitude alevel time'      or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time1'     or \
+               cmip7_element.get('dimensions') == 'longitude latitude alevel time2'        :
+                grid = 'reduced_ml'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev3 time1':
+                grid = 'reduced_plev3'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev7h time1':
+                grid = 'reduced_plev7h'
+          elif cmip7_element.get('dimensions') == 'longitude latitude plev19 time':
+                grid = 'reduced_plev19'
+          elif cmip7_element.get('dimensions') == 'latitude plev39 time':
+                grid = 'lat_plev39'
           elif cmip7_element.get('dimensions') == 'time':
                 grid = 'time'
+          elif cmip7_element.get('dimensions') == 'longitude latitude sdepth time':
+                grid = 'reduced_sfc_sdepth'
+          elif cmip7_element.get('dimensions') == 'longitude latitude sdepth':
+                grid = 'reduced_sfc_sdepth'
           else:
                 grid = 'other'
                 message_list['grid'].append(' Warning: case {:3} not covered in {:4} part with element_fd = None with {:48} {:6} {:12} {}'.format( \
@@ -325,13 +367,14 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
                          cmip7_element.get('priority')                         , \
                          cmip7_element.get('status')                           , \
                          cmip7_element.get('cmip7_compound_name')))
-     else:
-      print(' Warning: Component {} not implemented yet here.'.format(model_component))
+    #else:
+    # if element_fd.get('grid_ref'):
+    #  grid = element_fd.get('grid_ref').replace('grid_', '')
+    # else:
+    #  grid = 'other'
     else:
-     if element_fd.get('grid_ref'):
-      grid = element_fd.get('grid_ref').replace('grid_', '')
-     else:
-      grid = 'other'
+     print(' Warning: Component {} not implemented yet here.'.format(model_component))
+
     if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr', 'dec']:
      if region in ['glb', 'nh', 'sh', 's30', 'grl']:
       list_cluster[grid][output_freq][region].append(xml_line)
