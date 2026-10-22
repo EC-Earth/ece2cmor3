@@ -553,6 +553,11 @@ def main():
             if verbose: print(' Process time chunk from {} to {}'.format(time1, time2))
             var_cube = var_cube_all.extract(iris.Constraint(time=lambda cell: time1<= cell.point <time2))
 
+        # shift time axis by 0.5 days for yrPt variables
+        if ( cmip7_realm=='land' and cmip7_frequency=='yr' and 'tpt' in cmip7_compound_name):
+            if verbose: print(' Shift timeaxis by 0.5 days')
+            var_cube.coord('time').points = var_cube.coord('time').points+.5
+
         # Initiate CMOR:
         cmor.setup(inpath=cmip7_cmor_tables_dir, netcdf_file_action=cmor.CMOR_REPLACE)
 
