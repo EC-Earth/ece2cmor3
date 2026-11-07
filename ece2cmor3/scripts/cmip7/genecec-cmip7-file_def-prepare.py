@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-
- Creating the various file_def files for XIOS for ECE4 based on the CMIP7 data request.
+ The former part 1-4 of genecec-cmip7-file_def-files.py has been split off into this script and
+ has been removed from genecec-cmip7-file_def-files.py. This concerns the pre-reading of the
+ input files and performing the basic combined loop. Altough this script is kept to have the
+ clean basic combined loop, this script is not used in the genecec file production chain.
 
  Call example:
   ./genecec-cmip7-file_def-files.py &> genecec-cmip7-file_def-files.log
