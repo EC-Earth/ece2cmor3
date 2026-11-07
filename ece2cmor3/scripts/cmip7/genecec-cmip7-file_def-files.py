@@ -67,11 +67,12 @@ def write_xml_file_group(file_def_file, id_file_group, model_dict, verbose):
     write_xml_file_group_opening(file_def_file, id_file_group)
     for ii in model_dict:
      for jj in model_dict[ii]:
-      for kk in model_dict[ii][jj]:
-       if model_dict[ii][jj][kk] != []:
-        # Write the non empty lists:
-        if verbose: print(' {:12} {:8} {:8} {}'.format(ii, jj, kk, len(model_dict[ii][jj][kk])))
-        write_file_group_body_to_xml_file(file_def_file, ii, jj, kk, model_dict[ii][jj][kk])
+      for mm in model_dict[ii][jj]:
+       for kk in model_dict[ii][jj][mm]:
+        if model_dict[ii][jj][mm][kk] != []:
+         # Write the non empty lists:
+         if verbose: print(' {:12} {:8} {:8} {:9} {}'.format(ii, jj, mm, kk, len(model_dict[ii][jj][mm][kk])))
+         write_file_group_body_to_xml_file(file_def_file, ii, jj, mm, kk, model_dict[ii][jj][mm][kk])
     write_xml_file_group_closing(file_def_file)
     return
 
@@ -89,15 +90,15 @@ def map_to_xios_freq(frequency):
          frequency =  '10yr'
     return frequency
 
-def write_file_group_body_to_xml_file(xml_file, grid, output_freq, region, list_with_xml_lines_of_group):
+def write_file_group_body_to_xml_file(xml_file, grid, output_freq, realm, region, list_with_xml_lines_of_group):
     # Add a group only if it has some content:
     if len(list_with_xml_lines_of_group) != 0:
     #if region == 's30': region = '30S-90S'
      if region == 's30': region = '30Sto90S'
-     group_id  = grid.strip() + '_' + output_freq.strip() + '_' + region.strip()
+     group_id  = grid.strip() + '_' + output_freq.strip() + '_' + realm.strip() + '_' + region.strip()
      xios_freq = map_to_xios_freq(output_freq.strip())
     #xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}">\n'.format(group_id, group_id, xios_freq))
-     xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}" grid_ref="grid_{}" region="{}">\n'.format(group_id, group_id, xios_freq, grid, region.replace('to', '-')))
+     xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}" grid_ref="grid_{}" realm="{}" region="{}">\n'.format(group_id, group_id, xios_freq, grid, realm, region.replace('to', '-')))
      for xml_line in list_with_xml_lines_of_group:
       xml_file.write('{}\n'.format(xml_line))
      xml_file.write('    </file>\n')
@@ -252,6 +253,7 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
 
     model_component = cmip7_element.get('model_component')
     output_freq     = cmip7_element.get('frequency')
+    realm           = cmip7_element.get('modeling_realm').split(' ', 1)[0] # In case multiple realms, take the first one
     region          = cmip7_element.get('region')
     if region == '30S-90S': region = 's30'
     # Generate the XML file line for one variable, also make the inherited field_def info of
@@ -376,12 +378,15 @@ def add_xml_line_to_selected_group(cmip7_element, field_id, list_cluster, messag
      print(' Warning: Component {} not implemented yet here.'.format(model_component))
 
     if output_freq in ['fx', '1hr', '3hr', '6hr', 'day', 'mon', 'yr', 'dec']:
-     if region in ['glb', 'nh', 'sh', 's30', 'grl']:
-      list_cluster[grid][output_freq][region].append(xml_line)
+     if realm in ['ocean', 'seaIce', 'ocnBgchem', 'atmos', 'aerosol', 'atmosChem', 'landIce', 'land']:
+      if region in ['glb', 'nh', 'sh', 's30', 'grl']:
+       list_cluster[grid][output_freq][realm][region].append(xml_line)
+      else:
+       message_list['region'].append(' Warning: unknown region: {:20} {:9} {:7} {}'.format(grid, output_freq, realm, region))
      else:
-      message_list['region'].append(' Warning: unknown region: {:20} {:7} {}'.format(grid, output_freq, region))
+      message_list['realm'].append(' Warning: unknown realm: {:20} {:7} {:9} {}'.format(grid, output_freq, realm, region))
     else:
-     message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {}'.format(grid, output_freq, region))
+     message_list['freq'].append(' Warning: unknown output_freq: {:20} {:7} {:9} {}'.format(grid, output_freq, realm, region))
     return
 
 def map_to_lpjg_freq(frequency):
@@ -456,9 +461,9 @@ if len(sys.argv) == 2:
   list_of_lpjg_ins_lines               = []
   message_list_of_operation_comparsion = []
   message_list_lpjg_ins_vars           = []
-  warnings_nemo = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
-  warnings_oifs = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
-  warnings_m7   = {'grid': [], 'freq': [], 'region' : []} # dict with three message lists
+  warnings_nemo = {'grid': [], 'freq': [], 'realm' : [], 'region' : []} # dict with four message lists
+  warnings_oifs = {'grid': [], 'freq': [], 'realm' : [], 'region' : []} # dict with four message lists
+  warnings_m7   = {'grid': [], 'freq': [], 'realm' : [], 'region' : []} # dict with four message lists
 
   i_dr = 0
 
@@ -551,6 +556,9 @@ if len(sys.argv) == 2:
    print_message_list(warnings_nemo['freq'  ])
    print_message_list(warnings_oifs['freq'  ])
    print_message_list(warnings_m7  ['freq'  ])
+   print_message_list(warnings_nemo['realm' ])
+   print_message_list(warnings_oifs['realm' ])
+   print_message_list(warnings_m7  ['realm' ])
    print_message_list(warnings_nemo['region'])
    print_message_list(warnings_oifs['region'])
    print_message_list(warnings_m7  ['region'])

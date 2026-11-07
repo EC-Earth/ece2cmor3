@@ -53,6 +53,17 @@ frequency = [       \
              'dec'  \
             ]
 
+realm     = [             \
+             'ocean'    , \
+             'seaIce'   , \
+             'ocnBgchem', \
+             'atmos'    , \
+             'aerosol'  , \
+             'atmosChem', \
+             'landIce'  , \
+             'land'       \
+            ]
+
 region    = [       \
              'glb', \
              'nh' , \
@@ -81,22 +92,32 @@ def write_list_module(file_name, grid, head_file):
     dict_list_file = open(file_name, 'w')
     dict_list_file.write('{}\n'.format(head_file.strip()))
     for ii in grid:
-     dict_list_file.write(' {:16}: {{\n'.format("'" + ii + "'"))
+     dict_list_file.write(' {:20}: {{\n'.format("'" + ii + "'"))
      for jj in frequency:
-      dict_list_file.write('                    {:6}: {{\n'.format("'" + jj + "'"))
-      for kk in region:
-       if kk == region[-1]:
-        dict_list_file.write('                              {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+      dict_list_file.write('                        {:6}: {{\n'.format("'" + jj + "'"))
+
+      for mm in realm:
+       dict_list_file.write('                                 {:11}: {{\n'.format("'" + mm + "'"))
+
+       for kk in region:
+        if kk == region[-1]:
+         dict_list_file.write('                                               {:5} : []  # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Closing
+        else:
+         dict_list_file.write('                                               {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Usual
+
+       if mm == frequency[-1]:
+        dict_list_file.write('                                              }\n')                                                           # Closing
        else:
-        dict_list_file.write('                              {:5} : [], # {}\n'.format("'" + kk + "'", map_comment(kk)))  # Usual
+        dict_list_file.write('                                              },\n')                                                          # Usual
+
       if jj == frequency[-1]:
-       dict_list_file.write('                            }\n')                                                           # Closing
+       dict_list_file.write('                                }\n')                                                           # Closing
       else:
-       dict_list_file.write('                            },\n')                                                          # Usual
+       dict_list_file.write('                                },\n')                                                          # Usual
      if ii == grid[-1]:
-      dict_list_file.write('                   }\n')                                                                     # Closing
+      dict_list_file.write('                       }\n')                                                                     # Closing
      else:
-      dict_list_file.write('                   },\n')                                                                    # Usual
+      dict_list_file.write('                       },\n')                                                                    # Usual
     dict_list_file.write('}\n')
     dict_list_file.close()
 
