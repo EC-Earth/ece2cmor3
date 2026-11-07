@@ -465,17 +465,12 @@ if len(sys.argv) == 2:
   warnings_oifs = {'grid': [], 'freq': [], 'realm' : [], 'region' : []} # dict with four message lists
   warnings_m7   = {'grid': [], 'freq': [], 'realm' : [], 'region' : []} # dict with four message lists
 
-  i_dr = 0
-
   # Iterate over the variables in the (experiment) CMIP7 data request (including unidentified variables):
   for element_dr in root_dr.findall('.//variable'):
-   i_dr += 1
-
    # Set the xpath search for iterating through the identified file:
    selected_attribute_dr       = 'cmip7_compound_name'
    selected_attribute_dr_value = element_dr.get(selected_attribute_dr)
-   xpath_path_identified       = ".//variable"
-   xpath_expression_identified = xpath_path_identified + '[@' + selected_attribute_dr + '="' + selected_attribute_dr_value + '"]'
+   xpath_expression_identified = './/variable' + '[@' + selected_attribute_dr + '="' + selected_attribute_dr_value + '"]'
    match_identified = 0
    for element_identified in root_identified.findall(xpath_expression_identified):
     match_identified += 1
