@@ -10,8 +10,7 @@
  is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
  including its mapping to the CMIP7 request.
 
- Also the ECE ping file is loaded, this however is related to NEMO variables, which are clearly in fact
- not part of this OIFS field_def. In this script inactive options are included with which LPJG & NEMO
+ In this script inactive options are included with which LPJG & NEMO
  variables can be merged in, which serves another goal: to reuse this code here for creating a file_def
  generating tool.
 
