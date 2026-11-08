@@ -116,7 +116,6 @@ def main():
         expression = ''
       else:
        expression = ''
-     #xml_line = ('      <field  id={:12}' \
       xml_line = ('      <field  id={:25}' \
                                ' priority={:10}' \
                                ' units={:20}' \
@@ -131,7 +130,6 @@ def main():
                                ' frequency={:12}' \
                                ' cmip6_table={:14}' \
                                ' physical_parameter_name={:28}' \
-                 #' >   </field>'.format( \
                   ' > {:63}</field>'.format( \
                   '"' +                    field_id                  + '"', \
                   '"' + cmip7_element.get('priority'               ) + '"', \
