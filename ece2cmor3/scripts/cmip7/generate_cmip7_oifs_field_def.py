@@ -64,11 +64,11 @@ def main():
 
   args = parse_args()
 
-  dr_version              = args.dreq_version
-  verbose                 = args.verbose
-  include_all_oifs_vars   = args.include_all_oifs
-  include_m7_vars         = args.incude_m7
-  keep_all_id_cmbinations = args.keep_all
+  dr_version               = args.dreq_version
+  verbose                  = args.verbose
+  include_all_oifs_vars    = args.include_all_oifs
+  include_m7_vars          = args.incude_m7
+  keep_all_id_combinations = args.keep_all
 
   print_next_step_message(1, 'Generate an OIFS field_def file including CMIP7 variables')
 
@@ -272,7 +272,7 @@ def main():
     if cmip7_element.get('ifs_shortname') in list_of_identified_variables_not_in_field_def_file \
        or include_all_oifs_vars:
      if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids \
-        or keep_all_id_cmbinations:
+        or keep_all_id_combinations:
       # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
       # Note for id dhrgrd we have now sfcWind & sfcWindmax when using 'physical_parameter_name' instead of
       # 'ifs_shortname'. Leading to a duplicate dhrgrd ID. The sfcWindmax should make use of a field_ref='dhrgrd'
@@ -297,7 +297,7 @@ def main():
     # This part concerns the TM7 oifs variables which are until now not in the existing oifs field_def file
     # in the ECE4 repo
     if cmip7_element.get('physical_parameter_name') not in list_of_unique_selected_ids_m7 \
-       or keep_all_id_cmbinations:
+       or keep_all_id_combinations:
      # For the field_def keep for all frequencies and regions one case (the first encountered - prio ordered)
      m7_nr += 1
      add_xml_line_to_selected_group(cmip7_element                     , \
