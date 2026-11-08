@@ -230,7 +230,6 @@ def main():
   list_of_unique_selected_ids     = []
   list_of_unique_selected_ids_m7  = []
 
-  i_dr           = 0
   i_ifs_id_match = 0
   m7_nr          = 0
   oifs_output_dir_name = 'xml-files/genecec-cmip7/oifs-field_def/'
@@ -242,7 +241,6 @@ def main():
   # variables):
   xpath_expression_cmip7_request = './/variable'
   for cmip7_element in root_cmip7_request.findall(xpath_expression_cmip7_request):
-   i_dr += 1
    ifs_id_match_message = ''
 
    # Iterate over all the fields in the field_def file, and select the match when the field id in the field_def
