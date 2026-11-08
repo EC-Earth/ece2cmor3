@@ -10,10 +10,6 @@
  is loaded which contains the CMIP7 request with the identified info from the CMIP6 - ECE3 identification
  including its mapping to the CMIP7 request.
 
- In this script inactive options are included with which LPJG & NEMO
- variables can be merged in, which serves another goal: to reuse this code here for creating a file_def
- generating tool.
-
  Call example:
   ./generate_cmip7_oifs_field_def.py v1.2.2.5 -v > generate_cmip7_oifs_field_def.log
 
@@ -272,7 +268,7 @@ def main():
       # Note for id dhrgrd we have now sfcWind & sfcWindmax when using 'physical_parameter_name' instead of
       # 'ifs_shortname'. Leading to a duplicate dhrgrd ID. The sfcWindmax should make use of a field_ref='dhrgrd'
 
-      # For the case include_all_oifs_vars = True this includes all oifs variables (the unidentified variabless
+      # For the case include_all_oifs_vars = True this includes all oifs variables (the unidentified variables
       # exluded because they have ?? as value for model_component) into the OIFS field_def file. For the case
       # include_all_oifs_vars = False this includes only th evariables which are yet missing from the OIFS
       # field_def file(s) in the ECE4 repo.
@@ -307,37 +303,6 @@ def main():
                                     group_other                         \
                                    )
      list_of_unique_selected_ids_m7.append(cmip7_element.get('physical_parameter_name'))
-   elif cmip7_element.get('model_component') == 'lpjg':
-    if False:
-     add_xml_line_to_selected_group(cmip7_element                    , \
-                                    cmip7_element.get('varname_code'), \
-                                    group_lon_lat_time_tavg          , \
-                                    group_lon_lat_plev19_time        , \
-                                    group_lon_lat_alevel_time        , \
-                                    group_lon_lat_plev3_time1        , \
-                                    group_lon_lat_time_height2m      , \
-                                    group_lon_lat_time_height10m     , \
-                                    group_lon_lat                    , \
-                                    group_other                        \
-                                   )
-    else:
-     pass
-   elif cmip7_element.get('model_component') == 'nemo':
-    if False:
-     # With the varname_code based on the ECE ping file for NEMO via the request or identified files:
-     add_xml_line_to_selected_group(cmip7_element                    , \
-                                    cmip7_element.get('varname_code'), \
-                                    group_lon_lat_time_tavg          , \
-                                    group_lon_lat_plev19_time        , \
-                                    group_lon_lat_alevel_time        , \
-                                    group_lon_lat_plev3_time1        , \
-                                    group_lon_lat_time_height2m      , \
-                                    group_lon_lat_time_height10m     , \
-                                    group_lon_lat                    , \
-                                    group_other                        \
-                                   )
-    else:
-     pass
    else:
     if cmip7_element.get('modeling_realm') == 'atmos':
      pass
