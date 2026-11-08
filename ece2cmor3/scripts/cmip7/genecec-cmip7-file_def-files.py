@@ -97,7 +97,6 @@ def write_file_group_body_to_xml_file(xml_file, grid, output_freq, realm, region
      if region == 's30': region = '30Sto90S'
      group_id  = grid.strip() + '_' + output_freq.strip() + '_' + realm.strip() + '_' + region.strip()
      xios_freq = map_to_xios_freq(output_freq.strip())
-    #xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}">\n'.format(group_id, group_id, xios_freq))
      xml_file.write('    <file id="group_{}" name_suffix="_{}" output_freq="{}" grid_ref="grid_{}" realm="{}" region="{}">\n'.format(group_id, group_id, xios_freq, grid, realm, region.replace('to', '-')))
      for xml_line in list_with_xml_lines_of_group:
       xml_file.write('{}\n'.format(xml_line))
@@ -153,12 +152,12 @@ def generate_xml_line_for_variable(cmip7_element, field_id, verbosity):
      if verbosity >= 2: print(' A  fd match for {:25} with i = {}'.format(field_id, match_fd))
     if match_fd == 0:
      if verbosity >= 1: print(' No fd match for {:25} with i = {}'.format(field_id, match_fd))
-     # Initialisation required because this variable is an returned function argument.
+     # Initialisation required because this variable is a returned function argument.
      element_fd = None
 
     operation_based_on_branding = determine_operation_value(cmip7_element)
     if operation != operation_based_on_branding:
-     # Filtering out those inherited which are an empty string:
+     # Filtering out the inherited cases which have an empty string:
      if operation != '':
       message = ' Warning: The inherited operation differs from the branding one: {:8} -vs- {:8} for {:23} for {}'.format( \
                    operation, \
@@ -558,11 +557,11 @@ if len(sys.argv) == 2:
    print_message_list(warnings_oifs['region'])
    print_message_list(warnings_m7  ['region'])
 
-  # Print each .ins-file line with the CMIP7 compound name attached:
+  # Print each .ins file line with the CMIP7 compound name attached:
   if verbosity_level > 2:
    print_message_list(message_list_lpjg_ins_vars)
 
-  print('\n The script {} has finished, the results can be found in the directory:\n  {}\n  {}\n  {}\n  {}\n  {}' \
+  print('\n The script {} has finished, the resulting files are:\n  {}\n  {}\n  {}\n  {}\n  {}' \
         .format(sys.argv[0]                , \
                 ece4_file_def_filename_nemo, \
                 ece4_file_def_filename_oifs, \
