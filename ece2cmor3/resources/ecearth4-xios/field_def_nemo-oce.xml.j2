@@ -282,8 +282,6 @@ that are available in the tidal-forcing implementation (see
     <field id="ttbl_cav"        long_name="temperature in Losch tbl"                      unit="degC"     />
     <field id="ttbl_par"        long_name="temperature in the parametrisation boundary layer" unit="degC" />
     <field id="stbl"            long_name="salinity in the Losh tbl"                      unit="1e-3"     />
-    <field id="utbl"            long_name="zonal current in the Losh tbl at T point"      unit="m/s"      />
-    <field id="vtbl"            long_name="merid current in the Losh tbl at T point"      unit="m/s"      />
     <field id="isfustar"        long_name="ustar at T point used in ice shelf melting"    unit="m/s"      />
 
   </field_group> <!-- grid_T -->
@@ -292,7 +290,7 @@ that are available in the tidal-forcing implementation (see
     <field id="20d" long_name="Depth of 20C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_20C" /> 
     <field id="26d" long_name="Depth of 26C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_26C" />
     <field id="28d" long_name="Depth of 28C isotherm"  standard_name="depth_of_isosurface_of_sea_water_conservative_temperature" unit="m" grid_ref="grid_T_iax_28C" /> 
-  </field_group> <!-- grid_T_iso ->
+  </field_group> <!-- grid_T_iso -->
 
   <!-- Tides -->
 
@@ -908,7 +906,6 @@ that are available in the tidal-forcing implementation (see
     <field id="sopstvtr"      long_name="Salt Transport : All basins"                                  unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
     <field id="sophteiv"      long_name="Heat Transport from mesoscale eddy advection: All basins"     unit="PW"         grid_ref="grid_znl_T_2D" />
     <field id="sopsteiv"      long_name="Salt Transport from mesoscale eddy advection : All basins"    unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
-    <field id="sopstadv"      long_name="Advective Salt Transport"                                     unit="Giga g/s"   grid_ref="grid_znl_T_2D" />
     <field id="sophtgyre"     long_name="Overturning heat transport due to gyre" field_ref="sophtove"  unit="W"          grid_ref="grid_znl_T_2D" > sophtvtr - sophtove  </field>
     <field id="sopstgyre"     long_name="Overturning salt transport due to gyre" field_ref="sopstove"  unit="kg/s"       grid_ref="grid_znl_T_2D" > sopstvtr - sopstove  </field>
   </field_group>
@@ -1039,8 +1036,6 @@ that are available in the tidal-forcing implementation (see
     <field id="ttrd_qsr_li"      long_name="layer integrated heat-trend: solar flux"              unit="W/m^2"  grid_ref="grid_T_3D"> ttrd_qsr_e3t * 1026.0 * 3991.86795711963 </field>
     <field id="ttrd_bbl_li"      long_name="layer integrated heat-trend: bottom boundary layer "  unit="W/m^2" > ttrd_bbl_e3t * 1026.0 * 3991.86795711963 </field>
     <field id="strd_bbl_li"      long_name="layer integrated salt-trend: bottom boundary layer "  unit="kg/(m^2 s)" > strd_bbl_e3t * 1026.0 * 0.001  </field>
-    <field id="ttrd_evd_li"      long_name="layer integrated heat-trend: evd convection "         unit="W/m^2" >ttrd_evd_e3t * 1026.0 * 3991.86795711963  </field>
-    <field id="strd_evd_li"      long_name="layer integrated salt-trend: evd convection "         unit="kg/(m^2 s)" > strd_evd_e3t * 1026.0 * 0.001  </field>
 
   </field_group>
 
