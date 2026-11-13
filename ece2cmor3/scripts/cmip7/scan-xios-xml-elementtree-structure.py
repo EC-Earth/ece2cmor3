@@ -29,7 +29,6 @@ def main():
 
  # For a number of variables duplicate id's exist, one of the pair has got a deviating id by the addition of a 2 in the
  # id name. This *-unique-id file below is only locally available, i.e. not in the ece4 repo)
-#field_def_file_oce          = ece4_xios_dir + 'field_def_nemo-oce.xml.j2-unique-id'
  field_def_file_oce          = ece4_xios_dir + 'field_def_nemo-oce.xml.j2'
  field_def_file_ice          = ece4_xios_dir + 'field_def_nemo-ice.xml.j2'
  field_def_file_pis          = ece4_xios_dir + 'field_def_nemo-pisces.xml.j2'
